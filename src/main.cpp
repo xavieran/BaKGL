@@ -5,12 +5,13 @@
 #define LOGURU_WITH_STREAMS 1
 #include <loguru.hpp>
 
+//#include <FileManager.h>
+#include <FileBuffer.h>
+
 #include <boost/optional.hpp>
 
-#include <boost/archive/binary_iarchive.hpp>                                                    
-#include <boost/serialization/string.hpp>                                                       
-
 #include <fstream>   
+#include <iostream>   
 #include <vector>
 
 #include <getopt.h>
@@ -34,11 +35,9 @@ int main(int argc, char *argv[]) {
     
     std::ifstream in("krondor.001", std::ios::binary);
     assert(in.good());
-    boost::archive::binary_iarchive iarchive(in);
-    //std::string s;
-    double s;
-    iarchive >> s;
-    std::cout << s << '\n';
+
+    FileBuffer fb{0};
+    fb.Load(in);
 
     LOG_F(INFO, "Done");
 
