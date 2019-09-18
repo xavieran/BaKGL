@@ -17,7 +17,8 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
-#pragma once 
+#ifndef FILE_MANAGER_H
+#define FILE_MANAGER_H
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -63,3 +64,6 @@ public:
     void ExtractAllResources();
     void ArchiveAllResources();
 };
+
+#endif
+

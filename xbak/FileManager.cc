@@ -21,7 +21,7 @@
 #include "Exception.h"
 #include "FileManager.h"
 #include "GameFile.h"
-#include "xbak/ResourceFile.h"
+#include "ResourceFile.h"
 
 FileManager* FileManager::instance = 0;
 

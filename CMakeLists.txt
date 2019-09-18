@@ -8,10 +8,14 @@ set(BOOST_REQUESTED_VERSION 1.71.0)
 #set(Boost_USE_MULTITHREADED ON)  
 #set(Boost_USE_STATIC_RUNTIME OFF) 
 find_package(Boost 1.71.0 COMPONENTS serialization)
+include_directories(${Boost_INCLUDE_DIRS}) 
+
+find_package(SDL REQUIRED)
+include_directories(${SDL_INCLUDE_DIR})
 
 add_subdirectory("xbak")
+include_directories("xbak")
 
-include_directories(${Boost_INCLUDE_DIRS}) 
 
 include_directories("include")
 include_directories("src")
@@ -23,7 +27,8 @@ set(BAK_INCLUDES
     ${LOGURU}
 )
 
-set(CMAKE_CXX_FLAGS "-g -fstack-protector-all  -Og -std=c++14 -Wall -Wno-unused-variable -Wno-switch")
+set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter -Wno-switch")
+set(CMAKE_CXX_FLAGS "-g -fstack-protector-all -std=c++17 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
 #-static
 
