@@ -77,10 +77,10 @@ void ResourceIndex::Load(const std::string &filename)
         throw;
     }
 
-    for (resIdxIterator = resIdxMap.begin(); resIdxIterator != resIdxMap.end(); resIdxIterator++)
+    /*for (resIdxIterator = resIdxMap.begin(); resIdxIterator != resIdxMap.end(); resIdxIterator++)
     {
         printf("%s\n", (*resIdxIterator).first.c_str());
-    }
+    }*/
 }
 
 void ResourceIndex::Save(const std::string &filename)

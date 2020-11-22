@@ -143,7 +143,7 @@ Website: www.ilikebigbits.com
 #endif
 
 #ifndef LOGURU_WITH_STREAMS
-	#define LOGURU_WITH_STREAMS 0
+	#define LOGURU_WITH_STREAMS 1
 #endif
 
 #ifndef LOGURU_REPLACE_GLOG

@@ -20,6 +20,27 @@
 #include "Exception.h"
 #include "RequestResource.h"
 
+#include <iostream>
+
+std::ostream& operator<<(std::ostream& os, const RequestData& d)
+{
+    return os << "Widget: " << d.widget << " Action: " << d.action 
+        << " vis: " << d.visible << " xp: " << d.xpos << " yp: " 
+        << d.ypos << " wid: " << d.width << " hei: " << d.height
+        << " tele: " << d.teleport << " img: " << d.image << " grp: "
+        << d.group << " lbl: " << d.label;
+}
+
+std::ostream& operator<<(std::ostream& os, const RequestResource& d)
+{
+    os << std::dec << "RequestResource [" << d.GetSize() << "]"
+        << " isPop: " << (d.popup ? "T" : "F") << " Rect: " << d.rect
+        << " xoff: " << d.xoff << " yoff: " << d.yoff << std::endl;
+    for (auto& dt : d.data)
+        os << "ResData: " << dt << std::endl;
+    return os;
+}
+
 RequestResource::RequestResource()
         : popup(false)
         , rect(0, 0, 0, 0)
@@ -99,6 +120,7 @@ RequestResource::Load(FileBuffer *buffer)
         int *offset = new int[numRecords];
         for (unsigned int i = 0; i < numRecords; i++)
         {
+            auto pos = buffer->current - buffer->buffer;
             RequestData reqData;
             reqData.widget = buffer->GetUint16LE();
             reqData.action = buffer->GetSint16LE();
@@ -120,6 +142,7 @@ RequestResource::Load(FileBuffer *buffer)
             buffer->Skip(2);
             data.push_back(reqData);
         }
+        
         buffer->Skip(2);
         unsigned int start = buffer->GetBytesDone();
         for (unsigned int i = 0; i < numRecords; i++)
@@ -130,6 +153,7 @@ RequestResource::Load(FileBuffer *buffer)
                 data[i].label = buffer->GetString();
             }
         }
+
         delete[] offset;
     }
     catch (Exception &e)

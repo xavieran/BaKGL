@@ -21,6 +21,7 @@
 #define REQUEST_RESOURCE_H
 
 #include <vector>
+#include <ostream>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -154,7 +155,11 @@ struct RequestData
     int image;
     int group;
     std::string label;
+
+    friend std::ostream& operator<<(std::ostream& os, const RequestData& d);
 };
+
+std::ostream& operator<<(std::ostream& os, const RequestData& d);
 
 class RequestResource
             : public ResourceData
@@ -177,6 +182,8 @@ public:
     void Clear();
     void Load ( FileBuffer *buffer );
     unsigned int Save ( FileBuffer *buffer );
+
+    friend std::ostream& operator<<(std::ostream& os, const RequestResource& d);
 };
 
 #endif

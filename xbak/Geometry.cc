@@ -311,6 +311,11 @@ int Vector2D::GetTheta() const
     }
 }
 
+std::ostream& operator<<(std::ostream& os, const Vector2D& d)
+{
+    os << "{ x: " << d.m_x << " y: " << d.m_y << "}";
+    return os;
+}
 
 Vector3D::Vector3D()
         : m_x(0)
@@ -558,6 +563,12 @@ int Vector3D::GetTheta() const
     }
 }
 
+std::ostream& operator<<(std::ostream& os, const Vector3D& d)
+{
+    os << "{ x: " << d.m_x << " y: " << d.m_y << " z: " << d.m_z << "}";
+    return os;
+}
+
 
 Rectangle::Rectangle(const int x, const int y, const int w, const int h)
         : m_x(x)
@@ -680,4 +691,12 @@ bool Rectangle::IsInside(const Vector2D &p) const
 {
     return ((m_x <= p.GetX()) && (p.GetX() < m_x + m_width) &&
             (m_y <= p.GetY()) && (p.GetY() < m_y + m_height));
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Rectangle& d)
+{
+    os << "{ x: " << d.m_x << " y: " << d.m_y 
+        << " w: " << d.m_width << " h: " << d.m_height << " }";
+    return os;
 }

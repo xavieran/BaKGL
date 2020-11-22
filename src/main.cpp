@@ -2,11 +2,13 @@
  * Main
  */
 
-#define LOGURU_WITH_STREAMS 1
-#include <loguru.hpp>
+//#include <loguru.hpp>
 
-//#include <FileManager.h>
-#include <FileBuffer.h>
+
+#include "FileBuffer.h"
+#include "RequestResource.h"
+
+#include "worldFactory.hpp"
 
 #include <boost/optional.hpp>
 
@@ -16,13 +18,15 @@
 
 #include <getopt.h>
 
+#define LOG_S(level) (std::cout)
+
 void exit_with_help(char *argv[]) {
-    fprintf(stderr, "  -s=order : Encode single frame with order given\n");
+    fprintf(stderr, "  nothing\n");
     exit(1);
 }
 
 int main(int argc, char *argv[]) {
-    loguru::init(argc, argv);
+    //loguru::init(argc, argv);
     
     char opt;
     while ((opt = getopt(argc, argv, "fvs:")) != EOF)
@@ -33,14 +37,16 @@ int main(int argc, char *argv[]) {
             exit_with_help(argv);
         }
     
-    std::ifstream in("krondor.001", std::ios::binary);
-    assert(in.good());
-
-    FileBuffer fb{0};
-    fb.Load(in);
-
-    LOG_F(INFO, "Done");
-
+    std::string path{argv[1]};
+    auto fb = FileBufferFactory::CreateFileBuffer(path);
+    RequestResource  res{};
+    res.Load(&fb);
+    std::cout << res;
+    
+    unsigned zone = 1;
+    LOG_S(INFO) << "Loading zone: " << zone;
+    
+    BAK::WorldFactory::LoadWorld(zone, "1211");
     return 0;
 }
 

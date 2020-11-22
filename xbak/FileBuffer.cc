@@ -21,11 +21,35 @@
 #include <iostream>
 #include <map>
 
+#include <cassert>
+#include <limits>
+
 #include "SDL_endian.h"
 
 #include "Defines.h"
 #include "Exception.h"
 #include "FileBuffer.h"
+
+unsigned GetStreamSize(std::ifstream& ifs)
+{
+    ifs.ignore( std::numeric_limits<std::streamsize>::max() );
+    std::streamsize length = ifs.gcount();
+    ifs.clear();
+    ifs.seekg( 0, std::ios_base::beg );
+    return static_cast<unsigned>(length);
+}
+
+FileBuffer FileBufferFactory::CreateFileBuffer(const std::string& path)
+{
+    std::ifstream in{};
+    in.open(path, std::ios::in | std::ios::binary);
+    assert(in.good());
+
+    FileBuffer fb{GetStreamSize(in)};
+    fb.Load(in);
+    in.close();
+    return fb;
+}
 
 FileBuffer::FileBuffer(const unsigned int n)
 {
@@ -135,25 +159,32 @@ FileBuffer::Save(std::ofstream &ofs, const unsigned int n)
     }
 }
 
+
 void
 FileBuffer::Dump(const unsigned int n)
 {
+    Dump(std::cout, n);
+}
+
+void
+FileBuffer::Dump(std::ostream& os, const unsigned int n)
+{
     uint8_t* tmp = current;
     unsigned int count = 0;
-    std::cout << std::setbase(16) << std::setfill('0') << std::setw(8) << count << ": ";
+    os << std::setbase(16) << std::setfill('0') << std::setw(8) << count << ": ";
     while ((tmp < (buffer + size)) && ((tmp < (current + n)) || (n == 0)))
     {
-        std::cout << std::setw(2) << (unsigned int)*tmp++ << " ";
+        os << std::setw(2) << (unsigned int)*tmp++ << " ";
         if ((++count & 0x1f) == 0)
         {
-            std::cout << std::endl << std::setw(8) << count << ": ";
+            os << std::endl << std::setw(8) << count << ": ";
         }
         else if ((count & 0x07) == 0)
         {
-            std::cout << "| ";
+            os << "| ";
         }
     }
-    std::cout << std::setbase(10) << std::setfill(' ') << std::endl;
+    os << std::setbase(10) << std::setfill(' ') << std::endl;
 }
 
 void
@@ -772,6 +803,7 @@ FileBuffer::GetData(void *data,
     }
     else
     {
+        std::cerr << "Requested: " << n << " but @" << std::hex << (current - buffer) << std::endl;
         throw BufferEmpty(__FILE__, __LINE__);
     }
 }

@@ -33,24 +33,29 @@
 #include "alt_stdint.h"
 #endif
 
+#include <ostream>
+
 const unsigned int COMPRESSION_LZW  = 0;
 const unsigned int COMPRESSION_LZSS = 1;
 const unsigned int COMPRESSION_RLE  = 2;
 
 class FileBuffer
 {
-    private:
+    public:
         uint8_t * buffer;
         uint8_t * current;
         unsigned int size;
         unsigned int nextbit;
     public:
         FileBuffer ( const unsigned int n );
+        FileBuffer ( std::string path );
         virtual ~FileBuffer();
 
         void Load ( std::ifstream &ifs );
         void Save ( std::ofstream &ofs );
         void Save ( std::ofstream &ofs, const unsigned int n );
+        void Show(std::ostream&);
+        void Dump (std::ostream&, const unsigned int n = 0 );
         void Dump ( const unsigned int n = 0 );
         void CopyFrom ( FileBuffer *buf, const unsigned int n );
         void CopyTo ( FileBuffer *buf, const unsigned int n );
@@ -107,6 +112,14 @@ class FileBuffer
         void PutData ( const uint8_t x, const unsigned int n );
         void PutBits ( const unsigned int x, const unsigned int n );
 };
+
+class FileBufferFactory
+{
+public:
+    static FileBuffer CreateFileBuffer(const std::string& path);
+};
+
+
 
 #endif
 

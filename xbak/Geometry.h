@@ -29,6 +29,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#include <ostream>
+
 const float PI  = M_PI;
 const float PI2 = M_PI + M_PI;
 
@@ -100,6 +102,8 @@ public:
     void SetY ( const int y );
     unsigned int GetRho() const;
     int GetTheta() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Vector2D& d);
 };
 
 class Vector3D
@@ -146,6 +150,8 @@ public:
     void SetZ ( const int z );
     unsigned int GetRho() const;
     int GetTheta() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Vector3D& d);
 };
 
 class Rectangle
@@ -177,6 +183,8 @@ public:
     void SetWidth ( const int w );
     void SetHeight ( const int h );
     bool IsInside ( const Vector2D &p ) const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Rectangle& d);
 };
 
 #endif
