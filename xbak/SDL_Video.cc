@@ -20,6 +20,8 @@
 #include "Exception.h"
 #include "SDL_Video.h"
 
+#include <iostream>
+
 SDL_Video::SDL_Video()
         : Video()
         , info(SDL_GetVideoInfo())
@@ -29,6 +31,7 @@ SDL_Video::SDL_Video()
         , loreshicolSurface()
         , currentSurface(&loreshicolSurface)
 {
+    scaling = 1;
     hireslocolSurface.buffer = 0;
     loreshicolSurface.buffer = 0;
 }
@@ -69,12 +72,8 @@ void SDL_Video::SetMode ( const VideoMode m )
     }
 }
 
-void SDL_Video::CreateWindow ( const unsigned int sc )
+void SDL_Video::CreateWindow ( const unsigned int width, const unsigned int height)
 {
-    scaling = sc;
-    width = WINDOW_WIDTH * scaling;
-    height = WINDOW_HEIGHT * scaling;
-
     unsigned int flags = SDL_ANYFORMAT;
     if (info->hw_available)
     {
@@ -122,6 +121,16 @@ void SDL_Video::CreateWindow ( const unsigned int sc )
     {
         throw SDL_Exception(__FILE__, __LINE__, SDL_GetError());
     }
+
+}
+
+void SDL_Video::CreateWindow ( const unsigned int sc )
+{
+    scaling = sc;
+    width = WINDOW_WIDTH * scaling;
+    height = WINDOW_HEIGHT * scaling;
+
+    CreateWindow(width, height);
 }
 
 void SDL_Video::Clear()
@@ -578,7 +587,7 @@ void SDL_Video::GetPalette(Color *color, const unsigned int first, const unsigne
 }
 
 void SDL_Video::SetPalette(Color *color, const unsigned int first, const unsigned int n)
-{
+{   
     if (currentSurface->buffer->format->palette)
     {
         SDL_SetPalette(currentSurface->buffer, SDL_LOGPAL, (SDL_Color *)color, first, n);

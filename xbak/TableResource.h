@@ -93,6 +93,8 @@ class GidInfo
         unsigned int xradius;
         unsigned int yradius;
         unsigned int flags;
+        unsigned int extras;
+        char extraFlag;
         std::vector <Vector2D *> textureCoords;
         std::vector <Vector2D *> otherCoords;
         GidInfo();

@@ -18,6 +18,7 @@
  */
 
 #include <cstring>
+#include <iostream>
 
 #include "Exception.h"
 #include "Palette.h"
@@ -65,14 +66,22 @@ Palette::Fill()
     size = WINDOW_COLORS;
     colors = new Color[size];
     memset(colors, 0, size * sizeof(Color));
-    colors[0].r = 0;
+    for (int i = 0; i < size; i++)
+    {
+        colors[i].r = i;
+        colors[i].g = i;
+        colors[i].b = 128;
+        colors[i].a = 128;
+    }
+
+    /*colors[0].r = 0;
     colors[0].g = 0;
     colors[0].b = 0;
     colors[0].a = 0;
     colors[15].r = 255;
     colors[15].g = 255;
     colors[15].b = 255;
-    colors[15].a = 0;
+    colors[15].a = 0;*/
 }
 
 void

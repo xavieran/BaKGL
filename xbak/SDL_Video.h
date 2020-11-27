@@ -61,6 +61,7 @@ public:
     SDL_Video();
     ~SDL_Video();
     void SetMode ( const VideoMode m );
+    void CreateWindow (  const unsigned int width, const unsigned int height);
     void CreateWindow ( const unsigned int sc );
     unsigned int GetPixel ( const int x, const int y );
     void PutPixel ( const int x, const int y, const unsigned int c );

@@ -38,7 +38,8 @@ TestApplication::TestApplication()
 {
     MediaToolkit *media = MediaToolkit::GetInstance();
     media->GetVideo()->CreateWindow ( 1 );
-    media->GetVideo()->SetMode ( LORES_HICOL );
+    //media->GetVideo()->SetMode ( LORES_HICOL );
+    media->GetVideo()->SetMode ( HIRES_LOWCOL );
     PointerManager::GetInstance()->AddPointer ( "POINTER.BMX" );
     media->AddKeyboardListener ( this );
     media->AddTimerListener ( this );

@@ -13,9 +13,10 @@
 
 #include "tableResource.hpp"
 
-#include <sstream>
+#include <functional>   
 #include <iomanip>   
 #include <iostream>   
+#include <sstream>
 #include <cassert>   
 
 namespace BAK {
@@ -37,28 +38,30 @@ public:
     {
         GidItem(GidInfo* other)
         :
-            mTextureCoords{},
-            mOtherCoords{}
-        {
-            assert(other);
-            mXRadius = other->xradius;
-            mYRadius = other->yradius;
-            mFlags = other->flags;
-            for (const auto& coord : other->textureCoords)
-            {
-                assert(coord);
-                mTextureCoords.emplace_back(*coord);
-            }
+            mRadius{
+                static_cast<int>(other->xradius),
+                static_cast<int>(other->yradius)},
+            mFlags{other->flags},
+            mExtras{other->extras},
+            mExtraFlag{other->extraFlag},
+            mTextureCoords{std::invoke([&other](){
+                std::vector<Vector2D> coords{};
+                for (const auto& coord : other->textureCoords)
+                    coords.emplace_back(*coord);
+                return coords;
+            })},
+            mOtherCoords{std::invoke([&other](){
+                std::vector<Vector2D> coords{};
+                for (const auto& coord : other->otherCoords)
+                    coords.emplace_back(*coord);
+                return coords;
+            })}
+        {}
 
-            for (const auto& coord : other->otherCoords)
-            {
-                assert(coord);
-                mOtherCoords.emplace_back(*coord);
-            }
-        }
-        unsigned mXRadius;
-        unsigned mYRadius;
+        Vector2D mRadius;
         unsigned mFlags;
+        unsigned mExtras;
+        char mExtraFlag;
         std::vector<Vector2D> mTextureCoords;
         std::vector<Vector2D> mOtherCoords;
     };
@@ -97,6 +100,8 @@ public:
     };
 
     const std::string& GetName() const { return mName; }
+    const DatItem& GetDatItem() const { return mDatItem; }
+    const GidItem& GetGidItem() const { return mGidItem; }
 private:
     std::string mName;
     DatItem mDatItem;
@@ -114,17 +119,21 @@ std::ostream& operator<<(std::ostream& os, const WorldItem& d)
 class WorldItemInstance
 {
 public:
-    WorldItemInstance(const WorldItem& worldItem, unsigned flags, unsigned x, unsigned y)
+    WorldItemInstance(const WorldItem& worldItem, unsigned type, unsigned flags, unsigned x, unsigned y)
     :
         mWorldItem{worldItem},
+        mType{type},
         mFlags{flags},
         mLocation{static_cast<int>(x), static_cast<int>(y)}
     {}
 
     const WorldItem& GetWorldItem() const { return mWorldItem; }
+    const Vector2D& GetLocation() const { return mLocation; }
+    unsigned GetType() const { return mType; }
 
 private:
     const WorldItem& mWorldItem;
+    unsigned mType;
     unsigned mFlags;
     Vector2D mLocation;
 
@@ -133,19 +142,38 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
-    os << "[ Name: " << d.GetWorldItem().GetName() << " Flags: " 
+    os << "[ Name: " << d.GetWorldItem().GetName() << " Type: " << d.mType << " Flags: " 
         << std::hex << d.mFlags << std::dec << " Loc: " << d.mLocation << "]";
+    os << std::endl << "Pos: " << d.GetWorldItem().GetDatItem().mPos << " Vertices::" << std::endl;
+    for (const auto& vertex : d.GetWorldItem().GetDatItem().mVertices)
+    {
+        os << "  " << vertex << std::endl;
+    }
     return os;
 }
 
-class WorldFactory
+class World
 {
 public:
-    static std::vector<WorldItem> LoadWorld(unsigned zone, const std::string& wld)
+    const int TILE_SIZE   = 64000;
+    const int TILE_SIZE_2 = TILE_SIZE / 2;
+    const int OBJECT_CENTER = 0;
+    const int MAP_SIZE_X = 96*4;
+    const int MAP_SIZE_Y = 96*4;
+
+    World(
+        unsigned zone,
+        unsigned x,
+        unsigned y)
+    :
+        mItems{},
+        mItemInsts{}
     {
-        std::vector<WorldItem> items;
-        std::vector<WorldItemInstance> itemInsts;
-        
+        LoadWorld(zone, x, y);
+    }
+
+    void LoadWorld(unsigned zone, unsigned x, unsigned y)
+    {
         TableResource table{};
         {
             std::stringstream str{""};
@@ -161,7 +189,7 @@ public:
         std::cout << std::endl;
         for (unsigned i = 0; i < table.GetMapSize(); i++)
         {
-            items.emplace_back(
+            mItems.emplace_back(
                 table.GetMapItem(i),
                 table.GetDatItem(i),
                 table.GetGidItem(i));
@@ -170,7 +198,7 @@ public:
         TileWorldResource world{};
         {
             std::stringstream str{""};
-            str << "T" << std::setfill('0') << std::setw(2) << zone << wld << ".WLD";
+            str << "T" << std::setfill('0') << std::setw(2) << zone << x << y << ".WLD";
             LOG_S(INFO) << "Loading world resource: " << str.str() << std::endl;
             auto fb = FileBufferFactory::CreateFileBuffer(str.str());
             world.Load(&fb);
@@ -179,15 +207,56 @@ public:
         for (unsigned i = 0; i < world.GetSize(); i++)
         {
             auto item = world.GetItem(i);
-            itemInsts.emplace_back(items[item.type], item.flags, item.xloc, item.yloc);
+            if (item.type == static_cast<unsigned>(OBJECT_CENTER))
+                mCenter = Vector2D{
+                    static_cast<int>(item.xloc),
+                    static_cast<int>(item.yloc)};
+            else
+                mItemInsts.emplace_back(
+                    mItems[item.type],
+                    item.type,
+                    item.flags,
+                    item.xloc,
+                    item.yloc);
         }
 
-        for (const auto& i : itemInsts)
+        for (const auto& i : mItemInsts)
             std::cout << i << std::endl;
-        
-        return items;
     }
 
+    Vector2D ScaleRad(const Vector2D& vec)
+    {
+        auto minX = mCenter.GetX() - TILE_SIZE_2;
+        auto minY = mCenter.GetY() - TILE_SIZE_2;
+        auto maxX = mCenter.GetX() + TILE_SIZE_2;
+        auto maxY = mCenter.GetY() + TILE_SIZE_2;
+
+        auto deltaX = maxX - minX;
+        auto deltaY = maxY - minY;
+
+        return Vector2D{
+            vec.GetX()  * MAP_SIZE_X / deltaX,
+            vec.GetY() * MAP_SIZE_Y / deltaY};
+    }
+
+    Vector2D ScaleLoc(const Vector2D& vec)
+    {
+        auto minX = mCenter.GetX() - TILE_SIZE_2;
+        auto minY = mCenter.GetY() - TILE_SIZE_2;
+        auto maxX = mCenter.GetX() + TILE_SIZE_2;
+        auto maxY = mCenter.GetY() + TILE_SIZE_2;
+
+        auto deltaX = maxX - minX;
+        auto deltaY = maxY - minY;
+
+        return Vector2D{
+            (vec.GetX() - minX) * MAP_SIZE_X / deltaX,
+            (vec.GetY() - minY) * MAP_SIZE_Y / deltaY};
+    }
+
+    std::vector<WorldItem> mItems;
+    std::vector<WorldItemInstance> mItemInsts;
+    Vector2D mCenter;
 };
 
 }

@@ -39,6 +39,8 @@ struct TileWorldItem
     unsigned int flags;
     unsigned int xloc;
     unsigned int yloc;
+
+    char unknown[4];
 };
 
 class TileWorldResource

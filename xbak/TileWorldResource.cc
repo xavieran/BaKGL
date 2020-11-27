@@ -20,6 +20,8 @@
 #include "Exception.h"
 #include "TileWorldResource.h"
 
+#include <iostream>   
+
 TileWorldResource::TileWorldResource()
         : xCenter(0)
         , yCenter(0)
@@ -91,8 +93,10 @@ TileWorldResource::Load(FileBuffer *buffer)
                 xCenter = twi.xloc;
                 yCenter = twi.yloc;
             }
+            buffer->GetData(twi.unknown, 4);
             items.push_back(twi);
-            buffer->Skip(4);
+            //std::cout << "Blank: " << std::hex << twi.unknown << std::endl << std::dec;
+            //buffer->Skip(4);
         }
     }
     catch (Exception &e)

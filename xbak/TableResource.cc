@@ -20,6 +20,8 @@
 #include "Exception.h"
 #include "TableResource.h"
 
+#include <iostream>
+
 DatInfo::DatInfo()
 {
 }
@@ -168,13 +170,20 @@ TableResource::Load(FileBuffer *buffer)
             GidInfo *item = new GidInfo();
             item->xradius = gidbuf->GetUint16LE();
             item->yradius = gidbuf->GetUint16LE();
-            bool more = gidbuf->GetUint16LE() > 0;
+            auto extras = gidbuf->GetUint16LE();
+            item->extras = extras;
+            item->extraFlag = 0;
+            bool more = extras > 0;
             item->flags = gidbuf->GetUint16LE();
             if (more)
             {
-                gidbuf->Skip(2);
+                char vvv[4];
+                gidbuf->GetData(vvv, 2);
                 unsigned int n = gidbuf->GetUint16LE();
-                gidbuf->Skip(2);
+                gidbuf->GetData(vvv + 2, 2);
+                item->extraFlag = vvv[0];
+                //std::cout << "gid: " << i << " " << +vvv[0] << "," << +vvv[1]
+                //    << "," << +vvv[2] << "," << +vvv[3] << std::endl;
                 for (unsigned int j = 0; j < n; j++)
                 {
                     int u = gidbuf->GetSint8();
@@ -202,9 +211,19 @@ TableResource::Load(FileBuffer *buffer)
             item->entityType = datbuf->GetUint8();
             item->terrainType = datbuf->GetUint8();
             item->terrainClass = datbuf->GetUint8();
-            datbuf->Skip(4);
-            bool more = datbuf->GetUint16LE() > 0;
-            datbuf->Skip(4);
+            char aaa[4];
+            datbuf->GetData(aaa, 4);
+            //datbuf->Skip(4);
+            std::cout << "name: " << mapItems[i] << std::endl;
+            std::cout << "aaa: " << i << " " << +aaa[0] << "," << +aaa[1]
+                << "," << +aaa[2] << "," << +aaa[3] << std::endl;
+            auto extras = datbuf->GetUint16LE();
+            bool more = extras > 0;
+            char bbb[4];
+            datbuf->GetData(bbb, 4);
+            std::cout << "bbb: " << extras << " " << +bbb[0] << "," << +bbb[1]
+                << "," << +bbb[2] << "," << +bbb[3] << std::endl;
+            //datbuf->Skip(4);
             if (more)
             {
                 if (!(item->entityFlags & EF_UNBOUNDED))
@@ -216,12 +235,28 @@ TableResource::Load(FileBuffer *buffer)
                     item->max.SetY(datbuf->GetSint16LE());
                     item->max.SetZ(datbuf->GetSint16LE());
                 }
-                datbuf->Skip(2);
+                char ccc[4];
+
+                //datbuf->Skip(2);
+                datbuf->GetData(ccc, 2);
                 unsigned int n = datbuf->GetUint16LE();
-                datbuf->Skip(2);
+                //datbuf->Skip(2);
+                datbuf->GetData(ccc + 2, 2);
+                std::cout << "ccc: " << +ccc[0] << "," << +ccc[1]
+                << "," << +ccc[2] << "," << +ccc[3] << std::endl;
+                std::cout << "data = [\n";
                 for (unsigned int j = 0; j < n; j++)
-                {
-                    datbuf->Skip(14);
+                {   
+                    ///datbuf->Skip(14);
+                    std::cout
+                        << "("   << datbuf->GetSint16LE()
+                        << " , " << datbuf->GetSint16LE()
+                        << " , " << datbuf->GetSint16LE()
+                        << " , " << datbuf->GetSint16LE()
+                        << " , " << datbuf->GetSint16LE()
+                        << " , " << datbuf->GetSint16LE()
+                        << " , " << datbuf->GetSint16LE()
+                        << ")," << std::endl << std::dec;
                 }
                 if (item->terrainType != TT_NULL)
                 {
@@ -231,7 +266,12 @@ TableResource::Load(FileBuffer *buffer)
                         item->pos.SetY(datbuf->GetSint16LE());
                         item->pos.SetZ(datbuf->GetSint16LE());
                     }
-                    datbuf->Skip(6);
+                    //datbuf->Skip(6);
+                    std::cout << std::hex
+                        << " a " << datbuf->GetSint16LE()
+                        << " b " << datbuf->GetSint16LE()
+                        << " c " << datbuf->GetSint16LE()
+                        << std::endl << std::dec;
                     int x = datbuf->GetSint16LE();
                     int y = datbuf->GetSint16LE();
                     int z = datbuf->GetSint16LE();
@@ -243,13 +283,17 @@ TableResource::Load(FileBuffer *buffer)
                         x = datbuf->GetSint16LE();
                         y = datbuf->GetSint16LE();
                         z = datbuf->GetSint16LE();
+                        std::cout << "oth: " << std::hex << x << " y: " << y << " z: " << z << std::endl << std::dec;
                     }
                 }
                 if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (n == 1))
                 {
-                    datbuf->Skip(2);
+                    //datbuf->Skip(2);
+                    std::cout << "Sprite " << datbuf->GetUint16LE();
                     item->sprite = datbuf->GetUint16LE();
-                    datbuf->Skip(4);
+                    std::cout << " F " << std::hex << datbuf->GetUint32LE();
+                    std::cout << std::dec << std::endl;
+                    //datbuf->Skip(4);
                 }
                 else
                 {

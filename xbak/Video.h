@@ -42,8 +42,10 @@ const int HIRES_LOCOL_HEIGHT = 350;
 const int HIRES_LOCOL_COLORS = 16;
 const int HIRES_LOCOL_BPP    = 4;
 
-const int LORES_HICOL_WIDTH  = 320;
-const int LORES_HICOL_HEIGHT = 200;
+//const int LORES_HICOL_WIDTH  = 320;
+//const int LORES_HICOL_HEIGHT = 200;
+const int LORES_HICOL_WIDTH  = 1024;
+const int LORES_HICOL_HEIGHT = 1024;
 const int LORES_HICOL_COLORS = 256;
 const int LORES_HICOL_BPP    = 8;
 
@@ -82,6 +84,7 @@ public:
     int GetHeight() const;
     unsigned int GetScaling() const;
     virtual void SetMode ( const VideoMode m ) = 0;
+    virtual void CreateWindow ( const unsigned int width,const unsigned int height) = 0;
     virtual void CreateWindow ( const unsigned int sc ) = 0;
     virtual void Clear() = 0;
     virtual void Clear ( const int x, const int y, const int w, const int h ) = 0;

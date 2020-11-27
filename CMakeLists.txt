@@ -7,7 +7,7 @@ set(BOOST_REQUESTED_VERSION 1.72.0)
 #set(Boost_USE_STATIC_LIBS OFF) 
 #set(Boost_USE_MULTITHREADED ON)  
 #set(Boost_USE_STATIC_RUNTIME OFF) 
-find_package(Boost 1.72.0 COMPONENTS serialization)
+find_package(Boost 1.72.0 COMPONENTS adaptors)
 include_directories(${Boost_INCLUDE_DIRS}) 
 
 find_package(SDL REQUIRED)
@@ -33,7 +33,7 @@ set(CMAKE_CXX_FLAGS "-g -fstack-protector-all -std=c++17 -Wall -Wextra -Werror $
 #-static
 
 add_executable (main src/main.cpp src/loguru.cpp ${BAK_INCLUDES} ${XBAK})
-target_link_libraries(main dl pthread ${Boost_LIBRARIES} boost_serialization xbak)
+target_link_libraries(main dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
 
 add_executable (xbak_main xbak/xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
 target_link_libraries(xbak_main dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
