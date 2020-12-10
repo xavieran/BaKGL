@@ -20,7 +20,11 @@
 #include "Exception.h"
 #include "TableResource.h"
 
+#include <algorithm>
 #include <iostream>
+#include <iterator>
+#include <set>
+#include <vector>
 
 DatInfo::DatInfo()
 {
@@ -137,6 +141,7 @@ TableResource::Load(FileBuffer *buffer)
         }
         mapbuf->Skip(2);
         unsigned int numMapItems = mapbuf->GetUint16LE();
+        std::cout << " NumMapItems: "  << numMapItems << std::endl;
         unsigned int *mapOffset = new unsigned int [numMapItems];
         for (unsigned int i = 0; i < numMapItems; i++)
         {
@@ -160,36 +165,71 @@ TableResource::Load(FileBuffer *buffer)
         }
 
         unsigned int *gidOffset = new unsigned int [numMapItems];
+        unsigned int *gidLength = new unsigned int [numMapItems];
+
+        std::set<unsigned int> uniqGidOffs;
         for (unsigned int i = 0; i < numMapItems; i++)
         {
-            gidOffset[i] = (gidbuf->GetUint16LE() & 0x000f) + (gidbuf->GetUint16LE() << 4);
+            unsigned int lower = gidbuf->GetUint16LE();
+            unsigned int upper = gidbuf->GetUint16LE();
+            unsigned int offset = (upper << 4) + (lower & 0x000f);
+            std::cout << "Load GIDOff: " << i << " name: " 
+                << mapItems[i] << std::hex << " upper: " << upper
+                << " lower: " << lower << " off: " << offset <<  " buf: " 
+                << std::dec << gidbuf->Tell() << std::endl;
+            gidOffset[i] = offset;
+            uniqGidOffs.emplace(offset);
         }
+
         for (unsigned int i = 0; i < numMapItems; i++)
+        {
+            auto offset = gidOffset[i];
+            auto it = std::find(uniqGidOffs.begin(), uniqGidOffs.end(), offset);
+            it++;
+            if (it != uniqGidOffs.end())
+                gidLength[i] = *it - offset;
+            else
+                gidLength[i] = 0;
+        }
+
+        for (unsigned int i = 0; i < (numMapItems - 1); i++)
         {
             gidbuf->Seek(gidOffset[i]);
+            std::cout << "GidItem: " << mapItems[i] << " " << i << " length: "
+                << " i: " << std::hex << i << " length: " << std::dec << gidLength[i] << std::endl;
+            gidbuf->Dump(gidLength[i]);
+        }
+    
+        for (unsigned int i = 0; i < numMapItems; i++)
+        {
+            std::cout << " gidItem: " << mapItems[i] << " " << i << " current: " << gidbuf->Tell()
+                << " off: " << gidOffset[i] << std::endl;
+            // Seek a fixed distance from the start of the gidbuf
+            gidbuf->Seek(gidOffset[i]); 
             GidInfo *item = new GidInfo();
+
             item->xradius = gidbuf->GetUint16LE();
             item->yradius = gidbuf->GetUint16LE();
-            auto extras = gidbuf->GetUint16LE();
-            item->extras = extras;
-            item->extraFlag = 0;
-            bool more = extras > 0;
+            std::cout << "HitRad: (" << item->xradius << "," << item->yradius << ")"
+                << std::endl;
+            bool more = gidbuf->GetUint16LE() > 0;
             item->flags = gidbuf->GetUint16LE();
+            // 86 -> Offset into giditem??
+            // t010106
+            // 00000000: 80 3e 80 3e 00 0f 14 00 | 6e 00 04 00 00 00 86 00 
             if (more)
             {
-                char vvv[4];
-                gidbuf->GetData(vvv, 2);
+                gidbuf->Skip(2);
                 unsigned int n = gidbuf->GetUint16LE();
-                gidbuf->GetData(vvv + 2, 2);
-                item->extraFlag = vvv[0];
-                //std::cout << "gid: " << i << " " << +vvv[0] << "," << +vvv[1]
-                //    << "," << +vvv[2] << "," << +vvv[3] << std::endl;
+                std::cout << "n: " << n << std::endl;
+                gidbuf->Skip(2);
                 for (unsigned int j = 0; j < n; j++)
                 {
                     int u = gidbuf->GetSint8();
                     int v = gidbuf->GetSint8();
                     int x = gidbuf->GetSint16LE();
                     int y = gidbuf->GetSint16LE();
+                    std::cout << std::hex << "uvxy " << u << " " << v << " " << x << " " << y << std::endl << std::dec;
                     item->textureCoords.push_back(new Vector2D(u, v));
                     item->otherCoords.push_back(new Vector2D(x, y));
                 }
@@ -201,8 +241,26 @@ TableResource::Load(FileBuffer *buffer)
         unsigned int *datOffset = new unsigned int [numMapItems];
         for (unsigned int i = 0; i < numMapItems; i++)
         {
-            datOffset[i] = (datbuf->GetUint16LE() & 0x000f) + (datbuf->GetUint16LE() << 4);
+            unsigned int lower = datbuf->GetUint16LE();
+            unsigned int upper = datbuf->GetUint16LE();
+            unsigned int offset = (upper << 4) + (lower & 0x000f);
+            std::cout << "Load DatOff: " << i << " name: " 
+                << mapItems[i] << std::hex << " upper: " << upper
+                << " lower: " << lower << " off: " << offset <<  " buf: " 
+                << std::dec << datbuf->Tell() << std::endl;
+
+            datOffset[i] = offset;
         }
+
+        for (unsigned int i = 0; i < (numMapItems - 1); i++)
+        {
+            datbuf->Seek(datOffset[i]);
+            unsigned int length = datOffset[i + 1] - datOffset[i];
+            std::cout << "DatItem: " << mapItems[i] << " " << i << " length: " << length
+                << " i: " << std::hex << i << " length: " << length << std::dec << std::endl;
+            datbuf->Dump(length);
+        }
+
         for (unsigned int i = 0; i < numMapItems; i++)
         {
             datbuf->Seek(datOffset[i]);
@@ -211,19 +269,13 @@ TableResource::Load(FileBuffer *buffer)
             item->entityType = datbuf->GetUint8();
             item->terrainType = datbuf->GetUint8();
             item->terrainClass = datbuf->GetUint8();
-            char aaa[4];
-            datbuf->GetData(aaa, 4);
-            //datbuf->Skip(4);
-            std::cout << "name: " << mapItems[i] << std::endl;
-            std::cout << "aaa: " << i << " " << +aaa[0] << "," << +aaa[1]
-                << "," << +aaa[2] << "," << +aaa[3] << std::endl;
-            auto extras = datbuf->GetUint16LE();
-            bool more = extras > 0;
-            char bbb[4];
-            datbuf->GetData(bbb, 4);
-            std::cout << "bbb: " << extras << " " << +bbb[0] << "," << +bbb[1]
-                << "," << +bbb[2] << "," << +bbb[3] << std::endl;
-            //datbuf->Skip(4);
+            datbuf->Skip(4);
+            bool more = datbuf->GetUint16LE() > 0;
+            std::cout << "\tDatItem: " << mapItems[i]  << " 0x" << std::hex << i << " f: " << item->entityFlags
+                << " et: " << item->entityType << " tt: " << item->terrainType
+                << " tc: " << item->terrainClass << " more: " << more 
+				<< std::dec << " "  << datbuf->Tell() << std::endl;
+            datbuf->Skip(4);
             if (more)
             {
                 if (!(item->entityFlags & EF_UNBOUNDED))
@@ -235,71 +287,99 @@ TableResource::Load(FileBuffer *buffer)
                     item->max.SetY(datbuf->GetSint16LE());
                     item->max.SetZ(datbuf->GetSint16LE());
                 }
-                char ccc[4];
+                datbuf->Skip(2);
+                unsigned int nPolys = datbuf->GetUint16LE();
+                std::cout << "Polygons: " << nPolys << std::endl;
 
-                //datbuf->Skip(2);
-                datbuf->GetData(ccc, 2);
-                unsigned int n = datbuf->GetUint16LE();
-                //datbuf->Skip(2);
-                datbuf->GetData(ccc + 2, 2);
-                std::cout << "ccc: " << +ccc[0] << "," << +ccc[1]
-                << "," << +ccc[2] << "," << +ccc[3] << std::endl;
-                std::cout << "data = [\n";
-                for (unsigned int j = 0; j < n; j++)
-                {   
-                    ///datbuf->Skip(14);
-                    std::cout
-                        << "("   << datbuf->GetSint16LE()
-                        << " , " << datbuf->GetSint16LE()
-                        << " , " << datbuf->GetSint16LE()
-                        << " , " << datbuf->GetSint16LE()
-                        << " , " << datbuf->GetSint16LE()
-                        << " , " << datbuf->GetSint16LE()
-                        << " , " << datbuf->GetSint16LE()
-                        << ")," << std::endl << std::dec;
-                }
-                if (item->terrainType != TT_NULL)
+                datbuf->Skip(2); // Seems important...
+				unsigned nVertices = 0;
+				unsigned prevV = 0;
+                for (unsigned int j = 0; j < nPolys; j++)
                 {
-                    if (item->terrainClass == TC_FIELD)
-                    {
-                        item->pos.SetX(datbuf->GetSint16LE());
-                        item->pos.SetY(datbuf->GetSint16LE());
-                        item->pos.SetZ(datbuf->GetSint16LE());
-                    }
-                    //datbuf->Skip(6);
-                    std::cout << std::hex
-                        << " a " << datbuf->GetSint16LE()
-                        << " b " << datbuf->GetSint16LE()
-                        << " c " << datbuf->GetSint16LE()
-                        << std::endl << std::dec;
+					datbuf->Skip(3);
+					unsigned v = datbuf->GetUint8();
+					if (v != prevV)
+					{
+						nVertices += v;
+						prevV = v;
+					}
+					std::cout << "v: " << v << " vert: " <<
+						nVertices << " p: " << prevV << std::endl;
+					datbuf->Skip(10);
+                }
+
+				if (item->entityType == 0x4
+					|| item->entityType == 0x2
+					|| item->entityType == 0x0
+					|| item->entityType == 0x3
+					|| item->entityType == 0x14
+					|| item->entityType == 0xa
+					|| item->entityType == 0x6
+					|| item->entityType == 0x8
+					|| item->entityType == 0x12
+					|| item->entityType == 0x7)
+					nVertices -= 1;
+
+                std::cout << "Finished Blocks: vertts: " << nVertices << std::endl;
+                for (unsigned int j = 0; j <= nVertices; j++)
+                {
+					if (nVertices == 0) std::cout << "No vertices" << std::endl;
+					std::cout << j << " "
+						<< datbuf->Tell() << std::endl;
+					datbuf->Dump(6);
                     int x = datbuf->GetSint16LE();
                     int y = datbuf->GetSint16LE();
                     int z = datbuf->GetSint16LE();
-                    while ((item->min.GetX() <= x) && (x <= item->max.GetX()) &&
-                           (item->min.GetY() <= y) && (y <= item->max.GetY()) &&
-                           (item->min.GetZ() <= z) && (z <= item->max.GetZ()))
-                    {
-                        item->vertices.push_back(new Vector3D(x, y, z));
-                        x = datbuf->GetSint16LE();
-                        y = datbuf->GetSint16LE();
-                        z = datbuf->GetSint16LE();
-                        std::cout << "oth: " << std::hex << x << " y: " << y << " z: " << z << std::endl << std::dec;
-                    }
+                    item->vertices.push_back(new Vector3D(x, y, z));
+                    std::cout << "xyz: " << x << " " << y << " " << z << " - " 
+						<< datbuf->Tell() << std::endl;
                 }
-                if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (n == 1))
-                {
-                    //datbuf->Skip(2);
-                    std::cout << "Sprite " << datbuf->GetUint16LE();
-                    item->sprite = datbuf->GetUint16LE();
-                    std::cout << " F " << std::hex << datbuf->GetUint32LE();
-                    std::cout << std::dec << std::endl;
-                    //datbuf->Skip(4);
-                }
-                else
-                {
-                    item->sprite = (unsigned int) -1;
-                }
-            }
+				std::cout << "Fininshe vertices" << std::endl;
+
+				datbuf->Dump(8);
+				if (nVertices == 0)
+				{
+					if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (nPolys == 1))
+					{
+						datbuf->Skip(2);
+						item->sprite = datbuf->GetUint16LE();
+						datbuf->Skip(4);
+					}
+					else
+						item->sprite = -1;
+					std::cout << "Sprite Object" << item->sprite << std::endl;
+				}
+				else
+				{
+					for (unsigned int j = 0; j < nPolys; j++)
+					{
+						datbuf->Skip(2); // Empty
+						unsigned nFaces = datbuf->GetUint16LE();
+						datbuf->Skip(4); // Offset?
+						for (unsigned k = 0; k < nFaces; k++)
+						{
+							datbuf->Skip(1);
+							for (unsigned c = 0; c < 4; c++)
+							{
+								datbuf->Skip(1); // color index
+							}
+							datbuf->Skip(3); // Offset?
+						}
+						for (unsigned k = 0; k < nFaces; k++)
+						{
+							unsigned vertI;
+							std::vector<std::uint16_t> vertIndices;
+							datbuf->Dump(5);
+							while ((vertI = datbuf->GetUint8()) != 0xff)
+							{
+								vertIndices.emplace_back(vertI);
+							}
+							std::cout << "Face: " << vertIndices << std::endl;
+							item->faces.push_back(vertIndices);
+						}
+					}
+				}
+			}
             datItems.push_back(item);
         }
         delete[] datOffset;

@@ -21,6 +21,7 @@
 #define TABLE_RESOURCE_H
 
 #include <vector>
+#include <cassert>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -78,14 +79,30 @@ const unsigned int ET_LADDER     = 42;
 
 /* Terrain Type */
 const unsigned int TT_NULL      = 0;
+//Terrain size actually
 const unsigned int TT_INTERIOR  = 6;
 const unsigned int TT_EXTERIOR  = 7;
 const unsigned int TT_LANDSCAPE = 8;
 
 /* Terrain Class */
+// Seems to determine the scale?
+// When zero for ground it is the size of the "t0xxxx" object
 const unsigned int TC_FIELD     = 0;
+// when 1 it is ground normal
 const unsigned int TC_LANDSCAPE = 1;
+// this causes the "mountains past the mountsains to be ground??"
 const unsigned int TC_OTHER     = 2;
+
+enum class TextureIndex
+{
+    GROUND = 0,
+    ROAD = 1,
+    PATH = 2,
+    RIVER = 3,
+    SAND = 4,
+    FIELD = 5,
+    WATERFALL_P = 6 // ??
+};
 
 class GidInfo
 {
@@ -113,9 +130,26 @@ class DatInfo
         Vector3D max;
         Vector3D pos;
         std::vector<Vector3D *> vertices;
+        //std::vector<FaceColor> faceColors;
+        std::vector<std::vector<std::uint16_t>> faces;
+
         DatInfo();
         ~DatInfo();
 };
+
+template<typename T>
+std::ostream& operator<< (std::ostream& out, const std::vector<T>& v)
+{
+    out << "[";
+    size_t last = v.size() - 1;
+    for (size_t i = 0; i < v.size(); ++i) {
+        out << v[i];
+        if (i != last)
+            out << ", ";
+    }
+    out << "]";
+    return out;
+}
 
 class TableResource
     : public TaggedResource

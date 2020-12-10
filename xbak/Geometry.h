@@ -31,8 +31,8 @@
 
 #include <ostream>
 
-const float PI  = M_PI;
-const float PI2 = M_PI + M_PI;
+const double PI  = M_PI;
+const double PI2 = M_PI + M_PI;
 
 const unsigned int ANGLE_BITS = 8;
 const unsigned int ANGLE_SIZE = 1 << ANGLE_BITS;
@@ -43,17 +43,17 @@ class Angle
 private:
     int m_angle;
     static bool m_initialized;
-    static float m_cosTbl[ANGLE_SIZE];
-    static float m_sinTbl[ANGLE_SIZE];
-    static float m_tanTbl[ANGLE_SIZE];
+    static double m_cosTbl[ANGLE_SIZE];
+    static double m_sinTbl[ANGLE_SIZE];
+    static double m_tanTbl[ANGLE_SIZE];
 public:
     Angle ( const int a );
     ~Angle();
     int Get() const;
     void Set ( const int a );
-    float GetCos() const;
-    float GetSin() const;
-    float GetTan() const;
+    double GetCos() const;
+    double GetSin() const;
+    double GetTan() const;
     Angle& operator= ( const Angle &a );
     Angle& operator+= ( const Angle &a );
     Angle& operator-= ( const Angle &a );
@@ -82,14 +82,14 @@ public:
     Vector2D& operator-= ( const Vector2D &p );
     Vector2D& operator*= ( const int f );
     Vector2D& operator/= ( const int f );
-    Vector2D& operator*= ( const float f );
-    Vector2D& operator/= ( const float f );
+    Vector2D& operator*= ( const double f );
+    Vector2D& operator/= ( const double f );
     Vector2D operator+ ( const Vector2D &p );
     Vector2D operator- ( const Vector2D &p );
     Vector2D operator* ( const int f );
     Vector2D operator/ ( const int f );
-    Vector2D operator* ( const float f );
-    Vector2D operator/ ( const float f );
+    Vector2D operator* ( const double f );
+    Vector2D operator/ ( const double f );
     bool operator== ( const Vector2D &p ) const;
     bool operator!= ( const Vector2D &p ) const;
     bool operator< ( const Vector2D &p ) const;
@@ -126,16 +126,16 @@ public:
     Vector3D& operator-= ( const Vector2D &p );
     Vector3D& operator*= ( const int f );
     Vector3D& operator/= ( const int f );
-    Vector3D& operator*= ( const float f );
-    Vector3D& operator/= ( const float f );
+    Vector3D& operator*= ( const double f );
+    Vector3D& operator/= ( const double f );
     Vector3D operator+ ( const Vector3D &p );
     Vector3D operator- ( const Vector3D &p );
     Vector3D operator+ ( const Vector2D &p );
     Vector3D operator- ( const Vector2D &p );
     Vector3D operator* ( const int f );
     Vector3D operator/ ( const int f );
-    Vector3D operator* ( const float f );
-    Vector3D operator/ ( const float f );
+    Vector3D operator* ( const double f );
+    Vector3D operator/ ( const double f );
     bool operator== ( const Vector3D &p ) const;
     bool operator!= ( const Vector3D &p ) const;
     bool operator< ( const Vector3D &p ) const;

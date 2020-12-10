@@ -20,9 +20,9 @@
 #include "Geometry.h"
 
 bool  Angle::m_initialized = false;
-float Angle::m_cosTbl[ANGLE_SIZE];
-float Angle::m_sinTbl[ANGLE_SIZE];
-float Angle::m_tanTbl[ANGLE_SIZE];
+double Angle::m_cosTbl[ANGLE_SIZE];
+double Angle::m_sinTbl[ANGLE_SIZE];
+double Angle::m_tanTbl[ANGLE_SIZE];
 
 Angle::Angle ( const int a )
 : m_angle(a & ANGLE_MASK)
@@ -31,9 +31,9 @@ Angle::Angle ( const int a )
     {
         for (unsigned int i = 0; i < ANGLE_SIZE; i++)
         {
-            m_cosTbl[i] = cos((float)i * PI2 / (float)ANGLE_SIZE);
-            m_sinTbl[i] = sin((float)i * PI2 / (float)ANGLE_SIZE);
-            m_tanTbl[i] = tan((float)i * PI2 / (float)ANGLE_SIZE);
+            m_cosTbl[i] = cos((double)i * PI2 / (double)ANGLE_SIZE);
+            m_sinTbl[i] = sin((double)i * PI2 / (double)ANGLE_SIZE);
+            m_tanTbl[i] = tan((double)i * PI2 / (double)ANGLE_SIZE);
         }
         m_initialized = true;
     }
@@ -53,17 +53,17 @@ void Angle::Set ( const int a )
     m_angle = a & ANGLE_MASK;
 }
 
-float Angle::GetCos() const
+double Angle::GetCos() const
 {
     return m_cosTbl[m_angle];
 }
 
-float Angle::GetSin() const
+double Angle::GetSin() const
 {
     return m_sinTbl[m_angle];
 }
 
-float Angle::GetTan() const
+double Angle::GetTan() const
 {
     return m_tanTbl[m_angle];
 }
@@ -183,17 +183,17 @@ Vector2D& Vector2D::operator/=(const int f)
     return *this;
 }
 
-Vector2D& Vector2D::operator*=(const float f)
+Vector2D& Vector2D::operator*=(const double f)
 {
-    m_x = (int)((float)m_x * f);
-    m_y = (int)((float)m_y * f);
+    m_x = (int)((double)m_x * f);
+    m_y = (int)((double)m_y * f);
     return *this;
 }
 
-Vector2D& Vector2D::operator/=(const float f)
+Vector2D& Vector2D::operator/=(const double f)
 {
-    m_x = (int)((float)m_x / f);
-    m_y = (int)((float)m_y / f);
+    m_x = (int)((double)m_x / f);
+    m_y = (int)((double)m_y / f);
     return *this;
 }
 
@@ -217,14 +217,14 @@ Vector2D Vector2D::operator/(const int f)
     return Vector2D(m_x / f, m_y / f);
 }
 
-Vector2D Vector2D::operator*(const float f)
+Vector2D Vector2D::operator*(const double f)
 {
-    return Vector2D((int)((float)m_x * f), (int)((float)m_y * f));
+    return Vector2D((int)((double)m_x * f), (int)((double)m_y * f));
 }
 
-Vector2D Vector2D::operator/(const float f)
+Vector2D Vector2D::operator/(const double f)
 {
-    return Vector2D((int)((float)m_x / f), (int)((float)m_y / f));
+    return Vector2D((int)((double)m_x / f), (int)((double)m_y / f));
 }
 
 bool Vector2D::operator==(const Vector2D &p) const
@@ -281,7 +281,7 @@ void Vector2D::SetY(const int y)
 
 unsigned int Vector2D::GetRho() const
 {
-    return (unsigned int)sqrt(((float)m_x * (float)m_x) + ((float)m_y * (float)m_y));
+    return (unsigned int)sqrt(((double)m_x * (double)m_x) + ((double)m_y * (double)m_y));
 }
 
 int Vector2D::GetTheta() const
@@ -299,7 +299,7 @@ int Vector2D::GetTheta() const
     }
     else
     {
-        int angle = (int)((atan((float)m_y / (float)m_x) / PI2) * (float)ANGLE_SIZE);
+        int angle = (int)((atan((double)m_y / (double)m_x) / PI2) * (double)ANGLE_SIZE);
         if (m_x > 0)
         {
             return angle & ANGLE_MASK;
@@ -411,19 +411,19 @@ Vector3D& Vector3D::operator/=(const int f)
     return *this;
 }
 
-Vector3D& Vector3D::operator*=(const float f)
+Vector3D& Vector3D::operator*=(const double f)
 {
-    m_x = (int)((float)m_x * f);
-    m_y = (int)((float)m_y * f);
-    m_z = (int)((float)m_z * f);
+    m_x = (int)((double)m_x * f);
+    m_y = (int)((double)m_y * f);
+    m_z = (int)((double)m_z * f);
     return *this;
 }
 
-Vector3D& Vector3D::operator/=(const float f)
+Vector3D& Vector3D::operator/=(const double f)
 {
-    m_x = (int)((float)m_x / f);
-    m_y = (int)((float)m_y / f);
-    m_z = (int)((float)m_z / f);
+    m_x = (int)((double)m_x / f);
+    m_y = (int)((double)m_y / f);
+    m_z = (int)((double)m_z / f);
     return *this;
 }
 
@@ -457,14 +457,14 @@ Vector3D Vector3D::operator/(const int f)
     return Vector3D(m_x / f, m_y / f, m_z / f);
 }
 
-Vector3D Vector3D::operator*(const float f)
+Vector3D Vector3D::operator*(const double f)
 {
-    return Vector3D((int)((float)m_x * f), (int)((float)m_y * f), (int)((float)m_z * f));
+    return Vector3D((int)((double)m_x * f), (int)((double)m_y * f), (int)((double)m_z * f));
 }
 
-Vector3D Vector3D::operator/(const float f)
+Vector3D Vector3D::operator/(const double f)
 {
-    return Vector3D((int)((float)m_x / f), (int)((float)m_y / f), (int)((float)m_z / f));
+    return Vector3D((int)((double)m_x / f), (int)((double)m_y / f), (int)((double)m_z / f));
 }
 
 bool Vector3D::operator==(const Vector3D &p) const
@@ -533,7 +533,7 @@ void Vector3D::SetZ(const int z)
 
 unsigned int Vector3D::GetRho() const
 {
-    return (unsigned int)sqrt(((float)m_x * (float)m_x) + ((float)m_y * (float)m_y) + ((float)m_z * (float)m_z));
+    return (unsigned int)sqrt(((double)m_x * (double)m_x) + ((double)m_y * (double)m_y) + ((double)m_z * (double)m_z));
 }
 
 int Vector3D::GetTheta() const
@@ -551,7 +551,7 @@ int Vector3D::GetTheta() const
     }
     else
     {
-        int angle = (int)((atan((float)m_y / (float)m_x) / PI2) * (float)ANGLE_SIZE);
+        int angle = (int)((atan((double)m_y / (double)m_x) / PI2) * (double)ANGLE_SIZE);
         if (m_x > 0)
         {
             return angle & ANGLE_MASK;

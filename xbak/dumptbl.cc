@@ -52,20 +52,36 @@ int main(int argc, char *argv[])
                    dat->min.GetX(), dat->min.GetY(), dat->min.GetZ(),
                    dat->max.GetX(), dat->max.GetY(), dat->max.GetZ(),
                    dat->pos.GetX(), dat->pos.GetY(), dat->pos.GetZ());
+            printf("textureCoords\n");
             for (unsigned int j = 0; j < gid->textureCoords.size(); j++)
             {
                 printf("\t\t(%4d, %4d)\n",
                        gid->textureCoords[j]->GetX(), gid->textureCoords[j]->GetY());
             }
+            printf("otherCoords\n");
             for (unsigned int j = 0; j < gid->otherCoords.size(); j++)
             {
                 printf("\t\t(%6d, %6d)\n",
                        gid->otherCoords[j]->GetX(), gid->otherCoords[j]->GetY());
             }
+            printf("Vertices\n");
             for (unsigned int j = 0; j < dat->vertices.size(); j++)
             {
                 printf("\t\t(%6d, %6d, %6d)\n",
                        dat->vertices[j]->GetX(), dat->vertices[j]->GetY(), dat->vertices[j]->GetZ());
+            }
+
+            printf("Faces\n");
+            for (unsigned int j = 0; j < dat->faces.size(); j++)
+            {	
+				std::cout << "\t\t( ";
+				char sep = ' ';
+				for (const auto& f : dat->faces[j])
+				{
+					std::cout << sep << f;
+					sep = ',';
+				}
+				std::cout << ")\n";
             }
         }
         delete tbl;

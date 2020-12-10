@@ -86,6 +86,10 @@ public:
                 assert(vertex);
                 mVertices.emplace_back(*vertex);
             }
+            for (const auto& face : other->faces)
+            {
+                mFaces.emplace_back(face);
+            }
         }
 
         unsigned mEntityFlags;
@@ -97,13 +101,17 @@ public:
         Vector3D mMax;
         Vector3D mPos;
         std::vector<Vector3D> mVertices;
+        std::vector<std::vector<std::uint16_t>> mFaces;
     };
 
     const std::string& GetName() const { return mName; }
+
     const DatItem& GetDatItem() const { return mDatItem; }
     const GidItem& GetGidItem() const { return mGidItem; }
+
 private:
     std::string mName;
+
     DatItem mDatItem;
     GidItem mGidItem;
 
@@ -124,7 +132,9 @@ public:
         mWorldItem{worldItem},
         mType{type},
         mFlags{flags},
-        mLocation{static_cast<int>(x), static_cast<int>(y)}
+        mLocation{
+            static_cast<int>(x),
+            static_cast<int>(y)}
     {}
 
     const WorldItem& GetWorldItem() const { return mWorldItem; }
@@ -133,6 +143,7 @@ public:
 
 private:
     const WorldItem& mWorldItem;
+
     unsigned mType;
     unsigned mFlags;
     Vector2D mLocation;
@@ -145,7 +156,9 @@ std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
     os << "[ Name: " << d.GetWorldItem().GetName() << " Type: " << d.mType << " Flags: " 
         << std::hex << d.mFlags << std::dec << " Loc: " << d.mLocation << "]";
     os << std::endl << "Pos: " << d.GetWorldItem().GetDatItem().mPos << " Vertices::" << std::endl;
-    for (const auto& vertex : d.GetWorldItem().GetDatItem().mVertices)
+    
+    const auto& vertices = d.GetWorldItem().GetDatItem().mVertices;
+    for (const auto& vertex : vertices)
     {
         os << "  " << vertex << std::endl;
     }
@@ -155,11 +168,6 @@ std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 class World
 {
 public:
-    const int TILE_SIZE   = 64000;
-    const int TILE_SIZE_2 = TILE_SIZE / 2;
-    const int OBJECT_CENTER = 0;
-    const int MAP_SIZE_X = 96*4;
-    const int MAP_SIZE_Y = 96*4;
 
     World(
         unsigned zone,
@@ -198,7 +206,7 @@ public:
         TileWorldResource world{};
         {
             std::stringstream str{""};
-            str << "T" << std::setfill('0') << std::setw(2) << zone << x << y << ".WLD";
+            str << "T" << std::setfill('0') << std::setw(2) << zone << std::setw(2) << x << std::setw(2) << y << ".WLD";
             LOG_S(INFO) << "Loading world resource: " << str.str() << std::endl;
             auto fb = FileBufferFactory::CreateFileBuffer(str.str());
             world.Load(&fb);
@@ -222,36 +230,6 @@ public:
 
         for (const auto& i : mItemInsts)
             std::cout << i << std::endl;
-    }
-
-    Vector2D ScaleRad(const Vector2D& vec)
-    {
-        auto minX = mCenter.GetX() - TILE_SIZE_2;
-        auto minY = mCenter.GetY() - TILE_SIZE_2;
-        auto maxX = mCenter.GetX() + TILE_SIZE_2;
-        auto maxY = mCenter.GetY() + TILE_SIZE_2;
-
-        auto deltaX = maxX - minX;
-        auto deltaY = maxY - minY;
-
-        return Vector2D{
-            vec.GetX()  * MAP_SIZE_X / deltaX,
-            vec.GetY() * MAP_SIZE_Y / deltaY};
-    }
-
-    Vector2D ScaleLoc(const Vector2D& vec)
-    {
-        auto minX = mCenter.GetX() - TILE_SIZE_2;
-        auto minY = mCenter.GetY() - TILE_SIZE_2;
-        auto maxX = mCenter.GetX() + TILE_SIZE_2;
-        auto maxY = mCenter.GetY() + TILE_SIZE_2;
-
-        auto deltaX = maxX - minX;
-        auto deltaY = maxY - minY;
-
-        return Vector2D{
-            (vec.GetX() - minX) * MAP_SIZE_X / deltaX,
-            (vec.GetY() - minY) * MAP_SIZE_Y / deltaY};
     }
 
     std::vector<WorldItem> mItems;

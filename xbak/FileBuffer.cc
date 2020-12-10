@@ -677,6 +677,12 @@ FileBuffer::Rewind()
     current = buffer;
 }
 
+unsigned int
+FileBuffer::Tell()
+{
+    return current - buffer;
+}
+
 uint8_t
 FileBuffer::GetUint8()
 {
@@ -796,14 +802,18 @@ void
 FileBuffer::GetData(void *data,
                     const unsigned int n)
 {
-    if (current + n <= buffer + size)
+    if ((current + n) <= (buffer + size))
     {
         memcpy(data, current, n);
         current += n;
     }
     else
     {
-        std::cerr << "Requested: " << n << " but @" << std::hex << (current - buffer) << std::endl;
+        std::cerr << "Requested: " << n << " but @" << std::hex 
+            << (current - buffer) << " size: " << std::dec << size
+            << " @: " << std::hex << (current + n) << " to "
+            << " @: " << std::hex << (buffer + size)
+            << std::endl;
         throw BufferEmpty(__FILE__, __LINE__);
     }
 }

@@ -37,3 +37,9 @@ target_link_libraries(main dl pthread ${Boost_LIBRARIES} boost_serialization xba
 
 add_executable (xbak_main xbak/xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
 target_link_libraries(xbak_main dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
+
+add_executable (dumptbl xbak/dumptbl.cc ${XBAK} ${SDL_INCLUDE_DIR})
+target_link_libraries(dumptbl dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
+
+add_executable (dumpwld xbak/dumpwld.cc ${XBAK} ${SDL_INCLUDE_DIR})
+target_link_libraries(dumpwld dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)

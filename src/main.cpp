@@ -15,6 +15,7 @@
 
 #include "worldFactory.hpp"
 #include "eventHandler.hpp"
+#include "renderer.hpp"
 
 #include <boost/optional.hpp>
 
@@ -127,14 +128,64 @@ int main(int argc, char *argv[]) {
 
     LOG_S(INFO) << "Loading zone: " << zone;
     
-    BAK::World world{1, 11, 16};
+    auto worlds = std::vector<BAK::World>{};
+    worlds.reserve(20);
+
+    worlds.emplace_back(1, 9, 13);
+    worlds.emplace_back(1, 9, 14);
+    worlds.emplace_back(1, 9, 15);
+    
+    worlds.emplace_back(1, 10, 10);
+    worlds.emplace_back(1, 10, 11);
+    worlds.emplace_back(1, 10, 12);
+    worlds.emplace_back(1, 10, 13);
+    worlds.emplace_back(1, 10, 14);
+    worlds.emplace_back(1, 10, 15);
+    worlds.emplace_back(1, 10, 16);
+
+    worlds.emplace_back(1, 11, 11);
+    worlds.emplace_back(1, 11, 16);
+    worlds.emplace_back(1, 11, 17);
+    worlds.emplace_back(1, 12, 10);
+    worlds.emplace_back(1, 12, 11);
+    worlds.emplace_back(1, 12, 17);
+
+    worlds.emplace_back(1, 13, 10);
+    worlds.emplace_back(1, 13, 17);
+
+    /*
+    worlds.emplace_back(1, 14, 10);
+    worlds.emplace_back(1, 14, 11);
+    worlds.emplace_back(1, 14, 17);
+
+    worlds.emplace_back(1, 15, 10);
+    worlds.emplace_back(1, 15, 11);
+    worlds.emplace_back(1, 15, 12);
+    worlds.emplace_back(1, 15, 13);
+    worlds.emplace_back(1, 15, 14);
+    worlds.emplace_back(1, 15, 15);
+    worlds.emplace_back(1, 15, 16);
+    worlds.emplace_back(1, 15, 17);
+    worlds.emplace_back(1, 15, 18);
+
+    worlds.emplace_back(1, 16, 10);
+    worlds.emplace_back(1, 16, 11);
+    worlds.emplace_back(1, 16, 17);
+    */
+
+    auto worldCenter = worlds.at(0).mCenter;
+    for (const auto& world : worlds)
+    {
+        std::cout << world.mCenter << std::endl;
+    }
+
     bool drawTrees = false;
 
-    auto worldCenter = Vector2D{0, 0};
+    auto worldScale  = 1.;
 
     MediaToolkit *media = MediaToolkit::GetInstance();
 
-    media->GetVideo()->CreateWindow(1024, 1024);
+    media->GetVideo()->CreateWindow(2048, 2048);
     media->GetVideo()->SetMode(LORES_HICOL);
     
 	auto cursor = init_system_cursor(arrow);
@@ -145,83 +196,83 @@ int main(int argc, char *argv[]) {
     pal.GetPalette()->Fill();
     pal.GetPalette()->Activate(0, 256);
     
-    const auto Draw = [&](){
-        for (const auto& inst : world.mItemInsts)
+    const auto Draw = [&](auto& world){
+        for (auto& inst : world.mItemInsts)
         {   
             if (!drawTrees && inst.GetWorldItem().GetName().substr(0, 4) == "tree") continue;
             auto bloc = inst.GetLocation();
-            auto loc = world.ScaleLoc(bloc) + worldCenter;
+            auto loc = BAK::TransformLoc(bloc, worldCenter, worldScale);
             auto brad = inst.GetWorldItem().GetGidItem().mRadius;
-            auto rad = world.ScaleRad(brad);
-            if (brad == Vector2D{0,0})
-                rad = Vector2D{1,1};
-            //std::cout << bloc << "-" << brad << " @ " << inst << std::endl;
-            std::cout << loc << "-" << rad << " @ " << inst << std::endl;
+            auto rad = BAK::ScaleRad(brad, worldScale);
+
+            if (brad == Vector2D{0, 0})
+                rad = Vector2D{1, 1};
+            //std::cout << loc << "-" << rad << " @ " << inst << std::endl;
             media->GetVideo()->DrawRect(
                 (loc.GetX() - rad.GetX()),
                 (96 * 4) - (loc.GetY() + rad.GetY()),
                 rad.GetX() * 2,
                 rad.GetY() * 2,
-                inst.GetType());//244);
-
-            const auto& textVertices = inst.GetWorldItem().GetGidItem().mTextureCoords;
-            const auto& otherVertices = inst.GetWorldItem().GetGidItem().mOtherCoords;
-            if (!textVertices.empty())
-            {
-                std::cout << "TV:" << std::endl;
-                for (const auto& tv : textVertices)
-                    std::cout << tv << std::endl;
-            }
+                inst.GetType());
 
             {
-                const auto& vertices = otherVertices;
-                if (!vertices.empty())
-                {
-                    int *x = new int[vertices.size()];
-                    int *y = new int[vertices.size()];
-                    for (const auto& vertex : vertices | boost::adaptors::indexed())
-                    {
-                        auto scaled = world.ScaleLoc(
-                            Vector2D{vertex.value().GetX(), vertex.value().GetY()}
-                            + bloc) + worldCenter;
-                        x[vertex.index()] = scaled.GetX();
-                        y[vertex.index()] = (96*4) - scaled.GetY();
-                        
-                        std::cout << "(" << x[vertex.index()] << "," << y[vertex.index()] << ")" << std::endl;
-                    }
-                    media->GetVideo()->DrawPolygon(x, y, vertices.size(), inst.GetType());
-                }
-            }
-            {
+                std::cout << "Drawing: " << inst.GetWorldItem().GetName() << std::endl;
                 const auto& vertices = inst.GetWorldItem().GetDatItem().mVertices;
-                if (!vertices.empty())
+                const auto& faces = inst.GetWorldItem().GetDatItem().mFaces;
+                if (!faces.empty())
                 {
-                    int *x = new int[vertices.size()];
-                    int *y = new int[vertices.size()];
-                    for (const auto& vertex : vertices | boost::adaptors::indexed())
+                    bool stop = false;
+                    for (const auto& face : faces | boost::adaptors::indexed())
                     {
-                        auto scaled = world.ScaleLoc(
-                            Vector2D{vertex.value().GetX(), vertex.value().GetY()}
-                            + bloc) + worldCenter;
-                        x[vertex.index()] = scaled.GetX();
-                        y[vertex.index()] = (96*4) - scaled.GetY();
-                        
-                        std::cout << "(" << x[vertex.index()] << "," << y[vertex.index()] << ")" << std::endl;
+                        unsigned faceVertices = face.value().size();
+                        //std::cout << "Face vertices; " << faceVertices << std::endl;
+                        int *x = new int[faceVertices];
+                        int *y = new int[faceVertices];
+                        int i = 0;
+                        for (const auto& v : face.value())
+                        {
+                            if (v >= vertices.size())
+                            {
+                                std::cout << "Failed to draw: "
+                                    << inst.GetWorldItem().GetName() << std::endl;
+                                stop = true;
+                                break;
+                            }
+                            assert(v < vertices.size());
+                            auto vertex = vertices[v];
+                            auto scaled = BAK::TransformLoc2(
+                                Vector2D{vertex.GetX(), vertex.GetY()},
+                                bloc - worldCenter,
+                                worldScale);
+
+                            /*if (brad.GetX() != 0)
+                                scaled *= (rad.GetX() / brad.GetX());*/
+
+                            x[i] = scaled.GetX();
+                            y[i] = (96 * 4) - scaled.GetY();
+                            i++;
+                            /*std::cout << "Loc: "<< loc.GetX() << " : " << scaled.GetX() 
+                                << " , " << loc.GetY() << " : " << scaled.GetY() 
+                                << " BRad " << brad
+                                << " Rad " << rad
+                                << std::endl;*/
+                        }
+                        if (!stop)
+                            media->GetVideo()->DrawPolygon(x, y, faceVertices, 250);
+                        else
+                            stop = true;
                     }
-                    media->GetVideo()->DrawPolygon(x, y, vertices.size(), 245);
                 }
             }
 
-            media->GetVideo()->PutPixel(loc.GetX(),96*4 -loc.GetY(), 254);
+            media->GetVideo()->PutPixel(loc.GetX(), 96*4 -loc.GetY(), 254);
         }
     };
 
-     BAK::EventRouter eventRouter{
-
+    BAK::EventRouter eventRouter{
         [&](const auto& e){
             const auto k = e.GetKey();
-            int delta = 10;
-            if (k & (KEY_LSHIFT)) delta = 30;
+            int delta = (64000/16) / worldScale;
 
             if (k == KEY_ESCAPE)
                 std::exit(0);
@@ -233,15 +284,22 @@ int main(int argc, char *argv[]) {
                 worldCenter -= Vector2D{delta, 0};
             else if (k == KEY_RIGHT || k == KEY_d)
                 worldCenter += Vector2D{delta, 0};
+            else if (k == KEY_z)
+                worldScale += .2;
+            else if (k == KEY_x)
+                worldScale -= .2;
             else if (k == KEY_t)
                 drawTrees = !drawTrees;
 
-            std::cout << "Center: " << worldCenter << std::endl;
+            std::cerr << "Center: " << worldCenter << std::endl;
         },
         [](const auto&){},
-        [&](const auto&){
+        [&worlds, &media, &Draw](const auto&){
             media->GetVideo()->Clear();
-            Draw();
+            for (auto& world : worlds)
+            {
+                Draw(world);
+            }
             media->GetVideo()->Refresh();
         }
     };
@@ -249,7 +307,7 @@ int main(int argc, char *argv[]) {
     media->AddKeyboardListener(&eventRouter);
     media->AddUpdateListener(&eventRouter);
 
-    media->GetClock()->StartTimer(TMR_TEST_APP, 100);
+    media->GetClock()->StartTimer(TMR_TEST_APP, 1000);
     media->WaitEventLoop();
     media->GetClock()->CancelTimer(TMR_TEST_APP);
 

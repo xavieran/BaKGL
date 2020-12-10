@@ -61,6 +61,7 @@ class FileBuffer
         void CopyTo ( FileBuffer *buf, const unsigned int n );
         void Fill ( FileBuffer *buf );
         void Rewind();
+        unsigned int Tell ();
         void Seek ( const unsigned int n );
         void Skip ( const int n );
 
