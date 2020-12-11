@@ -30,16 +30,22 @@ set(BAK_INCLUDES
 set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter")
 set(CMAKE_CXX_FLAGS "-g -fstack-protector-all -std=c++17 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
-#-static
-
 add_executable (main src/main.cpp src/loguru.cpp ${BAK_INCLUDES} ${XBAK})
 target_link_libraries(main dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
+
+list(APPEND XBAK_BINARIES
+    dumpbmx
+    dumppal
+    dumptbl
+    dumpscx
+    dumpwld
+)
+
+foreach (XBAK_BIN IN LISTS XBAK_BINARIES)
+    add_executable (${XBAK_BIN} xbak/${XBAK_BIN}.cc ${XBAK} ${SDL_INCLUDE_DIR})
+    target_link_libraries(${XBAK_BIN} dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
+endforeach()
 
 add_executable (xbak_main xbak/xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
 target_link_libraries(xbak_main dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
 
-add_executable (dumptbl xbak/dumptbl.cc ${XBAK} ${SDL_INCLUDE_DIR})
-target_link_libraries(dumptbl dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)
-
-add_executable (dumpwld xbak/dumpwld.cc ${XBAK} ${SDL_INCLUDE_DIR})
-target_link_libraries(dumpwld dl pthread ${Boost_LIBRARIES} boost_serialization xbak SDL)

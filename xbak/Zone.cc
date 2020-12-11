@@ -55,7 +55,7 @@ Zone::Clear()
     {
         delete popUp;
     }
-    for ( std::map<const std::pair<unsigned int, unsigned int>, TileWorldResource *>::iterator it = tiles.begin(); it != tiles.end(); ++it )
+    for (auto it = tiles.begin(); it != tiles.end(); ++it )
     {
         delete it->second;
     }

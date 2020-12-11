@@ -24,33 +24,40 @@
  */
 
 #include <iostream>
+#include <cassert>
 
 #include "Directories.h"
 #include "Exception.h"
 #include "FileManager.h"
+#include "BMPWriter.h"
 #include "ScreenResource.h"
+#include "PaletteResource.h"
 
 int main(int argc, char *argv[])
 {
     try
     {
-        if (argc != 2)
+        if (argc != 4)
         {
-            std::cerr << "Usage: " << argv[0] << " <SCX-file>" << std::endl;
+            std::cerr << "Usage: " << argv[0] << " <SCX-file>" << " <PAL-file> <OUTPUT BMP>" << std::endl;
             return 1;
         }
         ScreenResource *scx = new ScreenResource;
         FileManager::GetInstance()->Load(scx, argv[1]);
         Image *image = scx->GetImage();
-        printf("%dx%d\n", image->GetWidth(), image->GetHeight());
-        for (int y = 0; y < image->GetHeight(); y++)
-        {
-            for (int x = 0; x < image->GetWidth(); x++)
-            {
-                printf("%02x ", image->GetPixel(x, y));
-            }
-            printf("\n");
-        }
+
+        PaletteResource *palette = new PaletteResource;
+        FileManager::GetInstance()->Load(palette, argv[2]);
+
+        std::ofstream out{};
+        std::cout << "Writing to: " << argv[3] << std::endl;
+        out.open(argv[3], std::ios::out | std::ios::binary);
+        assert(out.good());
+
+        WriteBMP(out, *image, *palette->GetPalette());
+
+        out.close();
+
         delete scx;
         FileManager::CleanUp();
         Directories::CleanUp();

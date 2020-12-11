@@ -323,7 +323,7 @@ TableResource::Load(FileBuffer *buffer)
                 std::cout << "Finished Blocks: vertts: " << nVertices << std::endl;
                 for (unsigned int j = 0; j <= nVertices; j++)
                 {
-					if (nVertices == 0) std::cout << "No vertices" << std::endl;
+					if (nVertices == 0) continue;
 					std::cout << j << " "
 						<< datbuf->Tell() << std::endl;
 					datbuf->Dump(6);
@@ -358,7 +358,7 @@ TableResource::Load(FileBuffer *buffer)
 						datbuf->Skip(4); // Offset?
 						for (unsigned k = 0; k < nFaces; k++)
 						{
-							datbuf->Skip(1);
+							datbuf->Skip(1); // is this the palette/texture source to use?
 							for (unsigned c = 0; c < 4; c++)
 							{
 								datbuf->Skip(1); // color index
