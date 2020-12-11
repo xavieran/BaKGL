@@ -73,15 +73,15 @@ int main(int argc, char *argv[])
 
             printf("Faces\n");
             for (unsigned int j = 0; j < dat->faces.size(); j++)
-            {	
-				std::cout << "\t\t( ";
-				char sep = ' ';
-				for (const auto& f : dat->faces[j])
-				{
-					std::cout << sep << f;
-					sep = ',';
-				}
-				std::cout << ")\n";
+            {   
+                std::cout << "\t\t( ";
+                char sep = ' ';
+                for (const auto& f : dat->faces[j])
+                {
+                    std::cout << sep << f;
+                    sep = ',';
+                }
+                std::cout << ")\n";
             }
         }
         delete tbl;
