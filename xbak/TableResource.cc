@@ -274,7 +274,7 @@ TableResource::Load(FileBuffer *buffer)
             std::cout << "\tDatItem: " << mapItems[i]  << " 0x" << std::hex << i << " f: " << item->entityFlags
                 << " et: " << item->entityType << " tt: " << item->terrainType
                 << " tc: " << item->terrainClass << " more: " << more 
-				<< std::dec << " "  << datbuf->Tell() << std::endl;
+                << std::dec << " "  << datbuf->Tell() << std::endl;
             datbuf->Skip(4);
             if (more)
             {
@@ -292,94 +292,95 @@ TableResource::Load(FileBuffer *buffer)
                 std::cout << "Polygons: " << nPolys << std::endl;
 
                 datbuf->Skip(2); // Seems important...
-				unsigned nVertices = 0;
-				unsigned prevV = 0;
+                unsigned nVertices = 0;
+                unsigned prevV = 0;
                 for (unsigned int j = 0; j < nPolys; j++)
                 {
-					datbuf->Skip(3);
-					unsigned v = datbuf->GetUint8();
-					if (v != prevV)
-					{
-						nVertices += v;
-						prevV = v;
-					}
-					std::cout << "v: " << v << " vert: " <<
-						nVertices << " p: " << prevV << std::endl;
-					datbuf->Skip(10);
+                    datbuf->Skip(3);
+                    unsigned v = datbuf->GetUint8();
+                    if (v != prevV)
+                    {
+                        nVertices += v;
+                        prevV = v;
+                    }
+                    std::cout << "v: " << v << " vert: " <<
+                        nVertices << " p: " << prevV << std::endl;
+                    datbuf->Skip(10);
                 }
 
-				if (item->entityType == 0x4
-					|| item->entityType == 0x2
-					|| item->entityType == 0x0
-					|| item->entityType == 0x3
-					|| item->entityType == 0x14
-					|| item->entityType == 0xa
-					|| item->entityType == 0x6
-					|| item->entityType == 0x8
-					|| item->entityType == 0x12
-					|| item->entityType == 0x7)
-					nVertices -= 1;
+                if (item->entityType == 0x0
+                    || item->entityType == 0x1
+                    || item->entityType == 0x2
+                    || item->entityType == 0x3
+                    || item->entityType == 0x4
+                    || item->entityType == 0x6
+                    || item->entityType == 0x7
+                    || item->entityType == 0x8
+                    || item->entityType == 0xa
+                    || item->entityType == 0x12
+                    || item->entityType == 0x14)
+                    nVertices -= 1;
 
                 std::cout << "Finished Blocks: vertts: " << nVertices << std::endl;
                 for (unsigned int j = 0; j <= nVertices; j++)
                 {
-					if (nVertices == 0) continue;
-					std::cout << j << " "
-						<< datbuf->Tell() << std::endl;
-					datbuf->Dump(6);
+                    if (nVertices == 0) continue;
+                    std::cout << j << " "
+                        << datbuf->Tell() << std::endl;
+                    datbuf->Dump(6);
                     int x = datbuf->GetSint16LE();
                     int y = datbuf->GetSint16LE();
                     int z = datbuf->GetSint16LE();
                     item->vertices.push_back(new Vector3D(x, y, z));
                     std::cout << "xyz: " << x << " " << y << " " << z << " - " 
-						<< datbuf->Tell() << std::endl;
+                        << datbuf->Tell() << std::endl;
                 }
-				std::cout << "Fininshe vertices" << std::endl;
+                std::cout << "Fininshe vertices" << std::endl;
 
-				datbuf->Dump(8);
-				if (nVertices == 0)
-				{
-					if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (nPolys == 1))
-					{
-						datbuf->Skip(2);
-						item->sprite = datbuf->GetUint16LE();
-						datbuf->Skip(4);
-					}
-					else
-						item->sprite = -1;
-					std::cout << "Sprite Object" << item->sprite << std::endl;
-				}
-				else
-				{
-					for (unsigned int j = 0; j < nPolys; j++)
-					{
-						datbuf->Skip(2); // Empty
-						unsigned nFaces = datbuf->GetUint16LE();
-						datbuf->Skip(4); // Offset?
-						for (unsigned k = 0; k < nFaces; k++)
-						{
-							datbuf->Skip(1); // is this the palette/texture source to use?
-							for (unsigned c = 0; c < 4; c++)
-							{
-								datbuf->Skip(1); // color index
-							}
-							datbuf->Skip(3); // Offset?
-						}
-						for (unsigned k = 0; k < nFaces; k++)
-						{
-							unsigned vertI;
-							std::vector<std::uint16_t> vertIndices;
-							datbuf->Dump(5);
-							while ((vertI = datbuf->GetUint8()) != 0xff)
-							{
-								vertIndices.emplace_back(vertI);
-							}
-							std::cout << "Face: " << vertIndices << std::endl;
-							item->faces.push_back(vertIndices);
-						}
-					}
-				}
-			}
+                datbuf->Dump(8);
+                if (nVertices == 0)
+                {
+                    if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (nPolys == 1))
+                    {
+                        datbuf->Skip(2);
+                        item->sprite = datbuf->GetUint16LE();
+                        datbuf->Skip(4);
+                    }
+                    else
+                        item->sprite = -1;
+                    std::cout << "Sprite Object" << item->sprite << std::endl;
+                }
+                else
+                {
+                    for (unsigned int j = 0; j < nPolys; j++)
+                    {
+                        datbuf->Skip(2); // Empty
+                        unsigned nFaces = datbuf->GetUint16LE();
+                        datbuf->Skip(4); // Offset?
+                        for (unsigned k = 0; k < nFaces; k++)
+                        {
+                            datbuf->Skip(1); // Which palette to use
+                            for (unsigned c = 0; c < 4; c++)
+                            {
+                                datbuf->Skip(1); // color index
+                            }
+                            datbuf->Skip(3); // Offset?
+                        }
+                        for (unsigned k = 0; k < nFaces; k++)
+                        {
+                            unsigned vertI;
+                            std::vector<std::uint16_t> vertIndices;
+                            datbuf->Dump(5);
+                            while ((vertI = datbuf->GetUint8()) != 0xff)
+                            {
+                                vertIndices.emplace_back(vertI);
+                            }
+                            std::cout << "Face: " << vertIndices << std::endl;
+                            item->faces.push_back(vertIndices);
+                        }
+                    }
+                }
+            }
             datItems.push_back(item);
         }
         delete[] datOffset;

@@ -39,6 +39,7 @@ list(APPEND XBAK_BINARIES
     dumptbl
     dumpscx
     dumpwld
+    resourcedemo
 )
 
 foreach (XBAK_BIN IN LISTS XBAK_BINARIES)

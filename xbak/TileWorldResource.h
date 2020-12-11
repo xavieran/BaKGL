@@ -36,11 +36,14 @@ const unsigned int OBJECT_CENTER = 0;
 struct TileWorldItem
 {
     unsigned int type;
-    unsigned int flags;
+
+    unsigned int xrot;
+    unsigned int yrot;
+    unsigned int zrot;
+
     unsigned int xloc;
     unsigned int yloc;
-
-    char unknown[4];
+    unsigned int zloc;
 };
 
 class TileWorldResource

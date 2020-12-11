@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         for (unsigned int i = 0; i < wld->GetSize(); i++)
         {
             TileWorldItem mi = wld->GetItem(i);
-            printf("%6d,%6d: %3d (%02x) %08x\n", mi.xloc, mi.yloc, mi.type, mi.type, mi.flags);
+            printf("%6d,%6d: %3d (%02x)\n", mi.xloc, mi.yloc, mi.type, mi.type);
             if (mi.type > 0)
             {
                 unsigned int x = (mi.xloc - wld->GetMinX()) * MAP_SIZE_X / deltaX;

@@ -81,22 +81,25 @@ TileWorldResource::Load(FileBuffer *buffer)
     try
     {
         Clear();
+        unsigned i = 0;
         while (!buffer->AtEnd())
         {
             TileWorldItem twi;
-            twi.type = buffer->GetUint32LE();
-            twi.flags = buffer->GetUint32LE();
+            std::cout << "TWI: " << i++ << std::endl;
+            buffer->Dump(20);
+            twi.type = buffer->GetUint16LE();
+            twi.xrot = buffer->GetUint16LE();
+            twi.yrot = buffer->GetUint16LE();
+            twi.zrot = buffer->GetUint16LE();
             twi.xloc = buffer->GetUint32LE();
             twi.yloc = buffer->GetUint32LE();
+            twi.zloc= buffer->GetUint32LE();
             if (twi.type == OBJECT_CENTER)
             {
                 xCenter = twi.xloc;
                 yCenter = twi.yloc;
             }
-            buffer->GetData(twi.unknown, 4);
             items.push_back(twi);
-            //std::cout << "Blank: " << std::hex << twi.unknown << std::endl << std::dec;
-            //buffer->Skip(4);
         }
     }
     catch (Exception &e)

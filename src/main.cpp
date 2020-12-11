@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
         for (auto& inst : world.mItemInsts)
         {   
             if (!drawTrees && inst.GetWorldItem().GetName().substr(0, 4) == "tree") continue;
-            auto bloc = inst.GetLocation();
+            auto bloc = Vector2D{inst.GetLocation().GetX(), inst.GetLocation().GetY()};
             auto loc = BAK::TransformLoc(bloc, worldCenter, worldScale);
             auto brad = inst.GetWorldItem().GetGidItem().mRadius;
             auto rad = BAK::ScaleRad(brad, worldScale);
@@ -245,8 +245,8 @@ int main(int argc, char *argv[]) {
                                 bloc - worldCenter,
                                 worldScale);
 
-                            /*if (brad.GetX() != 0)
-                                scaled *= (rad.GetX() / brad.GetX());*/
+                            if (brad.GetX() != 0)
+                                scaled *= (rad.GetX() / brad.GetX());
 
                             x[i] = scaled.GetX();
                             y[i] = (96 * 4) - scaled.GetY();

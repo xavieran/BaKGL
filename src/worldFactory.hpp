@@ -127,26 +127,39 @@ std::ostream& operator<<(std::ostream& os, const WorldItem& d)
 class WorldItemInstance
 {
 public:
-    WorldItemInstance(const WorldItem& worldItem, unsigned type, unsigned flags, unsigned x, unsigned y)
+    WorldItemInstance(
+        const WorldItem& worldItem,
+        unsigned type,
+        unsigned xrot,
+        unsigned yrot,
+        unsigned zrot,
+        unsigned x,
+        unsigned y,
+        unsigned z)
     :
         mWorldItem{worldItem},
         mType{type},
-        mFlags{flags},
+        mRotation{
+            static_cast<int>(xrot),
+            static_cast<int>(yrot),
+            static_cast<int>(zrot)},
         mLocation{
             static_cast<int>(x),
-            static_cast<int>(y)}
+            static_cast<int>(y),
+            static_cast<int>(z)}
     {}
 
     const WorldItem& GetWorldItem() const { return mWorldItem; }
-    const Vector2D& GetLocation() const { return mLocation; }
+    const Vector3D& GetRotation() const { return mRotation; }
+    const Vector3D& GetLocation() const { return mLocation; }
     unsigned GetType() const { return mType; }
 
 private:
     const WorldItem& mWorldItem;
 
     unsigned mType;
-    unsigned mFlags;
-    Vector2D mLocation;
+    Vector3D mRotation;
+    Vector3D mLocation;
 
     friend std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d);
 };
@@ -154,7 +167,7 @@ private:
 std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
     os << "[ Name: " << d.GetWorldItem().GetName() << " Type: " << d.mType << " Flags: " 
-        << std::hex << d.mFlags << std::dec << " Loc: " << d.mLocation << "]";
+        << std::hex << d.mRotation << std::dec << " Loc: " << d.mLocation << "]";
     os << std::endl << "Pos: " << d.GetWorldItem().GetDatItem().mPos << " Vertices::" << std::endl;
     
     const auto& vertices = d.GetWorldItem().GetDatItem().mVertices;
@@ -223,9 +236,13 @@ public:
                 mItemInsts.emplace_back(
                     mItems[item.type],
                     item.type,
-                    item.flags,
+                    item.xrot,
+                    item.yrot,
+                    item.zrot,
                     item.xloc,
-                    item.yloc);
+                    item.yloc,
+                    item.zloc
+                    );
         }
 
         for (const auto& i : mItemInsts)
