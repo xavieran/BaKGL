@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 
 namespace BAK {
 
@@ -39,6 +40,23 @@ Vector2D ScaleRad(
     result *= scale;
     result *= (static_cast<double>(MAP_SIZE_X) / TILE_SIZE);
     return result;
+}
+
+Vector2D RotateAboutPoint(
+    const Vector2D& p,
+    const Vector2D& center,
+    int angle)
+{
+    double pi = 3.14159265358979323846;
+    auto t = p;
+    t -= center;
+    auto theta = (static_cast<double>(angle) / static_cast<double>(0xffff)) * 2 * pi;
+
+    auto j = Vector2D{
+        static_cast<int>(t.GetX() * cos(theta) - t.GetY() * sin(theta)),
+        static_cast<int>(t.GetX() * sin(theta) + t.GetY() * cos(theta))};
+    j += center;
+    return j;
 }
 
 }

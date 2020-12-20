@@ -70,7 +70,9 @@ public:
     {
         DatItem(DatInfo* other)
         :
-            mVertices{}
+            mColors{},
+            mVertices{},
+            mFaces{}
         {
             assert(other);
             mEntityFlags  = other->entityFlags;
@@ -90,6 +92,10 @@ public:
             {
                 mFaces.emplace_back(face);
             }
+            for (const auto& color : other->faceColors)
+            {
+                mColors.emplace_back(color);
+            }
         }
 
         unsigned mEntityFlags;
@@ -100,6 +106,7 @@ public:
         Vector3D mMin;
         Vector3D mMax;
         Vector3D mPos;
+        std::vector<std::uint8_t> mColors;
         std::vector<Vector3D> mVertices;
         std::vector<std::vector<std::uint16_t>> mFaces;
     };
@@ -120,7 +127,15 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const WorldItem& d)
 {
-    os << d.mName;
+    os << d.mName << " :: "
+        << d.GetDatItem().mVertices << "\n";
+    for (const auto& face : d.GetDatItem().mFaces)
+    {
+        for (const auto i : face)
+            os << " :: " << i;
+        os << "\n";
+    }
+        
     return os;
 }
 
@@ -193,6 +208,17 @@ public:
         LoadWorld(zone, x, y);
     }
 
+    const WorldItem& GetWorldItem(const std::string& name) const
+    {
+        auto it = std::find_if(mItems.begin(), mItems.end(),
+            [&name](const auto& item){
+                return name == item.GetName();
+            });
+
+        assert(it != mItems.end());
+        return *it;
+    }
+
     void LoadWorld(unsigned zone, unsigned x, unsigned y)
     {
         TableResource table{};
@@ -232,17 +258,16 @@ public:
                 mCenter = Vector2D{
                     static_cast<int>(item.xloc),
                     static_cast<int>(item.yloc)};
-            else
-                mItemInsts.emplace_back(
-                    mItems[item.type],
-                    item.type,
-                    item.xrot,
-                    item.yrot,
-                    item.zrot,
-                    item.xloc,
-                    item.yloc,
-                    item.zloc
-                    );
+			mItemInsts.emplace_back(
+				mItems[item.type],
+				item.type,
+				item.xrot,
+				item.yrot,
+				item.zrot,
+				item.xloc,
+				item.yloc,
+				item.zloc
+				);
         }
 
         for (const auto& i : mItemInsts)

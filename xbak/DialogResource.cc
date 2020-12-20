@@ -54,7 +54,7 @@ unsigned int DialogResource::GetSize() const
 
 bool DialogResource::Find(const unsigned int n, DialogData* data)
 {
-    std::map<const unsigned int, DialogData*>::iterator it = dialogMap.find(n);
+    auto it = dialogMap.find(n);
     if (it != dialogMap.end())
     {
         data = it->second;
@@ -65,7 +65,7 @@ bool DialogResource::Find(const unsigned int n, DialogData* data)
 
 void DialogResource::Clear()
 {
-    for (std::map<const unsigned int, DialogData*>::iterator it = dialogMap.begin(); it != dialogMap.end(); ++it)
+    for (auto it = dialogMap.begin(); it != dialogMap.end(); ++it)
     {
         delete it->second;
     }
@@ -134,7 +134,7 @@ void DialogResource::Load(FileBuffer *buffer)
             unsigned int value = buffer->GetUint32LE();
             offset.insert(std::pair<const unsigned int, unsigned int>(key, value));
         }
-        for (std::map<const unsigned int, unsigned int>::const_iterator it = offset.begin(); it != offset.end(); ++it)
+        for (auto it = offset.begin(); it != offset.end(); ++it)
         {
             buffer->Seek(it->second);
             DialogData* data = new DialogData;

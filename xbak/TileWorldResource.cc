@@ -93,7 +93,7 @@ TileWorldResource::Load(FileBuffer *buffer)
             twi.zrot = buffer->GetUint16LE();
             twi.xloc = buffer->GetUint32LE();
             twi.yloc = buffer->GetUint32LE();
-            twi.zloc= buffer->GetUint32LE();
+            twi.zloc = buffer->GetUint32LE();
             if (twi.type == OBJECT_CENTER)
             {
                 xCenter = twi.xloc;

@@ -132,9 +132,9 @@ TableResource::Load(FileBuffer *buffer)
         FileBuffer *gidbuf;
         FileBuffer *datbuf;
         if (!Find(TAG_MAP, mapbuf) ||
-                !Find(TAG_APP, appbuf) ||
-                !Find(TAG_GID, gidbuf) ||
-                !Find(TAG_DAT, datbuf))
+            !Find(TAG_APP, appbuf) ||
+            !Find(TAG_GID, gidbuf) ||
+            !Find(TAG_DAT, datbuf))
         {
             ClearTags();
             throw DataCorruption(__FILE__, __LINE__);
@@ -220,7 +220,9 @@ TableResource::Load(FileBuffer *buffer)
             if (more)
             {
                 gidbuf->Skip(2);
-                unsigned int n = gidbuf->GetUint16LE();
+                //unsigned int n = gidbuf->GetUint16LE();
+                unsigned int n = gidbuf->GetUint8();
+                gidbuf->Skip(1);
                 std::cout << "n: " << n << std::endl;
                 gidbuf->Skip(2);
                 for (unsigned int j = 0; j < n; j++)
@@ -237,6 +239,7 @@ TableResource::Load(FileBuffer *buffer)
             gidItems.push_back(item);
         }
         delete[] gidOffset;
+        delete[] gidLength;
 
         unsigned int *datOffset = new unsigned int [numMapItems];
         for (unsigned int i = 0; i < numMapItems; i++)
@@ -260,6 +263,12 @@ TableResource::Load(FileBuffer *buffer)
                 << " i: " << std::hex << i << " length: " << length << std::dec << std::endl;
             datbuf->Dump(length);
         }
+        unsigned ii = numMapItems - 1;
+        unsigned ilength = datbuf->GetBytesLeft();
+        std::cout << "DatItem: " << mapItems[ii] << " " << ii << " length: " << ilength
+            << " i: " << std::hex << ii << " length: " << ilength << std::dec << std::endl;
+        datbuf->Seek(datOffset[ii]);
+        datbuf->Dump(ilength);
 
         for (unsigned int i = 0; i < numMapItems; i++)
         {
@@ -274,12 +283,13 @@ TableResource::Load(FileBuffer *buffer)
             std::cout << "\tDatItem: " << mapItems[i]  << " 0x" << std::hex << i << " f: " << item->entityFlags
                 << " et: " << item->entityType << " tt: " << item->terrainType
                 << " tc: " << item->terrainClass << " more: " << more 
-                << std::dec << " "  << datbuf->Tell() << std::endl;
+                << std::dec << " - "  << datbuf->Tell() << std::endl;
             datbuf->Skip(4);
             if (more)
             {
                 if (!(item->entityFlags & EF_UNBOUNDED))
                 {
+                    std::cout << " Bounded" << std::endl;
                     item->min.SetX(datbuf->GetSint16LE());
                     item->min.SetY(datbuf->GetSint16LE());
                     item->min.SetZ(datbuf->GetSint16LE());
@@ -288,7 +298,8 @@ TableResource::Load(FileBuffer *buffer)
                     item->max.SetZ(datbuf->GetSint16LE());
                 }
                 datbuf->Skip(2);
-                unsigned int nPolys = datbuf->GetUint16LE();
+                datbuf->Dump(8);
+                unsigned nPolys = datbuf->GetUint16LE();
                 std::cout << "Polygons: " << nPolys << std::endl;
 
                 datbuf->Skip(2); // Seems important...
@@ -313,13 +324,25 @@ TableResource::Load(FileBuffer *buffer)
                     || item->entityType == 0x2
                     || item->entityType == 0x3
                     || item->entityType == 0x4
+                    || item->entityType == 0x5
                     || item->entityType == 0x6
                     || item->entityType == 0x7
                     || item->entityType == 0x8
+                    || item->entityType == 0x9
                     || item->entityType == 0xa
+                    || item->entityType == 0xe
+                    || item->entityType == 0xf
                     || item->entityType == 0x12
-                    || item->entityType == 0x14)
-                    nVertices -= 1;
+                    || item->entityType == 0x14
+                    || item->entityType == 0x17
+                    || item->entityType == 0x24
+                    || item->entityType == 0x26
+                    || item->entityType == 0x27
+                    )
+                {
+                    if (nVertices > 0)
+                        nVertices -= 1;
+                }
 
                 std::cout << "Finished Blocks: vertts: " << nVertices << std::endl;
                 for (unsigned int j = 0; j <= nVertices; j++)
@@ -352,31 +375,47 @@ TableResource::Load(FileBuffer *buffer)
                 }
                 else
                 {
-                    for (unsigned int j = 0; j < nPolys; j++)
+                    // nPolys - 1 ? This doesn't seem right...
+                    if (item->entityType == 0xa) nPolys -= 1;
+                    for (unsigned int j = 0; j < (nPolys); j++)
                     {
-                        datbuf->Skip(2); // Empty
-                        unsigned nFaces = datbuf->GetUint16LE();
-                        datbuf->Skip(4); // Offset?
-                        for (unsigned k = 0; k < nFaces; k++)
+                        std::cout << "PolyN: " << j << std::endl;
+                        std::vector<std::uint16_t> nFaces{};
+                        while (datbuf->GetUint16LE() == 0)
                         {
-                            datbuf->Skip(1); // Which palette to use
-                            for (unsigned c = 0; c < 4; c++)
-                            {
-                                datbuf->Skip(1); // color index
-                            }
-                            datbuf->Skip(3); // Offset?
+                            nFaces.emplace_back(datbuf->GetUint16LE());
+                            datbuf->Skip(4); // Offset?
                         }
-                        for (unsigned k = 0; k < nFaces; k++)
+                        datbuf->Skip(-2); // Go back 
+                        std::cout << "Faces: " << nFaces << std::endl;
+                        assert(!nFaces.empty());
+
+                        for (const auto faces : nFaces)
                         {
-                            unsigned vertI;
-                            std::vector<std::uint16_t> vertIndices;
-                            datbuf->Dump(5);
-                            while ((vertI = datbuf->GetUint8()) != 0xff)
+                            for (unsigned k = 0; k < faces; k++)
                             {
-                                vertIndices.emplace_back(vertI);
+                                datbuf->Skip(1); // Which palette to use
+                                for (unsigned c = 0; c < 4; c++)
+                                {
+                                    if (c == 0)
+                                        item->faceColors.push_back(datbuf->GetUint8()); 
+                                    else
+                                        datbuf->Skip(1);
+                                }
+                                datbuf->Skip(3); // Offset?
                             }
-                            std::cout << "Face: " << vertIndices << std::endl;
-                            item->faces.push_back(vertIndices);
+                            for (unsigned k = 0; k < faces; k++)
+                            {
+                                unsigned vertI;
+                                std::vector<std::uint16_t> vertIndices;
+                                datbuf->Dump(5);
+                                while ((vertI = datbuf->GetUint8()) != 0xff)
+                                {
+                                    vertIndices.emplace_back(vertI);
+                                }
+                                std::cout << "Face: " << vertIndices << std::endl;
+                                item->faces.push_back(vertIndices);
+                            }
                         }
                     }
                 }

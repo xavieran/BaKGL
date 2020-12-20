@@ -130,7 +130,7 @@ class DatInfo
         Vector3D max;
         Vector3D pos;
         std::vector<Vector3D *> vertices;
-        //std::vector<FaceColor> faceColors;
+        std::vector<std::uint8_t> faceColors;
         std::vector<std::vector<std::uint16_t>> faces;
 
         DatInfo();

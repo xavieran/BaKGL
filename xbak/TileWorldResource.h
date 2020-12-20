@@ -47,7 +47,7 @@ struct TileWorldItem
 };
 
 class TileWorldResource
-            : public ResourceData
+    : public ResourceData
 {
     private:
         unsigned int xCenter;

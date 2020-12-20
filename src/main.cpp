@@ -7,6 +7,7 @@
 
 #include "SDL.h"
 
+#include "FileManager.h"
 #include "FileBuffer.h"
 #include "MediaToolkit.h"
 #include "PaletteResource.h"
@@ -22,8 +23,6 @@
 #include <fstream>   
 #include <iostream>   
 #include <vector>
-
-#include <getopt.h>
 
 #include <boost/range/adaptor/indexed.hpp>
 
@@ -112,68 +111,61 @@ static SDL_Cursor *init_system_cursor(const char *image[])
 }
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     //loguru::init(argc, argv);
-    
-    char opt;
-    while ((opt = getopt(argc, argv, "fvs:")) != EOF)
-        switch (opt) {
-        case 'h':
-        case '?':
-        default:
-            exit_with_help(argv);
-        }
     
     unsigned zone = 1;
 
     LOG_S(INFO) << "Loading zone: " << zone;
-    
+        
     auto worlds = std::vector<BAK::World>{};
-    worlds.reserve(20);
+    worlds.reserve(60);
 
-    worlds.emplace_back(1, 9, 13);
-    worlds.emplace_back(1, 9, 14);
-    worlds.emplace_back(1, 9, 15);
-    
-    worlds.emplace_back(1, 10, 10);
-    worlds.emplace_back(1, 10, 11);
-    worlds.emplace_back(1, 10, 12);
-    worlds.emplace_back(1, 10, 13);
-    worlds.emplace_back(1, 10, 14);
-    worlds.emplace_back(1, 10, 15);
-    worlds.emplace_back(1, 10, 16);
+    //worlds.emplace_back(zone, 9, 13);
+    //worlds.emplace_back(zone, 9, 13);
+    //worlds.emplace_back(zone, 9, 14);
+    //worlds.emplace_back(zone, 9, 15);
+    //
+    //worlds.emplace_back(zone, 10, 10);
+    //worlds.emplace_back(zone, 10, 11);
+    //worlds.emplace_back(zone, 10, 12);
+    //worlds.emplace_back(zone, 10, 13);
+    //worlds.emplace_back(zone, 10, 14);
+    //worlds.emplace_back(zone, 10, 15);
+    //worlds.emplace_back(zone, 10, 16);
 
-    worlds.emplace_back(1, 11, 11);
-    worlds.emplace_back(1, 11, 16);
-    worlds.emplace_back(1, 11, 17);
-    worlds.emplace_back(1, 12, 10);
-    worlds.emplace_back(1, 12, 11);
-    worlds.emplace_back(1, 12, 17);
+    //worlds.emplace_back(zone, 11, 11);
+    worlds.emplace_back(zone, 11, 16);
+    worlds.emplace_back(zone, 11, 17);
+    //worlds.emplace_back(zone, 12, 10);
+    //worlds.emplace_back(zone, 12, 11);
+    //worlds.emplace_back(zone, 12, 17);
 
-    worlds.emplace_back(1, 13, 10);
-    worlds.emplace_back(1, 13, 17);
 
-    /*
-    worlds.emplace_back(1, 14, 10);
-    worlds.emplace_back(1, 14, 11);
-    worlds.emplace_back(1, 14, 17);
+    //worlds.emplace_back(zone, 13, 10);
+    //worlds.emplace_back(zone, 13, 17);
 
-    worlds.emplace_back(1, 15, 10);
-    worlds.emplace_back(1, 15, 11);
-    worlds.emplace_back(1, 15, 12);
-    worlds.emplace_back(1, 15, 13);
-    worlds.emplace_back(1, 15, 14);
-    worlds.emplace_back(1, 15, 15);
-    worlds.emplace_back(1, 15, 16);
-    worlds.emplace_back(1, 15, 17);
-    worlds.emplace_back(1, 15, 18);
+    //worlds.emplace_back(zone, 14, 10);
+    //worlds.emplace_back(zone, 14, 11);
+    //worlds.emplace_back(zone, 14, 17);
 
-    worlds.emplace_back(1, 16, 10);
-    worlds.emplace_back(1, 16, 11);
-    worlds.emplace_back(1, 16, 17);
-    */
+    //worlds.emplace_back(zone, 15, 10);
+    //worlds.emplace_back(zone, 15, 11);
+    //worlds.emplace_back(zone, 15, 12);
+    //worlds.emplace_back(zone, 15, 13);
+    //worlds.emplace_back(zone, 15, 14);
+    //worlds.emplace_back(zone, 15, 15);
+    //worlds.emplace_back(zone, 15, 16);
+    //worlds.emplace_back(zone, 15, 17);
+    //worlds.emplace_back(zone, 15, 18);
+
+    //worlds.emplace_back(zone, 16, 10);
+    //worlds.emplace_back(zone, 16, 11);
+    //worlds.emplace_back(zone, 16, 17);
 
     auto worldCenter = worlds.at(0).mCenter;
+    //auto worldCenter = Vector2D{815243, 1073855};
     for (const auto& world : worlds)
     {
         std::cout << world.mCenter << std::endl;
@@ -191,12 +183,27 @@ int main(int argc, char *argv[]) {
 	auto cursor = init_system_cursor(arrow);
 	SDL_SetCursor(cursor);
 	SDL_ShowCursor(SDL_ENABLE);
+    
+    PaletteResource *palz = new PaletteResource;
+    std::stringstream palStr{""};
+    palStr << "Z" << std::setfill('0') << std::setw(2) << zone << ".PAL";
+    FileManager::GetInstance()->Load(palz, palStr.str());
 
+    auto& pal = *palz->GetPalette();
+    pal.Activate(0, 256);
+
+    /*
     PaletteResource pal;
     pal.GetPalette()->Fill();
     pal.GetPalette()->Activate(0, 256);
+    */
     
     const auto Draw = [&](auto& world){
+        /*media->GetVideo()->FillRect(
+            0, 0,
+            480, 480,
+            world.mItemInsts[0].GetWorldItem().GetDatItem().mColors[1]);*/
+
         for (auto& inst : world.mItemInsts)
         {   
             if (!drawTrees && inst.GetWorldItem().GetName().substr(0, 4) == "tree") continue;
@@ -207,25 +214,24 @@ int main(int argc, char *argv[]) {
 
             if (brad == Vector2D{0, 0})
                 rad = Vector2D{1, 1};
-            //std::cout << loc << "-" << rad << " @ " << inst << std::endl;
-            media->GetVideo()->DrawRect(
+            /*media->GetVideo()->DrawRect(
                 (loc.GetX() - rad.GetX()),
                 (96 * 4) - (loc.GetY() + rad.GetY()),
                 rad.GetX() * 2,
                 rad.GetY() * 2,
-                inst.GetType());
+                inst.GetType());*/
 
             {
-                std::cout << "Drawing: " << inst.GetWorldItem().GetName() << std::endl;
                 const auto& vertices = inst.GetWorldItem().GetDatItem().mVertices;
                 const auto& faces = inst.GetWorldItem().GetDatItem().mFaces;
+                const auto& colors = inst.GetWorldItem().GetDatItem().mColors;
+
                 if (!faces.empty())
                 {
                     bool stop = false;
                     for (const auto& face : faces | boost::adaptors::indexed())
                     {
                         unsigned faceVertices = face.value().size();
-                        //std::cout << "Face vertices; " << faceVertices << std::endl;
                         int *x = new int[faceVertices];
                         int *y = new int[faceVertices];
                         int i = 0;
@@ -238,15 +244,20 @@ int main(int argc, char *argv[]) {
                                 stop = true;
                                 break;
                             }
+                            auto scaleFactor = 1 << static_cast<unsigned>(
+                                inst.GetWorldItem().GetDatItem().mTerrainClass);
                             assert(v < vertices.size());
-                            auto vertex = vertices[v];
+                            auto rawV = Vector2D{vertices[v].GetX(), vertices[v].GetY()};
+                            auto vertex = BAK::RotateAboutPoint(
+                                rawV,
+                                Vector2D{0,0},
+                                //bloc,
+                                inst.GetRotation().GetZ());
+
                             auto scaled = BAK::TransformLoc2(
-                                Vector2D{vertex.GetX(), vertex.GetY()},
+                                Vector2D{vertex.GetX(), vertex.GetY()} * scaleFactor,
                                 bloc - worldCenter,
                                 worldScale);
-
-                            if (brad.GetX() != 0)
-                                scaled *= (rad.GetX() / brad.GetX());
 
                             x[i] = scaled.GetX();
                             y[i] = (96 * 4) - scaled.GetY();
@@ -258,47 +269,63 @@ int main(int argc, char *argv[]) {
                                 << std::endl;*/
                         }
                         if (!stop)
-                            media->GetVideo()->DrawPolygon(x, y, faceVertices, 250);
+                            media->GetVideo()->FillPolygon(
+                                x, y,
+                                faceVertices,
+                                colors[face.index()]);
                         else
                             stop = true;
                     }
                 }
             }
 
-            media->GetVideo()->PutPixel(loc.GetX(), 96*4 -loc.GetY(), 254);
+            media->GetVideo()->PutPixel(loc.GetX(), 96*4 -loc.GetY(), 0x8f);
         }
     };
+    
+    boost::optional<Key> heldKey{boost::none};
 
     BAK::EventRouter eventRouter{
         [&](const auto& e){
             const auto k = e.GetKey();
-            int delta = (64000/16) / worldScale;
+            heldKey = k;
 
             if (k == KEY_ESCAPE)
                 std::exit(0);
-            else if (k == KEY_UP || k == KEY_w)
-                worldCenter += Vector2D{0, delta};
-            else if (k == KEY_DOWN || k == KEY_s)
-                worldCenter -= Vector2D{0, delta};
-            else if (k == KEY_LEFT || k == KEY_a)
-                worldCenter -= Vector2D{delta, 0};
-            else if (k == KEY_RIGHT || k == KEY_d)
-                worldCenter += Vector2D{delta, 0};
-            else if (k == KEY_z)
-                worldScale += .2;
-            else if (k == KEY_x)
-                worldScale -= .2;
             else if (k == KEY_t)
                 drawTrees = !drawTrees;
 
             std::cerr << "Center: " << worldCenter << std::endl;
         },
-        [](const auto&){},
-        [&worlds, &media, &Draw](const auto&){
+        [&](const auto&){
+            heldKey = boost::none;
+        },
+        [&](const auto&){
             media->GetVideo()->Clear();
             for (auto& world : worlds)
             {
                 Draw(world);
+                
+                int delta = (64000/64) / worldScale;
+
+                if (heldKey)
+                {
+                    auto k = *heldKey;
+                    if (k == KEY_UP || k == KEY_w)
+                        worldCenter += Vector2D{0, delta};
+                    else if (k == KEY_DOWN || k == KEY_s)
+                        worldCenter -= Vector2D{0, delta};
+                    else if (k == KEY_LEFT || k == KEY_a)
+                        worldCenter -= Vector2D{delta, 0};
+                    else if (k == KEY_RIGHT || k == KEY_d)
+                        worldCenter += Vector2D{delta, 0};
+                    else if (k == KEY_z)
+                        worldScale += .04;
+                    else if (k == KEY_x)
+                        worldScale -= .04;
+                    heldKey = boost::none;
+                }
+
             }
             media->GetVideo()->Refresh();
         }
