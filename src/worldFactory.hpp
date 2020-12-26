@@ -1,11 +1,5 @@
 #pragma once
 
-//#include <loguru.hpp>
-
-#define INFO 0
-
-#define LOG_S(level) (std::cout)
-
 #include "FileBuffer.h"
 
 #include "TileWorldResource.h"
@@ -21,10 +15,10 @@
 
 namespace BAK {
 
-class WorldItem
+class ZoneItem
 {
 public:
-    WorldItem(
+    ZoneItem(
         const std::string& name,
         DatInfo* datInfo,
         GidInfo* gidInfo)
@@ -122,10 +116,10 @@ private:
     DatItem mDatItem;
     GidItem mGidItem;
 
-    friend std::ostream& operator<<(std::ostream& os, const WorldItem& d);
+    friend std::ostream& operator<<(std::ostream& os, const ZoneItem& d);
 };
 
-std::ostream& operator<<(std::ostream& os, const WorldItem& d)
+std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 {
     os << d.mName << " :: "
         << d.GetDatItem().mVertices << "\n";
@@ -139,11 +133,67 @@ std::ostream& operator<<(std::ostream& os, const WorldItem& d)
     return os;
 }
 
+class ZoneItemStore
+{
+public:
+
+    ZoneItemStore(std::string zoneLabel)
+    :
+        mZoneLabel{zoneLabel},
+        mItems{}
+    {
+        TableResource table{};
+        {
+            std::stringstream str{""};
+            str << "Z" << std::setfill('0') << std::setw(2) << zoneLabel << ".TBL";
+            auto fb = FileBufferFactory::CreateFileBuffer(str.str());
+            table.Load(&fb);
+        }
+    
+        assert((table.GetMapSize() == table.GetDatSize())
+            && (table.GetDatSize() == table.GetGidSize()));
+
+        std::cout << std::endl;
+        for (unsigned i = 0; i < table.GetMapSize(); i++)
+        {
+            mItems.emplace_back(
+                table.GetMapItem(i),
+                table.GetDatItem(i),
+                table.GetGidItem(i));
+        }
+    }
+
+    const std::string& GetZoneLabel() const { return mZoneLabel; }
+
+    const ZoneItem& GetZoneItem(const unsigned i) const
+    {
+        assert(i < mItems.size());
+        return mItems[i];
+    }
+
+    const ZoneItem& GetZoneItem(const std::string& name) const
+    {
+        auto it = std::find_if(mItems.begin(), mItems.end(),
+            [&name](const auto& item){
+                return name == item.GetName();
+            });
+
+        assert(it != mItems.end());
+        return *it;
+    }
+
+    const std::vector<ZoneItem>& GetItems() const { return mItems; }
+
+private:
+    const std::string mZoneLabel;
+    std::vector<ZoneItem> mItems;
+};
+
 class WorldItemInstance
 {
 public:
     WorldItemInstance(
-        const WorldItem& worldItem,
+        const ZoneItem& zoneItem,
         unsigned type,
         unsigned xrot,
         unsigned yrot,
@@ -152,7 +202,7 @@ public:
         unsigned y,
         unsigned z)
     :
-        mWorldItem{worldItem},
+        mZoneItem{zoneItem},
         mType{type},
         mRotation{
             static_cast<int>(xrot),
@@ -164,13 +214,13 @@ public:
             static_cast<int>(z)}
     {}
 
-    const WorldItem& GetWorldItem() const { return mWorldItem; }
+    const ZoneItem& GetZoneItem() const { return mZoneItem; }
     const Vector3D& GetRotation() const { return mRotation; }
     const Vector3D& GetLocation() const { return mLocation; }
     unsigned GetType() const { return mType; }
 
 private:
-    const WorldItem& mWorldItem;
+    const ZoneItem& mZoneItem;
 
     unsigned mType;
     Vector3D mRotation;
@@ -181,11 +231,11 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
-    os << "[ Name: " << d.GetWorldItem().GetName() << " Type: " << d.mType << " Flags: " 
+    os << "[ Name: " << d.GetZoneItem().GetName() << " Type: " << d.mType << " Flags: " 
         << std::hex << d.mRotation << std::dec << " Loc: " << d.mLocation << "]";
-    os << std::endl << "Pos: " << d.GetWorldItem().GetDatItem().mPos << " Vertices::" << std::endl;
+    os << std::endl << "Pos: " << d.GetZoneItem().GetDatItem().mPos << " Vertices::" << std::endl;
     
-    const auto& vertices = d.GetWorldItem().GetDatItem().mVertices;
+    const auto& vertices = d.GetZoneItem().GetDatItem().mVertices;
     for (const auto& vertex : vertices)
     {
         os << "  " << vertex << std::endl;
@@ -198,55 +248,21 @@ class World
 public:
 
     World(
-        unsigned zone,
+        const ZoneItemStore& zoneItems,
         unsigned x,
         unsigned y)
     :
-        mItems{},
         mItemInsts{}
     {
-        LoadWorld(zone, x, y);
+        LoadWorld(zoneItems, x, y);
     }
 
-    const WorldItem& GetWorldItem(const std::string& name) const
+    void LoadWorld(const ZoneItemStore& zoneItems, unsigned x, unsigned y)
     {
-        auto it = std::find_if(mItems.begin(), mItems.end(),
-            [&name](const auto& item){
-                return name == item.GetName();
-            });
-
-        assert(it != mItems.end());
-        return *it;
-    }
-
-    void LoadWorld(unsigned zone, unsigned x, unsigned y)
-    {
-        TableResource table{};
-        {
-            std::stringstream str{""};
-            str << "Z" << std::setfill('0') << std::setw(2) << zone << ".TBL";
-            LOG_S(INFO) << "Loading table resource: " << str.str();
-            auto fb = FileBufferFactory::CreateFileBuffer(str.str());
-            table.Load(&fb);
-        }
-    
-        assert((table.GetMapSize() == table.GetDatSize()) 
-            && (table.GetDatSize() == table.GetGidSize()));
-
-        std::cout << std::endl;
-        for (unsigned i = 0; i < table.GetMapSize(); i++)
-        {
-            mItems.emplace_back(
-                table.GetMapItem(i),
-                table.GetDatItem(i),
-                table.GetGidItem(i));
-        }
-
         TileWorldResource world{};
         {
             std::stringstream str{""};
-            str << "T" << std::setfill('0') << std::setw(2) << zone << std::setw(2) << x << std::setw(2) << y << ".WLD";
-            LOG_S(INFO) << "Loading world resource: " << str.str() << std::endl;
+            str << "T" << std::setfill('0') << std::setw(2) << zoneItems.GetZoneLabel() << std::setw(2) << x << std::setw(2) << y << ".WLD";
             auto fb = FileBufferFactory::CreateFileBuffer(str.str());
             world.Load(&fb);
         }
@@ -258,8 +274,9 @@ public:
                 mCenter = Vector2D{
                     static_cast<int>(item.xloc),
                     static_cast<int>(item.yloc)};
+
 			mItemInsts.emplace_back(
-				mItems[item.type],
+			    zoneItems.GetZoneItem(item.type),
 				item.type,
 				item.xrot,
 				item.yrot,
@@ -274,7 +291,6 @@ public:
             std::cout << i << std::endl;
     }
 
-    std::vector<WorldItem> mItems;
     std::vector<WorldItemInstance> mItemInsts;
     Vector2D mCenter;
 };

@@ -17,6 +17,8 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
+#undef DEBUG
+//#define DEBUG
 #include "Exception.h"
 #include "TableResource.h"
 
@@ -141,7 +143,9 @@ TableResource::Load(FileBuffer *buffer)
         }
         mapbuf->Skip(2);
         unsigned int numMapItems = mapbuf->GetUint16LE();
+#ifdef DEBUG
         std::cout << " NumMapItems: "  << numMapItems << std::endl;
+#endif
         unsigned int *mapOffset = new unsigned int [numMapItems];
         for (unsigned int i = 0; i < numMapItems; i++)
         {
@@ -173,10 +177,12 @@ TableResource::Load(FileBuffer *buffer)
             unsigned int lower = gidbuf->GetUint16LE();
             unsigned int upper = gidbuf->GetUint16LE();
             unsigned int offset = (upper << 4) + (lower & 0x000f);
+#ifdef DEBUG
             std::cout << "Load GIDOff: " << i << " name: " 
                 << mapItems[i] << std::hex << " upper: " << upper
                 << " lower: " << lower << " off: " << offset <<  " buf: " 
                 << std::dec << gidbuf->Tell() << std::endl;
+#endif
             gidOffset[i] = offset;
             uniqGidOffs.emplace(offset);
         }
@@ -195,23 +201,29 @@ TableResource::Load(FileBuffer *buffer)
         for (unsigned int i = 0; i < (numMapItems - 1); i++)
         {
             gidbuf->Seek(gidOffset[i]);
+#ifdef DEBUG
             std::cout << "GidItem: " << mapItems[i] << " " << i << " length: "
                 << " i: " << std::hex << i << " length: " << std::dec << gidLength[i] << std::endl;
             gidbuf->Dump(gidLength[i]);
+#endif
         }
     
         for (unsigned int i = 0; i < numMapItems; i++)
         {
+#ifdef DEBUG
             std::cout << " gidItem: " << mapItems[i] << " " << i << " current: " << gidbuf->Tell()
                 << " off: " << gidOffset[i] << std::endl;
+#endif
             // Seek a fixed distance from the start of the gidbuf
             gidbuf->Seek(gidOffset[i]); 
             GidInfo *item = new GidInfo();
 
             item->xradius = gidbuf->GetUint16LE();
             item->yradius = gidbuf->GetUint16LE();
+#ifdef DEBUG
             std::cout << "HitRad: (" << item->xradius << "," << item->yradius << ")"
                 << std::endl;
+#endif
             bool more = gidbuf->GetUint16LE() > 0;
             item->flags = gidbuf->GetUint16LE();
             // 86 -> Offset into giditem??
@@ -223,7 +235,9 @@ TableResource::Load(FileBuffer *buffer)
                 //unsigned int n = gidbuf->GetUint16LE();
                 unsigned int n = gidbuf->GetUint8();
                 gidbuf->Skip(1);
+#ifdef DEBUG
                 std::cout << "n: " << n << std::endl;
+#endif
                 gidbuf->Skip(2);
                 for (unsigned int j = 0; j < n; j++)
                 {
@@ -231,7 +245,9 @@ TableResource::Load(FileBuffer *buffer)
                     int v = gidbuf->GetSint8();
                     int x = gidbuf->GetSint16LE();
                     int y = gidbuf->GetSint16LE();
+#ifdef DEBUG
                     std::cout << std::hex << "uvxy " << u << " " << v << " " << x << " " << y << std::endl << std::dec;
+#endif
                     item->textureCoords.push_back(new Vector2D(u, v));
                     item->otherCoords.push_back(new Vector2D(x, y));
                 }
@@ -247,11 +263,12 @@ TableResource::Load(FileBuffer *buffer)
             unsigned int lower = datbuf->GetUint16LE();
             unsigned int upper = datbuf->GetUint16LE();
             unsigned int offset = (upper << 4) + (lower & 0x000f);
+#ifdef DEBUG
             std::cout << "Load DatOff: " << i << " name: " 
                 << mapItems[i] << std::hex << " upper: " << upper
                 << " lower: " << lower << " off: " << offset <<  " buf: " 
                 << std::dec << datbuf->Tell() << std::endl;
-
+#endif
             datOffset[i] = offset;
         }
 
@@ -259,16 +276,22 @@ TableResource::Load(FileBuffer *buffer)
         {
             datbuf->Seek(datOffset[i]);
             unsigned int length = datOffset[i + 1] - datOffset[i];
+#ifdef DEBUG
             std::cout << "DatItem: " << mapItems[i] << " " << i << " length: " << length
                 << " i: " << std::hex << i << " length: " << length << std::dec << std::endl;
             datbuf->Dump(length);
+#endif
         }
         unsigned ii = numMapItems - 1;
         unsigned ilength = datbuf->GetBytesLeft();
+#ifdef DEBUG
         std::cout << "DatItem: " << mapItems[ii] << " " << ii << " length: " << ilength
             << " i: " << std::hex << ii << " length: " << ilength << std::dec << std::endl;
+#endif
         datbuf->Seek(datOffset[ii]);
+#ifdef DEBUG
         datbuf->Dump(ilength);
+#endif
 
         for (unsigned int i = 0; i < numMapItems; i++)
         {
@@ -280,16 +303,17 @@ TableResource::Load(FileBuffer *buffer)
             item->terrainClass = datbuf->GetUint8();
             datbuf->Skip(4);
             bool more = datbuf->GetUint16LE() > 0;
+#ifdef DEBUG
             std::cout << "\tDatItem: " << mapItems[i]  << " 0x" << std::hex << i << " f: " << item->entityFlags
                 << " et: " << item->entityType << " tt: " << item->terrainType
                 << " tc: " << item->terrainClass << " more: " << more 
                 << std::dec << " - "  << datbuf->Tell() << std::endl;
+#endif
             datbuf->Skip(4);
             if (more)
             {
                 if (!(item->entityFlags & EF_UNBOUNDED))
                 {
-                    std::cout << " Bounded" << std::endl;
                     item->min.SetX(datbuf->GetSint16LE());
                     item->min.SetY(datbuf->GetSint16LE());
                     item->min.SetZ(datbuf->GetSint16LE());
@@ -298,13 +322,16 @@ TableResource::Load(FileBuffer *buffer)
                     item->max.SetZ(datbuf->GetSint16LE());
                 }
                 datbuf->Skip(2);
-                datbuf->Dump(8);
-                unsigned nPolys = datbuf->GetUint16LE();
-                std::cout << "Polygons: " << nPolys << std::endl;
 
+                unsigned nPolys = datbuf->GetUint16LE();
+#ifdef DEBUG
+                std::cout << "Polygons: " << nPolys << std::endl;
+#endif
                 datbuf->Skip(2); // Seems important...
                 unsigned nVertices = 0;
                 unsigned prevV = 0;
+                unsigned changeOverPoly = 0;
+                unsigned changeOverVerticesOffset = 0;
                 for (unsigned int j = 0; j < nPolys; j++)
                 {
                     datbuf->Skip(3);
@@ -312,10 +339,14 @@ TableResource::Load(FileBuffer *buffer)
                     if (v != prevV)
                     {
                         nVertices += v;
+                        changeOverPoly = j;
+                        changeOverVerticesOffset = prevV;
                         prevV = v;
                     }
+#ifdef DEBUG
                     std::cout << "v: " << v << " vert: " <<
                         nVertices << " p: " << prevV << std::endl;
+#endif
                     datbuf->Skip(10);
                 }
 
@@ -344,23 +375,18 @@ TableResource::Load(FileBuffer *buffer)
                         nVertices -= 1;
                 }
 
+#ifdef DEBUG
                 std::cout << "Finished Blocks: vertts: " << nVertices << std::endl;
+#endif
                 for (unsigned int j = 0; j <= nVertices; j++)
                 {
                     if (nVertices == 0) continue;
-                    std::cout << j << " "
-                        << datbuf->Tell() << std::endl;
-                    datbuf->Dump(6);
                     int x = datbuf->GetSint16LE();
                     int y = datbuf->GetSint16LE();
                     int z = datbuf->GetSint16LE();
                     item->vertices.push_back(new Vector3D(x, y, z));
-                    std::cout << "xyz: " << x << " " << y << " " << z << " - " 
-                        << datbuf->Tell() << std::endl;
                 }
-                std::cout << "Fininshe vertices" << std::endl;
 
-                datbuf->Dump(8);
                 if (nVertices == 0)
                 {
                     if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (nPolys == 1))
@@ -371,7 +397,9 @@ TableResource::Load(FileBuffer *buffer)
                     }
                     else
                         item->sprite = -1;
+#ifdef DEBUG
                     std::cout << "Sprite Object" << item->sprite << std::endl;
+#endif
                 }
                 else
                 {
@@ -379,7 +407,9 @@ TableResource::Load(FileBuffer *buffer)
                     if (item->entityType == 0xa) nPolys -= 1;
                     for (unsigned int j = 0; j < (nPolys); j++)
                     {
+#ifdef DEBUG
                         std::cout << "PolyN: " << j << std::endl;
+#endif
                         std::vector<std::uint16_t> nFaces{};
                         while (datbuf->GetUint16LE() == 0)
                         {
@@ -387,7 +417,9 @@ TableResource::Load(FileBuffer *buffer)
                             datbuf->Skip(4); // Offset?
                         }
                         datbuf->Skip(-2); // Go back 
+#ifdef DEBUG
                         std::cout << "Faces: " << nFaces << std::endl;
+#endif
                         assert(!nFaces.empty());
 
                         for (const auto faces : nFaces)
@@ -408,12 +440,12 @@ TableResource::Load(FileBuffer *buffer)
                             {
                                 unsigned vertI;
                                 std::vector<std::uint16_t> vertIndices;
-                                datbuf->Dump(5);
                                 while ((vertI = datbuf->GetUint8()) != 0xff)
                                 {
+                                    if (j >= changeOverPoly)
+                                        vertI += changeOverVerticesOffset;
                                     vertIndices.emplace_back(vertI);
                                 }
-                                std::cout << "Face: " << vertIndices << std::endl;
                                 item->faces.push_back(vertIndices);
                             }
                         }

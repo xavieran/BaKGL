@@ -24,8 +24,9 @@ int main(int argc, char** argv)
 {
 	const auto& logger = Logging::LogState::GetLogger("main");
 
-	unsigned zone = 1;
-	auto world = BAK::World{zone, 9, 13};
+	std::string zone = "6";
+
+    auto zoneItems = BAK::ZoneItemStore{zone};
 
 	auto palz = std::make_unique<PaletteResource>();
     std::stringstream palStr{""};
@@ -36,63 +37,116 @@ int main(int argc, char** argv)
 	auto worlds = std::vector<BAK::World>{};
     worlds.reserve(60);
 
-    worlds.emplace_back(zone, 9, 13);
-    worlds.emplace_back(zone, 9, 14);
-    worlds.emplace_back(zone, 9, 15);
+    worlds.emplace_back(zoneItems, 9, 11);
+
+    worlds.emplace_back(zoneItems, 10, 9);
+    worlds.emplace_back(zoneItems, 10, 10);
+    worlds.emplace_back(zoneItems, 10, 11);
+    worlds.emplace_back(zoneItems, 10, 12);
+
+    worlds.emplace_back(zoneItems, 11, 9);
+    worlds.emplace_back(zoneItems, 11, 10);
+    worlds.emplace_back(zoneItems, 11, 11);
+    worlds.emplace_back(zoneItems, 11, 12);
+    worlds.emplace_back(zoneItems, 11, 13);
+    worlds.emplace_back(zoneItems, 11, 14);
+    worlds.emplace_back(zoneItems, 11, 15);
+
+    worlds.emplace_back(zoneItems, 12, 14);
+    worlds.emplace_back(zoneItems, 12, 15);
+    worlds.emplace_back(zoneItems, 12, 16);
+    worlds.emplace_back(zoneItems, 12, 17);
+
+    worlds.emplace_back(zoneItems, 13, 15);
+    worlds.emplace_back(zoneItems, 13, 16);
+    worlds.emplace_back(zoneItems, 13, 17);
+
+    worlds.emplace_back(zoneItems, 14, 16);
+    worlds.emplace_back(zoneItems, 14, 17);
+    worlds.emplace_back(zoneItems, 14, 18);
+
+    worlds.emplace_back(zoneItems, 15, 16);
+    worlds.emplace_back(zoneItems, 15, 17);
+
+    worlds.emplace_back(zoneItems, 16, 13);
+    worlds.emplace_back(zoneItems, 16, 15);
+    worlds.emplace_back(zoneItems, 16, 16);
+    worlds.emplace_back(zoneItems, 16, 17);
+
+    worlds.emplace_back(zoneItems, 17, 11);
+    worlds.emplace_back(zoneItems, 17, 12);
+    worlds.emplace_back(zoneItems, 17, 13);
+    worlds.emplace_back(zoneItems, 17, 14);
+    worlds.emplace_back(zoneItems, 17, 15);
+    worlds.emplace_back(zoneItems, 17, 16);
+
+    worlds.emplace_back(zoneItems, 18, 14);
+    worlds.emplace_back(zoneItems, 18, 15);
+
+    worlds.emplace_back(zoneItems, 19, 15);
+    worlds.emplace_back(zoneItems, 20, 15);
+    worlds.emplace_back(zoneItems, 21, 15);
+    worlds.emplace_back(zoneItems, 22, 15);
+
+
     
-    worlds.emplace_back(zone, 10, 10);
-    worlds.emplace_back(zone, 10, 11);
-    worlds.emplace_back(zone, 10, 12);
-    worlds.emplace_back(zone, 10, 13);
-    worlds.emplace_back(zone, 10, 14);
-    worlds.emplace_back(zone, 10, 15);
-    worlds.emplace_back(zone, 10, 16);
 
-    worlds.emplace_back(zone, 11, 11);
-    worlds.emplace_back(zone, 11, 16);
-    worlds.emplace_back(zone, 11, 17);
-    worlds.emplace_back(zone, 12, 10);
-    worlds.emplace_back(zone, 12, 11);
-    worlds.emplace_back(zone, 12, 17);
+    /*
+    worlds.emplace_back(zoneItems, 9, 13);
+    worlds.emplace_back(zoneItems, 9, 14);
+    worlds.emplace_back(zoneItems, 9, 15);
+    
+    worlds.emplace_back(zoneItems, 10, 10);
+    worlds.emplace_back(zoneItems, 10, 11);
+    worlds.emplace_back(zoneItems, 10, 12);
+    worlds.emplace_back(zoneItems, 10, 13);
+    worlds.emplace_back(zoneItems, 10, 14);
+    worlds.emplace_back(zoneItems, 10, 15);
+    worlds.emplace_back(zoneItems, 10, 16);
 
+    worlds.emplace_back(zoneItems, 11, 11);
+    worlds.emplace_back(zoneItems, 11, 16);
+    worlds.emplace_back(zoneItems, 11, 17);
 
-    worlds.emplace_back(zone, 13, 10);
-    worlds.emplace_back(zone, 13, 17);
+    worlds.emplace_back(zoneItems, 12, 10);
+    worlds.emplace_back(zoneItems, 12, 11);
+    worlds.emplace_back(zoneItems, 12, 17);
 
-    worlds.emplace_back(zone, 14, 10);
-    worlds.emplace_back(zone, 14, 11);
-    worlds.emplace_back(zone, 14, 17);
+    worlds.emplace_back(zoneItems, 13, 10);
+    worlds.emplace_back(zoneItems, 13, 17);
 
-    worlds.emplace_back(zone, 15, 10);
-    worlds.emplace_back(zone, 15, 11);
-    worlds.emplace_back(zone, 15, 12);
-    worlds.emplace_back(zone, 15, 13);
-    worlds.emplace_back(zone, 15, 14);
-    worlds.emplace_back(zone, 15, 15);
-    worlds.emplace_back(zone, 15, 16);
-    worlds.emplace_back(zone, 15, 17);
-    worlds.emplace_back(zone, 15, 18);
+    worlds.emplace_back(zoneItems, 14, 10);
+    worlds.emplace_back(zoneItems, 14, 11);
+    worlds.emplace_back(zoneItems, 14, 17);
 
-    worlds.emplace_back(zone, 16, 10);
-    worlds.emplace_back(zone, 16, 11);
-    worlds.emplace_back(zone, 16, 17);
+    worlds.emplace_back(zoneItems, 15, 10);
+    worlds.emplace_back(zoneItems, 15, 11);
+    worlds.emplace_back(zoneItems, 15, 12);
+    worlds.emplace_back(zoneItems, 15, 13);
+    worlds.emplace_back(zoneItems, 15, 14);
+    worlds.emplace_back(zoneItems, 15, 15);
+    worlds.emplace_back(zoneItems, 15, 16);
+    worlds.emplace_back(zoneItems, 15, 17);
+    worlds.emplace_back(zoneItems, 15, 18);
+
+    worlds.emplace_back(zoneItems, 16, 10);
+    worlds.emplace_back(zoneItems, 16, 11);
+    worlds.emplace_back(zoneItems, 16, 17);
+    */
 
     auto worldCenter = worlds.at(0).mCenter;
 
 	auto objStore = BAK::MeshObjectStorage{};
 
-	for (const auto& wld : worlds)
-	{
-		for (const auto& inst : wld.mItemInsts)
-		{
-			auto obj = BAK::MeshObject();
-			if (inst.GetWorldItem().GetDatItem().mVertices.size() <= 1) continue;
-			obj.LoadFromBaKItem(inst.GetWorldItem(), pal);
-			objStore.AddObject(inst.GetWorldItem().GetName(), obj);
-		}
+    for (const auto& item : zoneItems.GetItems())
+    {
+        auto obj = BAK::MeshObject();
+        if (item.GetDatItem().mVertices.size() <= 1) continue;
+        obj.LoadFromBaKItem(item, pal);
+        objStore.AddObject(item.GetName(), obj);
 	}
 
-	float worldScale = 2000.;
+	float worldScale = 100.;
 
 	if( !glfwInit() )
 	{
@@ -104,12 +158,12 @@ int main(int argc, char** argv)
     GLFWwindow* window;
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	unsigned height = 768*2;
-	unsigned width  = 1024*2;
+	unsigned height = 768;
+	unsigned width  = 960;
 
 	window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
 	if( window == NULL )
@@ -149,8 +203,8 @@ int main(int argc, char** argv)
     const auto& indices = objStore.mIndices;
 
 	GLuint mvpMatrixID = glGetUniformLocation(programID, "MVP");
-	GLuint viewMatrixID = glGetUniformLocation(programID, "V");
 	GLuint modelMatrixID = glGetUniformLocation(programID, "M");
+	GLuint viewMatrixID = glGetUniformLocation(programID, "V");
 
 	GLuint vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
@@ -192,11 +246,11 @@ int main(int argc, char** argv)
 		glm::radians(45.0f),
 		(float) width / (float)height,
 		0.1f,
-		100.0f);
+		4000.0f);
 	  
 	// Camera matrix
 	glm::mat4 viewMatrix = glm::lookAt(
-		glm::vec3(5,0,0), // eye pos
+		glm::vec3(0,0,0), // eye pos
 		glm::vec3(0,0,0), // look pos
 		glm::vec3(0,1,0)  // orientation
 		);
@@ -206,7 +260,7 @@ int main(int argc, char** argv)
 	// Our ModelViewprojectionMatrix : multiplication of our 3 matrices
 	glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix; 
 
-	glm::vec3 position = glm::vec3( 0, 0, 5 );
+	glm::vec3 position = glm::vec3( 0, 1.8, 0 );
 	// horizontal angle : toward -Z
 	float horizontalAngle = 3.14f;
 	// vertical angle : 0, look at the horizon
@@ -214,7 +268,8 @@ int main(int argc, char** argv)
 	// Initial Field of View
 	float initialFoV = 45.0f;
     
-	float speed = 3.0f; // 3 units / second
+	float speed = 120.0f; // 3 units / second
+	float turnSpeed = 30.0f; // 3 units / second
 	float mouseSpeed = 0.009f;
 	//double xpos, ypos;
 	glm::vec3 direction;
@@ -228,7 +283,7 @@ int main(int argc, char** argv)
 
 	glUseProgram(programID);
 	GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
-	glm::vec3 lightPos = glm::vec3(0,0,4);
+	glm::vec3 lightPos = glm::vec3(0,220,0);
 
 	do
 	{
@@ -271,43 +326,31 @@ int main(int argc, char** argv)
 
 		// Rotate left
 		if (glfwGetKey( window, GLFW_KEY_Q) == GLFW_PRESS){
-			horizontalAngle += deltaTime * speed;
+			horizontalAngle += deltaTime * (turnSpeed / 12);
 		}
 		// Rotate left
 		if (glfwGetKey( window, GLFW_KEY_E) == GLFW_PRESS){
-			horizontalAngle -= deltaTime * speed;
+			horizontalAngle -= deltaTime * (turnSpeed / 12);
 		}
 
 		if (glfwGetKey( window, GLFW_KEY_X) == GLFW_PRESS){
-			verticalAngle += deltaTime * speed;
+			verticalAngle += deltaTime * (turnSpeed / 12);
 		}
 
         if (glfwGetKey( window, GLFW_KEY_Y) == GLFW_PRESS){
-			verticalAngle -= deltaTime * speed;
+			verticalAngle -= deltaTime * (turnSpeed / 12);
 		}
 
-		/*if (glfwGetKey( window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-			lightPos.x += .5;
-		}
-		if (glfwGetKey( window, GLFW_KEY_LEFT) == GLFW_PRESS){
-			lightPos.x -= .5;
-		}*/
 		if (glfwGetKey( window, GLFW_KEY_P) == GLFW_PRESS){
-			lightPos.z += .5;
+			lightPos.y += .5;
+            std::cout << lightPos.y << std::endl;
 		}
 		if (glfwGetKey( window, GLFW_KEY_L) == GLFW_PRESS){
-			lightPos.z -= .5;
-		}
-		/*
-		if (glfwGetKey( window, GLFW_KEY_UP) == GLFW_PRESS){
-			lightPos.y += .5;
-		}
-		if (glfwGetKey( window, GLFW_KEY_DOWN) == GLFW_PRESS){
 			lightPos.y -= .5;
-		}*/
+		}
 
 		lightPos.x = position.x;
-		lightPos.y = position.y;
+		lightPos.z = position.z;
 
 		viewMatrix = glm::lookAt(
 			position,
@@ -315,7 +358,6 @@ int main(int argc, char** argv)
 			up);
 
 		//glfwSetCursorPos(window, width/2, height/2);
-		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Use our shader
@@ -327,7 +369,6 @@ int main(int argc, char** argv)
 		
 		glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 
-		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glVertexAttribPointer(
@@ -365,33 +406,34 @@ int main(int argc, char** argv)
 		{
 			for (const auto& inst : world.mItemInsts)
 			{
-				if (inst.GetWorldItem().GetDatItem().mVertices.size() <= 1) continue;
+				if (inst.GetZoneItem().GetDatItem().mVertices.size() <= 1) continue;
 
-				const auto [offset, length] = objStore.GetObject(inst.GetWorldItem().GetName());
+				const auto [offset, length] = objStore.GetObject(inst.GetZoneItem().GetName());
 
 				modelMatrix = glm::mat4(1.0f);
 				
 				auto scaleFactor = static_cast<float>(1 << static_cast<unsigned>(
-					inst.GetWorldItem().GetDatItem().mTerrainClass));
+					inst.GetZoneItem().GetDatItem().mTerrainClass));
 				
 
 				auto wldCnt = Vector2D{815243, 1073855};
-				auto worldCenter = glm::vec3{wldCnt.GetX(), wldCnt.GetY(), 0};
+				auto worldCenter = glm::vec3{wldCnt.GetX(), 0, wldCnt.GetY()};
 				auto instLoc = inst.GetLocation();
-				auto itemLoc = glm::vec3{instLoc.GetX(), instLoc.GetY(), 0};
+				auto itemLoc = glm::vec3{instLoc.GetX(), 0, instLoc.GetY()};
 				auto relLoc = (itemLoc - worldCenter) / worldScale;
 
-				if (inst.GetWorldItem().GetName() == "ground")
+				if (inst.GetZoneItem().GetName() == "ground")
 				{
-					modelMatrix = glm::translate(modelMatrix, glm::vec3{0,0,-.1});
+					modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.1,0});
 				}
 
 				modelMatrix = glm::translate(modelMatrix, relLoc);
 				modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
 				modelMatrix = glm::rotate(modelMatrix,
-					(static_cast<float>(inst.GetRotation().GetZ()) / static_cast<float>(0xffff)) * 2 * glm::pi<float>(),
+					(static_cast<float>(inst.GetRotation().GetZ()) 
+                        / static_cast<float>(0xffff)) * 2 * glm::pi<float>(),
 				
-					glm::vec3(0,0,1));
+					glm::vec3(0,-1,0));
 
 
 				MVP = projectionMatrix * viewMatrix * modelMatrix;

@@ -2,9 +2,6 @@
  * Main
  */
 
-//#include <loguru.hpp>
-
-
 #include "SDL.h"
 
 #include "FileManager.h"
@@ -25,8 +22,6 @@
 #include <vector>
 
 #include <boost/range/adaptor/indexed.hpp>
-
-#define LOG_S(level) (std::cout)
 
 void exit_with_help(char *argv[]) {
     fprintf(stderr, "  nothing\n");
@@ -115,54 +110,54 @@ int main(int argc, char *argv[])
 {
     //loguru::init(argc, argv);
     
-    unsigned zone = 1;
+	std::string zone = "1";
 
-    LOG_S(INFO) << "Loading zone: " << zone;
-        
+    auto zoneItems = BAK::ZoneItemStore{zone};
+
     auto worlds = std::vector<BAK::World>{};
     worlds.reserve(60);
 
-    //worlds.emplace_back(zone, 9, 13);
-    //worlds.emplace_back(zone, 9, 13);
-    //worlds.emplace_back(zone, 9, 14);
-    //worlds.emplace_back(zone, 9, 15);
+    //worlds.emplace_back(zoneItems, 9, 13);
+    //worlds.emplace_back(zoneItems, 9, 13);
+    //worlds.emplace_back(zoneItems, 9, 14);
+    //worlds.emplace_back(zoneItems, 9, 15);
     //
-    //worlds.emplace_back(zone, 10, 10);
-    //worlds.emplace_back(zone, 10, 11);
-    //worlds.emplace_back(zone, 10, 12);
-    //worlds.emplace_back(zone, 10, 13);
-    //worlds.emplace_back(zone, 10, 14);
-    //worlds.emplace_back(zone, 10, 15);
-    //worlds.emplace_back(zone, 10, 16);
+    //worlds.emplace_back(zoneItems, 10, 10);
+    //worlds.emplace_back(zoneItems, 10, 11);
+    //worlds.emplace_back(zoneItems, 10, 12);
+    //worlds.emplace_back(zoneItems, 10, 13);
+    //worlds.emplace_back(zoneItems, 10, 14);
+    //worlds.emplace_back(zoneItems, 10, 15);
+    //worlds.emplace_back(zoneItems, 10, 16);
 
-    //worlds.emplace_back(zone, 11, 11);
-    worlds.emplace_back(zone, 11, 16);
-    worlds.emplace_back(zone, 11, 17);
-    //worlds.emplace_back(zone, 12, 10);
-    //worlds.emplace_back(zone, 12, 11);
-    //worlds.emplace_back(zone, 12, 17);
+    //worlds.emplace_back(zoneItems, 11, 11);
+    worlds.emplace_back(zoneItems, 11, 16);
+    worlds.emplace_back(zoneItems, 11, 17);
+    //worlds.emplace_back(zoneItems, 12, 10);
+    //worlds.emplace_back(zoneItems, 12, 11);
+    //worlds.emplace_back(zoneItems, 12, 17);
 
 
-    //worlds.emplace_back(zone, 13, 10);
-    //worlds.emplace_back(zone, 13, 17);
+    //worlds.emplace_back(zoneItems, 13, 10);
+    //worlds.emplace_back(zoneItems, 13, 17);
 
-    //worlds.emplace_back(zone, 14, 10);
-    //worlds.emplace_back(zone, 14, 11);
-    //worlds.emplace_back(zone, 14, 17);
+    //worlds.emplace_back(zoneItems, 14, 10);
+    //worlds.emplace_back(zoneItems, 14, 11);
+    //worlds.emplace_back(zoneItems, 14, 17);
 
-    //worlds.emplace_back(zone, 15, 10);
-    //worlds.emplace_back(zone, 15, 11);
-    //worlds.emplace_back(zone, 15, 12);
-    //worlds.emplace_back(zone, 15, 13);
-    //worlds.emplace_back(zone, 15, 14);
-    //worlds.emplace_back(zone, 15, 15);
-    //worlds.emplace_back(zone, 15, 16);
-    //worlds.emplace_back(zone, 15, 17);
-    //worlds.emplace_back(zone, 15, 18);
+    //worlds.emplace_back(zoneItems, 15, 10);
+    //worlds.emplace_back(zoneItems, 15, 11);
+    //worlds.emplace_back(zoneItems, 15, 12);
+    //worlds.emplace_back(zoneItems, 15, 13);
+    //worlds.emplace_back(zoneItems, 15, 14);
+    //worlds.emplace_back(zoneItems, 15, 15);
+    //worlds.emplace_back(zoneItems, 15, 16);
+    //worlds.emplace_back(zoneItems, 15, 17);
+    //worlds.emplace_back(zoneItems, 15, 18);
 
-    //worlds.emplace_back(zone, 16, 10);
-    //worlds.emplace_back(zone, 16, 11);
-    //worlds.emplace_back(zone, 16, 17);
+    //worlds.emplace_back(zoneItems, 16, 10);
+    //worlds.emplace_back(zoneItems, 16, 11);
+    //worlds.emplace_back(zoneItems, 16, 17);
 
     auto worldCenter = worlds.at(0).mCenter;
     //auto worldCenter = Vector2D{815243, 1073855};
@@ -202,14 +197,14 @@ int main(int argc, char *argv[])
         /*media->GetVideo()->FillRect(
             0, 0,
             480, 480,
-            world.mItemInsts[0].GetWorldItem().GetDatItem().mColors[1]);*/
+            world.mItemInsts[0].GetZoneItem().GetDatItem().mColors[1]);*/
 
         for (auto& inst : world.mItemInsts)
         {   
-            if (!drawTrees && inst.GetWorldItem().GetName().substr(0, 4) == "tree") continue;
+            if (!drawTrees && inst.GetZoneItem().GetName().substr(0, 4) == "tree") continue;
             auto bloc = Vector2D{inst.GetLocation().GetX(), inst.GetLocation().GetY()};
             auto loc = BAK::TransformLoc(bloc, worldCenter, worldScale);
-            auto brad = inst.GetWorldItem().GetGidItem().mRadius;
+            auto brad = inst.GetZoneItem().GetGidItem().mRadius;
             auto rad = BAK::ScaleRad(brad, worldScale);
 
             if (brad == Vector2D{0, 0})
@@ -222,9 +217,9 @@ int main(int argc, char *argv[])
                 inst.GetType());*/
 
             {
-                const auto& vertices = inst.GetWorldItem().GetDatItem().mVertices;
-                const auto& faces = inst.GetWorldItem().GetDatItem().mFaces;
-                const auto& colors = inst.GetWorldItem().GetDatItem().mColors;
+                const auto& vertices = inst.GetZoneItem().GetDatItem().mVertices;
+                const auto& faces = inst.GetZoneItem().GetDatItem().mFaces;
+                const auto& colors = inst.GetZoneItem().GetDatItem().mColors;
 
                 if (!faces.empty())
                 {
@@ -240,12 +235,12 @@ int main(int argc, char *argv[])
                             if (v >= vertices.size())
                             {
                                 std::cout << "Failed to draw: "
-                                    << inst.GetWorldItem().GetName() << std::endl;
+                                    << inst.GetZoneItem().GetName() << std::endl;
                                 stop = true;
                                 break;
                             }
                             auto scaleFactor = 1 << static_cast<unsigned>(
-                                inst.GetWorldItem().GetDatItem().mTerrainClass);
+                                inst.GetZoneItem().GetDatItem().mTerrainClass);
                             assert(v < vertices.size());
                             auto rawV = Vector2D{vertices[v].GetX(), vertices[v].GetY()};
                             auto vertex = BAK::RotateAboutPoint(

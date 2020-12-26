@@ -12,7 +12,7 @@
 #include <GL/glew.h>
 
 static const char * vertexShader = R"(
-#version 460 core
+#version 330 core
 
 // Input vertex data, different for all executions of this shader.
 layout(location = 0) in vec3 vertexPosition_modelspace;
@@ -50,13 +50,14 @@ void main(){
 	
 	// Normal of the the vertex, in camera space
 	Normal_cameraspace = ( V * M * vec4(vertexNormal_modelspace,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
+	//Normal_cameraspace = ( V * transpose(inverse(M)) * vec4(vertexNormal_modelspace,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
 	
 	VertexColor = vertexColor_modelspace;
 }
 )";
 
 static const char * fragmentShader = R"(
-#version 460 core
+#version 330 core
 
 // Interpolated values from the vertex shaders
 //in vec2 UV;
@@ -79,11 +80,11 @@ void main(){
 	// Light emission properties
 	// You probably want to put them as uniforms
 	vec3 LightColor = vec3(1,1,1);
-	float LightPower = 10000.0f;
+	float LightPower = 100000.0f;
 	
 	// Material properties
 	vec3 MaterialDiffuseColor = VertexColor;
-	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;
+	vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.1,0.1,0.1);
 
 	// Distance to the light

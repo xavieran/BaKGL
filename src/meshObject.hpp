@@ -29,18 +29,17 @@ public:
     {
     }
 
-    void LoadFromBaKItem(const WorldItem& item, const Palette& pal)
+    void LoadFromBaKItem(const ZoneItem& item, const Palette& pal)
     {
+        constexpr float scale = 100;
         auto glmVertices = std::vector<glm::vec3>{};
 
         for (const auto& vertex : item.GetDatItem().mVertices)
         {
             glmVertices.emplace_back(
-                vertex.GetX() / 2000., 
-                vertex.GetY() / 2000.,
-                vertex.GetZ() / 2000.);
-                //vertex.GetY() / 2000., 
-                //vertex.GetZ() / 2000.);
+                vertex.GetX() / scale,
+                vertex.GetZ() / scale, 
+                vertex.GetY() / scale);
         }
 
         for (const auto& faceV : item.GetDatItem().mFaces | boost::adaptors::indexed())
