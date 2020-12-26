@@ -310,6 +310,7 @@ int main(int argc, char** argv)
 		up = glm::cross(right, direction);
 		if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS){
 			position += direction * deltaTime * speed;
+            logger.Info() << "Pos: " << glm::to_string(position) << std::endl;
 		}
 		// Move backward
 		if (glfwGetKey( window, GLFW_KEY_S) == GLFW_PRESS){
