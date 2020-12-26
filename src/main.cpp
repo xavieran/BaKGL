@@ -202,7 +202,9 @@ int main(int argc, char *argv[])
         for (auto& inst : world.mItemInsts)
         {   
             if (!drawTrees && inst.GetZoneItem().GetName().substr(0, 4) == "tree") continue;
-            auto bloc = Vector2D{inst.GetLocation().GetX(), inst.GetLocation().GetY()};
+            auto bloc = Vector2D{
+                static_cast<int>(inst.GetLocation().x),
+                static_cast<int>(inst.GetLocation().y)};
             auto loc = BAK::TransformLoc(bloc, worldCenter, worldScale);
             auto brad = inst.GetZoneItem().GetGidItem().mRadius;
             auto rad = BAK::ScaleRad(brad, worldScale);
@@ -239,15 +241,14 @@ int main(int argc, char *argv[])
                                 stop = true;
                                 break;
                             }
-                            auto scaleFactor = 1 << static_cast<unsigned>(
-                                inst.GetZoneItem().GetDatItem().mTerrainClass);
+                            auto scaleFactor = inst.GetZoneItem().GetDatItem().mScale;
                             assert(v < vertices.size());
                             auto rawV = Vector2D{vertices[v].GetX(), vertices[v].GetY()};
                             auto vertex = BAK::RotateAboutPoint(
                                 rawV,
                                 Vector2D{0,0},
                                 //bloc,
-                                inst.GetRotation().GetZ());
+                                inst.GetRotation().z);
 
                             auto scaled = BAK::TransformLoc2(
                                 Vector2D{vertex.GetX(), vertex.GetY()} * scaleFactor,

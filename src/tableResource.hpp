@@ -65,11 +65,4 @@ enum class TerrainType : unsigned
     TT_LANDSCAPE = 8
 };
 
-enum class TerrainClass : unsigned
-{
-    TC_FIELD     = 0,
-    TC_LANDSCAPE = 1,
-    TC_OTHER     = 2
-};
-
 }

@@ -7,6 +7,10 @@
 
 #include "tableResource.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <functional>   
 #include <iomanip>   
 #include <iostream>   
@@ -72,7 +76,7 @@ public:
             mEntityFlags  = other->entityFlags;
             mEntityType   = BAK::EntityType{other->entityType};
             mTerrainType  = BAK::TerrainType{other->terrainType};
-            mTerrainClass = BAK::TerrainClass{other->terrainClass};
+            mScale        = static_cast<double>(1 << other->terrainClass);
             mSpriteIndex  = other->sprite;
             mMin = other->min;
             mMax = other->max;
@@ -95,7 +99,7 @@ public:
         unsigned mEntityFlags;
         EntityType mEntityType;
         TerrainType mTerrainType;
-        TerrainClass mTerrainClass;
+        double mScale;
         unsigned mSpriteIndex;
         Vector3D mMin;
         Vector3D mMax;
@@ -204,27 +208,32 @@ public:
     :
         mZoneItem{zoneItem},
         mType{type},
+        // Convert to radians - all these static casts are kinda disgusting
         mRotation{
-            static_cast<int>(xrot),
-            static_cast<int>(yrot),
-            static_cast<int>(zrot)},
+            glm::vec3{
+                static_cast<float>(xrot),
+                static_cast<float>(yrot),
+                static_cast<float>(zrot)}
+            / static_cast<float>(0xffff) 
+            * static_cast<float>(2)
+            * glm::pi<float>()},
         mLocation{
-            static_cast<int>(x),
-            static_cast<int>(y),
-            static_cast<int>(z)}
+            static_cast<float>(x),
+            static_cast<float>(y),
+            static_cast<float>(z)}
     {}
 
     const ZoneItem& GetZoneItem() const { return mZoneItem; }
-    const Vector3D& GetRotation() const { return mRotation; }
-    const Vector3D& GetLocation() const { return mLocation; }
+    const glm::vec3& GetRotation() const { return mRotation; }
+    const glm::vec3& GetLocation() const { return mLocation; }
     unsigned GetType() const { return mType; }
 
 private:
     const ZoneItem& mZoneItem;
 
     unsigned mType;
-    Vector3D mRotation;
-    Vector3D mLocation;
+    glm::vec3 mRotation;
+    glm::vec3 mLocation;
 
     friend std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d);
 };
@@ -232,7 +241,8 @@ private:
 std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
     os << "[ Name: " << d.GetZoneItem().GetName() << " Type: " << d.mType << " Flags: " 
-        << std::hex << d.mRotation << std::dec << " Loc: " << d.mLocation << "]";
+        << std::hex << glm::to_string(d.mRotation) << std::dec 
+        << " Loc: " << glm::to_string(d.mLocation) << "]";
     os << std::endl << "Pos: " << d.GetZoneItem().GetDatItem().mPos << " Vertices::" << std::endl;
     
     const auto& vertices = d.GetZoneItem().GetDatItem().mVertices;
@@ -275,16 +285,16 @@ public:
                     static_cast<int>(item.xloc),
                     static_cast<int>(item.yloc)};
 
-			mItemInsts.emplace_back(
-			    zoneItems.GetZoneItem(item.type),
-				item.type,
-				item.xrot,
-				item.yrot,
-				item.zrot,
-				item.xloc,
-				item.yloc,
-				item.zloc
-				);
+            mItemInsts.emplace_back(
+                zoneItems.GetZoneItem(item.type),
+                item.type,
+                item.xrot,
+                item.yrot,
+                item.zrot,
+                item.xloc,
+                item.yloc,
+                item.zloc
+                );
         }
 
         for (const auto& i : mItemInsts)
