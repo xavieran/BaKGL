@@ -96,6 +96,12 @@ public:
     {
         return LogState::Log(LogLevel::Debug, mName);
     }
+    
+    template <typename T>
+    void Debug(T&& log) const
+    {
+        Debug() << std::forward<T>(log) << std::endl;
+    }
 
     std::ostream& Info() const
     {

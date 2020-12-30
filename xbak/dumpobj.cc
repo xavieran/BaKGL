@@ -37,7 +37,7 @@ int main()
         for (unsigned int i = 0; i < ObjectResource::GetInstance()->GetSize(); i++)
         {
             ObjectInfo info = ObjectResource::GetInstance()->GetObjectInfo(i);
-            printf("%-30s: %04x %3d %5d %3d %3d %3d %3d %1d %1d %2d %04x %6d %04x %3d\n", info.name.c_str(), info.flags, info.level, info.value,
+            printf("%-30s: %d %04x %3d %5d %3d %3d %3d %3d %1d %1d %2d %04x %6d %04x %3d\n", info.name.c_str(), i, info.flags, info.level, info.value,
                    info.strengthSwing, info.accuracySwing, info.strengthThrust, info.accuracyThrust, info.imageSize, info.race, info.type,
                    info.effectMask, info.effect, info.modifierMask, info.modifier);
         }

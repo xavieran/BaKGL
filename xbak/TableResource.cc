@@ -17,8 +17,8 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
-#undef DEBUG
-//#define DEBUG
+#define DEBUG
+
 #include "Exception.h"
 #include "TableResource.h"
 
@@ -226,9 +226,7 @@ TableResource::Load(FileBuffer *buffer)
 #endif
             bool more = gidbuf->GetUint16LE() > 0;
             item->flags = gidbuf->GetUint16LE();
-            // 86 -> Offset into giditem??
-            // t010106
-            // 00000000: 80 3e 80 3e 00 0f 14 00 | 6e 00 04 00 00 00 86 00 
+
             if (more)
             {
                 gidbuf->Skip(2);
@@ -246,7 +244,8 @@ TableResource::Load(FileBuffer *buffer)
                     int x = gidbuf->GetSint16LE();
                     int y = gidbuf->GetSint16LE();
 #ifdef DEBUG
-                    std::cout << std::hex << "uvxy " << u << " " << v << " " << x << " " << y << std::endl << std::dec;
+                    std::cout << std::hex << "uvxyH " << u << " " << v << " " << x << " " << y << std::dec;
+                    std::cout << " uvxy " << u << " " << v << " " << x << " " << y << std::endl; 
 #endif
                     item->textureCoords.push_back(new Vector2D(u, v));
                     item->otherCoords.push_back(new Vector2D(x, y));
@@ -323,23 +322,24 @@ TableResource::Load(FileBuffer *buffer)
                 }
                 datbuf->Skip(2);
 
-                unsigned nPolys = datbuf->GetUint16LE();
+                unsigned nComponents = datbuf->GetUint16LE();
 #ifdef DEBUG
-                std::cout << "Polygons: " << nPolys << std::endl;
+                std::cout << "Components: " << nComponents << std::endl;
 #endif
                 datbuf->Skip(2); // Seems important...
                 unsigned nVertices = 0;
                 unsigned prevV = 0;
-                unsigned changeOverPoly = 0;
+                // Which component do we go over the 255 vertex limit?
+                unsigned changeOverComponent= 0;
                 unsigned changeOverVerticesOffset = 0;
-                for (unsigned int j = 0; j < nPolys; j++)
+                for (unsigned int j = 0; j < nComponents; j++)
                 {
                     datbuf->Skip(3);
                     unsigned v = datbuf->GetUint8();
                     if (v != prevV)
                     {
                         nVertices += v;
-                        changeOverPoly = j;
+                        changeOverComponent = j;
                         changeOverVerticesOffset = prevV;
                         prevV = v;
                     }
@@ -389,28 +389,31 @@ TableResource::Load(FileBuffer *buffer)
 
                 if (nVertices == 0)
                 {
-                    if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (nPolys == 1))
+                    if ((item->entityFlags & EF_UNBOUNDED) && (item->entityFlags & EF_2D_OBJECT) && (nComponents == 1))
                     {
                         datbuf->Skip(2);
                         item->sprite = datbuf->GetUint16LE();
                         datbuf->Skip(4);
                     }
                     else
+                    {
                         item->sprite = -1;
+                    }
 #ifdef DEBUG
                     std::cout << "Sprite Object" << item->sprite << std::endl;
 #endif
                 }
                 else
                 {
-                    // nPolys - 1 ? This doesn't seem right...
-                    if (item->entityType == 0xa) nPolys -= 1;
-                    for (unsigned int j = 0; j < (nPolys); j++)
+                    // nComponents - 1 ? This doesn't seem right... something a little wrong with house?
+                    if (item->entityType == 0xa) nComponents -= 1;
+                    for (unsigned int j = 0; j < nComponents; j++)
                     {
 #ifdef DEBUG
-                        std::cout << "PolyN: " << j << std::endl;
+                        std::cout << "ComponentN: " << j << std::endl;
 #endif
                         std::vector<std::uint16_t> nFaces{};
+                        // There can be multiple "components" 
                         while (datbuf->GetUint16LE() == 0)
                         {
                             nFaces.emplace_back(datbuf->GetUint16LE());
@@ -420,17 +423,29 @@ TableResource::Load(FileBuffer *buffer)
 #ifdef DEBUG
                         std::cout << "Faces: " << nFaces << std::endl;
 #endif
+                        if (nFaces.empty())
+                        {
+                            continue;
+                        }
+
                         assert(!nFaces.empty());
 
                         for (const auto faces : nFaces)
                         {
                             for (unsigned k = 0; k < faces; k++)
                             {
-                                datbuf->Skip(1); // Which palette to use
+                                item->paletteSources.push_back(datbuf->GetUint8());
+                                std::cout << "Using palette: " << item->paletteSources.back();
+                                // There are four colours defined face color, edge color, ??, and ??
                                 for (unsigned c = 0; c < 4; c++)
                                 {
                                     if (c == 0)
-                                        item->faceColors.push_back(datbuf->GetUint8()); 
+                                    {
+                                        auto color = datbuf->GetUint8();
+                                        std::cout << " color: " << +color << std::endl;
+                                        item->faceColors.push_back(color); 
+                                    }
+                                    // for now we ignore the edge colors and other colors
                                     else
                                         datbuf->Skip(1);
                                 }
@@ -442,7 +457,9 @@ TableResource::Load(FileBuffer *buffer)
                                 std::vector<std::uint16_t> vertIndices;
                                 while ((vertI = datbuf->GetUint8()) != 0xff)
                                 {
-                                    if (j >= changeOverPoly)
+                                    // If we are at or beyond the component where the 
+                                    // vertices change over then we need to add the respective offset
+                                    if (j >= changeOverComponent)
                                         vertI += changeOverVerticesOffset;
                                     vertIndices.emplace_back(vertI);
                                 }

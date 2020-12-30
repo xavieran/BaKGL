@@ -22,64 +22,19 @@
 
 int main(int argc, char** argv)
 {
-    const auto& logger = Logging::LogState::GetLogger("main");
+    const auto& logger = Logging::LogState::GetLogger("display_object");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
     std::string zone = "Z01";
 
-
     auto palz = std::make_unique<PaletteResource>();
     std::stringstream palStr{""};
     palStr << zone << ".PAL";
+
     FileManager::GetInstance()->Load(palz.get(), palStr.str());
     auto& pal = *palz->GetPalette();
 
     auto zoneItems = BAK::ZoneItemStore{zone, pal};
-    auto worlds = std::vector<BAK::World>{};
-    worlds.reserve(60);
-    
-    worlds.emplace_back(zoneItems, 9, 13);
-    worlds.emplace_back(zoneItems, 9, 14);
-    worlds.emplace_back(zoneItems, 9, 15);
-    
-    worlds.emplace_back(zoneItems, 10, 10);
-    worlds.emplace_back(zoneItems, 10, 11);
-    worlds.emplace_back(zoneItems, 10, 12);
-    worlds.emplace_back(zoneItems, 10, 13);
-    worlds.emplace_back(zoneItems, 10, 14);
-    worlds.emplace_back(zoneItems, 10, 15);
-    worlds.emplace_back(zoneItems, 10, 16);
-
-    worlds.emplace_back(zoneItems, 11, 11);
-    worlds.emplace_back(zoneItems, 11, 16);
-    worlds.emplace_back(zoneItems, 11, 17);
-
-    worlds.emplace_back(zoneItems, 12, 10);
-    worlds.emplace_back(zoneItems, 12, 11);
-    worlds.emplace_back(zoneItems, 12, 17);
-
-    worlds.emplace_back(zoneItems, 13, 10);
-    worlds.emplace_back(zoneItems, 13, 17);
-
-    worlds.emplace_back(zoneItems, 14, 10);
-    worlds.emplace_back(zoneItems, 14, 11);
-    worlds.emplace_back(zoneItems, 14, 17);
-
-    worlds.emplace_back(zoneItems, 15, 10);
-    worlds.emplace_back(zoneItems, 15, 11);
-    worlds.emplace_back(zoneItems, 15, 12);
-    worlds.emplace_back(zoneItems, 15, 13);
-    worlds.emplace_back(zoneItems, 15, 14);
-    worlds.emplace_back(zoneItems, 15, 15);
-    worlds.emplace_back(zoneItems, 15, 16);
-    worlds.emplace_back(zoneItems, 15, 17);
-    worlds.emplace_back(zoneItems, 15, 18);
-
-    worlds.emplace_back(zoneItems, 16, 10);
-    worlds.emplace_back(zoneItems, 16, 11);
-    worlds.emplace_back(zoneItems, 16, 17);
-
-    auto worldCenter = worlds.at(0).mCenter;
 
     auto objStore = BAK::MeshObjectStorage{};
 
@@ -213,13 +168,12 @@ int main(int argc, char** argv)
     // Initial Field of View
     float initialFoV = 45.0f;
     
-    float speed = 120.0f; // 3 units / second
-    float turnSpeed = 30.0f; // 3 units / second
+    float speed = 6.0f; 
     float mouseSpeed = 0.009f;
-    //double xpos, ypos;
     glm::vec3 direction;
     glm::vec3 right;
     glm::vec3 up;
+
     double currentTime;
     double lastTime = 0;
     float deltaTime;
@@ -230,18 +184,29 @@ int main(int argc, char** argv)
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
     glm::vec3 lightPos = glm::vec3(0,220,0);
 
-    GLuint CameraPositionID = glGetUniformLocation(programID, "CameraPosition_worldspace");
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);  
+    const auto& tex = zoneItems.GetTexture(0);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGB,
+        tex.mWidth,
+        tex.mHeight,
+        0,
+        GL_RGB,
+        GL_FLOAT,
+        tex.mTexture.data());
+    glGenerateMipmap(GL_TEXTURE_2D);
+
 
     do
     {
-        //glfwGetCursorPos(window, &xpos, &ypos);
-
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
         
-        //horizontalAngle += mouseSpeed * deltaTime * float(width/2 - xpos );
-        //verticalAngle   += mouseSpeed * deltaTime * float(height/2 - ypos );
         direction = {
             cos(verticalAngle) * sin(horizontalAngle),
             sin(verticalAngle),
@@ -255,6 +220,7 @@ int main(int argc, char** argv)
         };
 
         up = glm::cross(right, direction);
+
         if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS){
             position += direction * deltaTime * speed;
             logger.Info() << "Pos: " << glm::to_string(position) << std::endl;
@@ -274,19 +240,19 @@ int main(int argc, char** argv)
 
         // Rotate left
         if (glfwGetKey( window, GLFW_KEY_Q) == GLFW_PRESS){
-            horizontalAngle += deltaTime * (turnSpeed / 12);
+            horizontalAngle += deltaTime * (speed);
         }
         // Rotate left
         if (glfwGetKey( window, GLFW_KEY_E) == GLFW_PRESS){
-            horizontalAngle -= deltaTime * (turnSpeed / 12);
+            horizontalAngle -= deltaTime * (speed);
         }
 
         if (glfwGetKey( window, GLFW_KEY_X) == GLFW_PRESS){
-            verticalAngle += deltaTime * (turnSpeed / 12);
+            verticalAngle += deltaTime * (speed);
         }
 
         if (glfwGetKey( window, GLFW_KEY_Y) == GLFW_PRESS){
-            verticalAngle -= deltaTime * (turnSpeed / 12);
+            verticalAngle -= deltaTime * (speed);
         }
 
         if (glfwGetKey( window, GLFW_KEY_P) == GLFW_PRESS){
@@ -315,8 +281,6 @@ int main(int argc, char** argv)
 
         
         glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
-
-        glUniform3f(CameraPositionID, position.x, position.y, position.z);
 
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -351,47 +315,25 @@ int main(int argc, char** argv)
             (void*)0            // array buffer offset
         );
         
-        for (const auto& world : worlds)
-        {
-            for (const auto& inst : world.mItemInsts)
-            {
-                if (inst.GetZoneItem().GetDatItem().mVertices.size() <= 1) continue;
+        const auto [offset, length] = objStore.GetObject(argv[1]);
 
-                const auto [offset, length] = objStore.GetObject(inst.GetZoneItem().GetName());
+        modelMatrix = glm::mat4(1.0f);
+        
+        //modelMatrix = glm::rotate(modelMatrix, , glm::vec3(0,-1,0));
 
-                modelMatrix = glm::mat4(1.0f);
-                
-                auto scaleFactor = static_cast<float>(
-                    inst.GetZoneItem().GetDatItem().mScale);
+        MVP = projectionMatrix * viewMatrix * modelMatrix;
 
-                auto instLoc = inst.GetLocation();
-                auto itemLoc = glm::vec3{instLoc.x, 0, instLoc.y};
-                auto relLoc = (itemLoc - worldCenter) / worldScale;
+        glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, glm::value_ptr(MVP));
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+        glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
-                if (inst.GetZoneItem().GetName() == "ground")
-                {
-                    modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.1,0});
-                }
-
-                modelMatrix = glm::translate(modelMatrix, relLoc);
-                modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
-                modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().z, glm::vec3(0,-1,0));
-
-                MVP = projectionMatrix * viewMatrix * modelMatrix;
-
-                glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, glm::value_ptr(MVP));
-                glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-                glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-
-                glDrawElementsBaseVertex(
-                    GL_TRIANGLES,
-                    length,
-                    GL_UNSIGNED_INT,
-                    (void*) (offset * sizeof(GLuint)),
-                    offset
-                );
-            }
-        }
+        glDrawElementsBaseVertex(
+            GL_TRIANGLES,
+            length,
+            GL_UNSIGNED_INT,
+            (void*) (offset * sizeof(GLuint)),
+            offset
+        );
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
@@ -417,4 +359,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-

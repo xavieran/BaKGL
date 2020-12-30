@@ -1,10 +1,14 @@
 #pragma once
 
 #include "FileBuffer.h"
+#include "FileManager.h"
 
+#include "ImageResource.h"
+#include "Palette.h"
 #include "TileWorldResource.h"
 #include "TableResource.h"
 
+#include "logger.hpp"
 #include "tableResource.hpp"
 
 #include <glm/glm.hpp>
@@ -70,6 +74,7 @@ public:
         :
             mColors{},
             mVertices{},
+            mPalettes{},
             mFaces{}
         {
             assert(other);
@@ -90,6 +95,10 @@ public:
             {
                 mFaces.emplace_back(face);
             }
+            for (const auto& palette : other->paletteSources)
+            {
+                mPalettes.emplace_back(palette);
+            }
             for (const auto& color : other->faceColors)
             {
                 mColors.emplace_back(color);
@@ -106,6 +115,7 @@ public:
         Vector3D mPos;
         std::vector<std::uint8_t> mColors;
         std::vector<Vector3D> mVertices;
+        std::vector<std::uint8_t> mPalettes;
         std::vector<std::vector<std::uint16_t>> mFaces;
     };
 
@@ -130,26 +140,42 @@ std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
     for (const auto& face : d.GetDatItem().mFaces)
     {
         for (const auto i : face)
+        {
             os << " :: " << i;
+        }
+
         os << "\n";
     }
         
     return os;
 }
 
+class Texture
+{
+public:
+    using TextureType = std::vector<glm::vec3>;
+
+    TextureType mTexture;
+    unsigned mWidth;
+    unsigned mHeight;
+};
+
 class ZoneItemStore
 {
 public:
 
-    ZoneItemStore(std::string zoneLabel)
+    ZoneItemStore(
+        std::string zoneLabel,
+        const Palette& palette)
     :
         mZoneLabel{zoneLabel},
-        mItems{}
+        mItems{},
+        mTextures{}
     {
         TableResource table{};
         {
             std::stringstream str{""};
-            str << "Z" << std::setfill('0') << std::setw(2) << zoneLabel << ".TBL";
+            str << zoneLabel << ".TBL";
             auto fb = FileBufferFactory::CreateFileBuffer(str.str());
             table.Load(&fb);
         }
@@ -164,6 +190,46 @@ public:
                 table.GetMapItem(i),
                 table.GetDatItem(i),
                 table.GetGidItem(i));
+        }
+            
+        unsigned n = 0;
+        bool found = true;
+        while ( found )
+        {
+            std::stringstream spriteStream;
+            spriteStream << zoneLabel << "SLOT" << std::setfill('0') 
+                << std::setw ( 1 ) << n << ".BMX";
+            found = FileManager::GetInstance()->ResourceExists ( spriteStream.str() );
+            if ( found )
+            {
+                ImageResource spriteSlot;
+                FileManager::GetInstance()->Load ( &spriteSlot, spriteStream.str() );
+                for ( unsigned int j = 0; j < spriteSlot.GetNumImages(); j++ )
+                {
+                    assert(spriteSlot.GetImage(j));
+                    const auto& img = *spriteSlot.GetImage(j);
+                    auto image = Texture::TextureType{};
+                    for (int x = 0; x < img.GetWidth(); x++)
+                    {
+                        for (int y = 0; y < img.GetHeight(); y++)
+                        {
+                            auto color = palette.GetColor(img.GetPixel(x, y));
+                            image.emplace_back(
+                                static_cast<float>(color.r) / 256,
+                                static_cast<float>(color.g) / 256,
+                                static_cast<float>(color.b) / 256);
+                        }
+                    }
+
+                    mTextures.push_back(
+                        Texture{
+                            image,
+                            static_cast<unsigned>(img.GetWidth()),
+                            static_cast<unsigned>(img.GetHeight())});
+                }
+            }
+
+            n++;
         }
     }
 
@@ -186,11 +252,18 @@ public:
         return *it;
     }
 
+    const Texture& GetTexture(const unsigned i) const
+    {
+        assert(i < mTextures.size());
+        return mTextures[i];
+    }
+
     const std::vector<ZoneItem>& GetItems() const { return mItems; }
 
 private:
     const std::string mZoneLabel;
     std::vector<ZoneItem> mItems;
+    std::vector<Texture> mTextures;
 };
 
 class WorldItemInstance
@@ -210,11 +283,11 @@ public:
         mType{type},
         // Convert to radians - all these static casts are kinda disgusting
         mRotation{
-            glm::vec3{
+            (glm::vec3{
                 static_cast<float>(xrot),
                 static_cast<float>(yrot),
                 static_cast<float>(zrot)}
-            / static_cast<float>(0xffff) 
+            / static_cast<float>(0xffff))
             * static_cast<float>(2)
             * glm::pi<float>()},
         mLocation{
@@ -269,20 +342,23 @@ public:
 
     void LoadWorld(const ZoneItemStore& zoneItems, unsigned x, unsigned y)
     {
+        const auto& logger = Logging::LogState::GetLogger("World");
+
+        std::stringstream str{""};
+        str << "T" << std::setfill('0') << zoneItems.GetZoneLabel().substr(1,2) << std::setw(2) << x << std::setw(2) << y << ".WLD";
+        logger.Debug() << "Loading " << str.str() << std::endl;
+        auto fb = FileBufferFactory::CreateFileBuffer(str.str());
+
         TileWorldResource world{};
-        {
-            std::stringstream str{""};
-            str << "T" << std::setfill('0') << std::setw(2) << zoneItems.GetZoneLabel() << std::setw(2) << x << std::setw(2) << y << ".WLD";
-            auto fb = FileBufferFactory::CreateFileBuffer(str.str());
-            world.Load(&fb);
-        }
+        world.Load(&fb);
 
         for (unsigned i = 0; i < world.GetSize(); i++)
         {
             auto item = world.GetItem(i);
             if (item.type == static_cast<unsigned>(OBJECT_CENTER))
-                mCenter = Vector2D{
+                mCenter = glm::vec3{
                     static_cast<int>(item.xloc),
+                    0,
                     static_cast<int>(item.yloc)};
 
             mItemInsts.emplace_back(
@@ -302,7 +378,7 @@ public:
     }
 
     std::vector<WorldItemInstance> mItemInsts;
-    Vector2D mCenter;
+    glm::vec3 mCenter;
 };
 
 }

@@ -112,7 +112,14 @@ int main(int argc, char *argv[])
     
 	std::string zone = "1";
 
-    auto zoneItems = BAK::ZoneItemStore{zone};
+    PaletteResource *palz = new PaletteResource;
+    std::stringstream palStr{""};
+    palStr << "Z" << std::setfill('0') << std::setw(2) << zone << ".PAL";
+    FileManager::GetInstance()->Load(palz, palStr.str());
+
+    auto& pal = *palz->GetPalette();
+
+    auto zoneItems = BAK::ZoneItemStore{zone, pal};
 
     auto worlds = std::vector<BAK::World>{};
     worlds.reserve(60);
@@ -159,11 +166,14 @@ int main(int argc, char *argv[])
     //worlds.emplace_back(zoneItems, 16, 11);
     //worlds.emplace_back(zoneItems, 16, 17);
 
-    auto worldCenter = worlds.at(0).mCenter;
+    auto worldCenter = Vector2D{
+        static_cast<int>(worlds.at(0).mCenter.x),
+        static_cast<int>(worlds.at(0).mCenter.y)};
+
     //auto worldCenter = Vector2D{815243, 1073855};
     for (const auto& world : worlds)
     {
-        std::cout << world.mCenter << std::endl;
+        std::cout << glm::to_string(world.mCenter) << std::endl;
     }
 
     bool drawTrees = false;
@@ -179,12 +189,6 @@ int main(int argc, char *argv[])
 	SDL_SetCursor(cursor);
 	SDL_ShowCursor(SDL_ENABLE);
     
-    PaletteResource *palz = new PaletteResource;
-    std::stringstream palStr{""};
-    palStr << "Z" << std::setfill('0') << std::setw(2) << zone << ".PAL";
-    FileManager::GetInstance()->Load(palz, palStr.str());
-
-    auto& pal = *palz->GetPalette();
     pal.Activate(0, 256);
 
     /*

@@ -41,17 +41,23 @@ set(LINK_3D_LIBRARIES
 set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter")
 set(CMAKE_CXX_FLAGS "-g -fstack-protector-all -std=c++17 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
+list(APPEND BAK_BINARIES
+    display_object
+    main2d
+    main3d
+)
 
-add_executable (main3d src/main3d.cpp ${BAK_INCLUDES})
-target_link_libraries(main3d dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} ${BAK_INCLUDES} SDL)
-
-add_executable (main2d src/main.cpp ${BAK_INCLUDES} ${XBAK})
-target_link_libraries(main2d dl pthread ${Boost_LIBRARIES} xbak SDL)
+foreach (BAK_BIN IN LISTS BAK_BINARIES)
+    add_executable (${BAK_BIN} src/${BAK_BIN}.cpp ${BAK_INCLUDES})
+    target_link_libraries(${BAK_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} xbak SDL)
+endforeach()
 
 # XBaK Executables
 list(APPEND XBAK_BINARIES
     dumpbmx
+    "dumpzone_bmx"
     dumppal
+    dumpobj
     dumptbl
     dumpscx
     dumpwld

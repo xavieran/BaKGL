@@ -1,3 +1,7 @@
+#include "logger.hpp"
+
+#include <GL/glew.h>
+
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -8,8 +12,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-#include <GL/glew.h>
 
 static const char * vertexShader = R"(
 #version 330 core
@@ -25,12 +27,14 @@ out vec3 Normal_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
 out vec3 VertexColor;
+out float DistanceFromCamera;
 
 // Values that stay constant for the whole mesh.
 uniform mat4 MVP;
 uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
+uniform vec3 CameraPosition_worldspace;
 
 void main(){
 	// Output position of the vertex, in clip space : MVP * position
@@ -53,6 +57,8 @@ void main(){
 	//Normal_cameraspace = ( V * transpose(inverse(M)) * vec4(vertexNormal_modelspace,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
 	
 	VertexColor = vertexColor_modelspace;
+
+    DistanceFromCamera = distance(Position_worldspace, CameraPosition_worldspace);
 }
 )";
 
@@ -66,6 +72,7 @@ in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
 in vec3 VertexColor;
+in float DistanceFromCamera;
 
 // Ouput data
 out vec3 color;
@@ -110,20 +117,28 @@ void main(){
 	//  - Looking into the reflection -> 1
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
-	
+
+    float k = .0002;
+	float fogFactor = exp(-DistanceFromCamera * k);
+    vec3 fogColor = vec3(0.7, 0.7, 0.7);
+
 	color = 
+        // Fog factor : Simulates fog effect for distant objects
+		(1 - fogFactor) * fogColor
 		// Ambient : simulates indirect lighting
-		MaterialAmbientColor +
+        + fogFactor * (MaterialAmbientColor 
 		// Diffuse : "color" of the object
-		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
+        + MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance)
 		// Specular : reflective highlight, like a mirror
-		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,4) / (distance*distance);
+		+ MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,4) / (distance*distance));
 }
 
 )";
 
 GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
 {
+    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
+
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -158,7 +173,7 @@ GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
 	}
 
 	// Link the program
-	printf("Linking program\n");
+    logger.Debug("Linking shader program");
 	GLuint ProgramID = glCreateProgram();
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
