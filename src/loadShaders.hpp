@@ -20,6 +20,8 @@ static const char * vertexShader = R"(
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec3 vertexNormal_modelspace;
 layout(location = 2) in vec3 vertexColor_modelspace;
+layout(location = 3) in vec3 textureCoords;
+layout(location = 4) in vec3 texBlendVec;
 
 // Output data ; will be interpolated for each fragment.
 out vec3 Position_worldspace;
@@ -27,6 +29,8 @@ out vec3 Normal_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
 out vec3 VertexColor;
+out vec3 uvCoords;
+out float texBlend;
 out float DistanceFromCamera;
 
 // Values that stay constant for the whole mesh.
@@ -53,12 +57,16 @@ void main(){
 	LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
 	
 	// Normal of the the vertex, in camera space
-	Normal_cameraspace = ( V * M * vec4(vertexNormal_modelspace,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
-	//Normal_cameraspace = ( V * transpose(inverse(M)) * vec4(vertexNormal_modelspace,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
+    // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
+	Normal_cameraspace = (V * M * vec4(vertexNormal_modelspace,0)).xyz; 
+	//Normal_cameraspace = (V * transpose(inverse(M)) * vec4(vertexNormal_modelspace,0)).xyz;
 	
 	VertexColor = vertexColor_modelspace;
 
+    uvCoords = textureCoords.xyz;
+
     DistanceFromCamera = distance(Position_worldspace, CameraPosition_worldspace);
+    texBlend = texBlendVec.x;
 }
 )";
 
@@ -72,15 +80,16 @@ in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
 in vec3 VertexColor;
+in vec3 uvCoords;
+in float texBlend;
 in float DistanceFromCamera;
 
 // Ouput data
 out vec3 color;
 
-// Values that stay constant for the whole mesh.
-//uniform sampler2D myTextureSampler;
 uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
+uniform sampler2DArray texture0;
 
 void main(){
 
@@ -118,19 +127,23 @@ void main(){
 	//  - Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
 
+    //float k = .0002;
     float k = .0002;
 	float fogFactor = exp(-DistanceFromCamera * k);
-    vec3 fogColor = vec3(0.7, 0.7, 0.7);
+    vec3 fogColor = vec3(0.6, 0.6, 0.7);
+    
+    vec3 textureColor = texture(texture0, uvCoords).xyz;
+    
+    if (texBlend > .9 && textureColor.r < 0.1 && textureColor.g < 0.1 && textureColor.b < 0.1) discard;
 
-	color = 
-        // Fog factor : Simulates fog effect for distant objects
+    vec3 diffuseColor = texBlend * textureColor + (1 - texBlend) * MaterialDiffuseColor;
+
+	color = //textureColor;
 		(1 - fogFactor) * fogColor
-		// Ambient : simulates indirect lighting
         + fogFactor * (MaterialAmbientColor 
-		// Diffuse : "color" of the object
-        + MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance)
-		// Specular : reflective highlight, like a mirror
+        + diffuseColor * LightColor * LightPower * cosTheta / (distance*distance)
 		+ MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,4) / (distance*distance));
+
 }
 
 )";

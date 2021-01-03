@@ -1,0 +1,26 @@
+Z01.TBL
+
+FirePlace in T011016.WLD Location
+
+[ Name: fireold Type: 197 Flags: 0 Loc: { x: 659438 y: 1053147}]
+0xA0FEE, 0x1011DB
+Break on Memory location 78AE8
+End of WLD is @ 79220
+
+Broke at instruction:
+01A2:15C2 
+(SCOPY)
+cycles: 302632495
+next is LES in LoadWld
+
+
+Pointer is @DS:5343
+
+T011016.DAT Starts @ 0000:31985
+Name of this file starts @ 0000:31974
+
+DAT FIle size 0x03? Might be stored at 2b50:1e84
+Function to read DAT seems to be 
+SomethingDat_AfterTxxyy
+@ovr187:91ea
+ovr187 == 3e56

@@ -108,9 +108,7 @@ static SDL_Cursor *init_system_cursor(const char *image[])
 
 int main(int argc, char *argv[])
 {
-    //loguru::init(argc, argv);
-    
-	std::string zone = "1";
+	std::string zone = "Z01";
 
     PaletteResource *palz = new PaletteResource;
     std::stringstream palStr{""};
@@ -119,7 +117,8 @@ int main(int argc, char *argv[])
 
     auto& pal = *palz->GetPalette();
 
-    auto zoneItems = BAK::ZoneItemStore{zone, pal};
+    auto textures  = BAK::TextureStore{zone, pal};
+    auto zoneItems = BAK::ZoneItemStore{zone, textures};
 
     auto worlds = std::vector<BAK::World>{};
     worlds.reserve(60);

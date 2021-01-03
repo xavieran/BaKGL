@@ -25,11 +25,16 @@ public:
         mVertices{},
         mNormals{},
         mColors{},
+        mTextureCoords{},
+        mTextureBlends{},
         mIndices{}
     {
     }
 
-    void LoadFromBaKItem(const ZoneItem& item, const Palette& pal)
+    void LoadFromBaKItem(
+        const ZoneItem& item,
+        const TextureStore& store,
+        const Palette& pal)
     {
         constexpr float scale = 100;
         auto glmVertices = std::vector<glm::vec3>{};
@@ -62,6 +67,67 @@ public:
                 mIndices.emplace_back(mVertices.size() - 1);
                 mVertices.emplace_back(glmVertices[i_c]);
                 mIndices.emplace_back(mVertices.size() - 1);
+                
+                // Hacky - only works for quads - but the game only
+                // textures quads anyway...
+                auto colorIndex = item.GetDatItem().mColors[i];
+                auto textureIndex = colorIndex;
+
+                float u = 1.0;
+                float v = 1.0;
+
+                auto maxDim = store.GetMaxDim();
+
+                static constexpr std::uint8_t texturePalette = 0x91;
+                static constexpr std::uint8_t terrainPalette = 0xc1;
+
+                if (item.GetDatItem().mPalettes[i] == texturePalette)
+                {
+                    mTextureBlends.emplace_back(1.0);
+                    mTextureBlends.emplace_back(1.0);
+                    mTextureBlends.emplace_back(1.0);
+                }
+                else if (item.GetDatItem().mPalettes[i] == terrainPalette)
+                {
+                    mTextureBlends.emplace_back(1.0);
+                    mTextureBlends.emplace_back(1.0);
+                    mTextureBlends.emplace_back(1.0);
+                    textureIndex += store.GetTerrainOffset();
+                }
+                else if (textureIndex < 7)
+                {
+                    mTextureBlends.emplace_back(1.0);
+                    mTextureBlends.emplace_back(1.0);
+                    mTextureBlends.emplace_back(1.0);
+                    textureIndex += store.GetTerrainOffset();
+                }
+                else
+                {
+                    mTextureBlends.emplace_back(0.0);
+                    mTextureBlends.emplace_back(0.0);
+                    mTextureBlends.emplace_back(0.0);
+                }
+
+                if (colorIndex < store.GetTextures().size())
+                {
+                    u = static_cast<float>(store.GetTexture(textureIndex).mWidth) 
+                        / static_cast<float>(maxDim);
+                    v = static_cast<float>(store.GetTexture(textureIndex).mHeight) 
+                        / static_cast<float>(maxDim);
+                }
+
+                if (triangle == 0)
+                {
+                    mTextureCoords.emplace_back(u  , v,   textureIndex);
+                    mTextureCoords.emplace_back(0.0, v,   textureIndex);
+                    mTextureCoords.emplace_back(0.0, 0.0, textureIndex);
+                }
+                else
+                {
+                    mTextureCoords.emplace_back(u,   v,   textureIndex);
+                    mTextureCoords.emplace_back(0.0, 0.0, textureIndex);
+                    mTextureCoords.emplace_back(u,   0.0, textureIndex);
+                }
 
                 auto normal = glm::normalize(
                     glm::cross(
@@ -72,7 +138,7 @@ public:
                 mNormals.emplace_back(normal);
                 mNormals.emplace_back(normal);
                 
-                auto color = pal.GetColor(item.GetDatItem().mColors[i]);
+                auto color = pal.GetColor(colorIndex);
                 auto glmCol = \
                     glm::vec3(
                         static_cast<float>(color.r) / 256,
@@ -95,6 +161,11 @@ public:
     std::vector<glm::vec3> mVertices;
     std::vector<glm::vec3> mNormals;
     std::vector<glm::vec3> mColors;
+    std::vector<glm::vec3> mTextureCoords;
+    // Ratio of texture to material color 
+    // - pretty lame solution to having textured 
+    // and non-textured objects
+    std::vector<glm::vec3> mTextureBlends;
 	std::vector<unsigned> mIndices;
 
     const Logging::Logger& mLog{
@@ -112,6 +183,8 @@ public:
         mVertices{},
         mNormals{},
         mColors{},
+        mTextureCoords{},
+        mTextureBlends{},
         mIndices{}
     {
     }
@@ -132,6 +205,8 @@ public:
         std::copy(obj.mVertices.begin(), obj.mVertices.end(), std::back_inserter(mVertices));
         std::copy(obj.mNormals.begin(), obj.mNormals.end(), std::back_inserter(mNormals));
         std::copy(obj.mColors.begin(), obj.mColors.end(), std::back_inserter(mColors));
+        std::copy(obj.mTextureCoords.begin(), obj.mTextureCoords.end(), std::back_inserter(mTextureCoords));
+        std::copy(obj.mTextureBlends.begin(), obj.mTextureBlends.end(), std::back_inserter(mTextureBlends));
         std::copy(obj.mIndices.begin(), obj.mIndices.end(), std::back_inserter(mIndices));
 
         mLog.Info() << __FUNCTION__ << " " << id << " off: " << mOffset << " len: " << length << std::endl;
@@ -154,6 +229,8 @@ public:
     std::vector<glm::vec3> mVertices;
     std::vector<glm::vec3> mNormals;
     std::vector<glm::vec3> mColors;
+    std::vector<glm::vec3> mTextureCoords;
+    std::vector<glm::vec3> mTextureBlends;
 	std::vector<unsigned> mIndices;
 
     const Logging::Logger& mLog{

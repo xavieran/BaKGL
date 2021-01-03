@@ -34,7 +34,8 @@ int main(int argc, char** argv)
     FileManager::GetInstance()->Load(palz.get(), palStr.str());
     auto& pal = *palz->GetPalette();
 
-    auto zoneItems = BAK::ZoneItemStore{zone, pal};
+    auto textures  = BAK::TextureStore{zone, pal};
+    auto zoneItems = BAK::ZoneItemStore{zone, textures};
 
     auto objStore = BAK::MeshObjectStorage{};
 
@@ -42,7 +43,7 @@ int main(int argc, char** argv)
     {
         auto obj = BAK::MeshObject();
         if (item.GetDatItem().mVertices.size() <= 1) continue;
-        obj.LoadFromBaKItem(item, pal);
+        obj.LoadFromBaKItem(item, textures, pal);
         objStore.AddObject(item.GetName(), obj);
     }
 
@@ -96,15 +97,57 @@ int main(int argc, char** argv)
 
     // Create and compile our GLSL program from the shaders
     GLuint programID = LoadShaders(vertexShader, fragmentShader);
+    
+    const auto& vertices      = objStore.mVertices;
+    const auto& normals       = objStore.mNormals;
+    const auto& colors        = objStore.mColors;
+    const auto& textureCoords = objStore.mTextureCoords;
+    const auto& textureBlends = objStore.mTextureBlends;
+    const auto& indices       = objStore.mIndices;
+    /*
 
-    const auto& vertices = objStore.mVertices;
-    const auto& normals = objStore.mNormals;
-    const auto& colors = objStore.mColors;
-    const auto& indices = objStore.mIndices;
+    auto vertices = std::vector<glm::vec3>{};
+    for (auto i : {
+        glm::vec3{0.0, 1.0, 0.0},
+        glm::vec3{1.0, 1.0, 0.0},
+        glm::vec3{1.0, 0.0, 0.0},
+        glm::vec3{0.0, 0.0, 0.0}})
+        vertices.emplace_back(i);
 
-    GLuint mvpMatrixID = glGetUniformLocation(programID, "MVP");
+    auto normals = std::vector<glm::vec3>{};
+    for (auto i : {
+        glm::vec3{0.0, 0.0, 1.0},
+        glm::vec3{0.0, 0.0, 1.0},
+        glm::vec3{0.0, 0.0, 1.0},
+        glm::vec3{0.0, 0.0, 1.0}})
+        normals.emplace_back(i);
+
+    auto colors = std::vector<glm::vec3>{};
+    for (auto i : {
+        glm::vec3{0,0,0},
+        glm::vec3{0,0,0},
+        glm::vec3{0,0,0},
+        glm::vec3{0,0,0}})
+        colors.emplace_back(i);
+
+    auto textureCoords = std::vector<glm::vec3>{};
+    for (auto i : {
+        glm::vec3{0, 1, 0},
+        glm::vec3{1, 1, 0},
+        glm::vec3{1, 0, 0},
+        glm::vec3{0, 0, 0}})
+        textureCoords.emplace_back(i);
+
+    auto indices = std::vector<unsigned>{};
+    for (auto i : {
+        0,1,2,0,3,2})
+        indices.emplace_back(i);
+    */
+
+    GLuint textureID     = glGetUniformLocation(programID, "texture0");
+    GLuint mvpMatrixID   = glGetUniformLocation(programID, "MVP");
     GLuint modelMatrixID = glGetUniformLocation(programID, "M");
-    GLuint viewMatrixID = glGetUniformLocation(programID, "V");
+    GLuint viewMatrixID  = glGetUniformLocation(programID, "V");
 
     GLuint vertexBuffer;
     glGenBuffers(1, &vertexBuffer);
@@ -131,6 +174,24 @@ int main(int argc, char** argv)
         GL_ARRAY_BUFFER,
         colors.size() * sizeof(std::decay_t<decltype(colors)>::value_type),
         &colors.front(),
+        GL_STATIC_DRAW);
+
+    GLuint textureCoordBuffer;
+    glGenBuffers(1, &textureCoordBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        textureCoords.size() * sizeof(std::decay_t<decltype(textureCoords)>::value_type),
+        &textureCoords.front(),
+        GL_STATIC_DRAW);
+
+    GLuint textureBlendBuffer;
+    glGenBuffers(1, &textureBlendBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        textureBlends.size() * sizeof(std::decay_t<decltype(textureBlends)>::value_type),
+        &textureBlends.front(),
         GL_STATIC_DRAW);
 
     GLuint elementbuffer;
@@ -169,7 +230,6 @@ int main(int argc, char** argv)
     float initialFoV = 45.0f;
     
     float speed = 6.0f; 
-    float mouseSpeed = 0.009f;
     glm::vec3 direction;
     glm::vec3 right;
     glm::vec3 up;
@@ -182,24 +242,48 @@ int main(int argc, char** argv)
 
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
-    glm::vec3 lightPos = glm::vec3(0,220,0);
+    glm::vec3 lightPos = glm::vec3(0,120,0);
 
-    unsigned int texture;
+    unsigned texture;
     glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);  
-    const auto& tex = zoneItems.GetTexture(0);
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGB,
-        tex.mWidth,
-        tex.mHeight,
-        0,
-        GL_RGB,
-        GL_FLOAT,
-        tex.mTexture.data());
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);  
 
+    auto maxDim = textures.GetMaxDim();
+
+    glTexStorage3D(
+		GL_TEXTURE_2D_ARRAY,
+		1, 
+		GL_RGB8,   //Internal format
+		maxDim, maxDim, //width,height
+		64        //Number of layers
+	);
+
+	for (const auto& tex : textures.GetTextures() | boost::adaptors::indexed())
+	{
+		std::vector<glm::vec3> paddedTex(
+            maxDim * maxDim,
+            glm::vec3{0.3, .5, 0.3});
+
+		for (unsigned x = 0; x < tex.value().mWidth; x++)
+			for (unsigned y = 0; y < tex.value().mHeight; y++)
+				paddedTex[x + y * maxDim] = tex.value().mTexture[x + y * tex.value().mWidth];
+
+		glTexSubImage3D(
+			GL_TEXTURE_2D_ARRAY,
+			0,                 //Mipmap number
+			0, 0, tex.index(), //xoffset, yoffset, zoffset
+			maxDim, maxDim, 1, //width, height, depth
+			GL_RGB,            //format
+			GL_FLOAT,          //type
+			paddedTex.data()); //pointer to data
+	}
+	
+    //glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP);   
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     do
     {
@@ -314,8 +398,36 @@ int main(int argc, char** argv)
             0,                  // stride
             (void*)0            // array buffer offset
         );
+
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
+        glVertexAttribPointer(
+            3,
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+        
+        glEnableVertexAttribArray(4);
+        glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
+        glVertexAttribPointer(
+            4,
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(textureID, 0);
         
         const auto [offset, length] = objStore.GetObject(argv[1]);
+        //auto offset = 0;
+        //auto length = 6;
 
         modelMatrix = glm::mat4(1.0f);
         
@@ -338,6 +450,7 @@ int main(int argc, char** argv)
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(3);
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -351,6 +464,7 @@ int main(int argc, char** argv)
     glDeleteBuffers(1, &vertexBuffer);
     glDeleteBuffers(1, &normalBuffer);
     glDeleteBuffers(1, &colorBuffer);
+    glDeleteBuffers(1, &textureCoordBuffer);
     glDeleteVertexArrays(1, &VertexArrayID);
     glDeleteProgram(programID);
 

@@ -1,0 +1,38 @@
+Individual's skills
+0xe0 
+Starts with health @e6 and then in order of appearance
+3 values (max, current, limit)
+
+Sumani weapon training dialogue...
+0xa20
+
+Individual's inventories
+0x3a800
+
+Chest's inventories
+SMOKE :::
+0x3c030
+03 - Number of items in chest rn
+07 - max capacity of chest - also seems to affect the "type" of chest?
+07 is fairy chest
+0A is locked chest
+0003c030: 0aa1 00b7 f60c 0094 6510 0004 0307 1112  ........e.......
+0003c040: 4620 003a 5300 003a 3600 0000 0000 0000  F .:S..:6.......
+0003c050: 0000 0000 0000 0000 0000 0000 0006 0000  ................
+0003c060: 0000 0002 0aa1 00df ec0c 00c0 6110 0004  ............a...
+
+Item:
+Item type - 46
+Item quality (%/qty) - 20
+Flags - 00
+01 - Fire
+02 - Blue fire?
+03 - Blue fire and Fire
+04 - Frost
+08 - Brown oil?
+0F - fire and blue and frost and brown...
+10 - Blue oil?
+20 - Blessing 1
+40 - Blessing 2
+80 - Blessing 3
+46 20 00

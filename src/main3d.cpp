@@ -25,8 +25,7 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    std::string zone = "Z01";
-
+    std::string zone = "Z06";
 
     auto palz = std::make_unique<PaletteResource>();
     std::stringstream palStr{""};
@@ -34,10 +33,63 @@ int main(int argc, char** argv)
     FileManager::GetInstance()->Load(palz.get(), palStr.str());
     auto& pal = *palz->GetPalette();
 
-    auto zoneItems = BAK::ZoneItemStore{zone, pal};
+    auto textures  = BAK::TextureStore{zone, pal};
+    auto zoneItems = BAK::ZoneItemStore{zone, textures};
     auto worlds = std::vector<BAK::World>{};
     worlds.reserve(60);
-    
+
+    worlds.emplace_back(zoneItems, 9, 11);
+
+    worlds.emplace_back(zoneItems, 10, 9);
+    worlds.emplace_back(zoneItems, 10, 10);
+    worlds.emplace_back(zoneItems, 10, 11);
+    worlds.emplace_back(zoneItems, 10, 12);
+
+    worlds.emplace_back(zoneItems, 11, 9);
+    worlds.emplace_back(zoneItems, 11, 10);
+    worlds.emplace_back(zoneItems, 11, 11);
+    worlds.emplace_back(zoneItems, 11, 12);
+    worlds.emplace_back(zoneItems, 11, 13);
+    worlds.emplace_back(zoneItems, 11, 14);
+    worlds.emplace_back(zoneItems, 11, 15);
+
+    worlds.emplace_back(zoneItems, 12, 14);
+    worlds.emplace_back(zoneItems, 12, 15);
+    worlds.emplace_back(zoneItems, 12, 16);
+    worlds.emplace_back(zoneItems, 12, 17);
+
+    worlds.emplace_back(zoneItems, 13, 15);
+    worlds.emplace_back(zoneItems, 13, 16);
+    worlds.emplace_back(zoneItems, 13, 17);
+
+    worlds.emplace_back(zoneItems, 14, 16);
+    worlds.emplace_back(zoneItems, 14, 17);
+    worlds.emplace_back(zoneItems, 14, 18);
+
+    worlds.emplace_back(zoneItems, 15, 16);
+    worlds.emplace_back(zoneItems, 15, 17);
+
+    worlds.emplace_back(zoneItems, 16, 13);
+    worlds.emplace_back(zoneItems, 16, 15);
+    worlds.emplace_back(zoneItems, 16, 16);
+    worlds.emplace_back(zoneItems, 16, 17);
+
+    worlds.emplace_back(zoneItems, 17, 11);
+    worlds.emplace_back(zoneItems, 17, 12);
+    worlds.emplace_back(zoneItems, 17, 13);
+    worlds.emplace_back(zoneItems, 17, 14);
+    worlds.emplace_back(zoneItems, 17, 15);
+    worlds.emplace_back(zoneItems, 17, 16);
+
+    worlds.emplace_back(zoneItems, 18, 14);
+    worlds.emplace_back(zoneItems, 18, 15);
+
+    worlds.emplace_back(zoneItems, 19, 15);
+    worlds.emplace_back(zoneItems, 20, 15);
+    worlds.emplace_back(zoneItems, 21, 15);
+    worlds.emplace_back(zoneItems, 22, 15);
+
+/*
     worlds.emplace_back(zoneItems, 9, 13);
     worlds.emplace_back(zoneItems, 9, 14);
     worlds.emplace_back(zoneItems, 9, 15);
@@ -78,7 +130,7 @@ int main(int argc, char** argv)
     worlds.emplace_back(zoneItems, 16, 10);
     worlds.emplace_back(zoneItems, 16, 11);
     worlds.emplace_back(zoneItems, 16, 17);
-
+*/
     auto worldCenter = worlds.at(0).mCenter;
 
     auto objStore = BAK::MeshObjectStorage{};
@@ -87,7 +139,7 @@ int main(int argc, char** argv)
     {
         auto obj = BAK::MeshObject();
         if (item.GetDatItem().mVertices.size() <= 1) continue;
-        obj.LoadFromBaKItem(item, pal);
+        obj.LoadFromBaKItem(item, textures, pal);
         objStore.AddObject(item.GetName(), obj);
     }
 
@@ -142,11 +194,14 @@ int main(int argc, char** argv)
     // Create and compile our GLSL program from the shaders
     GLuint programID = LoadShaders(vertexShader, fragmentShader);
 
-    const auto& vertices = objStore.mVertices;
-    const auto& normals = objStore.mNormals;
-    const auto& colors = objStore.mColors;
-    const auto& indices = objStore.mIndices;
+    const auto& vertices      = objStore.mVertices;
+    const auto& normals       = objStore.mNormals;
+    const auto& colors        = objStore.mColors;
+    const auto& textureCoords = objStore.mTextureCoords;
+    const auto& textureBlends = objStore.mTextureBlends;
+    const auto& indices       = objStore.mIndices;
 
+    GLuint textureID     = glGetUniformLocation(programID, "texture0");
     GLuint mvpMatrixID = glGetUniformLocation(programID, "MVP");
     GLuint modelMatrixID = glGetUniformLocation(programID, "M");
     GLuint viewMatrixID = glGetUniformLocation(programID, "V");
@@ -176,6 +231,24 @@ int main(int argc, char** argv)
         GL_ARRAY_BUFFER,
         colors.size() * sizeof(std::decay_t<decltype(colors)>::value_type),
         &colors.front(),
+        GL_STATIC_DRAW);
+
+    GLuint textureCoordBuffer;
+    glGenBuffers(1, &textureCoordBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        textureCoords.size() * sizeof(std::decay_t<decltype(textureCoords)>::value_type),
+        &textureCoords.front(),
+        GL_STATIC_DRAW);
+
+    GLuint textureBlendBuffer;
+    glGenBuffers(1, &textureBlendBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        textureBlends.size() * sizeof(std::decay_t<decltype(textureBlends)>::value_type),
+        &textureBlends.front(),
         GL_STATIC_DRAW);
 
     GLuint elementbuffer;
@@ -231,6 +304,47 @@ int main(int argc, char** argv)
     glm::vec3 lightPos = glm::vec3(0,220,0);
 
     GLuint CameraPositionID = glGetUniformLocation(programID, "CameraPosition_worldspace");
+
+    unsigned texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);  
+
+    auto maxDim = textures.GetMaxDim();
+
+    glTexStorage3D(
+		GL_TEXTURE_2D_ARRAY,
+		1, 
+		GL_RGB8,   //Internal format
+		maxDim, maxDim, //width,height
+		64        //Number of layers
+	);
+    
+	for (const auto& tex : textures.GetTextures() | boost::adaptors::indexed())
+	{
+		std::vector<glm::vec3> paddedTex(
+            maxDim * maxDim,
+            glm::vec3{0.0, .0, 0.0});
+
+		for (unsigned x = 0; x < tex.value().mWidth; x++)
+			for (unsigned y = 0; y < tex.value().mHeight; y++)
+				paddedTex[x + y * maxDim] = tex.value().mTexture[x + y * tex.value().mWidth];
+
+		glTexSubImage3D(
+			GL_TEXTURE_2D_ARRAY,
+			0,                 //Mipmap number
+			0, 0, tex.index(), //xoffset, yoffset, zoffset
+			maxDim, maxDim, 1, //width, height, depth
+			GL_RGB,            //format
+			GL_FLOAT,          //type
+			paddedTex.data()); //pointer to data
+	}
+	
+    //glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     do
     {
@@ -350,7 +464,33 @@ int main(int argc, char** argv)
             0,                  // stride
             (void*)0            // array buffer offset
         );
-        
+
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
+        glVertexAttribPointer(
+            3,
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+
+        glEnableVertexAttribArray(4);
+        glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
+        glVertexAttribPointer(
+            4,
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(textureID, 0);
+
         for (const auto& world : worlds)
         {
             for (const auto& inst : world.mItemInsts)

@@ -435,7 +435,7 @@ TableResource::Load(FileBuffer *buffer)
                             for (unsigned k = 0; k < faces; k++)
                             {
                                 item->paletteSources.push_back(datbuf->GetUint8());
-                                std::cout << "Using palette: " << item->paletteSources.back();
+                                std::cout << "Using palette: " << +item->paletteSources.back();
                                 // There are four colours defined face color, edge color, ??, and ??
                                 for (unsigned c = 0; c < 4; c++)
                                 {

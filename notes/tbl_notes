@@ -1,0 +1,137 @@
+ReadTable:
+0
+34f7
+3ce8
+
+-- Stream seems to be at 5d5f in memory
+Search at 0x43 sized sgements
+
+MAP:XX
+XX = 0230 -> 560
+
+ds:2c02 -- Seems to be a map maybe? PAL:VGA, PAL:EGA, PAL:CGA ...... PAL:AMG ?
+ds:5da2 -- Another map??
+
+When we searc for tags they get loaded here
+ds:5d1c -- search for tag? then it has address to go to?
+2B50:5D1C     E8 3C 50 41 4C 3A 00 00 00 00 00 00 00 00 00 00  .<PAL:.....
+
+ds:34fe => FileHandelr?
+
+MaybeLoadElemtsFromTBL
+After Loading (LoadTBLIntoMem?
+FF1A -> 5d91
+
+ds:8014 ?? What is it? TblBufferPtr?
+
+es 5d91) segment
+es:0000 = 5dc5
+seems to be writing a bunch of ptr?
+
+ablePointer? -- more like loaded data pointer
+2b50:8014 -> Ptr to TBL segment (4 bytes) and count of elems? (2 bytes)
+count at end is 207
+bx = 33c
+
+8001 ? 1f9a?
+138e ax after find tags
+
+CalculateSizeDAT:
+ax: 3d24
+bx: 86
+
+LoadGIDPartOfTable
+This seems to be the GIDBuf 
+Alloced: 74B5
+
+74b5:0000 -> 0360 (gid offsets? Ptrs?)
+items may share the same GID offset, so the table may have multiple of the same entry
+74e9 is the beginning of these
+74eb:0006 field x (0x7d0 2000)
+74eb:0008 field x (0xc80 3200)`
+
+2b50:8014 -- has cf, the count of how many items and also and address 5d91
+5d90 is 52960 bytes in size
+
+tablePointer is used in checkAndReadTableElem
+bp 1b15:0095
+
+
+A0_StartNewGame
+-> Load slot BMX bp 3b52:03a4
+var ds:5236 is the name of the file to open
+-> Load elems from table cs:03d0
+ReadTBLAndFindTagOffsets
+ReadResourceFile -> 
+AX = 3ce8, BX = 5d1c
+5d1c has 3ce8
+Load TAG into 5d1e
+MAP
+then 5d1c + 3f (5d5b) has 3cc4
+APP
+MAP
+AT -> cx = 3782
+5d5B has the size of dat (cee0) after calling cs:3dda
+(5da2 also has 3ce8)
+5d20 has 3a54 and 34f9 has 3a54
+end of findTags: 5d57 = 50ba, ax has that also
+
+After ReadTBLAndFindTagOffsets we have ax = 3ce8 and bx = 34fa
+
+Then call Allocate memory and allocated at 5d90 0xcee0 bytes
+Then call ReadAndAllocByteBlocks and we have in 5d90:0000 the
+full contents of DAT
+
+part of table
+Returned was cee0
+
+After LoadTBLIntoMem -- bx = 8014 (tblInfoStructPtr)
+tblInfoStructPtr has 5d91
+
+Then "changeOffsetsToPtrs" takes the ptr to the table and adds the offsets
+
+e.g. 5d91:6a74 is t011610
+
+
+COMBAT.TBL -> 6a80:0000
+
+Then "load Z01.DAT" allocs ?? 94de??
+ds:94de gets filled with numbers gfrom 0 -> 0x100
+then loads into 617a?
+
+-> Load GID 045F -- 74A5
+-> Load table elems 0485
+
+"LoadGIDPartOfTable"
+
+74b5 length 3d30
+GID is at 74b5
+then we load the offsets of the GID data
+
+
+0596 :: c3
+complexLoadTBLElems
+What exactly is at 7889????
+Also of interest -> 5EF8 (I think this is where the data gets loaded)
+
+
+sub_3822f
+takes ptr@5249 -> 8090
+
+9e 02?
+
+--- BPs while game running
+in function "sortSceneBuffer???"
+Breaks when moving (presumably to redraw the scene?)
+@ 486f:00e7
+@ 486f:0158
+@ 486f:02a1
+
+overlay 157 becomes 3b52 after game starts
+
+1b1f:0104 - readExistingTableData
+22af:02a9 - loadDatItem
+ds:4892 datItemAddr
+j_readTableElems callbed by 427f:07ef
+
+1cc0:0270: Has switch statement which selects screen darwing method?
