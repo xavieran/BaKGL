@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    std::string zone = "Z06";
+    std::string zone = "Z01";
 
     auto palz = std::make_unique<PaletteResource>();
     std::stringstream palStr{""};
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     auto zoneItems = BAK::ZoneItemStore{zone, textures};
     auto worlds = std::vector<BAK::World>{};
     worlds.reserve(60);
-
+/*
     worlds.emplace_back(zoneItems, 9, 11);
 
     worlds.emplace_back(zoneItems, 10, 9);
@@ -88,8 +88,7 @@ int main(int argc, char** argv)
     worlds.emplace_back(zoneItems, 20, 15);
     worlds.emplace_back(zoneItems, 21, 15);
     worlds.emplace_back(zoneItems, 22, 15);
-
-/*
+*/
     worlds.emplace_back(zoneItems, 9, 13);
     worlds.emplace_back(zoneItems, 9, 14);
     worlds.emplace_back(zoneItems, 9, 15);
@@ -130,7 +129,7 @@ int main(int argc, char** argv)
     worlds.emplace_back(zoneItems, 16, 10);
     worlds.emplace_back(zoneItems, 16, 11);
     worlds.emplace_back(zoneItems, 16, 17);
-*/
+
     auto worldCenter = worlds.at(0).mCenter;
 
     auto objStore = BAK::MeshObjectStorage{};
@@ -159,8 +158,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned height = 768;
-    unsigned width  = 960;
+    unsigned height = 900;
+    unsigned width  = 1500;
 
     window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
     if( window == NULL )
@@ -511,6 +510,11 @@ int main(int argc, char** argv)
                 if (inst.GetZoneItem().GetName() == "ground")
                 {
                     modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.1,0});
+                }
+
+                if (inst.GetZoneItem().GetName().substr(0,4) == "tree")
+                {
+                    //continue;
                 }
 
                 modelMatrix = glm::translate(modelMatrix, relLoc);

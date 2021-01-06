@@ -399,46 +399,46 @@ namespace BAK {
     class WorldItemInstance
     {
         public:
-            WorldItemInstance(
-                    const ZoneItem& zoneItem,
-                    unsigned type,
-                    unsigned xrot,
-                    unsigned yrot,
-                    unsigned zrot,
-                    unsigned x,
-                    unsigned y,
-                    unsigned z)
-                :
-                    mZoneItem{zoneItem},
-                mType{type},
-                // Convert to radians - all these static casts are kinda disgusting
-                mRotation{
-                    (glm::vec3{
-                     static_cast<float>(xrot),
-                     static_cast<float>(yrot),
-                     static_cast<float>(zrot)}
-                     / static_cast<float>(0xffff))
-                        * static_cast<float>(2)
-                        * glm::pi<float>()},
-                mLocation{
-                    static_cast<float>(x),
-                    static_cast<float>(y),
-                    static_cast<float>(z)}
-            {}
+        WorldItemInstance(
+                const ZoneItem& zoneItem,
+                unsigned type,
+                unsigned xrot,
+                unsigned yrot,
+                unsigned zrot,
+                unsigned x,
+                unsigned y,
+                unsigned z)
+            :
+                mZoneItem{zoneItem},
+            mType{type},
+            // Convert to radians - all these static casts are kinda disgusting
+            mRotation{
+                (glm::vec3{
+                 static_cast<float>(xrot),
+                 static_cast<float>(yrot),
+                 static_cast<float>(zrot)}
+                 / static_cast<float>(0xffff))
+                    * static_cast<float>(2)
+                    * glm::pi<float>()},
+            mLocation{
+                static_cast<float>(x),
+                static_cast<float>(y),
+                static_cast<float>(z)}
+        {}
 
-            const ZoneItem& GetZoneItem() const { return mZoneItem; }
-            const glm::vec3& GetRotation() const { return mRotation; }
-            const glm::vec3& GetLocation() const { return mLocation; }
-            unsigned GetType() const { return mType; }
+        const ZoneItem& GetZoneItem() const { return mZoneItem; }
+        const glm::vec3& GetRotation() const { return mRotation; }
+        const glm::vec3& GetLocation() const { return mLocation; }
+        unsigned GetType() const { return mType; }
 
         private:
-            const ZoneItem& mZoneItem;
+        const ZoneItem& mZoneItem;
 
-            unsigned mType;
-            glm::vec3 mRotation;
-            glm::vec3 mLocation;
+        unsigned mType;
+        glm::vec3 mRotation;
+        glm::vec3 mLocation;
 
-            friend std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d);
+        friend std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d);
     };
 
     std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
