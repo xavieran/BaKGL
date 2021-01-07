@@ -120,4 +120,9 @@ private:
     std::string mName;
 };
 
+std::ostream& LogDebug(const std::string& loggerName)
+{
+    return LogState::Log(Logging::LogLevel::Debug, loggerName);
+}
+
 }

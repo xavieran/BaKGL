@@ -1,60 +1,60 @@
 #pragma once
 
+#include <GL/glew.h>
+
 #include <cmath>
 
 namespace BAK {
 
-constexpr unsigned TILE_SIZE = 64000;
-constexpr unsigned RES_X = 2048;
-constexpr unsigned RES_Y = 2048;
-constexpr unsigned MAP_SIZE_X = 96 * 4;
-constexpr unsigned MAP_SIZE_Y = 96 * 4;
-
-Vector2D TransformLoc(
-    const Vector2D& loc,
-    const Vector2D& centre,
-    double scale)
-{   
-    auto translated = Vector2D{
-        loc.GetX() - centre.GetX(), 
-        loc.GetY() - centre.GetY()};
-    return (translated * scale) * (static_cast<double>(MAP_SIZE_X) / TILE_SIZE);
-}
-
-Vector2D TransformLoc2(
-    const Vector2D& loc,
-    const Vector2D& centre,
-    double scale)
-{   
-    auto translated = Vector2D{
-        loc.GetX() + centre.GetX(), 
-        loc.GetY() + centre.GetY()};
-    return (translated * scale) * (static_cast<double>(MAP_SIZE_X) / TILE_SIZE);
-}
-
-Vector2D ScaleRad(
-    const Vector2D& vec,
-    double scale)
+class GLBuffers
 {
-    auto result = Vector2D{vec};
-    result *= scale;
-    result *= (static_cast<double>(MAP_SIZE_X) / TILE_SIZE);
-    return result;
-}
+public:
+    GLBuffers()
+    :
+        mVertexBuffer{GenGLBuffer()},
+        mNormalBuffer{GenGLBuffer()},
+        mColorBuffer{GenGLBuffer()},
+        mTextureCoordBuffer{GenGLBuffer()},
+        mTextureBlendBuffer{GenGLBuffer()},
+        mElementBuffer{GenGLBuffer()}
+    {}
 
-Vector2D RotateAboutPoint(
-    const Vector2D& p,
-    const Vector2D& center,
-    double theta)
-{
-    auto t = p;
-    t -= center;
-
-    auto j = Vector2D{
-        static_cast<int>(t.GetX() * cos(theta) - t.GetY() * sin(theta)),
-        static_cast<int>(t.GetX() * sin(theta) + t.GetY() * cos(theta))};
-    j += center;
-    return j;
-}
+    ~GLBuffers()
+    {
+        // Any other destruction needed here?
+        glDeleteBuffers(1, &mVertexBuffer);
+        glDeleteBuffers(1, &mNormalBuffer);
+        glDeleteBuffers(1, &mColorBuffer);
+        glDeleteBuffers(1, &mTextureCoordBuffer);
+        glDeleteBuffers(1, &mTextureBlendBuffer);
+        glDeleteBuffers(1, &mElementBuffer);
+    }
+    
+    static GLuint GenGLBuffer()
+    {
+        GLuint buffer;
+        glGenBuffers(1, &buffer);
+        return buffer;
+    }
+    
+    template <typename T>
+    void LoadBufferData(GLuint buffer, GLenum target, const std::vector<T>& data)
+    {
+        glBindBuffer(target, buffer);
+        glBufferData(
+            target,
+            data.size() * sizeof(T),
+            &data.front(),
+            // This will need to change...
+            GL_STATIC_DRAW);
+    }
+    
+    GLuint mVertexBuffer;
+    GLuint mNormalBuffer;
+    GLuint mColorBuffer;
+    GLuint mTextureCoordBuffer;
+    GLuint mTextureBlendBuffer;
+    GLuint mElementBuffer;
+};
 
 }

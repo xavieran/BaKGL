@@ -2,8 +2,9 @@
 
 #include "loadShaders.hpp"
 
-#include "worldFactory.hpp"
 #include "meshObject.hpp"
+#include "renderer.hpp"
+#include "worldFactory.hpp"
 
 #include "FileManager.h"
 #include "FileBuffer.h"
@@ -25,7 +26,7 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    std::string zone = "Z01";
+    std::string zone = argv[1];
 
     auto palz = std::make_unique<PaletteResource>();
     std::stringstream palStr{""};
@@ -35,113 +36,20 @@ int main(int argc, char** argv)
 
     auto textures  = BAK::TextureStore{zone, pal};
     auto zoneItems = BAK::ZoneItemStore{zone, textures};
-    auto worlds = std::vector<BAK::World>{};
-    worlds.reserve(60);
-/*
-    worlds.emplace_back(zoneItems, 9, 11);
-
-    worlds.emplace_back(zoneItems, 10, 9);
-    worlds.emplace_back(zoneItems, 10, 10);
-    worlds.emplace_back(zoneItems, 10, 11);
-    worlds.emplace_back(zoneItems, 10, 12);
-
-    worlds.emplace_back(zoneItems, 11, 9);
-    worlds.emplace_back(zoneItems, 11, 10);
-    worlds.emplace_back(zoneItems, 11, 11);
-    worlds.emplace_back(zoneItems, 11, 12);
-    worlds.emplace_back(zoneItems, 11, 13);
-    worlds.emplace_back(zoneItems, 11, 14);
-    worlds.emplace_back(zoneItems, 11, 15);
-
-    worlds.emplace_back(zoneItems, 12, 14);
-    worlds.emplace_back(zoneItems, 12, 15);
-    worlds.emplace_back(zoneItems, 12, 16);
-    worlds.emplace_back(zoneItems, 12, 17);
-
-    worlds.emplace_back(zoneItems, 13, 15);
-    worlds.emplace_back(zoneItems, 13, 16);
-    worlds.emplace_back(zoneItems, 13, 17);
-
-    worlds.emplace_back(zoneItems, 14, 16);
-    worlds.emplace_back(zoneItems, 14, 17);
-    worlds.emplace_back(zoneItems, 14, 18);
-
-    worlds.emplace_back(zoneItems, 15, 16);
-    worlds.emplace_back(zoneItems, 15, 17);
-
-    worlds.emplace_back(zoneItems, 16, 13);
-    worlds.emplace_back(zoneItems, 16, 15);
-    worlds.emplace_back(zoneItems, 16, 16);
-    worlds.emplace_back(zoneItems, 16, 17);
-
-    worlds.emplace_back(zoneItems, 17, 11);
-    worlds.emplace_back(zoneItems, 17, 12);
-    worlds.emplace_back(zoneItems, 17, 13);
-    worlds.emplace_back(zoneItems, 17, 14);
-    worlds.emplace_back(zoneItems, 17, 15);
-    worlds.emplace_back(zoneItems, 17, 16);
-
-    worlds.emplace_back(zoneItems, 18, 14);
-    worlds.emplace_back(zoneItems, 18, 15);
-
-    worlds.emplace_back(zoneItems, 19, 15);
-    worlds.emplace_back(zoneItems, 20, 15);
-    worlds.emplace_back(zoneItems, 21, 15);
-    worlds.emplace_back(zoneItems, 22, 15);
-*/
-    worlds.emplace_back(zoneItems, 9, 13);
-    worlds.emplace_back(zoneItems, 9, 14);
-    worlds.emplace_back(zoneItems, 9, 15);
-    
-    worlds.emplace_back(zoneItems, 10, 10);
-    worlds.emplace_back(zoneItems, 10, 11);
-    worlds.emplace_back(zoneItems, 10, 12);
-    worlds.emplace_back(zoneItems, 10, 13);
-    worlds.emplace_back(zoneItems, 10, 14);
-    worlds.emplace_back(zoneItems, 10, 15);
-    worlds.emplace_back(zoneItems, 10, 16);
-
-    worlds.emplace_back(zoneItems, 11, 11);
-    worlds.emplace_back(zoneItems, 11, 16);
-    worlds.emplace_back(zoneItems, 11, 17);
-
-    worlds.emplace_back(zoneItems, 12, 10);
-    worlds.emplace_back(zoneItems, 12, 11);
-    worlds.emplace_back(zoneItems, 12, 17);
-
-    worlds.emplace_back(zoneItems, 13, 10);
-    worlds.emplace_back(zoneItems, 13, 17);
-
-    worlds.emplace_back(zoneItems, 14, 10);
-    worlds.emplace_back(zoneItems, 14, 11);
-    worlds.emplace_back(zoneItems, 14, 17);
-
-    worlds.emplace_back(zoneItems, 15, 10);
-    worlds.emplace_back(zoneItems, 15, 11);
-    worlds.emplace_back(zoneItems, 15, 12);
-    worlds.emplace_back(zoneItems, 15, 13);
-    worlds.emplace_back(zoneItems, 15, 14);
-    worlds.emplace_back(zoneItems, 15, 15);
-    worlds.emplace_back(zoneItems, 15, 16);
-    worlds.emplace_back(zoneItems, 15, 17);
-    worlds.emplace_back(zoneItems, 15, 18);
-
-    worlds.emplace_back(zoneItems, 16, 10);
-    worlds.emplace_back(zoneItems, 16, 11);
-    worlds.emplace_back(zoneItems, 16, 17);
-
-    auto worldCenter = worlds.at(0).mCenter;
+    auto worlds    = BAK::WorldTileStore{zoneItems};
+    auto worldCenter = worlds.GetTiles().at(0).mCenter;
 
     auto objStore = BAK::MeshObjectStorage{};
 
     for (const auto& item : zoneItems.GetItems())
     {
-        auto obj = BAK::MeshObject();
+        auto obj = BAK::MeshObject{};
         if (item.GetDatItem().mVertices.size() <= 1) continue;
         obj.LoadFromBaKItem(item, textures, pal);
         objStore.AddObject(item.GetName(), obj);
     }
 
+    // FIXME: Need to make this consistent, floaing around a few other places
     float worldScale = 100.;
 
     if( !glfwInit() )
@@ -158,8 +66,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned height = 900;
-    unsigned width  = 1500;
+    unsigned height = 600;
+    unsigned width  = 800;
 
     window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
     if( window == NULL )
@@ -201,63 +109,17 @@ int main(int argc, char** argv)
     const auto& indices       = objStore.mIndices;
 
     GLuint textureID     = glGetUniformLocation(programID, "texture0");
-    GLuint mvpMatrixID = glGetUniformLocation(programID, "MVP");
+    GLuint mvpMatrixID   = glGetUniformLocation(programID, "MVP");
     GLuint modelMatrixID = glGetUniformLocation(programID, "M");
-    GLuint viewMatrixID = glGetUniformLocation(programID, "V");
+    GLuint viewMatrixID  = glGetUniformLocation(programID, "V");
 
-    GLuint vertexBuffer;
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        vertices.size() * sizeof(std::decay_t<decltype(vertices)>::value_type),
-        &vertices.front(),
-        GL_STATIC_DRAW);
-    
-    GLuint normalBuffer;
-    glGenBuffers(1, &normalBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        normals.size() * sizeof(std::decay_t<decltype(normals)>::value_type),
-        &normals.front(),
-        GL_STATIC_DRAW);
-
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        colors.size() * sizeof(std::decay_t<decltype(colors)>::value_type),
-        &colors.front(),
-        GL_STATIC_DRAW);
-
-    GLuint textureCoordBuffer;
-    glGenBuffers(1, &textureCoordBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        textureCoords.size() * sizeof(std::decay_t<decltype(textureCoords)>::value_type),
-        &textureCoords.front(),
-        GL_STATIC_DRAW);
-
-    GLuint textureBlendBuffer;
-    glGenBuffers(1, &textureBlendBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        textureBlends.size() * sizeof(std::decay_t<decltype(textureBlends)>::value_type),
-        &textureBlends.front(),
-        GL_STATIC_DRAW);
-
-    GLuint elementbuffer;
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        indices.size() * sizeof(std::decay_t<decltype(indices)>::value_type),
-        &indices.front(),
-        GL_STATIC_DRAW);
+    BAK::GLBuffers buffers{};
+    buffers.LoadBufferData(buffers.mVertexBuffer, GL_ARRAY_BUFFER, vertices);
+    buffers.LoadBufferData(buffers.mNormalBuffer, GL_ARRAY_BUFFER, normals);
+    buffers.LoadBufferData(buffers.mColorBuffer, GL_ARRAY_BUFFER, colors);
+    buffers.LoadBufferData(buffers.mTextureCoordBuffer, GL_ARRAY_BUFFER, textureCoords);
+    buffers.LoadBufferData(buffers.mTextureBlendBuffer, GL_ARRAY_BUFFER, textureBlends);
+    buffers.LoadBufferData(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, indices);
 
     glm::mat4 projectionMatrix = glm::perspective(
         glm::radians(45.0f),
@@ -277,7 +139,7 @@ int main(int argc, char** argv)
     // Our ModelViewprojectionMatrix : multiplication of our 3 matrices
     glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix; 
 
-    glm::vec3 position = glm::vec3( 0, 1.8, 0 );
+    glm::vec3 position = glm::vec3( 0, 1.2, 0 );
     // horizontal angle : toward -Z
     float horizontalAngle = 3.14f;
     // vertical angle : 0, look at the horizon
@@ -285,8 +147,9 @@ int main(int argc, char** argv)
     // Initial Field of View
     float initialFoV = 45.0f;
     
-    float speed = 120.0f; // 3 units / second
-    float turnSpeed = 30.0f; // 3 units / second
+    //float speed = 120.0f; // 3 units / second
+    float speed = 30.0f; // 3 units / second
+    float turnSpeed = 10.0f; // 3 units / second
     float mouseSpeed = 0.009f;
     //double xpos, ypos;
     glm::vec3 direction;
@@ -313,9 +176,9 @@ int main(int argc, char** argv)
     glTexStorage3D(
 		GL_TEXTURE_2D_ARRAY,
 		1, 
-		GL_RGB8,   //Internal format
-		maxDim, maxDim, //width,height
-		64        //Number of layers
+		GL_RGB8,        // Internal format
+		maxDim, maxDim, // width,height
+		64              // Number of layers
 	);
     
 	for (const auto& tex : textures.GetTextures() | boost::adaptors::indexed())
@@ -425,14 +288,12 @@ int main(int argc, char** argv)
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-
         
         glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
-
         glUniform3f(CameraPositionID, position.x, position.y, position.z);
 
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffers.mVertexBuffer);
         glVertexAttribPointer(
             0,
             3,                  // size
@@ -443,7 +304,7 @@ int main(int argc, char** argv)
         );
 
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffers.mNormalBuffer);
         glVertexAttribPointer(
             1,
             3,                  // size
@@ -454,7 +315,7 @@ int main(int argc, char** argv)
         );
 
         glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffers.mColorBuffer);
         glVertexAttribPointer(
             2,
             3,                  // size
@@ -465,7 +326,7 @@ int main(int argc, char** argv)
         );
 
         glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffers.mTextureCoordBuffer);
         glVertexAttribPointer(
             3,
             3,                  // size
@@ -476,7 +337,7 @@ int main(int argc, char** argv)
         );
 
         glEnableVertexAttribArray(4);
-        glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffers.mTextureBlendBuffer);
         glVertexAttribPointer(
             4,
             3,                  // size
@@ -490,7 +351,7 @@ int main(int argc, char** argv)
         glBindTexture(GL_TEXTURE_2D, texture);
         glUniform1i(textureID, 0);
 
-        for (const auto& world : worlds)
+        for (const auto& world : worlds.GetTiles())
         {
             for (const auto& inst : world.mItemInsts)
             {
@@ -546,13 +407,10 @@ int main(int argc, char** argv)
         glfwPollEvents();
 
     } // Check if the ESC key was pressed or the window was closed
-    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-           glfwWindowShouldClose(window) == 0 );
+    while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS 
+        && glfwWindowShouldClose(window) == 0);
 
     // Cleanup VBO
-    glDeleteBuffers(1, &vertexBuffer);
-    glDeleteBuffers(1, &normalBuffer);
-    glDeleteBuffers(1, &colorBuffer);
     glDeleteVertexArrays(1, &VertexArrayID);
     glDeleteProgram(programID);
 

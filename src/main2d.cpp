@@ -105,6 +105,63 @@ static SDL_Cursor *init_system_cursor(const char *image[])
   return SDL_CreateCursor(data, mask, 32, 32, hot_x, hot_y);
 }
 
+// Some overlap with xbak names here...
+namespace {
+
+constexpr unsigned TILE_SIZE = 64000;
+constexpr unsigned RES_X = 2048;
+constexpr unsigned RES_Y = 2048;
+constexpr unsigned MAP_SIZE_X = 96 * 4;
+constexpr unsigned MAP_SIZE_Y = 96 * 4;
+
+Vector2D TransformLoc(
+    const Vector2D& loc,
+    const Vector2D& centre,
+    double scale)
+{   
+    auto translated = Vector2D{
+        loc.GetX() - centre.GetX(), 
+        loc.GetY() - centre.GetY()};
+    return (translated * scale) * (static_cast<double>(MAP_SIZE_X) / ::TILE_SIZE);
+}
+
+Vector2D TransformLoc2(
+    const Vector2D& loc,
+    const Vector2D& centre,
+    double scale)
+{   
+    auto translated = Vector2D{
+        loc.GetX() + centre.GetX(), 
+        loc.GetY() + centre.GetY()};
+    return (translated * scale) * (static_cast<double>(MAP_SIZE_X) / ::TILE_SIZE);
+}
+
+Vector2D ScaleRad(
+    const Vector2D& vec,
+    double scale)
+{
+    auto result = Vector2D{vec};
+    result *= scale;
+    result *= (static_cast<double>(MAP_SIZE_X) / TILE_SIZE);
+    return result;
+}
+
+Vector2D RotateAboutPoint(
+    const Vector2D& p,
+    const Vector2D& center,
+    double theta)
+{
+    auto t = p;
+    t -= center;
+
+    auto j = Vector2D{
+        static_cast<int>(t.GetX() * cos(theta) - t.GetY() * sin(theta)),
+        static_cast<int>(t.GetX() * sin(theta) + t.GetY() * cos(theta))};
+    j += center;
+    return j;
+}
+
+}
 
 int main(int argc, char *argv[])
 {
@@ -208,9 +265,9 @@ int main(int argc, char *argv[])
             auto bloc = Vector2D{
                 static_cast<int>(inst.GetLocation().x),
                 static_cast<int>(inst.GetLocation().y)};
-            auto loc = BAK::TransformLoc(bloc, worldCenter, worldScale);
+            auto loc = TransformLoc(bloc, worldCenter, worldScale);
             auto brad = inst.GetZoneItem().GetGidItem().mRadius;
-            auto rad = BAK::ScaleRad(brad, worldScale);
+            auto rad = ScaleRad(brad, worldScale);
 
             if (brad == Vector2D{0, 0})
                 rad = Vector2D{1, 1};
@@ -247,13 +304,13 @@ int main(int argc, char *argv[])
                             auto scaleFactor = inst.GetZoneItem().GetDatItem().mScale;
                             assert(v < vertices.size());
                             auto rawV = Vector2D{vertices[v].GetX(), vertices[v].GetY()};
-                            auto vertex = BAK::RotateAboutPoint(
+                            auto vertex = RotateAboutPoint(
                                 rawV,
                                 Vector2D{0,0},
                                 //bloc,
                                 inst.GetRotation().z);
 
-                            auto scaled = BAK::TransformLoc2(
+                            auto scaled = TransformLoc2(
                                 Vector2D{vertex.GetX(), vertex.GetY()} * scaleFactor,
                                 bloc - worldCenter,
                                 worldScale);

@@ -43,7 +43,10 @@ FileBuffer FileBufferFactory::CreateFileBuffer(const std::string& path)
 {
     std::ifstream in{};
     in.open(path, std::ios::in | std::ios::binary);
-    assert(in.good());
+    if (!in.good())
+    {
+        throw OpenError(__FILE__, __LINE__);
+    }
 
     FileBuffer fb{GetStreamSize(in)};
     fb.Load(in);
