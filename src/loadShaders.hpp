@@ -114,7 +114,7 @@ void main(){
     if (alpha == 0) discard;
 
 	//vec3 materialAmbientColor = vec3(0.1,0.1,0.1) * diffuseColor;
-	vec3 materialAmbientColor = 1 * diffuseColor;
+	vec3 materialAmbientColor = .4 * diffuseColor;
 	vec3 materialSpecularColor = vec3(0.1);
 
 	// Distance to the light

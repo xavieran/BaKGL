@@ -283,12 +283,13 @@ int main(int argc, char** argv)
                 {
                     modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.1,0});
                 }
-
+                
+                /*
                 if (inst.GetZoneItem().GetName().substr(0,4) == "tree")
                 {
-                    //continue;
+                    continue;
                 }
-
+                */
                 modelMatrix = glm::translate(modelMatrix, relLoc);
                 modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
                 modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().z, glm::vec3(0,-1,0));
