@@ -152,7 +152,7 @@ int main(int argc, char** argv)
     float initialFoV = 45.0f;
     
     //float speed = 120.0f; // 3 units / second
-    float speed = 30.0f; // 3 units / second
+    float speed = 3 * 30.0f; // 3 units / second
     float turnSpeed = 10.0f; // 3 units / second
     float mouseSpeed = 0.009f;
     //double xpos, ypos;
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime;
 
-    GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
+    GLuint LightID = glGetUniformLocation(programID, "lightPosition_worldspace");
     GLuint CameraPositionID = glGetUniformLocation(programID, "CameraPosition_worldspace");
 
     glfwSetCursorPos(window, width/2, height/2);
@@ -172,6 +172,11 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    
+    // Currently just using discard. Will swap to proper transparency if
+    // discard costs too much.
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     buffers.BindArraysGL();
     
@@ -290,9 +295,9 @@ int main(int argc, char** argv)
 
                 MVP = projectionMatrix * viewMatrix * modelMatrix;
 
-                glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, glm::value_ptr(MVP));
+                glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
                 glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-                glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+                glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
 
                 glDrawElementsBaseVertex(
                     GL_TRIANGLES,

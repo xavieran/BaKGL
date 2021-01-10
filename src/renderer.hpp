@@ -53,14 +53,17 @@ public:
             GL_STATIC_DRAW);
     }
 
-    void BindAttribArrayGL(unsigned location, GLuint buffer)
+    void BindAttribArrayGL(
+        unsigned location,
+        unsigned elems,
+        GLuint buffer)
     {
         glEnableVertexAttribArray(location);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         // FIXME: All these attributes should get stored somewhere
         glVertexAttribPointer(
             location,
-            3,                  // size
+            elems,
             GL_FLOAT,           // type
             GL_FALSE,           // normalized?
             0,                  // stride
@@ -70,11 +73,11 @@ public:
 
     void BindArraysGL()
     {
-        BindAttribArrayGL(mVertexLoc, mVertexBuffer);
-        BindAttribArrayGL(mNormalLoc, mNormalBuffer);
-        BindAttribArrayGL(mColorLoc, mColorBuffer);
-        BindAttribArrayGL(mTextureCoordLoc, mTextureCoordBuffer);
-        BindAttribArrayGL(mTextureBlendLoc, mTextureBlendBuffer);
+        BindAttribArrayGL(mVertexLoc, 3, mVertexBuffer);
+        BindAttribArrayGL(mNormalLoc, 3, mNormalBuffer);
+        BindAttribArrayGL(mColorLoc, 4, mColorBuffer);
+        BindAttribArrayGL(mTextureCoordLoc, 3, mTextureCoordBuffer);
+        BindAttribArrayGL(mTextureBlendLoc, 1, mTextureBlendBuffer);
     }
     
 //private:
@@ -117,16 +120,16 @@ public:
         glTexStorage3D(
             GL_TEXTURE_2D_ARRAY,
             1, 
-            GL_RGB8,        // Internal format
+            GL_RGBA8,        // Internal format
             maxDim, maxDim, // width,height
             64              // Number of layers
         );
         
         for (const auto& tex : textures.GetTextures() | boost::adaptors::indexed())
         {
-            std::vector<glm::vec3> paddedTex(
+            std::vector<glm::vec4> paddedTex(
                 maxDim * maxDim,
-                glm::vec3{0.0, .0, 0.0});
+                glm::vec4{0, 0, 0, 0});
 
             // Chuck the image in the padded sized texture
             for (unsigned x = 0; x < tex.value().mWidth; x++)
@@ -135,12 +138,12 @@ public:
 
             glTexSubImage3D(
                 GL_TEXTURE_2D_ARRAY,
-                0,                 //Mipmap number
-                0, 0, tex.index(), //xoffset, yoffset, zoffset
-                maxDim, maxDim, 1, //width, height, depth
-                GL_RGB,            //format
-                GL_FLOAT,          //type
-                paddedTex.data()); //pointer to data
+                0,                 // Mipmap number
+                0, 0, tex.index(), // xoffset, yoffset, zoffset
+                maxDim, maxDim, 1, // width, height, depth
+                GL_RGBA,           // format
+                GL_FLOAT,          // type
+                paddedTex.data()); // pointer to data
         }
         
         //glGenerateMipmap(GL_TEXTURE_2D);

@@ -88,7 +88,7 @@ public:
                     mTextureBlends.emplace_back(1.0);
                     mTextureBlends.emplace_back(1.0);
                 }
-                else if (item.GetDatItem().mPalettes[i] == terrainPalette)
+                /*else if (item.GetDatItem().mPalettes[i] == terrainPalette)
                 {
                     mTextureBlends.emplace_back(1.0);
                     mTextureBlends.emplace_back(1.0);
@@ -96,18 +96,18 @@ public:
                     if (item.GetName().substr(0, 1) == "r")
                     {
                         if (textureIndex == 3)
-                            textureIndex = 5;
+                            textureIndex = 5 + store.GetTerrainOffset();
                         else if (textureIndex == 5)
-                            textureIndex = 6;
+                            textureIndex = 6 + store.GetTerrainOffset();
                     }
                     if (item.GetName().substr(0, 1) == "t")
                     {
                         if (textureIndex == 2)
-                            textureIndex = 3;
+                            textureIndex = 3 + store.GetTerrainOffset();
                         else if (textureIndex == 5)
-                            textureIndex = 6;
+                            textureIndex = 6 + store.GetTerrainOffset();
                     }
-                }
+                }*/
                 else if (textureIndex < 7)
                 {
                     mTextureBlends.emplace_back(1.0);
@@ -154,10 +154,11 @@ public:
                 
                 auto color = pal.GetColor(colorIndex);
                 auto glmCol = \
-                    glm::vec3(
+                    glm::vec4(
                         static_cast<float>(color.r) / 256,
                         static_cast<float>(color.g) / 256,
-                        static_cast<float>(color.b) / 256);
+                        static_cast<float>(color.b) / 256,
+                        1);
 
                 mColors.emplace_back(glmCol);
                 mColors.emplace_back(glmCol);
@@ -174,12 +175,12 @@ public:
 //private:
     std::vector<glm::vec3> mVertices;
     std::vector<glm::vec3> mNormals;
-    std::vector<glm::vec3> mColors;
+    std::vector<glm::vec4> mColors;
     std::vector<glm::vec3> mTextureCoords;
     // Ratio of texture to material color 
-    // - lame solution to having textured 
-    // and non-textured objects (should I use diff shaders?)
-    std::vector<glm::vec3> mTextureBlends;
+    // - solution to having textured and
+    // non-textured objects (should I use diff shaders?)
+    std::vector<float> mTextureBlends;
 	std::vector<unsigned> mIndices;
 
     const Logging::Logger& mLog{
@@ -242,9 +243,9 @@ public:
 
     std::vector<glm::vec3> mVertices;
     std::vector<glm::vec3> mNormals;
-    std::vector<glm::vec3> mColors;
+    std::vector<glm::vec4> mColors;
     std::vector<glm::vec3> mTextureCoords;
-    std::vector<glm::vec3> mTextureBlends;
+    std::vector<float> mTextureBlends;
 	std::vector<unsigned> mIndices;
 
     const Logging::Logger& mLog{

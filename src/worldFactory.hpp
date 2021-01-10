@@ -30,7 +30,7 @@ namespace BAK {
 class Texture
 {
 public:
-    using TextureType = std::vector<glm::vec3>;
+    using TextureType = std::vector<glm::vec4>;
 
     TextureType mTexture;
     unsigned mWidth;
@@ -80,25 +80,23 @@ public:
                         image.emplace_back(
                             static_cast<float>(color.r) / 256,
                             static_cast<float>(color.g) / 256,
-                            static_cast<float>(color.b) / 256);
-                }
+                            static_cast<float>(color.b) / 256, 
+                            // color index 0 is always transparency
+                            pixels[i] == 0 ? 0 : 1);
+                    }
 
                     // Need to invert the image over x axis for opengl
                     for (int x = 0; x < img.GetWidth(); x++)
-                    {
                         for (int y = 0; y < (img.GetHeight() / 2); y++)
-                        {
                             std::swap(
                                 image[x + (y * img.GetWidth())],
                                 image[x + ((img.GetHeight() - 1 - y) * img.GetWidth())]);
-                        }
-                    }
 
                     mTextures.push_back(
                         Texture{
-                        image,
-                        static_cast<unsigned>(img.GetWidth()),
-                        static_cast<unsigned>(img.GetHeight())});
+                            image,
+                            static_cast<unsigned>(img.GetWidth()),
+                            static_cast<unsigned>(img.GetHeight())});
 
                     sprites++;
                 }
@@ -131,7 +129,8 @@ public:
                 image.emplace_back(
                         static_cast<float>(color.r) / 256,
                         static_cast<float>(color.g) / 256,
-                        static_cast<float>(color.b) / 256);
+                        static_cast<float>(color.b) / 256,
+                        pixels[i] == 0 ? 0 : 1);
             }
 
             startOff += offset;
@@ -165,13 +164,9 @@ public:
         return mTextures[i];
     }
 
-    const std::vector<Texture>& GetTextures() const
-    {
-        return mTextures;
-    }
+    const std::vector<Texture>& GetTextures() const { return mTextures; }
 
     unsigned GetMaxDim() const { return mMaxDim; }
-
     unsigned GetTerrainOffset() const { return mTerrainOffset; }
 
 private:
@@ -452,19 +447,19 @@ public:
             if (item.type == static_cast<unsigned>(OBJECT_CENTER))
                 mCenter = glm::vec3{
                     static_cast<int>(item.xloc),
-                        0,
-                        static_cast<int>(item.yloc)};
+                    0,
+                    static_cast<int>(item.yloc)};
 
             mItemInsts.emplace_back(
-                    zoneItems.GetZoneItem(item.type),
-                    item.type,
-                    item.xrot,
-                    item.yrot,
-                    item.zrot,
-                    item.xloc,
-                    item.yloc,
-                    item.zloc
-                    );
+                zoneItems.GetZoneItem(item.type),
+                item.type,
+                item.xrot,
+                item.yrot,
+                item.zrot,
+                item.xloc,
+                item.yloc,
+                item.zloc
+                );
         }
 
         for (const auto& i : mItemInsts)

@@ -68,7 +68,8 @@ PaletteResource::Load(FileBuffer *buffer)
             c.r = (vgabuf->GetUint8() << 2);
             c.g = (vgabuf->GetUint8() << 2);
             c.b = (vgabuf->GetUint8() << 2);
-            c.a = 0;
+            // Color index 0 of a palette is always (?) transparency
+            c.a = i == 0 ? 0 : 256;
             palette->SetColor(i, c);
         }
         ClearTags();
