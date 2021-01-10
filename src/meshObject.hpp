@@ -81,7 +81,8 @@ public:
                 static constexpr std::uint8_t texturePalette = 0x91;
                 static constexpr std::uint8_t terrainPalette = 0xc1;
 
-                if (item.GetDatItem().mPalettes[i] == texturePalette)
+                if (item.GetDatItem().mPalettes[i] == texturePalette
+                    || item.GetDatItem().mPalettes[i] == 0x90)
                 {
                     mTextureBlends.emplace_back(1.0);
                     mTextureBlends.emplace_back(1.0);
@@ -92,7 +93,20 @@ public:
                     mTextureBlends.emplace_back(1.0);
                     mTextureBlends.emplace_back(1.0);
                     mTextureBlends.emplace_back(1.0);
-                    textureIndex += store.GetTerrainOffset();
+                    if (item.GetName().substr(0, 1) == "r")
+                    {
+                        if (textureIndex == 3)
+                            textureIndex = 5;
+                        else if (textureIndex == 5)
+                            textureIndex = 6;
+                    }
+                    if (item.GetName().substr(0, 1) == "t")
+                    {
+                        if (textureIndex == 2)
+                            textureIndex = 3;
+                        else if (textureIndex == 5)
+                            textureIndex = 6;
+                    }
                 }
                 else if (textureIndex < 7)
                 {
@@ -163,8 +177,8 @@ public:
     std::vector<glm::vec3> mColors;
     std::vector<glm::vec3> mTextureCoords;
     // Ratio of texture to material color 
-    // - pretty lame solution to having textured 
-    // and non-textured objects
+    // - lame solution to having textured 
+    // and non-textured objects (should I use diff shaders?)
     std::vector<glm::vec3> mTextureBlends;
 	std::vector<unsigned> mIndices;
 
@@ -209,7 +223,7 @@ public:
         std::copy(obj.mTextureBlends.begin(), obj.mTextureBlends.end(), std::back_inserter(mTextureBlends));
         std::copy(obj.mIndices.begin(), obj.mIndices.end(), std::back_inserter(mIndices));
 
-        mLog.Info() << __FUNCTION__ << " " << id << " off: " << mOffset << " len: " << length << std::endl;
+        mLog.Debug() << __FUNCTION__ << " " << id << " off: " << mOffset << " len: " << length << std::endl;
 
         mOffset += obj.GetNumVertices();
 

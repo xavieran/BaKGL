@@ -134,7 +134,7 @@ void main(){
     
     vec3 textureColor = texture(texture0, uvCoords).xyz;
     
-    if (texBlend > .9 && textureColor.r < 0.1 && textureColor.g < 0.1 && textureColor.b < 0.1) discard;
+    //if (texBlend > .9 && textureColor.r < 0.01 && textureColor.g < 0.01 && textureColor.b < 0.01) discard;
 
     vec3 diffuseColor = texBlend * textureColor + (1 - texBlend) * MaterialDiffuseColor;
 

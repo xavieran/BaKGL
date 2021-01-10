@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Exception.h"
+
 #include "FileBuffer.h"
 #include "FileManager.h"
 
@@ -41,10 +43,10 @@ class TextureStore
 public:
 
     TextureStore(
-            const std::string& zoneLabel,
-            const Palette& palette)
-        :
-            mTextures{},
+        const std::string& zoneLabel,
+        const Palette& palette)
+    :
+        mTextures{},
         mTerrainOffset{0},
         mMaxHeight{0},
         mMaxWidth{0},
@@ -119,6 +121,7 @@ public:
         auto width = terrain.GetImage()->GetWidth();
 
         auto startOff = 0;
+        // FIXME: Can I find these in the data files somewhere?
         for (auto offset : {70, 20, 20, 30, 20, 30, 5, 5})
         {
             auto image = Texture::TextureType{};
@@ -142,16 +145,16 @@ public:
 
         // Set max width and height
         mMaxHeight = std::max_element(
-                mTextures.begin(), mTextures.end(),
-                [](const auto &lhs, const auto& rhs){
-                return (lhs.mHeight < rhs.mHeight);
-                })->mHeight;
+            mTextures.begin(), mTextures.end(),
+            [](const auto &lhs, const auto& rhs){
+            return (lhs.mHeight < rhs.mHeight);
+            })->mHeight;
 
         mMaxWidth = std::max_element(
-                mTextures.begin(), mTextures.end(),
-                [](const auto &lhs, const auto& rhs){
-                return (lhs.mWidth < rhs.mWidth);
-                })->mWidth;
+            mTextures.begin(), mTextures.end(),
+            [](const auto &lhs, const auto& rhs){
+            return (lhs.mWidth < rhs.mWidth);
+            })->mWidth;
 
         mMaxDim = std::max(mMaxWidth, mMaxHeight);
     }
@@ -185,55 +188,21 @@ class ZoneItem
 {
 public:
     ZoneItem(
-            const std::string& name,
-            DatInfo* datInfo,
-            GidInfo* gidInfo,
-            const TextureStore& textureStore)
-        :
-            mName{name},
-        mDatItem{datInfo, textureStore},
-        mGidItem{gidInfo}
+        const std::string& name,
+        DatInfo* datInfo,
+        const TextureStore& textureStore)
+    :
+        mName{name},
+        mDatItem{datInfo, textureStore}
     {}
-
-    struct GidItem
-    {
-        GidItem(GidInfo* other)
-            :
-                mRadius{
-                    static_cast<int>(other->xradius),
-                        static_cast<int>(other->yradius)},
-                mFlags{other->flags},
-                mExtras{other->extras},
-                mExtraFlag{other->extraFlag},
-                mTextureCoords{std::invoke([&other](){
-                        std::vector<Vector2D> coords{};
-                        for (const auto& coord : other->textureCoords)
-                        coords.emplace_back(*coord);
-                        return coords;
-                        })},
-                mOtherCoords{std::invoke([&other](){
-                        std::vector<Vector2D> coords{};
-                        for (const auto& coord : other->otherCoords)
-                        coords.emplace_back(*coord);
-                        return coords;
-                        })}
-        {}
-
-        Vector2D mRadius;
-        unsigned mFlags;
-        unsigned mExtras;
-        char mExtraFlag;
-        std::vector<Vector2D> mTextureCoords;
-        std::vector<Vector2D> mOtherCoords;
-    };
 
     struct DatItem
     {
         DatItem(
-                DatInfo* other,
-                const TextureStore& textureStore)
-            :
-                mColors{},
+            DatInfo* other,
+            const TextureStore& textureStore)
+        :
+            mColors{},
             mVertices{},
             mPalettes{},
             mFaces{}
@@ -308,13 +277,11 @@ public:
     const std::string& GetName() const { return mName; }
 
     const DatItem& GetDatItem() const { return mDatItem; }
-    const GidItem& GetGidItem() const { return mGidItem; }
 
 private:
     std::string mName;
 
     DatItem mDatItem;
-    GidItem mGidItem;
 
     friend std::ostream& operator<<(std::ostream& os, const ZoneItem& d);
 };
@@ -342,31 +309,28 @@ class ZoneItemStore
 public:
 
     ZoneItemStore(
-            std::string zoneLabel,
-            const TextureStore& textureStore)
-        :
-            mZoneLabel{zoneLabel},
+        std::string zoneLabel,
+        const TextureStore& textureStore)
+    :
+        mZoneLabel{zoneLabel},
         mItems{}
     {
         TableResource table{};
-        {
-            std::stringstream str{""};
-            str << zoneLabel << ".TBL";
-            auto fb = FileBufferFactory::CreateFileBuffer(str.str());
-            table.Load(&fb);
-        }
 
-        assert((table.GetMapSize() == table.GetDatSize())
-                && (table.GetDatSize() == table.GetGidSize()));
+        std::stringstream str{""};
+        str << zoneLabel << ".TBL";
+        auto fb = FileBufferFactory::CreateFileBuffer(str.str());
+        table.Load(&fb);
+
+        assert(table.GetMapSize() == table.GetDatSize());
 
         std::cout << std::endl;
         for (unsigned i = 0; i < table.GetMapSize(); i++)
         {
             mItems.emplace_back(
-                    table.GetMapItem(i),
-                    table.GetDatItem(i),
-                    table.GetGidItem(i),
-                    textureStore);
+                table.GetMapItem(i),
+                table.GetDatItem(i),
+                textureStore);
         }
     }
 
@@ -381,9 +345,9 @@ public:
     const ZoneItem& GetZoneItem(const std::string& name) const
     {
         auto it = std::find_if(mItems.begin(), mItems.end(),
-                [&name](const auto& item){
-                return name == item.GetName();
-                });
+            [&name](const auto& item){
+            return name == item.GetName();
+            });
 
         assert(it != mItems.end());
         return *it;
@@ -391,7 +355,7 @@ public:
 
     const std::vector<ZoneItem>& GetItems() const { return mItems; }
 
-//private:
+private:
     const std::string mZoneLabel;
     std::vector<ZoneItem> mItems;
 };
@@ -400,16 +364,16 @@ class WorldItemInstance
 {
 public:
     WorldItemInstance(
-            const ZoneItem& zoneItem,
-            unsigned type,
-            unsigned xrot,
-            unsigned yrot,
-            unsigned zrot,
-            unsigned x,
-            unsigned y,
-            unsigned z)
-        :
-            mZoneItem{zoneItem},
+        const ZoneItem& zoneItem,
+        unsigned type,
+        unsigned xrot,
+        unsigned yrot,
+        unsigned zrot,
+        unsigned x,
+        unsigned y,
+        unsigned z)
+    :
+        mZoneItem{zoneItem},
         mType{type},
         // Convert to radians - all these static casts are kinda disgusting
         mRotation{
@@ -461,11 +425,11 @@ class World
 public:
 
     World(
-            const ZoneItemStore& zoneItems,
-            unsigned x,
-            unsigned y)
-        :
-            mItemInsts{}
+        const ZoneItemStore& zoneItems,
+        unsigned x,
+        unsigned y)
+    :
+        mItemInsts{}
     {
         LoadWorld(zoneItems, x, y);
     }
@@ -529,7 +493,7 @@ public:
                         {
                             worlds.emplace_back(zoneItems, x, y);
                         }
-                        catch (const std::exception&)
+                        catch (const OpenError&)
                         {
                             Logging::LogDebug("WorldTileStore")
                                 << "World: " << x << " , " << y 

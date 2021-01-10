@@ -23,6 +23,8 @@
 #include "GameFile.h"
 #include "ResourceFile.h"
 
+#include <iostream>
+
 FileManager* FileManager::instance = 0;
 
 FileManager::FileManager()
@@ -361,6 +363,7 @@ FileManager::ResourceExists(const std::string &name)
 void
 FileManager::Load(ResourceData *res, const std::string &name)
 {
+    std::cout << "Loading: " << name << std::endl;
     try
     {
         FileBuffer *buffer;

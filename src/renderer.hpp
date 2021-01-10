@@ -1,6 +1,10 @@
 #pragma once
 
+#include "worldFactory.hpp"
+
 #include <GL/glew.h>
+
+#include <boost/range/adaptor/indexed.hpp>
 
 #include <cmath>
 
@@ -11,12 +15,12 @@ class GLBuffers
 public:
     GLBuffers()
     :
-        mVertexBuffer{GenGLBuffer()},
-        mNormalBuffer{GenGLBuffer()},
-        mColorBuffer{GenGLBuffer()},
-        mTextureCoordBuffer{GenGLBuffer()},
-        mTextureBlendBuffer{GenGLBuffer()},
-        mElementBuffer{GenGLBuffer()}
+        mVertexBuffer{GenBufferGL()},
+        mNormalBuffer{GenBufferGL()},
+        mColorBuffer{GenBufferGL()},
+        mTextureCoordBuffer{GenBufferGL()},
+        mTextureBlendBuffer{GenBufferGL()},
+        mElementBuffer{GenBufferGL()}
     {}
 
     ~GLBuffers()
@@ -30,7 +34,7 @@ public:
         glDeleteBuffers(1, &mElementBuffer);
     }
     
-    static GLuint GenGLBuffer()
+    static GLuint GenBufferGL()
     {
         GLuint buffer;
         glGenBuffers(1, &buffer);
@@ -38,7 +42,7 @@ public:
     }
     
     template <typename T>
-    void LoadBufferData(GLuint buffer, GLenum target, const std::vector<T>& data)
+    void LoadBufferDataGL(GLuint buffer, GLenum target, const std::vector<T>& data)
     {
         glBindBuffer(target, buffer);
         glBufferData(
@@ -48,13 +52,107 @@ public:
             // This will need to change...
             GL_STATIC_DRAW);
     }
+
+    void BindAttribArrayGL(unsigned location, GLuint buffer)
+    {
+        glEnableVertexAttribArray(location);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        // FIXME: All these attributes should get stored somewhere
+        glVertexAttribPointer(
+            location,
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+    }
+
+    void BindArraysGL()
+    {
+        BindAttribArrayGL(mVertexLoc, mVertexBuffer);
+        BindAttribArrayGL(mNormalLoc, mNormalBuffer);
+        BindAttribArrayGL(mColorLoc, mColorBuffer);
+        BindAttribArrayGL(mTextureCoordLoc, mTextureCoordBuffer);
+        BindAttribArrayGL(mTextureBlendLoc, mTextureBlendBuffer);
+    }
     
+//private:
+
+// Locations in the shader
+    static constexpr unsigned mVertexLoc       = 0;
+    static constexpr unsigned mNormalLoc       = 1;
+    static constexpr unsigned mColorLoc        = 2;
+    static constexpr unsigned mTextureCoordLoc = 3;
+    static constexpr unsigned mTextureBlendLoc = 4;
+
     GLuint mVertexBuffer;
     GLuint mNormalBuffer;
     GLuint mColorBuffer;
     GLuint mTextureCoordBuffer;
     GLuint mTextureBlendBuffer;
     GLuint mElementBuffer;
+};
+
+class TextureBuffer
+{
+public:
+
+    TextureBuffer()
+    :
+        mTextureBuffer{
+            std::invoke([](){
+                unsigned texture;
+                glGenTextures(1, &texture);
+                return texture;
+            })
+        }
+    {}
+
+    void LoadTexturesGL(const TextureStore& textures)
+    {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, mTextureBuffer);
+        auto maxDim = textures.GetMaxDim();
+
+        glTexStorage3D(
+            GL_TEXTURE_2D_ARRAY,
+            1, 
+            GL_RGB8,        // Internal format
+            maxDim, maxDim, // width,height
+            64              // Number of layers
+        );
+        
+        for (const auto& tex : textures.GetTextures() | boost::adaptors::indexed())
+        {
+            std::vector<glm::vec3> paddedTex(
+                maxDim * maxDim,
+                glm::vec3{0.0, .0, 0.0});
+
+            // Chuck the image in the padded sized texture
+            for (unsigned x = 0; x < tex.value().mWidth; x++)
+                for (unsigned y = 0; y < tex.value().mHeight; y++)
+                    paddedTex[x + y * maxDim] = tex.value().mTexture[x + y * tex.value().mWidth];
+
+            glTexSubImage3D(
+                GL_TEXTURE_2D_ARRAY,
+                0,                 //Mipmap number
+                0, 0, tex.index(), //xoffset, yoffset, zoffset
+                maxDim, maxDim, 1, //width, height, depth
+                GL_RGB,            //format
+                GL_FLOAT,          //type
+                paddedTex.data()); //pointer to data
+        }
+        
+        //glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+
+//private:
+    GLuint mTextureBuffer;
 };
 
 }

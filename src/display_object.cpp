@@ -2,8 +2,9 @@
 
 #include "loadShaders.hpp"
 
-#include "worldFactory.hpp"
 #include "meshObject.hpp"
+#include "renderer.hpp"
+#include "worldFactory.hpp"
 
 #include "FileManager.h"
 #include "FileBuffer.h"
@@ -63,8 +64,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned height = 768;
-    unsigned width  = 960;
+    unsigned height = 600;
+    unsigned width  = 800;
 
     window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
     if( window == NULL )
@@ -104,6 +105,18 @@ int main(int argc, char** argv)
     const auto& textureCoords = objStore.mTextureCoords;
     const auto& textureBlends = objStore.mTextureBlends;
     const auto& indices       = objStore.mIndices;
+
+    BAK::GLBuffers buffers{};
+    buffers.LoadBufferDataGL(buffers.mVertexBuffer, GL_ARRAY_BUFFER, vertices);
+    buffers.LoadBufferDataGL(buffers.mNormalBuffer, GL_ARRAY_BUFFER, normals);
+    buffers.LoadBufferDataGL(buffers.mColorBuffer, GL_ARRAY_BUFFER, colors);
+    buffers.LoadBufferDataGL(buffers.mTextureCoordBuffer, GL_ARRAY_BUFFER, textureCoords);
+    buffers.LoadBufferDataGL(buffers.mTextureBlendBuffer, GL_ARRAY_BUFFER, textureBlends);
+    buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, indices);
+
+    BAK::TextureBuffer textureBuffer{};
+    textureBuffer.LoadTexturesGL(textures);
+
     /*
 
     auto vertices = std::vector<glm::vec3>{};
@@ -149,60 +162,6 @@ int main(int argc, char** argv)
     GLuint modelMatrixID = glGetUniformLocation(programID, "M");
     GLuint viewMatrixID  = glGetUniformLocation(programID, "V");
 
-    GLuint vertexBuffer;
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        vertices.size() * sizeof(std::decay_t<decltype(vertices)>::value_type),
-        &vertices.front(),
-        GL_STATIC_DRAW);
-    
-    GLuint normalBuffer;
-    glGenBuffers(1, &normalBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        normals.size() * sizeof(std::decay_t<decltype(normals)>::value_type),
-        &normals.front(),
-        GL_STATIC_DRAW);
-
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        colors.size() * sizeof(std::decay_t<decltype(colors)>::value_type),
-        &colors.front(),
-        GL_STATIC_DRAW);
-
-    GLuint textureCoordBuffer;
-    glGenBuffers(1, &textureCoordBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        textureCoords.size() * sizeof(std::decay_t<decltype(textureCoords)>::value_type),
-        &textureCoords.front(),
-        GL_STATIC_DRAW);
-
-    GLuint textureBlendBuffer;
-    glGenBuffers(1, &textureBlendBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        textureBlends.size() * sizeof(std::decay_t<decltype(textureBlends)>::value_type),
-        &textureBlends.front(),
-        GL_STATIC_DRAW);
-
-    GLuint elementbuffer;
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        indices.size() * sizeof(std::decay_t<decltype(indices)>::value_type),
-        &indices.front(),
-        GL_STATIC_DRAW);
-
     glm::mat4 projectionMatrix = glm::perspective(
         glm::radians(45.0f),
         (float) width / (float)height,
@@ -222,6 +181,7 @@ int main(int argc, char** argv)
     glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix; 
 
     glm::vec3 position = glm::vec3( 0, 1.8, 0 );
+    glm::vec3 lightPos = glm::vec3(0,120,0);
     // horizontal angle : toward -Z
     float horizontalAngle = 3.14f;
     // vertical angle : 0, look at the horizon
@@ -238,52 +198,21 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime;
 
+    GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
+
     glfwSetCursorPos(window, width/2, height/2);
 
+    // Setup active arrays and textures
     glUseProgram(programID);
-    GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
-    glm::vec3 lightPos = glm::vec3(0,120,0);
 
-    unsigned texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);  
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
-    auto maxDim = textures.GetMaxDim();
+    buffers.BindArraysGL();
 
-    glTexStorage3D(
-		GL_TEXTURE_2D_ARRAY,
-		1, 
-		GL_RGB8,   //Internal format
-		maxDim, maxDim, //width,height
-		64        //Number of layers
-	);
-
-	for (const auto& tex : textures.GetTextures() | boost::adaptors::indexed())
-	{
-		std::vector<glm::vec3> paddedTex(
-            maxDim * maxDim,
-            glm::vec3{0.3, .5, 0.3});
-
-		for (unsigned x = 0; x < tex.value().mWidth; x++)
-			for (unsigned y = 0; y < tex.value().mHeight; y++)
-				paddedTex[x + y * maxDim] = tex.value().mTexture[x + y * tex.value().mWidth];
-
-		glTexSubImage3D(
-			GL_TEXTURE_2D_ARRAY,
-			0,                 //Mipmap number
-			0, 0, tex.index(), //xoffset, yoffset, zoffset
-			maxDim, maxDim, 1, //width, height, depth
-			GL_RGB,            //format
-			GL_FLOAT,          //type
-			paddedTex.data()); //pointer to data
-	}
-	
-    //glGenerateMipmap(GL_TEXTURE_2D);
-
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP);   
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureBuffer.mTextureBuffer);
+    glUniform1i(textureID, 0);
 
     do
     {
@@ -349,6 +278,8 @@ int main(int argc, char** argv)
         lightPos.x = position.x;
         lightPos.z = position.z;
 
+        glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+
         viewMatrix = glm::lookAt(
             position,
             position + direction,
@@ -357,74 +288,6 @@ int main(int argc, char** argv)
         //glfwSetCursorPos(window, width/2, height/2);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Use our shader
-        glUseProgram(programID);
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
-
-        
-        glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
-
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glVertexAttribPointer(
-            0,
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-        );
-
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glVertexAttribPointer(
-            1,
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-        );
-
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-        glVertexAttribPointer(
-            2,
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-        );
-
-        glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, textureCoordBuffer);
-        glVertexAttribPointer(
-            3,
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-        );
-        
-        glEnableVertexAttribArray(4);
-        glBindBuffer(GL_ARRAY_BUFFER, textureBlendBuffer);
-        glVertexAttribPointer(
-            4,
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-        );
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glUniform1i(textureID, 0);
-        
         const auto [offset, length] = objStore.GetObject(argv[1]);
         //auto offset = 0;
         //auto length = 6;
@@ -447,24 +310,23 @@ int main(int argc, char** argv)
             offset
         );
 
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-        glDisableVertexAttribArray(3);
-
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
 
     } // Check if the ESC key was pressed or the window was closed
-    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-           glfwWindowShouldClose(window) == 0 );
+    while (glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS 
+        && glfwWindowShouldClose(window) == 0 );
+    
+    // If I need to swap shaders I will need 
+    // to move this back into the main loop
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(3);
+    glDisableVertexAttribArray(4);
 
     // Cleanup VBO
-    glDeleteBuffers(1, &vertexBuffer);
-    glDeleteBuffers(1, &normalBuffer);
-    glDeleteBuffers(1, &colorBuffer);
-    glDeleteBuffers(1, &textureCoordBuffer);
     glDeleteVertexArrays(1, &VertexArrayID);
     glDeleteProgram(programID);
 

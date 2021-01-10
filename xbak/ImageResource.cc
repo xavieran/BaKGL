@@ -83,7 +83,9 @@ void ImageResource::Load ( FileBuffer *buffer )
             Image *img = new Image ( width, height, flags );
             images.push_back ( img );
         }
-        FileBuffer *decompressed = new FileBuffer ( size );
+        // * 2 why is this necessary? 
+        // Some times the number of how much to decomp is not correct?
+        FileBuffer *decompressed = new FileBuffer (size);
         buffer->Decompress ( decompressed, compression );
         for ( unsigned int i = 0; i < numImages; i++ )
         {

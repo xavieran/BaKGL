@@ -136,16 +136,6 @@ Vector2D TransformLoc2(
     return (translated * scale) * (static_cast<double>(MAP_SIZE_X) / ::TILE_SIZE);
 }
 
-Vector2D ScaleRad(
-    const Vector2D& vec,
-    double scale)
-{
-    auto result = Vector2D{vec};
-    result *= scale;
-    result *= (static_cast<double>(MAP_SIZE_X) / TILE_SIZE);
-    return result;
-}
-
 Vector2D RotateAboutPoint(
     const Vector2D& p,
     const Vector2D& center,
@@ -266,18 +256,6 @@ int main(int argc, char *argv[])
                 static_cast<int>(inst.GetLocation().x),
                 static_cast<int>(inst.GetLocation().y)};
             auto loc = TransformLoc(bloc, worldCenter, worldScale);
-            auto brad = inst.GetZoneItem().GetGidItem().mRadius;
-            auto rad = ScaleRad(brad, worldScale);
-
-            if (brad == Vector2D{0, 0})
-                rad = Vector2D{1, 1};
-            /*media->GetVideo()->DrawRect(
-                (loc.GetX() - rad.GetX()),
-                (96 * 4) - (loc.GetY() + rad.GetY()),
-                rad.GetX() * 2,
-                rad.GetY() * 2,
-                inst.GetType());*/
-
             {
                 const auto& vertices = inst.GetZoneItem().GetDatItem().mVertices;
                 const auto& faces = inst.GetZoneItem().GetDatItem().mFaces;
@@ -318,11 +296,6 @@ int main(int argc, char *argv[])
                             x[i] = scaled.GetX();
                             y[i] = (96 * 4) - scaled.GetY();
                             i++;
-                            /*std::cout << "Loc: "<< loc.GetX() << " : " << scaled.GetX() 
-                                << " , " << loc.GetY() << " : " << scaled.GetY() 
-                                << " BRad " << brad
-                                << " Rad " << rad
-                                << std::endl;*/
                         }
                         if (!stop)
                             media->GetVideo()->FillPolygon(
