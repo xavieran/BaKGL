@@ -36,3 +36,35 @@ Flags - 00
 40 - Blessing 2
 80 - Blessing 3
 46 20 00
+
+Fights::
+Fight just south of questors view
+
+Combat 01
+0x9170
+HEA 27 1b
+STA 21 15
+SPE 03 03
+STR 14 0e
+MEL 46 2e
+DEF 40 28
+
+0xd4d0: Has the stats of the quegian
+Health 27 - 1b
+Stamina 23 - 17
+Speed 3    - 3
+Strength 18 - 12
+Defense 43  - 2b
+Missle 51   - 33
+Melee 51    - 33
+
+0x473b1: Has the inventory of the quegian
+
+HEA 35 0x23
+STA 16 0x10
+SPE 03 0x03
+STR 18 0x12
+MEL 45 0x2d
+DEF 39 0x27
+CRO 00 0x0
+CAS 00 0x0

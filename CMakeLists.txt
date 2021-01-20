@@ -22,6 +22,7 @@ include_directories("xbak")
 
 include_directories("include")
 include_directories("src")
+include_directories("shaders")
 
 set(BAK_INCLUDES
     xbak
@@ -35,10 +36,12 @@ set(LINK_3D_LIBRARIES
 )
 
 set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter")
-set(CMAKE_CXX_FLAGS "-g -std=c++17 -Wall -Wextra -Werror ${CXX_IGNORE}")
+set(CMAKE_CXX_FLAGS "-O2 -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
 list(APPEND BAK_BINARIES
+    display_save
     display_object
+    compile_shaders 
     main2d
     main3d
 )
@@ -48,10 +51,21 @@ foreach (BAK_BIN IN LISTS BAK_BINARIES)
     target_link_libraries(${BAK_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} xbak SDL)
 endforeach()
 
+# Be nice to run this over all the shaders
+# Need to add dependencies on "compile_shaders" and on the shaders referenced...
+execute_process(
+	COMMAND "${CMAKE_BINARY_DIR}/compile_shaders vertex.glsl fragment.glsl" 
+	RESULT_VARIABLE STATUS)
+
+if(${STATUS} AND NOT ${STATUS} EQUAL "0")
+    message(FATAL_ERROR "Failed to compile shaders")
+endif()
+
 # XBaK Executables
 list(APPEND XBAK_BINARIES
     dumpbmx
-    "dumpzone_bmx"
+    dumpzone_bmx
+    dumpchar_bmx
     dumppal
     dumpobj
     dumptbl

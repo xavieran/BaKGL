@@ -106,10 +106,12 @@ void GameResource::Load(FileBuffer *buffer)
         buffer->Skip(5);
         game->GetCamera()->SetHeading(buffer->GetUint16LE());
         buffer->Skip(23);
+
         for (unsigned int m = 0; m < game->GetParty()->GetNumMembers(); m++)
         {
             game->GetParty()->GetMember(m)->SetName(buffer->GetString(10));
         }
+
         for (unsigned int m = 0; m < game->GetParty()->GetNumMembers(); m++)
         {
             buffer->Skip(8);

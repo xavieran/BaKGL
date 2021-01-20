@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 
     PaletteResource *palz = new PaletteResource;
     std::stringstream palStr{""};
-    palStr << "Z" << std::setfill('0') << std::setw(2) << zone << ".PAL";
+    palStr << std::setfill('0') << std::setw(2) << zone << ".PAL";
     FileManager::GetInstance()->Load(palz, palStr.str());
 
     auto& pal = *palz->GetPalette();
@@ -181,12 +181,12 @@ int main(int argc, char *argv[])
     //worlds.emplace_back(zoneItems, 10, 13);
     //worlds.emplace_back(zoneItems, 10, 14);
     //worlds.emplace_back(zoneItems, 10, 15);
-    //worlds.emplace_back(zoneItems, 10, 16);
+    worlds.emplace_back(zoneItems, 10, 16);
 
-    //worlds.emplace_back(zoneItems, 11, 11);
+    worlds.emplace_back(zoneItems, 11, 11);
     worlds.emplace_back(zoneItems, 11, 16);
     worlds.emplace_back(zoneItems, 11, 17);
-    //worlds.emplace_back(zoneItems, 12, 10);
+    worlds.emplace_back(zoneItems, 12, 10);
     //worlds.emplace_back(zoneItems, 12, 11);
     //worlds.emplace_back(zoneItems, 12, 17);
 
@@ -212,14 +212,15 @@ int main(int argc, char *argv[])
     //worlds.emplace_back(zoneItems, 16, 11);
     //worlds.emplace_back(zoneItems, 16, 17);
 
-    auto worldCenter = Vector2D{
-        static_cast<int>(worlds.at(0).mCenter.x),
-        static_cast<int>(worlds.at(0).mCenter.y)};
+    /*auto worldCenter = Vector2D{
+        static_cast<int>(worlds.at(0).GetCenter().x),
+        static_cast<int>(worlds.at(0).GetCenter().y)};*/
 
-    //auto worldCenter = Vector2D{815243, 1073855};
+    auto worldCenter = Vector2D{815243, 1073855};
     for (const auto& world : worlds)
     {
-        std::cout << glm::to_string(world.mCenter) << std::endl;
+        std::cout << glm::to_string(world.GetCenter()) 
+            << " T: " << glm::to_string(world.GetTile()) << std::endl;
     }
 
     bool drawTrees = false;
@@ -228,7 +229,7 @@ int main(int argc, char *argv[])
 
     MediaToolkit *media = MediaToolkit::GetInstance();
 
-    media->GetVideo()->CreateWindow(2048, 2048);
+    media->GetVideo()->CreateWindow(800, 800);
     media->GetVideo()->SetMode(LORES_HICOL);
     
 	auto cursor = init_system_cursor(arrow);
@@ -237,19 +238,8 @@ int main(int argc, char *argv[])
     
     pal.Activate(0, 256);
 
-    /*
-    PaletteResource pal;
-    pal.GetPalette()->Fill();
-    pal.GetPalette()->Activate(0, 256);
-    */
-    
     const auto Draw = [&](auto& world){
-        /*media->GetVideo()->FillRect(
-            0, 0,
-            480, 480,
-            world.mItemInsts[0].GetZoneItem().GetDatItem().mColors[1]);*/
-
-        for (auto& inst : world.mItemInsts)
+        for (auto& inst : world.GetItems())
         {   
             if (!drawTrees && inst.GetZoneItem().GetName().substr(0, 4) == "tree") continue;
             auto bloc = Vector2D{
@@ -334,28 +324,28 @@ int main(int argc, char *argv[])
             for (auto& world : worlds)
             {
                 Draw(world);
-                
-                int delta = (64000/64) / worldScale;
-
-                if (heldKey)
-                {
-                    auto k = *heldKey;
-                    if (k == KEY_UP || k == KEY_w)
-                        worldCenter += Vector2D{0, delta};
-                    else if (k == KEY_DOWN || k == KEY_s)
-                        worldCenter -= Vector2D{0, delta};
-                    else if (k == KEY_LEFT || k == KEY_a)
-                        worldCenter -= Vector2D{delta, 0};
-                    else if (k == KEY_RIGHT || k == KEY_d)
-                        worldCenter += Vector2D{delta, 0};
-                    else if (k == KEY_z)
-                        worldScale += .04;
-                    else if (k == KEY_x)
-                        worldScale -= .04;
-                    heldKey = boost::none;
-                }
-
             }
+            
+            int delta = (64000/64) / worldScale;
+
+            if (heldKey)
+            {
+                auto k = *heldKey;
+                if (k == KEY_UP || k == KEY_w)
+                    worldCenter += Vector2D{0, delta};
+                else if (k == KEY_DOWN || k == KEY_s)
+                    worldCenter -= Vector2D{0, delta};
+                else if (k == KEY_LEFT || k == KEY_a)
+                    worldCenter -= Vector2D{delta, 0};
+                else if (k == KEY_RIGHT || k == KEY_d)
+                    worldCenter += Vector2D{delta, 0};
+                else if (k == KEY_z)
+                    worldScale += .04;
+                else if (k == KEY_x)
+                    worldScale -= .04;
+                heldKey = boost::none;
+            }
+
             media->GetVideo()->Refresh();
         }
     };

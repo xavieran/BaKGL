@@ -56,13 +56,19 @@ enum class EntityType : unsigned
     ET_LADDER     = 42
 };
 
-
 enum class TerrainType : unsigned
 {
-    TT_NULL      = 0,
-    TT_INTERIOR  = 6,
-    TT_EXTERIOR  = 7,
-    TT_LANDSCAPE = 8
+    TT_NULL   = 0,
+    TT_RIVER  = 6,
+    TT_ROAD   = 7,
+    TT_GROUND = 8
+};
+
+enum class EntityProperty : unsigned
+{
+    Scenery = 0,
+    Container = 1 << 1,
+    Popup = 1 << 2
 };
 
 }

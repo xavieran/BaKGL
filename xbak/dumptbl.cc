@@ -39,20 +39,22 @@ int main(int argc, char *argv[])
             std::cerr << "Usage: " << argv[0] << " <TBL-file>" << std::endl;
             return 1;
         }
+
         TableResource *tbl = new TableResource;
         FileManager::GetInstance()->Load(tbl, argv[1]);
+
         for (unsigned int i = 0; i < tbl->GetMapSize(); i++)
         {
             GidInfo *gid = tbl->GetGidItem(i);
             DatInfo *dat = tbl->GetDatItem(i);
-            printf("%3d: %-8s (%6d %6d) %04x %02x %2d %2d %2d %2d\n",
+            printf("%3d: %-8s (%6d %6d) fl %04x efl %02x tt %2d tc %2d spr %2d\n",
                    i, tbl->GetMapItem(i).c_str(), gid->xradius, gid->yradius, gid->flags,
-                   dat->entityFlags, dat->entityType, dat->terrainType, dat->terrainClass, dat->sprite);
-            printf("\t(%6d, %6d, %6d)  (%6d, %6d, %6d)  (%6d, %6d, %6d)\n",
+                   dat->entityFlags, dat->terrainType, dat->terrainClass, dat->sprite);
+            /*printf("\t(%6d, %6d, %6d)  (%6d, %6d, %6d)  (%6d, %6d, %6d)\n",
                    dat->min.GetX(), dat->min.GetY(), dat->min.GetZ(),
                    dat->max.GetX(), dat->max.GetY(), dat->max.GetZ(),
-                   dat->pos.GetX(), dat->pos.GetY(), dat->pos.GetZ());
-            printf("textureCoords\n");
+                   dat->pos.GetX(), dat->pos.GetY(), dat->pos.GetZ());*/
+            /*printf("textureCoords\n");
             for (unsigned int j = 0; j < gid->textureCoords.size(); j++)
             {
                 printf("\t\t(%4d, %4d)\n",
@@ -82,7 +84,7 @@ int main(int argc, char *argv[])
                     sep = ',';
                 }
                 std::cout << ")\n";
-            }
+            }*/
         }
         delete tbl;
         FileManager::CleanUp();

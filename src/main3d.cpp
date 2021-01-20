@@ -1,6 +1,7 @@
-#include "logger.hpp"
+#include "gameData.hpp"
 
 #include "loadShaders.hpp"
+#include "logger.hpp"
 
 #include "meshObject.hpp"
 #include "renderer.hpp"
@@ -25,6 +26,19 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::Disable("MeshObjectStore");
+    Logging::LogState::Disable("WorldTileStore");
+    
+    std::string saveFile{argv[1]};
+
+    logger.Info() << "Loading save:" << saveFile << std::endl;
+
+    /*auto fb = FileBufferFactory::CreateFileBuffer(saveFile);
+    BAK::GameData gameData(fb);
+
+    std::stringstream zoneSS{""};
+    zoneSS << "Z" << std::setw(2) << std::setfill('0')<< gameData.mZone;
+    std::string zone = zoneSS.str();*/
 
     std::string zone = argv[1];
 
@@ -34,10 +48,15 @@ int main(int argc, char** argv)
     FileManager::GetInstance()->Load(palz.get(), palStr.str());
     auto& pal = *palz->GetPalette();
 
-    auto textures  = BAK::TextureStore{zone, pal};
-    auto zoneItems = BAK::ZoneItemStore{zone, textures};
-    auto worlds    = BAK::WorldTileStore{zoneItems};
-    auto worldCenter = worlds.GetTiles().at(0).mCenter;
+    auto textures    = BAK::TextureStore{zone, pal};
+    auto zoneItems   = BAK::ZoneItemStore{zone, textures};
+    auto worlds      = BAK::WorldTileStore{zoneItems};
+    auto worldCenter = worlds.GetTiles().at(0).GetCenter();
+    //auto worldCenter = glm::vec3{672000, 0, -1056000};
+    //auto loc = gameData.mLocus.mPosition;
+    //auto worldCenter = glm::vec3{loc.x, 1.6, loc.y};
+
+    logger.Info() << "World Center: " << glm::to_string(worldCenter) << std::endl;
 
     auto objStore = BAK::MeshObjectStorage{};
 
@@ -264,7 +283,7 @@ int main(int argc, char** argv)
 
         for (const auto& world : worlds.GetTiles())
         {
-            for (const auto& inst : world.mItemInsts)
+            for (const auto& inst : world.GetItems())
             {
                 if (inst.GetZoneItem().GetDatItem().mVertices.size() <= 1) continue;
 
@@ -292,7 +311,7 @@ int main(int argc, char** argv)
                 */
                 modelMatrix = glm::translate(modelMatrix, relLoc);
                 modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
-                modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().z, glm::vec3(0,-1,0));
+                modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().z, glm::vec3(0,1,0));
 
                 MVP = projectionMatrix * viewMatrix * modelMatrix;
 

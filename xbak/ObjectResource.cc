@@ -21,6 +21,8 @@
 #include "FileManager.h"
 #include "ObjectResource.h"
 
+#include <cassert>
+
 ObjectResource* ObjectResource::instance = 0;
 
 ObjectResource::ObjectResource()
@@ -61,6 +63,7 @@ ObjectResource::GetSize() const
 ObjectInfo&
 ObjectResource::GetObjectInfo(unsigned int n)
 {
+    assert(n <= 0x89);
     return data[n];
 }
 

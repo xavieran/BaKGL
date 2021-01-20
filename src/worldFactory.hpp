@@ -235,6 +235,7 @@ public:
             }
             else
             {
+                // Need this to set the right dimensions for the texture
                 const auto& tex = textureStore.GetTexture(mSpriteIndex);
                 auto width  = tex.mWidth * 10;
                 auto height = tex.mHeight * 10;
@@ -377,11 +378,10 @@ public:
              static_cast<float>(yrot),
              static_cast<float>(zrot)}
              / static_cast<float>(0xffff))
-                * static_cast<float>(2)
-                * glm::pi<float>()},
+                * 2.0f * glm::pi<float>()},
         mLocation{
             static_cast<float>(x),
-            static_cast<float>(y),
+            -1 * static_cast<float>(y),
             static_cast<float>(z)}
     {}
 
@@ -424,6 +424,8 @@ public:
         unsigned x,
         unsigned y)
     :
+        mCenter{},
+        mTile{x, y},
         mItemInsts{}
     {
         LoadWorld(zoneItems, x, y);
@@ -435,8 +437,8 @@ public:
 
         std::stringstream str{""};
         str << "T" << std::setfill('0') << zoneItems.GetZoneLabel().substr(1,2) << std::setw(2) << x << std::setw(2) << y << ".WLD";
-        logger.Debug() << "Loading " << str.str() << std::endl;
         auto fb = FileBufferFactory::CreateFileBuffer(str.str());
+        logger.Debug() << "Loading Tile" << str.str() << std::endl;
 
         TileWorldResource world{};
         world.Load(&fb);
@@ -448,7 +450,7 @@ public:
                 mCenter = glm::vec3{
                     static_cast<int>(item.xloc),
                     0,
-                    static_cast<int>(item.yloc)};
+                    -static_cast<int>(item.yloc)};
 
             mItemInsts.emplace_back(
                 zoneItems.GetZoneItem(item.type),
@@ -461,13 +463,17 @@ public:
                 item.zloc
                 );
         }
-
-        for (const auto& i : mItemInsts)
-            std::cout << i << std::endl;
     }
 
-    std::vector<WorldItemInstance> mItemInsts;
+    const auto& GetTile() const { return mTile; }
+    const auto& GetItems() const { return mItemInsts; }
+    const auto& GetCenter() const { return mCenter; }
+
+private:
     glm::vec3 mCenter;
+    glm::vec<2, unsigned> mTile;
+
+    std::vector<WorldItemInstance> mItemInsts;
 };
 
 
@@ -479,10 +485,11 @@ public:
         mWorlds{
             std::invoke([&zoneItems]()
             {
-                std::vector<World> worlds;
-                for (unsigned x = 0; x < 40; x++)
+                std::vector<World> worlds{};
+                static constexpr unsigned tiles = 30;
+                for (unsigned x = 9; x < tiles; x++)
                 {
-                    for (unsigned y = 0; y < 40; y++)
+                    for (unsigned y = 10; y < tiles; y++)
                     {
                         try
                         {

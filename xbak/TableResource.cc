@@ -17,7 +17,7 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
-#define DEBUG
+//#define DEBUG
 
 #include "Exception.h"
 #include "TableResource.h"
@@ -350,7 +350,7 @@ TableResource::Load(FileBuffer *buffer)
                     datbuf->Skip(10);
                 }
 
-                if (item->entityType == 0x0
+                if (   item->entityType == 0x0
                     || item->entityType == 0x1
                     || item->entityType == 0x2
                     || item->entityType == 0x3
@@ -435,14 +435,18 @@ TableResource::Load(FileBuffer *buffer)
                             for (unsigned k = 0; k < faces; k++)
                             {
                                 item->paletteSources.push_back(datbuf->GetUint8());
+#ifdef DEBUG
                                 std::cout << "Using palette: " << +item->paletteSources.back();
+#endif
                                 // There are four colours defined face color, edge color, ??, and ??
                                 for (unsigned c = 0; c < 4; c++)
                                 {
                                     if (c == 0)
                                     {
                                         auto color = datbuf->GetUint8();
+#ifdef DEBUG
                                         std::cout << " color: " << +color << std::endl;
+#endif
                                         item->faceColors.push_back(color); 
                                     }
                                     // for now we ignore the edge colors and other colors

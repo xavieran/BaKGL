@@ -85,8 +85,6 @@ TileWorldResource::Load(FileBuffer *buffer)
         while (!buffer->AtEnd())
         {
             TileWorldItem twi;
-            std::cout << "TWI: " << i++ << std::endl;
-            buffer->Dump(20);
             twi.type = buffer->GetUint16LE();
             twi.xrot = buffer->GetUint16LE();
             twi.yrot = buffer->GetUint16LE();

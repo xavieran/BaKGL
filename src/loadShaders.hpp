@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char * vertexShader = R"(
+static const char* vertexShader = R"(
 #version 330 core
 
 // Input vertex data, different for all executions of this shader.
@@ -68,9 +68,10 @@ void main(){
     DistanceFromCamera = distance(Position_worldspace, CameraPosition_worldspace);
     texBlend = texBlendVec;
 }
+
 )";
 
-static const char * fragmentShader = R"(
+static const char* fragmentShader = R"(
 #version 330 core
 
 in vec3 Position_worldspace;
@@ -155,9 +156,9 @@ void main(){
 
 )";
 
-GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
+GLuint LoadShaders(char const* vertexShader,char const* fragmentShader)
 {
-    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
+    auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -167,7 +168,7 @@ GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
 	int InfoLogLength;
 
 	// Compile Vertex Shader
-	glShaderSource(VertexShaderID, 1, &vertex_shader, NULL);
+	glShaderSource(VertexShaderID, 1, &vertexShader, NULL);
 	glCompileShader(VertexShaderID);
 
 	// Check Vertex Shader
@@ -176,11 +177,11 @@ GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
 	if ( InfoLogLength > 0 ){
 		std::vector<char> VertexShaderErrorMessage(InfoLogLength+1);
 		glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-		printf("%s\n", &VertexShaderErrorMessage[0]);
+		logger.Error() << "VertexShaderError: " << &VertexShaderErrorMessage[0] << std::endl;
 	}
 
 	// Compile Fragment Shader
-	glShaderSource(FragmentShaderID, 1, &fragment_shader, NULL);
+	glShaderSource(FragmentShaderID, 1, &fragmentShader, NULL);
 	glCompileShader(FragmentShaderID);
 
 	// Check Fragment Shader
@@ -189,7 +190,7 @@ GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
 	if ( InfoLogLength > 0 ){
 		std::vector<char> FragmentShaderErrorMessage(InfoLogLength+1);
 		glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-		printf("%s\n", &FragmentShaderErrorMessage[0]);
+		logger.Error() << "FragmentShaderError: " << &FragmentShaderErrorMessage[0] << std::endl;
 	}
 
 	// Link the program
@@ -205,7 +206,8 @@ GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
 	if ( InfoLogLength > 0 ){
 		std::vector<char> ProgramErrorMessage(InfoLogLength+1);
 		glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-		printf("%s\n", &ProgramErrorMessage[0]);
+		logger.Error() << "ProgramErrorMessage: " << &ProgramErrorMessage[0] << std::endl;
+        throw std::exception{};
 	}
 
 	glDetachShader(ProgramID, VertexShaderID);
@@ -216,3 +218,39 @@ GLuint LoadShaders(char const* vertex_shader,char const* fragment_shader)
 
 	return ProgramID;
 }
+
+GLuint LoadShaders(
+    const std::string& vertexShaderPath,
+    const std::string& fragmentShaderPath)
+{
+    auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
+
+    const auto LoadFileContents = [](const auto& path)
+    {
+        std::ifstream in{};
+        in.open(path, std::ios::in);
+
+        if (!in.good()) throw std::exception{};
+
+        std::string contents{
+            (std::istreambuf_iterator<char>(in)),
+             std::istreambuf_iterator<char>()};
+
+        in.close();
+
+        return contents;
+    };
+
+
+    const auto vertexShaderCode = LoadFileContents(vertexShaderPath);
+    const auto fragmentShaderCode = LoadFileContents(fragmentShaderPath);
+
+    logger.Debug() << "VertexShaderCode: " << vertexShaderCode << std::endl;
+    logger.Debug() << "FragmentShaderCode: " << fragmentShaderCode << std::endl;
+
+    return LoadShaders(
+        vertexShaderCode.c_str(),
+        fragmentShaderCode.c_str());
+}
+
+

@@ -41,10 +41,12 @@ public:
 
         for (const auto& vertex : item.GetDatItem().mVertices)
         {
+            // Y vertex needs to be negated and swapped with Z to
+            // suit OpenGL world coordinate system
             glmVertices.emplace_back(
                 vertex.GetX() / scale,
                 vertex.GetZ() / scale, 
-                vertex.GetY() / scale);
+                -vertex.GetY() / scale);
         }
 
         for (const auto& faceV : item.GetDatItem().mFaces | boost::adaptors::indexed())
@@ -143,10 +145,12 @@ public:
                     mTextureCoords.emplace_back(u,   0.0, textureIndex);
                 }
 
+                // The normal must be inverted to account
+                // for the Y direction being negated
                 auto normal = glm::normalize(
                     glm::cross(
-                        glmVertices[i_a] - glmVertices[i_b],
-                        glmVertices[i_a] - glmVertices[i_c]));
+                        glmVertices[i_a] - glmVertices[i_c],
+                        glmVertices[i_a] - glmVertices[i_b]));
 
                 mNormals.emplace_back(normal);
                 mNormals.emplace_back(normal);

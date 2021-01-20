@@ -10,6 +10,8 @@ Just prior to this we have the "face/vertex coloring" delimited by "C1"
 This consists of 
 C1 4 bytes of color (1 for each vertex?) A visibility flag? Always zero? uint16 address of affected face?
 
+ground
+
 
 tItem: ground 0 length: 97 i: 0 length: 61 vertices: 4
 00000000:
