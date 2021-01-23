@@ -486,14 +486,20 @@ public:
             std::invoke([&zoneItems]()
             {
                 std::vector<World> worlds{};
-                static constexpr unsigned tiles = 30;
-                for (unsigned x = 9; x < tiles; x++)
+                
+                static constexpr unsigned xMax = 40;
+                static constexpr unsigned yMax = 40;
+                for (unsigned x = 0; x < xMax; x++)
                 {
-                    for (unsigned y = 10; y < tiles; y++)
+                    for (unsigned y = 0; y < yMax; y++)
                     {
                         try
                         {
-                            worlds.emplace_back(zoneItems, x, y);
+                            auto it = worlds.emplace_back(zoneItems, x, y);
+                            for (const auto& itemInst : it.GetItems())
+                            {
+                                std::cout << itemInst << std::endl;
+                            }
                         }
                         catch (const OpenError&)
                         {
