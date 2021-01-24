@@ -21,6 +21,7 @@
 #include <functional>   
 #include <iomanip>   
 #include <iostream>   
+#include <optional>
 #include <sstream>
 #include <cassert>   
 
@@ -120,7 +121,7 @@ public:
 
         auto startOff = 0;
         // FIXME: Can I find these in the data files somewhere?
-        for (auto offset : {70, 20, 20, 30, 20, 30, 5, 5})
+        for (auto offset : {70, 20, 20, 32, 20, 27, 6, 5})
         {
             auto image = Texture::TextureType{};
             for (int i = startOff * width; i < (startOff + offset) * width; i++)
@@ -402,8 +403,8 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
-    os << "[ Name: " << d.GetZoneItem().GetName() << " Type: " << d.mType << " Flags: " 
-        << std::hex << glm::to_string(d.mRotation) << std::dec 
+    os << "[ Name: " << d.GetZoneItem().GetName() << " Type: " << d.mType << " Rot: " 
+        << glm::to_string(d.mRotation)
         << " Loc: " << glm::to_string(d.mLocation) << "]";
     os << std::endl << "Pos: " << d.GetZoneItem().GetDatItem().mPos << " Vertices::" << std::endl;
 
@@ -445,12 +446,12 @@ public:
 
         for (unsigned i = 0; i < world.GetSize(); i++)
         {
-            auto item = world.GetItem(i);
-            if (item.type == static_cast<unsigned>(OBJECT_CENTER))
+            const auto& item = world.GetItem(i);
+            /*if (item.type == static_cast<unsigned>(OBJECT_CENTER))
                 mCenter = glm::vec3{
                     static_cast<int>(item.xloc),
                     0,
-                    -static_cast<int>(item.yloc)};
+                    -static_cast<int>(item.yloc)};*/
 
             mItemInsts.emplace_back(
                 zoneItems.GetZoneItem(item.type),
@@ -467,10 +468,14 @@ public:
 
     const auto& GetTile() const { return mTile; }
     const auto& GetItems() const { return mItemInsts; }
-    const auto& GetCenter() const { return mCenter; }
+    const auto GetCenter() const
+    {
+        return mCenter.value_or(
+            GetItems().back().GetLocation());
+    }
 
 private:
-    glm::vec3 mCenter;
+    std::optional<glm::vec3> mCenter;
     glm::vec<2, unsigned> mTile;
 
     std::vector<WorldItemInstance> mItemInsts;
@@ -487,11 +492,16 @@ public:
             {
                 std::vector<World> worlds{};
                 
-                static constexpr unsigned xMax = 40;
-                static constexpr unsigned yMax = 40;
-                for (unsigned x = 0; x < xMax; x++)
+                // Min and max tile world indices
+                static constexpr unsigned xMin = 9;
+                static constexpr unsigned xMax = 24;
+
+                static constexpr unsigned yMin = 9;
+                static constexpr unsigned yMax = 24;
+
+                for (unsigned x = xMin; x < xMax; x++)
                 {
-                    for (unsigned y = 0; y < yMax; y++)
+                    for (unsigned y = yMin; y < yMax; y++)
                     {
                         try
                         {
@@ -515,7 +525,7 @@ public:
         }
     {}
 
-    const std::vector<World> GetTiles()
+    const std::vector<World>& GetTiles() const
     {
         return mWorlds;
     }

@@ -119,7 +119,7 @@ public:
 
         glTexStorage3D(
             GL_TEXTURE_2D_ARRAY,
-            1, 
+            5, 
             GL_RGBA8,        // Internal format
             maxDim, maxDim, // width,height
             64              // Number of layers
@@ -146,7 +146,8 @@ public:
                 paddedTex.data()); // pointer to data
         }
         
-        //glGenerateMipmap(GL_TEXTURE_2D);
+        // Doesn't actually look very good with mipmaps...
+        //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);   
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);

@@ -8,4 +8,7 @@ Reuses much of the original work of xbak (http://xbak.sourceforge.net/) but I am
 
 A fair amount of progress has been made beyond xbak in deciphering the 3D data storage format so far.
 
-![Yabon](screenshots/yabon.png?raw=true "Yabon Render")
+# Screenshots
+![waterfall](screenshots/waterfall.png?raw=true "Waterfall near Tyr-Sog")
+
+![macmordain](screenshots/macmordain.png?raw=true "Mac Mordain Cadall")

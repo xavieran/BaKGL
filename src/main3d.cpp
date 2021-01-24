@@ -1,3 +1,5 @@
+#include "constants.hpp"
+#include "coordinates.hpp"
 #include "gameData.hpp"
 
 #include "loadShaders.hpp"
@@ -26,8 +28,8 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
-    Logging::LogState::Disable("MeshObjectStore");
-    Logging::LogState::Disable("WorldTileStore");
+    //Logging::LogState::Disable("MeshObjectStore");
+    //Logging::LogState::Disable("WorldTileStore");
     
     std::string saveFile{argv[1]};
 
@@ -51,8 +53,8 @@ int main(int argc, char** argv)
     auto textures    = BAK::TextureStore{zone, pal};
     auto zoneItems   = BAK::ZoneItemStore{zone, textures};
     auto worlds      = BAK::WorldTileStore{zoneItems};
-    auto worldCenter = worlds.GetTiles().at(0).GetCenter();
-    //auto worldCenter = glm::vec3{672000, 0, -1056000};
+    auto worldCenter = BAK::ToGlCoord(worlds.GetTiles().front().GetCenter());
+    //auto worldCenter = glm::vec3{978140, 0, -973103};
     //auto loc = gameData.mLocus.mPosition;
     //auto worldCenter = glm::vec3{loc.x, 1.6, loc.y};
 
@@ -69,7 +71,6 @@ int main(int argc, char** argv)
     }
 
     // FIXME: Need to make this consistent, floaing around a few other places
-    float worldScale = 100.;
 
     if( !glfwInit() )
     {
@@ -85,8 +86,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned height = 600;
-    unsigned width  = 800;
+    unsigned height = 860;
+    unsigned width  = 1600;
 
     window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
     if( window == NULL )
@@ -111,7 +112,7 @@ int main(int argc, char** argv)
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
     // Dark blue background
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+    glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -189,13 +190,15 @@ int main(int argc, char** argv)
 
     glUseProgram(programID);
 
+    glEnable(GL_MULTISAMPLE);  
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
     // Currently just using discard. Will swap to proper transparency if
     // discard costs too much.
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     buffers.BindArraysGL();
     
@@ -285,7 +288,10 @@ int main(int argc, char** argv)
         {
             for (const auto& inst : world.GetItems())
             {
-                if (inst.GetZoneItem().GetDatItem().mVertices.size() <= 1) continue;
+                if (inst.GetZoneItem().GetDatItem().mVertices.size() <= 1)
+                {
+                    continue;
+                }
 
                 const auto [offset, length] = objStore.GetObject(inst.GetZoneItem().GetName());
 
@@ -296,19 +302,15 @@ int main(int argc, char** argv)
 
                 auto instLoc = inst.GetLocation();
                 auto itemLoc = glm::vec3{instLoc.x, 0, instLoc.y};
-                auto relLoc = (itemLoc - worldCenter) / worldScale;
+                auto relLoc = (itemLoc - worldCenter) / BAK::gWorldScale;
 
                 if (inst.GetZoneItem().GetName() == "ground")
                 {
-                    modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.1,0});
+                    // Lower the ground a little - need to fix issues with objects
+                    // being rendered on top of each other...
+                    modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.2,0});
                 }
                 
-                /*
-                if (inst.GetZoneItem().GetName().substr(0,4) == "tree")
-                {
-                    continue;
-                }
-                */
                 modelMatrix = glm::translate(modelMatrix, relLoc);
                 modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
                 modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().z, glm::vec3(0,1,0));

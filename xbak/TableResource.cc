@@ -17,7 +17,7 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
-//#define DEBUG
+#define DEBUG
 
 #include "Exception.h"
 #include "TableResource.h"
@@ -445,14 +445,18 @@ TableResource::Load(FileBuffer *buffer)
                                     {
                                         auto color = datbuf->GetUint8();
 #ifdef DEBUG
-                                        std::cout << " color: " << +color << std::endl;
+                                        std::cout << " color: " << +color;
 #endif
                                         item->faceColors.push_back(color); 
                                     }
                                     // for now we ignore the edge colors and other colors
                                     else
-                                        datbuf->Skip(1);
+                                    {
+                                        auto color = datbuf->GetUint8();
+                                        std::cout << " " << +color;
+                                    }
                                 }
+                                std::cout << std::endl;
                                 datbuf->Skip(3); // Offset?
                             }
                             for (unsigned k = 0; k < faces; k++)

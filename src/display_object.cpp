@@ -25,8 +25,15 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("display_object");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::Disable("MeshObjectStore");
 
-    std::string zone = "Z01";
+    if (argc != 3)
+    {
+        logger.Error() << "Call with <ZONE> <OBJECT>" << std::endl;
+        std::exit(1);
+    }
+    std::string zone = argv[1];
+    auto objectToDisplay = argv[2];
 
     auto palz = std::make_unique<PaletteResource>();
     std::stringstream palStr{""};
@@ -44,11 +51,24 @@ int main(int argc, char** argv)
     {
         auto obj = BAK::MeshObject();
         if (item.GetDatItem().mVertices.size() <= 1) continue;
+
+        if (item.GetName() == objectToDisplay)
+        {
+            std::stringstream ss{""};
+            for (unsigned i = 0; i < item.GetDatItem().mColors.size(); i++)
+            {
+                auto p = item.GetDatItem().mPalettes[i];
+                auto c = item.GetDatItem().mColors[i];
+                ss << i << " p: 0x" << std::hex << +p << " " << std::dec << +p
+                    << " c: 0x" << std::hex << +c << " " << std::dec << +c << std::endl;
+            }
+            logger.Info() << "Colors and Palettes" << std::endl
+                << ss.str() << std::endl;
+        }
+
         obj.LoadFromBaKItem(item, textures, pal);
         objStore.AddObject(item.GetName(), obj);
     }
-
-    float worldScale = 100.;
 
     if( !glfwInit() )
     {
@@ -181,7 +201,7 @@ int main(int argc, char** argv)
     glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix; 
 
     glm::vec3 position = glm::vec3( 0, 1.8, 0 );
-    glm::vec3 lightPos = glm::vec3(0,120,0);
+    glm::vec3 lightPos = glm::vec3(0,320,0);
     // horizontal angle : toward -Z
     float horizontalAngle = 3.14f;
     // vertical angle : 0, look at the horizon
@@ -199,8 +219,6 @@ int main(int argc, char** argv)
     float deltaTime;
 
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
-
-    glfwSetCursorPos(window, width/2, height/2);
 
     // Setup active arrays and textures
     glUseProgram(programID);
@@ -285,10 +303,9 @@ int main(int argc, char** argv)
             position + direction,
             up);
 
-        //glfwSetCursorPos(window, width/2, height/2);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        const auto [offset, length] = objStore.GetObject(argv[1]);
+        const auto [offset, length] = objStore.GetObject(objectToDisplay);
         //auto offset = 0;
         //auto length = 6;
 

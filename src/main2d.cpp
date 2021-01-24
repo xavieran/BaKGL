@@ -15,10 +15,9 @@
 #include "eventHandler.hpp"
 #include "renderer.hpp"
 
-#include <boost/optional.hpp>
-
 #include <fstream>   
 #include <iostream>   
+#include <optional>
 #include <vector>
 
 #include <boost/range/adaptor/indexed.hpp>
@@ -302,7 +301,7 @@ int main(int argc, char *argv[])
         }
     };
     
-    boost::optional<Key> heldKey{boost::none};
+    std::optional<Key> heldKey{};
 
     BAK::EventRouter eventRouter{
         [&](const auto& e){
@@ -317,7 +316,7 @@ int main(int argc, char *argv[])
             std::cerr << "Center: " << worldCenter << std::endl;
         },
         [&](const auto&){
-            heldKey = boost::none;
+            heldKey.reset();
         },
         [&](const auto&){
             media->GetVideo()->Clear();
@@ -343,7 +342,8 @@ int main(int argc, char *argv[])
                     worldScale += .04;
                 else if (k == KEY_x)
                     worldScale -= .04;
-                heldKey = boost::none;
+
+                heldKey.reset();
             }
 
             media->GetVideo()->Refresh();

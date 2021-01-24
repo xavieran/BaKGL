@@ -1,7 +1,10 @@
 #pragma once
 
-#include "worldFactory.hpp"
+#include "constants.hpp"
+
 #include "logger.hpp"
+
+#include "worldFactory.hpp"
 
 #include "Palette.h"
 
@@ -36,17 +39,23 @@ public:
         const TextureStore& store,
         const Palette& pal)
     {
-        constexpr float scale = 100;
         auto glmVertices = std::vector<glm::vec3>{};
+
+        const auto TextureBlend = [&](auto blend)
+        {
+            mTextureBlends.emplace_back(blend);
+            mTextureBlends.emplace_back(blend);
+            mTextureBlends.emplace_back(blend);
+        };
 
         for (const auto& vertex : item.GetDatItem().mVertices)
         {
             // Y vertex needs to be negated and swapped with Z to
             // suit OpenGL world coordinate system
             glmVertices.emplace_back(
-                vertex.GetX() / scale,
-                vertex.GetZ() / scale, 
-                -vertex.GetY() / scale);
+                vertex.GetX() / BAK::gWorldScale,
+                vertex.GetZ() / BAK::gWorldScale, 
+                -vertex.GetY() / BAK::gWorldScale);
         }
 
         for (const auto& faceV : item.GetDatItem().mFaces | boost::adaptors::indexed())
@@ -71,57 +80,147 @@ public:
                 mIndices.emplace_back(mVertices.size() - 1);
                 
                 // Hacky - only works for quads - but the game only
-                // textures quads anyway...
+                // textures quads anyway... (not true...)
                 auto colorIndex = item.GetDatItem().mColors[i];
+                auto paletteIndex = item.GetDatItem().mPalettes[i];
                 auto textureIndex = colorIndex;
 
                 float u = 1.0;
                 float v = 1.0;
 
                 auto maxDim = store.GetMaxDim();
-
-                static constexpr std::uint8_t texturePalette = 0x91;
+                
+                // I feel like these "palettes" are probably collections of
+                // flags?
+                static constexpr std::uint8_t texturePalette0 = 0x90;
+                static constexpr std::uint8_t texturePalette1 = 0x91;
+                static constexpr std::uint8_t texturePalette2 = 0xd1;
+                // texturePalette3 is optional and puts grass on mountains
+                static constexpr std::uint8_t texturePalette3 = 0x81;
+                static constexpr std::uint8_t texturePalette4 = 0x11;
                 static constexpr std::uint8_t terrainPalette = 0xc1;
 
-                if (item.GetDatItem().mPalettes[i] == texturePalette
-                    || item.GetDatItem().mPalettes[i] == 0x90)
+                // terrain palette
+                // 0 = ground
+                // 1 = road
+                // 2 = waterfall
+                // 3 = path
+                // 4 = dirt/field
+                // 5 = river
+                // 6 = sand
+                // 7 = riverbank?
+                if (item.GetName().substr(0, 2) == "t0")
                 {
-                    mTextureBlends.emplace_back(1.0);
-                    mTextureBlends.emplace_back(1.0);
-                    mTextureBlends.emplace_back(1.0);
+                    if (textureIndex == 1)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 1;
+                        TextureBlend(1.0);
+                    }
+                    else if (textureIndex == 2)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 3;
+                        TextureBlend(1.0);
+                    }
+                    else if (textureIndex == 3)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 5;
+                        TextureBlend(1.0);
+                    }
+                    else
+                    {
+                        TextureBlend(0.0);
+                    }
                 }
-                /*else if (item.GetDatItem().mPalettes[i] == terrainPalette)
+                else if (item.GetName().substr(0, 2) == "r0")
                 {
-                    mTextureBlends.emplace_back(1.0);
-                    mTextureBlends.emplace_back(1.0);
-                    mTextureBlends.emplace_back(1.0);
-                    if (item.GetName().substr(0, 1) == "r")
+                    if (textureIndex == 3)
                     {
-                        if (textureIndex == 3)
-                            textureIndex = 5 + store.GetTerrainOffset();
-                        else if (textureIndex == 5)
-                            textureIndex = 6 + store.GetTerrainOffset();
+                        textureIndex = store.GetTerrainOffset() + 5;
+                        TextureBlend(1.0);
                     }
-                    if (item.GetName().substr(0, 1) == "t")
+                    else if (textureIndex == 5)
                     {
-                        if (textureIndex == 2)
-                            textureIndex = 3 + store.GetTerrainOffset();
-                        else if (textureIndex == 5)
-                            textureIndex = 6 + store.GetTerrainOffset();
+                        textureIndex = store.GetTerrainOffset() + 7;
+                        TextureBlend(1.0);
                     }
-                }*/
-                else if (textureIndex < 7)
+                    else
+                    {
+                        TextureBlend(0.0);
+                    }
+                }
+                else if (item.GetName().substr(0, 2) == "g0")
                 {
-                    mTextureBlends.emplace_back(1.0);
-                    mTextureBlends.emplace_back(1.0);
-                    mTextureBlends.emplace_back(1.0);
+                    if (textureIndex == 0)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 0;
+                        TextureBlend(1.0);
+                    }
+                    else if (textureIndex == 5)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 5;
+                        TextureBlend(1.0);
+                    }
+                    else
+                    {
+                        TextureBlend(0.0);
+                    }
+                }
+                else if (item.GetName().substr(0, 5) == "field")
+                {
+                    if (textureIndex == 1)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 4;
+                        TextureBlend(1.0);
+                    }
+                    else if (textureIndex == 2)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 7;
+                        TextureBlend(1.0);
+                    }
+                    else
+                    {
+                        TextureBlend(1.0);
+                    }
+                }
+                else if (item.GetName().substr(0, 4) == "fall"
+                    || item.GetName().substr(0, 6) == "spring")
+
+                {
+                    if (textureIndex == 3)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 5;
+                        TextureBlend(1.0);
+                    }
+                    else if (textureIndex == 5)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 7;
+                        TextureBlend(1.0);
+                    }
+                    else if (textureIndex == 6)
+                    {
+                        textureIndex = store.GetTerrainOffset() + 2;
+                        TextureBlend(1.0);
+                    }
+                    else
+                    {
+                        TextureBlend(0.0);
+                    }
+                }
+                else if (paletteIndex == terrainPalette)
+                {
                     textureIndex += store.GetTerrainOffset();
+                    TextureBlend(1.0);
+                }
+                else if (paletteIndex == texturePalette0
+                    || paletteIndex == texturePalette1
+                    || paletteIndex == texturePalette2
+                    || paletteIndex == texturePalette4)
+                {
+                    TextureBlend(1.0);
                 }
                 else
                 {
-                    mTextureBlends.emplace_back(0.0);
-                    mTextureBlends.emplace_back(0.0);
-                    mTextureBlends.emplace_back(0.0);
+                    TextureBlend(0.0);
                 }
 
                 if (colorIndex < store.GetTextures().size())
@@ -163,6 +262,10 @@ public:
                         static_cast<float>(color.g) / 256,
                         static_cast<float>(color.b) / 256,
                         1);
+
+                // bitta fun
+                if (item.GetName().substr(0, 5) == "cryst")
+                    glmCol.a = 0.8;
 
                 mColors.emplace_back(glmCol);
                 mColors.emplace_back(glmCol);

@@ -21,13 +21,49 @@ public:
  * 0x0914b - Combat Stats Start 
  * 0x3070a - Combat Stats End
  *
- * 0x31340 - ???
+ * 0x31340 - Combats Start
  * 
  * 0x3b621 - Start of Containers
  * 0x4378f - End of Containers ???
  * 0x46053 - Combat Inventory Start
  * 0x51720 - Combat Inventory End (1773)
  */
+
+ /* 
+  * Combat starts 31340 - 12 2 06 - 12 sprite 2,6 grid location
+  * Combat Zone 1 1
+  * Inventory #3 Combat #1 Person #0 0x460b7
+  * Combat Stats #3 0x9268 (bbe0)? 
+  * DEF_COMB.DAT
+  * --                Combat Number (This must index to somewhere else?)
+  * b1 01 00 01 07 00 01 00 00 00 14 
+  * 01b1 = 433 (Number of combats in file?)
+  * 14 = Dialog index for this combat
+  *
+  * Number of Combats
+  * B1 01 00 00 
+  *
+  * 01 - visible or not? Chapter??
+  * 07 ??
+  * 01 combat index
+  * 01 07 00 01 
+  *
+  * 14 - Dialog index
+  * 00 00 00 14  00 00 00 00
+  * 00 00 00 00  00 00 00 DF  AC 00 00 BB  64 00 00 00
+  * 80 43 77 00  00 9B 3F 00  00 00 C0 5C  9C 00 00 87
+  * 03 00 00 00  00 86 C1 00  00 64 0C 00  
+  *
+  * 01 - number of combatants to display?
+  * 00 00 00 01
+  * 12 - combatant sprite index? 01 - sprite mobile or not
+  * 12 00 01 00 
+  * -- The rest seems to be coordinates for sprite movement?
+  * C8 A4 00 00  5A 2B 00 00  00 40 88 9E
+  * 00 00 08 AB  00 00 90 60  00 00 00 F0  20 40 5A 2B
+  * 00 00 5A 2B  00 00 40 80  40 40 40 40  20 00 80   
+  *
+  */
 
     GameData(FileBuffer& mBuffer)
     :
@@ -40,7 +76,8 @@ public:
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
 
         //LoadContainer();
-        LoadCombatInventories();
+        //LoadCombatInventories();
+        LoadCombatStats();
     }
 
     void LoadLocation()
