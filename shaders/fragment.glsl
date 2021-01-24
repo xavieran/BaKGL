@@ -1,6 +1,6 @@
 #version 330 core
 
-on vec3 Position_worldspace;
+in vec3 Position_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 lightDirection_cameraspace;
@@ -23,8 +23,9 @@ void main(){
 	vec3 lightColor = vec3(1,1,1);
 	float lightPower = 100000.0f;
 	
-    float k = .00002;
-    vec3 fogColor   = vec3(0.5, 0.5, 0.8);
+    //float k = .00002;
+    float k = .0004;
+    vec3 fogColor   = vec3(0.15, 0.31, 0.36);
 	float fogFactor = exp(-DistanceFromCamera * k);
     
 	vec3 materialDiffuseColor = vertexColor.xyz;
@@ -79,3 +80,4 @@ void main(){
 
     color = vec4(foggedColor, alpha);
 }
+

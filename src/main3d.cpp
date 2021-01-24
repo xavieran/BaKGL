@@ -42,16 +42,14 @@ int main(int argc, char** argv)
     zoneSS << "Z" << std::setw(2) << std::setfill('0')<< gameData.mZone;
     std::string zone = zoneSS.str();*/
 
-    std::string zone = argv[1];
+    BAK::ZoneLabel zoneLabel{argv[1]};
 
     auto palz = std::make_unique<PaletteResource>();
-    std::stringstream palStr{""};
-    palStr << zone << ".PAL";
-    FileManager::GetInstance()->Load(palz.get(), palStr.str());
+    FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
     auto& pal = *palz->GetPalette();
 
-    auto textures    = BAK::TextureStore{zone, pal};
-    auto zoneItems   = BAK::ZoneItemStore{zone, textures};
+    auto textures    = BAK::TextureStore{zoneLabel, pal};
+    auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textures};
     auto worlds      = BAK::WorldTileStore{zoneItems};
     auto worldCenter = BAK::ToGlCoord(worlds.GetTiles().front().GetCenter());
     //auto worldCenter = glm::vec3{978140, 0, -973103};
@@ -81,7 +79,8 @@ int main(int argc, char** argv)
 
     GLFWwindow* window;
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    const unsigned antiAliasingSamples = 4;
+    glfwWindowHint(GLFW_SAMPLES, antiAliasingSamples);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -103,7 +102,8 @@ int main(int argc, char** argv)
     glewExperimental = true; // Needed for core profile
     if (glewInit() != GLEW_OK)
     {
-        logger.Log(Logging::LogLevel::Error) << "Failed to initialize GLEW" << std::endl;
+        logger.Log(Logging::LogLevel::Error) 
+            << "Failed to initialize GLEW" << std::endl;
         glfwTerminate();
         return -1;
     }
@@ -119,7 +119,9 @@ int main(int argc, char** argv)
     glBindVertexArray(VertexArrayID);
 
     // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders(vertexShader, fragmentShader);
+    GLuint programID = LoadShaders(
+        std::string{"vertex.glsl"},
+        std::string{"fragment.glsl"});
 
     const auto& vertices      = objStore.mVertices;
     const auto& normals       = objStore.mNormals;

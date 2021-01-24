@@ -108,22 +108,22 @@ public:
                 // 4 = dirt/field
                 // 5 = river
                 // 6 = sand
-                // 7 = riverbank?
+                // 7 = riverbank
                 if (item.GetName().substr(0, 2) == "t0")
                 {
                     if (textureIndex == 1)
                     {
-                        textureIndex = store.GetTerrainOffset() + 1;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Road);
                         TextureBlend(1.0);
                     }
                     else if (textureIndex == 2)
                     {
-                        textureIndex = store.GetTerrainOffset() + 3;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Path);
                         TextureBlend(1.0);
                     }
                     else if (textureIndex == 3)
                     {
-                        textureIndex = store.GetTerrainOffset() + 5;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
                         TextureBlend(1.0);
                     }
                     else
@@ -135,12 +135,12 @@ public:
                 {
                     if (textureIndex == 3)
                     {
-                        textureIndex = store.GetTerrainOffset() + 5;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
                         TextureBlend(1.0);
                     }
                     else if (textureIndex == 5)
                     {
-                        textureIndex = store.GetTerrainOffset() + 7;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
                         TextureBlend(1.0);
                     }
                     else
@@ -152,12 +152,12 @@ public:
                 {
                     if (textureIndex == 0)
                     {
-                        textureIndex = store.GetTerrainOffset() + 0;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Ground);
                         TextureBlend(1.0);
                     }
                     else if (textureIndex == 5)
                     {
-                        textureIndex = store.GetTerrainOffset() + 5;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
                         TextureBlend(1.0);
                     }
                     else
@@ -169,12 +169,12 @@ public:
                 {
                     if (textureIndex == 1)
                     {
-                        textureIndex = store.GetTerrainOffset() + 4;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Dirt);
                         TextureBlend(1.0);
                     }
                     else if (textureIndex == 2)
                     {
-                        textureIndex = store.GetTerrainOffset() + 7;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
                         TextureBlend(1.0);
                     }
                     else
@@ -184,21 +184,20 @@ public:
                 }
                 else if (item.GetName().substr(0, 4) == "fall"
                     || item.GetName().substr(0, 6) == "spring")
-
                 {
                     if (textureIndex == 3)
                     {
-                        textureIndex = store.GetTerrainOffset() + 5;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
                         TextureBlend(1.0);
                     }
                     else if (textureIndex == 5)
                     {
-                        textureIndex = store.GetTerrainOffset() + 7;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
                         TextureBlend(1.0);
                     }
                     else if (textureIndex == 6)
                     {
-                        textureIndex = store.GetTerrainOffset() + 2;
+                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Waterfall);
                         TextureBlend(1.0);
                     }
                     else
@@ -208,7 +207,7 @@ public:
                 }
                 else if (paletteIndex == terrainPalette)
                 {
-                    textureIndex += store.GetTerrainOffset();
+                    textureIndex += store.GetTerrainOffset(BAK::Terrain::Ground);
                     TextureBlend(1.0);
                 }
                 else if (paletteIndex == texturePalette0

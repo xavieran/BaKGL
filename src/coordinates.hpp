@@ -23,4 +23,17 @@ glm::vec3 ToGlCoord(const glm::vec3& coord)
     return glm::vec3{coord.x, -coord.z, coord.y};
 }
 
+template <typename T, typename C>
+glm::vec<4, T> ToGlColor(const C& color, bool transparent)
+{
+    const auto F = [](auto x){
+        return static_cast<T>(x) / 256.; };
+
+    return glm::vec<4, T>{
+        F(color.r),
+        F(color.g),
+        F(color.b),
+        transparent ? 0 : 1};
+}
+
 }

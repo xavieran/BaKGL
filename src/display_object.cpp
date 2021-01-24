@@ -25,25 +25,23 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("display_object");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
-    Logging::LogState::Disable("MeshObjectStore");
+    //Logging::LogState::Disable("MeshObjectStore");
 
     if (argc != 3)
     {
         logger.Error() << "Call with <ZONE> <OBJECT>" << std::endl;
         std::exit(1);
     }
-    std::string zone = argv[1];
+
+    BAK::ZoneLabel zoneLabel{argv[1]};
     auto objectToDisplay = argv[2];
 
     auto palz = std::make_unique<PaletteResource>();
-    std::stringstream palStr{""};
-    palStr << zone << ".PAL";
-
-    FileManager::GetInstance()->Load(palz.get(), palStr.str());
+    FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
     auto& pal = *palz->GetPalette();
 
-    auto textures  = BAK::TextureStore{zone, pal};
-    auto zoneItems = BAK::ZoneItemStore{zone, textures};
+    auto textures  = BAK::TextureStore{zoneLabel, pal};
+    auto zoneItems = BAK::ZoneItemStore{zoneLabel, textures};
 
     auto objStore = BAK::MeshObjectStorage{};
 
@@ -117,7 +115,9 @@ int main(int argc, char** argv)
     glBindVertexArray(VertexArrayID);
 
     // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders(vertexShader, fragmentShader);
+    GLuint programID = LoadShaders(
+        std::string{"vertex.glsl"},
+        std::string{"fragment.glsl"});
     
     const auto& vertices      = objStore.mVertices;
     const auto& normals       = objStore.mNormals;

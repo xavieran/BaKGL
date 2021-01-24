@@ -1,5 +1,11 @@
 #pragma once
 
+
+#include "constants.hpp"
+#include "coordinates.hpp"
+#include "logger.hpp"
+#include "tableResource.hpp"
+
 #include "Exception.h"
 
 #include "FileBuffer.h"
@@ -10,9 +16,6 @@
 #include "ScreenResource.h"
 #include "TileWorldResource.h"
 #include "TableResource.h"
-
-#include "logger.hpp"
-#include "tableResource.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -27,6 +30,69 @@
 
 namespace BAK {
 
+class ZoneLabel
+{
+public:
+
+    ZoneLabel(const std::string& zoneLabel)
+    :
+        mZoneLabel{zoneLabel}
+    {}
+
+    std::string GetHorizon() const
+    {
+        std::stringstream ss{""};
+        ss << GetZone() << "H.SCX";
+        return ss.str();
+    }
+
+    std::string GetTerrain() const
+    {
+        std::stringstream ss{""};
+        ss << GetZone() << "L.SCX";
+        return ss.str();
+    }
+
+    std::string GetSpriteSlot(unsigned i) const
+    {
+        std::stringstream ss{""};
+        ss << GetZone() << "SLOT" << std::setfill('0') 
+            << std::setw(1) << i << ".BMX";
+        return ss.str();
+    }
+
+    std::string GetPalette() const
+    {
+        std::stringstream ss{""};
+        ss << GetZone() << ".PAL";
+        return ss.str();
+    }
+
+    std::string GetWorld() const
+    {
+        return mZoneLabel.substr(1,2);
+    }
+
+    std::string GetTable() const
+    {
+        std::stringstream ss{""};
+        ss << GetZoneLabel() << ".TBL";
+        return ss.str();
+    }
+
+    std::string GetZone() const
+    {
+        return mZoneLabel.substr(0, 3);
+    }
+
+    std::string GetZoneLabel() const
+    {
+        return mZoneLabel;
+    }
+
+private:
+    const std::string mZoneLabel;
+};
 
 class Texture
 {
@@ -44,28 +110,28 @@ class TextureStore
 public:
 
     TextureStore(
-        const std::string& zoneLabel,
+        const ZoneLabel& zoneLabel,
         const Palette& palette)
     :
         mTextures{},
         mTerrainOffset{0},
+        mHorizonOffset{0},
         mMaxHeight{0},
         mMaxWidth{0},
         mMaxDim{0}
     {
         unsigned n = 0;
-        unsigned sprites = 0;
+        unsigned textures = 0;
         bool found = true;
+
         while ( found )
         {
-            std::stringstream spriteStream;
-            spriteStream << zoneLabel << "SLOT" << std::setfill('0') 
-                << std::setw ( 1 ) << n << ".BMX";
-            found = FileManager::GetInstance()->ResourceExists ( spriteStream.str() );
+            auto spriteSlotLbl = zoneLabel.GetSpriteSlot(n);
+            found = FileManager::GetInstance()->ResourceExists(spriteSlotLbl);
             if ( found )
             {
                 ImageResource spriteSlot;
-                FileManager::GetInstance()->Load ( &spriteSlot, spriteStream.str() );
+                FileManager::GetInstance()->Load(&spriteSlot, spriteSlotLbl);
 
                 for (unsigned j = 0; j < spriteSlot.GetNumImages(); j++)
                 {
@@ -78,12 +144,9 @@ public:
                     for (int i = 0; i < (img.GetWidth() * img.GetHeight()); i++)
                     {
                         auto color = palette.GetColor(pixels[i]);
-                        image.emplace_back(
-                            static_cast<float>(color.r) / 256,
-                            static_cast<float>(color.g) / 256,
-                            static_cast<float>(color.b) / 256, 
-                            // color index 0 is always transparency
-                            pixels[i] == 0 ? 0 : 1);
+                        // palette color 0 is transparency
+                        image.push_back(
+                            BAK::ToGlColor<float>(color, pixels[i] == 0));
                     }
 
                     // Need to invert the image over x axis for opengl
@@ -99,22 +162,17 @@ public:
                             static_cast<unsigned>(img.GetWidth()),
                             static_cast<unsigned>(img.GetHeight())});
 
-                    sprites++;
+                    textures++;
                 }
             }
 
             n++;
         }
 
-        mTerrainOffset = sprites;
-        std::cout << "TerrainOffset: " << mTerrainOffset << std::endl;
+        mTerrainOffset = textures;
 
-        std::stringstream terrainStream{};
-        terrainStream << zoneLabel << "L.SCX";
         ScreenResource terrain;
-        FileManager::GetInstance()->Load(
-                &terrain, 
-                terrainStream.str());
+        FileManager::GetInstance()->Load(&terrain, zoneLabel.GetTerrain());
 
         auto* pixels = terrain.GetImage()->GetPixels();
         auto width = terrain.GetImage()->GetWidth();
@@ -127,11 +185,8 @@ public:
             for (int i = startOff * width; i < (startOff + offset) * width; i++)
             {
                 auto color = palette.GetColor(pixels[i]);
-                image.emplace_back(
-                        static_cast<float>(color.r) / 256,
-                        static_cast<float>(color.g) / 256,
-                        static_cast<float>(color.b) / 256,
-                        pixels[i] == 0 ? 0 : 1);
+                image.push_back(
+                    BAK::ToGlColor<float>(color, pixels[i] == 0));
             }
 
             startOff += offset;
@@ -141,7 +196,49 @@ public:
                     image,
                     static_cast<unsigned>(width),
                     static_cast<unsigned>(offset)});
+
+            textures++;
         }
+
+        mHorizonOffset = textures;
+        /*
+        ImageResource horizon;
+        FileManager::GetInstance()->Load(
+            &horizon,
+            zoneLabel.GetHorizonLabel());
+
+        for (unsigned j = 0; j < horizon.GetNumImages(); j++)
+        {
+            assert(horizon.GetImage(j));
+            const auto& img = *horizon.GetImage(j);
+
+            auto image = Texture::TextureType{};
+            auto* pixels = img.GetPixels();
+
+            for (int i = 0; i < (img.GetWidth() * img.GetHeight()); i++)
+            {
+                auto color = palette.GetColor(pixels[i]);
+                // palette color 0 is transparency
+                image.push_back(
+                    BAK::ToGlColor<float>(color, pixels[i] == 0));
+            }
+
+            // Need to invert the image over x axis for opengl
+            for (int x = 0; x < img.GetWidth(); x++)
+                for (int y = 0; y < (img.GetHeight() / 2); y++)
+                    std::swap(
+                        image[x + (y * img.GetWidth())],
+                        image[x + ((img.GetHeight() - 1 - y) * img.GetWidth())]);
+
+            mTextures.push_back(
+                Texture{
+                    image,
+                    static_cast<unsigned>(img.GetWidth()),
+                    static_cast<unsigned>(img.GetHeight())});
+
+            textures++;
+        }
+        */
 
         // Set max width and height
         mMaxHeight = std::max_element(
@@ -168,12 +265,17 @@ public:
     const std::vector<Texture>& GetTextures() const { return mTextures; }
 
     unsigned GetMaxDim() const { return mMaxDim; }
-    unsigned GetTerrainOffset() const { return mTerrainOffset; }
+    unsigned GetTerrainOffset(BAK::Terrain t) const
+    {
+        return mTerrainOffset + static_cast<unsigned>(t);
+    }
+    unsigned GetHorizonOffset() const { return mHorizonOffset; }
 
 private:
     std::vector<Texture> mTextures;
 
     unsigned mTerrainOffset;
+    unsigned mHorizonOffset;
     unsigned mMaxHeight;
     unsigned mMaxWidth;
     unsigned mMaxDim;
@@ -306,7 +408,7 @@ class ZoneItemStore
 public:
 
     ZoneItemStore(
-        std::string zoneLabel,
+        const ZoneLabel& zoneLabel,
         const TextureStore& textureStore)
     :
         mZoneLabel{zoneLabel},
@@ -314,9 +416,8 @@ public:
     {
         TableResource table{};
 
-        std::stringstream str{""};
-        str << zoneLabel << ".TBL";
-        auto fb = FileBufferFactory::CreateFileBuffer(str.str());
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            mZoneLabel.GetTable());
         table.Load(&fb);
 
         assert(table.GetMapSize() == table.GetDatSize());
@@ -331,7 +432,7 @@ public:
         }
     }
 
-    const std::string& GetZoneLabel() const { return mZoneLabel; }
+    const ZoneLabel& GetZoneLabel() const { return mZoneLabel; }
 
     const ZoneItem& GetZoneItem(const unsigned i) const
     {
@@ -353,7 +454,7 @@ public:
     const std::vector<ZoneItem>& GetItems() const { return mItems; }
 
 private:
-    const std::string mZoneLabel;
+    const ZoneLabel mZoneLabel;
     std::vector<ZoneItem> mItems;
 };
 
@@ -437,7 +538,8 @@ public:
         const auto& logger = Logging::LogState::GetLogger("World");
 
         std::stringstream str{""};
-        str << "T" << std::setfill('0') << zoneItems.GetZoneLabel().substr(1,2) << std::setw(2) << x << std::setw(2) << y << ".WLD";
+        str << "T" << std::setfill('0') << zoneItems.GetZoneLabel().GetWorld() 
+            << std::setw(2) << x << std::setw(2) << y << ".WLD";
         auto fb = FileBufferFactory::CreateFileBuffer(str.str());
         logger.Debug() << "Loading Tile" << str.str() << std::endl;
 
