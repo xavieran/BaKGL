@@ -86,16 +86,24 @@ TileWorldResource::Load(FileBuffer *buffer)
         {
             TileWorldItem twi;
             twi.type = buffer->GetUint16LE();
-            twi.xrot = buffer->GetUint16LE();
-            twi.yrot = buffer->GetUint16LE();
-            twi.zrot = buffer->GetUint16LE();
-            twi.xloc = buffer->GetUint32LE();
-            twi.yloc = buffer->GetUint32LE();
-            twi.zloc = buffer->GetUint32LE();
+            unsigned xrot = buffer->GetUint16LE();
+            unsigned yrot = buffer->GetUint16LE();
+            unsigned zrot = buffer->GetUint16LE();
+            twi.mRotation = Vector3D{
+                static_cast<int>(xrot),
+                static_cast<int>(yrot),
+                static_cast<int>(zrot)};
+            unsigned xloc = buffer->GetUint32LE();
+            unsigned yloc = buffer->GetUint32LE();
+            unsigned zloc = buffer->GetUint32LE();
+            twi.mLocation = Vector3D{
+                static_cast<int>(xloc),
+                static_cast<int>(yloc),
+                static_cast<int>(zloc)};
             if (twi.type == OBJECT_CENTER)
             {
-                xCenter = twi.xloc;
-                yCenter = twi.yloc;
+                xCenter = twi.mLocation.GetX();
+                yCenter = twi.mLocation.GetY();
             }
             items.push_back(twi);
         }

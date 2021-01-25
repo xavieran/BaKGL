@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     auto textures    = BAK::TextureStore{zoneLabel, pal};
     auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textures};
     auto worlds      = BAK::WorldTileStore{zoneItems};
-    auto worldCenter = BAK::ToGlCoord(worlds.GetTiles().front().GetCenter());
+    auto worldCenter = worlds.GetTiles().front().GetCenter();
     //auto worldCenter = glm::vec3{978140, 0, -973103};
     //auto loc = gameData.mLocus.mPosition;
     //auto worldCenter = glm::vec3{loc.x, 1.6, loc.y};
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     for (const auto& item : zoneItems.GetItems())
     {
         auto obj = BAK::MeshObject{};
-        if (item.GetDatItem().mVertices.size() <= 1) continue;
+        if (item.GetVertices().size() <= 1) continue;
         obj.LoadFromBaKItem(item, textures, pal);
         objStore.AddObject(item.GetName(), obj);
     }
@@ -290,7 +290,7 @@ int main(int argc, char** argv)
         {
             for (const auto& inst : world.GetItems())
             {
-                if (inst.GetZoneItem().GetDatItem().mVertices.size() <= 1)
+                if (inst.GetZoneItem().GetVertices().size() <= 1)
                 {
                     continue;
                 }
@@ -300,10 +300,9 @@ int main(int argc, char** argv)
                 modelMatrix = glm::mat4(1.0f);
                 
                 auto scaleFactor = static_cast<float>(
-                    inst.GetZoneItem().GetDatItem().mScale);
+                    inst.GetZoneItem().GetScale());
 
-                auto instLoc = inst.GetLocation();
-                auto itemLoc = glm::vec3{instLoc.x, 0, instLoc.y};
+                auto itemLoc = inst.GetLocation();
                 auto relLoc = (itemLoc - worldCenter) / BAK::gWorldScale;
 
                 if (inst.GetZoneItem().GetName() == "ground")
@@ -315,7 +314,7 @@ int main(int argc, char** argv)
                 
                 modelMatrix = glm::translate(modelMatrix, relLoc);
                 modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
-                modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().z, glm::vec3(0,1,0));
+                modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().y, glm::vec3(0,1,0));
 
                 MVP = projectionMatrix * viewMatrix * modelMatrix;
 

@@ -154,7 +154,7 @@ Vector2D RotateAboutPoint(
 
 int main(int argc, char *argv[])
 {
-	std::string zone = "Z01";
+    std::string zone = "Z01";
 
     PaletteResource *palz = new PaletteResource;
     std::stringstream palStr{""};
@@ -231,9 +231,9 @@ int main(int argc, char *argv[])
     media->GetVideo()->CreateWindow(800, 800);
     media->GetVideo()->SetMode(LORES_HICOL);
     
-	auto cursor = init_system_cursor(arrow);
-	SDL_SetCursor(cursor);
-	SDL_ShowCursor(SDL_ENABLE);
+    auto cursor = init_system_cursor(arrow);
+    SDL_SetCursor(cursor);
+    SDL_ShowCursor(SDL_ENABLE);
     
     pal.Activate(0, 256);
 
@@ -246,9 +246,9 @@ int main(int argc, char *argv[])
                 static_cast<int>(inst.GetLocation().y)};
             auto loc = TransformLoc(bloc, worldCenter, worldScale);
             {
-                const auto& vertices = inst.GetZoneItem().GetDatItem().mVertices;
-                const auto& faces = inst.GetZoneItem().GetDatItem().mFaces;
-                const auto& colors = inst.GetZoneItem().GetDatItem().mColors;
+                const auto& vertices = inst.GetZoneItem().GetVertices();
+                const auto& faces = inst.GetZoneItem().GetFaces();
+                const auto& colors = inst.GetZoneItem().GetColors();
 
                 if (!faces.empty())
                 {
@@ -268,9 +268,9 @@ int main(int argc, char *argv[])
                                 stop = true;
                                 break;
                             }
-                            auto scaleFactor = inst.GetZoneItem().GetDatItem().mScale;
+                            auto scaleFactor = inst.GetZoneItem().GetScale();
                             assert(v < vertices.size());
-                            auto rawV = Vector2D{vertices[v].GetX(), vertices[v].GetY()};
+                            auto rawV = Vector2D{vertices[v].x, vertices[v].z};
                             auto vertex = RotateAboutPoint(
                                 rawV,
                                 Vector2D{0,0},

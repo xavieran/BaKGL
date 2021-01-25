@@ -26,6 +26,8 @@
 #include "config.h"
 #endif
 
+#include "Geometry.h"
+
 #include "ResourceData.h"
 
 const unsigned int TILE_SIZE   = 64000;
@@ -37,13 +39,8 @@ struct TileWorldItem
 {
     unsigned int type;
 
-    unsigned int xrot;
-    unsigned int yrot;
-    unsigned int zrot;
-
-    unsigned int xloc;
-    unsigned int yloc;
-    unsigned int zloc;
+    Vector3D mRotation;
+    Vector3D mLocation;
 };
 
 class TileWorldResource

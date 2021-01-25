@@ -48,17 +48,13 @@ public:
             mTextureBlends.emplace_back(blend);
         };
 
-        for (const auto& vertex : item.GetDatItem().mVertices)
+        for (const auto& vertex : item.GetVertices())
         {
-            // Y vertex needs to be negated and swapped with Z to
-            // suit OpenGL world coordinate system
             glmVertices.emplace_back(
-                vertex.GetX() / BAK::gWorldScale,
-                vertex.GetZ() / BAK::gWorldScale, 
-                -vertex.GetY() / BAK::gWorldScale);
+                glm::cast<float>(vertex) / BAK::gWorldScale);
         }
 
-        for (const auto& faceV : item.GetDatItem().mFaces | boost::adaptors::indexed())
+        for (const auto& faceV : item.GetFaces() | boost::adaptors::indexed())
         {
             const auto& face = faceV.value();
             const auto i = faceV.index();
@@ -81,8 +77,8 @@ public:
                 
                 // Hacky - only works for quads - but the game only
                 // textures quads anyway... (not true...)
-                auto colorIndex = item.GetDatItem().mColors[i];
-                auto paletteIndex = item.GetDatItem().mPalettes[i];
+                auto colorIndex = item.GetColors()[i];
+                auto paletteIndex = item.GetPalettes()[i];
                 auto textureIndex = colorIndex;
 
                 float u = 1.0;
@@ -287,7 +283,7 @@ public:
     // - solution to having textured and
     // non-textured objects (should I use diff shaders?)
     std::vector<float> mTextureBlends;
-	std::vector<unsigned> mIndices;
+    std::vector<unsigned> mIndices;
 
     const Logging::Logger& mLog{
         Logging::LogState::GetLogger("MeshObject")};
@@ -352,7 +348,7 @@ public:
     std::vector<glm::vec4> mColors;
     std::vector<glm::vec3> mTextureCoords;
     std::vector<float> mTextureBlends;
-	std::vector<unsigned> mIndices;
+    std::vector<unsigned> mIndices;
 
     const Logging::Logger& mLog{
         Logging::LogState::GetLogger("MeshObjectStore")};

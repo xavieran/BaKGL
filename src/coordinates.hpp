@@ -15,12 +15,37 @@
 // Need to convert this to open gl system by swapping y and z// and negating z (depth goes towards us)
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "Geometry.h"
+
+namespace glm {
+
+template <typename S, typename T>
+vec<3, S> cast(const vec<3, T>& x)
+{
+    return static_cast<vec<3, S>>(x);
+}
+
+}
 
 namespace BAK {
 
-glm::vec3 ToGlCoord(const glm::vec3& coord)
+template <typename T>
+glm::vec<3, T> ToGlCoord(const Vector3D& coord)
 {
-    return glm::vec3{coord.x, -coord.z, coord.y};
+    return glm::vec<3, T>{
+        static_cast<T>(coord.GetX()),
+        static_cast<T>(coord.GetZ()),
+        -static_cast<T>(coord.GetY())};
+}
+
+// Convert a 16 bit BAK angle to radians
+glm::vec3 ToGlAngle(const Vector3D& angle)
+{
+    return BAK::ToGlCoord<float>(angle) 
+        / static_cast<float>(0xffff)
+        * 2.0f * glm::pi<float>();
 }
 
 template <typename T, typename C>

@@ -287,109 +287,90 @@ class ZoneItem
 public:
     ZoneItem(
         const std::string& name,
-        DatInfo* datInfo,
+        const DatInfo& datInfo,
         const TextureStore& textureStore)
     :
         mName{name},
-        mDatItem{datInfo, textureStore}
-    {}
-
-    struct DatItem
+        mEntityFlags{datInfo.entityFlags},
+        mEntityType{BAK::EntityType{datInfo.entityType}},
+        mScale{static_cast<double>(1 << datInfo.terrainClass)},
+        mSpriteIndex{datInfo.sprite},
+        mColors{},
+        mVertices{},
+        mPalettes{},
+        mFaces{}
     {
-        DatItem(
-            DatInfo* other,
-            const TextureStore& textureStore)
-        :
-            mColors{},
-            mVertices{},
-            mPalettes{},
-            mFaces{}
+        // FIXME: 400 -- the ground has sprite index != 0 for some reason...
+        if (mSpriteIndex == 0 || mSpriteIndex > 400)
         {
-            assert(other);
-            mEntityFlags  = other->entityFlags;
-            mEntityType   = BAK::EntityType{other->entityType};
-            mTerrainType  = BAK::TerrainType{other->terrainType};
-            mScale        = static_cast<double>(1 << other->terrainClass);
-            mSpriteIndex  = other->sprite;
-            mMin = other->min;
-            mMax = other->max;
-            mPos = other->pos;
-
-            // FIXME: 400 -- the ground has sprite index != 0 for some reason...
-            if (mSpriteIndex == 0 || mSpriteIndex > 400)
+            for (const auto& vertex : datInfo.vertices)
             {
-                for (const auto& vertex : other->vertices)
-                {
-                    assert(vertex);
-                    mVertices.emplace_back(*vertex);
-                }
-                for (const auto& face : other->faces)
-                {
-                    mFaces.emplace_back(face);
-                }
-                for (const auto& palette : other->paletteSources)
-                {
-                    mPalettes.emplace_back(palette);
-                }
-                for (const auto& color : other->faceColors)
-                {
-                    mColors.emplace_back(color);
-                }
+                assert(vertex);
+                mVertices.emplace_back(BAK::ToGlCoord<int>(*vertex));
             }
-            else
+            for (const auto& face : datInfo.faces)
             {
-                // Need this to set the right dimensions for the texture
-                const auto& tex = textureStore.GetTexture(mSpriteIndex);
-                auto width  = tex.mWidth * 10;
-                auto height = tex.mHeight * 10;
-                mVertices.emplace_back(-width, 0, height);
-                mVertices.emplace_back(width, 0, height);
-                mVertices.emplace_back(width, 0, 0);
-                mVertices.emplace_back(-width, 0, 0);
-
-                auto faces = std::vector<std::uint16_t>{};
-                faces.emplace_back(0);
-                faces.emplace_back(1);
-                faces.emplace_back(2);
-                faces.emplace_back(3);
-                mFaces.emplace_back(faces);
-
-                mPalettes.emplace_back(0x91);
-                mColors.emplace_back(other->sprite);
+                mFaces.emplace_back(face);
+            }
+            for (const auto& palette : datInfo.paletteSources)
+            {
+                mPalettes.emplace_back(palette);
+            }
+            for (const auto& color : datInfo.faceColors)
+            {
+                mColors.emplace_back(color);
             }
         }
+        else
+        {
+            // Need this to set the right dimensions for the texture
+            const auto& tex = textureStore.GetTexture(mSpriteIndex);
+            auto width  = tex.mWidth * 10;
+            auto height = tex.mHeight * 10;
+            mVertices.emplace_back(-width, height, 0);
+            mVertices.emplace_back(width, height, 0);
+            mVertices.emplace_back(width, 0, 0);
+            mVertices.emplace_back(-width, 0, 0);
 
-        unsigned mEntityFlags;
-        EntityType mEntityType;
-        TerrainType mTerrainType;
-        double mScale;
-        unsigned mSpriteIndex;
-        Vector3D mMin;
-        Vector3D mMax;
-        Vector3D mPos;
-        std::vector<std::uint8_t> mColors;
-        std::vector<Vector3D> mVertices;
-        std::vector<std::uint8_t> mPalettes;
-        std::vector<std::vector<std::uint16_t>> mFaces;
-    };
+            auto faces = std::vector<std::uint16_t>{};
+            faces.emplace_back(0);
+            faces.emplace_back(1);
+            faces.emplace_back(2);
+            faces.emplace_back(3);
+            mFaces.emplace_back(faces);
 
-    const std::string& GetName() const { return mName; }
+            mPalettes.emplace_back(0x91);
+            mColors.emplace_back(datInfo.sprite);
+        }
+    }
 
-    const DatItem& GetDatItem() const { return mDatItem; }
+    const auto& GetName() const { return mName; }
+    const auto& GetColors() const { return mColors; }
+    const auto& GetFaces() const { return mFaces; }
+    const auto& GetPalettes() const { return mPalettes; }
+    const auto& GetVertices() const { return mVertices; }
+    const auto& GetScale() const { return mScale; }
 
 private:
     std::string mName;
-
-    DatItem mDatItem;
+    unsigned mEntityFlags;
+    EntityType mEntityType;
+    TerrainType mTerrainType;
+    double mScale;
+    unsigned mSpriteIndex;
+    std::vector<std::uint8_t> mColors;
+    std::vector<glm::vec<3, int>> mVertices;
+    std::vector<std::uint8_t> mPalettes;
+    std::vector<std::vector<std::uint16_t>> mFaces;
 
     friend std::ostream& operator<<(std::ostream& os, const ZoneItem& d);
 };
 
 std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 {
-    os << d.mName << " :: "
-        << d.GetDatItem().mVertices << "\n";
-    for (const auto& face : d.GetDatItem().mFaces)
+    os << d.mName << " :: ";
+        //<< d.GetDatItem().mVertices << "\n";
+    for (const auto& face : d.GetFaces())
     {
         for (const auto i : face)
         {
@@ -425,9 +406,10 @@ public:
         std::cout << std::endl;
         for (unsigned i = 0; i < table.GetMapSize(); i++)
         {
+            assert(table.GetDatItem(i) != nullptr);
             mItems.emplace_back(
                 table.GetMapItem(i),
-                table.GetDatItem(i),
+                *table.GetDatItem(i),
                 textureStore);
         }
     }
@@ -464,27 +446,13 @@ public:
     WorldItemInstance(
         const ZoneItem& zoneItem,
         unsigned type,
-        unsigned xrot,
-        unsigned yrot,
-        unsigned zrot,
-        unsigned x,
-        unsigned y,
-        unsigned z)
+        const Vector3D& rotation,
+        const Vector3D& location)
     :
         mZoneItem{zoneItem},
         mType{type},
-        // Convert to radians - all these static casts are kinda disgusting
-        mRotation{
-            (glm::vec3{
-             static_cast<float>(xrot),
-             static_cast<float>(yrot),
-             static_cast<float>(zrot)}
-             / static_cast<float>(0xffff))
-                * 2.0f * glm::pi<float>()},
-        mLocation{
-            static_cast<float>(x),
-            -1 * static_cast<float>(y),
-            static_cast<float>(z)}
+        mRotation{BAK::ToGlAngle(rotation)},
+        mLocation{BAK::ToGlCoord<float>(location)}
     {}
 
     const ZoneItem& GetZoneItem() const { return mZoneItem; }
@@ -507,12 +475,12 @@ std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
     os << "[ Name: " << d.GetZoneItem().GetName() << " Type: " << d.mType << " Rot: " 
         << glm::to_string(d.mRotation)
         << " Loc: " << glm::to_string(d.mLocation) << "]";
-    os << std::endl << "Pos: " << d.GetZoneItem().GetDatItem().mPos << " Vertices::" << std::endl;
+    os << std::endl << " Vertices::" << std::endl;
 
-    const auto& vertices = d.GetZoneItem().GetDatItem().mVertices;
+    const auto& vertices = d.GetZoneItem().GetVertices();
     for (const auto& vertex : vertices)
     {
-        os << "  " << vertex << std::endl;
+        os << "  " << glm::to_string(vertex) << std::endl;
     }
     return os;
 }
@@ -549,22 +517,14 @@ public:
         for (unsigned i = 0; i < world.GetSize(); i++)
         {
             const auto& item = world.GetItem(i);
-            /*if (item.type == static_cast<unsigned>(OBJECT_CENTER))
-                mCenter = glm::vec3{
-                    static_cast<int>(item.xloc),
-                    0,
-                    -static_cast<int>(item.yloc)};*/
+            if (item.type == static_cast<unsigned>(OBJECT_CENTER))
+                mCenter = ToGlCoord<float>(item.mLocation);
 
             mItemInsts.emplace_back(
                 zoneItems.GetZoneItem(item.type),
                 item.type,
-                item.xrot,
-                item.yrot,
-                item.zrot,
-                item.xloc,
-                item.yloc,
-                item.zloc
-                );
+                item.mRotation,
+                item.mLocation);
         }
     }
 
@@ -573,7 +533,7 @@ public:
     const auto GetCenter() const
     {
         return mCenter.value_or(
-            GetItems().back().GetLocation());
+            GetItems().front().GetLocation());
     }
 
 private:

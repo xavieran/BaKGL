@@ -48,15 +48,15 @@ int main(int argc, char** argv)
     for (const auto& item : zoneItems.GetItems())
     {
         auto obj = BAK::MeshObject();
-        if (item.GetDatItem().mVertices.size() <= 1) continue;
+        if (item.GetVertices().size() <= 1) continue;
 
         if (item.GetName() == objectToDisplay)
         {
             std::stringstream ss{""};
-            for (unsigned i = 0; i < item.GetDatItem().mColors.size(); i++)
+            for (unsigned i = 0; i < item.GetColors().size(); i++)
             {
-                auto p = item.GetDatItem().mPalettes[i];
-                auto c = item.GetDatItem().mColors[i];
+                auto p = item.GetPalettes()[i];
+                auto c = item.GetColors()[i];
                 ss << i << " p: 0x" << std::hex << +p << " " << std::dec << +p
                     << " c: 0x" << std::hex << +c << " " << std::dec << +c << std::endl;
             }

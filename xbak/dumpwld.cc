@@ -53,11 +53,11 @@ int main(int argc, char *argv[])
         for (unsigned int i = 0; i < wld->GetSize(); i++)
         {
             TileWorldItem mi = wld->GetItem(i);
-            printf("%6d,%6d: %d, %d, %d, %3d (%02x)\n", mi.xloc, mi.yloc, mi.xrot, mi.yrot, mi.zrot, mi.type, mi.type);
+            printf("%6d,%6d: %d, %d, %d, %3d (%02x)\n", mi.mLocation.GetX(), mi.mLocation.GetY(), mi.mRotation.GetX(), mi.mRotation.GetY(), mi.mRotation.GetZ(), mi.type, mi.type);
             if (mi.type > 0)
             {
-                unsigned int x = (mi.xloc - wld->GetMinX()) * MAP_SIZE_X / deltaX;
-                unsigned int y = (mi.yloc - wld->GetMinY()) * MAP_SIZE_Y / deltaY;
+                unsigned int x = (mi.mLocation.GetX() - wld->GetMinX()) * MAP_SIZE_X / deltaX;
+                unsigned int y = (mi.mLocation.GetY() - wld->GetMinY()) * MAP_SIZE_Y / deltaY;
                 map[x + y * MAP_SIZE_X] = mi.type;
             }
         }
