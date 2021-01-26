@@ -325,8 +325,8 @@ public:
         {
             // Need this to set the right dimensions for the texture
             const auto& tex = textureStore.GetTexture(mSpriteIndex);
-            auto width  = tex.mWidth * 10;
-            auto height = tex.mHeight * 10;
+            auto width  = tex.mWidth * 5;
+            auto height = tex.mHeight * 5;
             mVertices.emplace_back(-width, height, 0);
             mVertices.emplace_back(width, height, 0);
             mVertices.emplace_back(width, 0, 0);
@@ -568,10 +568,6 @@ public:
                         try
                         {
                             auto it = worlds.emplace_back(zoneItems, x, y);
-                            for (const auto& itemInst : it.GetItems())
-                            {
-                                std::cout << itemInst << std::endl;
-                            }
                         }
                         catch (const OpenError&)
                         {

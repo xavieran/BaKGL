@@ -20,8 +20,6 @@ GLuint LoadShaders(
 {
     auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
-    std::cout << "VERTEXSHADER" << vertexShader;
-
     // Create the shaders
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -87,7 +85,7 @@ std::optional<std::string> FindFile(const std::string& shaderPath)
     if (home == nullptr) return std::optional<std::string>{};
 
     std::vector<std::string> searchPaths{
-        "Code/BaKSandbox/shaders",
+        "Code/BaKGL/shaders",
         ".shaders"};
 
     for (const auto& searchPath : searchPaths)
@@ -130,8 +128,8 @@ GLuint LoadShaders(
     const auto vertexShaderCode = LoadFileContents(vertexShaderPath);
     const auto fragmentShaderCode = LoadFileContents(fragmentShaderPath);
 
-    logger.Debug() << "VertexShaderCode: " << vertexShaderCode << std::endl;
-    logger.Debug() << "FragmentShaderCode: " << fragmentShaderCode << std::endl;
+    logger.Spam() << "VertexShaderCode: " << vertexShaderCode << std::endl;
+    logger.Spam() << "FragmentShaderCode: " << fragmentShaderCode << std::endl;
 
     return LoadShaders(
         vertexShaderCode.c_str(),

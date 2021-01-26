@@ -127,12 +127,20 @@ int main(int argc, char** argv)
     const auto& indices       = objStore.mIndices;
 
     BAK::GLBuffers buffers{};
-    buffers.LoadBufferDataGL(buffers.mVertexBuffer, GL_ARRAY_BUFFER, vertices);
-    buffers.LoadBufferDataGL(buffers.mNormalBuffer, GL_ARRAY_BUFFER, normals);
-    buffers.LoadBufferDataGL(buffers.mColorBuffer, GL_ARRAY_BUFFER, colors);
-    buffers.LoadBufferDataGL(buffers.mTextureCoordBuffer, GL_ARRAY_BUFFER, textureCoords);
-    buffers.LoadBufferDataGL(buffers.mTextureBlendBuffer, GL_ARRAY_BUFFER, textureBlends);
+    buffers.AddBuffer("vertex", 0, 3);
+    buffers.AddBuffer("normal", 1, 3);
+    buffers.AddBuffer("color", 2, 4);
+    buffers.AddBuffer("textureCoord", 3, 3);
+    buffers.AddBuffer("textureBlend", 4, 1);
+
+    buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, vertices);
+    buffers.LoadBufferDataGL("normal", GL_ARRAY_BUFFER, normals);
+    buffers.LoadBufferDataGL("color", GL_ARRAY_BUFFER, colors);
+    buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, textureCoords);
+    buffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, textureBlends);
+
     buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, indices);
+    buffers.BindArraysGL();
 
     BAK::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(textures);
@@ -225,8 +233,6 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-
-    buffers.BindArraysGL();
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureBuffer.mTextureBuffer);

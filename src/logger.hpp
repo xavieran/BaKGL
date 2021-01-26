@@ -134,6 +134,11 @@ public:
         return LogState::Log(LogLevel::Error, mName);
     }
 
+    std::ostream& Spam() const
+    {
+        return LogState::Log(LogLevel::Spam, mName);
+    }
+
     std::ostream& Log(LogLevel level) const
     {
         return LogState::Log(level, mName);

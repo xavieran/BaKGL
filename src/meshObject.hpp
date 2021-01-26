@@ -220,9 +220,9 @@ public:
 
                 if (colorIndex < store.GetTextures().size())
                 {
-                    u = static_cast<float>(store.GetTexture(textureIndex).mWidth) 
+                    u = static_cast<float>(store.GetTexture(textureIndex).mWidth - 1) 
                         / static_cast<float>(maxDim);
-                    v = static_cast<float>(store.GetTexture(textureIndex).mHeight) 
+                    v = static_cast<float>(store.GetTexture(textureIndex).mHeight - 1) 
                         / static_cast<float>(maxDim);
                 }
 

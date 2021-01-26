@@ -85,8 +85,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned height = 860;
-    unsigned width  = 1600;
+    unsigned height = 2400;
+    unsigned width  = 3200;
 
     window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
     if( window == NULL )
@@ -131,12 +131,21 @@ int main(int argc, char** argv)
     const auto& indices       = objStore.mIndices;
 
     BAK::GLBuffers buffers{};
-    buffers.LoadBufferDataGL(buffers.mVertexBuffer, GL_ARRAY_BUFFER, vertices);
-    buffers.LoadBufferDataGL(buffers.mNormalBuffer, GL_ARRAY_BUFFER, normals);
-    buffers.LoadBufferDataGL(buffers.mColorBuffer, GL_ARRAY_BUFFER, colors);
-    buffers.LoadBufferDataGL(buffers.mTextureCoordBuffer, GL_ARRAY_BUFFER, textureCoords);
-    buffers.LoadBufferDataGL(buffers.mTextureBlendBuffer, GL_ARRAY_BUFFER, textureBlends);
+    buffers.AddBuffer("vertex", 0, 3);
+    buffers.AddBuffer("normal", 1, 3);
+    buffers.AddBuffer("color", 2, 4);
+    buffers.AddBuffer("textureCoord", 3, 3);
+    buffers.AddBuffer("textureBlend", 4, 1);
+
+    buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, vertices);
+    buffers.LoadBufferDataGL("normal", GL_ARRAY_BUFFER, normals);
+    buffers.LoadBufferDataGL("color", GL_ARRAY_BUFFER, colors);
+    buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, textureCoords);
+    buffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, textureBlends);
+
     buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, indices);
+    buffers.BindArraysGL();
+    glBindVertexArray(0);
 
     BAK::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(textures);
@@ -147,7 +156,7 @@ int main(int argc, char** argv)
     GLuint viewMatrixID  = glGetUniformLocation(programID, "V");
 
     glm::mat4 projectionMatrix = glm::perspective(
-        glm::radians(45.0f),
+        glm::radians(70.0f),
         (float) width / (float)height,
         0.1f,
         4000.0f);
@@ -174,8 +183,8 @@ int main(int argc, char** argv)
     float initialFoV = 45.0f;
     
     //float speed = 120.0f; // 3 units / second
-    float speed = 3 * 30.0f; // 3 units / second
-    float turnSpeed = 10.0f; // 3 units / second
+    float speed = 6 * 30.0f; // 3 units / second
+    float turnSpeed = 30.0f; // 3 units / second
     float mouseSpeed = 0.009f;
     //double xpos, ypos;
     glm::vec3 direction;
@@ -192,6 +201,7 @@ int main(int argc, char** argv)
 
     glUseProgram(programID);
 
+
     glEnable(GL_MULTISAMPLE);  
 
     glEnable(GL_DEPTH_TEST);
@@ -202,7 +212,6 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    buffers.BindArraysGL();
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureBuffer.mTextureBuffer);
@@ -210,6 +219,7 @@ int main(int argc, char** argv)
 
     do
     {
+        glBindVertexArray(VertexArrayID);
         //glfwGetCursorPos(window, &xpos, &ypos);
 
         currentTime = glfwGetTime();

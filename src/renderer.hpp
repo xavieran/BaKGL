@@ -1,5 +1,7 @@
 #pragma once
 
+#include "logger.hpp"
+
 #include "worldFactory.hpp"
 
 #include <GL/glew.h>
@@ -10,28 +12,74 @@
 
 namespace BAK {
 
+enum class BindPoint
+{
+    ArrayBuffer,
+    ElementArrayBuffer
+};
+
+GLenum ToGlEnum(BindPoint p)
+{
+    switch (p)
+    {
+    case BindPoint::ArrayBuffer: return GL_ARRAY_BUFFER;
+    case BindPoint::ElementArrayBuffer: return GL_ELEMENT_ARRAY_BUFFER;
+    default: return GL_ARRAY_BUFFER;
+    }
+}
+
 class GLBuffers
 {
 public:
     GLBuffers()
     :
-        mVertexBuffer{GenBufferGL()},
-        mNormalBuffer{GenBufferGL()},
-        mColorBuffer{GenBufferGL()},
-        mTextureCoordBuffer{GenBufferGL()},
-        mTextureBlendBuffer{GenBufferGL()},
-        mElementBuffer{GenBufferGL()}
-    {}
+        mBuffers{},
+        mElementBuffer{GenBufferGL()},
+        mActive{true}
+    {
+    }
+
+    GLBuffers(GLBuffers&& other)
+    {
+        (*this) = std::move(other);
+    }
+
+    GLBuffers& operator=(GLBuffers&& other)
+    {
+        for (const auto& [name, buffer] : mBuffers)
+            mBuffers.emplace(name, buffer);
+
+        other.mActive = false;
+
+        return *this;
+    }
+
+    GLBuffers(const GLBuffers&) = delete;
+    GLBuffers& operator=(const GLBuffers&) = delete;
 
     ~GLBuffers()
     {
-        // Any other destruction needed here?
-        glDeleteBuffers(1, &mVertexBuffer);
-        glDeleteBuffers(1, &mNormalBuffer);
-        glDeleteBuffers(1, &mColorBuffer);
-        glDeleteBuffers(1, &mTextureCoordBuffer);
-        glDeleteBuffers(1, &mTextureBlendBuffer);
-        glDeleteBuffers(1, &mElementBuffer);
+        if (mActive)
+        {
+            Logging::LogDebug("GLBuffers") << "Deleting GL buffers" << std::endl;
+            for (const auto& [name, buffer] : mBuffers)
+            {
+                Logging::LogDebug("GLBuffers") << "    Deleting buffer: " 
+                    << name << std::endl;
+                glDeleteBuffers(1, &buffer.mBuffer);
+            }
+        }
+    }
+
+    void AddBuffer(
+        const std::string& name,
+        unsigned location,
+        unsigned elems)
+    {
+        mBuffers.emplace(
+            name,
+            GLBuffer{location, elems, BindPoint::ArrayBuffer, GenBufferGL()});
+        BindAttribArrayGL(location, elems, mBuffers[name].mBuffer);
     }
     
     static GLuint GenBufferGL()
@@ -42,7 +90,22 @@ public:
     }
     
     template <typename T>
-    void LoadBufferDataGL(GLuint buffer, GLenum target, const std::vector<T>& data)
+    void LoadBufferDataGL(
+        const std::string& buffer,
+        GLenum target,
+        const std::vector<T>& data)
+    {
+        LoadBufferDataGL(
+            mBuffers[buffer].mBuffer,
+            target,
+            data);
+    }
+
+    template <typename T>
+    void LoadBufferDataGL(
+        GLuint buffer,
+        GLenum target,
+        const std::vector<T>& data)
     {
         glBindBuffer(target, buffer);
         glBufferData(
@@ -50,7 +113,23 @@ public:
             data.size() * sizeof(T),
             &data.front(),
             // This will need to change...
-            GL_STATIC_DRAW);
+            GL_DYNAMIC_DRAW);
+            //GL_STATIC_DRAW);
+    }
+
+    template <typename T>
+    void ModifyBufferDataGL(
+        const std::string& name,
+        GLenum target,
+        unsigned offset,
+        const std::vector<T>& data)
+    {
+        glBindBuffer(target, mBuffers[name].mBuffer);
+        glBufferSubData(
+            target,
+            offset,
+            data.size() * sizeof(T),
+            &data.front());
     }
 
     void BindAttribArrayGL(
@@ -60,7 +139,6 @@ public:
     {
         glEnableVertexAttribArray(location);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        // FIXME: All these attributes should get stored somewhere
         glVertexAttribPointer(
             location,
             elems,
@@ -73,28 +151,29 @@ public:
 
     void BindArraysGL()
     {
-        BindAttribArrayGL(mVertexLoc, 3, mVertexBuffer);
-        BindAttribArrayGL(mNormalLoc, 3, mNormalBuffer);
-        BindAttribArrayGL(mColorLoc, 4, mColorBuffer);
-        BindAttribArrayGL(mTextureCoordLoc, 3, mTextureCoordBuffer);
-        BindAttribArrayGL(mTextureBlendLoc, 1, mTextureBlendBuffer);
+        for (const auto& [name, buffer] : mBuffers)
+            BindAttribArrayGL(buffer.mLocation, buffer.mElems, buffer.mBuffer);
     }
     
 //private:
+    struct GLBuffer
+    {
+        // Location in the shader
+        unsigned mLocation;
+        // Elements per object (e.g. color = 4 floats)
+        unsigned mElems;
+        // BindPoint (ARRAY, ELEMENT_ARRAY, etc)
+        BindPoint mBindPoint;
+        // GL assigned buffer id
+        GLuint mBuffer;
+    };
 
-// Locations in the shader
-    static constexpr unsigned mVertexLoc       = 0;
-    static constexpr unsigned mNormalLoc       = 1;
-    static constexpr unsigned mColorLoc        = 2;
-    static constexpr unsigned mTextureCoordLoc = 3;
-    static constexpr unsigned mTextureBlendLoc = 4;
+    std::unordered_map<std::string, GLBuffer> mBuffers;
 
-    GLuint mVertexBuffer;
-    GLuint mNormalBuffer;
-    GLuint mColorBuffer;
-    GLuint mTextureCoordBuffer;
-    GLuint mTextureBlendBuffer;
     GLuint mElementBuffer;
+
+    // disable when moving from
+    bool mActive;
 };
 
 class TextureBuffer
