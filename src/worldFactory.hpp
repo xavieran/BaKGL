@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "constants.hpp"
 #include "coordinates.hpp"
 #include "logger.hpp"
@@ -390,6 +389,7 @@ public:
 
     ZoneItemStore(
         const ZoneLabel& zoneLabel,
+        // Should one really need a texture store to load this?
         const TextureStore& textureStore)
     :
         mZoneLabel{zoneLabel},
@@ -509,7 +509,7 @@ public:
         str << "T" << std::setfill('0') << zoneItems.GetZoneLabel().GetWorld() 
             << std::setw(2) << x << std::setw(2) << y << ".WLD";
         auto fb = FileBufferFactory::CreateFileBuffer(str.str());
-        logger.Debug() << "Loading Tile" << str.str() << std::endl;
+        logger.Debug() << "Loading tile: " << str.str() << std::endl;
 
         TileWorldResource world{};
         world.Load(&fb);

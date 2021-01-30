@@ -1,9 +1,9 @@
 #include "logger.hpp"
 
-#include "loadShaders.hpp"
 
 #include "meshObject.hpp"
 #include "renderer.hpp"
+#include "shaderProgram.hpp"
 #include "worldFactory.hpp"
 
 #include "FileManager.h"
@@ -115,10 +115,14 @@ int main(int argc, char** argv)
     glBindVertexArray(VertexArrayID);
 
     // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders(
-        std::string{"vertex.glsl"},
-        std::string{"fragment.glsl"});
+    //
+    auto shaderProgram = ShaderProgram{
+        "vertex.glsl",
+        //"geometry.glsl",
+        "fragment.glsl"};
     
+    auto programId = shaderProgram.Compile();
+
     const auto& vertices      = objStore.mVertices;
     const auto& normals       = objStore.mNormals;
     const auto& colors        = objStore.mColors;
@@ -185,10 +189,10 @@ int main(int argc, char** argv)
         indices.emplace_back(i);
     */
 
-    GLuint textureID     = glGetUniformLocation(programID, "texture0");
-    GLuint mvpMatrixID   = glGetUniformLocation(programID, "MVP");
-    GLuint modelMatrixID = glGetUniformLocation(programID, "M");
-    GLuint viewMatrixID  = glGetUniformLocation(programID, "V");
+    GLuint textureID     = glGetUniformLocation(programId, "texture0");
+    GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
+    GLuint modelMatrixID = glGetUniformLocation(programId, "M");
+    GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
     glm::mat4 projectionMatrix = glm::perspective(
         glm::radians(45.0f),
@@ -226,10 +230,10 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime;
 
-    GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
+    GLuint LightID = glGetUniformLocation(programId, "LightPosition_worldspace");
 
     // Setup active arrays and textures
-    glUseProgram(programID);
+    glUseProgram(programId);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -351,7 +355,7 @@ int main(int argc, char** argv)
 
     // Cleanup VBO
     glDeleteVertexArrays(1, &VertexArrayID);
-    glDeleteProgram(programID);
+    glDeleteProgram(programId);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();

@@ -39,9 +39,10 @@ set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter")
 set(CMAKE_CXX_FLAGS "-O2 -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
 list(APPEND BAK_BINARIES
-    display_save
-    display_object
     compile_shaders 
+    display_object
+    display_tile
+    display_save
     main2d
     main3d
 )

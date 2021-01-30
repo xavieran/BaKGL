@@ -9,22 +9,57 @@
 
 namespace BAK {
 
+enum class Enemy 
+{
+    SolidCrystal = 0x09,
+    TransparentCrystal = 0x0a,
+    Blaster = 0x0b,
+    SolidOctagon = 0x0c,
+    LavaOctagon = 0x0d,
+    Unknown = 0x0e,
+    Gorath = 0x0f,
+    Owyn = 0x10,
+    Locklear = 0x11,
+    Moredhel = 0x12,
+    BrakNurr = 0x13,
+    Egg = 0x14,
+    MoredhelMagician = 0x15,
+    BlackSlayer = 0x16,
+    Nighthawk = 0x17,
+    Rogue = 0x18
+};
+
 class GameData
 {   
 public:
 /*
- * 0x011a0 - Start of FFFF??
- * 0x039c0 - End of FFFF??
  *
- * 0x04fb0 - Events Start??
+ * Locklear, Gorath, Owyn, Pug, James, Patrus
+ *
+ * 0x9fd -> Indicates unseen character stat improvement (bit flags)
+ *
+ * 0x011a0 - Character Inventory Offsets Start???
+ * 0x01383 - Combat Entity List Start
+ * 0x039cb - Combat Entity List Start
+ *
+ * 0x04fb0 - Combat locations
+ * Note: This is only populated if loaded by a tile
+ * 0x52f0 - combat 1 location start
+ * c8 a4 00 00 5a 2b 00 00 00 80 00 03 00
+ * X loc       yloc       rotation State (dead/alive/invislbe?)
  * 0x0913e - Events End??
+ * @10 bytes each => 1678 combat locs?
+ *
  * 0x0914b - Combat Stats Start 
  * 0x3070a - Combat Stats End
  *
  * 0x31340 - Combats Start
  * 
+ * 0x3a7f0 - Character Inventory Start
+ * 0x3aaf0 - Character Invenorty Start ???
+ *
  * 0x3b621 - Start of Containers
- * 0x4378f - End of Containers ???
+ * 0x44c37 - End of Containers ???
  * 0x46053 - Combat Inventory Start
  * 0x51720 - Combat Inventory End (1773)
  */
@@ -40,7 +75,7 @@ public:
   * 01b1 = 433 (Number of combats in file?)
   * 14 = Dialog index for this combat
   *
-  * Number of Combats
+  *  Number of Combats
   * B1 01 00 00 
   *
   * 01 - visible or not? Chapter??
@@ -63,6 +98,19 @@ public:
   * 00 00 08 AB  00 00 90 60  00 00 00 F0  20 40 5A 2B
   * 00 00 5A 2B  00 00 40 80  40 40 40 40  20 00 80   
   *
+  ** DEF_TOWN.DAT
+  * - Seems to affect zone crossing (e.g. from Tyr-Sog to highcastle etc.
+  *
+  * T******.DAT
+  * How many entries??
+  * 01 00 01 00
+  * Potentially coordinates???
+  * 19 0f 23 07
+  * 0d - combat number/index?
+  * 0d 00 00 00
+  *
+  *
+  *
   */
 
     GameData(FileBuffer& mBuffer)
@@ -74,9 +122,11 @@ public:
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
-
-        //LoadContainer();
-        //LoadCombatInventories();
+        LoadLocation();
+        LoadInventoryOffsetsP();
+        LoadContainer();
+        LoadCombatEntityLists();
+        LoadCombatInventories();
         LoadCombatStats();
     }
 
@@ -119,6 +169,7 @@ public:
 
     void LoadContainer()
     {
+        mLogger.Info() << "Loading containers" << std::endl;
         auto* objects = ObjectResource::GetInstance();
 
         // TombStone
@@ -135,10 +186,10 @@ public:
         mBuffer.Seek(0x416b7); // 110 9
         mBuffer.Seek(0x42868); // 25 A
         mBuffer.Seek(0x43012); // 30 B
-        mBuffer.Seek(0x4378f); // 60 C
         */
+        mBuffer.Seek(0x4378f); // 60 C
 
-        for (int j = 0; j < 40; j++)
+        for (int j = 0; j < 60; j++)
         {
             mLogger.Info() << " Container: " << j
                 << " addr: " << std::hex << mBuffer.Tell() << std::dec << std::endl;
@@ -245,10 +296,66 @@ public:
         }
     }
 
+    void LoadInventoryOffsetsP()
+    {
+        constexpr unsigned inventoryOffsetsStart = 0x11a3;
+        mBuffer.Seek(inventoryOffsetsStart);
+
+        mLogger.Info() << "Inventory Offsets Start @" 
+            << std::hex << inventoryOffsetsStart << std::dec << std::endl;
+
+        for (unsigned i = 0; i < 10; i++)
+        {
+            std::stringstream ss{};
+            ss << "Inventory #" << i << " : " << mBuffer.GetUint16LE();
+            for (unsigned i = 0; i < 5; i++)
+            {
+                unsigned addr = mBuffer.GetUint32LE();
+                ss << " a: " << std::hex << addr;
+            }
+            mLogger.Info() << ss.str() << std::endl;
+        }
+
+        mLogger.Info() << "Inventory Offsets End @" 
+            << std::hex << mBuffer.Tell() << std::dec << std::endl;
+
+    }
+
+    void LoadCombatEntityLists()
+    {
+        constexpr unsigned combatEntityListStart = 0x1383;
+        mBuffer.Seek(combatEntityListStart);
+
+        mLogger.Info() << "Combat Entity Lists Start @" 
+            << std::hex << combatEntityListStart << std::dec << std::endl;
+
+        for (int i = 0; i < 700; i++)
+        {
+            std::stringstream ss{};
+            ss << " Combat #" << i;
+            constexpr unsigned maxCombatants = 7;
+            auto sep = ' ';
+            for (unsigned i = 0; i < maxCombatants; i++)
+            {
+                auto combatant = mBuffer.GetUint16LE();
+                if (combatant != 0xffff)
+                    ss << sep << combatant;
+                sep = ',';
+            }
+            mLogger.Info() << ss.str() << std::endl;
+        }
+
+        mLogger.Info() << "Combat Entity Lists End @" 
+            << std::hex << mBuffer.Tell() << std::dec << std::endl;
+    }
+
     void LoadCombatStats()
     {
-        // Combat statistics
-        mBuffer.Seek(0x914b);
+        constexpr unsigned combatStatsStart = 0x914b;
+        mBuffer.Seek(combatStatsStart);
+        mLogger.Info() << "Combat Stats Start @" 
+            << std::hex << combatStatsStart << std::dec << std::endl;
+
         // ends at 3070a
         for (int i = 0; i < 1698; i++)
         {
@@ -265,22 +372,25 @@ public:
                 "Assess", "Armor", "Weapon", "Bard",
                 "Haggle", "Lockpick", "Scout", "Stealth"})
             {
-                ss << std::dec << stat << ": " << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << std::endl;
+                ss << std::dec << stat << ": " << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " ";
                 mBuffer.Skip(2);
             }
             mBuffer.Dump(7);
             mBuffer.Skip(7);
             mLogger.Info() << ss.str() << std::endl;
         }
+        mLogger.Info() << "Combat Stats End @" 
+            << std::hex << mBuffer.Tell() << std::dec << std::endl;
     }
 
     void LoadCombatInventories()
     {
+        mLogger.Info() << "Loading Combat Inventories" << std::endl;
         auto* objects = ObjectResource::GetInstance();
 
         auto combatInventoryLocation = 0x46053;
         //auto combatInventoryLocation = 0x45fe5;
-        auto numberCombatInventories = 2000;
+        auto numberCombatInventories = 1733;
         mBuffer.Seek(combatInventoryLocation);
         for (int i = 0; i < numberCombatInventories; i++)
         {

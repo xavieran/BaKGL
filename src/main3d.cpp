@@ -2,11 +2,11 @@
 #include "coordinates.hpp"
 #include "gameData.hpp"
 
-#include "loadShaders.hpp"
 #include "logger.hpp"
 
 #include "meshObject.hpp"
 #include "renderer.hpp"
+#include "shaderProgram.hpp"
 #include "worldFactory.hpp"
 
 #include "FileManager.h"
@@ -17,6 +17,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "glm.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -56,7 +57,7 @@ int main(int argc, char** argv)
     //auto loc = gameData.mLocus.mPosition;
     //auto worldCenter = glm::vec3{loc.x, 1.6, loc.y};
 
-    logger.Info() << "World Center: " << glm::to_string(worldCenter) << std::endl;
+    logger.Info() << "World Center: " << worldCenter << std::endl;
 
     auto objStore = BAK::MeshObjectStorage{};
 
@@ -85,8 +86,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned height = 2400;
-    unsigned width  = 3200;
+    unsigned height = 800;
+    unsigned width  = 1400;
 
     window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
     if( window == NULL )
@@ -114,14 +115,12 @@ int main(int argc, char** argv)
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
+    auto shaderProgram = ShaderProgram{
+        "vertex.glsl",
+        //"geometry.glsl",
+        "fragment.glsl"};
 
-    // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders(
-        std::string{"vertex.glsl"},
-        std::string{"fragment.glsl"});
+    auto programId = shaderProgram.Compile();
 
     const auto& vertices      = objStore.mVertices;
     const auto& normals       = objStore.mNormals;
@@ -130,6 +129,10 @@ int main(int argc, char** argv)
     const auto& textureBlends = objStore.mTextureBlends;
     const auto& indices       = objStore.mIndices;
 
+    GLuint VertexArrayID;
+    glGenVertexArrays(1, &VertexArrayID);
+    glBindVertexArray(VertexArrayID);
+    
     BAK::GLBuffers buffers{};
     buffers.AddBuffer("vertex", 0, 3);
     buffers.AddBuffer("normal", 1, 3);
@@ -150,13 +153,13 @@ int main(int argc, char** argv)
     BAK::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(textures);
 
-    GLuint textureID     = glGetUniformLocation(programID, "texture0");
-    GLuint mvpMatrixID   = glGetUniformLocation(programID, "MVP");
-    GLuint modelMatrixID = glGetUniformLocation(programID, "M");
-    GLuint viewMatrixID  = glGetUniformLocation(programID, "V");
+    GLuint textureID     = glGetUniformLocation(programId, "texture0");
+    GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
+    GLuint modelMatrixID = glGetUniformLocation(programId, "M");
+    GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
     glm::mat4 projectionMatrix = glm::perspective(
-        glm::radians(70.0f),
+        glm::radians(50.0f),
         (float) width / (float)height,
         0.1f,
         4000.0f);
@@ -194,12 +197,12 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime;
 
-    GLuint LightID = glGetUniformLocation(programID, "lightPosition_worldspace");
-    GLuint CameraPositionID = glGetUniformLocation(programID, "CameraPosition_worldspace");
+    GLuint LightID = glGetUniformLocation(programId, "lightPosition_worldspace");
+    GLuint CameraPositionID = glGetUniformLocation(programId, "CameraPosition_worldspace");
 
     glfwSetCursorPos(window, width/2, height/2);
 
-    glUseProgram(programID);
+    glUseProgram(programId);
 
 
     glEnable(GL_MULTISAMPLE);  
@@ -243,7 +246,7 @@ int main(int argc, char** argv)
         up = glm::cross(right, direction);
         if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS){
             position += direction * deltaTime * speed;
-            logger.Info() << "Pos: " << glm::to_string(position) << std::endl;
+            logger.Info() << "Pos: " << position << std::endl;
         }
         // Move backward
         if (glfwGetKey( window, GLFW_KEY_S) == GLFW_PRESS){
@@ -358,7 +361,7 @@ int main(int argc, char** argv)
 
     // Cleanup VBO
     glDeleteVertexArrays(1, &VertexArrayID);
-    glDeleteProgram(programID);
+    glDeleteProgram(programId);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();

@@ -1,4 +1,4 @@
-#include "loadShaders.hpp"
+#include "shaderProgram.hpp"
 #include "logger.hpp"
 
 #include <GLFW/glfw3.h>
@@ -10,6 +10,8 @@ int main(int argc, char** argv)
 
     const auto vertexShaderPath = std::string{argv[1]};
     const auto fragmentShaderPath = std::string{argv[2]};
+
+    auto program = ShaderProgram{vertexShaderPath, std::optional<std::string>{}, fragmentShaderPath};
 
     logger.Info() << "Compiling " << vertexShaderPath << " and " << fragmentShaderPath << std::endl;
 
@@ -47,10 +49,11 @@ int main(int argc, char** argv)
         glfwTerminate();
         return -1;
     }
+    
 
     try
     {
-        GLuint programID = LoadShaders(vertexShaderPath, fragmentShaderPath);
+        GLuint programID = program.Compile();
     }
     catch (const std::exception& e)
     {
