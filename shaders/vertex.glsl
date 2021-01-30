@@ -22,7 +22,7 @@ uniform mat4 MVP;
 uniform mat4 V;
 uniform mat4 M;
 uniform vec3 lightPosition_worldspace;
-uniform vec3 CameraPosition_worldspace;
+uniform vec3 cameraPosition_worldspace;
 
 void main(){
 	// Output position of the vertex, in clip space : MVP * position
@@ -49,6 +49,6 @@ void main(){
 
     uvCoords = textureCoords.xyz;
 
-    DistanceFromCamera = distance(Position_worldspace, CameraPosition_worldspace);
+    DistanceFromCamera = distance(Position_worldspace, cameraPosition_worldspace);
     texBlend = texBlendVec;
 }

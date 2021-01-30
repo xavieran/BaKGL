@@ -297,7 +297,8 @@ public:
         mColors{},
         mVertices{},
         mPalettes{},
-        mFaces{}
+        mFaces{},
+        mPush{}
     {
         // FIXME: 400 -- the ground has sprite index != 0 for some reason...
         if (mSpriteIndex == 0 || mSpriteIndex > 400)
@@ -318,6 +319,30 @@ public:
             for (const auto& color : datInfo.faceColors)
             {
                 mColors.emplace_back(color);
+                if ((GetName().substr(0, 5) == "house"
+                    || GetName().substr(0, 3) == "inn")
+                    && (color == 190
+                    || color == 191))
+                    mPush.emplace_back(false);
+                else if (GetName().substr(0, 4) == "blck"
+                    && (color == 145
+                    || color == 191))
+                    mPush.emplace_back(false);
+                else if (GetName().substr(0, 4) == "brid"
+                    && (color == 147))
+                    mPush.emplace_back(false);
+                else if (GetName().substr(0, 4) == "temp"
+                    && (color == 218
+                    || color == 220
+                    || color == 221))
+                    mPush.emplace_back(false);
+                else if (GetName().substr(0, 6) == "church"
+                    && (color == 191
+                    || color == 0
+                    || color == 0))
+                    mPush.emplace_back(false);
+                else
+                    mPush.emplace_back(true);
             }
         }
         else
@@ -337,15 +362,22 @@ public:
             faces.emplace_back(2);
             faces.emplace_back(3);
             mFaces.emplace_back(faces);
+            mPush.emplace_back(false);
 
             mPalettes.emplace_back(0x91);
             mColors.emplace_back(datInfo.sprite);
         }
+
+        assert((mFaces.size() == mColors.size())
+            && (mFaces.size() == mPalettes.size())
+            && (mFaces.size() == mPush.size()));
     }
 
-    const auto& GetName() const { return mName; }
+    void SetPush(unsigned i){ mPush[i] = true; }
+    const std::string& GetName() const { return mName; }
     const auto& GetColors() const { return mColors; }
     const auto& GetFaces() const { return mFaces; }
+    const auto& GetPush() const { return mPush; }
     const auto& GetPalettes() const { return mPalettes; }
     const auto& GetVertices() const { return mVertices; }
     const auto& GetScale() const { return mScale; }
@@ -361,6 +393,7 @@ private:
     std::vector<glm::vec<3, int>> mVertices;
     std::vector<std::uint8_t> mPalettes;
     std::vector<std::vector<std::uint16_t>> mFaces;
+    std::vector<bool> mPush;
 
     friend std::ostream& operator<<(std::ostream& os, const ZoneItem& d);
 };
@@ -434,6 +467,7 @@ public:
     }
 
     const std::vector<ZoneItem>& GetItems() const { return mItems; }
+    std::vector<ZoneItem>& GetItems() { return mItems; }
 
 private:
     const ZoneLabel mZoneLabel;

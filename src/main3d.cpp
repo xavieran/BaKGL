@@ -1,6 +1,7 @@
 #include "constants.hpp"
 #include "coordinates.hpp"
 #include "gameData.hpp"
+#include "geometry.hpp"
 
 #include "logger.hpp"
 
@@ -61,7 +62,7 @@ int main(int argc, char** argv)
 
     auto objStore = BAK::MeshObjectStorage{};
 
-    for (const auto& item : zoneItems.GetItems())
+    for (auto& item : zoneItems.GetItems())
     {
         auto obj = BAK::MeshObject{};
         if (item.GetVertices().size() <= 1) continue;
@@ -198,7 +199,7 @@ int main(int argc, char** argv)
     float deltaTime;
 
     GLuint LightID = glGetUniformLocation(programId, "lightPosition_worldspace");
-    GLuint CameraPositionID = glGetUniformLocation(programId, "CameraPosition_worldspace");
+    GLuint CameraPositionID = glGetUniformLocation(programId, "cameraPosition_worldspace");
 
     glfwSetCursorPos(window, width/2, height/2);
 
@@ -215,7 +216,6 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureBuffer.mTextureBuffer);
     glUniform1i(textureID, 0);
@@ -223,14 +223,11 @@ int main(int argc, char** argv)
     do
     {
         glBindVertexArray(VertexArrayID);
-        //glfwGetCursorPos(window, &xpos, &ypos);
 
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
         
-        //horizontalAngle += mouseSpeed * deltaTime * float(width/2 - xpos );
-        //verticalAngle   += mouseSpeed * deltaTime * float(height/2 - ypos );
         direction = {
             cos(verticalAngle) * sin(horizontalAngle),
             sin(verticalAngle),

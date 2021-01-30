@@ -57,28 +57,51 @@ public:
         for (const auto& faceV : item.GetFaces() | boost::adaptors::indexed())
         {
             const auto& face = faceV.value();
-            const auto i = faceV.index();
+            const auto index = faceV.index();
             unsigned triangles = face.size() - 2;
+
+            // Whether to push this face away from the main plane
+            // (needed to avoid z-fighting for some objects)
+            bool push = item.GetPush().at(index);
             
             // Tesselate the face
             // Generate normals and new indices for each face vertex
+            auto normal = glm::normalize(
+                glm::cross(
+                    glmVertices[face[0]] - glmVertices[face[2]],
+                    glmVertices[face[0]] - glmVertices[face[1]]));
+
             for (unsigned triangle = 0; triangle < triangles; triangle++)
             {
                 auto i_a = face[0];
                 auto i_b = face[triangle + 1];
                 auto i_c = face[triangle + 2];
 
-                mVertices.emplace_back(glmVertices[i_a]);
+                // The normal must be inverted to account
+                // for the Y direction being negated
+                /*auto normal = glm::normalize(
+                    glm::cross(
+                        glmVertices[i_a] - glmVertices[i_c],
+                        glmVertices[i_a] - glmVertices[i_b]));*/
+
+                mNormals.emplace_back(normal);
+                mNormals.emplace_back(normal);
+                mNormals.emplace_back(normal);
+
+                glm::vec3 zOff = normal;
+                if (push) zOff= glm::vec3{0};
+                
+                mVertices.emplace_back(glmVertices[i_a] - zOff * 0.01f);
                 mIndices.emplace_back(mVertices.size() - 1);
-                mVertices.emplace_back(glmVertices[i_b]);
+                mVertices.emplace_back(glmVertices[i_b] - zOff * 0.01f);
                 mIndices.emplace_back(mVertices.size() - 1);
-                mVertices.emplace_back(glmVertices[i_c]);
+                mVertices.emplace_back(glmVertices[i_c] - zOff * 0.01f);
                 mIndices.emplace_back(mVertices.size() - 1);
                 
                 // Hacky - only works for quads - but the game only
                 // textures quads anyway... (not true...)
-                auto colorIndex = item.GetColors()[i];
-                auto paletteIndex = item.GetPalettes()[i];
+                auto colorIndex = item.GetColors().at(index);
+                auto paletteIndex = item.GetPalettes().at(index);
                 auto textureIndex = colorIndex;
 
                 float u = 1.0;
@@ -239,17 +262,6 @@ public:
                     mTextureCoords.emplace_back(u,   0.0, textureIndex);
                 }
 
-                // The normal must be inverted to account
-                // for the Y direction being negated
-                auto normal = glm::normalize(
-                    glm::cross(
-                        glmVertices[i_a] - glmVertices[i_c],
-                        glmVertices[i_a] - glmVertices[i_b]));
-
-                mNormals.emplace_back(normal);
-                mNormals.emplace_back(normal);
-                mNormals.emplace_back(normal);
-                
                 auto color = pal.GetColor(colorIndex);
                 auto glmCol = \
                     glm::vec4(

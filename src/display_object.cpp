@@ -1,5 +1,6 @@
 #include "logger.hpp"
 
+#include "geometry.hpp"
 
 #include "meshObject.hpp"
 #include "renderer.hpp"
@@ -15,6 +16,7 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -45,9 +47,9 @@ int main(int argc, char** argv)
 
     auto objStore = BAK::MeshObjectStorage{};
 
-    for (const auto& item : zoneItems.GetItems())
+    std::vector<BAK::MeshObject> objects{};
+    for (auto& item : zoneItems.GetItems())
     {
-        auto obj = BAK::MeshObject();
         if (item.GetVertices().size() <= 1) continue;
 
         if (item.GetName() == objectToDisplay)
@@ -62,11 +64,58 @@ int main(int argc, char** argv)
             }
             logger.Info() << "Colors and Palettes" << std::endl
                 << ss.str() << std::endl;
-        }
 
-        obj.LoadFromBaKItem(item, textures, pal);
-        objStore.AddObject(item.GetName(), obj);
+           
+            std::vector<Polygon> polys{};
+            for (unsigned face = 0; face < item.GetFaces().size(); face++)
+            {
+                const auto& poly = polys.emplace_back(item, face);
+            }
+            std::vector<std::vector<Polygon>> planes{};
+            std::sort(polys.begin(), polys.end(),
+                [](const auto& a, const auto& b){
+                    return Polygon::VectorCmp(a.GetNormal(), b.GetNormal()); 
+                });
+            
+            std::optional<glm::vec3> normal;
+            // Subdivide into faces that lie on the same plane
+            auto it = planes.emplace(planes.begin(), std::vector<Polygon>{});
+            for (const auto& poly : polys)
+            {
+                if (!normal || glm::all(glm::epsilonEqual(poly.GetNormal(), *normal, 0.01f)))
+                {
+                    normal = poly.GetNormal();
+                    it->push_back(poly);
+                }
+                else
+                {
+                    normal = poly.GetNormal();
+                    it = planes.emplace(it, std::vector<Polygon>{});
+                    it->push_back(poly);
+                }
+            }
+            for (auto& plane : planes)
+            {
+                logger.Info() << "Plane :: " << std::endl;
+                std::sort(plane.begin(), plane.end(), [](const auto& a, const auto& b){ return a.GetArea() > b.GetArea(); });
+                bool first = true;
+                for (const auto& poly : plane)
+                {
+                    //if (!first) item.SetPush(poly.GetFace());
+                    //first = false;
+
+                    logger.Info() << "Area: " << poly.GetArea()
+                        << " Norm: " << poly.GetNormal() << " color: " << +item.GetColors().at(poly.GetFace()) << std::endl;
+                }
+            }
+
+            auto obj = BAK::MeshObject();
+            obj.LoadFromBaKItem(item, textures, pal);
+            objects.push_back(obj);
+            objStore.AddObject(item.GetName(), obj);
+        }
     }
+
 
     if( !glfwInit() )
     {
@@ -145,6 +194,7 @@ int main(int argc, char** argv)
 
     buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, indices);
     buffers.BindArraysGL();
+    glBindVertexArray(0);
 
     BAK::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(textures);
@@ -213,7 +263,7 @@ int main(int argc, char** argv)
     glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix; 
 
     glm::vec3 position = glm::vec3( 0, 1.8, 0 );
-    glm::vec3 lightPos = glm::vec3(0,320,0);
+    glm::vec3 lightPos = glm::vec3(0,20,0);
     // horizontal angle : toward -Z
     float horizontalAngle = 3.14f;
     // vertical angle : 0, look at the horizon
@@ -230,10 +280,13 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime;
 
-    GLuint LightID = glGetUniformLocation(programId, "LightPosition_worldspace");
+    GLuint LightID = glGetUniformLocation(programId, "lightPosition_worldspace");
+    GLuint CameraPositionID = glGetUniformLocation(programId, "cameraPosition_worldspace");
 
     // Setup active arrays and textures
     glUseProgram(programId);
+
+    glEnable(GL_MULTISAMPLE);  
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -244,6 +297,8 @@ int main(int argc, char** argv)
 
     do
     {
+        glBindVertexArray(VertexArrayID);
+
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
@@ -295,18 +350,18 @@ int main(int argc, char** argv)
         if (glfwGetKey( window, GLFW_KEY_Y) == GLFW_PRESS){
             verticalAngle -= deltaTime * (speed);
         }
-
-        if (glfwGetKey( window, GLFW_KEY_P) == GLFW_PRESS){
-            lightPos.y += .5;
-        }
-        if (glfwGetKey( window, GLFW_KEY_L) == GLFW_PRESS){
-            lightPos.y -= .5;
-        }
-
-        lightPos.x = position.x;
-        lightPos.z = position.z;
+        
+        auto lightOffset = glm::vec3{
+            glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ? -1.0 
+            : glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS ? 1.0 : 0,
+            glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS ? -1.0 
+            : glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS ? 1.0 : 0,
+            glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS ? -1.0 
+            : glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS ? 1.0 : 0};
+        lightPos += lightOffset;
 
         glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(CameraPositionID, position.x, position.y, position.z);
 
         viewMatrix = glm::lookAt(
             position,
@@ -321,8 +376,6 @@ int main(int argc, char** argv)
 
         modelMatrix = glm::mat4(1.0f);
         
-        //modelMatrix = glm::rotate(modelMatrix, , glm::vec3(0,-1,0));
-
         MVP = projectionMatrix * viewMatrix * modelMatrix;
 
         glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, glm::value_ptr(MVP));
@@ -336,6 +389,26 @@ int main(int argc, char** argv)
             (void*) (offset * sizeof(GLuint)),
             offset
         );
+
+        modelMatrix = glm::mat4(1.0f);
+        modelMatrix = glm::translate(modelMatrix, lightPos);
+        
+        MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+        glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, glm::value_ptr(MVP));
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+        glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+        glDrawElementsBaseVertex(
+            GL_TRIANGLES,
+            length,
+            GL_UNSIGNED_INT,
+            (void*) (offset * sizeof(GLuint)),
+            offset
+        );
+
+
+
 
         // Swap buffers
         glfwSwapBuffers(window);
