@@ -162,7 +162,7 @@ int main(int argc, char** argv)
     glm::mat4 projectionMatrix = glm::perspective(
         glm::radians(50.0f),
         (float) width / (float)height,
-        0.1f,
+        1.1f,
         4000.0f);
       
     // Camera matrix
@@ -172,9 +172,7 @@ int main(int argc, char** argv)
         glm::vec3(0,1,0)  // orientation
     );
       
-    // Model matrix : an identity matrix (model will be at the origin)
     glm::mat4 modelMatrix = glm::mat4(1.0f);
-    // Our ModelViewprojectionMatrix : multiplication of our 3 matrices
     glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix; 
 
     glm::vec3 position = glm::vec3( 0, 1.2, 0 );
@@ -198,13 +196,12 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime;
 
-    GLuint LightID = glGetUniformLocation(programId, "lightPosition_worldspace");
-    GLuint CameraPositionID = glGetUniformLocation(programId, "cameraPosition_worldspace");
+    GLuint lightId = glGetUniformLocation(programId, "lightPosition_worldspace");
+    GLuint cameraPositionId = glGetUniformLocation(programId, "cameraPosition_worldspace");
 
     glfwSetCursorPos(window, width/2, height/2);
 
     glUseProgram(programId);
-
 
     glEnable(GL_MULTISAMPLE);  
 
@@ -286,8 +283,8 @@ int main(int argc, char** argv)
         lightPos.z = position.z;
         
         // Update the camera position and light position
-        glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
-        glUniform3f(CameraPositionID, position.x, position.y, position.z);
+        glUniform3f(lightId, lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(cameraPositionId, position.x, position.y, position.z);
 
         viewMatrix = glm::lookAt(
             position,
@@ -319,7 +316,7 @@ int main(int argc, char** argv)
                 {
                     // Lower the ground a little - need to fix issues with objects
                     // being rendered on top of each other...
-                    modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.2,0});
+                    modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.5,0});
                 }
                 
                 modelMatrix = glm::translate(modelMatrix, relLoc);

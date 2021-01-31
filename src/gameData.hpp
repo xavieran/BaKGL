@@ -36,6 +36,7 @@ public:
  *
  * Locklear, Gorath, Owyn, Pug, James, Patrus
  *
+ * Characters Start @0xdb
  * 0x9fd -> Indicates unseen character stat improvement (bit flags)
  *
  * 0x011a0 - Character Inventory Offsets Start???
@@ -123,11 +124,13 @@ public:
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         LoadLocation();
+        LoadCombatStats(0xdb, 6);
+        LoadCombatInventories(0x3a7f7, 6);
         LoadInventoryOffsetsP();
         LoadContainer();
         LoadCombatEntityLists();
-        LoadCombatInventories();
-        LoadCombatStats();
+        LoadCombatInventories(0x46053, 1733);
+        LoadCombatStats(0x914b, 1698);
     }
 
     void LoadLocation()
@@ -349,15 +352,15 @@ public:
             << std::hex << mBuffer.Tell() << std::dec << std::endl;
     }
 
-    void LoadCombatStats()
+    void LoadCombatStats(unsigned offset, unsigned num)
     {
-        constexpr unsigned combatStatsStart = 0x914b;
+        unsigned combatStatsStart = offset;
         mBuffer.Seek(combatStatsStart);
         mLogger.Info() << "Combat Stats Start @" 
             << std::hex << combatStatsStart << std::dec << std::endl;
 
         // ends at 3070a
-        for (int i = 0; i < 1698; i++)
+        for (unsigned i = 0; i < num; i++)
         {
             mLogger.Info() << "Combat #" << std::dec << i 
                 << " " << std::hex << mBuffer.Tell() << std::endl;
@@ -383,20 +386,22 @@ public:
             << std::hex << mBuffer.Tell() << std::dec << std::endl;
     }
 
-    void LoadCombatInventories()
+    void LoadCombatInventories(unsigned offset, unsigned number)
     {
         mLogger.Info() << "Loading Combat Inventories" << std::endl;
         auto* objects = ObjectResource::GetInstance();
 
-        auto combatInventoryLocation = 0x46053;
+        //auto combatInventoryLocation = 0x46053;
+        auto combatInventoryLocation = offset;
         //auto combatInventoryLocation = 0x45fe5;
-        auto numberCombatInventories = 1733;
+        auto numberCombatInventories = number;
         mBuffer.Seek(combatInventoryLocation);
-        for (int i = 0; i < numberCombatInventories; i++)
+        for (unsigned i = 0; i < numberCombatInventories; i++)
         {
             mBuffer.Dump(13);
             auto x = mBuffer.Tell();
-            assert(mBuffer.GetUint8() == 0x64);
+            //assert(mBuffer.GetUint8() == 0x64);
+            mBuffer.GetUint8(); // always 0x64 for combats
             assert(mBuffer.GetUint8() == 0x0a);
             mBuffer.Skip(2);
             auto combatantNo = mBuffer.GetUint16LE();

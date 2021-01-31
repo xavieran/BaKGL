@@ -211,9 +211,10 @@ public:
                 glm::vec4{0, 0, 0, 0});
 
             // Chuck the image in the padded sized texture
-            for (unsigned x = 0; x < tex.value().mWidth; x++)
-                for (unsigned y = 0; y < tex.value().mHeight; y++)
-                    paddedTex[x + y * maxDim] = tex.value().mTexture[x + y * tex.value().mWidth];
+            // GetPixel() will wrap and fill the texture
+            for (unsigned x = 0; x < maxDim; x++)
+                for (unsigned y = 0; y < maxDim; y++)
+                    paddedTex[x + y * maxDim] = tex.value().GetPixel(x, y);
 
             glTexSubImage3D(
                 GL_TEXTURE_2D_ARRAY,
@@ -227,11 +228,11 @@ public:
         
         // Doesn't actually look very good with mipmaps...
         //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-
+        constexpr auto interpolation = GL_NEAREST;
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);   
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, interpolation);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, interpolation);
     }
 
 //private:

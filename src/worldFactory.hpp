@@ -4,6 +4,7 @@
 #include "coordinates.hpp"
 #include "logger.hpp"
 #include "tableResource.hpp"
+#include "texture.hpp"
 
 #include "Exception.h"
 
@@ -93,16 +94,6 @@ private:
     const std::string mZoneLabel;
 };
 
-class Texture
-{
-public:
-    using TextureType = std::vector<glm::vec4>;
-
-    TextureType mTexture;
-    unsigned mWidth;
-    unsigned mHeight;
-};
-
 
 class TextureStore
 {
@@ -135,31 +126,9 @@ public:
                 for (unsigned j = 0; j < spriteSlot.GetNumImages(); j++)
                 {
                     assert(spriteSlot.GetImage(j));
-                    const auto& img = *spriteSlot.GetImage(j);
+                    const auto& image = *spriteSlot.GetImage(j);
 
-                    auto image = Texture::TextureType{};
-                    auto* pixels = img.GetPixels();
-
-                    for (int i = 0; i < (img.GetWidth() * img.GetHeight()); i++)
-                    {
-                        auto color = palette.GetColor(pixels[i]);
-                        // palette color 0 is transparency
-                        image.push_back(
-                            BAK::ToGlColor<float>(color, pixels[i] == 0));
-                    }
-
-                    // Need to invert the image over x axis for opengl
-                    for (int x = 0; x < img.GetWidth(); x++)
-                        for (int y = 0; y < (img.GetHeight() / 2); y++)
-                            std::swap(
-                                image[x + (y * img.GetWidth())],
-                                image[x + ((img.GetHeight() - 1 - y) * img.GetWidth())]);
-
-                    mTextures.push_back(
-                        Texture{
-                            image,
-                            static_cast<unsigned>(img.GetWidth()),
-                            static_cast<unsigned>(img.GetHeight())});
+                    mTextures.push_back(ImageToTexture(image, palette));
 
                     textures++;
                 }
@@ -187,6 +156,8 @@ public:
                 image.push_back(
                     BAK::ToGlColor<float>(color, pixels[i] == 0));
             }
+            if (offset == 70)
+                std::random_shuffle(image.begin(), image.end());
 
             startOff += offset;
 
@@ -243,14 +214,14 @@ public:
         mMaxHeight = std::max_element(
             mTextures.begin(), mTextures.end(),
             [](const auto &lhs, const auto& rhs){
-            return (lhs.mHeight < rhs.mHeight);
-            })->mHeight;
+            return (lhs.GetHeight() < rhs.GetHeight());
+            })->GetHeight();
 
         mMaxWidth = std::max_element(
             mTextures.begin(), mTextures.end(),
             [](const auto &lhs, const auto& rhs){
-            return (lhs.mWidth < rhs.mWidth);
-            })->mWidth;
+            return (lhs.GetWidth() < rhs.GetWidth());
+            })->GetWidth();
 
         mMaxDim = std::max(mMaxWidth, mMaxHeight);
     }
@@ -349,8 +320,8 @@ public:
         {
             // Need this to set the right dimensions for the texture
             const auto& tex = textureStore.GetTexture(mSpriteIndex);
-            auto width  = tex.mWidth * 5;
-            auto height = tex.mHeight * 5;
+            auto width  = tex.GetWidth() * 5;
+            auto height = tex.GetHeight() * 5;
             mVertices.emplace_back(-width, height, 0);
             mVertices.emplace_back(width, height, 0);
             mVertices.emplace_back(width, 0, 0);

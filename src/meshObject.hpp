@@ -66,6 +66,8 @@ public:
             
             // Tesselate the face
             // Generate normals and new indices for each face vertex
+            // The normal must be inverted to account
+            // for the Y direction being negated
             auto normal = glm::normalize(
                 glm::cross(
                     glmVertices[face[0]] - glmVertices[face[2]],
@@ -77,13 +79,6 @@ public:
                 auto i_b = face[triangle + 1];
                 auto i_c = face[triangle + 2];
 
-                // The normal must be inverted to account
-                // for the Y direction being negated
-                /*auto normal = glm::normalize(
-                    glm::cross(
-                        glmVertices[i_a] - glmVertices[i_c],
-                        glmVertices[i_a] - glmVertices[i_b]));*/
-
                 mNormals.emplace_back(normal);
                 mNormals.emplace_back(normal);
                 mNormals.emplace_back(normal);
@@ -91,11 +86,11 @@ public:
                 glm::vec3 zOff = normal;
                 if (push) zOff= glm::vec3{0};
                 
-                mVertices.emplace_back(glmVertices[i_a] - zOff * 0.01f);
+                mVertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
                 mIndices.emplace_back(mVertices.size() - 1);
-                mVertices.emplace_back(glmVertices[i_b] - zOff * 0.01f);
+                mVertices.emplace_back(glmVertices[i_b] - zOff * 0.02f);
                 mIndices.emplace_back(mVertices.size() - 1);
-                mVertices.emplace_back(glmVertices[i_c] - zOff * 0.01f);
+                mVertices.emplace_back(glmVertices[i_c] - zOff * 0.02f);
                 mIndices.emplace_back(mVertices.size() - 1);
                 
                 // Hacky - only works for quads - but the game only
@@ -243,10 +238,16 @@ public:
 
                 if (colorIndex < store.GetTextures().size())
                 {
-                    u = static_cast<float>(store.GetTexture(textureIndex).mWidth - 1) 
+                    u = static_cast<float>(store.GetTexture(textureIndex).GetWidth() - 1) 
                         / static_cast<float>(maxDim);
-                    v = static_cast<float>(store.GetTexture(textureIndex).mHeight - 1) 
+                    v = static_cast<float>(store.GetTexture(textureIndex).GetHeight() - 1) 
                         / static_cast<float>(maxDim);
+                }
+
+                if (item.GetName().substr(0, 6) == "ground")
+                {
+                    u *= 40;
+                    v *= 40;
                 }
 
                 if (triangle == 0)
