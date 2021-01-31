@@ -2,7 +2,9 @@
 
 #include <glm/glm.hpp>
 
+#include "constants.hpp"
 #include "logger.hpp"
+#include "resourceNames.hpp"
 
 #include "FileBuffer.h"
 #include "ObjectResource.h"
@@ -29,6 +31,8 @@ enum class Enemy
     Rogue = 0x18
 };
 
+
+
 class GameData
 {   
 public:
@@ -38,8 +42,7 @@ public:
  *
  * Characters Start @0xdb
  * 0x9fd -> Indicates unseen character stat improvement (bit flags)
- *
- * 0x011a0 - Character Inventory Offsets Start???
+ * * 0x011a0 - Character Inventory Offsets Start???
  * 0x01383 - Combat Entity List Start
  * 0x039cb - Combat Entity List Start
  *
@@ -123,6 +126,9 @@ public:
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
+        ZoneLabel zone{"Z01"};
+        LoadTileData(zone, 10, 16);
+        return;
         LoadLocation();
         LoadCombatStats(0xdb, 6);
         LoadCombatInventories(0x3a7f7, 6);
@@ -168,6 +174,35 @@ public:
     void LoadEvents()
     {
         // Phillip a80 dialogue options
+    }
+
+    void LoadTileData(const ZoneLabel& zone, unsigned x, unsigned y)
+    {
+        mLogger.Info() << "Loading data for: " << zone.GetTileData(x, y) << std::endl;
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            zone.GetTileData(x, y));
+        
+        fb.Dump(20);
+        unsigned numberOfEncounters = fb.GetUint16LE();
+        for (unsigned i = 0; i < numberOfEncounters; i++)
+        {
+            auto encounterType = static_cast<BAK::EncounterType>(fb.GetUint16LE());
+            unsigned xLoc = fb.GetUint16LE();
+            unsigned yLoc = fb.GetUint16LE();
+            unsigned encounterIndex = fb.GetUint16LE();
+            // Don't know
+            fb.GetUint16LE();
+            fb.GetUint16LE();
+            fb.GetUint8();
+            unsigned saveAddr = fb.GetUint16LE();
+            fb.GetUint16LE();
+            fb.GetUint16LE();
+            mLogger.Info() << "ZoneEntry: " << BAK::EncounterTypeToString(encounterType) 
+                << " loc: " << xLoc << "," << yLoc 
+                << " index: " << encounterIndex 
+                << " saveAddr: " << saveAddr << " 0x" 
+                << std::hex << saveAddr << std::dec << std::endl;
+        }
     }
 
     void LoadContainer()

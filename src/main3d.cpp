@@ -87,8 +87,10 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned height = 800;
-    unsigned width  = 1400;
+    /*unsigned height = 800;
+    unsigned width  = 1400;*/
+    unsigned height = 1600;
+    unsigned width  = 2400;
 
     window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
     if( window == NULL )

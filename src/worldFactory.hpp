@@ -3,6 +3,7 @@
 #include "constants.hpp"
 #include "coordinates.hpp"
 #include "logger.hpp"
+#include "resourceNames.hpp"
 #include "tableResource.hpp"
 #include "texture.hpp"
 
@@ -29,71 +30,6 @@
 #include <cassert>   
 
 namespace BAK {
-
-class ZoneLabel
-{
-public:
-
-    ZoneLabel(const std::string& zoneLabel)
-    :
-        mZoneLabel{zoneLabel}
-    {}
-
-    std::string GetHorizon() const
-    {
-        std::stringstream ss{""};
-        ss << GetZone() << "H.SCX";
-        return ss.str();
-    }
-
-    std::string GetTerrain() const
-    {
-        std::stringstream ss{""};
-        ss << GetZone() << "L.SCX";
-        return ss.str();
-    }
-
-    std::string GetSpriteSlot(unsigned i) const
-    {
-        std::stringstream ss{""};
-        ss << GetZone() << "SLOT" << std::setfill('0') 
-            << std::setw(1) << i << ".BMX";
-        return ss.str();
-    }
-
-    std::string GetPalette() const
-    {
-        std::stringstream ss{""};
-        ss << GetZone() << ".PAL";
-        return ss.str();
-    }
-
-    std::string GetWorld() const
-    {
-        return mZoneLabel.substr(1,2);
-    }
-
-    std::string GetTable() const
-    {
-        std::stringstream ss{""};
-        ss << GetZoneLabel() << ".TBL";
-        return ss.str();
-    }
-
-    std::string GetZone() const
-    {
-        return mZoneLabel.substr(0, 3);
-    }
-
-    std::string GetZoneLabel() const
-    {
-        return mZoneLabel;
-    }
-
-private:
-    const std::string mZoneLabel;
-};
-
 
 class TextureStore
 {
@@ -509,12 +445,9 @@ public:
     void LoadWorld(const ZoneItemStore& zoneItems, unsigned x, unsigned y)
     {
         const auto& logger = Logging::LogState::GetLogger("World");
-
-        std::stringstream str{""};
-        str << "T" << std::setfill('0') << zoneItems.GetZoneLabel().GetWorld() 
-            << std::setw(2) << x << std::setw(2) << y << ".WLD";
-        auto fb = FileBufferFactory::CreateFileBuffer(str.str());
-        logger.Debug() << "Loading tile: " << str.str() << std::endl;
+        const auto tile = zoneItems.GetZoneLabel().GetTileWorld(x, y);
+        auto fb = FileBufferFactory::CreateFileBuffer(tile);
+        logger.Debug() << "Loading tile: " << tile << std::endl;
 
         TileWorldResource world{};
         world.Load(&fb);
@@ -530,6 +463,51 @@ public:
                 item.type,
                 item.mRotation,
                 item.mLocation);
+        }
+        {
+            try
+            {
+                auto fb = FileBufferFactory::CreateFileBuffer(
+                    zoneItems.GetZoneLabel().GetTileData(x, y));
+
+                unsigned numberOfEncounters = fb.GetUint16LE();
+                for (unsigned i = 0; i < numberOfEncounters; i++)
+                {
+                    auto encounterType = static_cast<BAK::EncounterType>(fb.GetUint16LE());
+                    auto zitem = std::invoke([&](){
+                        switch (encounterType)
+                        {
+                        case BAK::EncounterType::Combat: return "house";
+                        case BAK::EncounterType::Dialog: return "house1";
+                        case BAK::EncounterType::Transition: return "inn";
+                        case BAK::EncounterType::Town: return "church";
+                        default: return "tstone1";
+                        }});
+
+                    int xLoc = fb.GetSint16LE();
+                    int yLoc = fb.GetSint16LE();
+                    unsigned encounterIndex = fb.GetUint16LE();
+                    // Don't know
+                    fb.GetUint16LE();
+                    fb.GetUint16LE();
+                    fb.GetUint8();
+                    unsigned saveAddr = fb.GetUint16LE();
+                    fb.GetUint16LE();
+                    fb.GetUint16LE();
+                    mItemInsts.emplace_back(
+                        zoneItems.GetZoneItem(zitem),
+                        0,
+                        Vector3D{0,0,0},
+                        Vector3D{
+                            static_cast<int>(mTile[0]*64000) + 32000,
+                            static_cast<int>(mTile[1]*64000) + 32000,
+                            0});
+                }
+            }
+            catch (const OpenError&)
+            {
+                logger.Debug() << "No tile data for: " << mTile << std::endl;
+            }
         }
     }
 
