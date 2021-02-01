@@ -1,3 +1,5 @@
+
+#include "camera.hpp"
 #include "constants.hpp"
 #include "coordinates.hpp"
 #include "gameData.hpp"
@@ -65,18 +67,14 @@ int main(int argc, char** argv)
     for (auto& item : zoneItems.GetItems())
     {
         auto obj = BAK::MeshObject{};
-        if (item.GetVertices().size() <= 1) continue;
         obj.LoadFromBaKItem(item, textures, pal);
         objStore.AddObject(item.GetName(), obj);
     }
 
-    // FIXME: Need to make this consistent, floaing around a few other places
-
     if( !glfwInit() )
     {
-        fprintf( stderr, "Failed to initialize GLFW\n" );
-        getchar();
-        return -1;
+        logger.Error() << "Failed to initialize GLFW" << std::endl;
+        std::exit(1);
     }
 
     GLFWwindow* window;
@@ -87,17 +85,17 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    /*unsigned height = 800;
-    unsigned width  = 1400;*/
-    unsigned height = 1600;
-    unsigned width  = 2400;
+    unsigned height = 800;
+    unsigned width  = 1400;
+    /*unsigned height = 1600;
+    unsigned width  = 2400;*/
 
-    window = glfwCreateWindow( width, height, "BaK", NULL, NULL);
+    window = glfwCreateWindow(width, height, "BaK", NULL, NULL);
     if( window == NULL )
     {
         logger.Log(Logging::LogLevel::Error) << "Failed to open GLFW window" << std::endl;
         glfwTerminate();
-        return -1;
+        std::exit(1);
     }
 
     glfwMakeContextCurrent(window);
@@ -106,8 +104,7 @@ int main(int argc, char** argv)
     glewExperimental = true; // Needed for core profile
     if (glewInit() != GLEW_OK)
     {
-        logger.Log(Logging::LogLevel::Error) 
-            << "Failed to initialize GLEW" << std::endl;
+        logger.Log(Logging::LogLevel::Error) << "Failed to initialize GLEW" << std::endl;
         glfwTerminate();
         return -1;
     }
@@ -125,13 +122,6 @@ int main(int argc, char** argv)
 
     auto programId = shaderProgram.Compile();
 
-    const auto& vertices      = objStore.mVertices;
-    const auto& normals       = objStore.mNormals;
-    const auto& colors        = objStore.mColors;
-    const auto& textureCoords = objStore.mTextureCoords;
-    const auto& textureBlends = objStore.mTextureBlends;
-    const auto& indices       = objStore.mIndices;
-
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
@@ -143,13 +133,13 @@ int main(int argc, char** argv)
     buffers.AddBuffer("textureCoord", 3, 3);
     buffers.AddBuffer("textureBlend", 4, 1);
 
-    buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, vertices);
-    buffers.LoadBufferDataGL("normal", GL_ARRAY_BUFFER, normals);
-    buffers.LoadBufferDataGL("color", GL_ARRAY_BUFFER, colors);
-    buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, textureCoords);
-    buffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, textureBlends);
+    buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, objStore.mVertices);
+    buffers.LoadBufferDataGL("normal", GL_ARRAY_BUFFER, objStore.mNormals);
+    buffers.LoadBufferDataGL("color", GL_ARRAY_BUFFER, objStore.mColors);
+    buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, objStore.mTextureCoords);
+    buffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, objStore.mTextureBlends);
 
-    buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, indices);
+    buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, objStore.mIndices);
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
@@ -161,39 +151,17 @@ int main(int argc, char** argv)
     GLuint modelMatrixID = glGetUniformLocation(programId, "M");
     GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
-    glm::mat4 projectionMatrix = glm::perspective(
-        glm::radians(50.0f),
-        (float) width / (float)height,
-        1.1f,
-        4000.0f);
-      
-    // Camera matrix
-    glm::mat4 viewMatrix = glm::lookAt(
-        glm::vec3(0,0,0), // eye pos
-        glm::vec3(0,0,0), // look pos
-        glm::vec3(0,1,0)  // orientation
-    );
-      
-    glm::mat4 modelMatrix = glm::mat4(1.0f);
-    glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix; 
+    glm::mat4 viewMatrix{1};
+    glm::mat4 modelMatrix{1.0f};
+    glm::mat4 MVP{0};
 
-    glm::vec3 position = glm::vec3( 0, 1.2, 0 );
     glm::vec3 lightPos = glm::vec3(0,220,0);
-    // horizontal angle : toward -Z
-    float horizontalAngle = 3.14f;
-    // vertical angle : 0, look at the horizon
-    float verticalAngle = 0.0f;
-    // Initial Field of View
-    float initialFoV = 45.0f;
     
-    //float speed = 120.0f; // 3 units / second
     float speed = 6 * 30.0f; // 3 units / second
     float turnSpeed = 30.0f; // 3 units / second
-    float mouseSpeed = 0.009f;
-    //double xpos, ypos;
-    glm::vec3 direction;
-    glm::vec3 right;
-    glm::vec3 up;
+
+    Camera camera{width, height};
+
     double currentTime;
     double lastTime = 0;
     float deltaTime;
@@ -227,52 +195,24 @@ int main(int argc, char** argv)
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
         
-        direction = {
-            cos(verticalAngle) * sin(horizontalAngle),
-            sin(verticalAngle),
-            cos(verticalAngle) * cos(horizontalAngle)
-        };
-
-        right = {
-            sin(horizontalAngle - 3.14f/2.0f),
-            0,
-            cos(horizontalAngle - 3.14f/2.0f)
-        };
-
-        up = glm::cross(right, direction);
         if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS){
-            position += direction * deltaTime * speed;
-            logger.Info() << "Pos: " << position << std::endl;
+            camera.MoveForward(deltaTime * speed);
+            logger.Info() << "Pos: " << camera.GetPosition() << std::endl;
         }
-        // Move backward
-        if (glfwGetKey( window, GLFW_KEY_S) == GLFW_PRESS){
-        position -= direction * deltaTime * speed;
-        }
-        // Strafe right
-        if (glfwGetKey( window, GLFW_KEY_D) == GLFW_PRESS){
-            position += right * deltaTime * speed;
-        }
-        // Strafe left
-        if (glfwGetKey( window, GLFW_KEY_A) == GLFW_PRESS){
-            position -= right * deltaTime * speed;
-        }
-
-        // Rotate left
-        if (glfwGetKey( window, GLFW_KEY_Q) == GLFW_PRESS){
-            horizontalAngle += deltaTime * (turnSpeed / 12);
-        }
-        // Rotate left
-        if (glfwGetKey( window, GLFW_KEY_E) == GLFW_PRESS){
-            horizontalAngle -= deltaTime * (turnSpeed / 12);
-        }
-
-        if (glfwGetKey( window, GLFW_KEY_X) == GLFW_PRESS){
-            verticalAngle += deltaTime * (turnSpeed / 12);
-        }
-
-        if (glfwGetKey( window, GLFW_KEY_Y) == GLFW_PRESS){
-            verticalAngle -= deltaTime * (turnSpeed / 12);
-        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.MoveForward(-deltaTime * speed);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.StrafeRight(deltaTime * speed);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.StrafeRight(-deltaTime * speed);
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+            camera.RotateLeft(deltaTime * (turnSpeed / 12));
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            camera.RotateLeft(-deltaTime * (turnSpeed / 12));
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+            camera.RotateVertical(deltaTime * (turnSpeed / 12));
+        if (glfwGetKey( window, GLFW_KEY_Y) == GLFW_PRESS)
+            camera.RotateVertical(-deltaTime * (turnSpeed / 12));
 
         if (glfwGetKey( window, GLFW_KEY_P) == GLFW_PRESS){
             lightPos.y += .5;
@@ -281,17 +221,18 @@ int main(int argc, char** argv)
             lightPos.y -= .5;
         }
 
-        lightPos.x = position.x;
-        lightPos.z = position.z;
+        lightPos.x = camera.GetPosition().x;
+        lightPos.z = camera.GetPosition().z;
         
         // Update the camera position and light position
         glUniform3f(lightId, lightPos.x, lightPos.y, lightPos.z);
-        glUniform3f(cameraPositionId, position.x, position.y, position.z);
+        glUniform3f(
+            cameraPositionId,
+            camera.GetPosition().x,
+            camera.GetPosition().y,
+            camera.GetPosition().z);
 
-        viewMatrix = glm::lookAt(
-            position,
-            position + direction,
-            up);
+        viewMatrix = camera.GetViewMatrix();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -299,11 +240,6 @@ int main(int argc, char** argv)
         {
             for (const auto& inst : world.GetItems())
             {
-                if (inst.GetZoneItem().GetVertices().size() <= 1)
-                {
-                    continue;
-                }
-
                 const auto [offset, length] = objStore.GetObject(inst.GetZoneItem().GetName());
 
                 modelMatrix = glm::mat4(1.0f);
@@ -325,7 +261,7 @@ int main(int argc, char** argv)
                 modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
                 modelMatrix = glm::rotate(modelMatrix, inst.GetRotation().y, glm::vec3(0,1,0));
 
-                MVP = projectionMatrix * viewMatrix * modelMatrix;
+                MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
 
                 glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
                 glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));

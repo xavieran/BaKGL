@@ -42,10 +42,9 @@ public:
 class DialogResource
             : public ResourceData
 {
-private:
+public:
     std::map<const unsigned int, DialogData*> dialogMap;
     void ReadDialogData ( FileBuffer *buffer, DialogData *data );
-public:
     DialogResource();
     virtual ~DialogResource();
     unsigned int GetSize() const;

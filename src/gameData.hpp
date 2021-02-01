@@ -7,31 +7,12 @@
 #include "resourceNames.hpp"
 
 #include "FileBuffer.h"
+#include "DialogResource.h"
 #include "ObjectResource.h"
 
+#include <memory>
+
 namespace BAK {
-
-enum class Enemy 
-{
-    SolidCrystal = 0x09,
-    TransparentCrystal = 0x0a,
-    Blaster = 0x0b,
-    SolidOctagon = 0x0c,
-    LavaOctagon = 0x0d,
-    Unknown = 0x0e,
-    Gorath = 0x0f,
-    Owyn = 0x10,
-    Locklear = 0x11,
-    Moredhel = 0x12,
-    BrakNurr = 0x13,
-    Egg = 0x14,
-    MoredhelMagician = 0x15,
-    BlackSlayer = 0x16,
-    Nighthawk = 0x17,
-    Rogue = 0x18
-};
-
-
 
 class GameData
 {   
@@ -127,7 +108,8 @@ public:
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         ZoneLabel zone{"Z01"};
-        LoadTileData(zone, 10, 16);
+        LoadDialogPointers(zone);
+        LoadTileData(1, zone, 10, 15);
         return;
         LoadLocation();
         LoadCombatStats(0xdb, 6);
@@ -171,16 +153,54 @@ public:
         mLocus.mTile = {xtile, ytile};
     }
 
-    void LoadEvents()
+    void LoadDialogPointers(const ZoneLabel& zone)
     {
-        // Phillip a80 dialogue options
+        mLogger.Info() << "Loading data for: " << zone.GetDialogPointers() << std::endl;
+        auto fb = FileBufferFactory::CreateFileBuffer(zone.GetDialogPointers());
+        unsigned dialogs = fb.GetUint16LE();
+        //dialogs = 1;
+        mLogger.Info() << dialogs << " dialogs" << std::endl;
+        for (unsigned i = 0; i < dialogs; i++)
+        {
+            assert(fb.GetUint16LE() == 0);
+            // Meaningless???
+            auto x = fb.GetUint8();
+            auto y = fb.GetUint8();
+            auto zero = fb.GetUint8();
+            // Affects the dialog selected
+            auto dialogAddr = fb.GetUint32LE();
+            std::cout << "#" << std::dec << i << std::hex << " " << +x << " " << +y
+                << " " << " dialogAddr: " << dialogAddr << std::endl;
+            
+            auto dfb = FileBufferFactory::CreateFileBuffer("DIAL_Z30.DDX");
+            auto dr = DialogResource{};
+            dr.Load(&dfb);
+            auto it = dr.dialogMap.find(dialogAddr);
+            if (it != dr.dialogMap.end())
+            {
+                const auto& dd = *it->second;
+                std::stringstream ss{};
+                for (const auto& s : dd.text) ss << s << std::endl;
+                mLogger.Info() << "Main text: " << ss.str() << std::endl;
+                for (const auto& c : dd.childData)
+                {
+                    mLogger.Info() << "Child" << std::endl;
+                    std::stringstream sss{};
+                    for (const auto& s : c->text) sss << s << std::endl;
+                    mLogger.Info() << "Child text: " << sss.str() << std::endl;
+                }
+            }
+
+        }
+        fb.Dump(20);
     }
 
-    void LoadTileData(const ZoneLabel& zone, unsigned x, unsigned y)
+    void LoadTileData(unsigned chapter, const ZoneLabel& zone, unsigned x, unsigned y)
     {
         mLogger.Info() << "Loading data for: " << zone.GetTileData(x, y) << std::endl;
-        auto fb = FileBufferFactory::CreateFileBuffer(
-            zone.GetTileData(x, y));
+        auto fb = FileBufferFactory::CreateFileBuffer(zone.GetTileData(x, y));
+
+        fb.Skip((chapter - 1) * 192);
         
         fb.Dump(20);
         unsigned numberOfEncounters = fb.GetUint16LE();

@@ -13,6 +13,11 @@ public:
         mZoneLabel{zoneLabel}
     {}
 
+    std::string GetDialogPointers() const
+    {
+        return "DEF_DIAL.DAT";
+    }
+
     std::string GetHorizon() const
     {
         std::stringstream ss{""};

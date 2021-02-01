@@ -499,8 +499,8 @@ public:
                         0,
                         Vector3D{0,0,0},
                         Vector3D{
-                            static_cast<int>(mTile[0]*64000) + 32000,
-                            static_cast<int>(mTile[1]*64000) + 32000,
+                            static_cast<int>(mTile[0]*64000) + (xLoc << 2),
+                            static_cast<int>(mTile[1]*64000) + (yLoc << 2),
                             0});
                 }
             }

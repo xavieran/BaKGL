@@ -20,7 +20,6 @@ find_package(glfw3 3.3 REQUIRED)
 add_subdirectory("xbak")
 include_directories("xbak")
 
-include_directories("include")
 include_directories("src")
 include_directories("shaders")
 
@@ -40,6 +39,7 @@ set(CMAKE_CXX_FLAGS "-O2 -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
 list(APPEND BAK_BINARIES
     compile_shaders 
+    display_dialog
     display_object
     display_tile
     display_save
@@ -65,8 +65,9 @@ endif()
 # XBaK Executables
 list(APPEND XBAK_BINARIES
     dumpbmx
-    dumpzone_bmx
+    dumpact_bmx
     dumpchar_bmx
+    dumpzone_bmx
     dumppal
     dumpobj
     dumptbl
