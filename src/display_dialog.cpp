@@ -11,13 +11,14 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
     ////unsigned dialogKey = std::atoi(argv[1]);
-    unsigned dialogKey = 0x2dc6d3; // Phillip
+    //unsigned dialogKey = 0x2dc6d3; // Phillip
     //dialogKey = 0x2dc6d4; // Sumani
-    dialogKey = 0x2dc6c9;
+    //dialogKey = 0x2dc6c9;
 
+    unsigned dialogKey = 0x150;
     logger.Info() << "Displaying dialog:" << dialogKey << std::endl;
 
-    auto fb = FileBufferFactory::CreateFileBuffer("DIAL_Z30.DDX");
+    auto fb = FileBufferFactory::CreateFileBuffer("DIAL_Z00.DDX");
     BAK::Dialog dialog{};
     dialog.Load(fb, dialogKey);
 

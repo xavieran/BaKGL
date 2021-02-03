@@ -24,15 +24,22 @@ public:
     // fb starts pointing in the right spot
     void Load(FileBuffer& fb)
     {
+        ChapterType chapter = 1;
+
+        fb.Dump(64);
         assert(fb.GetUint32LE() == 0x10000000);
         fb.Dump(1);
         fb.Skip(1);
-        unsigned subDialogues = fb.GetUint16LE() - 1;
-        mLogger.Info() << "Subdialogues: " << subDialogues << std::endl;
+        unsigned dialogType = fb.GetUint8();
+        fb.Dump(1);
+        fb.Skip(1);
+        if (dialogType == 2) goto labelX;
+        else dialogType--;
+        mLogger.Info() << "Subdialogues: " << dialogType << std::endl;
         fb.Dump(2);
         fb.Skip(2);
 
-        for (unsigned i = 0; i < subDialogues; i++)
+        for (unsigned i = 0; i < dialogType; i++)
         {
             assert(fb.GetUint16LE() == 0x7537);
             auto chapterPrimary   = fb.GetUint16LE();
@@ -45,15 +52,20 @@ public:
             mChapterMap.emplace(chapterSecondary, dialogOffset);
         }
 
-        ChapterType chapter = 1;
+        chapter = mChapterMap.begin()->first;
+        mLogger.Info() << "Loading Chapter " << chapter << std::endl;
         fb.Seek(mChapterMap[chapter]);
+        
         fb.Dump(32);
 
         assert(fb.GetUint32LE() == 0x10000000);
         fb.Dump(1);
         fb.Skip(1);
-        unsigned dialogueType = fb.GetUint16LE();
-        mLogger.Info() << "DialogType: " << dialogueType << std::endl;
+        dialogType = fb.GetUint8();
+        fb.Dump(1);
+        fb.Skip(1);
+        mLogger.Info() << "DialogType: " << dialogType << std::endl;
+        labelX:;
         fb.Dump(2);
         fb.Skip(2);
 
@@ -147,18 +159,23 @@ public:
         unsigned dialogs = fb.GetUint16LE();
         mLogger.Info() << "Dialog has: " << dialogs << " dialogs" << std::endl;
 
+        std::vector<KeyType> v{};
         for (unsigned i = 0; i < dialogs; i++)
         {
             auto key = fb.GetUint32LE();
             auto val = fb.GetUint32LE();
+            v.emplace_back(val);
             const auto [it, emplaced] = mDialogMap.emplace(key, val);
+            assert(emplaced);
             mLogger.Debug() << std::hex << "0x" << it->first 
                 << " -> 0x" << it->second << std::dec << std::endl;
         }
         
-        mLogger.Info() << "Loading dialog: " << std::hex 
-            << dialogKey << std::dec << std::endl;
-        fb.Seek(mDialogMap[dialogKey]);
+        fb.Seek(v[0]);
+        mLogger.Info() << "Loading dialog@ 0x" << std::hex 
+            << v[0] << std::dec << std::endl;
+
+        //fb.Seek(mDialogMap[dialogKey]);
 
         ParentDialog p{};
         p.Load(fb);
