@@ -15,12 +15,16 @@ int main(int argc, char** argv)
     //dialogKey = 0x2dc6d4; // Sumani
     //dialogKey = 0x2dc6c9;
 
-    unsigned dialogKey = 0x150;
-    logger.Info() << "Displaying dialog:" << dialogKey << std::endl;
+    /*auto kfb = FileBufferFactory::CreateFileBuffer("KEYWORD.DAT");
+    BAK::Keywords kw{};
+    kw.Load(kfb);*/
 
-    auto fb = FileBufferFactory::CreateFileBuffer("DIAL_Z00.DDX");
+    unsigned dialogKey = 0x186a02;//0x1e8481;//0x2dc6d3;
+    logger.Info() << "Displaying dialog:" << std::hex << dialogKey << std::dec << std::endl;
+
     BAK::Dialog dialog{};
-    dialog.Load(fb, dialogKey);
+    dialog.LoadKeys();
+    dialog.ShowDialog(dialogKey);
 
     return 0;
 }

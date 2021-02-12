@@ -25,39 +25,148 @@ control block @9f1 must end @9a8
 00000970: 1000 0101 0000 0000 0000 0000 ebc6 2d80  ..............-.
 00000980: 0400 b91e 0000 0000 0100 0000 0010 0005  ................
 
-0000 0010 0005 00 0000 
-3775 0100 0100 62d8 0100 
-3775 0200 0200 96e3 0100 
-3775 0300 0600 a0ea 0100 
-3775 0700 0700 ccf3 0100 
-0000 0000 0000 5a09 0000 
-0000 0010 0001 0000 0000
-0000 0000 00eb c62d 8000
-0000 1000 0101 0000 0000
-0000 0000 ebc6 2d80 0400 b91e 0000 0000 0100 
+00 00 00 10
+00 05 00 00
+00 
+37 75 01 00 01 00 62 d8 01 00 
+37 75 02 00 02 00 96 e3 01 00 
+37 75 03 00 06 00 a0 ea 01 00 
+37 75 07 00 07 00 cc f3 01 00 
+00 00 00 00 00 00 5a 09 00 00 
+
+00 00 00 10
+00 01 00 00
+00 00
+00 00 00 00 00 eb c6 2d 80
+
+00 00 00 10
+00 01 01 00
+00 00
+00 00 00 00 00 eb c6 2d 80
+04 00 b9 1e 00 00 00 00 01 00 
 
 
 first node
 @1d862
-00 0000 1000 
+00 00 00 10
+00 02 00 00
+00
+-- This is a conditional, dependent on the value at 11eb9 ??
+-- not sure where 11eb9 points to but when changed the conditional
+-- is never executed (0x1e151)
+b9 1e 01 00 ff ff 51 e1 01 00
+00 00 00 00 00 00 7f d8 01 00 -- next line is 1d87f
 
-0200 0000
-b9 1e 01 00
-ff ff
-51 e1 01 00 0000 0000 0000 // end
-7f d8 01 00
-00 0000 1000 0101 0000 0000 0000 0000
-9c d8 01 00
-0c00 1104 0000 0000 0000 0600 0010  0001
-02 79 02 00 0000000000
-3c db 01 0000 0000 0000 0000 0000 000c 0080 0001 0000  
-0000 0009 
+-- @1d87f suspect this line is used to play a sound or animation
+00 00 00 10
+00 01 01 00 -- skip 1 10 byte row?
+00
+00 00 00 00 00 00 9c d8 01 00
+0c 00 11 04 00 00 00 00 00 00 -- skip (maybe this is sound info? Music info?)
+
+-- this is @1d89c ref'd above 0279 is the length of the dialog afterward,
+-- and the 2 prior is how many 10 byte blocks to skip?
+06 00 00 10
+00 01 02 79 02
+00 00 00 00 00 00 3c db 01 00 -- 1db3c - next bit of dialog
+00 00 00 00 00 00 00 00 00 00 -- skip
+0c 00 80 00 01 00 00 00 00 00 -- skip
+09 
 
 536f 6d65 6f6e 6520 7761 7320  ....Someone was 
 6361 6c6c 696e 672e 0a09 5265 636f 676e  calling...Recogn
 
+|| Seems to affect style also? 20 puts the txt at the top?
+|| this uint16 is which character it is (seems to wrap)
+|| || || style (first nibble auto play, 2nd nibble justification style? Just flags?)
+|| || || ||
+00 03 00 03
+00 01 00 67 00 -- (67 is text length)
+00 00 00 00 00 00 B6 DB 01 00  -- points to next piece of dialog
+09 49 20 64 69 64 6E 27 74 20 65 78 70 65 63 74 20 74 6F 20 73 65 65 20 79 6F 75 20 61 67 61 69 6E 20 71 75 69 74 65 20 73 6F 20 73 6F 6F 6E 2E 20 49 20 77 6F 75 6C 64 20 68 61 76 65 20 74 68 6F 75 67 68 74 20 79 6F 75 20 61 6C 6C 20 74 68 65 20 77 61 79 20 74 6F 20 4C 61 4D 75 74 20 62 79 20 6E 6F 77
+.......g.......¶Û...I didn't expect to see you again quite so soon. I would have thought you all the way to LaMut by now
+
+00 00 00 10
+00 01 01 00
+00
+00 00 00 00 00 00 6E E1 01 00
+0C 00 EC 03 00 00 00 00 00 00
+
+06 00 00 10
+00 01 02 10 01 00
+00 00 00 00 00 A5 E2 01 00
+0C 00 11 04 02 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00
+
+09 4F 77 79 6E 20 72 61 69 73 65 64 20 61 20 66 69 6E 67 65 72 20 74 6F 20 68 69 73 20 6C 69 70 73 2E 0A 09 20 53
+...............ná....ì......................¥â.......................Owyn raised a finger to his lips... S
 
 
+-- The final piece of text in initial phillip chat
+00 00 00 10
+00 01 01 00 00
+00 00 00 00 00 00 81 84 1E 80 10 00 
+1e8481 -> This is a key (80 flag must indicate a key)
+points to phillips dialog tree
+D5 E0 01 00 00 00 00 00
+
+00 00 00 10
+00 02 00 00
+00
+A8 1E 01 00 FF FF F2 E0 01 00
+00 00 00 00 00 00 6D 09 00 00
+
+00 00 00 30
+00 02 01 38
+00
+A7 1E 01 00 FF FF 51 E1 01 00
+-- 096d might mean write to this pointer in save after dialog executed?
+-- modifying it causes a freeze
+00 00 00 00 00 00 6D 09 00 00 
+0F 00 00 00 00 00 00 00 00 00
+
+09 54 48 49 53 20 49 53 20 54 48 45 20 45 4E 44 20 4F 46 20 44 49 41 4C 4F 47 20 50 41 54 48 20 3A 20 48 4E 4D 5F 43 31 5F 53 71 75 69 72 65 5F 50 68 69 6C 6C 69 70
+.....................Õà...............¨...ÿÿòà........m......0...8.§...ÿÿQá........m..............THIS IS THE END OF DIALOG PATH : HNM_C1_Squire_Phillip
+
+1e8481 -- Dialog Tree Key
+@0xe38
+00 FF 00 03
+
+|indicates the dialog type (4 is choice, 2 is choice?)
+||
+||    |indicates whether to continue/repeat the dialog?
+04 0C 03 00
+00
+|determines the label attached to the dialog option
+01 00 01 00 FF FF D7 0E 00 00
+02 00 01 00 FF FF 07 11 00 00
+03 00 01 00 FF FF 91 13 00 00
+04 00 01 00 FF FF 78 15 00 00
+05 00 01 00 FF FF 96 17 00 00 
+06 00 01 00 FF FF AD 18 00 00
+07 00 01 00 FF FF 69 1C 00 00
+08 00 01 00 FF FF D1 20 00 00
+09 00 01 00 FF FF 36 25 00 00
+0A 00 01 00 FF FF 1F 28 00 00
+0B 00 01 00 FF FF 8F 2A 00 00
+0C 00 01 00 FF FF 7E 2D 00 00
+
+04 00 B9 1E 00
+00 00 00 01 00 01 00 00 00 1E 00 00 
+-- Seems to loop back to this spot
+00 00 00 10 00 81 84 1E 80 00 00 00 00
+
+00 00 00 10
+00 01 00 00
+00 00 00 00 00 00 00 EA 0E 00 00
+
+00 FF 00 03
+00 01 00 D7
+00 00 00 00 00 00 00 D4 0F 00 00
+
+09 49 27 6D 20 61 66 72 61 69 64 20 6D 79 20 73 65 6E 73 65 73 20 6F 66 20 64 69 72 65 63 74 69 6F 6E 20 61 6E 64 20 64 69 73 74 61 6E 63 65 20 61 72 65 20 61 20 62 69 74 20 6F 66 66 20 72 69 67 68 74 20 6E 6F 77 2E 20 57 65 20 61 6C 6C 20 68 61 64 20 61 20 62 69 74 20 74 6F 20 64 72 69 6E 6B 20 6C 61 73 74 20 6E 69 67 68 74 20 61 6E 64 20 77 65 27 72 65 20 73 74 69 6C 6C 20 74 72 79 69 6E 67 20 74 6F 20 73 68 61 6B 65 20 6F 66 66 20 74 68 65 20 65 66 66 65 63 74 73 2E 20 57 68 69 63 68 20 77 61 79 20 69 73 20 74 68 65 20 6E 65 61 72 65 73 74 20 70 6C 61 63 65 20 77 65 20 63 6F 75 6C 64 20 67 65 74 20 63 6C 65 61 6E 65 64
+
+.ÿ...........ÿÿ×.......ÿÿ........ÿÿ........ÿÿx.......ÿÿ........ÿÿ........ÿÿi.......ÿÿÑ ......ÿÿ6%......ÿÿ.(......ÿÿ.*......ÿÿ~-....¹..........................................ê....ÿ.....×.......Ô....I'm afraid my senses of direction and distance are a bit off right now. We all had a bit to drink last night and we're still trying to shake off the effects. Which way is the nearest place we could get cleaned
 
 DIAL_Z00.DDX
          || 14 - 1 auto play flag | 4 justification/style (0 normal, 2 fill screen (large text)) 4 justify center
@@ -114,7 +223,8 @@ The mercenary had been uprepared ... Crenard
 
 -------------------- key 0x136 - 0xdd4 Qugeian battle
          || 1/5 auto play flag
-00 00 00 50 00 00 01 4D 01
+00 00 00 50
+00 00 01 4D 01
                   || Seems to indicate more text info after
 -- indicates the type of text too play after? 
 01 seems to be index? No addresses here..

@@ -164,6 +164,7 @@ FileBuffer::Save(std::ofstream &ofs, const unsigned int n)
 void
 FileBuffer::Dump(const unsigned int n)
 {
+    if (n == 0) return;
     Dump(std::cout, n);
 }
 
