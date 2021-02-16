@@ -20,6 +20,7 @@
 #ifndef FILE_BUFFER_H
 #define FILE_BUFFER_H
 
+#include <array>
 #include <fstream>
 #include <string>
 
@@ -92,6 +93,20 @@ class FileBuffer
         int16_t GetSint16BE();
         int32_t GetSint32LE();
         int32_t GetSint32BE();
+
+        template <std::size_t N>
+        decltype(auto) GetArray()
+        {
+            std::array<std::uint8_t, N> arr{};
+
+            for (unsigned i = 0; i < N; i++)
+            {
+                arr[i] = GetUint8();
+            }
+
+            return arr; 
+        }
+
         std::string GetString();
         std::string GetString ( const unsigned int len );
         void GetData ( void * data, const unsigned int n );

@@ -11,20 +11,20 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
     ////unsigned dialogKey = std::atoi(argv[1]);
-    //unsigned dialogKey = 0x2dc6d3; // Phillip
-    //dialogKey = 0x2dc6d4; // Sumani
-    //dialogKey = 0x2dc6c9;
 
-    /*auto kfb = FileBufferFactory::CreateFileBuffer("KEYWORD.DAT");
-    BAK::Keywords kw{};
-    kw.Load(kfb);*/
+    //auto kfb = FileBufferFactory::CreateFileBuffer("KEYWORD.DAT");
+    //BAK::Keywords kw{};
+    //kw.Load(kfb);
 
-    unsigned dialogKey = 0x186a02;//0x1e8481;//0x2dc6d3;
+    unsigned dialogKey = 0x2dc6d3;
+    dialogKey = 0x1e8481;
     logger.Info() << "Displaying dialog:" << std::hex << dialogKey << std::dec << std::endl;
 
     BAK::Dialog dialog{};
     dialog.LoadKeys();
+	
     dialog.ShowDialog(dialogKey);
+    //dialog.ShowAllDialogs();
 
     return 0;
 }

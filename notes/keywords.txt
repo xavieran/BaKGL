@@ -1,0 +1,595 @@
+Loading keywords
+Length: 2835
+I: 0 15a
+I: 1 589
+I: 2 596
+I: 3 59b
+I: 4 5a8
+I: 5 5ae
+I: 6 5b9
+I: 7 5c2
+I: 8 5cb
+I: 9 5d1
+I: 10 5d7
+I: 11 5df
+I: 12 5e5
+I: 13 5f0
+I: 14 5fb
+I: 15 602
+I: 16 609
+I: 17 60e
+I: 18 61b
+I: 19 622
+I: 20 62a
+I: 21 62f
+I: 22 636
+I: 23 644
+I: 24 64a
+I: 25 653
+I: 26 65c
+I: 27 666
+I: 28 66e
+I: 29 60e
+I: 30 678
+I: 31 685
+I: 32 694
+I: 33 69b
+I: 34 6a1
+I: 35 6a7
+I: 36 6b4
+I: 37 6b9
+I: 38 6c2
+I: 39 6d0
+I: 40 6d6
+I: 41 6e3
+I: 42 6f0
+I: 43 6fb
+I: 44 707
+I: 45 70e
+I: 46 713
+I: 47 721
+I: 48 72d
+I: 49 73a
+I: 50 741
+I: 51 748
+I: 52 755
+I: 53 761
+I: 54 76a
+I: 55 772
+I: 56 777
+I: 57 781
+I: 58 78b
+I: 59 793
+I: 60 79b
+I: 61 7a7
+I: 62 7b6
+I: 63 7c0
+I: 64 7c7
+I: 65 7cc
+I: 66 7d8
+I: 67 7de
+I: 68 7e6
+I: 69 7ee
+I: 70 7f7
+I: 71 800
+I: 72 80e
+I: 73 815
+I: 74 822
+I: 75 7e6
+I: 76 609
+I: 77 82c
+I: 78 835
+I: 79 841
+I: 80 849
+I: 81 7e6
+I: 82 854
+I: 83 609
+I: 84 622
+I: 85 85b
+I: 86 868
+I: 87 86f
+I: 88 87c
+I: 89 882
+I: 90 88c
+I: 91 896
+I: 92 8a5
+I: 93 8ac
+I: 94 8b4
+I: 95 8bf
+I: 96 8ce
+I: 97 8df
+I: 98 8e5
+I: 99 609
+I: 100 622
+I: 101 8f2
+I: 102 8ff
+I: 103 90b
+I: 104 913
+I: 105 91c
+I: 106 929
+I: 107 6b9
+I: 108 931
+I: 109 929
+I: 110 941
+I: 111 950
+I: 112 95c
+I: 113 968
+I: 114 971
+I: 115 979
+I: 116 984
+I: 117 990
+I: 118 995
+I: 119 8b4
+I: 120 99b
+I: 121 9a2
+I: 122 9af
+I: 123 9b6
+I: 124 596
+I: 125 9bd
+I: 126 815
+I: 127 9c7
+I: 128 5b9
+I: 129 9d0
+I: 130 9d8
+I: 131 9e2
+I: 132 9ee
+I: 133 9f4
+I: 134 a00
+I: 135 a08
+I: 136 772
+I: 137 a10
+I: 138 a1b
+I: 139 a23
+I: 140 a33
+I: 141 a3e
+I: 142 a4d
+I: 143 a53
+I: 144 a5b
+I: 145 a63
+I: 146 772
+I: 147 a6a
+I: 148 609
+I: 149 a71
+I: 150 a80
+I: 151 a89
+I: 152 8b4
+I: 153 8df
+I: 154 a92
+I: 155 aa2
+I: 156 aad
+I: 157 82c
+I: 158 a63
+I: 159 ab4
+I: 160 a4d
+I: 161 ac1
+I: 162 ac5
+I: 163 a4d
+I: 164 8bf
+I: 165 acc
+I: 166 ada
+I: 167 ae2
+I: 168 aea
+I: 169 af7
+I: 170 b00
+I: 171 b0d
+I: 172 2b8
+I: 173 2b8
+I: 174 2b8
+I: 175 2b8
+I: 176 2b8
+I: 177 2b8
+I: 178 2b8
+I: 179 2b8
+I: 180 2b8
+I: 181 2b8
+I: 182 2b8
+I: 183 2b8
+I: 184 2b8
+I: 185 2b8
+I: 186 2b8
+I: 187 2b8
+I: 188 2b8
+I: 189 2b8
+I: 190 2b8
+I: 191 2b8
+I: 192 2b8
+I: 193 2b8
+I: 194 2b8
+I: 195 2b8
+I: 196 2b8
+I: 197 2b8
+I: 198 2b8
+I: 199 2b8
+I: 200 2b8
+I: 201 2b8
+I: 202 2b8
+I: 203 2b8
+I: 204 2b8
+I: 205 2b8
+I: 206 2b8
+I: 207 2b8
+I: 208 2b8
+I: 209 2b8
+I: 210 2b8
+I: 211 2b8
+I: 212 2b8
+I: 213 2b8
+I: 214 2b8
+I: 215 2b8
+I: 216 2b8
+I: 217 2b8
+I: 218 2b8
+I: 219 2b8
+I: 220 2b8
+I: 221 2b8
+I: 222 2b8
+I: 223 2b8
+I: 224 2b8
+I: 225 2b8
+I: 226 2b8
+I: 227 2b8
+I: 228 2b8
+I: 229 2b8
+I: 230 2b8
+I: 231 2b8
+I: 232 2b8
+I: 233 2b8
+I: 234 2b8
+I: 235 2b8
+I: 236 2b8
+I: 237 2b8
+I: 238 2b8
+I: 239 2b8
+I: 240 2b8
+I: 241 31d
+I: 242 31f
+I: 243 321
+I: 244 323
+I: 245 325
+I: 246 327
+I: 247 32a
+I: 248 32d
+I: 249 330
+I: 250 333
+I: 251 336
+I: 252 339
+I: 253 33c
+I: 254 33f
+I: 255 343
+I: 256 2b9
+I: 257 2bd
+I: 258 2c0
+I: 259 2c6
+I: 260 2cc
+I: 261 2d3
+I: 262 2db
+I: 263 2e2
+I: 264 2e6
+I: 265 2eb
+I: 266 2ee
+I: 267 2f5
+I: 268 2ff
+I: 269 304
+I: 270 309
+I: 271 312
+I: 272 318
+I: 273 347
+I: 274 34d
+I: 275 353
+I: 276 358
+I: 277 35f
+I: 278 365
+I: 279 36b
+I: 280 370
+I: 281 375
+I: 282 379
+I: 283 37f
+I: 284 387
+I: 285 38d
+I: 286 394
+I: 287 398
+I: 288 39c
+I: 289 3a3
+I: 290 3aa
+I: 291 3b3
+I: 292 2b8
+I: 293 2b8
+I: 294 2b8
+I: 295 2b8
+I: 296 2b8
+I: 297 2b8
+I: 298 2b8
+I: 299 2b8
+I: 300 3b8
+I: 301 3c8
+I: 302 3d7
+I: 303 3e6
+I: 304 3f1
+I: 305 400
+I: 306 408
+I: 307 411
+I: 308 41e
+I: 309 42d
+I: 310 432
+I: 311 438
+I: 312 444
+I: 313 450
+I: 314 45e
+I: 315 46a
+I: 316 470
+I: 317 478
+I: 318 487
+I: 319 48e
+I: 320 49f
+I: 321 4a5
+I: 322 4b2
+I: 323 4c3
+I: 324 4ca
+I: 325 4dc
+I: 326 4e2
+I: 327 4e7
+I: 328 4ed
+I: 329 4f1
+I: 330 4f8
+I: 331 4fd
+I: 332 508
+I: 333 510
+I: 334 51e
+I: 335 52b
+I: 336 531
+I: 337 536
+I: 338 53e
+I: 339 552
+I: 340 559
+I: 341 55d
+I: 342 564
+I: 343 56a
+I: 344 573
+I: 345 57a
+I: 346 580
+Str:0 :: 
+Str:1 :: Yes
+Str:2 :: No
+Str:3 :: Enter
+Str:4 :: Leave
+Str:5 :: Accept
+Str:6 :: Decline
+Str:7 :: Haggle
+Str:8 :: Buy
+Str:9 :: Sell
+Str:10 :: OK
+Str:11 :: Cancel
+Str:12 :: Use again
+Str:13 :: Done
+Str:14 :: Talk
+Str:15 :: Petition
+Str:16 :: Bless
+Str:17 :: Cure
+Str:18 :: 1
+Str:19 :: 2
+Str:20 :: 3
+Str:21 :: 4
+Str:22 :: 5
+Str:23 :: 10
+Str:24 :: 15
+Str:25 :: 20
+Str:26 :: 25
+Str:27 :: 30
+Str:28 :: 40
+Str:29 :: 50
+Str:30 :: 75
+Str:31 :: 100
+Str:32 :: 200
+Str:33 :: Spoon
+Str:34 :: Bawdy
+Str:35 :: Ship
+Str:36 :: Sumani
+Str:37 :: North
+Str:38 :: South
+Str:39 :: East
+Str:40 :: West
+Str:41 :: Pay
+Str:42 :: Fight
+Str:43 :: Retreat
+Str:44 :: Bluff
+Str:45 :: Reject
+Str:46 :: Use
+Str:47 :: Lie
+Str:48 :: Future
+Str:49 :: Rumors
+Str:50 :: The Dead
+Str:51 :: Stay
+Str:52 :: Navon du Sandau
+Str:53 :: Ugyne Corvalis
+Str:54 :: Count Corvalis
+Str:55 :: Anap-Banis
+Str:56 :: Peter the Grey
+Str:57 :: Cullich
+Str:58 :: Moraeulf
+Str:59 :: Brother Marc
+Str:60 :: Naddur Ban Dok
+Str:61 :: Limm
+Str:62 :: Devon
+Str:63 :: Baron Gabot
+Str:64 :: Ivan Skaald
+Str:65 :: Oracle of Aal
+Str:66 :: Duke Martin
+Str:67 :: Calin
+Str:68 :: Liallan
+Str:69 :: Squire Phillip
+Str:70 :: Sumani
+Str:71 :: McCannur Ban Dok
+Str:72 :: Nivek
+Str:73 :: Lysle Rigger
+Str:74 :: Venutrier of Lan
+Str:75 :: Katala
+Str:76 :: Mitchel Waylander
+Str:77 :: Jason
+Str:78 :: Abuk
+Str:79 :: Beyla
+Str:80 :: Kat
+Str:81 :: Obkhar
+Str:82 :: Finn
+Str:83 :: Max Feeber
+Str:84 :: Petrumh
+Str:85 :: Dubal An Loch
+Str:86 :: Abbot Graves
+Str:87 :: Isaac
+Str:88 :: Rowe
+Str:89 :: Irmelyn
+Str:90 :: Tamney the Minstrel
+Str:91 :: Joftaz
+Str:92 :: Nia
+Str:93 :: Arutha
+Str:94 :: Narab
+Str:95 :: Delekhan
+Str:96 :: Makala
+Str:97 :: Tomas
+Str:98 :: Moredhel
+Str:99 :: Nearest Town
+Str:100 :: Inns
+Str:101 :: Empty Houses
+Str:102 :: Hands
+Str:103 :: Lost Items
+Str:104 :: Supplies
+Str:105 :: The Fife
+Str:106 :: Craig
+Str:107 :: Waani
+Str:108 :: Dimwood
+Str:109 :: Grain
+Str:110 :: Highcastle
+Str:111 :: Rift Gates
+Str:112 :: Sumani
+Str:113 :: Combat
+Str:114 :: Food
+Str:115 :: Armor Repair
+Str:116 :: Makala
+Str:117 :: Lodging
+Str:118 :: Joke
+Str:119 :: Thefts
+Str:120 :: Grey Warriors
+Str:121 :: Roads
+Str:122 :: Haggling
+Str:123 :: The Note
+Str:124 :: Brak Nurr
+Str:125 :: Temples
+Str:126 :: Wordlocks
+Str:127 :: Dubal's Note
+Str:128 :: Rhuargh's room
+Str:129 :: Swords
+Str:130 :: Sarth
+Str:131 :: Armor
+Str:132 :: Battle Sites
+Str:133 :: Pits
+Str:134 :: Elvandar
+Str:135 :: Hawk's Hollow
+Str:136 :: Traps
+Str:137 :: Mind Readers
+Str:138 :: Safe Passage
+Str:139 :: His Spying
+Str:140 :: Stolen Gems
+Str:141 :: Chests
+Str:142 :: Nago
+Str:143 :: Weapon Repair
+Str:144 :: Last Orders
+Str:145 :: The Festival
+Str:146 :: Pokiir
+Str:147 :: A Game
+Str:148 :: Self Defense
+Str:149 :: Mercenaries
+Str:150 :: Moredhel
+Str:151 :: Stellan
+Str:152 :: News
+Str:153 :: The Fever
+Str:154 :: Buildings
+Str:155 :: Spitzer
+Str:156 :: Stealth
+Str:157 :: Locked Door
+Str:158 :: Idol Of Lassur
+Str:159 :: Picklocks
+Str:160 :: Silden
+Str:161 :: Keys
+Str:162 :: Upright Man
+Str:163 :: Items
+Str:164 :: Scrying
+Str:165 :: The Six
+Str:166 :: Illusion
+Str:167 :: Moraeulf
+Str:168 :: Another Spell
+Str:169 :: Escape
+Str:170 :: Rift Machine
+Str:171 :: Passwords
+Str:172 :: Delekhan
+Str:173 :: Nalar's Rib
+Str:174 :: Freedom
+Str:175 :: The Battle
+Str:176 :: Double
+Str:177 :: Abbaye Ishap
+Str:178 :: Statue
+Str:179 :: Lost & found
+Str:180 :: Chess
+Str:181 :: Challenge
+Str:182 :: En Passah
+Str:183 :: Abbar's Gambit
+Str:184 :: Advice
+Str:185 :: Petrumh
+Str:186 :: Nighthawks
+Str:187 :: Count Corvalis
+Str:188 :: Neville Corvalis
+Str:189 :: Navon
+Str:190 :: Kenting Rush
+Str:191 :: Prince Calin
+Str:192 :: Clear Roads
+Str:193 :: Caldara
+Str:194 :: Survival
+Str:195 :: Ancient Ruin
+Str:196 :: Wyverns
+Str:197 :: Sleeping Glades
+Str:198 :: Enemy Activity
+Str:199 :: Duke Martin
+Str:200 :: Helping Out
+Str:201 :: Locklear
+Str:202 :: Casting
+Str:203 :: Road South
+Str:204 :: Bad Weather
+Str:205 :: Mine
+Str:206 :: Magic
+Str:207 :: Spells
+Str:208 :: Abbar's Turn
+Str:209 :: Macros
+Str:210 :: Vaults
+Str:211 :: Crossbows
+Str:212 :: Sethanon
+Str:213 :: Goblins
+Str:214 :: Poisoning
+Str:215 :: Baron Gabot
+Str:216 :: Plans
+Str:217 :: Northwarden
+Str:218 :: Animals
+Str:219 :: Dragons
+Str:220 :: Her Father
+Str:221 :: Neville
+Str:222 :: Unpleasant past
+Str:223 :: The Murder
+Str:224 :: Family Legends
+Str:225 :: Sword
+Str:226 :: Alcohol
+Str:227 :: Message
+Str:228 :: Murder
+Str:229 :: Gamina
+Str:230 :: Magic Supplies
+Str:231 :: The Keep
+Str:232 :: Finances
+Str:233 :: Kahooli Priests
+Str:234 :: Assessment
+Str:235 :: Gorath
+Str:236 :: Bk of Macros
+Str:237 :: Pug
+Str:238 :: Ghosts
+Str:239 :: Excommunicate
+Str:240 :: Lurough
+Str:241 :: Kahooli
+Str:242 :: Wyvern's Egg
+Str:243 :: His Name
+Str:244 :: The Accident
+Str:245 :: Chess
