@@ -1,6 +1,8 @@
 #pragma once
 
+
 #include "constants.hpp"
+#include "resourceNames.hpp"
 #include "logger.hpp"
 
 #include "Exception.h"
@@ -9,6 +11,7 @@
 #include <boost/functional/hash.hpp>
 
 #include <cassert>
+#include <iomanip>
 #include <type_traits>
 #include <unordered_map>
 #include <map>
@@ -49,13 +52,29 @@ enum class ChoiceState
 struct KeyTarget
 {
     std::uint32_t value;
+
+    bool operator==(const KeyTarget other) const { return value == other.value; }
 };
+
+std::size_t hash_value(const KeyTarget& t){ return t.value; }
 
 struct OffsetTarget
 {
 	std::uint8_t dialogFile;
     std::uint32_t value;
+
+    bool operator==(const OffsetTarget other) const
+    {
+        return value == other.value 
+            && dialogFile == other.dialogFile;
+    }
 };
+
+std::size_t hash_value(const OffsetTarget& t)
+{
+    return static_cast<std::size_t>(t.value) 
+        + ((static_cast<std::size_t>(t.dialogFile) << 32));
+}
 
 using Target = std::variant<KeyTarget, OffsetTarget>;
 
@@ -66,7 +85,7 @@ std::ostream& operator<<(std::ostream& os, const Target& t)
 		if constexpr (std::is_same_v<T, KeyTarget>)
 			os << "Key [ " << std::hex << arg.value << " ]";
 		else
-			os << "Offset { " << std::hex << +arg.dialogFile << " @ " << arg.value << " }";
+			os << "Offset { " << std::dec << +arg.dialogFile << " @ 0x" << std::hex << arg.value << " }";
 	}, t);
 	return os;
 }
@@ -99,8 +118,11 @@ public:
             auto state = fb.GetUint16LE();
             auto choice1 = fb.GetUint16LE();
             auto choice2 = fb.GetUint16LE();
-            auto target = GetTarget(fb.GetUint32LE());
-            mChoices.emplace_back(state, choice1, choice2, target);
+            auto offset = fb.GetUint32LE();
+            auto target = GetTarget(offset);
+            // FIXME: Should work out what to do with offset == 0
+            if (offset != 0)
+                mChoices.emplace_back(state, choice1, choice2, target);
         }
 
         for (i = 0; i < actions; i++)
@@ -175,19 +197,17 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
     return os;
 };
 
-class Dialog
+class DialogStore
 {
 public:
-    using KeyType = unsigned;
-
-    Dialog()
+    DialogStore()
     :
         mDialogMap{},
 		mSnippetMap{},
-        mLogger{Logging::LogState::GetLogger("Dialog")}
+        mLogger{Logging::LogState::GetLogger("DialogStore")}
     {}
 
-    void LoadKeys()
+    void Load()
     {
         for (std::uint8_t dialogFile = 0; dialogFile < 32; dialogFile++)
         {
@@ -198,11 +218,11 @@ public:
 
             for (unsigned i = 0; i < dialogs; i++)
             {
-                auto key = fb.GetUint32LE();
-                auto val = fb.GetUint32LE();
+                auto key = KeyTarget{fb.GetUint32LE()};
+                const auto val = OffsetTarget{dialogFile, fb.GetUint32LE()};
                 const auto [it, emplaced] = mDialogMap.emplace(
                     key,
-                    std::make_pair(dialogFile, val));
+                    val);
                 assert(emplaced);
                 auto [checkF, checkV] = it->second;
                 mLogger.Spam() << std::hex << "0x" << it->first 
@@ -211,12 +231,10 @@ public:
 
 			while (fb.GetBytesLeft() > 0)
 			{
-				auto offset = fb.Tell();
+				const auto offset = OffsetTarget{dialogFile, fb.Tell()};
 				auto snippet = DialogSnippet{fb, dialogFile};
-				mSnippetMap.emplace(
-					std::make_pair(dialogFile, offset),
-					snippet);
-			}
+                const auto& [it, emplaced] = mSnippetMap.emplace(offset, snippet);
+            }
         }
     }
 
@@ -235,16 +253,10 @@ public:
 		}
 	}
 
-    void ShowDialog(KeyType dialogKey)
+    void ShowDialog(Target dialogKey)
     {
-        auto it = mDialogMap.find(dialogKey);
-        if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
-        auto [dialogFile, offset] = it->second;
-        mLogger.Info() << "Loading dialog: 0x" << std::hex << dialogKey << " @ 0x"
-            << offset << std::dec << " from: " << +dialogFile << std::endl;
-		
+        auto snippet = std::visit(*this, dialogKey);
 		bool good = true;
-		auto snippet = mSnippetMap.at(it->second);
 		while (good)
 		{
 			std::cout << snippet << std::endl;
@@ -264,19 +276,23 @@ public:
 		}
     }
 
+    OffsetTarget GetTarget(KeyTarget dialogKey)
+    {
+        auto it = mDialogMap.find(dialogKey);
+        if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
+		return it->second;
+    }
+
 	const DialogSnippet& operator()(KeyTarget dialogKey)
 	{
-		auto it = mDialogMap.find(dialogKey.value);
+		auto it = mDialogMap.find(dialogKey);
         if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
-		return (*this)(OffsetTarget{
-			std::get<std::uint8_t>(it->second),
-			std::get<unsigned>(it->second)});
+		return (*this)(it->second);
 	}
 
 	const DialogSnippet& operator()(OffsetTarget snippetKey)
 	{
-		auto snip = mSnippetMap.find(
-			std::make_pair(snippetKey.dialogFile, snippetKey.value));
+		auto snip = mSnippetMap.find(snippetKey);
 		if (snip == mSnippetMap.end()) throw std::runtime_error("Offset not found");
 		return snip->second;
 	}
@@ -288,18 +304,66 @@ public:
         return ss.str();
     }
 
+private:
+	std::unordered_map<
+        KeyTarget,
+        OffsetTarget,
+        boost::hash<KeyTarget>> mDialogMap;
+
+	std::unordered_map<
+		OffsetTarget,
+		DialogSnippet,
+		boost::hash<OffsetTarget>> mSnippetMap;
+
+    const Logging::Logger& mLogger;
+};
+
+class DialogIndex
+{
+public:
+
+    DialogIndex(const ZoneLabel& zoneLabel)
+    :
+        mKeys{},
+        mZoneLabel{zoneLabel},
+        mLogger{Logging::LogState::GetLogger("DialogIndex")}
+    {
+    }
+
+    void Load()
+    {
+        BAK::DialogStore dialogStore{};
+        dialogStore.Load();
+
+        auto fb = FileBufferFactory::CreateFileBuffer(mZoneLabel.GetDialogPointers());
+
+        const unsigned dialogs = fb.GetUint16LE();
+        mLogger.Debug() << "Loading: " << dialogs << std::endl;
+
+        for (unsigned i = 0; i < dialogs; i++)
+        {
+            assert(fb.GetUint16LE() == 0);
+            // Meaning of the below? Initial state of dialog?
+            auto x = fb.GetUint8();
+            auto y = fb.GetUint8();
+            auto zero = fb.GetUint8();
+
+            // Affects the dialog selected
+            auto dialogKey = KeyTarget{fb.GetUint32LE()};
+            std::cout << "#" << std::dec << i << std::hex << " " 
+                << +x << " " << +y << " " << " dialogKey: " 
+                << dialogKey << " target: " << dialogStore.GetTarget(dialogKey)
+                << std::endl;
+
+            const auto& emplaced = mKeys.emplace_back(dialogKey);
+            dialogStore.ShowDialog(emplaced);
+        }
+    }
 
 private:
-    using ValueType  = std::pair<std::uint8_t, unsigned>;
-    using SnippetKey = std::pair<std::uint8_t, unsigned>;
+    std::vector<Target> mKeys;
 
-	//std::unordered_map<KeyType, ValueType> mDialogMap;
-	std::map<KeyType, ValueType> mDialogMap;
-	std::unordered_map<
-		SnippetKey,
-		DialogSnippet,
-		boost::hash<SnippetKey>> mSnippetMap;
-
+    const ZoneLabel& mZoneLabel;
     const Logging::Logger& mLogger;
 };
 

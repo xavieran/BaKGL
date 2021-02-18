@@ -2,6 +2,8 @@
 
 #include "constants.hpp"
 #include "coordinates.hpp"
+#include "encounter.hpp"
+
 #include "logger.hpp"
 #include "resourceNames.hpp"
 #include "tableResource.hpp"
@@ -437,7 +439,8 @@ public:
     :
         mCenter{},
         mTile{x, y},
-        mItemInsts{}
+        mItemInsts{},
+        mEncounters{}
     {
         LoadWorld(zoneItems, x, y);
     }
@@ -469,40 +472,27 @@ public:
             {
                 auto fb = FileBufferFactory::CreateFileBuffer(
                     zoneItems.GetZoneLabel().GetTileData(x, y));
+                mEncounters = BAK::LoadEncounters(fb, 1, mTile);
+                const auto GetZoneItem = [&](auto encounterType){
+                    switch (encounterType)
+                    {
+                    case BAK::EncounterType::Combat: return "house";
+                    case BAK::EncounterType::Dialog: return "house1";
+                    case BAK::EncounterType::Transition: return "inn";
+                    case BAK::EncounterType::Town: return "church";
+                    default: return "tstone1";
+                    }
+                };
 
-                unsigned numberOfEncounters = fb.GetUint16LE();
-                for (unsigned i = 0; i < numberOfEncounters; i++)
-                {
-                    auto encounterType = static_cast<BAK::EncounterType>(fb.GetUint16LE());
-                    auto zitem = std::invoke([&](){
-                        switch (encounterType)
-                        {
-                        case BAK::EncounterType::Combat: return "house";
-                        case BAK::EncounterType::Dialog: return "house1";
-                        case BAK::EncounterType::Transition: return "inn";
-                        case BAK::EncounterType::Town: return "church";
-                        default: return "tstone1";
-                        }});
-
-                    int xLoc = fb.GetSint16LE();
-                    int yLoc = fb.GetSint16LE();
-                    unsigned encounterIndex = fb.GetUint16LE();
-                    // Don't know
-                    fb.GetUint16LE();
-                    fb.GetUint16LE();
-                    fb.GetUint8();
-                    unsigned saveAddr = fb.GetUint16LE();
-                    fb.GetUint16LE();
-                    fb.GetUint16LE();
+                for (const auto& encounter : mEncounters)
                     mItemInsts.emplace_back(
-                        zoneItems.GetZoneItem(zitem),
+                        zoneItems.GetZoneItem(GetZoneItem(encounter.GetType())),
                         0,
                         Vector3D{0,0,0},
                         Vector3D{
-                            static_cast<int>(mTile[0]*64000) + (xLoc << 2),
-                            static_cast<int>(mTile[1]*64000) + (yLoc << 2),
+                            static_cast<int>(mTile[0]*64000) + 32000 + (encounter.GetOffset().x << 1),
+                            static_cast<int>(mTile[1]*64000) + 32000 + (encounter.GetOffset().y << 1),
                             0});
-                }
             }
             catch (const OpenError&)
             {
@@ -524,6 +514,7 @@ private:
     glm::vec<2, unsigned> mTile;
 
     std::vector<WorldItemInstance> mItemInsts;
+    std::vector<Encounter> mEncounters;
 };
 
 

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "constants.hpp"
+#include "encounter.hpp"
 #include "logger.hpp"
 #include "resourceNames.hpp"
 
@@ -108,7 +109,6 @@ public:
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         ZoneLabel zone{"Z01"};
-        LoadDialogPointers(zone);
         LoadTileData(1, zone, 10, 15);
         return;
         LoadLocation();
@@ -151,48 +151,6 @@ public:
         mLocus.mHeading = heading;
         mLocus.mPosition= {xpos, -ypos};
         mLocus.mTile = {xtile, ytile};
-    }
-
-    void LoadDialogPointers(const ZoneLabel& zone)
-    {
-        mLogger.Info() << "Loading data for: " << zone.GetDialogPointers() << std::endl;
-        auto fb = FileBufferFactory::CreateFileBuffer(zone.GetDialogPointers());
-        unsigned dialogs = fb.GetUint16LE();
-        //dialogs = 1;
-        mLogger.Info() << dialogs << " dialogs" << std::endl;
-        for (unsigned i = 0; i < dialogs; i++)
-        {
-            assert(fb.GetUint16LE() == 0);
-            // Meaningless???
-            auto x = fb.GetUint8();
-            auto y = fb.GetUint8();
-            auto zero = fb.GetUint8();
-            // Affects the dialog selected
-            auto dialogAddr = fb.GetUint32LE();
-            std::cout << "#" << std::dec << i << std::hex << " " << +x << " " << +y
-                << " " << " dialogAddr: " << dialogAddr << std::endl;
-            
-            auto dfb = FileBufferFactory::CreateFileBuffer("DIAL_Z30.DDX");
-            auto dr = DialogResource{};
-            dr.Load(&dfb);
-            auto it = dr.dialogMap.find(dialogAddr);
-            if (it != dr.dialogMap.end())
-            {
-                const auto& dd = *it->second;
-                std::stringstream ss{};
-                for (const auto& s : dd.text) ss << s << std::endl;
-                mLogger.Info() << "Main text: " << ss.str() << std::endl;
-                for (const auto& c : dd.childData)
-                {
-                    mLogger.Info() << "Child" << std::endl;
-                    std::stringstream sss{};
-                    for (const auto& s : c->text) sss << s << std::endl;
-                    mLogger.Info() << "Child text: " << sss.str() << std::endl;
-                }
-            }
-
-        }
-        fb.Dump(20);
     }
 
     void LoadTileData(unsigned chapter, const ZoneLabel& zone, unsigned x, unsigned y)

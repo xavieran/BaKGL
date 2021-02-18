@@ -1,7 +1,5 @@
 #include "logger.hpp"
 
-#include "geometry.hpp"
-
 #include "meshObject.hpp"
 #include "renderer.hpp"
 #include "shaderProgram.hpp"
@@ -62,53 +60,11 @@ int main(int argc, char** argv)
                 ss << i << " p: 0x" << std::hex << +p << " " << std::dec << +p
                     << " c: 0x" << std::hex << +c << " " << std::dec << +c << std::endl;
             }
+
             logger.Info() << "Colors and Palettes" << std::endl
                 << ss.str() << std::endl;
 
            
-            std::vector<Polygon> polys{};
-            for (unsigned face = 0; face < item.GetFaces().size(); face++)
-            {
-                const auto& poly = polys.emplace_back(item, face);
-            }
-            std::vector<std::vector<Polygon>> planes{};
-            std::sort(polys.begin(), polys.end(),
-                [](const auto& a, const auto& b){
-                    return Polygon::VectorCmp(a.GetNormal(), b.GetNormal()); 
-                });
-            
-            std::optional<glm::vec3> normal;
-            // Subdivide into faces that lie on the same plane
-            auto it = planes.emplace(planes.begin(), std::vector<Polygon>{});
-            for (const auto& poly : polys)
-            {
-                if (!normal || glm::all(glm::epsilonEqual(poly.GetNormal(), *normal, 0.01f)))
-                {
-                    normal = poly.GetNormal();
-                    it->push_back(poly);
-                }
-                else
-                {
-                    normal = poly.GetNormal();
-                    it = planes.emplace(it, std::vector<Polygon>{});
-                    it->push_back(poly);
-                }
-            }
-            for (auto& plane : planes)
-            {
-                logger.Info() << "Plane :: " << std::endl;
-                std::sort(plane.begin(), plane.end(), [](const auto& a, const auto& b){ return a.GetArea() > b.GetArea(); });
-                bool first = true;
-                for (const auto& poly : plane)
-                {
-                    //if (!first) item.SetPush(poly.GetFace());
-                    //first = false;
-
-                    logger.Info() << "Area: " << poly.GetArea()
-                        << " Norm: " << poly.GetNormal() << " color: " << +item.GetColors().at(poly.GetFace()) << std::endl;
-                }
-            }
-
             auto obj = BAK::MeshObject();
             obj.LoadFromBaKItem(item, textures, pal);
             objects.push_back(obj);

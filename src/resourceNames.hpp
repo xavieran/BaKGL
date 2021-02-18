@@ -1,13 +1,13 @@
 #pragma once
 
 #include <sstream>
+#include <iomanip>
 
 namespace BAK {
 
 class ZoneLabel
 {
 public:
-
     ZoneLabel(const std::string& zoneLabel)
     :
         mZoneLabel{zoneLabel}

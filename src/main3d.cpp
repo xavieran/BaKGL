@@ -3,7 +3,6 @@
 #include "constants.hpp"
 #include "coordinates.hpp"
 #include "gameData.hpp"
-#include "geometry.hpp"
 
 #include "logger.hpp"
 

@@ -1,9 +1,13 @@
 #include "dialog.hpp"
 
+#include "resourceNames.hpp"
+
 #include "logger.hpp"
 
 #include "FileManager.h"
 #include "FileBuffer.h"
+
+#include <iomanip>
 
 int main(int argc, char** argv)
 {
@@ -16,15 +20,17 @@ int main(int argc, char** argv)
     //BAK::Keywords kw{};
     //kw.Load(kfb);
 
-    unsigned dialogKey = 0x2dc6d3;
-    dialogKey = 0x1e8481;
+    /*auto dialogKey = BAK::KeyTarget{0x2dc6d3};
     logger.Info() << "Displaying dialog:" << std::hex << dialogKey << std::dec << std::endl;
 
-    BAK::Dialog dialog{};
+    BAK::DialogStore dialog{};
     dialog.LoadKeys();
 	
     dialog.ShowDialog(dialogKey);
-    //dialog.ShowAllDialogs();
+    //dialog.ShowAllDialogs();*/
+
+    auto dialogIndex = BAK::DialogIndex{BAK::ZoneLabel{"01"}};
+    dialogIndex.Load();
 
     return 0;
 }
