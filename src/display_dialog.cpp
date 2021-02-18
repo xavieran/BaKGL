@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 
     BAK::DialogStore dialog{};
     dialog.LoadKeys();
-	
+    
     dialog.ShowDialog(dialogKey);
     //dialog.ShowAllDialogs();*/
 

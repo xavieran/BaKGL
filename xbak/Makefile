@@ -859,10 +859,10 @@ all: all-am
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
-	    *$$dep*) \
-	      ( cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh ) \
-	        && { if test -f $@; then exit 0; else break; fi; }; \
-	      exit 1;; \
+		*$$dep*) \
+		  ( cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh ) \
+			&& { if test -f $@; then exit 0; else break; fi; }; \
+		  exit 1;; \
 	  esac; \
 	done; \
 	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/Makefile'; \
@@ -872,10 +872,10 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
-	    cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh;; \
+		cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh;; \
 	  *) \
-	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
-	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
+		echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
+		cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
 	esac;
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
@@ -923,7 +923,7 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
 	  if test -f $$p \
 	  ; then \
-	    f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
+		f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
 	   echo " $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) '$$p' '$(DESTDIR)$(bindir)/$$f'"; \
 	   $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) "$$p" "$(DESTDIR)$(bindir)/$$f" || exit 1; \
 	  else :; fi; \
@@ -1145,10 +1145,10 @@ include ./$(DEPDIR)/xbak.Po
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
-	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+		if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
 	  $(AWK) '{ files[$$0] = 1; nonempty = 1; } \
-	      END { if (nonempty) { for (i in files) print i; }; }'`; \
+		  END { if (nonempty) { for (i in files) print i; }; }'`; \
 	mkid -fID $$unique
 tags: TAGS
 
@@ -1158,14 +1158,14 @@ TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 	here=`pwd`; \
 	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
-	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+		if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
 	  $(AWK) '{ files[$$0] = 1; nonempty = 1; } \
-	      END { if (nonempty) { for (i in files) print i; }; }'`; \
+		  END { if (nonempty) { for (i in files) print i; }; }'`; \
 	if test -z "$(ETAGS_ARGS)$$tags$$unique"; then :; else \
 	  test -n "$$unique" || unique=$$empty_fix; \
 	  $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
-	    $$tags $$unique; \
+		$$tags $$unique; \
 	fi
 ctags: CTAGS
 CTAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
@@ -1173,13 +1173,13 @@ CTAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 	tags=; \
 	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
-	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+		if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
 	  $(AWK) '{ files[$$0] = 1; nonempty = 1; } \
-	      END { if (nonempty) { for (i in files) print i; }; }'`; \
+		  END { if (nonempty) { for (i in files) print i; }; }'`; \
 	test -z "$(CTAGS_ARGS)$$tags$$unique" \
 	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
-	     $$tags $$unique
+		 $$tags $$unique
 
 GTAGS:
 	here=`$(am__cd) $(top_builddir) && pwd` \
@@ -1195,7 +1195,7 @@ distdir: $(DISTFILES)
 	list='$(DISTFILES)'; \
 	  dist_files=`for file in $$list; do echo $$file; done | \
 	  sed -e "s|^$$srcdirstrip/||;t" \
-	      -e "s|^$$topsrcdirstrip/|$(top_builddir)/|;t"`; \
+		  -e "s|^$$topsrcdirstrip/|$(top_builddir)/|;t"`; \
 	case $$dist_files in \
 	  */*) $(MKDIR_P) `echo "$$dist_files" | \
 			   sed '/\//!d;s|^|$(distdir)/|;s,/[^/]*$$,,' | \
@@ -1204,15 +1204,15 @@ distdir: $(DISTFILES)
 	for file in $$dist_files; do \
 	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
 	  if test -d $$d/$$file; then \
-	    dir=`echo "/$$file" | sed -e 's,/[^/]*$$,,'`; \
-	    if test -d $(srcdir)/$$file && test $$d != $(srcdir); then \
-	      cp -pR $(srcdir)/$$file $(distdir)$$dir || exit 1; \
-	    fi; \
-	    cp -pR $$d/$$file $(distdir)$$dir || exit 1; \
+		dir=`echo "/$$file" | sed -e 's,/[^/]*$$,,'`; \
+		if test -d $(srcdir)/$$file && test $$d != $(srcdir); then \
+		  cp -pR $(srcdir)/$$file $(distdir)$$dir || exit 1; \
+		fi; \
+		cp -pR $$d/$$file $(distdir)$$dir || exit 1; \
 	  else \
-	    test -f $(distdir)/$$file \
-	    || cp -p $$d/$$file $(distdir)/$$file \
-	    || exit 1; \
+		test -f $(distdir)/$$file \
+		|| cp -p $$d/$$file $(distdir)/$$file \
+		|| exit 1; \
 	  fi; \
 	done
 check-am: all-am
@@ -1235,7 +1235,7 @@ install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
 	  install_sh_PROGRAM="$(INSTALL_STRIP_PROGRAM)" INSTALL_STRIP_FLAG=-s \
 	  `test -z '$(STRIP)' || \
-	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
+		echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
 mostlyclean-generic:
 
 clean-generic:

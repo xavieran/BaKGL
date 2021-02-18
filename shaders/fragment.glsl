@@ -23,8 +23,7 @@ void main(){
     vec3 lightColor = vec3(1,1,1);
     float lightPower = 100000.0f;
     
-    //float k = .00002;
-    float k = .0004;
+    float k = .0001;
     vec3 fogColor   = vec3(0.15, 0.31, 0.36);
     float fogFactor = exp(-DistanceFromCamera * k);
     

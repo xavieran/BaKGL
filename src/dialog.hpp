@@ -60,7 +60,7 @@ std::size_t hash_value(const KeyTarget& t){ return t.value; }
 
 struct OffsetTarget
 {
-	std::uint8_t dialogFile;
+    std::uint8_t dialogFile;
     std::uint32_t value;
 
     bool operator==(const OffsetTarget other) const
@@ -80,14 +80,14 @@ using Target = std::variant<KeyTarget, OffsetTarget>;
 
 std::ostream& operator<<(std::ostream& os, const Target& t)
 {
-	std::visit([&os](auto&& arg){
-		using T = std::decay_t<decltype(arg)>;
-		if constexpr (std::is_same_v<T, KeyTarget>)
-			os << "Key [ " << std::hex << arg.value << " ]";
-		else
-			os << "Offset { " << std::dec << +arg.dialogFile << " @ 0x" << std::hex << arg.value << " }";
-	}, t);
-	return os;
+    std::visit([&os](auto&& arg){
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, KeyTarget>)
+            os << "Key [ " << std::hex << arg.value << " ]";
+        else
+            os << "Offset { " << std::dec << +arg.dialogFile << " @ 0x" << std::hex << arg.value << " }";
+    }, t);
+    return os;
 }
 
 class DialogSnippet
@@ -105,13 +105,13 @@ public:
         
         std::uint8_t i;
 
-		const auto GetTarget = [&fb, dialogFile](auto targetRaw) -> Target
-		{
-			if (0x80000000 & targetRaw)
-				return KeyTarget{targetRaw & 0x7fffffff};
-			else
-				return OffsetTarget{dialogFile, targetRaw};
-		};
+        const auto GetTarget = [&fb, dialogFile](auto targetRaw) -> Target
+        {
+            if (0x80000000 & targetRaw)
+                return KeyTarget{targetRaw & 0x7fffffff};
+            else
+                return OffsetTarget{dialogFile, targetRaw};
+        };
 
         for (i = 0; i < choices; i++)
         {
@@ -129,9 +129,9 @@ public:
         {
             mActions.emplace_back(fb.GetArray<10>());
         }
-		
-		if (length > 0)
-			mText = fb.GetString(length);
+        
+        if (length > 0)
+            mText = fb.GetString(length);
     }
 
     struct Choice
@@ -160,13 +160,13 @@ public:
 template <typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& a)
 {
-	std::string sep = "";
-	for (unsigned i = 0; i < N; i++)
-	{
-		os << sep << std::setw(2) << std::setfill('0') << +a[i];
-		sep = " ";
-	}
-	return os;
+    std::string sep = "";
+    for (unsigned i = 0; i < N; i++)
+    {
+        os << sep << std::setw(2) << std::setfill('0') << +a[i];
+        sep = " ";
+    }
+    return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
@@ -174,25 +174,25 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
     os << "[ ds: " << std::hex << +d.mDisplayStyle << " act: " << +d.mActor
         << " ds2: " << +d.mDisplayStyle2 << " ds3: " << +d.mDisplayStyle3 << " ]" << std::endl;
     
-	for (const auto& action : d.mActions)
-	{
-		os << "++ " << action.mAction << std::endl;
-	}
+    for (const auto& action : d.mActions)
+    {
+        os << "++ " << action.mAction << std::endl;
+    }
     for (const auto& choice : d.mChoices)
     {
         os << ">> " << choice.mState << " -> " << choice.mChoice1 
             << " | " << choice.mChoice2 << " " << choice.mTarget
-			<< std::endl;
+            << std::endl;
     }
 
-	os << "Text [ " << d.mText << " ]" << std::endl;
-	os << "Next [ ";
-	if (d.mChoices.size() > 0)
-		os << d.mChoices.back().mTarget;
-	else
-		os << "None";
+    os << "Text [ " << d.mText << " ]" << std::endl;
+    os << "Next [ ";
+    if (d.mChoices.size() > 0)
+        os << d.mChoices.back().mTarget;
+    else
+        os << "None";
     os << " ]" << std::endl;
-	os << std::dec;
+    os << std::dec;
 
     return os;
 };
@@ -203,7 +203,7 @@ public:
     DialogStore()
     :
         mDialogMap{},
-		mSnippetMap{},
+        mSnippetMap{},
         mLogger{Logging::LogState::GetLogger("DialogStore")}
     {}
 
@@ -229,73 +229,73 @@ public:
                     << " -> 0x" << checkV << std::dec << std::endl;
             }
 
-			while (fb.GetBytesLeft() > 0)
-			{
-				const auto offset = OffsetTarget{dialogFile, fb.Tell()};
-				auto snippet = DialogSnippet{fb, dialogFile};
+            while (fb.GetBytesLeft() > 0)
+            {
+                const auto offset = OffsetTarget{dialogFile, fb.Tell()};
+                auto snippet = DialogSnippet{fb, dialogFile};
                 const auto& [it, emplaced] = mSnippetMap.emplace(offset, snippet);
             }
         }
     }
 
-	void ShowAllDialogs()
-	{
-		for (const auto& dialogKey : mDialogMap)
-		{
-			try
-			{
-				ShowDialog(dialogKey.first);
-			}
-			catch (const std::runtime_error&)
-			{
-				std::cout << "Failed to walk dialog tree" << std::endl;
-			}
-		}
-	}
+    void ShowAllDialogs()
+    {
+        for (const auto& dialogKey : mDialogMap)
+        {
+            try
+            {
+                ShowDialog(dialogKey.first);
+            }
+            catch (const std::runtime_error&)
+            {
+                std::cout << "Failed to walk dialog tree" << std::endl;
+            }
+        }
+    }
 
     void ShowDialog(Target dialogKey)
     {
         auto snippet = std::visit(*this, dialogKey);
-		bool good = true;
-		while (good)
-		{
-			std::cout << snippet << std::endl;
-			if (snippet.mChoices.size() == 0)
-			{
-				std::cout << "Done" << std::endl;
-				good = false;
-			}
-			else if (snippet.mChoices.size() == 1)
-			{
-				snippet = std::visit(*this, snippet.mChoices.back().mTarget);
-			}
-			else
-			{
-				snippet = std::visit(*this, snippet.mChoices.front().mTarget);
-			}
-		}
+        bool good = true;
+        while (good)
+        {
+            std::cout << snippet << std::endl;
+            if (snippet.mChoices.size() == 0)
+            {
+                std::cout << "Done" << std::endl;
+                good = false;
+            }
+            else if (snippet.mChoices.size() == 1)
+            {
+                snippet = std::visit(*this, snippet.mChoices.back().mTarget);
+            }
+            else
+            {
+                snippet = std::visit(*this, snippet.mChoices.front().mTarget);
+            }
+        }
     }
 
     OffsetTarget GetTarget(KeyTarget dialogKey)
     {
         auto it = mDialogMap.find(dialogKey);
         if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
-		return it->second;
+        return it->second;
     }
 
-	const DialogSnippet& operator()(KeyTarget dialogKey)
-	{
-		auto it = mDialogMap.find(dialogKey);
+    const DialogSnippet& operator()(KeyTarget dialogKey)
+    {
+        auto it = mDialogMap.find(dialogKey);
         if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
-		return (*this)(it->second);
-	}
+        return (*this)(it->second);
+    }
 
-	const DialogSnippet& operator()(OffsetTarget snippetKey)
-	{
-		auto snip = mSnippetMap.find(snippetKey);
-		if (snip == mSnippetMap.end()) throw std::runtime_error("Offset not found");
-		return snip->second;
-	}
+    const DialogSnippet& operator()(OffsetTarget snippetKey)
+    {
+        auto snip = mSnippetMap.find(snippetKey);
+        if (snip == mSnippetMap.end()) throw std::runtime_error("Offset not found");
+        return snip->second;
+    }
 
     std::string GetDialogFile(std::uint8_t i)
     {
@@ -305,15 +305,15 @@ public:
     }
 
 private:
-	std::unordered_map<
+    std::unordered_map<
         KeyTarget,
         OffsetTarget,
         boost::hash<KeyTarget>> mDialogMap;
 
-	std::unordered_map<
-		OffsetTarget,
-		DialogSnippet,
-		boost::hash<OffsetTarget>> mSnippetMap;
+    std::unordered_map<
+        OffsetTarget,
+        DialogSnippet,
+        boost::hash<OffsetTarget>> mSnippetMap;
 
     const Logging::Logger& mLogger;
 };
