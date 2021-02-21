@@ -5,8 +5,8 @@
 #include "resourceNames.hpp"
 #include "logger.hpp"
 
-#include "Exception.h"
-#include "FileBuffer.h"
+#include "xbak/Exception.h"
+#include "xbak/FileBuffer.h"
 
 #include <boost/functional/hash.hpp>
 

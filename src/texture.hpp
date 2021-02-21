@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Image.h"
-#include "Palette.h"
+#include "xbak/Image.h"
+#include "xbak/Palette.h"
 
 namespace BAK {
 

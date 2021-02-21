@@ -9,16 +9,14 @@
 #include "tableResource.hpp"
 #include "texture.hpp"
 
-#include "Exception.h"
-
-#include "FileBuffer.h"
-#include "FileManager.h"
-
-#include "ImageResource.h"
-#include "Palette.h"
-#include "ScreenResource.h"
-#include "TileWorldResource.h"
-#include "TableResource.h"
+#include "xbak/Exception.h"
+#include "xbak/FileBuffer.h"
+#include "xbak/FileManager.h"
+#include "xbak/ImageResource.h"
+#include "xbak/Palette.h"
+#include "xbak/ScreenResource.h"
+#include "xbak/TableResource.h"
+#include "xbak/TileWorldResource.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>

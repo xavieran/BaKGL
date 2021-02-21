@@ -12,13 +12,9 @@
 #include "shaderProgram.hpp"
 #include "worldFactory.hpp"
 
-#include "FileManager.h"
-#include "FileBuffer.h"
-#include "PaletteResource.h"
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "xbak/FileManager.h"
+#include "xbak/FileBuffer.h"
+#include "xbak/PaletteResource.h"
 
 #include <GL/glew.h>
 

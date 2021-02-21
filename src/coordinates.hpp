@@ -18,7 +18,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Geometry.h"
+#include "xbak/Geometry.h"
 
 namespace BAK {
 

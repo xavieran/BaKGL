@@ -5,9 +5,9 @@
 #include "shaderProgram.hpp"
 #include "worldFactory.hpp"
 
-#include "FileManager.h"
-#include "FileBuffer.h"
-#include "PaletteResource.h"
+#include "xbak/FileManager.h"
+#include "xbak/FileBuffer.h"
+#include "xbak/PaletteResource.h"
 
 #include <GL/glew.h>
 

@@ -7,9 +7,9 @@
 #include "logger.hpp"
 #include "resourceNames.hpp"
 
-#include "FileBuffer.h"
-#include "DialogResource.h"
-#include "ObjectResource.h"
+#include "xbak/DialogResource.h"
+#include "xbak/FileBuffer.h"
+#include "xbak/ObjectResource.h"
 
 #include <memory>
 

@@ -4,12 +4,12 @@
 
 #include "SDL.h"
 
-#include "FileManager.h"
-#include "FileBuffer.h"
-#include "MediaToolkit.h"
-#include "PaletteResource.h"
-#include "Geometry.h"
-#include "RequestResource.h"
+#include "xbak/FileManager.h"
+#include "xbak/FileBuffer.h"
+#include "xbak/Geometry.h"
+#include "xbak/MediaToolkit.h"
+#include "xbak/PaletteResource.h"
+#include "xbak/RequestResource.h"
 
 #include "worldFactory.hpp"
 #include "eventHandler.hpp"

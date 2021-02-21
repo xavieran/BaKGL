@@ -17,11 +17,10 @@ find_package(glfw3 3.3 REQUIRED)
 
 #add_subdirectory(glad)
 
-add_subdirectory("imgui")
-include_directories("imgui")
+include_directories(".")
 
+add_subdirectory("imgui")
 add_subdirectory("xbak")
-include_directories("xbak")
 
 include_directories("src")
 include_directories("shaders")

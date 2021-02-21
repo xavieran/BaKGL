@@ -1,9 +1,8 @@
 #pragma once
 
-#include "FileBuffer.h"
-
-#include "TileWorldResource.h"
-#include "TableResource.h"
+#include "xbak/FileBuffer.h"
+#include "xbak/TableResource.h"
+#include "xbak/TileWorldResource.h"
 
 #include <sstream>
 #include <iomanip>   
