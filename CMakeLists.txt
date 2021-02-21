@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project( BaKSandbox )
+project( BaKGL )
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/boost)
 
@@ -17,15 +17,16 @@ find_package(glfw3 3.3 REQUIRED)
 
 include_directories(".")
 
+add_subdirectory("graphics")
 add_subdirectory("imgui")
 add_subdirectory("xbak")
 
 include_directories("src")
-include_directories("shaders")
 
-set(BAK_INCLUDES
-    xbak
+set(APP_INCLUDES
+    graphics
     imgui
+    xbak
 )
 
 set(LINK_3D_LIBRARIES 
@@ -52,7 +53,7 @@ list(APPEND APP_BINARIES
 
 foreach (APP_BIN IN LISTS APP_BINARIES)
     add_executable (${APP_BIN} app/${APP_BIN}.cpp ${APP_INCLUDES})
-    target_link_libraries(${APP_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} imgui SDL xbak)
+    target_link_libraries(${APP_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} SDL ${APP_INCLUDES})
 endforeach()
 
 

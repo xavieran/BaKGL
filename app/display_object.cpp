@@ -44,32 +44,17 @@ int main(int argc, char** argv)
     auto textures  = BAK::TextureStore{zoneLabel, pal};
     auto zoneItems = BAK::ZoneItemStore{zoneLabel, textures};
 
-    auto objStore = BAK::MeshObjectStorage{};
-
-    std::vector<BAK::MeshObject> objects{};
+    auto objStore = Graphics::MeshObjectStorage{};
+    
     for (auto& item : zoneItems.GetItems())
     {
         if (item.GetVertices().size() <= 1) continue;
 
         if (item.GetName() == objectToDisplay)
         {
-            std::stringstream ss{""};
-            for (unsigned i = 0; i < item.GetColors().size(); i++)
-            {
-                auto p = item.GetPalettes()[i];
-                auto c = item.GetColors()[i];
-                ss << i << " p: 0x" << std::hex << +p << " " << std::dec << +p
-                    << " c: 0x" << std::hex << +c << " " << std::dec << +c << std::endl;
-            }
-
-            logger.Info() << "Colors and Palettes" << std::endl
-                << ss.str() << std::endl;
-
-           
-            auto obj = BAK::MeshObject();
-            obj.LoadFromBaKItem(item, textures, pal);
-            objects.push_back(obj);
-            objStore.AddObject(item.GetName(), obj);
+            objStore.AddObject(
+                item.GetName(),
+                BAK::ZoneItemToMeshObject(item, textures, pal));
         }
     }
 
@@ -112,6 +97,9 @@ int main(int argc, char** argv)
 
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Dark blue background
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);

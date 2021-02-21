@@ -1,10 +1,8 @@
 #pragma once
 
-#include "constants.hpp"
-
 #include "logger.hpp"
 
-#include "worldFactory.hpp"
+#include "sphere.hpp"
 
 #include "xbak/Palette.h"
 
@@ -17,269 +15,26 @@
 #include <algorithm>
 
 
-namespace BAK {
-
+namespace Graphics {
 
 class MeshObject
 {
 public:
-    MeshObject()
+    MeshObject(
+        std::vector<glm::vec3> vertices,
+        std::vector<glm::vec3> normals,
+        std::vector<glm::vec4> colors,
+        std::vector<glm::vec3> textureCoords,
+        std::vector<float> textureBlends,
+        std::vector<unsigned> indices)
     :
-        mVertices{},
-        mNormals{},
-        mColors{},
-        mTextureCoords{},
-        mTextureBlends{},
-        mIndices{}
+        mVertices{vertices},
+        mNormals{normals},
+        mColors{colors},
+        mTextureCoords{textureCoords},
+        mTextureBlends{textureBlends},
+        mIndices{indices}
     {
-    }
-
-    void LoadFromBaKItem(
-        const ZoneItem& item,
-        const TextureStore& store,
-        const Palette& pal)
-    {
-        auto glmVertices = std::vector<glm::vec3>{};
-
-        const auto TextureBlend = [&](auto blend)
-        {
-            mTextureBlends.emplace_back(blend);
-            mTextureBlends.emplace_back(blend);
-            mTextureBlends.emplace_back(blend);
-        };
-
-        for (const auto& vertex : item.GetVertices())
-        {
-            glmVertices.emplace_back(
-                glm::cast<float>(vertex) / BAK::gWorldScale);
-        }
-
-        for (const auto& faceV : item.GetFaces() | boost::adaptors::indexed())
-        {
-            const auto& face = faceV.value();
-            const auto index = faceV.index();
-            unsigned triangles = face.size() - 2;
-
-            // Whether to push this face away from the main plane
-            // (needed to avoid z-fighting for some objects)
-            bool push = item.GetPush().at(index);
-            
-            // Tesselate the face
-            // Generate normals and new indices for each face vertex
-            // The normal must be inverted to account
-            // for the Y direction being negated
-            auto normal = glm::normalize(
-                glm::cross(
-                    glmVertices[face[0]] - glmVertices[face[2]],
-                    glmVertices[face[0]] - glmVertices[face[1]]));
-
-            for (unsigned triangle = 0; triangle < triangles; triangle++)
-            {
-                auto i_a = face[0];
-                auto i_b = face[triangle + 1];
-                auto i_c = face[triangle + 2];
-
-                mNormals.emplace_back(normal);
-                mNormals.emplace_back(normal);
-                mNormals.emplace_back(normal);
-
-                glm::vec3 zOff = normal;
-                if (push) zOff= glm::vec3{0};
-                
-                mVertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
-                mIndices.emplace_back(mVertices.size() - 1);
-                mVertices.emplace_back(glmVertices[i_b] - zOff * 0.02f);
-                mIndices.emplace_back(mVertices.size() - 1);
-                mVertices.emplace_back(glmVertices[i_c] - zOff * 0.02f);
-                mIndices.emplace_back(mVertices.size() - 1);
-                
-                // Hacky - only works for quads - but the game only
-                // textures quads anyway... (not true...)
-                auto colorIndex = item.GetColors().at(index);
-                auto paletteIndex = item.GetPalettes().at(index);
-                auto textureIndex = colorIndex;
-
-                float u = 1.0;
-                float v = 1.0;
-
-                auto maxDim = store.GetMaxDim();
-                
-                // I feel like these "palettes" are probably collections of
-                // flags?
-                static constexpr std::uint8_t texturePalette0 = 0x90;
-                static constexpr std::uint8_t texturePalette1 = 0x91;
-                static constexpr std::uint8_t texturePalette2 = 0xd1;
-                // texturePalette3 is optional and puts grass on mountains
-                static constexpr std::uint8_t texturePalette3 = 0x81;
-                static constexpr std::uint8_t texturePalette4 = 0x11;
-                static constexpr std::uint8_t terrainPalette = 0xc1;
-
-                // terrain palette
-                // 0 = ground
-                // 1 = road
-                // 2 = waterfall
-                // 3 = path
-                // 4 = dirt/field
-                // 5 = river
-                // 6 = sand
-                // 7 = riverbank
-                if (item.GetName().substr(0, 2) == "t0")
-                {
-                    if (textureIndex == 1)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Road);
-                        TextureBlend(1.0);
-                    }
-                    else if (textureIndex == 2)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Path);
-                        TextureBlend(1.0);
-                    }
-                    else if (textureIndex == 3)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
-                        TextureBlend(1.0);
-                    }
-                    else
-                    {
-                        TextureBlend(0.0);
-                    }
-                }
-                else if (item.GetName().substr(0, 2) == "r0")
-                {
-                    if (textureIndex == 3)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
-                        TextureBlend(1.0);
-                    }
-                    else if (textureIndex == 5)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
-                        TextureBlend(1.0);
-                    }
-                    else
-                    {
-                        TextureBlend(0.0);
-                    }
-                }
-                else if (item.GetName().substr(0, 2) == "g0")
-                {
-                    if (textureIndex == 0)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Ground);
-                        TextureBlend(1.0);
-                    }
-                    else if (textureIndex == 5)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
-                        TextureBlend(1.0);
-                    }
-                    else
-                    {
-                        TextureBlend(0.0);
-                    }
-                }
-                else if (item.GetName().substr(0, 5) == "field")
-                {
-                    if (textureIndex == 1)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Dirt);
-                        TextureBlend(1.0);
-                    }
-                    else if (textureIndex == 2)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
-                        TextureBlend(1.0);
-                    }
-                    else
-                    {
-                        TextureBlend(1.0);
-                    }
-                }
-                else if (item.GetName().substr(0, 4) == "fall"
-                    || item.GetName().substr(0, 6) == "spring")
-                {
-                    if (textureIndex == 3)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
-                        TextureBlend(1.0);
-                    }
-                    else if (textureIndex == 5)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
-                        TextureBlend(1.0);
-                    }
-                    else if (textureIndex == 6)
-                    {
-                        textureIndex = store.GetTerrainOffset(BAK::Terrain::Waterfall);
-                        TextureBlend(1.0);
-                    }
-                    else
-                    {
-                        TextureBlend(0.0);
-                    }
-                }
-                else if (paletteIndex == terrainPalette)
-                {
-                    textureIndex += store.GetTerrainOffset(BAK::Terrain::Ground);
-                    TextureBlend(1.0);
-                }
-                else if (paletteIndex == texturePalette0
-                    || paletteIndex == texturePalette1
-                    || paletteIndex == texturePalette2
-                    || paletteIndex == texturePalette4)
-                {
-                    TextureBlend(1.0);
-                }
-                else
-                {
-                    TextureBlend(0.0);
-                }
-
-                if (colorIndex < store.GetTextures().size())
-                {
-                    u = static_cast<float>(store.GetTexture(textureIndex).GetWidth() - 1) 
-                        / static_cast<float>(maxDim);
-                    v = static_cast<float>(store.GetTexture(textureIndex).GetHeight() - 1) 
-                        / static_cast<float>(maxDim);
-                }
-
-                if (item.GetName().substr(0, 6) == "ground")
-                {
-                    u *= 40;
-                    v *= 40;
-                }
-
-                if (triangle == 0)
-                {
-                    mTextureCoords.emplace_back(u  , v,   textureIndex);
-                    mTextureCoords.emplace_back(0.0, v,   textureIndex);
-                    mTextureCoords.emplace_back(0.0, 0.0, textureIndex);
-                }
-                else
-                {
-                    mTextureCoords.emplace_back(u,   v,   textureIndex);
-                    mTextureCoords.emplace_back(0.0, 0.0, textureIndex);
-                    mTextureCoords.emplace_back(u,   0.0, textureIndex);
-                }
-
-                auto color = pal.GetColor(colorIndex);
-                auto glmCol = \
-                    glm::vec4(
-                        static_cast<float>(color.r) / 256,
-                        static_cast<float>(color.g) / 256,
-                        static_cast<float>(color.b) / 256,
-                        1);
-
-                // bitta fun
-                if (item.GetName().substr(0, 5) == "cryst")
-                    glmCol.a = 0.8;
-
-                mColors.emplace_back(glmCol);
-                mColors.emplace_back(glmCol);
-                mColors.emplace_back(glmCol);
-            }
-        }
     }
 
     unsigned long GetNumVertices() const
@@ -298,9 +53,47 @@ public:
     std::vector<float> mTextureBlends;
     std::vector<unsigned> mIndices;
 
-    const Logging::Logger& mLog{
-        Logging::LogState::GetLogger("MeshObject")};
 };
+
+MeshObject SphereToMeshObject(const Sphere& sphere, glm::vec4 color)
+{
+    std::vector<glm::vec3> vertices{};
+    std::vector<glm::vec3> normals{};
+    std::vector<glm::vec4> colors{};
+    std::vector<glm::vec3> textureCoords{};
+    std::vector<float> textureBlends{};
+    std::vector<unsigned> indices{};
+
+    auto sVertices = sphere.getVertices();
+    auto sNormals  = sphere.getNormals();
+    auto sIndices = sphere.getIndices();
+
+    for (unsigned i = 0; i < sphere.getIndexCount(); i++)
+    {
+        indices.emplace_back(i);
+        vertices.emplace_back(
+            sVertices[sIndices[i] * 3], 
+            sVertices[sIndices[i] * 3 + 1], 
+            sVertices[sIndices[i] * 3 + 2]);
+        normals.emplace_back(
+            sNormals[sIndices[i] * 3], 
+            sNormals[sIndices[i] * 3 + 1], 
+            sNormals[sIndices[i] * 3 + 2]);
+        colors.emplace_back(color);
+        textureCoords.emplace_back(0,0,0);
+        textureBlends.emplace_back(0);
+
+    }
+    std::cout << "Vertices: " << vertices.size() << " normals: " << normals.size() << " indices: " << indices.size() << std::endl;
+
+    return MeshObject{
+        vertices,
+        normals,
+        colors,
+        textureCoords,
+        textureBlends,
+        indices};
+}
 
 class MeshObjectStorage
 {

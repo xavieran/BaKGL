@@ -8,6 +8,8 @@
 #include "resourceNames.hpp"
 #include "texture.hpp"
 
+#include "graphics/meshObject.hpp"
+
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"
@@ -186,7 +188,6 @@ private:
     unsigned mMaxDim;
 };
 
-
 class ZoneItem
 {
 public:
@@ -278,6 +279,8 @@ public:
             && (mFaces.size() == mPush.size()));
     }
 
+
+
     void SetPush(unsigned i){ mPush[i] = true; }
     const std::string& GetName() const { return mName; }
     const auto& GetColors() const { return mColors; }
@@ -318,6 +321,268 @@ std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
     return os;
 }
 
+Graphics::MeshObject ZoneItemToMeshObject(
+    const ZoneItem& item,
+    const TextureStore& store,
+    const Palette& pal)
+{
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec4> colors;
+    std::vector<glm::vec3> textureCoords;
+    std::vector<float> textureBlends;
+    std::vector<unsigned> indices;
+
+    auto glmVertices = std::vector<glm::vec3>{};
+
+    const auto TextureBlend = [&](auto blend)
+    {
+        textureBlends.emplace_back(blend);
+        textureBlends.emplace_back(blend);
+        textureBlends.emplace_back(blend);
+    };
+
+    for (const auto& vertex : item.GetVertices())
+    {
+        glmVertices.emplace_back(
+            glm::cast<float>(vertex) / BAK::gWorldScale);
+    }
+
+    for (const auto& faceV : item.GetFaces() | boost::adaptors::indexed())
+    {
+        const auto& face = faceV.value();
+        const auto index = faceV.index();
+        unsigned triangles = face.size() - 2;
+
+        // Whether to push this face away from the main plane
+        // (needed to avoid z-fighting for some objects)
+        bool push = item.GetPush().at(index);
+        
+        // Tesselate the face
+        // Generate normals and new indices for each face vertex
+        // The normal must be inverted to account
+        // for the Y direction being negated
+        auto normal = glm::normalize(
+            glm::cross(
+                glmVertices[face[0]] - glmVertices[face[2]],
+                glmVertices[face[0]] - glmVertices[face[1]]));
+
+        for (unsigned triangle = 0; triangle < triangles; triangle++)
+        {
+            auto i_a = face[0];
+            auto i_b = face[triangle + 1];
+            auto i_c = face[triangle + 2];
+
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+
+            glm::vec3 zOff = normal;
+            if (push) zOff= glm::vec3{0};
+            
+            vertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            vertices.emplace_back(glmVertices[i_b] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            vertices.emplace_back(glmVertices[i_c] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            
+            // Hacky - only works for quads - but the game only
+            // textures quads anyway... (not true...)
+            auto colorIndex = item.GetColors().at(index);
+            auto paletteIndex = item.GetPalettes().at(index);
+            auto textureIndex = colorIndex;
+
+            float u = 1.0;
+            float v = 1.0;
+
+            auto maxDim = store.GetMaxDim();
+            
+            // I feel like these "palettes" are probably collections of
+            // flags?
+            static constexpr std::uint8_t texturePalette0 = 0x90;
+            static constexpr std::uint8_t texturePalette1 = 0x91;
+            static constexpr std::uint8_t texturePalette2 = 0xd1;
+            // texturePalette3 is optional and puts grass on mountains
+            static constexpr std::uint8_t texturePalette3 = 0x81;
+            static constexpr std::uint8_t texturePalette4 = 0x11;
+            static constexpr std::uint8_t terrainPalette = 0xc1;
+
+            // terrain palette
+            // 0 = ground
+            // 1 = road
+            // 2 = waterfall
+            // 3 = path
+            // 4 = dirt/field
+            // 5 = river
+            // 6 = sand
+            // 7 = riverbank
+            if (item.GetName().substr(0, 2) == "t0")
+            {
+                if (textureIndex == 1)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Road);
+                    TextureBlend(1.0);
+                }
+                else if (textureIndex == 2)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Path);
+                    TextureBlend(1.0);
+                }
+                else if (textureIndex == 3)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
+                    TextureBlend(1.0);
+                }
+                else
+                {
+                    TextureBlend(0.0);
+                }
+            }
+            else if (item.GetName().substr(0, 2) == "r0")
+            {
+                if (textureIndex == 3)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
+                    TextureBlend(1.0);
+                }
+                else if (textureIndex == 5)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
+                    TextureBlend(1.0);
+                }
+                else
+                {
+                    TextureBlend(0.0);
+                }
+            }
+            else if (item.GetName().substr(0, 2) == "g0")
+            {
+                if (textureIndex == 0)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Ground);
+                    TextureBlend(1.0);
+                }
+                else if (textureIndex == 5)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
+                    TextureBlend(1.0);
+                }
+                else
+                {
+                    TextureBlend(0.0);
+                }
+            }
+            else if (item.GetName().substr(0, 5) == "field")
+            {
+                if (textureIndex == 1)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Dirt);
+                    TextureBlend(1.0);
+                }
+                else if (textureIndex == 2)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
+                    TextureBlend(1.0);
+                }
+                else
+                {
+                    TextureBlend(1.0);
+                }
+            }
+            else if (item.GetName().substr(0, 4) == "fall"
+                || item.GetName().substr(0, 6) == "spring")
+            {
+                if (textureIndex == 3)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::River);
+                    TextureBlend(1.0);
+                }
+                else if (textureIndex == 5)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Bank);
+                    TextureBlend(1.0);
+                }
+                else if (textureIndex == 6)
+                {
+                    textureIndex = store.GetTerrainOffset(BAK::Terrain::Waterfall);
+                    TextureBlend(1.0);
+                }
+                else
+                {
+                    TextureBlend(0.0);
+                }
+            }
+            else if (paletteIndex == terrainPalette)
+            {
+                textureIndex += store.GetTerrainOffset(BAK::Terrain::Ground);
+                TextureBlend(1.0);
+            }
+            else if (paletteIndex == texturePalette0
+                || paletteIndex == texturePalette1
+                || paletteIndex == texturePalette2
+                || paletteIndex == texturePalette4)
+            {
+                TextureBlend(1.0);
+            }
+            else
+            {
+                TextureBlend(0.0);
+            }
+
+            if (colorIndex < store.GetTextures().size())
+            {
+                u = static_cast<float>(store.GetTexture(textureIndex).GetWidth() - 1) 
+                    / static_cast<float>(maxDim);
+                v = static_cast<float>(store.GetTexture(textureIndex).GetHeight() - 1) 
+                    / static_cast<float>(maxDim);
+            }
+
+            if (item.GetName().substr(0, 6) == "ground")
+            {
+                u *= 40;
+                v *= 40;
+            }
+
+            if (triangle == 0)
+            {
+                textureCoords.emplace_back(u  , v,   textureIndex);
+                textureCoords.emplace_back(0.0, v,   textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            }
+            else
+            {
+                textureCoords.emplace_back(u,   v,   textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+                textureCoords.emplace_back(u,   0.0, textureIndex);
+            }
+
+            auto color = pal.GetColor(colorIndex);
+            auto glmCol = \
+                glm::vec4(
+                    static_cast<float>(color.r) / 256,
+                    static_cast<float>(color.g) / 256,
+                    static_cast<float>(color.b) / 256,
+                    1);
+
+            // bitta fun
+            if (item.GetName().substr(0, 5) == "cryst")
+                glmCol.a = 0.8;
+
+            colors.emplace_back(glmCol);
+            colors.emplace_back(glmCol);
+            colors.emplace_back(glmCol);
+        }
+    }
+
+    return Graphics::MeshObject{
+        vertices,
+        normals,
+        colors,
+        textureCoords,
+        textureBlends,
+        indices};
+}
 
 class ZoneItemStore
 {
@@ -467,26 +732,6 @@ public:
                 auto fb = FileBufferFactory::CreateFileBuffer(
                     zoneItems.GetZoneLabel().GetTileData(x, y));
                 mEncounters = BAK::LoadEncounters(fb, 1, mTile);
-                const auto GetZoneItem = [&](auto encounterType){
-                    switch (encounterType)
-                    {
-                    case BAK::EncounterType::Combat: return "house";
-                    case BAK::EncounterType::Dialog: return "house1";
-                    case BAK::EncounterType::Transition: return "inn";
-                    case BAK::EncounterType::Town: return "church";
-                    default: return "tstone1";
-                    }
-                };
-
-                for (const auto& encounter : mEncounters)
-                    mItemInsts.emplace_back(
-                        zoneItems.GetZoneItem(GetZoneItem(encounter.GetType())),
-                        0,
-                        Vector3D{0,0,0},
-                        Vector3D{
-                            static_cast<int>(mTile[0]*64000) + 32000 + (encounter.GetOffset().x << 1),
-                            static_cast<int>(mTile[1]*64000) + 32000 + (encounter.GetOffset().y << 1),
-                            0});
             }
             catch (const OpenError&)
             {
@@ -497,6 +742,7 @@ public:
 
     const auto& GetTile() const { return mTile; }
     const auto& GetItems() const { return mItemInsts; }
+    const auto& GetEncounters() const { return mEncounters; }
     const auto GetCenter() const
     {
         return mCenter.value_or(

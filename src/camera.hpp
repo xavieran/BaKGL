@@ -1,12 +1,14 @@
 #pragma once
 
+#include "constants.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 class Camera
 {
 public:
-    Camera(unsigned width, unsigned height)
+    Camera(unsigned width, unsigned height, glm::vec3 worldCenter)
     :
         mPosition{0,1.4,0},
         mProjectionMatrix{
@@ -17,8 +19,14 @@ public:
                 4000.0f
         )},
         mHorizontalAngle{3.14},
-        mVerticalAngle{0}
+        mVerticalAngle{0},
+        mWorldCenter{worldCenter}
     {}
+
+    void SetPosition(const glm::vec3& position)
+    {
+        mPosition = position;
+    }
     
     void MoveForward(float amount)
     {
@@ -66,13 +74,14 @@ public:
     glm::mat4 GetViewMatrix() const
     { 
         return glm::lookAt(
-            mPosition,
-            mPosition + GetDirection(),
+            GetNormalisedPosition(),
+            GetNormalisedPosition() + GetDirection(),
             GetUp()
         );
     }
 
-    const glm::vec3 GetPosition() const { return mPosition; }
+    glm::vec3 GetPosition() const { return mPosition; }
+    glm::vec3 GetNormalisedPosition() const { return mPosition / BAK::gWorldScale; }
     const glm::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 
 private:
@@ -80,4 +89,5 @@ private:
     glm::mat4 mProjectionMatrix;
     double mHorizontalAngle;
     double mVerticalAngle;
+    glm::vec3 mWorldCenter;
 };

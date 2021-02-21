@@ -3,14 +3,14 @@
 #include "constants.hpp"
 #include "coordinates.hpp"
 #include "gameData.hpp"
-#include "imguiWrapper.hpp"
-
 #include "logger.hpp"
-
-#include "meshObject.hpp"
-#include "renderer.hpp"
-#include "shaderProgram.hpp"
 #include "worldFactory.hpp"
+
+#include "graphics/meshObject.hpp"
+#include "graphics/renderer.hpp"
+#include "graphics/shaderProgram.hpp"
+
+#include "imgui/imguiWrapper.hpp"
 
 #include "xbak/FileManager.h"
 #include "xbak/FileBuffer.h"
@@ -56,20 +56,51 @@ int main(int argc, char** argv)
     auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textures};
     auto worlds      = BAK::WorldTileStore{zoneItems};
     auto worldCenter = worlds.GetTiles().front().GetCenter();
-    //auto worldCenter = glm::vec3{978140, 0, -973103};
     //auto loc = gameData.mLocus.mPosition;
     //auto worldCenter = glm::vec3{loc.x, 1.6, loc.y};
 
     logger.Info() << "World Center: " << worldCenter << std::endl;
 
-    auto objStore = BAK::MeshObjectStorage{};
+    /*auto systems = Systems{};
+    for (const auto& world : worlds)
+    {
+        for (const auto& inst : world.GetItems())
+        {
+            systems.AddIntersectable(
+                Intersectable{}
+        }
+    }*/
+
+    auto objStore = Graphics::MeshObjectStorage{};
 
     for (auto& item : zoneItems.GetItems())
     {
-        auto obj = BAK::MeshObject{};
-        obj.LoadFromBaKItem(item, textures, pal);
-        objStore.AddObject(item.GetName(), obj);
+        objStore.AddObject(
+            item.GetName(),
+            BAK::ZoneItemToMeshObject(item, textures, pal));
     }
+
+    auto sphere = Sphere{30.0, 36, 18, true};
+    objStore.AddObject(
+        "combat",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 0, .7}));
+
+    objStore.AddObject(
+        "dialog",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{0.0, 1, 0, .7}));
+
+    objStore.AddObject(
+        "transition",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 1, 0, .7}));
+
+    objStore.AddObject(
+        "town",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 1, .7}));
+
+    objStore.AddObject(
+        "grey",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+
 
     if( !glfwInit() )
     {
@@ -159,10 +190,11 @@ int main(int argc, char** argv)
 
     glm::vec3 lightPos = glm::vec3(0,220,0);
     
-    float speed = 6 * 30.0f; // 3 units / second
+    float speed = 400 * 30.0f; // 3 units / second
     float turnSpeed = 30.0f; // 3 units / second
 
-    Camera camera{width, height};
+    Camera camera{width, height, worldCenter};
+    camera.SetPosition(worldCenter);
 
     double currentTime;
     double lastTime = 0;
@@ -199,7 +231,9 @@ int main(int argc, char** argv)
         {
             ImGui::Begin("Info");
             std::stringstream ss{};
-            ss << "Pos: " << camera.GetPosition();
+            ss << "Pos: " << camera.GetPosition() 
+                << "\nNPos: " << camera.GetNormalisedPosition()
+                << "\nTile: " << glm::floor(camera.GetPosition() / glm::vec3{BAK::gTileSize});
             ImGui::Text(ss.str().c_str());
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 
                 / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -212,10 +246,8 @@ int main(int argc, char** argv)
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
         
-        if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS){
+        if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS)
             camera.MoveForward(deltaTime * speed);
-            logger.Info() << "Pos: " << camera.GetPosition() << std::endl;
-        }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
             camera.MoveForward(-deltaTime * speed);
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
@@ -231,23 +263,21 @@ int main(int argc, char** argv)
         if (glfwGetKey( window, GLFW_KEY_Y) == GLFW_PRESS)
             camera.RotateVertical(-deltaTime * (turnSpeed / 12));
 
-        if (glfwGetKey( window, GLFW_KEY_P) == GLFW_PRESS){
+        if (glfwGetKey( window, GLFW_KEY_P) == GLFW_PRESS)
             lightPos.y += .5;
-        }
-        if (glfwGetKey( window, GLFW_KEY_L) == GLFW_PRESS){
+        if (glfwGetKey( window, GLFW_KEY_L) == GLFW_PRESS)
             lightPos.y -= .5;
-        }
 
-        lightPos.x = camera.GetPosition().x;
-        lightPos.z = camera.GetPosition().z;
+        lightPos.x = camera.GetNormalisedPosition().x;
+        lightPos.z = camera.GetNormalisedPosition().z;
         
         // Update the camera position and light position
         glUniform3f(lightId, lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(
             cameraPositionId,
-            camera.GetPosition().x,
-            camera.GetPosition().y,
-            camera.GetPosition().z);
+            camera.GetNormalisedPosition().x,
+            camera.GetNormalisedPosition().y,
+            camera.GetNormalisedPosition().z);
 
         viewMatrix = camera.GetViewMatrix();
 
@@ -257,15 +287,16 @@ int main(int argc, char** argv)
         {
             for (const auto& inst : world.GetItems())
             {
-                const auto [offset, length] = objStore.GetObject(inst.GetZoneItem().GetName());
+                const auto [offset, length] = objStore.GetObject(
+                    inst.GetZoneItem().GetName());
+
                 modelMatrix = glm::mat4(1.0f);
                 
-                auto itemLoc = inst.GetLocation();
-                auto relLoc = (itemLoc - worldCenter) / BAK::gWorldScale;
+                auto relLoc = inst.GetLocation() / BAK::gWorldScale;
                 auto scaleFactor = static_cast<float>(inst.GetZoneItem().GetScale());
 
-                // Lower the ground a little - need to fix issues with objects
-                // being rendered on top of each other...
+                // Lower the ground a little - needed to fix issues with 
+                // the road z-fighting
                 if (inst.GetZoneItem().GetName() == "ground")
                     modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.5,0});
                 
@@ -289,6 +320,50 @@ int main(int argc, char** argv)
             }
         }
         
+        for (const auto& world : worlds.GetTiles())
+        {
+            for (const auto& inst : world.GetEncounters())
+            {
+                const auto GetZoneItem = [&](auto encounterType){
+                    switch (encounterType)
+                    {
+                    case BAK::EncounterType::Combat: return "combat";
+                    case BAK::EncounterType::Dialog: return "dialog";
+                    case BAK::EncounterType::Transition: return "transition";
+                    case BAK::EncounterType::Town: return "town";
+                    default: return "grey";
+                    }
+                };
+
+                const auto [offset, length] = objStore.GetObject(GetZoneItem(inst.GetType()));
+
+                modelMatrix = glm::mat4(1.0f);
+                auto location = glm::vec3{
+                    static_cast<float>(world.GetTile()[0]) * 64000 + (static_cast<float>(inst.GetOffset().x << 2)),
+                    0.0f,
+                    -(static_cast<float>(world.GetTile()[1]) * 64000 + (static_cast<float>(inst.GetOffset().y << 2)))};
+                auto relLoc = location / BAK::gWorldScale;
+                float scaleFactor = 1;//static_cast<float>(inst.GetZoneItem().GetScale());
+
+                modelMatrix = glm::translate(modelMatrix, relLoc);
+                modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
+
+                MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
+
+                glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
+                glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+                glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+                glDrawElementsBaseVertex(
+                    GL_TRIANGLES,
+                    length,
+                    GL_UNSIGNED_INT,
+                    (void*) (offset * sizeof(GLuint)),
+                    offset
+                );
+            }
+        }
+
         ImguiWrapper::Draw(window);
         
         // Swap buffers
