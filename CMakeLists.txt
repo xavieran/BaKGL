@@ -17,6 +17,9 @@ find_package(glfw3 3.3 REQUIRED)
 
 #add_subdirectory(glad)
 
+add_subdirectory("imgui")
+include_directories("imgui")
+
 add_subdirectory("xbak")
 include_directories("xbak")
 
@@ -25,6 +28,7 @@ include_directories("shaders")
 
 set(BAK_INCLUDES
     xbak
+    imgui
 )
 
 set(LINK_3D_LIBRARIES 
@@ -39,17 +43,19 @@ set(CMAKE_CXX_FLAGS "-O2 -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
 list(APPEND BAK_BINARIES
     compile_shaders 
+    dialog_explorer
     display_dialog
     display_object
     display_tile
     display_save
+    show_imgui
     main2d
     main3d
 )
 
 foreach (BAK_BIN IN LISTS BAK_BINARIES)
     add_executable (${BAK_BIN} src/${BAK_BIN}.cpp ${BAK_INCLUDES})
-    target_link_libraries(${BAK_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} xbak SDL)
+    target_link_libraries(${BAK_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} imgui SDL xbak)
 endforeach()
 
 # Be nice to run this over all the shaders

@@ -132,7 +132,10 @@ public:
         
         if (length > 0)
             mText = fb.GetString(length);
+        else
+            mText = "";
     }
+
 
     struct Choice
     {
@@ -147,6 +150,9 @@ public:
         std::array<std::uint8_t, 10> mAction;
     };
     
+    const std::vector<Choice>& GetChoices() const { return mChoices; }
+    const std::string& GetText() const { return mText; }
+
     std::uint8_t mDisplayStyle;
     std::uint16_t mActor;
     std::uint8_t mDisplayStyle2;
@@ -178,6 +184,7 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
     {
         os << "++ " << action.mAction << std::endl;
     }
+
     for (const auto& choice : d.mChoices)
     {
         os << ">> " << choice.mState << " -> " << choice.mChoice1 
@@ -265,15 +272,16 @@ public:
                 std::cout << "Done" << std::endl;
                 good = false;
             }
-            else if (snippet.mChoices.size() == 1)
-            {
-                snippet = std::visit(*this, snippet.mChoices.back().mTarget);
-            }
             else
             {
-                snippet = std::visit(*this, snippet.mChoices.front().mTarget);
+                snippet = GetSnippet(snippet.mChoices.front().mTarget);
             }
         }
+    }
+
+    const DialogSnippet& GetSnippet(Target target) const
+    {
+        return std::visit(*this, target);
     }
 
     OffsetTarget GetTarget(KeyTarget dialogKey)
@@ -283,14 +291,28 @@ public:
         return it->second;
     }
 
-    const DialogSnippet& operator()(KeyTarget dialogKey)
+    std::string GetFirstText(const DialogSnippet& snippet)
+    {
+        if (snippet.GetText().length() != 0)
+            return snippet.GetText();
+        else
+        {
+            if (snippet.GetChoices().size() > 0)
+                return GetFirstText(
+                    GetSnippet(snippet.GetChoices().front().mTarget));
+            else
+                return "no text";
+        }
+    }
+
+    const DialogSnippet& operator()(KeyTarget dialogKey) const 
     {
         auto it = mDialogMap.find(dialogKey);
         if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
         return (*this)(it->second);
     }
 
-    const DialogSnippet& operator()(OffsetTarget snippetKey)
+    const DialogSnippet& operator()(OffsetTarget snippetKey) const
     {
         auto snip = mSnippetMap.find(snippetKey);
         if (snip == mSnippetMap.end()) throw std::runtime_error("Offset not found");
@@ -356,9 +378,10 @@ public:
                 << std::endl;
 
             const auto& emplaced = mKeys.emplace_back(dialogKey);
-            dialogStore.ShowDialog(emplaced);
         }
     }
+
+    const auto& GetKeys() const { return mKeys; }
 
 private:
     std::vector<Target> mKeys;

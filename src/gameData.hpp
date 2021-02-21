@@ -86,17 +86,6 @@ public:
   *
   ** DEF_TOWN.DAT
   * - Seems to affect zone crossing (e.g. from Tyr-Sog to highcastle etc.
-  *
-  * T******.DAT
-  * How many entries??
-  * 01 00 01 00
-  * Potentially coordinates???
-  * 19 0f 23 07
-  * 0d - combat number/index?
-  * 0d 00 00 00
-  *
-  *
-  *
   */
 
     GameData(FileBuffer& mBuffer)
@@ -108,9 +97,6 @@ public:
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
-        ZoneLabel zone{"Z01"};
-        LoadTileData(1, zone, 10, 15);
-        return;
         LoadLocation();
         LoadCombatStats(0xdb, 6);
         LoadCombatInventories(0x3a7f7, 6);
@@ -151,36 +137,6 @@ public:
         mLocus.mHeading = heading;
         mLocus.mPosition= {xpos, -ypos};
         mLocus.mTile = {xtile, ytile};
-    }
-
-    void LoadTileData(unsigned chapter, const ZoneLabel& zone, unsigned x, unsigned y)
-    {
-        mLogger.Info() << "Loading data for: " << zone.GetTileData(x, y) << std::endl;
-        auto fb = FileBufferFactory::CreateFileBuffer(zone.GetTileData(x, y));
-
-        fb.Skip((chapter - 1) * 192);
-        
-        fb.Dump(20);
-        unsigned numberOfEncounters = fb.GetUint16LE();
-        for (unsigned i = 0; i < numberOfEncounters; i++)
-        {
-            auto encounterType = static_cast<BAK::EncounterType>(fb.GetUint16LE());
-            unsigned xLoc = fb.GetUint16LE();
-            unsigned yLoc = fb.GetUint16LE();
-            unsigned encounterIndex = fb.GetUint16LE();
-            // Don't know
-            fb.GetUint16LE();
-            fb.GetUint16LE();
-            fb.GetUint8();
-            unsigned saveAddr = fb.GetUint16LE();
-            fb.GetUint16LE();
-            fb.GetUint16LE();
-            mLogger.Info() << "ZoneEntry: " << BAK::EncounterTypeToString(encounterType) 
-                << " loc: " << xLoc << "," << yLoc 
-                << " index: " << encounterIndex 
-                << " saveAddr: " << saveAddr << " 0x" 
-                << std::hex << saveAddr << std::dec << std::endl;
-        }
     }
 
     void LoadContainer()

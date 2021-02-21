@@ -3,6 +3,7 @@
 #include "constants.hpp"
 #include "coordinates.hpp"
 #include "gameData.hpp"
+#include "imguiWrapper.hpp"
 
 #include "logger.hpp"
 
@@ -14,6 +15,10 @@
 #include "FileManager.h"
 #include "FileBuffer.h"
 #include "PaletteResource.h"
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include <GL/glew.h>
 
@@ -110,7 +115,9 @@ int main(int argc, char** argv)
 
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
+    
+    ImguiWrapper::Initialise(window);
+    
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
@@ -177,8 +184,6 @@ int main(int argc, char** argv)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    // Currently just using discard. Will swap to proper transparency if
-    // discard costs too much.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
@@ -188,6 +193,23 @@ int main(int argc, char** argv)
 
     do
     {
+        glfwPollEvents();
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        {
+            ImGui::Begin("Info");
+            std::stringstream ss{};
+            ss << "Pos: " << camera.GetPosition();
+            ImGui::Text(ss.str().c_str());
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 
+                / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
+        
         glBindVertexArray(VertexArrayID);
 
         currentTime = glfwGetTime();
@@ -240,21 +262,16 @@ int main(int argc, char** argv)
             for (const auto& inst : world.GetItems())
             {
                 const auto [offset, length] = objStore.GetObject(inst.GetZoneItem().GetName());
-
                 modelMatrix = glm::mat4(1.0f);
                 
-                auto scaleFactor = static_cast<float>(
-                    inst.GetZoneItem().GetScale());
-
                 auto itemLoc = inst.GetLocation();
                 auto relLoc = (itemLoc - worldCenter) / BAK::gWorldScale;
+                auto scaleFactor = static_cast<float>(inst.GetZoneItem().GetScale());
 
+                // Lower the ground a little - need to fix issues with objects
+                // being rendered on top of each other...
                 if (inst.GetZoneItem().GetName() == "ground")
-                {
-                    // Lower the ground a little - need to fix issues with objects
-                    // being rendered on top of each other...
                     modelMatrix = glm::translate(modelMatrix, glm::vec3{0,-.5,0});
-                }
                 
                 modelMatrix = glm::translate(modelMatrix, relLoc);
                 modelMatrix = glm::scale(modelMatrix, glm::vec3{scaleFactor});
@@ -275,11 +292,11 @@ int main(int argc, char** argv)
                 );
             }
         }
-
+        
+        ImguiWrapper::Draw(window);
+        
         // Swap buffers
         glfwSwapBuffers(window);
-        glfwPollEvents();
-
     } // Check if the ESC key was pressed or the window was closed
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS 
         && glfwWindowShouldClose(window) == 0);
@@ -290,11 +307,12 @@ int main(int argc, char** argv)
     glDisableVertexAttribArray(3);
     glDisableVertexAttribArray(4);
 
-    // Cleanup VBO
     glDeleteVertexArrays(1, &VertexArrayID);
     glDeleteProgram(programId);
 
-    // Close OpenGL window and terminate GLFW
+    ImguiWrapper::Shutdown();
+
+    glfwDestroyWindow(window);
     glfwTerminate();
 
     return 0;
