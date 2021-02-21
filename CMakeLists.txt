@@ -15,8 +15,6 @@ find_package(GLEW REQUIRED)
 find_package(glm REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
-#add_subdirectory(glad)
-
 include_directories(".")
 
 add_subdirectory("imgui")
@@ -40,22 +38,23 @@ set(LINK_3D_LIBRARIES
 set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter")
 set(CMAKE_CXX_FLAGS "-O2 -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
-list(APPEND BAK_BINARIES
+list(APPEND APP_BINARIES
     compile_shaders 
     dialog_explorer
     display_dialog
     display_object
     display_tile
     display_save
-    show_imgui
     main2d
     main3d
+    show_imgui
 )
 
-foreach (BAK_BIN IN LISTS BAK_BINARIES)
-    add_executable (${BAK_BIN} src/${BAK_BIN}.cpp ${BAK_INCLUDES})
-    target_link_libraries(${BAK_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} imgui SDL xbak)
+foreach (APP_BIN IN LISTS APP_BINARIES)
+    add_executable (${APP_BIN} app/${APP_BIN}.cpp ${APP_INCLUDES})
+    target_link_libraries(${APP_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} imgui SDL xbak)
 endforeach()
+
 
 # Be nice to run this over all the shaders
 # Need to add dependencies on "compile_shaders" and on the shaders referenced...

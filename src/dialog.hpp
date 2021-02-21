@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "constants.hpp"
 #include "resourceNames.hpp"
 #include "logger.hpp"

@@ -1,7 +1,7 @@
-#include "dialog.hpp"
-#include "imguiWrapper.hpp"
+#include "../src/dialog.hpp"
+#include "../src/imguiWrapper.hpp"
 
-#include "logger.hpp"
+#include "../src/logger.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -12,7 +12,6 @@
 #include <GLFW/glfw3.h>
 
 #include <stack>
-
 
 //FIX!
 template <typename T, std::size_t N>
