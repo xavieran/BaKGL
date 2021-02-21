@@ -1,7 +1,7 @@
-#include "../src/dialog.hpp"
-#include "../src/imguiWrapper.hpp"
+#include "dialog.hpp"
+#include "logger.hpp"
 
-#include "../src/logger.hpp"
+#include "imgui/imguiWrapper.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"

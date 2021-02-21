@@ -1,9 +1,10 @@
 #include "logger.hpp"
 
-#include "meshObject.hpp"
-#include "renderer.hpp"
-#include "shaderProgram.hpp"
 #include "worldFactory.hpp"
+
+#include "graphics/meshObject.hpp"
+#include "graphics/renderer.hpp"
+#include "graphics/shaderProgram.hpp"
 
 #include "xbak/FileManager.h"
 #include "xbak/FileBuffer.h"

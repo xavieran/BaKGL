@@ -6,7 +6,6 @@
 
 #include "logger.hpp"
 #include "resourceNames.hpp"
-#include "tableResource.hpp"
 #include "texture.hpp"
 
 #include "xbak/Exception.h"
@@ -198,7 +197,6 @@ public:
     :
         mName{name},
         mEntityFlags{datInfo.entityFlags},
-        mEntityType{BAK::EntityType{datInfo.entityType}},
         mScale{static_cast<double>(1 << datInfo.terrainClass)},
         mSpriteIndex{datInfo.sprite},
         mColors{},
@@ -292,8 +290,6 @@ public:
 private:
     std::string mName;
     unsigned mEntityFlags;
-    EntityType mEntityType;
-    TerrainType mTerrainType;
     double mScale;
     unsigned mSpriteIndex;
     std::vector<std::uint8_t> mColors;

@@ -13,7 +13,6 @@
 
 #include "worldFactory.hpp"
 #include "eventHandler.hpp"
-#include "renderer.hpp"
 
 #include <fstream>   
 #include <iostream>   

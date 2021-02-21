@@ -1,5 +1,6 @@
-#include "shaderProgram.hpp"
 #include "logger.hpp"
+
+#include "graphics/shaderProgram.hpp"
 
 #include <GLFW/glfw3.h>
 
