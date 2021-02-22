@@ -191,10 +191,11 @@ public:
         }
     {}
 
-    void LoadTexturesGL(const TextureStore& textures)
+    void LoadTexturesGL(
+        const std::vector<Texture>& textures,
+        unsigned maxDim)
     {
         glBindTexture(GL_TEXTURE_2D_ARRAY, mTextureBuffer);
-        auto maxDim = textures.GetMaxDim();
 
         glTexStorage3D(
             GL_TEXTURE_2D_ARRAY,
@@ -204,7 +205,7 @@ public:
             64              // Number of layers
         );
         
-        for (const auto& tex : textures.GetTextures() | boost::adaptors::indexed())
+        for (const auto& tex : textures | boost::adaptors::indexed())
         {
             std::vector<glm::vec4> paddedTex(
                 maxDim * maxDim,

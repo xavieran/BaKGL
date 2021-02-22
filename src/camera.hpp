@@ -18,8 +18,7 @@ public:
                 1.0f,
                 4000.0f
         )},
-        mHorizontalAngle{3.14},
-        mVerticalAngle{0},
+        mAngle{3.14, 0},
         mWorldCenter{worldCenter}
     {}
 
@@ -28,6 +27,11 @@ public:
         mPosition = position;
     }
     
+    void SetAngle(glm::vec2 angle)
+    {
+        mAngle = angle;
+    }
+
     void MoveForward(float amount)
     {
         mPosition += GetDirection() * amount;
@@ -38,37 +42,47 @@ public:
         mPosition += GetRight() * amount;
     }
 
+    void StrafeUp(float amount)
+    {
+        mPosition += GetUp() * amount;
+    }
+
     void RotateLeft(float amount)
     {
-        mHorizontalAngle += amount;
+        mAngle.x += amount;
     }
 
     void RotateVertical(float amount)
     {
-        mVerticalAngle += amount;
+        mAngle.y += amount;
     }
 
     glm::vec3 GetDirection() const
     {
         return {
-            cos(mVerticalAngle) * sin(mHorizontalAngle),
-            sin(mVerticalAngle),
-            cos(mVerticalAngle) * cos(mHorizontalAngle)
+            cos(mAngle.y) * sin(mAngle.x),
+            sin(mAngle.y),
+            cos(mAngle.y) * cos(mAngle.x)
         };
     }
 
     glm::vec3 GetRight() const
     {
         return {
-            sin(mHorizontalAngle - 3.14f/2.0f),
+            sin(mAngle.x - 3.14f/2.0f),
             0,
-            cos(mHorizontalAngle - 3.14f/2.0f)
+            cos(mAngle.x - 3.14f/2.0f)
         };
     }
 
     glm::vec3 GetUp() const
     {
         return glm::cross(GetRight(), GetDirection());
+    }
+
+    glm::vec2 GetAngle() const
+    {
+        return mAngle;
     }
 
     glm::mat4 GetViewMatrix() const
@@ -87,7 +101,6 @@ public:
 private:
     glm::vec3 mPosition;
     glm::mat4 mProjectionMatrix;
-    double mHorizontalAngle;
-    double mVerticalAngle;
+    glm::vec2 mAngle;
     glm::vec3 mWorldCenter;
 };

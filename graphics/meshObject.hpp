@@ -98,7 +98,7 @@ MeshObject SphereToMeshObject(const Sphere& sphere, glm::vec4 color)
 class MeshObjectStorage
 {
 public:
-    using OffsetAndLength = std::pair<unsigned long, unsigned long>;
+    using OffsetAndLength = std::pair<unsigned, unsigned>;
 
     MeshObjectStorage()
     :
@@ -132,7 +132,8 @@ public:
         std::copy(obj.mTextureBlends.begin(), obj.mTextureBlends.end(), std::back_inserter(mTextureBlends));
         std::copy(obj.mIndices.begin(), obj.mIndices.end(), std::back_inserter(mIndices));
 
-        mLog.Debug() << __FUNCTION__ << " " << id << " off: " << mOffset << " len: " << length << std::endl;
+        mLog.Debug() << __FUNCTION__ << " " << id << " off: " << mOffset 
+            << " len: " << length << std::endl;
 
         mOffset += obj.GetNumVertices();
 
@@ -141,7 +142,12 @@ public:
 
     OffsetAndLength GetObject(const std::string& id)
     {   
-        assert(mObjects.find(id) != mObjects.end());
+        if (mObjects.find(id) == mObjects.end())
+        {
+            std::stringstream ss{};
+            ss << "Couldn't find: " << id;
+            throw std::runtime_error(ss.str());
+        }
         return mObjects.find(id)->second;
     }
 

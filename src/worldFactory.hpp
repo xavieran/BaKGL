@@ -155,7 +155,7 @@ public:
             })->GetHeight();
 
         mMaxWidth = std::max_element(
-            mTextures.begin(), mTextures.end(),
+			mTextures.begin(), mTextures.end(),
             [](const auto &lhs, const auto& rhs){
             return (lhs.GetWidth() < rhs.GetWidth());
             })->GetWidth();
@@ -198,7 +198,7 @@ public:
     :
         mName{name},
         mEntityFlags{datInfo.entityFlags},
-        mScale{static_cast<double>(1 << datInfo.terrainClass)},
+        mScale{static_cast<float>(1 << datInfo.terrainClass)},
         mSpriteIndex{datInfo.sprite},
         mColors{},
         mVertices{},
@@ -247,6 +247,8 @@ public:
                     || color == 0
                     || color == 0))
                     mPush.emplace_back(false);
+                else if (GetName().substr(0, 6) == "ground")
+                    mPush.emplace_back(false);
                 else
                     mPush.emplace_back(true);
             }
@@ -289,11 +291,31 @@ public:
     const auto& GetPalettes() const { return mPalettes; }
     const auto& GetVertices() const { return mVertices; }
     const auto& GetScale() const { return mScale; }
+    bool GetClickable() const
+    {
+        for (std::string s : {
+            "ground",
+            "zero",
+            "one",
+            "tree",
+            "cryst",
+            "t0",
+            "g0",
+            "r0",
+            "spring",
+            "fall",
+            "landscp"})
+        {
+            if (mName.substr(0, s.length()) == s)
+                return false;
+        }
+        return true;
+    }
 
 private:
     std::string mName;
     unsigned mEntityFlags;
-    double mScale;
+    float mScale;
     unsigned mSpriteIndex;
     std::vector<std::uint8_t> mColors;
     std::vector<glm::vec<3, int>> mVertices;

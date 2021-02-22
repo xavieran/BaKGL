@@ -41,8 +41,8 @@ int main(int argc, char** argv)
     FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
     auto& pal = *palz->GetPalette();
 
-    auto textures  = BAK::TextureStore{zoneLabel, pal};
-    auto zoneItems = BAK::ZoneItemStore{zoneLabel, textures};
+    auto textureStore  = BAK::TextureStore{zoneLabel, pal};
+    auto zoneItems = BAK::ZoneItemStore{zoneLabel, textureStore};
 
     auto objStore = Graphics::MeshObjectStorage{};
     
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
         {
             objStore.AddObject(
                 item.GetName(),
-                BAK::ZoneItemToMeshObject(item, textures, pal));
+                BAK::ZoneItemToMeshObject(item, textureStore, pal));
         }
     }
 
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
     glBindVertexArray(0);
 
     BAK::TextureBuffer textureBuffer{};
-    textureBuffer.LoadTexturesGL(textures);
+    textureBuffer.LoadTexturesGL(textureStore.GetTextures(), textureStore.GetMaxDim());
 
     /*
 

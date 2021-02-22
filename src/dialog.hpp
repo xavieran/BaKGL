@@ -290,7 +290,7 @@ public:
         return it->second;
     }
 
-    std::string GetFirstText(const DialogSnippet& snippet)
+    std::string GetFirstText(const DialogSnippet& snippet) const
     {
         if (snippet.GetText().length() != 0)
             return snippet.GetText();

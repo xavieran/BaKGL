@@ -30,16 +30,16 @@ std::string EncounterTypeToString(EncounterType t)
 {
     switch (t)
     {
-    case EncounterType::Unknown1: return "Unknown1";
-    case EncounterType::Combat: return "Combat";
-    case EncounterType::Unknown2: return "Unknown2";
-    case EncounterType::Dialog: return "Dialog";
-    case EncounterType::Unknown3: return "Unknown3";
-    case EncounterType::Sound: return "Sound";
-    case EncounterType::Town: return "Town";
-    case EncounterType::Trap: return "Trap";
-    case EncounterType::Transition: return "Transition";
-    default: return "Unknown";
+    case EncounterType::Unknown1: return "unknown";
+    case EncounterType::Combat: return "combat";
+    case EncounterType::Unknown2: return "unknown";
+    case EncounterType::Dialog: return "dialog";
+    case EncounterType::Unknown3: return "unknown";
+    case EncounterType::Sound: return "sound";
+    case EncounterType::Town: return "town";
+    case EncounterType::Trap: return "trap";
+    case EncounterType::Transition: return "transition";
+    default: return "unknown";
     }
 }
 
@@ -66,7 +66,16 @@ public:
     {}
 
     auto GetOffset() const { return mOffset; }
+    auto GetIndex() const { return mEncounterIndex; }
     auto GetType() const { return mEncounterType; }
+    auto GetLocation() const
+    {
+        return glm::vec3{
+            static_cast<float>(mTile[0]) * BAK::gTileSize + (static_cast<float>(GetOffset().x << 2)),
+            0.0f,
+            -(static_cast<float>(mTile[1]) * BAK::gTileSize + (static_cast<float>(GetOffset().y << 2)))};
+
+    }
 
 private:
     EncounterType mEncounterType;
