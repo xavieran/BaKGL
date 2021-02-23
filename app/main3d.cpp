@@ -26,7 +26,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/intersect.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <boost/range/adaptor/indexed.hpp>
@@ -370,47 +369,21 @@ int main(int argc, char** argv)
 		pointer.setMVP(camera.GetProjectionMatrix() * camera.GetViewMatrix());
 		pointer.draw();
 
-        for (const auto& item : systems.GetIntersectables())
-        {
-            auto distance = glm::distance(item.GetLocation(), camera.GetPosition());
-            if (distance < item.GetRadius())
-                activeEncounter = encounters[item.GetId()];
-        }
+        auto intersectable = systems.RunIntersection(camera.GetPosition());
+        if (intersectable)
+            activeEncounter = encounters[*intersectable];
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			activeClickable = nullptr;
+
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
-            double bestDistance = 1e9;
-            unsigned bestId = 0;
-            for (const auto& clickable : systems.GetClickables())
-            {
-				glm::vec3 p;
-				glm::vec3 n;
-				bool intersecting = glm::intersectLineSphere(
-					camera.GetPosition(),
-					camera.GetPosition() + (camera.GetDirection() * 3000.0f),
-					clickable.GetLocation(),
-					clickable.GetRadius(),
-					p,
-					n,
-					p,
-					n);
-                if (intersecting)
-				{
-					logger.Info() << "Intersected: " << clickable.GetId() 
-						<< " nm: " << clickables[clickable.GetId()]->GetZoneItem().GetName() 
-						<< std::endl;
-					auto distance = glm::distance(camera.GetPosition(), clickable.GetLocation());
-					if (distance < bestDistance)
-					{
-						bestDistance = distance;
-						bestId = clickable.GetId();
-					}
-				}
-            }
-
-			activeClickable = clickables[bestId];
+            auto bestId = systems.RunClickable(
+                std::make_pair(
+                    camera.GetPosition(), 
+                    camera.GetPosition() + (camera.GetDirection() * 3000.0f)));
+            if (bestId)
+                activeClickable = clickables[*bestId];
         }
 
         
