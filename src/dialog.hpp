@@ -239,6 +239,7 @@ public:
             {
                 const auto offset = OffsetTarget{dialogFile, fb.Tell()};
                 auto snippet = DialogSnippet{fb, dialogFile};
+                mLogger.Spam() << offset << " @ " << snippet << std::endl;
                 const auto& [it, emplaced] = mSnippetMap.emplace(offset, snippet);
             }
         }
@@ -262,18 +263,31 @@ public:
     void ShowDialog(Target dialogKey)
     {
         auto snippet = std::visit(*this, dialogKey);
-        bool good = true;
-        while (good)
+        bool noText = true;
+        mLogger.Info() << "Dialog for key: " << std::hex << dialogKey << std::endl;
+
+        std::cout << "Text: " << GetFirstText(snippet) << std::endl;
+        return;
+        std::vector<Target> seen{};
+
+        while (noText)
         {
             std::cout << snippet << std::endl;
             if (snippet.mChoices.size() == 0)
             {
-                std::cout << "Done" << std::endl;
-                good = false;
+                break;
+            }
+            else if (snippet.GetText() == "")
+            {
+                auto target = snippet.mChoices.back().mTarget;
+                if (std::find(seen.begin(), seen.end(), target) != seen.end())
+                    break;
+                snippet = GetSnippet(target);
+                seen.emplace_back(target);
             }
             else
             {
-                snippet = GetSnippet(snippet.mChoices.front().mTarget);
+                noText = true;
             }
         }
     }
@@ -281,6 +295,19 @@ public:
     const DialogSnippet& GetSnippet(Target target) const
     {
         return std::visit(*this, target);
+    }
+
+    bool HasSnippet(Target target) const
+    {
+        try
+        {
+            std::visit(*this, target);
+            return true;
+        }
+        catch (std::runtime_error& e)
+        {
+            return false;
+        }
     }
 
     OffsetTarget GetTarget(KeyTarget dialogKey)

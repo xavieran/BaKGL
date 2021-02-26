@@ -98,6 +98,7 @@ int main(int argc, char** argv)
         ImGui::NewFrame();
 
         {
+            if (!dialogStore.HasSnippet(current)) current = BAK::KeyTarget{0x72};
             const auto& snippet = dialogStore.GetSnippet(current);
 
             const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -107,11 +108,17 @@ int main(int argc, char** argv)
 
             ImGui::Begin("Dialog");
             ImGui::Text("Dialog indices: %d", dialogIndex.GetKeys().size());
-            static char curIndex[64] = "0"; ImGui::InputText("Index ", curIndex, 5, ImGuiInputTextFlags_CharsDecimal);
+            static char curIndex[64] = "0"; ImGui::InputText("Index ", curIndex, 10); //, ImGuiInputTextFlags_CharsHex);
             ImGui::SameLine(); if (ImGui::Button("Change"))
             {
                 while (!history.empty()) history.pop();
-                current = dialogIndex.GetKeys()[atoi(curIndex)];
+                //current = dialogIndex.GetKeys()[atoi(curIndex)];Q
+                std::stringstream ss{};
+                ss << std::hex << curIndex;
+                std::uint32_t key;
+                ss >> key;
+                current = BAK::KeyTarget{key};
+                logger.Info() << "Change Key to: " << current << std::endl;
             }
 
             {

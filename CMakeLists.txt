@@ -43,6 +43,7 @@ list(APPEND APP_BINARIES
     compile_shaders 
     dialog_explorer
     display_dialog
+    display_gds
     display_object
     display_tile
     display_save
