@@ -676,12 +676,14 @@ public:
         mZoneItem{zoneItem},
         mType{type},
         mRotation{BAK::ToGlAngle(rotation)},
-        mLocation{BAK::ToGlCoord<float>(location)}
+        mLocation{BAK::ToGlCoord<float>(location)},
+        mBakLocation{location.GetX(), location.GetY()}
     {}
 
     const ZoneItem& GetZoneItem() const { return mZoneItem; }
     const glm::vec3& GetRotation() const { return mRotation; }
     const glm::vec3& GetLocation() const { return mLocation; }
+    const glm::vec<2, unsigned>& GetBakLocation() const { return mBakLocation; }
     unsigned GetType() const { return mType; }
 
 private:
@@ -690,6 +692,7 @@ private:
     unsigned mType;
     glm::vec3 mRotation;
     glm::vec3 mLocation;
+    glm::vec<2, unsigned> mBakLocation;
 
     friend std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d);
 };

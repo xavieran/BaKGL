@@ -169,6 +169,14 @@ FileBuffer::Dump(const unsigned int n)
 }
 
 void
+FileBuffer::DumpAndSkip(const unsigned int n)
+{
+    if (n == 0) return;
+    Dump(n);
+    Skip(n);
+}
+
+void
 FileBuffer::Dump(std::ostream& os, const unsigned int n)
 {
     uint8_t* tmp = current;

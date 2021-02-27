@@ -10,35 +10,39 @@
 
 namespace BAK {
 
+// These are enumerated in "LIST_TYP.DAT"
 enum class EncounterType : std::uint16_t
 {
-    Unknown1 = 0, // DEF_BKGR.DAT?? teleport??
+    Background = 0, // DEF_BKGR.DAT?? teleport??
     Combat = 1,  // DEF_COMB.DAT
-    Unknown2 = 2,  // ???
+    Comment = 2,  // ???
     Dialog = 3,  // DEF_DIAL.DAT
-    Unknown3 = 4,  // ???
+    Health = 4,  // ???
     Sound = 5,  // DEF_SOUN.DAT
     Town = 6,  // DEF_TOWN.DAT
     Trap = 7,  // DEF_TRAP.DAT
-    Transition = 8,  // DEF_??.DAT
-    Unknown4 = 9,  // DEF_DISA.DAT
-    Unknown5 = 0xa,  // DEF_ENAB.DAT
-    Unknown6 = 0xb  // DEF_BLOC.DAT
+    Zone = 8,  // DEF_??.DAT
+    Disable = 9,  // DEF_DISA.DAT
+    Enable = 0xa,  // DEF_ENAB.DAT
+    Block = 0xb  // DEF_BLOC.DAT
 };
 
 std::string EncounterTypeToString(EncounterType t)
 {
     switch (t)
     {
-    case EncounterType::Unknown1: return "unknown";
+    case EncounterType::Background: return "background";
     case EncounterType::Combat: return "combat";
-    case EncounterType::Unknown2: return "unknown";
+    case EncounterType::Comment: return "comment";
     case EncounterType::Dialog: return "dialog";
-    case EncounterType::Unknown3: return "unknown";
+    case EncounterType::Health: return "health";
     case EncounterType::Sound: return "sound";
     case EncounterType::Town: return "town";
     case EncounterType::Trap: return "trap";
-    case EncounterType::Transition: return "transition";
+    case EncounterType::Zone: return "zone";
+    case EncounterType::Disable: return "disable";
+    case EncounterType::Enable: return "enable";
+    case EncounterType::Block: return "block";
     default: return "unknown";
     }
 }

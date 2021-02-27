@@ -25,24 +25,24 @@ std::ostream& operator<<(std::ostream& os, const std::array<T, N>& a)
 }
 
 void ShowDialogGui(
-    unsigned index,
+    BAK::Target dialogKey,
     const auto& dialogStore,
     const auto& dialogIndex)
 {
-    static unsigned currentIndex = 0;
+    static auto chosenKey = BAK::Target{BAK::KeyTarget{0x72}};
+    static auto current = BAK::Target{BAK::KeyTarget{0x72}};
     static auto history = std::stack<BAK::Target>{};
-    static auto current = dialogIndex.GetKeys()[currentIndex];
 
-    if (index != currentIndex)
+    if (chosenKey != dialogKey)
     {
-        currentIndex = index;
-        current = dialogIndex.GetKeys()[index];
+        chosenKey = dialogKey;
+        current = dialogKey;
     }
 
     const auto& snippet = dialogStore.GetSnippet(current);
 
     ImGui::Begin("Dialog");
-    ImGui::Text("Dialog indices: %d", dialogIndex.GetKeys().size());
+
     {
         std::stringstream ss{};
         ss << "Previous: ";
@@ -86,3 +86,21 @@ void ShowDialogGui(
 
     ImGui::End();
 }
+
+void ShowDialogGuiIndex(
+    unsigned index,
+    const auto& dialogStore,
+    const auto& dialogIndex)
+{
+    static unsigned currentIndex = 0;
+    static BAK::Target current = dialogIndex.GetKeys()[currentIndex];
+
+    if (index != currentIndex)
+    {
+        currentIndex = index;
+        current = dialogIndex.GetKeys()[index];
+    }
+
+    ShowDialogGui(current, dialogStore, dialogIndex);
+}
+

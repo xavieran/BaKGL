@@ -1,0 +1,953 @@
+Report for Betrayal at Krondor
+Created by Universal Game Editor
+
+Num.  Variable name            OFFSET  VAR.TYPE    RANGE
+===========================================================================
+      This is the name of the saved game.  If all 20 letters of the first
+      variable are used, then any letters in part 2 will also be used in
+      the saved game title.
+   1  Saved game title              0  20 letters        TEXT       
+   2  Game title (part 2)          20  9 letters         TEXT       
+---------------------------------------------------------------------------
+      This is the amount of royals the party has.  The amount of gold will
+      be 10% of this value.
+   3  Money (royals)              102  4 bytes     +/- 2,147,483,648
+---------------------------------------------------------------------------
+      These variables store the names of the characters.  You may change
+      these names.  The default names are :
+      1=Locklear  2=Gorath  3=Owyn  4=Pug  5=James  6=Patrus
+   4  Char #1 Name                159  9 letters         TEXT       
+   5  Char #2 Name                169  9 letters         TEXT       
+   6  Char #3 Name                179  9 letters         TEXT       
+   7  Char #4 Name                189  9 letters         TEXT       
+   8  Char #5 Name                199  9 letters         TEXT       
+   9  Char #6 Name                209  9 letters         TEXT       
+---------------------------------------------------------------------------
+  10  Char #1 Health max          227  1 byte         0 thru 255    
+  11  Char #1 Health curr         228  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  12  Char #1 Stamina max         232  1 byte         0 thru 255    
+  13  Char #1 Stamina curr        233  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  14  Char #1 Speed               237  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  15  Char #1 Strength            243  1 byte         0 thru 255    
+  16  Char #1 Defense             248  1 byte         0 thru 255    
+  17  Char #1 Accy:crossbo        253  1 byte         0 thru 255    
+  18  Char #1 Accy:melee          258  1 byte         0 thru 255    
+  19  Char #1 Accy:casting        263  1 byte         0 thru 255    
+  20  Char #1 Assessment          268  1 byte         0 thru 255    
+  21  Char #1 Armorcraft          273  1 byte         0 thru 255    
+  22  Char #1 Weaponcraft         278  1 byte         0 thru 255    
+  23  Char #1 Barding             283  1 byte         0 thru 255    
+  24  Char #1 Haggling            288  1 byte         0 thru 255    
+  25  Char #1 Lockpick            293  1 byte         0 thru 255    
+  26  Char #1 Scouting            298  1 byte         0 thru 255    
+  27  Char #1 Stealth             303  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  28  Char #2 Health max          322  1 byte         0 thru 255    
+  29  Char #2 Health curr         323  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  30  Char #2 Stamina max         327  1 byte         0 thru 255    
+  31  Char #2 Stamina curr        328  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  32  Char #2 Speed               332  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  33  Char #2 Strength            338  1 byte         0 thru 255    
+  34  Char #2 Defense             343  1 byte         0 thru 255    
+  35  Char #2 Accy:crossbo        348  1 byte         0 thru 255    
+  36  Char #2 Accy:melee          353  1 byte         0 thru 255    
+  37  Char #2 Accy:casting        358  1 byte         0 thru 255    
+  38  Char #2 Assessment          363  1 byte         0 thru 255    
+  39  Char #2 Armorcraft          368  1 byte         0 thru 255    
+  40  Char #2 Weaponcraft         373  1 byte         0 thru 255    
+  41  Char #2 Barding             378  1 byte         0 thru 255    
+  42  Char #2 Haggling            383  1 byte         0 thru 255    
+  43  Char #2 Lockpick            388  1 byte         0 thru 255    
+  44  Char #2 Scouting            393  1 byte         0 thru 255    
+  45  Char #2 Stealth             398  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This section holds the spells known by this character.  If these
+      variables are each given a value of 255, then this character will
+      know ALL spells.  If these variables are each given a value of 0,
+      then this character will have all spells erased from his mind.
+
+      Each of these variables keeps track of 8 spells.  If a variable has
+      a value of 0, then none of the 8 spells are known.  Each spell that
+      the variable tracks can be learned by adding a value to the variable.
+      Start with a value of 0, then add the following to learn individual
+      spells:
+         1 = Spell #1
+         2 = Spell #2
+         4 = Spell #3
+         8 = Spell #4
+        16 = Spell #5
+        32 = Spell #6
+        64 = Spell #7
+       128 = Spell #8
+      This way, if a character needed spells 1,3,4 and 7, then a value
+      of 77 would be used (1+4+8+64).
+      Remember, a value of 255 (1+2+4+8+16+32+64+128) will learn all
+      8 spells that the variable tracks.
+  46  Spells 255=all/Char3        411  1 byte         0 thru 255    
+  47  Spells 255=all/Char3        412  1 byte         0 thru 255    
+  48  Spells 255=all/Char3        413  1 byte         0 thru 255    
+  49  Spells 255=all/Char3        414  1 byte         0 thru 255    
+  50  Spells 255=all/Char3        415  1 byte         0 thru 255    
+  51  Spells 255=all/Char3        416  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  52  Char #3 Health max          417  1 byte         0 thru 255    
+  53  Char #3 Health curr         418  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  54  Char #3 Stamina max         422  1 byte         0 thru 255    
+  55  Char #3 Stamina curr        423  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  56  Char #3 Speed               427  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  57  Char #3 Strength            433  1 byte         0 thru 255    
+  58  Char #3 Defense             438  1 byte         0 thru 255    
+  59  Char #3 Accy:crossbo        443  1 byte         0 thru 255    
+  60  Char #3 Accy:melee          448  1 byte         0 thru 255    
+  61  Char #3 Accy:casting        453  1 byte         0 thru 255    
+  62  Char #3 Assessment          458  1 byte         0 thru 255    
+  63  Char #3 Armorcraft          463  1 byte         0 thru 255    
+  64  Char #3 Weaponcraft         468  1 byte         0 thru 255    
+  65  Char #3 Barding             473  1 byte         0 thru 255    
+  66  Char #3 Haggling            478  1 byte         0 thru 255    
+  67  Char #3 Lockpick            483  1 byte         0 thru 255    
+  68  Char #3 Scouting            488  1 byte         0 thru 255    
+  69  Char #3 Stealth             493  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      See VARIABLE Num.46
+  70  Spells 255=all/Char4        506  1 byte         0 thru 255    
+  71  Spells 255=all/Char4        507  1 byte         0 thru 255    
+  72  Spells 255=all/Char4        508  1 byte         0 thru 255    
+  73  Spells 255=all/Char4        509  1 byte         0 thru 255    
+  74  Spells 255=all/Char4        510  1 byte         0 thru 255    
+  75  Spells 255=all/Char4        511  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  76  Char #4 Health max          512  1 byte         0 thru 255    
+  77  Char #4 Health curr         513  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  78  Char #4 Stamina max         517  1 byte         0 thru 255    
+  79  Char #4 Stamina curr        518  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  80  Char #4 Speed               522  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  81  Char #4 Strength            528  1 byte         0 thru 255    
+  82  Char #4 Defense             533  1 byte         0 thru 255    
+  83  Char #4 Accy:crossbo        538  1 byte         0 thru 255    
+  84  Char #4 Accy:melee          543  1 byte         0 thru 255    
+  85  Char #4 Accy:casting        548  1 byte         0 thru 255    
+  86  Char #4 Assessment          553  1 byte         0 thru 255    
+  87  Char #4 Armorcraft          558  1 byte         0 thru 255    
+  88  Char #4 Weaponcraft         563  1 byte         0 thru 255    
+  89  Char #4 Barding             568  1 byte         0 thru 255    
+  90  Char #4 Haggling            573  1 byte         0 thru 255    
+  91  Char #4 Lockpick            578  1 byte         0 thru 255    
+  92  Char #4 Scouting            583  1 byte         0 thru 255    
+  93  Char #4 Stealth             588  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  94  Char #5 Health max          607  1 byte         0 thru 255    
+  95  Char #5 Health curr         608  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  96  Char #5 Stamina max         612  1 byte         0 thru 255    
+  97  Char #5 Stamina curr        613  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  98  Char #5 Speed               617  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+  99  Char #5 Strength            623  1 byte         0 thru 255    
+ 100  Char #5 Defense             628  1 byte         0 thru 255    
+ 101  Char #5 Accy:crossbo        633  1 byte         0 thru 255    
+ 102  Char #5 Accy:melee          638  1 byte         0 thru 255    
+ 103  Char #5 Accy:casting        643  1 byte         0 thru 255    
+ 104  Char #5 Assessment          648  1 byte         0 thru 255    
+ 105  Char #5 Armorcraft          653  1 byte         0 thru 255    
+ 106  Char #5 Weaponcraft         658  1 byte         0 thru 255    
+ 107  Char #5 Barding             663  1 byte         0 thru 255    
+ 108  Char #5 Haggling            668  1 byte         0 thru 255    
+ 109  Char #5 Lockpick            673  1 byte         0 thru 255    
+ 110  Char #5 Scouting            678  1 byte         0 thru 255    
+ 111  Char #5 Stealth             683  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      See VARIABLE Num.46
+ 112  Spells 255=all/Char6        696  1 byte         0 thru 255    
+ 113  Spells 255=all/Char6        697  1 byte         0 thru 255    
+ 114  Spells 255=all/Char6        698  1 byte         0 thru 255    
+ 115  Spells 255=all/Char6        699  1 byte         0 thru 255    
+ 116  Spells 255=all/Char6        700  1 byte         0 thru 255    
+ 117  Spells 255=all/Char6        701  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+ 118  Char #6 Health max          702  1 byte         0 thru 255    
+ 119  Char #6 Health curr         703  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+ 120  Char #6 Stamina max         707  1 byte         0 thru 255    
+ 121  Char #6 Stamina curr        708  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+ 122  Char #6 Speed               712  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+ 123  Char #6 Strength            718  1 byte         0 thru 255    
+ 124  Char #6 Defense             723  1 byte         0 thru 255    
+ 125  Char #6 Accy:crossbo        728  1 byte         0 thru 255    
+ 126  Char #6 Accy:melee          733  1 byte         0 thru 255    
+ 127  Char #6 Accy:casting        738  1 byte         0 thru 255    
+ 128  Char #6 Assessment          743  1 byte         0 thru 255    
+ 129  Char #6 Armorcraft          748  1 byte         0 thru 255    
+ 130  Char #6 Weaponcraft         753  1 byte         0 thru 255    
+ 131  Char #6 Barding             758  1 byte         0 thru 255    
+ 132  Char #6 Haggling            763  1 byte         0 thru 255    
+ 133  Char #6 Lockpick            768  1 byte         0 thru 255    
+ 134  Char #6 Scouting            773  1 byte         0 thru 255    
+ 135  Char #6 Stealth             778  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This variable determines how many items this character is carrying.
+      Up to 23 items may be carried.  With a value of 10, only the first
+      10 items will be carried by the character.  Some items take up
+      additional space.  If too many large items are crammed into a
+      backpack, strange things might happen, so be careful.
+ 136  Char1 Items carried      239620  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This section holds information about the items that this character is
+      carrying. Each character can carry up to 23 items (numbered Item01
+      through Item23).  Each item has 4 variables to describe it.
+
+      TYPE = A number from 0-137.  Using a number higher than 137 may cause
+          your game to lock up.  See the table below to determine which
+          number creates which item.
+      CHARGES = A number from 0-255.  Some items have CHARGES, some items
+          have a PERCENT condition, and other items are permanent and
+          ignore the value in the CHARGES variable.
+      STATUS = This variable is used to show the status of the item.
+          Some possible values for STATUS are :
+          16=Broken  32=Repairable  64=Using  96=Repairable  128=Poisoned
+      ENHANCE = This variable keeps track of the enhancements to this item.
+          If this variable has a value of 0, then the item has no
+          enhancements.  Each enhancement that the variable tracks can be
+          added to an item by adding a value to the variable.  Start with
+          a value of 0, then add the following values to gain the
+          corresponding enhancement:
+         1 = Flaming
+         2 = Steelfired
+         4 = Frosted
+         8 = Enhanced
+        16 = Enhanced
+        32 = Bless #1
+        64 = Bless #2
+       128 = Bless #3
+      This way, if an item has an ENHANCE value of 133 (1+4+128), it would
+      be flaming, frosted and blessed with a Bless #3.
+      If the ENHANCE variable has a value of 255 (1+2+4+8+16+32+64+128), it
+      will have ALL enhancements (flaming+steelfired+frosted+enhanced+
+      enhanced+Bless #1+Bless #2+Bless #3).
+
+      ITEM TYPES BY NUMBER
+        1 Crystal staff                71 Royal key
+        2 Lightning staff              72 Food-good
+        3 Wooden staff                 73 Food-poisoned
+        4 Staff of Macros              74 Food-spoiled
+        5 Amulet of the Upright Man    75 Armorer's hammer
+        6 Ring of Prandur              76 Heavy bowstring
+        7 Brass spyglass               77 Light bowstring
+        8 Cup of Rlnn Skr              78 Herbal pack
+        9 Eliaem's heart               79 Ale cask
+       10 Glory hand                   80 Picklocks
+       11 Horn of Algon Kokoon         81 Practice lute
+       12 Idol of Lassur               82 Rope
+       13 Infinity pool                83 Shovel
+       14 Raw manna                    84 Torch
+       15 Roric's seal                 85 Whetstone
+       16 Seashell (special)           86 Adventurine
+       17 Wyvern's egg                 87 Burial cloth
+       18 Broadsword                   88 Ring of the Golden Way
+       19 Galon Griefmaker             89 Vapor mask
+       20 Goblin Sticker               90 Weedwalkers
+       21 Greatsword                   91 Catapult gear
+       22 Guarda Revanche              92 Geomancy stones
+       23 Exotic sword                 93 Glazers Guild seal
+       24 Keshian tapir                94 Hellfire trap
+       25 Moredhal lamprey             95 Ironjaw trap
+       26 Rapier                       96 River trap
+       27 Sword of Kinnur              97 Knights piece
+       28 Sword of Lims-Kragma         98 Lecture ticket
+       29 Two-handed broadsword        99 Leather leggings
+       30 Light crossbow              100 Skeletal hand
+       31 Medium crossbow             101 Waani
+       32 Bessy Mauler                102 Wooden chest
+       33 Tsurani light crossbow      103 Altain's icer
+       34 Tsurani heavy crossbow      104 Clerical oilcloth
+       35 Elven crossbow              105 Coltari poison
+       36 Quarrels                    106 Dragon stone
+       37 Elven quarrels              107 Flame root oil
+       38 Tsurani quarrels            108 Killian's root oil
+       39 Poisoned quarrels           109 Naptha
+       40 Poisoned Elven quarrels     110 Sarigsbane
+       41 Poisoned Tsurani quarrels   111 Silver spider
+       42 Flaming quarrels            112 Silverthorn
+       43 Enchanted quarrels          113 Silverthorn anti-venom
+       44 Dragon plate armor          114 Dalatail milk
+       45 Euliliko armor              115 Fadamor's Formula
+       46 Elven armor                 116 Lewton's Concentrate
+       47 Gray Tower plate            117 Redweed brew
+       48 Standard Kingdom armor      118 Truesight Tea
+       49 Valheru armor               119 Restoratives
+       50 Potio Noxum                 120 Note (CHARGES determines which)
+       51 Powder bag                  121 Great One's note
+       52 Tuning fork                 122 Mitchel Waylander's note
+       53 Gold sovereigns             123 Navon's note
+       54 Silver royals               124 Abbot's Journal
+       55 Diamonds                    125 Lorgan's Journal
+       56 Emeralds                    126 Accts of Shamata Garrison
+       57 Rubies                      127 Chapel's Rmur N Whepuns
+       58 Seashell (normal)           128 Dorcas' Treatise
+       59 Moredhel brooch             129 Kalem's Dialectic
+       60 Bag of grain                130 Psalms of Dala
+       61 Peasant's key               131 Strategies of Trading
+       62 Virtue key                  132 Thiful's Bird Migrations
+       63 Key of Lineages             133 Magical scroll (CHARGES=spell #)
+       64 Cellar key                  134 Days rations
+       65 Nivek's key                 135 Quegian brandy
+       66 Interdictor key             136 Ale
+       67 Noble's passkey             137 Keshian ale
+       68 Guilder's passkey
+       69 Guildis Thorn
+       70 Ward of Ralen-Sheb
+ 137  Char1 Item01 Type        239623  1 byte         0 thru 255
+ 138  Char1 Item01 Charges     239624  1 byte         0 thru 255    
+ 139  Char1 Item01 Status      239625  1 byte         0 thru 255    
+ 140  Char1 Item01 Enhance     239626  1 byte         0 thru 255    
+ 141  Char1 Item02 Type        239627  1 byte         0 thru 255    
+ 142  Char1 Item02 Charges     239628  1 byte         0 thru 255    
+ 143  Char1 Item02 Status      239629  1 byte         0 thru 255    
+ 144  Char1 Item02 Enhance     239630  1 byte         0 thru 255    
+ 145  Char1 Item03 Type        239631  1 byte         0 thru 255    
+ 146  Char1 Item03 Charges     239632  1 byte         0 thru 255    
+ 147  Char1 Item03 Status      239633  1 byte         0 thru 255    
+ 148  Char1 Item03 Enhance     239634  1 byte         0 thru 255    
+ 149  Char1 Item04 Type        239635  1 byte         0 thru 255    
+ 150  Char1 Item04 Charges     239636  1 byte         0 thru 255    
+ 151  Char1 Item04 Status      239637  1 byte         0 thru 255    
+ 152  Char1 Item04 Enhance     239638  1 byte         0 thru 255    
+ 153  Char1 Item05 Type        239639  1 byte         0 thru 255    
+ 154  Char1 Item05 Charges     239640  1 byte         0 thru 255    
+ 155  Char1 Item05 Status      239641  1 byte         0 thru 255    
+ 156  Char1 Item05 Enhance     239642  1 byte         0 thru 255    
+ 157  Char1 Item06 Type        239643  1 byte         0 thru 255    
+ 158  Char1 Item06 Charges     239644  1 byte         0 thru 255    
+ 159  Char1 Item06 Status      239645  1 byte         0 thru 255    
+ 160  Char1 Item06 Enhance     239646  1 byte         0 thru 255    
+ 161  Char1 Item07 Type        239647  1 byte         0 thru 255    
+ 162  Char1 Item07 Charges     239648  1 byte         0 thru 255    
+ 163  Char1 Item07 Status      239649  1 byte         0 thru 255    
+ 164  Char1 Item07 Enhance     239650  1 byte         0 thru 255    
+ 165  Char1 Item08 Type        239651  1 byte         0 thru 255    
+ 166  Char1 Item08 Charges     239652  1 byte         0 thru 255    
+ 167  Char1 Item08 Status      239653  1 byte         0 thru 255    
+ 168  Char1 Item08 Enhance     239654  1 byte         0 thru 255    
+ 169  Char1 Item09 Type        239655  1 byte         0 thru 255    
+ 170  Char1 Item09 Charges     239656  1 byte         0 thru 255    
+ 171  Char1 Item09 Status      239657  1 byte         0 thru 255    
+ 172  Char1 Item09 Enhance     239658  1 byte         0 thru 255    
+ 173  Char1 Item10 Type        239659  1 byte         0 thru 255    
+ 174  Char1 Item10 Charges     239660  1 byte         0 thru 255    
+ 175  Char1 Item10 Status      239661  1 byte         0 thru 255    
+ 176  Char1 Item10 Enhance     239662  1 byte         0 thru 255    
+ 177  Char1 Item11 Type        239663  1 byte         0 thru 255    
+ 178  Char1 Item11 Charges     239664  1 byte         0 thru 255    
+ 179  Char1 Item11 Status      239665  1 byte         0 thru 255    
+ 180  Char1 Item11 Enhance     239666  1 byte         0 thru 255    
+ 181  Char1 Item12 Type        239667  1 byte         0 thru 255    
+ 182  Char1 Item12 Charges     239668  1 byte         0 thru 255    
+ 183  Char1 Item12 Status      239669  1 byte         0 thru 255    
+ 184  Char1 Item12 Enhance     239670  1 byte         0 thru 255    
+ 185  Char1 Item13 Type        239671  1 byte         0 thru 255    
+ 186  Char1 Item13 Charges     239672  1 byte         0 thru 255    
+ 187  Char1 Item13 Status      239673  1 byte         0 thru 255    
+ 188  Char1 Item13 Enhance     239674  1 byte         0 thru 255    
+ 189  Char1 Item14 Type        239675  1 byte         0 thru 255    
+ 190  Char1 Item14 Charges     239676  1 byte         0 thru 255    
+ 191  Char1 Item14 Status      239677  1 byte         0 thru 255    
+ 192  Char1 Item14 Enhance     239678  1 byte         0 thru 255    
+ 193  Char1 Item15 Type        239679  1 byte         0 thru 255    
+ 194  Char1 Item15 Charges     239680  1 byte         0 thru 255    
+ 195  Char1 Item15 Status      239681  1 byte         0 thru 255    
+ 196  Char1 Item15 Enhance     239682  1 byte         0 thru 255    
+ 197  Char1 Item16 Type        239683  1 byte         0 thru 255    
+ 198  Char1 Item16 Charges     239684  1 byte         0 thru 255    
+ 199  Char1 Item16 Status      239685  1 byte         0 thru 255    
+ 200  Char1 Item16 Enhance     239686  1 byte         0 thru 255    
+ 201  Char1 Item17 Type        239687  1 byte         0 thru 255    
+ 202  Char1 Item17 Charges     239688  1 byte         0 thru 255    
+ 203  Char1 Item17 Status      239689  1 byte         0 thru 255    
+ 204  Char1 Item17 Enhance     239690  1 byte         0 thru 255    
+ 205  Char1 Item18 Type        239691  1 byte         0 thru 255    
+ 206  Char1 Item18 Charges     239692  1 byte         0 thru 255    
+ 207  Char1 Item18 Status      239693  1 byte         0 thru 255    
+ 208  Char1 Item18 Enhance     239694  1 byte         0 thru 255    
+ 209  Char1 Item19 Type        239695  1 byte         0 thru 255    
+ 210  Char1 Item19 Charges     239696  1 byte         0 thru 255    
+ 211  Char1 Item19 Status      239697  1 byte         0 thru 255    
+ 212  Char1 Item19 Enhance     239698  1 byte         0 thru 255    
+ 213  Char1 Item20 Type        239699  1 byte         0 thru 255    
+ 214  Char1 Item20 Charges     239700  1 byte         0 thru 255    
+ 215  Char1 Item20 Status      239701  1 byte         0 thru 255    
+ 216  Char1 Item20 Enhance     239702  1 byte         0 thru 255    
+ 217  Char1 Item21 Type        239703  1 byte         0 thru 255    
+ 218  Char1 Item21 Charges     239704  1 byte         0 thru 255    
+ 219  Char1 Item21 Status      239705  1 byte         0 thru 255    
+ 220  Char1 Item21 Enhance     239706  1 byte         0 thru 255    
+ 221  Char1 Item22 Type        239707  1 byte         0 thru 255    
+ 222  Char1 Item22 Charges     239708  1 byte         0 thru 255    
+ 223  Char1 Item22 Status      239709  1 byte         0 thru 255    
+ 224  Char1 Item22 Enhance     239710  1 byte         0 thru 255    
+ 225  Char1 Item23 Type        239711  1 byte         0 thru 255    
+ 226  Char1 Item23 Charges     239712  1 byte         0 thru 255    
+ 227  Char1 Item23 Status      239713  1 byte         0 thru 255    
+ 228  Char1 Item23 Enhance     239714  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This variable determines how many items this character is carrying.
+      Up to 23 items may be carried.  With a value of 10, only the first
+      10 items will be carried by the character.  Some items take up
+      additional space.  If too many large items are crammed into a
+      backpack, strange things might happen, so be careful.
+ 229  Char2 Items carried      239732  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      See VARIABLE Num.137 for a detailed description of item TYPE,
+      CHARGES, STATUS and ENHANCE.
+ 230  Char2 Item01 Type        239735  1 byte         0 thru 255    
+ 231  Char2 Item01 Charges     239736  1 byte         0 thru 255    
+ 232  Char2 Item01 Status      239737  1 byte         0 thru 255    
+ 233  Char2 Item01 Enhance     239738  1 byte         0 thru 255    
+ 234  Char2 Item02 Type        239739  1 byte         0 thru 255    
+ 235  Char2 Item02 Charges     239740  1 byte         0 thru 255    
+ 236  Char2 Item02 Status      239741  1 byte         0 thru 255    
+ 237  Char2 Item02 Enhance     239742  1 byte         0 thru 255    
+ 238  Char2 Item03 Type        239743  1 byte         0 thru 255    
+ 239  Char2 Item03 Charges     239744  1 byte         0 thru 255    
+ 240  Char2 Item03 Status      239745  1 byte         0 thru 255    
+ 241  Char2 Item03 Enhance     239746  1 byte         0 thru 255    
+ 242  Char2 Item04 Type        239747  1 byte         0 thru 255    
+ 243  Char2 Item04 Charges     239748  1 byte         0 thru 255    
+ 244  Char2 Item04 Status      239749  1 byte         0 thru 255    
+ 245  Char2 Item04 Enhance     239750  1 byte         0 thru 255    
+ 246  Char2 Item05 Type        239751  1 byte         0 thru 255    
+ 247  Char2 Item05 Charges     239752  1 byte         0 thru 255    
+ 248  Char2 Item05 Status      239753  1 byte         0 thru 255    
+ 249  Char2 Item05 Enhance     239754  1 byte         0 thru 255    
+ 250  Char2 Item06 Type        239755  1 byte         0 thru 255    
+ 251  Char2 Item06 Charges     239756  1 byte         0 thru 255    
+ 252  Char2 Item06 Status      239757  1 byte         0 thru 255    
+ 253  Char2 Item06 Enhance     239758  1 byte         0 thru 255    
+ 254  Char2 Item07 Type        239759  1 byte         0 thru 255    
+ 255  Char2 Item07 Charges     239760  1 byte         0 thru 255    
+ 256  Char2 Item07 Status      239761  1 byte         0 thru 255    
+ 257  Char2 Item07 Enhance     239762  1 byte         0 thru 255    
+ 258  Char2 Item08 Type        239763  1 byte         0 thru 255    
+ 259  Char2 Item08 Charges     239764  1 byte         0 thru 255    
+ 260  Char2 Item08 Status      239765  1 byte         0 thru 255    
+ 261  Char2 Item08 Enhance     239766  1 byte         0 thru 255    
+ 262  Char2 Item09 Type        239767  1 byte         0 thru 255    
+ 263  Char2 Item09 Charges     239768  1 byte         0 thru 255    
+ 264  Char2 Item09 Status      239769  1 byte         0 thru 255    
+ 265  Char2 Item09 Enhance     239770  1 byte         0 thru 255    
+ 266  Char2 Item10 Type        239771  1 byte         0 thru 255    
+ 267  Char2 Item10 Charges     239772  1 byte         0 thru 255    
+ 268  Char2 Item10 Status      239773  1 byte         0 thru 255    
+ 269  Char2 Item10 Enhance     239774  1 byte         0 thru 255    
+ 270  Char2 Item11 Type        239775  1 byte         0 thru 255    
+ 271  Char2 Item11 Charges     239776  1 byte         0 thru 255    
+ 272  Char2 Item11 Status      239777  1 byte         0 thru 255    
+ 273  Char2 Item11 Enhance     239778  1 byte         0 thru 255    
+ 274  Char2 Item12 Type        239779  1 byte         0 thru 255    
+ 275  Char2 Item12 Charges     239780  1 byte         0 thru 255    
+ 276  Char2 Item12 Status      239781  1 byte         0 thru 255    
+ 277  Char2 Item12 Enhance     239782  1 byte         0 thru 255    
+ 278  Char2 Item13 Type        239783  1 byte         0 thru 255    
+ 279  Char2 Item13 Charges     239784  1 byte         0 thru 255    
+ 280  Char2 Item13 Status      239785  1 byte         0 thru 255    
+ 281  Char2 Item13 Enhance     239786  1 byte         0 thru 255    
+ 282  Char2 Item14 Type        239787  1 byte         0 thru 255    
+ 283  Char2 Item14 Charges     239788  1 byte         0 thru 255    
+ 284  Char2 Item14 Status      239789  1 byte         0 thru 255    
+ 285  Char2 Item14 Enhance     239790  1 byte         0 thru 255    
+ 286  Char2 Item15 Type        239791  1 byte         0 thru 255    
+ 287  Char2 Item15 Charges     239792  1 byte         0 thru 255    
+ 288  Char2 Item15 Status      239793  1 byte         0 thru 255    
+ 289  Char2 Item15 Enhance     239794  1 byte         0 thru 255    
+ 290  Char2 Item16 Type        239795  1 byte         0 thru 255    
+ 291  Char2 Item16 Charges     239796  1 byte         0 thru 255    
+ 292  Char2 Item16 Status      239797  1 byte         0 thru 255    
+ 293  Char2 Item16 Enhance     239798  1 byte         0 thru 255    
+ 294  Char2 Item17 Type        239799  1 byte         0 thru 255    
+ 295  Char2 Item17 Charges     239800  1 byte         0 thru 255    
+ 296  Char2 Item17 Status      239801  1 byte         0 thru 255    
+ 297  Char2 Item17 Enhance     239802  1 byte         0 thru 255    
+ 298  Char2 Item18 Type        239803  1 byte         0 thru 255    
+ 299  Char2 Item18 Charges     239804  1 byte         0 thru 255    
+ 300  Char2 Item18 Status      239805  1 byte         0 thru 255    
+ 301  Char2 Item18 Enhance     239806  1 byte         0 thru 255    
+ 302  Char2 Item19 Type        239807  1 byte         0 thru 255    
+ 303  Char2 Item19 Charges     239808  1 byte         0 thru 255    
+ 304  Char2 Item19 Status      239809  1 byte         0 thru 255    
+ 305  Char2 Item19 Enhance     239810  1 byte         0 thru 255    
+ 306  Char2 Item20 Type        239811  1 byte         0 thru 255    
+ 307  Char2 Item20 Charges     239812  1 byte         0 thru 255    
+ 308  Char2 Item20 Status      239813  1 byte         0 thru 255    
+ 309  Char2 Item20 Enhance     239814  1 byte         0 thru 255    
+ 310  Char2 Item21 Type        239815  1 byte         0 thru 255    
+ 311  Char2 Item21 Charges     239816  1 byte         0 thru 255    
+ 312  Char2 Item21 Status      239817  1 byte         0 thru 255    
+ 313  Char2 Item21 Enhance     239818  1 byte         0 thru 255    
+ 314  Char2 Item22 Type        239819  1 byte         0 thru 255    
+ 315  Char2 Item22 Charges     239820  1 byte         0 thru 255    
+ 316  Char2 Item22 Status      239821  1 byte         0 thru 255    
+ 317  Char2 Item22 Enhance     239822  1 byte         0 thru 255    
+ 318  Char2 Item23 Type        239823  1 byte         0 thru 255    
+ 319  Char2 Item23 Charges     239824  1 byte         0 thru 255    
+ 320  Char2 Item23 Status      239825  1 byte         0 thru 255    
+ 321  Char2 Item23 Enhance     239826  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This variable determines how many items this character is carrying.
+      Up to 23 items may be carried.  With a value of 10, only the first
+      10 items will be carried by the character.  Some items take up
+      additional space.  If too many large items are crammed into a
+      backpack, strange things might happen, so be careful.
+ 322  Char3 Items carried      239844  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      See VARIABLE Num.137 for a detailed description of item TYPE,
+      CHARGES, STATUS and ENHANCE.
+ 323  Char3 Item01 Type        239847  1 byte         0 thru 255    
+ 324  Char3 Item01 Charges     239848  1 byte         0 thru 255    
+ 325  Char3 Item01 Status      239849  1 byte         0 thru 255    
+ 326  Char3 Item01 Charges     239850  1 byte         0 thru 255    
+ 327  Char3 Item02 Type        239851  1 byte         0 thru 255    
+ 328  Char3 Item02 Charges     239852  1 byte         0 thru 255    
+ 329  Char3 Item02 Status      239853  1 byte         0 thru 255    
+ 330  Char3 Item02 Charges     239854  1 byte         0 thru 255    
+ 331  Char3 Item03 Type        239855  1 byte         0 thru 255    
+ 332  Char3 Item03 Charges     239856  1 byte         0 thru 255    
+ 333  Char3 Item03 Status      239857  1 byte         0 thru 255    
+ 334  Char3 Item03 Charges     239858  1 byte         0 thru 255    
+ 335  Char3 Item04 Type        239859  1 byte         0 thru 255    
+ 336  Char3 Item04 Charges     239860  1 byte         0 thru 255    
+ 337  Char3 Item04 Status      239861  1 byte         0 thru 255    
+ 338  Char3 Item04 Charges     239862  1 byte         0 thru 255    
+ 339  Char3 Item05 Type        239863  1 byte         0 thru 255    
+ 340  Char3 Item05 Charges     239864  1 byte         0 thru 255    
+ 341  Char3 Item05 Status      239865  1 byte         0 thru 255    
+ 342  Char3 Item05 Charges     239866  1 byte         0 thru 255    
+ 343  Char3 Item06 Type        239867  1 byte         0 thru 255    
+ 344  Char3 Item06 Charges     239868  1 byte         0 thru 255    
+ 345  Char3 Item06 Status      239869  1 byte         0 thru 255    
+ 346  Char3 Item06 Charges     239870  1 byte         0 thru 255    
+ 347  Char3 Item07 Type        239871  1 byte         0 thru 255    
+ 348  Char3 Item07 Charges     239872  1 byte         0 thru 255    
+ 349  Char3 Item07 Status      239873  1 byte         0 thru 255    
+ 350  Char3 Item07 Charges     239874  1 byte         0 thru 255    
+ 351  Char3 Item08 Type        239875  1 byte         0 thru 255    
+ 352  Char3 Item08 Charges     239876  1 byte         0 thru 255    
+ 353  Char3 Item08 Status      239877  1 byte         0 thru 255    
+ 354  Char3 Item08 Charges     239878  1 byte         0 thru 255    
+ 355  Char3 Item09 Type        239879  1 byte         0 thru 255    
+ 356  Char3 Item09 Charges     239880  1 byte         0 thru 255    
+ 357  Char3 Item09 Status      239881  1 byte         0 thru 255    
+ 358  Char3 Item09 Charges     239882  1 byte         0 thru 255    
+ 359  Char3 Item10 Type        239883  1 byte         0 thru 255    
+ 360  Char3 Item10 Charges     239884  1 byte         0 thru 255    
+ 361  Char3 Item10 Status      239885  1 byte         0 thru 255    
+ 362  Char3 Item10 Charges     239886  1 byte         0 thru 255    
+ 363  Char3 Item11 Type        239887  1 byte         0 thru 255    
+ 364  Char3 Item11 Charges     239888  1 byte         0 thru 255    
+ 365  Char3 Item11 Status      239889  1 byte         0 thru 255    
+ 366  Char3 Item11 Charges     239890  1 byte         0 thru 255    
+ 367  Char3 Item12 Type        239891  1 byte         0 thru 255    
+ 368  Char3 Item12 Charges     239892  1 byte         0 thru 255    
+ 369  Char3 Item12 Status      239893  1 byte         0 thru 255    
+ 370  Char3 Item12 Charges     239894  1 byte         0 thru 255    
+ 371  Char3 Item13 Type        239895  1 byte         0 thru 255    
+ 372  Char3 Item13 Charges     239896  1 byte         0 thru 255    
+ 373  Char3 Item13 Status      239897  1 byte         0 thru 255    
+ 374  Char3 Item13 Charges     239898  1 byte         0 thru 255    
+ 375  Char3 Item14 Type        239899  1 byte         0 thru 255    
+ 376  Char3 Item14 Charges     239900  1 byte         0 thru 255    
+ 377  Char3 Item14 Status      239901  1 byte         0 thru 255    
+ 378  Char3 Item14 Charges     239902  1 byte         0 thru 255    
+ 379  Char3 Item15 Type        239903  1 byte         0 thru 255    
+ 380  Char3 Item15 Charges     239904  1 byte         0 thru 255    
+ 381  Char3 Item15 Status      239905  1 byte         0 thru 255    
+ 382  Char3 Item15 Charges     239906  1 byte         0 thru 255    
+ 383  Char3 Item16 Type        239907  1 byte         0 thru 255    
+ 384  Char3 Item16 Charges     239908  1 byte         0 thru 255    
+ 385  Char3 Item16 Status      239909  1 byte         0 thru 255    
+ 386  Char3 Item16 Charges     239910  1 byte         0 thru 255    
+ 387  Char3 Item17 Type        239911  1 byte         0 thru 255    
+ 388  Char3 Item17 Charges     239912  1 byte         0 thru 255    
+ 389  Char3 Item17 Status      239913  1 byte         0 thru 255    
+ 390  Char3 Item17 Charges     239914  1 byte         0 thru 255    
+ 391  Char3 Item18 Type        239915  1 byte         0 thru 255    
+ 392  Char3 Item18 Charges     239916  1 byte         0 thru 255    
+ 393  Char3 Item18 Status      239917  1 byte         0 thru 255    
+ 394  Char3 Item18 Charges     239918  1 byte         0 thru 255    
+ 395  Char3 Item19 Type        239919  1 byte         0 thru 255    
+ 396  Char3 Item19 Charges     239920  1 byte         0 thru 255    
+ 397  Char3 Item19 Status      239921  1 byte         0 thru 255    
+ 398  Char3 Item19 Charges     239922  1 byte         0 thru 255    
+ 399  Char3 Item20 Type        239923  1 byte         0 thru 255    
+ 400  Char3 Item20 Charges     239924  1 byte         0 thru 255    
+ 401  Char3 Item20 Status      239925  1 byte         0 thru 255    
+ 402  Char3 Item20 Charges     239926  1 byte         0 thru 255    
+ 403  Char3 Item21 Type        239927  1 byte         0 thru 255    
+ 404  Char3 Item21 Charges     239928  1 byte         0 thru 255    
+ 405  Char3 Item21 Status      239929  1 byte         0 thru 255    
+ 406  Char3 Item21 Charges     239930  1 byte         0 thru 255    
+ 407  Char3 Item22 Type        239931  1 byte         0 thru 255    
+ 408  Char3 Item22 Charges     239932  1 byte         0 thru 255    
+ 409  Char3 Item22 Status      239933  1 byte         0 thru 255    
+ 410  Char3 Item22 Charges     239934  1 byte         0 thru 255    
+ 411  Char3 Item23 Type        239935  1 byte         0 thru 255    
+ 412  Char3 Item23 Charges     239936  1 byte         0 thru 255    
+ 413  Char3 Item23 Status      239937  1 byte         0 thru 255    
+ 414  Char3 Item23 Charges     239938  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This variable determines how many items this character is carrying.
+      Up to 23 items may be carried.  With a value of 10, only the first
+      10 items will be carried by the character.  Some items take up
+      additional space.  If too many large items are crammed into a
+      backpack, strange things might happen, so be careful.
+ 415  Char4 Items carried      239956  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      See VARIABLE Num.137 for a detailed description of item TYPE,
+      CHARGES, STATUS and ENHANCE.
+ 416  Char4 Item01 Type        239959  1 byte         0 thru 255    
+ 417  Char4 Item01 Charges     239960  1 byte         0 thru 255    
+ 418  Char4 Item01 Status      239961  1 byte         0 thru 255    
+ 419  Char4 Item01 Enhance     239962  1 byte         0 thru 255    
+ 420  Char4 Item02 Type        239963  1 byte         0 thru 255    
+ 421  Char4 Item02 Charges     239964  1 byte         0 thru 255    
+ 422  Char4 Item02 Status      239965  1 byte         0 thru 255    
+ 423  Char4 Item02 Enhance     239966  1 byte         0 thru 255    
+ 424  Char4 Item03 Type        239967  1 byte         0 thru 255    
+ 425  Char4 Item03 Charges     239968  1 byte         0 thru 255    
+ 426  Char4 Item03 Status      239969  1 byte         0 thru 255    
+ 427  Char4 Item03 Enhance     239970  1 byte         0 thru 255    
+ 428  Char4 Item04 Type        239971  1 byte         0 thru 255    
+ 429  Char4 Item04 Charges     239972  1 byte         0 thru 255    
+ 430  Char4 Item04 Status      239973  1 byte         0 thru 255    
+ 431  Char4 Item04 Enhance     239974  1 byte         0 thru 255    
+ 432  Char4 Item05 Type        239975  1 byte         0 thru 255    
+ 433  Char4 Item05 Charges     239976  1 byte         0 thru 255    
+ 434  Char4 Item05 Status      239977  1 byte         0 thru 255    
+ 435  Char4 Item05 Enhance     239978  1 byte         0 thru 255    
+ 436  Char4 Item06 Type        239979  1 byte         0 thru 255    
+ 437  Char4 Item06 Charges     239980  1 byte         0 thru 255    
+ 438  Char4 Item06 Status      239981  1 byte         0 thru 255    
+ 439  Char4 Item06 Enhance     239982  1 byte         0 thru 255    
+ 440  Char4 Item07 Type        239983  1 byte         0 thru 255    
+ 441  Char4 Item07 Charges     239984  1 byte         0 thru 255    
+ 442  Char4 Item07 Status      239985  1 byte         0 thru 255    
+ 443  Char4 Item07 Enhance     239986  1 byte         0 thru 255    
+ 444  Char4 Item08 Type        239987  1 byte         0 thru 255    
+ 445  Char4 Item08 Charges     239988  1 byte         0 thru 255    
+ 446  Char4 Item08 Status      239989  1 byte         0 thru 255    
+ 447  Char4 Item08 Enhance     239990  1 byte         0 thru 255    
+ 448  Char4 Item09 Type        239991  1 byte         0 thru 255    
+ 449  Char4 Item09 Charges     239992  1 byte         0 thru 255    
+ 450  Char4 Item09 Status      239993  1 byte         0 thru 255    
+ 451  Char4 Item09 Enhance     239994  1 byte         0 thru 255    
+ 452  Char4 Item10 Type        239995  1 byte         0 thru 255    
+ 453  Char4 Item10 Charges     239996  1 byte         0 thru 255    
+ 454  Char4 Item10 Status      239997  1 byte         0 thru 255    
+ 455  Char4 Item10 Enhance     239998  1 byte         0 thru 255    
+ 456  Char4 Item11 Type        239999  1 byte         0 thru 255    
+ 457  Char4 Item11 Charges     240000  1 byte         0 thru 255    
+ 458  Char4 Item11 Status      240001  1 byte         0 thru 255    
+ 459  Char4 Item11 Enhance     240002  1 byte         0 thru 255    
+ 460  Char4 Item12 Type        240003  1 byte         0 thru 255    
+ 461  Char4 Item12 Charges     240004  1 byte         0 thru 255    
+ 462  Char4 Item12 Status      240005  1 byte         0 thru 255    
+ 463  Char4 Item12 Enhance     240006  1 byte         0 thru 255    
+ 464  Char4 Item13 Type        240007  1 byte         0 thru 255    
+ 465  Char4 Item13 Charges     240008  1 byte         0 thru 255    
+ 466  Char4 Item13 Status      240009  1 byte         0 thru 255    
+ 467  Char4 Item13 Enhance     240010  1 byte         0 thru 255    
+ 468  Char4 Item14 Type        240011  1 byte         0 thru 255    
+ 469  Char4 Item14 Charges     240012  1 byte         0 thru 255    
+ 470  Char4 Item14 Status      240013  1 byte         0 thru 255    
+ 471  Char4 Item14 Enhance     240014  1 byte         0 thru 255    
+ 472  Char4 Item15 Type        240015  1 byte         0 thru 255    
+ 473  Char4 Item15 Charges     240016  1 byte         0 thru 255    
+ 474  Char4 Item15 Status      240017  1 byte         0 thru 255    
+ 475  Char4 Item15 Enhance     240018  1 byte         0 thru 255    
+ 476  Char4 Item16 Type        240019  1 byte         0 thru 255    
+ 477  Char4 Item16 Charges     240020  1 byte         0 thru 255    
+ 478  Char4 Item16 Status      240021  1 byte         0 thru 255    
+ 479  Char4 Item16 Enhance     240022  1 byte         0 thru 255    
+ 480  Char4 Item17 Type        240023  1 byte         0 thru 255    
+ 481  Char4 Item17 Charges     240024  1 byte         0 thru 255    
+ 482  Char4 Item17 Status      240025  1 byte         0 thru 255    
+ 483  Char4 Item17 Enhance     240026  1 byte         0 thru 255    
+ 484  Char4 Item18 Type        240027  1 byte         0 thru 255    
+ 485  Char4 Item18 Charges     240028  1 byte         0 thru 255    
+ 486  Char4 Item18 Status      240029  1 byte         0 thru 255    
+ 487  Char4 Item18 Enhance     240030  1 byte         0 thru 255    
+ 488  Char4 Item19 Type        240031  1 byte         0 thru 255    
+ 489  Char4 Item19 Charges     240032  1 byte         0 thru 255    
+ 490  Char4 Item19 Status      240033  1 byte         0 thru 255    
+ 491  Char4 Item19 Enhance     240034  1 byte         0 thru 255    
+ 492  Char4 Item20 Type        240035  1 byte         0 thru 255    
+ 493  Char4 Item20 Charges     240036  1 byte         0 thru 255    
+ 494  Char4 Item20 Status      240037  1 byte         0 thru 255    
+ 495  Char4 Item20 Enhance     240038  1 byte         0 thru 255    
+ 496  Char4 Item21 Type        240039  1 byte         0 thru 255    
+ 497  Char4 Item21 Charges     240040  1 byte         0 thru 255    
+ 498  Char4 Item21 Status      240041  1 byte         0 thru 255    
+ 499  Char4 Item21 Enhance     240042  1 byte         0 thru 255    
+ 500  Char4 Item22 Type        240043  1 byte         0 thru 255    
+ 501  Char4 Item22 Charges     240044  1 byte         0 thru 255    
+ 502  Char4 Item22 Status      240045  1 byte         0 thru 255    
+ 503  Char4 Item22 Enhance     240046  1 byte         0 thru 255    
+ 504  Char4 Item23 Type        240047  1 byte         0 thru 255    
+ 505  Char4 Item23 Charges     240048  1 byte         0 thru 255    
+ 506  Char4 Item23 Status      240049  1 byte         0 thru 255    
+ 507  Char4 Item23 Enhance     240050  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This variable determines how many items this character is carrying.
+      Up to 23 items may be carried.  With a value of 10, only the first
+      10 items will be carried by the character.  Some items take up
+      additional space.  If too many large items are crammed into a
+      backpack, strange things might happen, so be careful.
+ 508  Char5 Items carried      240068  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      See VARIABLE Num.137 for a detailed description of item TYPE,
+      CHARGES, STATUS and ENHANCE.
+ 509  Char5 Item01 Type        240071  1 byte         0 thru 255    
+ 510  Char5 Item01 Charges     240072  1 byte         0 thru 255    
+ 511  Char5 Item01 Status      240073  1 byte         0 thru 255    
+ 512  Char5 Item01 Enhance     240074  1 byte         0 thru 255    
+ 513  Char5 Item02 Type        240075  1 byte         0 thru 255    
+ 514  Char5 Item02 Charges     240076  1 byte         0 thru 255    
+ 515  Char5 Item02 Status      240077  1 byte         0 thru 255    
+ 516  Char5 Item02 Enhance     240078  1 byte         0 thru 255    
+ 517  Char5 Item03 Type        240079  1 byte         0 thru 255    
+ 518  Char5 Item03 Charges     240080  1 byte         0 thru 255    
+ 519  Char5 Item03 Status      240081  1 byte         0 thru 255    
+ 520  Char5 Item03 Enhance     240082  1 byte         0 thru 255    
+ 521  Char5 Item04 Type        240083  1 byte         0 thru 255    
+ 522  Char5 Item04 Charges     240084  1 byte         0 thru 255    
+ 523  Char5 Item04 Status      240085  1 byte         0 thru 255    
+ 524  Char5 Item04 Enhance     240086  1 byte         0 thru 255    
+ 525  Char5 Item05 Type        240087  1 byte         0 thru 255    
+ 526  Char5 Item05 Charges     240088  1 byte         0 thru 255    
+ 527  Char5 Item05 Status      240089  1 byte         0 thru 255    
+ 528  Char5 Item05 Enhance     240090  1 byte         0 thru 255    
+ 529  Char5 Item06 Type        240091  1 byte         0 thru 255    
+ 530  Char5 Item06 Charges     240092  1 byte         0 thru 255    
+ 531  Char5 Item06 Status      240093  1 byte         0 thru 255    
+ 532  Char5 Item06 Enhance     240094  1 byte         0 thru 255    
+ 533  Char5 Item07 Type        240095  1 byte         0 thru 255    
+ 534  Char5 Item07 Charges     240096  1 byte         0 thru 255    
+ 535  Char5 Item07 Status      240097  1 byte         0 thru 255    
+ 536  Char5 Item07 Enhance     240098  1 byte         0 thru 255    
+ 537  Char5 Item08 Type        240099  1 byte         0 thru 255    
+ 538  Char5 Item08 Charges     240100  1 byte         0 thru 255    
+ 539  Char5 Item08 Status      240101  1 byte         0 thru 255    
+ 540  Char5 Item08 Enhance     240102  1 byte         0 thru 255    
+ 541  Char5 Item09 Type        240103  1 byte         0 thru 255    
+ 542  Char5 Item09 Charges     240104  1 byte         0 thru 255    
+ 543  Char5 Item09 Status      240105  1 byte         0 thru 255    
+ 544  Char5 Item09 Enhance     240106  1 byte         0 thru 255    
+ 545  Char5 Item10 Type        240107  1 byte         0 thru 255    
+ 546  Char5 Item10 Charges     240108  1 byte         0 thru 255    
+ 547  Char5 Item10 Status      240109  1 byte         0 thru 255    
+ 548  Char5 Item10 Enhance     240110  1 byte         0 thru 255    
+ 549  Char5 Item11 Type        240111  1 byte         0 thru 255    
+ 550  Char5 Item11 Charges     240112  1 byte         0 thru 255    
+ 551  Char5 Item11 Status      240113  1 byte         0 thru 255    
+ 552  Char5 Item11 Enhance     240114  1 byte         0 thru 255    
+ 553  Char5 Item12 Type        240115  1 byte         0 thru 255    
+ 554  Char5 Item12 Charges     240116  1 byte         0 thru 255    
+ 555  Char5 Item12 Status      240117  1 byte         0 thru 255    
+ 556  Char5 Item12 Enhance     240118  1 byte         0 thru 255    
+ 557  Char5 Item13 Type        240119  1 byte         0 thru 255    
+ 558  Char5 Item13 Charges     240120  1 byte         0 thru 255    
+ 559  Char5 Item13 Status      240121  1 byte         0 thru 255    
+ 560  Char5 Item13 Enhance     240122  1 byte         0 thru 255    
+ 561  Char5 Item14 Type        240123  1 byte         0 thru 255    
+ 562  Char5 Item14 Charges     240124  1 byte         0 thru 255    
+ 563  Char5 Item14 Status      240125  1 byte         0 thru 255    
+ 564  Char5 Item14 Enhance     240126  1 byte         0 thru 255    
+ 565  Char5 Item15 Type        240127  1 byte         0 thru 255    
+ 566  Char5 Item15 Charges     240128  1 byte         0 thru 255    
+ 567  Char5 Item15 Status      240129  1 byte         0 thru 255    
+ 568  Char5 Item15 Enhance     240130  1 byte         0 thru 255    
+ 569  Char5 Item16 Type        240131  1 byte         0 thru 255    
+ 570  Char5 Item16 Charges     240132  1 byte         0 thru 255    
+ 571  Char5 Item16 Status      240133  1 byte         0 thru 255    
+ 572  Char5 Item16 Enhance     240134  1 byte         0 thru 255    
+ 573  Char5 Item17 Type        240135  1 byte         0 thru 255    
+ 574  Char5 Item17 Charges     240136  1 byte         0 thru 255    
+ 575  Char5 Item17 Status      240137  1 byte         0 thru 255    
+ 576  Char5 Item17 Enhance     240138  1 byte         0 thru 255    
+ 577  Char5 Item18 Type        240139  1 byte         0 thru 255    
+ 578  Char5 Item18 Charges     240140  1 byte         0 thru 255    
+ 579  Char5 Item18 Status      240141  1 byte         0 thru 255    
+ 580  Char5 Item18 Enhance     240142  1 byte         0 thru 255    
+ 581  Char5 Item19 Type        240143  1 byte         0 thru 255    
+ 582  Char5 Item19 Charges     240144  1 byte         0 thru 255    
+ 583  Char5 Item19 Status      240145  1 byte         0 thru 255    
+ 584  Char5 Item19 Enhance     240146  1 byte         0 thru 255    
+ 585  Char5 Item20 Type        240147  1 byte         0 thru 255    
+ 586  Char5 Item20 Charges     240148  1 byte         0 thru 255    
+ 587  Char5 Item20 Status      240149  1 byte         0 thru 255    
+ 588  Char5 Item20 Enhance     240150  1 byte         0 thru 255    
+ 589  Char5 Item21 Type        240151  1 byte         0 thru 255    
+ 590  Char5 Item21 Charges     240152  1 byte         0 thru 255    
+ 591  Char5 Item21 Status      240153  1 byte         0 thru 255    
+ 592  Char5 Item21 Enhance     240154  1 byte         0 thru 255    
+ 593  Char5 Item22 Type        240155  1 byte         0 thru 255    
+ 594  Char5 Item22 Charges     240156  1 byte         0 thru 255    
+ 595  Char5 Item22 Status      240157  1 byte         0 thru 255    
+ 596  Char5 Item22 Enhance     240158  1 byte         0 thru 255    
+ 597  Char5 Item23 Type        240159  1 byte         0 thru 255    
+ 598  Char5 Item23 Charges     240160  1 byte         0 thru 255    
+ 599  Char5 Item23 Status      240161  1 byte         0 thru 255    
+ 600  Char5 Item23 Enhance     240162  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This variable determines how many items this character is carrying.
+      Up to 23 items may be carried.  With a value of 10, only the first
+      10 items will be carried by the character.  Some items take up
+      additional space.  If too many large items are crammed into a
+      backpack, strange things might happen, so be careful.
+ 601  Char6 Items carried      240180  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      See VARIABLE Num.137 for a detailed description of item TYPE,
+      CHARGES, STATUS and ENHANCE.
+ 602  Char6 Item01 Type        240183  1 byte         0 thru 255    
+ 603  Char6 Item01 Charges     240184  1 byte         0 thru 255    
+ 604  Char6 Item01 Status      240185  1 byte         0 thru 255    
+ 605  Char6 Item01 Enhance     240186  1 byte         0 thru 255    
+ 606  Char6 Item02 Type        240187  1 byte         0 thru 255    
+ 607  Char6 Item02 Charges     240188  1 byte         0 thru 255    
+ 608  Char6 Item02 Status      240189  1 byte         0 thru 255    
+ 609  Char6 Item02 Enhance     240190  1 byte         0 thru 255    
+ 610  Char6 Item03 Type        240191  1 byte         0 thru 255    
+ 611  Char6 Item03 Charges     240192  1 byte         0 thru 255    
+ 612  Char6 Item03 Status      240193  1 byte         0 thru 255    
+ 613  Char6 Item03 Enhance     240194  1 byte         0 thru 255    
+ 614  Char6 Item04 Type        240195  1 byte         0 thru 255    
+ 615  Char6 Item04 Charges     240196  1 byte         0 thru 255    
+ 616  Char6 Item04 Status      240197  1 byte         0 thru 255    
+ 617  Char6 Item04 Enhance     240198  1 byte         0 thru 255    
+ 618  Char6 Item05 Type        240199  1 byte         0 thru 255    
+ 619  Char6 Item05 Charges     240200  1 byte         0 thru 255    
+ 620  Char6 Item05 Status      240201  1 byte         0 thru 255    
+ 621  Char6 Item05 Enhance     240202  1 byte         0 thru 255    
+ 622  Char6 Item06 Type        240203  1 byte         0 thru 255    
+ 623  Char6 Item06 Charges     240204  1 byte         0 thru 255    
+ 624  Char6 Item06 Status      240205  1 byte         0 thru 255    
+ 625  Char6 Item06 Enhance     240206  1 byte         0 thru 255    
+ 626  Char6 Item07 Type        240207  1 byte         0 thru 255    
+ 627  Char6 Item07 Charges     240208  1 byte         0 thru 255    
+ 628  Char6 Item07 Status      240209  1 byte         0 thru 255    
+ 629  Char6 Item07 Enhance     240210  1 byte         0 thru 255    
+ 630  Char6 Item08 Type        240211  1 byte         0 thru 255    
+ 631  Char6 Item08 Charges     240212  1 byte         0 thru 255    
+ 632  Char6 Item08 Status      240213  1 byte         0 thru 255    
+ 633  Char6 Item08 Enhance     240214  1 byte         0 thru 255    
+ 634  Char6 Item09 Type        240215  1 byte         0 thru 255    
+ 635  Char6 Item09 Charges     240216  1 byte         0 thru 255    
+ 636  Char6 Item09 Status      240217  1 byte         0 thru 255    
+ 637  Char6 Item09 Enhance     240218  1 byte         0 thru 255    
+ 638  Char6 Item10 Type        240219  1 byte         0 thru 255    
+ 639  Char6 Item10 Charges     240220  1 byte         0 thru 255    
+ 640  Char6 Item10 Status      240221  1 byte         0 thru 255    
+ 641  Char6 Item10 Enhance     240222  1 byte         0 thru 255    
+ 642  Char6 Item11 Type        240223  1 byte         0 thru 255    
+ 643  Char6 Item11 Charges     240224  1 byte         0 thru 255    
+ 644  Char6 Item11 Status      240225  1 byte         0 thru 255    
+ 645  Char6 Item11 Enhance     240226  1 byte         0 thru 255    
+ 646  Char6 Item12 Type        240227  1 byte         0 thru 255    
+ 647  Char6 Item12 Charges     240228  1 byte         0 thru 255    
+ 648  Char6 Item12 Status      240229  1 byte         0 thru 255    
+ 649  Char6 Item12 Enhance     240230  1 byte         0 thru 255    
+ 650  Char6 Item13 Type        240231  1 byte         0 thru 255    
+ 651  Char6 Item13 Charges     240232  1 byte         0 thru 255    
+ 652  Char6 Item13 Status      240233  1 byte         0 thru 255    
+ 653  Char6 Item13 Enhance     240234  1 byte         0 thru 255    
+ 654  Char6 Item14 Type        240235  1 byte         0 thru 255    
+ 655  Char6 Item14 Charges     240236  1 byte         0 thru 255    
+ 656  Char6 Item14 Status      240237  1 byte         0 thru 255    
+ 657  Char6 Item14 Enhance     240238  1 byte         0 thru 255    
+ 658  Char6 Item15 Type        240239  1 byte         0 thru 255    
+ 659  Char6 Item15 Charges     240240  1 byte         0 thru 255    
+ 660  Char6 Item15 Status      240241  1 byte         0 thru 255    
+ 661  Char6 Item15 Enhance     240242  1 byte         0 thru 255    
+ 662  Char6 Item16 Type        240243  1 byte         0 thru 255    
+ 663  Char6 Item16 Charges     240244  1 byte         0 thru 255    
+ 664  Char6 Item16 Status      240245  1 byte         0 thru 255    
+ 665  Char6 Item16 Enhance     240246  1 byte         0 thru 255    
+ 666  Char6 Item17 Type        240247  1 byte         0 thru 255    
+ 667  Char6 Item17 Charges     240248  1 byte         0 thru 255    
+ 668  Char6 Item17 Status      240249  1 byte         0 thru 255    
+ 669  Char6 Item17 Enhance     240250  1 byte         0 thru 255    
+ 670  Char6 Item18 Type        240251  1 byte         0 thru 255    
+ 671  Char6 Item18 Charges     240252  1 byte         0 thru 255    
+ 672  Char6 Item18 Status      240253  1 byte         0 thru 255    
+ 673  Char6 Item18 Enhance     240254  1 byte         0 thru 255    
+ 674  Char6 Item19 Type        240255  1 byte         0 thru 255    
+ 675  Char6 Item19 Charges     240256  1 byte         0 thru 255    
+ 676  Char6 Item19 Status      240257  1 byte         0 thru 255    
+ 677  Char6 Item19 Enhance     240258  1 byte         0 thru 255    
+ 678  Char6 Item20 Type        240259  1 byte         0 thru 255    
+ 679  Char6 Item20 Charges     240260  1 byte         0 thru 255    
+ 680  Char6 Item20 Status      240261  1 byte         0 thru 255    
+ 681  Char6 Item20 Enhance     240262  1 byte         0 thru 255    
+ 682  Char6 Item21 Type        240263  1 byte         0 thru 255    
+ 683  Char6 Item21 Charges     240264  1 byte         0 thru 255    
+ 684  Char6 Item21 Status      240265  1 byte         0 thru 255    
+ 685  Char6 Item21 Enhance     240266  1 byte         0 thru 255    
+ 686  Char6 Item22 Type        240267  1 byte         0 thru 255    
+ 687  Char6 Item22 Charges     240268  1 byte         0 thru 255    
+ 688  Char6 Item22 Status      240269  1 byte         0 thru 255    
+ 689  Char6 Item22 Enhance     240270  1 byte         0 thru 255    
+ 690  Char6 Item23 Type        240271  1 byte         0 thru 255    
+ 691  Char6 Item23 Charges     240272  1 byte         0 thru 255    
+ 692  Char6 Item23 Status      240273  1 byte         0 thru 255    
+ 693  Char6 Item23 Enhance     240274  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This variable determines how many key types the party is carrying.
+      Up to 11 key types may be carried.  With a value of 5, only the
+      first 5 key types will carried by the party.
+ 694  Key types carried        240292  1 byte         0 thru 255    
+---------------------------------------------------------------------------
+      This section keeps track of the types and quantity of keys that the
+      party is carrying.  Here is a list of the key types:
+       64 = Cellar key
+       65 = Nivek's key
+       66 = Interdictor key
+       67 = Noble's passkey
+       68 = Guilder's passkey
+       69 = Guildis Thorn
+       70 = Ward of Ralen-Sheb
+       71 = Royal key
+ 695  Key #01 Type             240295  1 byte         0 thru 255    
+ 696  Key #01 Quantity         240296  1 byte         0 thru 255    
+ 697  Key #02 Type             240299  1 byte         0 thru 255    
+ 698  Key #02 Quantity         240300  1 byte         0 thru 255    
+ 699  Key #03 Type             240303  1 byte         0 thru 255    
+ 700  Key #03 Quantity         240304  1 byte         0 thru 255    
+ 701  Key #04 Type             240307  1 byte         0 thru 255    
+ 702  Key #04 Quantity         240308  1 byte         0 thru 255    
+ 703  Key #05 Type             240311  1 byte         0 thru 255    
+ 704  Key #05 Quantity         240312  1 byte         0 thru 255    
+ 705  Key #06 Type             240315  1 byte         0 thru 255    
+ 706  Key #06 Quantity         240316  1 byte         0 thru 255    
+ 707  Key #07 Type             240319  1 byte         0 thru 255    
+ 708  Key #07 Quantity         240320  1 byte         0 thru 255    
+ 709  Key #08 Type             240323  1 byte         0 thru 255    
+ 710  Key #08 Quantity         240324  1 byte         0 thru 255    
+ 711  Key #09 Type             240327  1 byte         0 thru 255    
+ 712  Key #09 Quantity         240328  1 byte         0 thru 255    
+ 713  Key #10 Type             240331  1 byte         0 thru 255    
+ 714  Key #10 Quantity         240332  1 byte         0 thru 255    
+ 715  Key #11 Type             240335  1 byte         0 thru 255    
+ 716  Key #11 Quantity         240336  1 byte         0 thru 255    

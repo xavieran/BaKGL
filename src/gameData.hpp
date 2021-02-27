@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "constants.hpp"
+#include "container.hpp"
 #include "encounter.hpp"
 #include "logger.hpp"
 #include "resourceNames.hpp"
@@ -101,7 +102,7 @@ public:
         LoadCombatStats(0xdb, 6);
         LoadCombatInventories(0x3a7f7, 6);
         LoadInventoryOffsetsP();
-        LoadContainer();
+        //LoadContainer();
         LoadCombatEntityLists();
         LoadCombatInventories(0x46053, 1733);
         LoadCombatStats(0x914b, 1698);
@@ -118,7 +119,6 @@ public:
 
         mZone = mBuffer.GetUint8();
         assert(mZone < 12);
-
         mLogger.Info() << "Zone:" << mZone << std::endl;
 
         int xtile = mBuffer.GetUint8();
@@ -139,46 +139,51 @@ public:
         mLocus.mTile = {xtile, ytile};
     }
 
-    void LoadContainer()
+    static std::vector<Container> LoadContainer(FileBuffer& fb)
     {
-        mLogger.Info() << "Loading containers" << std::endl;
+        const auto& logger = Logging::LogState::GetLogger("GameData");
+        logger.Info() << "Loading containers" << std::endl;
         auto* objects = ObjectResource::GetInstance();
+        std::vector<Container> containers{};
 
         // TombStone
-        mBuffer.Seek(0x3b621); // 36 items 1
+        fb.Seek(0x3b621); // 36 items 1
 
         /*
-        mBuffer.Seek(0x3be55); // 25 2
-        mBuffer.Seek(0x3c55f); // 54 3
-        mBuffer.Seek(0x3d0b4); // 65 4
-        mBuffer.Seek(0x3dc07); // 63 5
-        mBuffer.Seek(0x3e708); // 131 6
-        mBuffer.Seek(0x3f8b2); // 115 7
-        mBuffer.Seek(0x40c97); // 67 8
-        mBuffer.Seek(0x416b7); // 110 9
-        mBuffer.Seek(0x42868); // 25 A
-        mBuffer.Seek(0x43012); // 30 B
+        fb.Seek(0x3be55); // 25 2
+        fb.Seek(0x3c55f); // 54 3
+        fb.Seek(0x3d0b4); // 65 4
+        fb.Seek(0x3dc07); // 63 5
+        fb.Seek(0x3e708); // 131 6
+        fb.Seek(0x3f8b2); // 115 7
+        fb.Seek(0x40c97); // 67 8
+        fb.Seek(0x416b7); // 110 9
+        fb.Seek(0x42868); // 25 A
+        fb.Seek(0x43012); // 30 B
+        fb.Seek(0x4378f); // 60 C
         */
-        mBuffer.Seek(0x4378f); // 60 C
 
-        for (int j = 0; j < 60; j++)
+        for (int j = 0; j < 36; j++)
         {
-            mLogger.Info() << " Container: " << j
-                << " addr: " << std::hex << mBuffer.Tell() << std::dec << std::endl;
+            unsigned address = fb.Tell();
+            logger.Info() << " Container: " << j
+                << " addr: " << std::hex << address << std::dec << std::endl;
 
-            mBuffer.Dump(4);
+            fb.Dump(4);
 
-            auto aLoc = mBuffer.GetUint16LE();
-            auto bLoc = mBuffer.GetUint16LE();
+            auto aLoc = fb.GetUint16LE();
+            auto bLoc = fb.GetUint16LE();
+            auto pair = glm::vec<2, std::uint16_t>{aLoc, bLoc};
             // bLoc == C3 dbody
             // bLoc == C4 hole dirt
             // bLoc == C5 Bag
-            auto xLoc = mBuffer.GetUint32LE();
-            auto yLoc = mBuffer.GetUint32LE();
-            auto chestNumber   = mBuffer.GetUint8();
-            auto chestItems    = mBuffer.GetUint8();
-            auto chestCapacity = mBuffer.GetUint8();
-            auto containerType = mBuffer.GetUint8();
+            auto xLoc = fb.GetUint32LE();
+            auto yLoc = fb.GetUint32LE();
+            auto location = glm::vec<2, unsigned>{xLoc, yLoc};
+            auto chestNumber   = fb.GetUint8();
+            auto chestItems    = fb.GetUint8();
+            auto chestCapacity = fb.GetUint8();
+            auto containerType = fb.GetUint8();
 
             assert(chestNumber == 6 || chestNumber == 9 || chestCapacity > 0);
 
@@ -188,84 +193,100 @@ public:
                 if ((x & 0x04) == 0x04) return "Shop";
                 else return "Dunno";
             };
-            mLogger.Info() << "Loc: " << aLoc << ":" << bLoc << " " 
+
+            logger.Info() << "Loc: " << aLoc << ":" << bLoc << " " 
                 << xLoc << "," << yLoc << " #" << +chestNumber << " items: " 
                 << +chestItems << " capacity: " << +chestCapacity 
                 << " Tp: " << +containerType << " " 
                 << Container(containerType) << std::endl;
-
+            
+            std::vector<Item> items{};
+            items.reserve(7);
             std::stringstream ss{""};
             int i = 0;
             for (; i < chestItems; i++)
             {
-                auto item = mBuffer.GetUint8();
+                auto item = fb.GetUint8();
                 auto object = objects->GetObjectInfo(item);
-                auto condition = mBuffer.GetUint8();
-                auto modifiers = mBuffer.GetUint8();
-                auto yy = mBuffer.GetUint8();
+                auto condition = fb.GetUint8();
+                auto modifiers = fb.GetUint8();
+                auto yy = fb.GetUint8();
                 ss << std::hex << "0x" << +item << " " << object.name 
                     << std::dec << " " << " cond/qty: "  << +condition 
                     <<" mod: " <<  +modifiers << " y; " << + yy << std::endl;
+                items.emplace_back(item, object.name, condition, modifiers);
             }
+
+            containers.emplace_back(
+                address,
+                pair,
+                chestNumber,
+                chestItems,
+                chestCapacity,
+                containerType,
+                location,
+                items);
 
             for (; i < chestCapacity; i++)
             {
-                mBuffer.Skip(4);
+                fb.Skip(4);
             }
 
-            mLogger.Info() << "Items: \n" << ss.str() << std::endl;
-            mBuffer.Dump(6);
-            mBuffer.Skip(4);
-            mBuffer.Skip(2);
+            logger.Info() << "Items: \n" << ss.str() << std::endl;
+            fb.Dump(6);
+            fb.Skip(4);
+            fb.Skip(2);
 
             if (Container(containerType) == "Shop")
             {
-                mBuffer.Dump(16);
-                mBuffer.Skip(16);
+                fb.Dump(16);
+                fb.Skip(16);
             }
             else if (containerType == 0)
             {
-                mBuffer.Skip(-6);
+                fb.Skip(-6);
             }
             else if (containerType == 1)
             {
-                mBuffer.Skip(-2);
+                fb.Skip(-2);
             }
             else if (containerType == 3)
             {
-                mBuffer.Dump(4);
-                mBuffer.Skip(4);
+                fb.Dump(4);
+                fb.Skip(4);
             }
             else if (containerType == 8)
             {
-                mBuffer.Dump(3);
-                mBuffer.Skip(3);
+                fb.Dump(3);
+                fb.Skip(3);
             }
             else if (containerType == 10)
             {
-                mBuffer.Dump(9);
-                mBuffer.Skip(9);
+                fb.Dump(9);
+                fb.Skip(9);
             }
             else if (containerType == 16)
             {
-                mBuffer.Skip(-2);
+                fb.Skip(-2);
             }
             else if (containerType == 17)
             {
                 if (chestNumber != 4 && chestCapacity == 5)
                 {
-                    mBuffer.Dump(3 * 8 + 1);
-                    mBuffer.Skip(3 * 8 + 1);
+                    fb.Dump(3 * 8 + 1);
+                    fb.Skip(3 * 8 + 1);
                 }
-                mBuffer.Skip(2);
+                fb.Skip(2);
             }
             else if (containerType == 25)
             {
-                mBuffer.Dump(11);
-                mBuffer.Skip(11);
+                fb.Dump(11);
+                fb.Skip(11);
             }
             std::cout << std::endl;
         }
+
+        return containers;
     }
 
     void LoadInventoryOffsetsP()

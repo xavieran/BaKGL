@@ -58,6 +58,7 @@ class FileBuffer
         void Show(std::ostream&);
         void Dump (std::ostream&, const unsigned int n = 0 );
         void Dump ( const unsigned int n = 0 );
+        void DumpAndSkip (const unsigned int n = 0 );
         void CopyFrom ( FileBuffer *buf, const unsigned int n );
         void CopyTo ( FileBuffer *buf, const unsigned int n );
         void Fill ( FileBuffer *buf );

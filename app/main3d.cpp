@@ -1,6 +1,8 @@
 #include "camera.hpp"
 #include "constants.hpp"
+#include "container.hpp"
 #include "coordinates.hpp"
+#include "fixedObject.hpp"
 #include "gameData.hpp"
 #include "logger.hpp"
 #include "screens.hpp"
@@ -40,12 +42,15 @@ int main(int argc, char** argv)
     //Logging::LogState::Disable("MeshObjectStore");
     //Logging::LogState::Disable("WorldTileStore");
     
-    std::string saveFile{argv[1]};
+    std::string saveFile{argv[2]};
 
     logger.Info() << "Loading save:" << saveFile << std::endl;
 
-    /*auto fb = FileBufferFactory::CreateFileBuffer(saveFile);
-    BAK::GameData gameData(fb);
+    auto fb = FileBufferFactory::CreateFileBuffer(saveFile);
+    auto containers = BAK::GameData::LoadContainer(fb);
+    // Should get the zone from the save file...
+    auto fixedObjects = BAK::LoadFixedObjects(6);
+    /*BAK::GameData gameData(fb);
 
     std::stringstream zoneSS{""};
     zoneSS << "Z" << std::setw(2) << std::setfill('0')<< gameData.mZone;
@@ -86,7 +91,7 @@ int main(int argc, char** argv)
         "sound",
         Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, .5, .5, .7}));
     objStore.AddObject(
-        "transition",
+        "zone",
         Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 1, 0, .7}));
     objStore.AddObject(
         "trap",
@@ -95,10 +100,25 @@ int main(int argc, char** argv)
         "town",
         Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 1, .7}));
     objStore.AddObject(
-        "unknown",
+        "background",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject(
+        "comment",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject(
+        "health",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject(
+        "enable",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject(
+        "disable",
+        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject(
+        "block",
         Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
     auto clickable = Sphere{3.0, 12, 6, true};
-	objStore.AddObject(
+    objStore.AddObject(
         "clickable",
         Graphics::SphereToMeshObject(sphere, glm::vec4{.0, .0, 1.0, .7}));
 
@@ -128,14 +148,14 @@ int main(int argc, char** argv)
                             id,
                             300,
                             item.GetLocation()});
-					clickables.emplace(id, std::shared_ptr<const BAK::WorldItemInstance>(&item));
-					systems.AddRenderable(
-						Renderable{
-							id,
-							objStore.GetObject("clickable"),
-							item.GetLocation(),
-							item.GetRotation(),
-							glm::vec3{item.GetZoneItem().GetScale()}});
+                    clickables.emplace(id, std::shared_ptr<const BAK::WorldItemInstance>(&item));
+                    /*systems.AddRenderable(
+                        Renderable{
+                            id,
+                            objStore.GetObject("clickable"),
+                            item.GetLocation(),
+                            item.GetRotation(),
+                            glm::vec3{item.GetZoneItem().GetScale()}});*/
                 }
             }
         }
@@ -279,18 +299,18 @@ int main(int argc, char** argv)
     std::shared_ptr<const BAK::Encounter> activeEncounter = nullptr;
     std::shared_ptr<const BAK::WorldItemInstance> activeClickable = nullptr;
 
-	auto pointer = Graphics::Line{
-		camera.GetNormalisedPosition(),
-		camera.GetNormalisedPosition() + (camera.GetDirection() * 5000.0f)};
+    auto pointer = Graphics::Line{
+        camera.GetNormalisedPosition(),
+        camera.GetNormalisedPosition() + (camera.GetDirection() * 5000.0f)};
 
-	double pointerPosX, pointerPosY;
-	Camera pointerEndPoint{width, height, camera.GetPosition()};
+    double pointerPosX, pointerPosY;
+    Camera pointerEndPoint{width, height, camera.GetPosition()};
 
     do
     {
         glfwPollEvents();
 
-		glUseProgram(programId);
+        glUseProgram(programId);
         glBindVertexArray(VertexArrayID);
 
         activeEncounter = nullptr;
@@ -298,7 +318,7 @@ int main(int argc, char** argv)
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
         
-		glfwGetCursorPos(window, &pointerPosX, &pointerPosY);
+        glfwGetCursorPos(window, &pointerPosX, &pointerPosY);
 
         if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS)
             camera.MoveForward(deltaTime * speed);
@@ -339,7 +359,7 @@ int main(int argc, char** argv)
 
         for (const auto& item : systems.GetRenderables())
         {
-			if (glm::distance(camera.GetPosition(), item.GetLocation()) > 128000.0) continue;
+            if (glm::distance(camera.GetPosition(), item.GetLocation()) > 128000.0) continue;
             const auto [offset, length] = item.GetObject();
             auto modelMatrix = item.GetModelMatrix();
 
@@ -357,24 +377,24 @@ int main(int argc, char** argv)
                 offset
             );
         }
-		
-		pointerEndPoint.SetAngle(camera.GetAngle());
-		pointerEndPoint.SetPosition(camera.GetPosition() + (camera.GetDirection() * 1000.0f));
-		pointerEndPoint.StrafeRight((pointerPosX - (width / 2)) * 1.0f);
-		pointerEndPoint.StrafeUp(-(pointerPosY - (height/ 2)) * 1.0f);
+        
+        pointerEndPoint.SetAngle(camera.GetAngle());
+        pointerEndPoint.SetPosition(camera.GetPosition() + (camera.GetDirection() * 1000.0f));
+        pointerEndPoint.StrafeRight((pointerPosX - (width / 2)) * 1.0f);
+        pointerEndPoint.StrafeUp(-(pointerPosY - (height/ 2)) * 1.0f);
 
-		pointer.updateLine(
-			camera.GetNormalisedPosition() + (camera.GetDirection() * 50.0f),
-			pointerEndPoint.GetNormalisedPosition());
-		pointer.setMVP(camera.GetProjectionMatrix() * camera.GetViewMatrix());
-		pointer.draw();
+        pointer.updateLine(
+            camera.GetNormalisedPosition() + (camera.GetDirection() * 50.0f),
+            pointerEndPoint.GetNormalisedPosition());
+        pointer.setMVP(camera.GetProjectionMatrix() * camera.GetViewMatrix());
+        pointer.draw();
 
         auto intersectable = systems.RunIntersection(camera.GetPosition());
         if (intersectable)
             activeEncounter = encounters[*intersectable];
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-			activeClickable = nullptr;
+            activeClickable = nullptr;
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
@@ -406,6 +426,7 @@ int main(int argc, char** argv)
 
             if (activeEncounter != nullptr)
             {
+                activeClickable = nullptr;
                 ImGui::Begin("Encounter");
                 std::stringstream ss{};
                 ss << "Encounter: " << activeEncounter->GetType() << " Index: "
@@ -415,21 +436,43 @@ int main(int argc, char** argv)
 
                 if (activeEncounter->GetType() == BAK::EncounterType::Dialog)
                 {
-                    ShowDialogGui(
-                        activeEncounter->GetIndex(),
-                        dialogStore,
-                        dialogIndex);
+                    ShowDialogGuiIndex(activeEncounter->GetIndex(), dialogStore, dialogIndex);
                 }
             }
 
-			if (activeClickable != nullptr)
+            if (activeClickable != nullptr)
             {
-                ImGui::Begin("Clickable");
-                std::stringstream ss{};
-                ss << "Clickable: " << activeClickable->GetZoneItem().GetName() << " Location: "
-                    << activeClickable->GetLocation();
-                ImGui::Text(ss.str().c_str());
-                ImGui::End();
+                auto bakLocation = activeClickable->GetBakLocation();
+
+                {
+                    ImGui::Begin("Clickable");
+                    std::stringstream ss{};
+                    ss << "Clickable: " << activeClickable->GetZoneItem().GetName() 
+                        << " Location: " << bakLocation;
+
+                    auto it = std::find_if(containers.begin(), containers.end(),
+                        [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+                    if (it != containers.end())
+                    {
+                        ss << "\nAddr: " << std::hex << it->mAddress << " #" << std::dec 
+                            << it->mNumber << " items: " << it->mNumberItems << " cap: " 
+                            << it->mCapacity << " type: " << it->mType;
+                        for (const auto& item : it->mItems)
+                        {
+                            ss << "\n" << item;
+                        }
+                    }
+                    ImGui::Text(ss.str().c_str());
+                    ImGui::End();
+                }
+                {
+                    auto it = std::find_if(fixedObjects.begin(), fixedObjects.end(),
+                        [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+                    if (it != fixedObjects.end())
+                    {
+                        ShowDialogGui(it->mDialogKey, dialogStore, dialogIndex);
+                    }
+                }
             }
         }
         ImguiWrapper::Draw(window);
