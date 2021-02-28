@@ -8,6 +8,11 @@ namespace BAK {
 class ZoneLabel
 {
 public:
+    ZoneLabel()
+    :
+        mZoneLabel{"Z01"}
+    {}
+
     ZoneLabel(const std::string& zoneLabel)
     :
         mZoneLabel{zoneLabel}
@@ -82,8 +87,13 @@ public:
         return mZoneLabel;
     }
 
+    unsigned GetZoneNumber() const
+    {
+        return std::atoi(mZoneLabel.substr(1,2).c_str());
+    }
+
 private:
-    const std::string mZoneLabel;
+    std::string mZoneLabel;
 };
 
 }

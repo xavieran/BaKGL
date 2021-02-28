@@ -44,6 +44,7 @@ public:
 
 enum class ChoiceState
 {
+    Money   = 0x7531,
     Chapter = 0x7537,
 
 };

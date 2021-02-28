@@ -34,29 +34,52 @@
 
 #include <functional>
 #include <memory>
+#include <sstream>
+
+#include <getopt.h>
 
 int main(int argc, char** argv)
 {
+	struct option options[] = {
+		{"save",required_argument,0,'s'},
+		{"zone",required_argument,0,'z'}
+	};
+	int optionIndex = 0;
+
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
-    //Logging::LogState::Disable("MeshObjectStore");
-    //Logging::LogState::Disable("WorldTileStore");
-    
-    std::string saveFile{argv[2]};
 
-    logger.Info() << "Loading save:" << saveFile << std::endl;
 
-    auto fb = FileBufferFactory::CreateFileBuffer(saveFile);
-    auto containers = BAK::GameData::LoadContainer(fb);
-    // Should get the zone from the save file...
-    auto fixedObjects = BAK::LoadFixedObjects(6);
-    /*BAK::GameData gameData(fb);
+    BAK::ZoneLabel zoneLabel{};
+	glm::vec<3, float> worldCenter{0.0f, 0.0f, 0.0f};
+    auto containers = std::vector<BAK::Container>{};
 
-    std::stringstream zoneSS{""};
-    zoneSS << "Z" << std::setw(2) << std::setfill('0')<< gameData.mZone;
-    std::string zone = zoneSS.str();*/
+	int opt;
+	while ((opt = getopt_long (argc, argv, "s:z:", options, &optionIndex)) != -1)
+	{
+		if (opt == 's')
+		{
+			logger.Info() << "Loading save file: " << optarg << std::endl;
 
-    BAK::ZoneLabel zoneLabel{argv[1]};
+			std::string saveFile = optarg;
+			auto fb = FileBufferFactory::CreateFileBuffer(saveFile);
+			BAK::GameData gameData(fb);
+			containers = BAK::GameData::LoadContainer(fb);
+
+			std::stringstream ss{};
+			ss << "Z" << std::setw(2) << std::setfill('0') << gameData.mZone;
+			zoneLabel = BAK::ZoneLabel{ss.str()};
+			worldCenter = BAK::ToGlCoord<float>(gameData.mLocus.mPosition);
+		}
+		else if (opt == 'z')
+		{
+			logger.Info() << "Loading zone: " << optarg << std::endl;
+			auto zone = std::string{optarg};
+			zoneLabel = BAK::ZoneLabel{zone};
+		}
+	}
+
+    auto fixedObjects = BAK::LoadFixedObjects(zoneLabel.GetZoneNumber());
 
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
@@ -70,9 +93,11 @@ int main(int argc, char** argv)
     auto textureStore = BAK::TextureStore{zoneLabel, pal};
     auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textureStore};
     auto worlds      = BAK::WorldTileStore{zoneItems};
-    auto worldCenter = worlds.GetTiles().front().GetCenter();
-    //auto loc = gameData.mLocus.mPosition;
-    //auto worldCenter = glm::vec3{loc.x, 1.6, loc.y};
+
+	if (worldCenter == glm::vec<3, float>{0,0,0})
+		worldCenter = worlds.GetTiles().front().GetCenter();
+
+	worldCenter.y = 100;
 
     auto objStore = Graphics::MeshObjectStorage{};
     for (auto& item : zoneItems.GetItems())

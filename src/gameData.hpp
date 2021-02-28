@@ -100,12 +100,12 @@ public:
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         LoadLocation();
         LoadCombatStats(0xdb, 6);
-        LoadCombatInventories(0x3a7f7, 6);
+        //LoadCombatInventories(0x3a7f7, 6);
         LoadInventoryOffsetsP();
         //LoadContainer();
         LoadCombatEntityLists();
-        LoadCombatInventories(0x46053, 1733);
-        LoadCombatStats(0x914b, 1698);
+        //LoadCombatInventories(0x46053, 1733);
+        //LoadCombatStats(0x914b, 1698);
     }
 
     void LoadLocation()
@@ -135,7 +135,7 @@ public:
         mLogger.Info() << "Heading: " << heading << std::endl;
         
         mLocus.mHeading = heading;
-        mLocus.mPosition= {xpos, -ypos};
+        mLocus.mPosition= {xpos, ypos};
         mLocus.mTile = {xtile, ytile};
     }
 
@@ -392,7 +392,7 @@ public:
             auto x = mBuffer.Tell();
             //assert(mBuffer.GetUint8() == 0x64);
             mBuffer.GetUint8(); // always 0x64 for combats
-            assert(mBuffer.GetUint8() == 0x0a);
+            mBuffer.GetUint8();// == 0x0a);
             mBuffer.Skip(2);
             auto combatantNo = mBuffer.GetUint16LE();
             mBuffer.Skip(2);

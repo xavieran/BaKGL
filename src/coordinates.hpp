@@ -31,6 +31,15 @@ glm::vec<3, T> ToGlCoord(const Vector3D& coord)
         -static_cast<T>(coord.GetY())};
 }
 
+template <typename T>
+glm::vec<3, T> ToGlCoord(const glm::vec<2, int>& coord)
+{
+    return glm::vec<3, T>{
+        static_cast<T>(coord.x),
+        static_cast<T>(0),
+        -static_cast<T>(coord.y)};
+}
+
 // Convert a 16 bit BAK angle to radians
 glm::vec3 ToGlAngle(const Vector3D& angle)
 {
