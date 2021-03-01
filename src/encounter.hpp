@@ -93,7 +93,10 @@ private:
     unsigned mSaveAddress;
 };
 
-std::vector<Encounter> LoadEncounters(FileBuffer& fb, unsigned chapter, glm::vec<2, unsigned> tile)
+std::vector<Encounter> LoadEncounters(
+    FileBuffer& fb,
+    unsigned chapter,
+    glm::vec<2, unsigned> tile)
 {
     std::vector<Encounter> encounters{};
     // Ideally load all encounters... each chapter can be part of the

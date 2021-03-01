@@ -285,6 +285,7 @@ public:
 
     void SetPush(unsigned i){ mPush[i] = true; }
     const std::string& GetName() const { return mName; }
+    bool IsSprite() const { return mSpriteIndex > 0 && mSpriteIndex < 400; }
     const auto& GetColors() const { return mColors; }
     const auto& GetFaces() const { return mFaces; }
     const auto& GetPush() const { return mPush; }
@@ -304,7 +305,8 @@ public:
             "r0",
             "spring",
             "fall",
-            "landscp"})
+            "landscp",
+            "m_"})
         {
             if (mName.substr(0, s.length()) == s)
                 return false;
@@ -348,6 +350,7 @@ Graphics::MeshObject ZoneItemToMeshObject(
     const TextureStore& store,
     const Palette& pal)
 {
+    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec4> colors;
@@ -373,6 +376,12 @@ Graphics::MeshObject ZoneItemToMeshObject(
     for (const auto& faceV : item.GetFaces() | boost::adaptors::indexed())
     {
         const auto& face = faceV.value();
+        if (face.size() < 3)
+        {
+            logger.Debug() << "Face with < 3 vertices: " << faceV.index()
+                << " - " << item.GetName() << std::endl;
+            continue;
+        }
         const auto index = faceV.index();
         unsigned triangles = face.size() - 2;
 

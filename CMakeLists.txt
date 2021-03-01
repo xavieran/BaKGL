@@ -37,7 +37,7 @@ set(LINK_3D_LIBRARIES
 )
 
 set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter")
-set(CMAKE_CXX_FLAGS "-O2 -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
+set(CMAKE_CXX_FLAGS "-g -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
 
 list(APPEND APP_BINARIES
     compile_shaders 

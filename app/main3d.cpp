@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
 
     BAK::ZoneLabel zoneLabel{};
-	glm::vec<3, float> worldCenter{0.0f, 0.0f, 0.0f};
+	glm::vec<3, float> startPosition{0.0f, 0.0f, 0.0f};
     auto containers = std::vector<BAK::Container>{};
 
 	int opt;
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 			std::stringstream ss{};
 			ss << "Z" << std::setw(2) << std::setfill('0') << gameData.mZone;
 			zoneLabel = BAK::ZoneLabel{ss.str()};
-			worldCenter = BAK::ToGlCoord<float>(gameData.mLocus.mPosition);
+			startPosition = BAK::ToGlCoord<float>(gameData.mLocus.mPosition);
 		}
 		else if (opt == 'z')
 		{
@@ -94,10 +94,10 @@ int main(int argc, char** argv)
     auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textureStore};
     auto worlds      = BAK::WorldTileStore{zoneItems};
 
-	if (worldCenter == glm::vec<3, float>{0,0,0})
-		worldCenter = worlds.GetTiles().front().GetCenter();
+	if (startPosition == glm::vec<3, float>{0,0,0})
+		startPosition = worlds.GetTiles().front().GetCenter();
 
-	worldCenter.y = 100;
+	startPosition.y = 100;
 
     auto objStore = Graphics::MeshObjectStorage{};
     for (auto& item : zoneItems.GetItems())
@@ -148,8 +148,8 @@ int main(int argc, char** argv)
         Graphics::SphereToMeshObject(sphere, glm::vec4{.0, .0, 1.0, .7}));
 
     auto systems = Systems{};
-    std::unordered_map<unsigned, std::shared_ptr<const BAK::Encounter>> encounters{};
-    std::unordered_map<unsigned, std::shared_ptr<const BAK::WorldItemInstance>> clickables{};
+    std::unordered_map<unsigned, const BAK::Encounter*> encounters{};
+    std::unordered_map<unsigned, const BAK::WorldItemInstance*> clickables{};
     for (const auto& world : worlds.GetTiles())
     {
         for (const auto& item : world.GetItems())
@@ -158,13 +158,17 @@ int main(int argc, char** argv)
             {
                 logger.Info() << "Item: " << item.GetZoneItem().GetName() << std::endl;
                 auto id = systems.GetNextItemId();
-                systems.AddRenderable(
-                    Renderable{
-                        id,
-                        objStore.GetObject(item.GetZoneItem().GetName()),
-                        item.GetLocation(),
-                        item.GetRotation(),
-                        glm::vec3{item.GetZoneItem().GetScale()}});
+                auto renderable = Renderable{
+                    id,
+                    objStore.GetObject(item.GetZoneItem().GetName()),
+                    item.GetLocation(),
+                    item.GetRotation(),
+                    glm::vec3{item.GetZoneItem().GetScale()}};
+
+                if (item.GetZoneItem().IsSprite())
+                    systems.AddSprite(renderable);
+                else
+                    systems.AddRenderable(renderable);
 
                 if (item.GetZoneItem().GetClickable())
                 {
@@ -173,7 +177,7 @@ int main(int argc, char** argv)
                             id,
                             300,
                             item.GetLocation()});
-                    clickables.emplace(id, std::shared_ptr<const BAK::WorldItemInstance>(&item));
+                    clickables.emplace(id, &item);
                     /*systems.AddRenderable(
                         Renderable{
                             id,
@@ -201,7 +205,7 @@ int main(int argc, char** argv)
                     id,
                     3000,
                     enc.GetLocation()});
-            encounters.emplace(id, std::shared_ptr<const BAK::Encounter>(&enc));
+            encounters.emplace(id, &enc);
         }
     }
 
@@ -252,12 +256,15 @@ int main(int argc, char** argv)
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
-    auto shaderProgram = ShaderProgram{
-        "vertex.glsl",
-        //"geometry.glsl",
-        "fragment.glsl"};
+    auto spriteShader = ShaderProgram{
+        "spriteVertex.glsl",
+        "spriteFragment.glsl"};
+    auto spriteShaderId = spriteShader.Compile();
 
-    auto programId = shaderProgram.Compile();
+    auto modelShader = ShaderProgram{
+        "vertex.glsl",
+        "fragment.glsl"};
+    auto modelShaderId = modelShader.Compile();
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -283,10 +290,7 @@ int main(int argc, char** argv)
     BAK::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(textureStore.GetTextures(), textureStore.GetMaxDim());
 
-    GLuint textureID     = glGetUniformLocation(programId, "texture0");
-    GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
-    GLuint modelMatrixID = glGetUniformLocation(programId, "M");
-    GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
+    GLuint textureID     = glGetUniformLocation(modelShaderId, "texture0");
 
     glm::mat4 viewMatrix{1};
     glm::mat4 modelMatrix{1.0f};
@@ -297,15 +301,12 @@ int main(int argc, char** argv)
     float speed = 400 * 30.0f; // 3 units / second
     float turnSpeed = 30.0f; // 3 units / second
 
-    Camera camera{width, height, worldCenter};
-    camera.SetPosition(worldCenter);
+    Camera camera{width, height};
+    camera.SetPosition(startPosition);
 
     double currentTime;
     double lastTime = 0;
     float deltaTime;
-
-    GLuint lightId = glGetUniformLocation(programId, "lightPosition_worldspace");
-    GLuint cameraPositionId = glGetUniformLocation(programId, "cameraPosition_worldspace");
 
     glfwSetCursorPos(window, width/2, height/2);
 
@@ -321,21 +322,20 @@ int main(int argc, char** argv)
     glBindTexture(GL_TEXTURE_2D, textureBuffer.mTextureBuffer);
     glUniform1i(textureID, 0);
 
-    std::shared_ptr<const BAK::Encounter> activeEncounter = nullptr;
-    std::shared_ptr<const BAK::WorldItemInstance> activeClickable = nullptr;
+    const BAK::Encounter* activeEncounter{nullptr};
+    const BAK::WorldItemInstance* activeClickable{nullptr};
 
     auto pointer = Graphics::Line{
         camera.GetNormalisedPosition(),
         camera.GetNormalisedPosition() + (camera.GetDirection() * 5000.0f)};
 
     double pointerPosX, pointerPosY;
-    Camera pointerEndPoint{width, height, camera.GetPosition()};
+    Camera pointerEndPoint{width, height};
 
     do
     {
         glfwPollEvents();
 
-        glUseProgram(programId);
         glBindVertexArray(VertexArrayID);
 
         activeEncounter = nullptr;
@@ -371,37 +371,51 @@ int main(int argc, char** argv)
         lightPos.z = camera.GetNormalisedPosition().z;
         
         // Update the camera position and light position
-        glUniform3f(lightId, lightPos.x, lightPos.y, lightPos.z);
-        glUniform3f(
-            cameraPositionId,
-            camera.GetNormalisedPosition().x,
-            camera.GetNormalisedPosition().y,
-            camera.GetNormalisedPosition().z);
-
-        viewMatrix = camera.GetViewMatrix();
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (const auto& item : systems.GetRenderables())
+        auto RenderItems = [&](auto programId, const auto& renderables)
         {
-            if (glm::distance(camera.GetPosition(), item.GetLocation()) > 128000.0) continue;
-            const auto [offset, length] = item.GetObject();
-            auto modelMatrix = item.GetModelMatrix();
+            GLuint lightId = glGetUniformLocation(programId, "lightPosition_worldspace");
+            glUniform3f(lightId, lightPos.x, lightPos.y, lightPos.z);
+            GLuint cameraPositionId = glGetUniformLocation(programId, "cameraPosition_worldspace");
+            glUniform3f(
+                cameraPositionId, 
+                camera.GetNormalisedPosition().x,
+                camera.GetNormalisedPosition().y,
+                camera.GetNormalisedPosition().z);
 
-            MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
+            viewMatrix = camera.GetViewMatrix();
 
-            glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
-            glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
+            GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
+            GLuint modelMatrixID = glGetUniformLocation(programId, "M");
+            GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
-            glDrawElementsBaseVertex(
-                GL_TRIANGLES,
-                length,
-                GL_UNSIGNED_INT,
-                (void*) (offset * sizeof(GLuint)),
-                offset
-            );
-        }
+            for (const auto& item : renderables)
+            {
+                if (glm::distance(camera.GetPosition(), item.GetLocation()) > 128000.0) continue;
+                const auto [offset, length] = item.GetObject();
+                auto modelMatrix = item.GetModelMatrix();
+
+                MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
+
+                glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
+                glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+                glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+                glDrawElementsBaseVertex(
+                    GL_TRIANGLES,
+                    length,
+                    GL_UNSIGNED_INT,
+                    (void*) (offset * sizeof(GLuint)),
+                    offset
+                );
+            }
+        };
+
+        glUseProgram(modelShaderId);
+        RenderItems(modelShaderId, systems.GetRenderables());
+        glUseProgram(spriteShaderId);
+        RenderItems(spriteShaderId, systems.GetSprites());
         
         pointerEndPoint.SetAngle(camera.GetAngle());
         pointerEndPoint.SetPosition(camera.GetPosition() + (camera.GetDirection() * 1000.0f));
@@ -438,16 +452,7 @@ int main(int argc, char** argv)
         ImGui::NewFrame();
 
         {
-            ImGui::Begin("Info");
-            std::stringstream ss{};
-            ss << "Pos: " << camera.GetPosition() 
-                << "\nNPos: " << camera.GetNormalisedPosition()
-                << "\nPPos: " << pointerEndPoint.GetNormalisedPosition()
-                << "\nTile: " << glm::floor(camera.GetPosition() / glm::vec3{BAK::gTileSize});
-            ImGui::Text(ss.str().c_str());
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 
-                / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
+            ShowCameraGui(camera);
 
             if (activeEncounter != nullptr)
             {
@@ -515,7 +520,8 @@ int main(int argc, char** argv)
     glDisableVertexAttribArray(4);
 
     glDeleteVertexArrays(1, &VertexArrayID);
-    glDeleteProgram(programId);
+    glDeleteProgram(modelShaderId);
+    glDeleteProgram(spriteShaderId);
 
     ImguiWrapper::Shutdown();
 

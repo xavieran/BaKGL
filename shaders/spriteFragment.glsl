@@ -62,17 +62,10 @@ void main(){
     vec3 E = normalize(EyeDirection_cameraspace);
     // Direction in which the triangle reflects the light
     vec3 R = reflect(-l, n);
-    // Cosine of the angle between the Eye vector and the Reflect vector,
-    // clamped to 0
-    //  - Looking into the reflection -> 1
-    //  - Looking elsewhere -> < 1
-    float cosAlpha = clamp(dot(E, R), 0, 1);
 
     vec3 litColor = 
           materialAmbientColor 
-        + diffuseColor * lightColor * lightPower * cosTheta
-            / (distance * distance)
-        + materialSpecularColor * lightColor * lightPower * pow(cosAlpha, 4) 
+        + diffuseColor * lightColor * lightPower
             / (distance * distance);
     
     vec3 foggedColor = mix(fogColor, litColor, fogFactor);

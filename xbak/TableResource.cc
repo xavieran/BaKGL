@@ -29,6 +29,19 @@
 #include <vector>
 
 DatInfo::DatInfo()
+:
+    entityFlags{0},
+    entityType{0},
+    terrainType{0},
+    terrainClass{0},
+    sprite{0},
+    min{0,0,0},
+    max{0,0,0},
+    pos{0,0,0},
+    vertices{},
+    faceColors{},
+    paletteSources{},
+    faces{}
 {
 }
 
@@ -62,6 +75,8 @@ GidInfo::~GidInfo()
 TableResource::TableResource()
         : TaggedResource()
         , mapItems()
+        , datItems()
+        , gidItems()
 {
 }
 
@@ -129,10 +144,10 @@ TableResource::Load(FileBuffer *buffer)
     {
         Clear();
         Split(buffer);
-        FileBuffer *mapbuf;
-        FileBuffer *appbuf;
-        FileBuffer *gidbuf;
-        FileBuffer *datbuf;
+        FileBuffer* mapbuf{nullptr};
+        FileBuffer* appbuf{nullptr};
+        FileBuffer* gidbuf{nullptr};
+        FileBuffer* datbuf{nullptr};
         if (!Find(TAG_MAP, mapbuf) ||
             !Find(TAG_APP, appbuf) ||
             !Find(TAG_GID, gidbuf) ||

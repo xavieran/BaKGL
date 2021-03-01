@@ -1,3 +1,5 @@
+#include "camera.hpp"
+#include "constants.hpp"
 #include "dialog.hpp"
 #include "logger.hpp"
 
@@ -10,6 +12,7 @@
 #include <GLFW/glfw3.h>
 
 #include <stack>
+#include <sstream>
 
 //FIX!
 template <typename T, std::size_t N>
@@ -104,3 +107,18 @@ void ShowDialogGuiIndex(
     ShowDialogGui(current, dialogStore, dialogIndex);
 }
 
+
+void ShowCameraGui(
+    const Camera& camera)
+{
+    ImGui::Begin("Info");
+    std::stringstream ss{};
+    ss << "Pos: " << camera.GetPosition() 
+        << "\nNPos: " << camera.GetNormalisedPosition()
+        << "\nTile: " << glm::floor(camera.GetPosition() / glm::vec3{BAK::gTileSize});
+    ImGui::Text(ss.str().c_str());
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 
+        / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
+
+}

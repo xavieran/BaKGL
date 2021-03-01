@@ -119,6 +119,11 @@ public:
         mRenderables.emplace_back(item);
     }
 
+    void AddSprite(const Renderable& item)
+    {
+        mSprites.emplace_back(item);
+    }
+
     std::optional<unsigned> RunIntersection(glm::vec3 cameraPos) const
     {
         for (const auto& item : GetIntersectables())
@@ -166,6 +171,7 @@ public:
 
     const std::vector<Intersectable>& GetIntersectables() const { return mIntersectables; }
     const std::vector<Renderable>& GetRenderables() const { return mRenderables; }
+    const std::vector<Renderable>& GetSprites() const { return mSprites; }
     const std::vector<Intersectable>& GetClickables() const { return mClickables; }
 
 private:
@@ -173,5 +179,6 @@ private:
 
     std::vector<Intersectable> mIntersectables;
     std::vector<Renderable> mRenderables;
+    std::vector<Renderable> mSprites;
     std::vector<Intersectable> mClickables;
 };

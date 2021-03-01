@@ -8,7 +8,7 @@
 class Camera
 {
 public:
-    Camera(unsigned width, unsigned height, glm::vec3 worldCenter)
+    Camera(unsigned width, unsigned height)
     :
         mPosition{0,1.4,0},
         mProjectionMatrix{
@@ -18,8 +18,7 @@ public:
                 1.0f,
                 4000.0f
         )},
-        mAngle{3.14, 0},
-        mWorldCenter{worldCenter}
+        mAngle{3.14, 0}
     {}
 
     void SetPosition(const glm::vec3& position)
@@ -102,5 +101,4 @@ private:
     glm::vec3 mPosition;
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
-    glm::vec3 mWorldCenter;
 };
