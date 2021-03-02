@@ -373,16 +373,15 @@ Graphics::MeshObject ZoneItemToMeshObject(
             glm::cast<float>(vertex) / BAK::gWorldScale);
     }
 
-    for (const auto& faceV : item.GetFaces() | boost::adaptors::indexed())
+    unsigned index = 0;
+    for (const auto& face : item.GetFaces())
     {
-        const auto& face = faceV.value();
         if (face.size() < 3)
         {
-            logger.Debug() << "Face with < 3 vertices: " << faceV.index()
+            logger.Debug() << "Face with < 3 vertices: " << index
                 << " - " << item.GetName() << std::endl;
             continue;
         }
-        const auto index = faceV.index();
         unsigned triangles = face.size() - 2;
 
         // Whether to push this face away from the main plane
@@ -604,6 +603,8 @@ Graphics::MeshObject ZoneItemToMeshObject(
             colors.emplace_back(glmCol);
             colors.emplace_back(glmCol);
         }
+
+        index++;
     }
 
     return Graphics::MeshObject{

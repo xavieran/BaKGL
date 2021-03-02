@@ -156,7 +156,6 @@ int main(int argc, char** argv)
         {
             if (item.GetZoneItem().GetVertices().size() > 1)
             {
-                logger.Info() << "Item: " << item.GetZoneItem().GetName() << std::endl;
                 auto id = systems.GetNextItemId();
                 auto renderable = Renderable{
                     id,
@@ -369,7 +368,7 @@ int main(int argc, char** argv)
 
         lightPos.x = camera.GetNormalisedPosition().x;
         lightPos.z = camera.GetNormalisedPosition().z;
-        
+
         // Update the camera position and light position
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

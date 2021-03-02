@@ -1,20 +1,16 @@
 #pragma once
 
 #include "constants.hpp"
+#include "dialogTarget.hpp"
 #include "resourceNames.hpp"
 #include "logger.hpp"
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 
-#include <boost/functional/hash.hpp>
-
 #include <cassert>
 #include <iomanip>
-#include <type_traits>
 #include <unordered_map>
-#include <map>
-#include <variant>
 
 namespace BAK {
 
@@ -49,44 +45,15 @@ enum class ChoiceState
 
 };
 
-struct KeyTarget
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& a)
 {
-    std::uint32_t value;
-
-    bool operator==(const KeyTarget other) const { return value == other.value; }
-};
-
-std::size_t hash_value(const KeyTarget& t){ return t.value; }
-
-struct OffsetTarget
-{
-    std::uint8_t dialogFile;
-    std::uint32_t value;
-
-    bool operator==(const OffsetTarget other) const
+    std::string sep = "";
+    for (unsigned i = 0; i < N; i++)
     {
-        return value == other.value 
-            && dialogFile == other.dialogFile;
+        os << sep << std::setw(2) << std::setfill('0') << +a[i];
+        sep = " ";
     }
-};
-
-std::size_t hash_value(const OffsetTarget& t)
-{
-    return static_cast<std::size_t>(t.value) 
-        + ((static_cast<std::size_t>(t.dialogFile) << 32));
-}
-
-using Target = std::variant<KeyTarget, OffsetTarget>;
-
-std::ostream& operator<<(std::ostream& os, const Target& t)
-{
-    std::visit([&os](auto&& arg){
-        using T = std::decay_t<decltype(arg)>;
-        if constexpr (std::is_same_v<T, KeyTarget>)
-            os << "Key [ " << std::hex << arg.value << " ]";
-        else
-            os << "Offset { " << std::dec << +arg.dialogFile << " @ 0x" << std::hex << arg.value << " }";
-    }, t);
     return os;
 }
 
@@ -162,18 +129,6 @@ public:
     std::vector<Action> mActions;
     std::string mText;
 };
-
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& a)
-{
-    std::string sep = "";
-    for (unsigned i = 0; i < N; i++)
-    {
-        os << sep << std::setw(2) << std::setfill('0') << +a[i];
-        sep = " ";
-    }
-    return os;
-}
 
 std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
 {
@@ -356,13 +311,11 @@ public:
 private:
     std::unordered_map<
         KeyTarget,
-        OffsetTarget,
-        boost::hash<KeyTarget>> mDialogMap;
+        OffsetTarget> mDialogMap;
 
     std::unordered_map<
         OffsetTarget,
-        DialogSnippet,
-        boost::hash<OffsetTarget>> mSnippetMap;
+        DialogSnippet> mSnippetMap;
 
     const Logging::Logger& mLogger;
 };

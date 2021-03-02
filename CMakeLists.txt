@@ -3,9 +3,6 @@ project( BaKGL )
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/boost)
 
-set(BOOST_REQUESTED_VERSION 1.72.0)
-include_directories(${Boost_INCLUDE_DIRS}) 
-
 find_package(SDL REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
 
@@ -54,7 +51,7 @@ list(APPEND APP_BINARIES
 
 foreach (APP_BIN IN LISTS APP_BINARIES)
     add_executable (${APP_BIN} app/${APP_BIN}.cpp ${APP_INCLUDES})
-    target_link_libraries(${APP_BIN} dl pthread ${Boost_LIBRARIES} ${LINK_3D_LIBRARIES} SDL ${APP_INCLUDES})
+    target_link_libraries(${APP_BIN} dl pthread  ${LINK_3D_LIBRARIES} SDL ${APP_INCLUDES})
 endforeach()
 
 
@@ -84,9 +81,9 @@ list(APPEND XBAK_BINARIES
 
 foreach (XBAK_BIN IN LISTS XBAK_BINARIES)
     add_executable (${XBAK_BIN} xbak/${XBAK_BIN}.cc ${XBAK} ${SDL_INCLUDE_DIR})
-    target_link_libraries(${XBAK_BIN} dl pthread ${Boost_LIBRARIES} xbak SDL)
+    target_link_libraries(${XBAK_BIN} dl pthread xbak SDL)
 endforeach()
 
 add_executable (xbak_main xbak/xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
-target_link_libraries(xbak_main dl pthread ${Boost_LIBRARIES} xbak SDL)
+target_link_libraries(xbak_main dl pthread xbak SDL)
 
