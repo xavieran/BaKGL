@@ -4,12 +4,14 @@
 #include "dialogTarget.hpp"
 #include "resourceNames.hpp"
 #include "logger.hpp"
+#include "ostream.hpp"
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 
 #include <cassert>
 #include <iomanip>
+#include <ostream>
 #include <unordered_map>
 
 namespace BAK {
@@ -44,18 +46,6 @@ enum class ChoiceState
     Chapter = 0x7537,
 
 };
-
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& a)
-{
-    std::string sep = "";
-    for (unsigned i = 0; i < N; i++)
-    {
-        os << sep << std::setw(2) << std::setfill('0') << +a[i];
-        sep = " ";
-    }
-    return os;
-}
 
 class DialogSnippet
 {
@@ -211,7 +201,7 @@ public:
             }
             catch (const std::runtime_error&)
             {
-                std::cout << "Failed to walk dialog tree" << std::endl;
+                mLogger.Error() << "Failed to walk dialog tree: " << dialogKey.first << std::endl;
             }
         }
     }
@@ -221,31 +211,7 @@ public:
         auto snippet = std::visit(*this, dialogKey);
         bool noText = true;
         mLogger.Info() << "Dialog for key: " << std::hex << dialogKey << std::endl;
-
-        std::cout << "Text: " << GetFirstText(snippet) << std::endl;
-        return;
-        std::vector<Target> seen{};
-
-        while (noText)
-        {
-            std::cout << snippet << std::endl;
-            if (snippet.mChoices.size() == 0)
-            {
-                break;
-            }
-            else if (snippet.GetText() == "")
-            {
-                auto target = snippet.mChoices.back().mTarget;
-                if (std::find(seen.begin(), seen.end(), target) != seen.end())
-                    break;
-                snippet = GetSnippet(target);
-                seen.emplace_back(target);
-            }
-            else
-            {
-                noText = true;
-            }
-        }
+        mLogger.Debug() << "Text: " << GetFirstText(snippet) << std::endl;
     }
 
     const DialogSnippet& GetSnippet(Target target) const
@@ -283,7 +249,7 @@ public:
                 return GetFirstText(
                     GetSnippet(snippet.GetChoices().front().mTarget));
             else
-                return "no text";
+                return "* no text *";
         }
     }
 

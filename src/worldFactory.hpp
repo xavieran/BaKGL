@@ -408,7 +408,7 @@ Graphics::MeshObject ZoneItemToMeshObject(
             normals.emplace_back(normal);
 
             glm::vec3 zOff = normal;
-            if (push) zOff= glm::vec3{0};
+            if (push) zOff = glm::vec3{0};
             
             vertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
             indices.emplace_back(vertices.size() - 1);
@@ -636,7 +636,6 @@ public:
 
         assert(table.GetMapSize() == table.GetDatSize());
 
-        std::cout << std::endl;
         for (unsigned i = 0; i < table.GetMapSize(); i++)
         {
             assert(table.GetDatItem(i) != nullptr);
@@ -697,7 +696,7 @@ public:
     unsigned GetType() const { return mType; }
 
 private:
-    const ZoneItem& mZoneItem;
+   const ZoneItem& mZoneItem;
 
     unsigned mType;
     glm::vec3 mRotation;
@@ -770,7 +769,7 @@ public:
             }
             catch (const OpenError&)
             {
-                logger.Debug() << "No tile data for: " << mTile << std::endl;
+                logger.Spam() << "No tile data for: " << mTile << std::endl;
             }
         }
     }
@@ -820,7 +819,7 @@ public:
                         }
                         catch (const OpenError&)
                         {
-                            Logging::LogDebug("WorldTileStore")
+                            Logging::LogSpam("WorldTileStore")
                                 << "World: " << x << " , " << y 
                                 << " does not exist" << std::endl;
                         }

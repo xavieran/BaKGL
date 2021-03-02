@@ -6,8 +6,6 @@
 
 #include <GL/glew.h>
 
-#include <boost/range/adaptor/indexed.hpp>
-
 #include <cmath>
 
 namespace BAK {
@@ -205,7 +203,8 @@ public:
             64              // Number of layers
         );
         
-        for (const auto& tex : textures | boost::adaptors::indexed())
+        unsigned index = 0;
+        for (const auto& tex : textures)
         {
             std::vector<glm::vec4> paddedTex(
                 maxDim * maxDim,
@@ -215,16 +214,17 @@ public:
             // GetPixel() will wrap and fill the texture
             for (unsigned x = 0; x < maxDim; x++)
                 for (unsigned y = 0; y < maxDim; y++)
-                    paddedTex[x + y * maxDim] = tex.value().GetPixel(x, y);
+                    paddedTex[x + y * maxDim] = tex.GetPixel(x, y);
 
             glTexSubImage3D(
                 GL_TEXTURE_2D_ARRAY,
                 0,                 // Mipmap number
-                0, 0, tex.index(), // xoffset, yoffset, zoffset
+                0, 0, index,       // xoffset, yoffset, zoffset
                 maxDim, maxDim, 1, // width, height, depth
                 GL_RGBA,           // format
                 GL_FLOAT,          // type
                 paddedTex.data()); // pointer to data
+            index++;
         }
         
         // Doesn't actually look very good with mipmaps...

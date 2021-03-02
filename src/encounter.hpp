@@ -21,7 +21,7 @@ enum class EncounterType : std::uint16_t
     Sound = 5,  // DEF_SOUN.DAT
     Town = 6,  // DEF_TOWN.DAT
     Trap = 7,  // DEF_TRAP.DAT
-    Zone = 8,  // DEF_??.DAT
+    Zone = 8,  // DEF_ZONE.DAT
     Disable = 9,  // DEF_DISA.DAT
     Enable = 0xa,  // DEF_ENAB.DAT
     Block = 0xb  // DEF_BLOC.DAT
@@ -71,6 +71,7 @@ public:
 
     auto GetOffset() const { return mOffset; }
     auto GetIndex() const { return mEncounterIndex; }
+    auto GetSaveAddress() const { return mSaveAddress; }
     auto GetType() const { return mEncounterType; }
     auto GetLocation() const
     {

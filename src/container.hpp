@@ -21,7 +21,8 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const Item& i)
 {
-    return os << i.mName << " cond/qty: " << +i.mCondition << std::hex << " mods: " << +i.mModifiers << std::dec;
+    return os << i.mName << " cond/qty: " << +i.mCondition 
+        << std::hex << " mods: " << +i.mModifiers << std::dec;
 }
 
 class Container
@@ -36,10 +37,5 @@ public:
     glm::vec<2, unsigned> mLocation;
     std::vector<Item> mItems;
 };
-
-/*std::ostream& operator<<(std::ostream&, const Container& c)
-{
-    return os << c.mName << " cond/qty: " << i.mCondition << std::hex << " mods: " << i.mModifiers << std::dec;
-}*/
 
 }

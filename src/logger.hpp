@@ -156,4 +156,9 @@ std::ostream& LogDebug(const std::string& loggerName)
     return LogState::Log(Logging::LogLevel::Debug, loggerName);
 }
 
+std::ostream& LogSpam(const std::string& loggerName)
+{
+    return LogState::Log(Logging::LogLevel::Spam, loggerName);
+}
+
 }

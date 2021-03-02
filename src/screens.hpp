@@ -1,7 +1,9 @@
 #include "camera.hpp"
+#include "container.hpp"
 #include "constants.hpp"
 #include "dialog.hpp"
 #include "logger.hpp"
+#include "ostream.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -13,19 +15,6 @@
 
 #include <stack>
 #include <sstream>
-
-//FIX!
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& a)
-{
-    std::string sep = "";
-    for (unsigned i = 0; i < N; i++)
-    {
-        os << sep << std::setw(2) << std::setfill('0') << +a[i];
-        sep = " ";
-    }
-    return os;
-}
 
 void ShowDialogGui(
     BAK::Target dialogKey,
@@ -121,4 +110,35 @@ void ShowCameraGui(
         / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
 
+}
+
+void ShowContainerGui(
+    const BAK::Container& container)
+{
+    std::stringstream ss{};
+    ss << "\nAddr: " << std::hex << container.mAddress << " #" << std::dec 
+        << container.mNumber << " items: " << container.mNumberItems << " cap: " 
+        << container.mCapacity << " type: " << container.mType;
+    ImGui::Text(ss.str().c_str());
+
+    ImGui::BeginTable("Items", 4, ImGuiTableFlags_Resizable);
+    ImGui::TableNextColumn(); ImGui::Text("Number");
+    ImGui::TableNextColumn(); ImGui::Text("Name");
+    ImGui::TableNextColumn(); ImGui::Text("Cond/Qty");
+    ImGui::TableNextColumn(); ImGui::Text("Mods");
+    ImGui::TableNextRow();
+
+    for (const auto& item : container.mItems)
+    {
+        ImGui::TableNextColumn();
+        ss.str(""); ss << item.mItemNumber; ImGui::Text(ss.str().c_str());
+        ImGui::TableNextColumn();
+        ss.str(""); ss << item.mName; ImGui::Text(ss.str().c_str());
+        ImGui::TableNextColumn();
+        ss.str(""); ss << +item.mCondition; ImGui::Text(ss.str().c_str());
+        ImGui::TableNextColumn();
+        ss.str(""); ss << +item.mModifiers; ImGui::Text(ss.str().c_str());
+        ImGui::TableNextRow();
+    }
+    ImGui::EndTable();
 }

@@ -12,7 +12,8 @@
 //                            T1117 (736'000, 1'120'000)
 // T1016 (672'000, 1'056'000) T1116 (736'000, 1'056'000)
 //
-// Need to convert this to open gl system by swapping y and z// and negating z (depth goes towards us)
+// Need to convert this to open gl system by swapping y and z
+// and negating z (depth goes towards us)
 
 #include "glm.hpp"
 #include <glm/glm.hpp>

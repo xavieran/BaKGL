@@ -84,7 +84,6 @@ MeshObject SphereToMeshObject(const Sphere& sphere, glm::vec4 color)
         textureBlends.emplace_back(0);
 
     }
-    std::cout << "Vertices: " << vertices.size() << " normals: " << normals.size() << " indices: " << indices.size() << std::endl;
 
     return MeshObject{
         vertices,

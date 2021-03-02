@@ -167,8 +167,6 @@ public:
         return bestId;
     }
 
-
-
     const std::vector<Intersectable>& GetIntersectables() const { return mIntersectables; }
     const std::vector<Renderable>& GetRenderables() const { return mRenderables; }
     const std::vector<Renderable>& GetSprites() const { return mSprites; }

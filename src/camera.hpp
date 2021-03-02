@@ -8,8 +8,15 @@
 class Camera
 {
 public:
-    Camera(unsigned width, unsigned height)
+    Camera(
+        unsigned width,
+        unsigned height,
+        float moveSpeed,
+        float turnSpeed)
     :
+        mMoveSpeed{moveSpeed},
+        mTurnSpeed{turnSpeed},
+        mDeltaTime{0},
         mPosition{0,1.4,0},
         mProjectionMatrix{
             glm::perspective(
@@ -31,29 +38,59 @@ public:
         mAngle = angle;
     }
 
-    void MoveForward(float amount)
+    void SetDeltaTime(double dt)
     {
-        mPosition += GetDirection() * amount;
+        mDeltaTime = dt;
     }
 
-    void StrafeRight(float amount)
+    void MoveForward()
     {
-        mPosition += GetRight() * amount;
+        mPosition += GetDirection() * (mMoveSpeed * mDeltaTime);
     }
 
-    void StrafeUp(float amount)
+    void MoveBackward()
     {
-        mPosition += GetUp() * amount;
+        mPosition -= GetDirection() * (mMoveSpeed * mDeltaTime);
     }
 
-    void RotateLeft(float amount)
+    void StrafeRight()
     {
-        mAngle.x += amount;
+        mPosition += GetRight() * (mMoveSpeed * mDeltaTime);
     }
 
-    void RotateVertical(float amount)
+    void StrafeLeft()
     {
-        mAngle.y += amount;
+        mPosition -= GetRight() * (mMoveSpeed * mDeltaTime);
+    }
+
+    void StrafeUp()
+    {
+        mPosition += GetUp() * (mMoveSpeed * mDeltaTime);
+    }
+
+    void StrafeDown()
+    {
+        mPosition -= GetUp() * (mMoveSpeed * mDeltaTime);
+    }
+
+    void RotateLeft()
+    {
+        mAngle.x += mTurnSpeed * mDeltaTime;
+    }
+
+    void RotateRight()
+    {
+        mAngle.x -= mTurnSpeed * mDeltaTime;
+    }
+
+    void RotateVerticalUp()
+    {
+        mAngle.y += mTurnSpeed * mDeltaTime;
+    }
+
+    void RotateVerticalDown()
+    {
+        mAngle.y -= mTurnSpeed * mDeltaTime;
     }
 
     glm::vec3 GetDirection() const
@@ -98,7 +135,12 @@ public:
     const glm::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 
 private:
+    float mMoveSpeed;
+    float mTurnSpeed;
+    float mDeltaTime;
+
     glm::vec3 mPosition;
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
 };
+

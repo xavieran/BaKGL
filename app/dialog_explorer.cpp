@@ -1,5 +1,6 @@
 #include "dialog.hpp"
 #include "logger.hpp"
+#include "ostream.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -12,19 +13,6 @@
 #include <GLFW/glfw3.h>
 
 #include <stack>
-
-//FIX!
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& a)
-{
-    std::string sep = "";
-    for (unsigned i = 0; i < N; i++)
-    {
-        os << sep << std::setw(2) << std::setfill('0') << +a[i];
-        sep = " ";
-    }
-    return os;
-}
 
 int main(int argc, char** argv)
 {
