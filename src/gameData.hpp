@@ -92,8 +92,7 @@ public:
     GameData(FileBuffer& mBuffer)
     :
         mBuffer{mBuffer},
-        mLogger{
-            Logging::LogState::GetLogger("GameData")},
+        mLogger{Logging::LogState::GetLogger("GameData")},
         mZone{0}
     {
 

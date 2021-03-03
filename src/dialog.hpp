@@ -28,7 +28,8 @@ public:
         unsigned i = 0;
         while (fb.Tell() != 0x2b8)
         {
-            std::cout << "I: " << i << " " << std::hex << fb.GetUint16LE() << std::dec << std::endl;
+            std::cout << "I: " << i << " " << std::hex << fb.GetUint16LE()
+                << std::dec << std::endl;
             i++;
         }
         i = 0;
@@ -52,13 +53,13 @@ class DialogSnippet
 public:
     DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
     {
-        mDisplayStyle = fb.GetUint8();
-        mActor = fb.GetUint16LE();
-        mDisplayStyle2 = fb.GetUint8();
-        mDisplayStyle3 = fb.GetUint8();
+        mDisplayStyle        = fb.GetUint8();
+        mActor               = fb.GetUint16LE();
+        mDisplayStyle2       = fb.GetUint8();
+        mDisplayStyle3       = fb.GetUint8();
         std::uint8_t choices = fb.GetUint8();
         std::uint8_t actions = fb.GetUint8();
-        auto length = fb.GetUint16LE();
+        auto length          = fb.GetUint16LE();
         
         std::uint8_t i;
 
@@ -72,11 +73,11 @@ public:
 
         for (i = 0; i < choices; i++)
         {
-            auto state = fb.GetUint16LE();
+            auto state   = fb.GetUint16LE();
             auto choice1 = fb.GetUint16LE();
             auto choice2 = fb.GetUint16LE();
-            auto offset = fb.GetUint32LE();
-            auto target = GetTarget(offset);
+            auto offset  = fb.GetUint32LE();
+            auto target  = GetTarget(offset);
             // FIXME: Should work out what to do with offset == 0
             if (offset != 0)
                 mChoices.emplace_back(state, choice1, choice2, target);
@@ -123,7 +124,8 @@ public:
 std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
 {
     os << "[ ds: " << std::hex << +d.mDisplayStyle << " act: " << +d.mActor
-        << " ds2: " << +d.mDisplayStyle2 << " ds3: " << +d.mDisplayStyle3 << " ]" << std::endl;
+        << " ds2: " << +d.mDisplayStyle2 << " ds3: " << +d.mDisplayStyle3
+        << " ]" << std::endl;
     
     for (const auto& action : d.mActions)
     {
