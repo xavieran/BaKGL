@@ -92,8 +92,7 @@ public:
     GameData(const std::string& save)
     :
         mBuffer{FileBufferFactory::CreateFileBuffer(save)},
-        mLogger{
-            Logging::LogState::GetLogger("GameData")},
+        mLogger{Logging::LogState::GetLogger("GameData")},
         mZone{0}
     {
 
