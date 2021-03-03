@@ -111,7 +111,9 @@ public:
     {
     }
 
-    OffsetAndLength AddObject(const std::string& id, const MeshObject& obj)
+    OffsetAndLength AddObject(
+        const std::string& id,
+        const MeshObject& obj)
     {
         if (mObjects.find(id) != mObjects.end())
         {

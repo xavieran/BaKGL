@@ -14,8 +14,7 @@ int main(int argc, char** argv)
 
     logger.Info() << "Loading save:" << saveFile << std::endl;
 
-    auto fb = FileBufferFactory::CreateFileBuffer(saveFile);
-    BAK::GameData gameData(fb);
+    BAK::GameData gameData(saveFile);
 
     return 0;
 }

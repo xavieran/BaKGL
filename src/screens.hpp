@@ -2,6 +2,7 @@
 #include "container.hpp"
 #include "constants.hpp"
 #include "dialog.hpp"
+#include "gameData.hpp"
 #include "logger.hpp"
 #include "ostream.hpp"
 
@@ -19,7 +20,8 @@
 void ShowDialogGui(
     BAK::Target dialogKey,
     const auto& dialogStore,
-    const auto& dialogIndex)
+    const auto& dialogIndex,
+    const BAK::GameData* saveData = nullptr)
 {
     static auto chosenKey = BAK::Target{BAK::KeyTarget{0x72}};
     static auto current = BAK::Target{BAK::KeyTarget{0x72}};
@@ -71,6 +73,11 @@ void ShowDialogGui(
             history.push(current);
             current = choice.mTarget;
         }
+        if (saveData != nullptr)
+        {
+            ss.str(""); ss << "Val: " << saveData->ReadEvent(choice.mState);
+            ImGui::SameLine(); ImGui::Text(ss.str().c_str());
+        }
 
         ImGui::TextWrapped(dialogStore.GetFirstText(
             dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).c_str());
@@ -82,7 +89,8 @@ void ShowDialogGui(
 void ShowDialogGuiIndex(
     unsigned index,
     const auto& dialogStore,
-    const auto& dialogIndex)
+    const auto& dialogIndex,
+    const BAK::GameData* saveData = nullptr)
 {
     static unsigned currentIndex = 0;
     static BAK::Target current = dialogIndex.GetKeys()[currentIndex];
@@ -93,7 +101,7 @@ void ShowDialogGuiIndex(
         current = dialogIndex.GetKeys()[index];
     }
 
-    ShowDialogGui(current, dialogStore, dialogIndex);
+    ShowDialogGui(current, dialogStore, dialogIndex, saveData);
 }
 
 

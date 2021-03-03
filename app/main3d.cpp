@@ -54,23 +54,24 @@ int main(int argc, char** argv)
     BAK::ZoneLabel zoneLabel{};
     glm::vec<3, float> startPosition{0.0f, 0.0f, 0.0f};
     auto containers = std::vector<BAK::Container>{};
+    
+    BAK::GameData* gameData{nullptr};
 
     int opt;
     while ((opt = getopt_long (argc, argv, "s:z:", options, &optionIndex)) != -1)
-    {
+    {   
         if (opt == 's')
         {
             logger.Info() << "Loading save file: " << optarg << std::endl;
 
             std::string saveFile = optarg;
-            auto fb = FileBufferFactory::CreateFileBuffer(saveFile);
-            BAK::GameData gameData(fb);
-            containers = BAK::GameData::LoadContainer(fb);
+            gameData = new BAK::GameData(saveFile);
+            containers = gameData->LoadContainer();
 
             std::stringstream ss{};
-            ss << "Z" << std::setw(2) << std::setfill('0') << gameData.mZone;
+            ss << "Z" << std::setw(2) << std::setfill('0') << gameData->mZone;
             zoneLabel = BAK::ZoneLabel{ss.str()};
-            startPosition = BAK::ToGlCoord<float>(gameData.mLocus.mPosition);
+            startPosition = BAK::ToGlCoord<float>(gameData->mLocus.mPosition);
         }
         else if (opt == 'z')
         {
@@ -436,7 +437,11 @@ int main(int argc, char** argv)
 
             if (activeEncounter->GetType() == BAK::EncounterType::Dialog)
             {
-                ShowDialogGuiIndex(activeEncounter->GetIndex(), dialogStore, dialogIndex);
+                ShowDialogGuiIndex(
+                    activeEncounter->GetIndex(),
+                    dialogStore,
+                    dialogIndex,
+                    gameData);
             }
         }
 
@@ -462,7 +467,7 @@ int main(int argc, char** argv)
             auto fit = std::find_if(fixedObjects.begin(), fixedObjects.end(),
                 [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
             if (fit != fixedObjects.end())
-                ShowDialogGui(fit->mDialogKey, dialogStore, dialogIndex);
+                ShowDialogGui(fit->mDialogKey, dialogStore, dialogIndex, gameData);
         }
 
         ImguiWrapper::Draw(window);
@@ -482,6 +487,8 @@ int main(int argc, char** argv)
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    delete gameData;
 
     return 0;
 }

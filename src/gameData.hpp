@@ -89,23 +89,37 @@ public:
   * - Seems to affect zone crossing (e.g. from Tyr-Sog to highcastle etc.
   */
 
-    GameData(FileBuffer& mBuffer)
+    GameData(const std::string& save)
     :
-        mBuffer{mBuffer},
+        mBuffer{FileBufferFactory::CreateFileBuffer(save)},
         mLogger{
             Logging::LogState::GetLogger("GameData")},
         mZone{0}
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
+        ReadEvent(0x7537);
         LoadLocation();
-        LoadCombatStats(0xdb, 6);
+        //LoadCombatStats(0xdb, 6);
         //LoadCombatInventories(0x3a7f7, 6);
-        LoadInventoryOffsetsP();
+        //LoadInventoryOffsetsP();
         //LoadContainer();
-        LoadCombatEntityLists();
+        //LoadCombatEntityLists();
         //LoadCombatInventories(0x46053, 1733);
         //LoadCombatStats(0x914b, 1698);
+    }
+
+    unsigned ReadEvent(unsigned eventPtr) const
+    {
+        unsigned startOffset = 0x6e2;
+        unsigned bitOffset = eventPtr & 0xf;
+        unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
+        mBuffer.Seek(eventLocation);
+        unsigned eventData = mBuffer.GetUint16LE();
+        unsigned bitValue = (eventData >> bitOffset) & 0x1;
+        mLogger.Info() << "Ptr: " << std::hex << eventPtr << " loc: " << eventLocation << " val: " << eventData << " bitVal: " << bitValue << std::dec << std::endl;
+
+        return bitValue;
     }
 
     void LoadLocation()
@@ -139,7 +153,7 @@ public:
         mLocus.mTile = {xtile, ytile};
     }
 
-    static std::vector<Container> LoadContainer(FileBuffer& fb)
+    std::vector<Container> LoadContainer()
     {
         const auto& logger = Logging::LogState::GetLogger("GameData");
         logger.Info() << "Loading containers" << std::endl;
@@ -147,43 +161,43 @@ public:
         std::vector<Container> containers{};
 
         // TombStone
-        fb.Seek(0x3b621); // 36 items 1
+        mBuffer.Seek(0x3b621); // 36 items 1
 
         /*
-        fb.Seek(0x3be55); // 25 2
-        fb.Seek(0x3c55f); // 54 3
-        fb.Seek(0x3d0b4); // 65 4
-        fb.Seek(0x3dc07); // 63 5
-        fb.Seek(0x3e708); // 131 6
-        fb.Seek(0x3f8b2); // 115 7
-        fb.Seek(0x40c97); // 67 8
-        fb.Seek(0x416b7); // 110 9
-        fb.Seek(0x42868); // 25 A
-        fb.Seek(0x43012); // 30 B
-        fb.Seek(0x4378f); // 60 C
+        mBuffer.Seek(0x3be55); // 25 2
+        mBuffer.Seek(0x3c55f); // 54 3
+        mBuffer.Seek(0x3d0b4); // 65 4
+        mBuffer.Seek(0x3dc07); // 63 5
+        mBuffer.Seek(0x3e708); // 131 6
+        mBuffer.Seek(0x3f8b2); // 115 7
+        mBuffer.Seek(0x40c97); // 67 8
+        mBuffer.Seek(0x416b7); // 110 9
+        mBuffer.Seek(0x42868); // 25 A
+        mBuffer.Seek(0x43012); // 30 B
+        mBuffer.Seek(0x4378f); // 60 C
         */
 
         for (int j = 0; j < 36; j++)
         {
-            unsigned address = fb.Tell();
+            unsigned address = mBuffer.Tell();
             logger.Info() << " Container: " << j
                 << " addr: " << std::hex << address << std::dec << std::endl;
 
-            fb.Dump(4);
+            mBuffer.Dump(4);
 
-            auto aLoc = fb.GetUint16LE();
-            auto bLoc = fb.GetUint16LE();
+            auto aLoc = mBuffer.GetUint16LE();
+            auto bLoc = mBuffer.GetUint16LE();
             auto pair = glm::vec<2, std::uint16_t>{aLoc, bLoc};
             // bLoc == C3 dbody
             // bLoc == C4 hole dirt
             // bLoc == C5 Bag
-            auto xLoc = fb.GetUint32LE();
-            auto yLoc = fb.GetUint32LE();
+            auto xLoc = mBuffer.GetUint32LE();
+            auto yLoc = mBuffer.GetUint32LE();
             auto location = glm::vec<2, unsigned>{xLoc, yLoc};
-            auto chestNumber   = fb.GetUint8();
-            auto chestItems    = fb.GetUint8();
-            auto chestCapacity = fb.GetUint8();
-            auto containerType = fb.GetUint8();
+            auto chestNumber   = mBuffer.GetUint8();
+            auto chestItems    = mBuffer.GetUint8();
+            auto chestCapacity = mBuffer.GetUint8();
+            auto containerType = mBuffer.GetUint8();
 
             assert(chestNumber == 6 || chestNumber == 9 || chestCapacity > 0);
 
@@ -206,11 +220,11 @@ public:
             int i = 0;
             for (; i < chestItems; i++)
             {
-                auto item = fb.GetUint8();
+                auto item = mBuffer.GetUint8();
                 auto object = objects->GetObjectInfo(item);
-                auto condition = fb.GetUint8();
-                auto modifiers = fb.GetUint8();
-                auto yy = fb.GetUint8();
+                auto condition = mBuffer.GetUint8();
+                auto modifiers = mBuffer.GetUint8();
+                auto yy = mBuffer.GetUint8();
                 ss << std::hex << "0x" << +item << " " << object.name 
                     << std::dec << " " << " cond/qty: "  << +condition 
                     <<" mod: " <<  +modifiers << " y; " << + yy << std::endl;
@@ -229,59 +243,59 @@ public:
 
             for (; i < chestCapacity; i++)
             {
-                fb.Skip(4);
+                mBuffer.Skip(4);
             }
 
             logger.Info() << "Items: \n" << ss.str() << std::endl;
-            fb.Dump(6);
-            fb.Skip(4);
-            fb.Skip(2);
+            mBuffer.Dump(6);
+            mBuffer.Skip(4);
+            mBuffer.Skip(2);
 
             if (Container(containerType) == "Shop")
             {
-                fb.Dump(16);
-                fb.Skip(16);
+                mBuffer.Dump(16);
+                mBuffer.Skip(16);
             }
             else if (containerType == 0)
             {
-                fb.Skip(-6);
+                mBuffer.Skip(-6);
             }
             else if (containerType == 1)
             {
-                fb.Skip(-2);
+                mBuffer.Skip(-2);
             }
             else if (containerType == 3)
             {
-                fb.Dump(4);
-                fb.Skip(4);
+                mBuffer.Dump(4);
+                mBuffer.Skip(4);
             }
             else if (containerType == 8)
             {
-                fb.Dump(3);
-                fb.Skip(3);
+                mBuffer.Dump(3);
+                mBuffer.Skip(3);
             }
             else if (containerType == 10)
             {
-                fb.Dump(9);
-                fb.Skip(9);
+                mBuffer.Dump(9);
+                mBuffer.Skip(9);
             }
             else if (containerType == 16)
             {
-                fb.Skip(-2);
+                mBuffer.Skip(-2);
             }
             else if (containerType == 17)
             {
                 if (chestNumber != 4 && chestCapacity == 5)
                 {
-                    fb.Dump(3 * 8 + 1);
-                    fb.Skip(3 * 8 + 1);
+                    mBuffer.Dump(3 * 8 + 1);
+                    mBuffer.Skip(3 * 8 + 1);
                 }
-                fb.Skip(2);
+                mBuffer.Skip(2);
             }
             else if (containerType == 25)
             {
-                fb.Dump(11);
-                fb.Skip(11);
+                mBuffer.Dump(11);
+                mBuffer.Skip(11);
             }
             std::cout << std::endl;
         }
@@ -430,7 +444,7 @@ public:
         glm::vec<2, int> mTile;
     };
     
-    FileBuffer& mBuffer;
+    mutable FileBuffer mBuffer;
     Logging::Logger mLogger;
 
     Locus mLocus;
