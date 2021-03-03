@@ -19,8 +19,6 @@
 #include <optional>
 #include <vector>
 
-#include <boost/range/adaptor/indexed.hpp>
-
 void exit_with_help(char *argv[]) {
     fprintf(stderr, "  nothing\n");
     exit(1);
@@ -252,13 +250,14 @@ int main(int argc, char *argv[])
                 if (!faces.empty())
                 {
                     bool stop = false;
-                    for (const auto& face : faces | boost::adaptors::indexed())
+                    unsigned index = 0;
+                    for (const auto& face : faces)
                     {
-                        unsigned faceVertices = face.value().size();
+                        unsigned faceVertices = face.size();
                         int *x = new int[faceVertices];
                         int *y = new int[faceVertices];
                         int i = 0;
-                        for (const auto& v : face.value())
+                        for (const auto& v : face)
                         {
                             if (v >= vertices.size())
                             {
@@ -289,9 +288,11 @@ int main(int argc, char *argv[])
                             media->GetVideo()->FillPolygon(
                                 x, y,
                                 faceVertices,
-                                colors[face.index()]);
+                                colors[index]);
                         else
                             stop = true;
+
+                        index++;
                     }
                 }
             }

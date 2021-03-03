@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 project( BaKGL )
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/boost)
-
 find_package(SDL REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
 

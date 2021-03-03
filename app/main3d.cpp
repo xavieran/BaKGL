@@ -31,8 +31,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <boost/range/adaptor/indexed.hpp>
-
 #include <functional>
 #include <memory>
 #include <sstream>
