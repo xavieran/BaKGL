@@ -4,6 +4,7 @@
 #include "coordinates.hpp"
 #include "fixedObject.hpp"
 #include "gameData.hpp"
+#include "inputHandler.hpp"
 #include "logger.hpp"
 #include "screens.hpp"
 #include "systems.hpp"
@@ -236,8 +237,7 @@ int main(int argc, char** argv)
 
     glfwMakeContextCurrent(window);
 
-    // Initialize GLEW
-    glewExperimental = true; // Needed for core profile
+    glewExperimental = true;
     if (glewInit() != GLEW_OK)
     {
         logger.Log(Logging::LogLevel::Error) << "Failed to initialize GLEW" << std::endl;
@@ -245,11 +245,10 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // Ensure we can capture the escape key being pressed below
+    ImguiWrapper::Initialise(window);
+    
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
-    
-    ImguiWrapper::Initialise(window);
     
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
@@ -298,6 +297,18 @@ int main(int argc, char** argv)
     Camera camera{width, height, 400 * 30.0f, 2.0f};
     camera.SetPosition(startPosition);
 
+    InputHandler inputHandler{};
+    inputHandler.Bind(GLFW_KEY_W, [&]{ camera.MoveForward(); });
+    inputHandler.Bind(GLFW_KEY_A, [&]{ camera.StrafeLeft(); });
+    inputHandler.Bind(GLFW_KEY_D, [&]{ camera.StrafeRight(); });
+    inputHandler.Bind(GLFW_KEY_S, [&]{ camera.MoveBackward(); });
+    inputHandler.Bind(GLFW_KEY_Q, [&]{ camera.RotateLeft(); });
+    inputHandler.Bind(GLFW_KEY_E, [&]{ camera.RotateRight(); });
+    inputHandler.Bind(GLFW_KEY_X, [&]{ camera.RotateVerticalUp(); });
+    inputHandler.Bind(GLFW_KEY_Y, [&]{ camera.RotateVerticalDown(); });
+    inputHandler.Bind(GLFW_KEY_P, [&]{ lightPos.y += .5; });
+    inputHandler.Bind(GLFW_KEY_L, [&]{ lightPos.y -= .5; });
+
     double currentTime;
     double lastTime;
     float deltaTime;
@@ -322,49 +333,20 @@ int main(int argc, char** argv)
 
     do
     {
-        glfwPollEvents();
-
-        glBindVertexArray(VertexArrayID);
-
         activeEncounter = nullptr;
+
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
 
         camera.SetDeltaTime(deltaTime);
         
+        glfwPollEvents();
         glfwGetCursorPos(window, &pointerPosX, &pointerPosY);
-
-        if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS)
-            camera.MoveForward();
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera.MoveBackward();
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera.StrafeRight();
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera.StrafeLeft();
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            camera.StrafeUp();
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            camera.StrafeDown();
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            camera.RotateLeft();
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            camera.RotateRight();
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-            camera.RotateVerticalUp();
-        if (glfwGetKey( window, GLFW_KEY_Y) == GLFW_PRESS)
-            camera.RotateVerticalDown();
-
-        if (glfwGetKey( window, GLFW_KEY_P) == GLFW_PRESS)
-            lightPos.y += .5;
-        if (glfwGetKey( window, GLFW_KEY_L) == GLFW_PRESS)
-            lightPos.y -= .5;
+        inputHandler.HandleInput(window);
 
         lightPos.x = camera.GetNormalisedPosition().x;
         lightPos.z = camera.GetNormalisedPosition().z;
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto RenderItems = [&](auto programId, const auto& renderables)
         {
@@ -407,6 +389,9 @@ int main(int argc, char** argv)
                 );
             }
         };
+
+        glBindVertexArray(VertexArrayID);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(modelShaderId);
         RenderItems(modelShaderId, systems.GetRenderables());
