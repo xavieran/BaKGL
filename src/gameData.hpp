@@ -102,7 +102,7 @@ public:
         //LoadCombatStats(0xdb, 6);
         //LoadCombatInventories(0x3a7f7, 6);
         //LoadInventoryOffsetsP();
-        //LoadContainer();
+        LoadContainer();
         //LoadCombatEntityLists();
         //LoadCombatInventories(0x46053, 1733);
         //LoadCombatStats(0x914b, 1698);
@@ -116,7 +116,9 @@ public:
         mBuffer.Seek(eventLocation);
         unsigned eventData = mBuffer.GetUint16LE();
         unsigned bitValue = (eventData >> bitOffset) & 0x1;
-        mLogger.Info() << "Ptr: " << std::hex << eventPtr << " loc: " << eventLocation << " val: " << eventData << " bitVal: " << bitValue << std::dec << std::endl;
+        mLogger.Info() << "Ptr: " << std::hex << eventPtr << " loc: "
+            << eventLocation << " val: " << eventData << " bitVal: "
+            << bitValue << std::dec << std::endl;
 
         return bitValue;
     }
@@ -162,8 +164,8 @@ public:
         // TombStone
         mBuffer.Seek(0x3b621); // 36 items 1
 
+        //mBuffer.Seek(0x3be55); // 25 2
         /*
-        mBuffer.Seek(0x3be55); // 25 2
         mBuffer.Seek(0x3c55f); // 54 3
         mBuffer.Seek(0x3d0b4); // 65 4
         mBuffer.Seek(0x3dc07); // 63 5
@@ -184,9 +186,10 @@ public:
 
             mBuffer.Dump(4);
 
-            auto aLoc = mBuffer.GetUint16LE();
-            auto bLoc = mBuffer.GetUint16LE();
-            auto pair = glm::vec<2, std::uint16_t>{aLoc, bLoc};
+            //auto aLoc = mBuffer.GetUint16LE();
+            //auto bLoc = mBuffer.GetUint16LE();
+            auto dlogp = mBuffer.GetUint32LE();
+            //auto pair = glm::vec<2, std::uint16_t>{aLoc, bLoc};
             // bLoc == C3 dbody
             // bLoc == C4 hole dirt
             // bLoc == C5 Bag
@@ -204,10 +207,11 @@ public:
             {
                 //if ((x & 0x04) == 0x04) return "Shop";
                 if ((x & 0x04) == 0x04) return "Shop";
+                if ((x == 17)) return "Fairy Chest";
                 else return "Dunno";
             };
 
-            logger.Info() << "Loc: " << aLoc << ":" << bLoc << " " 
+            logger.Info() << "DLog??: " << std::hex << dlogp << std::dec << " " 
                 << xLoc << "," << yLoc << " #" << +chestNumber << " items: " 
                 << +chestItems << " capacity: " << +chestCapacity 
                 << " Tp: " << +containerType << " " 
@@ -230,30 +234,33 @@ public:
                 items.emplace_back(item, object.name, condition, modifiers);
             }
 
-            containers.emplace_back(
-                address,
-                pair,
-                chestNumber,
-                chestItems,
-                chestCapacity,
-                containerType,
-                location,
-                items);
-
+            
             for (; i < chestCapacity; i++)
             {
                 mBuffer.Skip(4);
             }
 
             logger.Info() << "Items: \n" << ss.str() << std::endl;
-            mBuffer.Dump(6);
-            mBuffer.Skip(4);
-            mBuffer.Skip(2);
+            mBuffer.DumpAndSkip(1);
+            auto picklockSkill  = mBuffer.GetUint8();
+            auto containerIndex = mBuffer.GetUint16LE();
+            logger.Info() << "Picklock: " << std::dec << +picklockSkill 
+                << " ContainerI: " << containerIndex << std::endl;
+            mBuffer.DumpAndSkip(2);
+
+            containers.emplace_back(
+                address,
+                chestNumber,
+                chestItems,
+                chestCapacity,
+                containerType,
+                containerIndex,
+                location,
+                items);
 
             if (Container(containerType) == "Shop")
             {
-                mBuffer.Dump(16);
-                mBuffer.Skip(16);
+                mBuffer.DumpAndSkip(16);
             }
             else if (containerType == 0)
             {
@@ -265,18 +272,15 @@ public:
             }
             else if (containerType == 3)
             {
-                mBuffer.Dump(4);
-                mBuffer.Skip(4);
+                mBuffer.DumpAndSkip(4);
             }
             else if (containerType == 8)
             {
-                mBuffer.Dump(3);
-                mBuffer.Skip(3);
+                mBuffer.DumpAndSkip(3);
             }
             else if (containerType == 10)
             {
-                mBuffer.Dump(9);
-                mBuffer.Skip(9);
+                mBuffer.DumpAndSkip(9);
             }
             else if (containerType == 16)
             {
@@ -286,15 +290,13 @@ public:
             {
                 if (chestNumber != 4 && chestCapacity == 5)
                 {
-                    mBuffer.Dump(3 * 8 + 1);
-                    mBuffer.Skip(3 * 8 + 1);
+                    mBuffer.DumpAndSkip(3 * 8 + 1);
                 }
-                mBuffer.Skip(2);
+                mBuffer.DumpAndSkip(2);
             }
             else if (containerType == 25)
             {
-                mBuffer.Dump(11);
-                mBuffer.Skip(11);
+                mBuffer.DumpAndSkip(11);
             }
             std::cout << std::endl;
         }

@@ -17,6 +17,7 @@ class FixedObject
 public:
     Target mDialogKey;
     glm::vec<2, unsigned> mLocation;
+    std::uint8_t mType;
 };
 
 std::vector<FixedObject> LoadFixedObjects(unsigned targetZone)
@@ -71,6 +72,7 @@ std::vector<FixedObject> LoadFixedObjects(unsigned targetZone)
                 dialogKey = fb.GetUint32LE();
                 fb.DumpAndSkip(9);
             }
+
             logger.Debug() << "(" << x << "," << y << ") zone: " << +zone
                 << " tp: " << +type << " dialog: " << std::hex
                 << dialogKey << std::dec << std::endl;
@@ -79,7 +81,8 @@ std::vector<FixedObject> LoadFixedObjects(unsigned targetZone)
             {
                 fixedObjects.emplace_back(
                     KeyTarget{dialogKey},
-                    glm::vec<2, unsigned>{x, y});
+                    glm::vec<2, unsigned>{x, y},
+                    type);
             }
         }
     }

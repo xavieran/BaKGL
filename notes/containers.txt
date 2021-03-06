@@ -1,0 +1,49 @@
+Z17 has chest "dialogues"
+The keys are 19f0a0 -> 19f0a(0d126)
+[DalogStore] 0xKey [ 19f0d6 ] -> 0x23fd
+SPIDER
+0:29:38.03 INFO  [GameData]  Container: 27 addr: 3b9c6
+00000000: 01 0a a1 00 
+00:29:38.03 INFO  [GameData] DLog??: a10a01 737960,1137557 #4
+items: 4 capacity: 8 Tp: 17 Dunno
+00:29:38.03 INFO  [GameData] Items: 
+0x30 Standard Kingdom Armor  cond/qty: 53 mod: 32 y; 0
+0x36 Silver Royals  cond/qty: 46 mod: 0 y; 0
+0x3a Shell  cond/qty: 66 mod: 0 y; 0
+0x50 Picklocks  cond/qty: 4 mod: 0 y; 0
+
+00000000: 00 00 36 00 00 00 
+00000000: 00 00 
+
+SHADOW
+00:29:38.03 INFO  [GameData]  Container: 30 addr: 3ba6b
+00000000: 01 0a a1 00 
+00:29:38.03 INFO  [GameData] DLog??: a10a01 860795,1103697 #4
+items: 4 capacity: 8 Tp: 17 Dunno
+00:29:38.03 INFO  [GameData] Items: 
+0x78 Note  cond/qty: 3 mod: 0 y; 0
+0x85 Magical Scroll  cond/qty: 11 mod: 0 y; 0
+0x54 Torch  cond/qty: 10 mod: 0 y; 0
+0x77 Restoratives  cond/qty: 8 mod: 0 y; 0
+
+00000000: 00 00 09 00 00 00 
+00000000: 00 00 
+
+CANDLE
+00:29:38.03 INFO  [GameData]  Container: 20 addr: 3b876
+00000000: 01 0a a1 00 
+00:29:38.03 INFO  [GameData] DLog??: a10a01 915592,1102134 #4 
+items: 5 capacity: 9 Tp: 17 Dunno
+00:29:38.03 INFO  [GameData] Items: 
+0x78 Note  cond/qty: 2 mod: 0 y; 0
+0x36 Silver Royals  cond/qty: 100 mod: 0 y; 0
+0x19 Moredhel Lamprey  cond/qty: 95 mod: 32 y; 64
+0x85 Magical Scroll  cond/qty: 4 mod: 0 y; 0
+0x85 Magical Scroll  cond/qty: 26 mod: 0 y; 0
+
+00000000: 00 00 0d 00 00 00 
+00000000: 00 00 
+
+ITEM DESCRIPTIONS IN Z18.DDX. Key 1b7741 has all the item descriptions
+Item Descs
+Item Use Descs

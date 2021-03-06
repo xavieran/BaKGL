@@ -29,11 +29,11 @@ class Container
 {
 public:
     unsigned mAddress;
-    glm::vec<2, std::uint16_t> mPair;
     unsigned mNumber;
     unsigned mNumberItems;
     unsigned mCapacity;
     unsigned mType;
+    unsigned mIndex;
     glm::vec<2, unsigned> mLocation;
     std::vector<Item> mItems;
 };
