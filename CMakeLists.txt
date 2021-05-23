@@ -4,6 +4,8 @@ project( BaKGL )
 find_package(SDL REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/glm")
+
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)

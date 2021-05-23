@@ -1,14 +1,14 @@
-#include "camera.hpp"
-#include "constants.hpp"
-#include "container.hpp"
-#include "coordinates.hpp"
-#include "fixedObject.hpp"
-#include "gameData.hpp"
-#include "inputHandler.hpp"
-#include "logger.hpp"
-#include "screens.hpp"
-#include "systems.hpp"
-#include "worldFactory.hpp"
+#include "src/camera.hpp"
+#include "src/constants.hpp"
+#include "src/container.hpp"
+#include "src/coordinates.hpp"
+#include "src/fixedObject.hpp"
+#include "src/gameData.hpp"
+#include "src/inputHandler.hpp"
+#include "src/logger.hpp"
+#include "src/screens.hpp"
+#include "src/systems.hpp"
+#include "src/worldFactory.hpp"
 
 #include "graphics/line.hpp"
 #include "graphics/meshObject.hpp"
@@ -25,7 +25,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "glm.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -47,7 +46,6 @@ int main(int argc, char** argv)
 
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
-
 
     BAK::ZoneLabel zoneLabel{};
     glm::vec<3, float> startPosition{0.0f, 0.0f, 0.0f};
@@ -209,6 +207,7 @@ int main(int argc, char** argv)
         }
     }
 
+    glfwSetErrorCallback([](int error, const char* desc){ puts(desc); });
     if( !glfwInit() )
     {
         logger.Error() << "Failed to initialize GLFW" << std::endl;

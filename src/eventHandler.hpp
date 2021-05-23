@@ -2,6 +2,8 @@
 
 #include "xbak/EventListener.h"
 
+#include <functional>
+
 namespace BAK {
 
 struct EventRouter : public KeyboardEventListener, LoopEventListener
