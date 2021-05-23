@@ -207,7 +207,7 @@ public:
             {
                 //if ((x & 0x04) == 0x04) return "Shop";
                 if ((x & 0x04) == 0x04) return "Shop";
-                if ((x == 17)) return "Fairy Chest";
+                if (x == 17) return "Fairy Chest";
                 else return "Dunno";
             };
 

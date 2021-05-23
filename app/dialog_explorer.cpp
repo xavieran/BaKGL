@@ -95,7 +95,7 @@ int main(int argc, char** argv)
             ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
 
             ImGui::Begin("Dialog");
-            ImGui::Text("Dialog indices: %d", dialogIndex.GetKeys().size());
+            ImGui::Text("Dialog indices: %zu", dialogIndex.GetKeys().size());
             static char curIndex[64] = "0"; ImGui::InputText("Index ", curIndex, 10); //, ImGuiInputTextFlags_CharsHex);
             ImGui::SameLine(); if (ImGui::Button("Change"))
             {

@@ -33,8 +33,10 @@ set(LINK_3D_LIBRARIES
     ${OPENGL_LIBRARY}
 )
 
-set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter")
-set(CMAKE_CXX_FLAGS "-g -std=c++20 -Wall -Wextra -Werror ${CXX_IGNORE}")
+set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter -Wno-unused-private-field -Wno-format-security -Wno-c++17-extensions")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_IGNORE}")
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_STANDARD 20)
 
 list(APPEND APP_BINARIES
     compile_shaders 
@@ -51,7 +53,7 @@ list(APPEND APP_BINARIES
 
 foreach (APP_BIN IN LISTS APP_BINARIES)
     add_executable (${APP_BIN} app/${APP_BIN}.cpp ${APP_INCLUDES})
-    target_link_libraries(${APP_BIN} dl pthread  ${LINK_3D_LIBRARIES} SDL ${APP_INCLUDES})
+    target_link_libraries(${APP_BIN} stdc++ m dl pthread  ${LINK_3D_LIBRARIES} SDL ${APP_INCLUDES})
 endforeach()
 
 
@@ -67,6 +69,7 @@ endif()
 
 # XBaK Executables
 list(APPEND XBAK_BINARIES
+    bmx2bmp
     dumpbmx
     dumpact_bmx
     dumpchar_bmx
@@ -81,9 +84,9 @@ list(APPEND XBAK_BINARIES
 
 foreach (XBAK_BIN IN LISTS XBAK_BINARIES)
     add_executable (${XBAK_BIN} xbak/${XBAK_BIN}.cc ${XBAK} ${SDL_INCLUDE_DIR})
-    target_link_libraries(${XBAK_BIN} dl pthread xbak SDL)
+    target_link_libraries(${XBAK_BIN} dl pthread xbak SDL stdc++ m)
 endforeach()
 
 add_executable (xbak_main xbak/xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
-target_link_libraries(xbak_main dl pthread xbak SDL)
+target_link_libraries(xbak_main dl pthread xbak SDL stdc++ m)
 

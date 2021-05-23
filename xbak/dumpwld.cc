@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
             }
             printf("\n");
         }
-        delete map;
+        delete [] map;
         delete wld;
         FileManager::CleanUp();
         Directories::CleanUp();

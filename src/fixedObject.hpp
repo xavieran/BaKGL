@@ -15,6 +15,16 @@ namespace BAK {
 class FixedObject
 {
 public:
+    FixedObject(
+        Target dialogKey,
+        glm::vec<2, unsigned> location,
+        std::uint8_t type)
+    :
+        mDialogKey{dialogKey},
+        mLocation{location},
+        mType{type}
+    {}
+
     Target mDialogKey;
     glm::vec<2, unsigned> mLocation;
     std::uint8_t mType;

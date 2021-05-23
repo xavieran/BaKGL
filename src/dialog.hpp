@@ -51,6 +51,37 @@ enum class ChoiceState
 class DialogSnippet
 {
 public:
+    struct Choice
+    {
+        Choice(
+            std::uint16_t state,
+            std::uint16_t choice1,
+            std::uint16_t choice2,
+            Target target)
+        :
+            mState{state},
+            mChoice1{choice1},
+            mChoice2{choice2},
+            mTarget{target}
+        {}
+
+        std::uint16_t mState;
+        std::uint16_t mChoice1;
+        std::uint16_t mChoice2;
+        Target mTarget;
+    };
+
+    struct Action
+    {
+        Action(
+            const std::array<std::uint8_t, 10>& action)
+        :
+            mAction{action}
+        {}
+
+        std::array<std::uint8_t, 10> mAction;
+    };
+
     DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
     {
         mDisplayStyle        = fb.GetUint8();
@@ -63,21 +94,22 @@ public:
         
         std::uint8_t i;
 
-        const auto GetTarget = [&fb, dialogFile](auto targetRaw) -> Target
+        const auto GetTarget = [dialogFile](auto rawTarget) -> Target
         {
-            if (0x80000000 & targetRaw)
-                return KeyTarget{targetRaw & 0x7fffffff};
+            constexpr std::uint32_t targetBit = 0x80000000;
+            if (targetBit & rawTarget)
+                return KeyTarget{rawTarget & (targetBit - 1)};
             else
-                return OffsetTarget{dialogFile, targetRaw};
+                return OffsetTarget{dialogFile, rawTarget};
         };
 
         for (i = 0; i < choices; i++)
         {
-            auto state   = fb.GetUint16LE();
-            auto choice1 = fb.GetUint16LE();
-            auto choice2 = fb.GetUint16LE();
-            auto offset  = fb.GetUint32LE();
-            auto target  = GetTarget(offset);
+            const auto state   = fb.GetUint16LE();
+            const auto choice1 = fb.GetUint16LE();
+            const auto choice2 = fb.GetUint16LE();
+            const auto offset  = fb.GetUint32LE();
+            const auto target  = GetTarget(offset);
             // FIXME: Should work out what to do with offset == 0
             if (offset != 0)
                 mChoices.emplace_back(state, choice1, choice2, target);
@@ -95,19 +127,6 @@ public:
     }
 
 
-    struct Choice
-    {
-        std::uint16_t mState;
-        std::uint16_t mChoice1;
-        std::uint16_t mChoice2;
-        Target mTarget;
-    };
-
-    struct Action
-    {
-        std::array<std::uint8_t, 10> mAction;
-    };
-    
     const std::vector<Choice>& GetChoices() const { return mChoices; }
     const std::string& GetText() const { return mText; }
 

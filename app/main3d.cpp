@@ -307,9 +307,9 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_P, [&]{ lightPos.y += .5; });
     inputHandler.Bind(GLFW_KEY_L, [&]{ lightPos.y -= .5; });
 
-    double currentTime;
-    double lastTime;
-    float deltaTime;
+    double currentTime = 0;
+    double lastTime = 0;
+    float deltaTime = 0;
 
     glfwSetCursorPos(window, width/2, height/2);
 

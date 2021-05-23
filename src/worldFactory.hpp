@@ -777,7 +777,7 @@ public:
     const auto& GetTile() const { return mTile; }
     const auto& GetItems() const { return mItemInsts; }
     const auto& GetEncounters() const { return mEncounters; }
-    const auto GetCenter() const
+    auto GetCenter() const
     {
         return mCenter.value_or(
             GetItems().front().GetLocation());

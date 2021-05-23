@@ -13,6 +13,18 @@ namespace BAK
 class Item
 {
 public:
+    Item(
+        unsigned itemNumber,
+        const std::string& name,
+        std::uint8_t condition,
+        std::uint8_t modifiers)
+    :
+        mItemNumber{itemNumber},
+        mName{name},
+        mCondition{condition},
+        mModifiers{modifiers}
+    {}
+
     unsigned mItemNumber;
     std::string mName;
     std::uint8_t mCondition;
@@ -28,6 +40,26 @@ std::ostream& operator<<(std::ostream& os, const Item& i)
 class Container
 {
 public:
+    Container(
+        unsigned address,
+        unsigned number,
+        unsigned numberItems,
+        unsigned capacity,
+        unsigned type,
+        unsigned index,
+        glm::vec<2, unsigned> location,
+        const std::vector<Item>& items)
+    :
+        mAddress{address},
+        mNumber{number},
+        mNumberItems{numberItems},
+        mCapacity{capacity},
+        mType{type},
+        mIndex{index},
+        mLocation{location},
+        mItems{items}
+    {}
+ 
     unsigned mAddress;
     unsigned mNumber;
     unsigned mNumberItems;

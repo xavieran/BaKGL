@@ -58,14 +58,18 @@ public:
 
         return nullStream;
     }
-
-    static const Logger& GetLogger(const std::string& name)
+    
+    static const Logger& GetLogger(const std::string& name){ return GetLoggerT<Logger>(name); }
+    
+    // FIXME: Clang complains about incomplete type in lambda
+    template <typename T>
+    static const T& GetLoggerT(const std::string& name)
     {
         const auto it = std::find_if(sLoggers.begin(), sLoggers.end(),
             [&name](const auto& l){ return l->GetName() == name; });
         if (it == sLoggers.end())
         {
-            return *sLoggers.emplace_back(std::make_unique<Logger>(name));
+            return *sLoggers.emplace_back(std::make_unique<T>(name));
         }
         else
         {
