@@ -7,6 +7,9 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)
 
+# I just want all the bins in the build dir
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 
 # Packages
 find_package(SDL REQUIRED)
