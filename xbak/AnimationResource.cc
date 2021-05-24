@@ -21,6 +21,8 @@
 #include "Exception.h"
 #include "ResourceTag.h"
 
+#include <iostream>
+
 AnimationResource::AnimationResource()
         : TaggedResource()
         , version("")
@@ -92,6 +94,7 @@ AnimationResource::Load(FileBuffer *buffer)
         ResourceTag tags;
         tags.Load(tagbuf);
         unsigned int n = resbuf->GetUint16LE();
+        std::cout << "Resources: " << n << "\n";
         for (unsigned int i = 0; i < n; i++)
         {
             unsigned int id = resbuf->GetUint16LE();
@@ -102,6 +105,7 @@ AnimationResource::Load(FileBuffer *buffer)
                 AnimationData data;
                 data.name = name;
                 data.resource = resource;
+                std::cout << "ID: " << id << " " << name << "\n";
                 animationMap.insert(std::pair<unsigned int, AnimationData>(id, data));
             }
             else

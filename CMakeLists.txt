@@ -70,6 +70,7 @@ endif()
 # XBaK Executables
 list(APPEND XBAK_BINARIES
     bmx2bmp
+    dumpads
     dumpbmx
     dumpact_bmx
     dumpchar_bmx

@@ -34,14 +34,15 @@ int main(int argc, char *argv[])
 {
     try
     {
-        if (argc != 2)
+        if (argc != 3)
         {
-            std::cerr << "Usage: " << argv[0] << " <ADS-file>" << std::endl;
+            std::cerr << "Usage: " << argv[0] << " <ADS-file>" << " <TagIndex>" << std::endl;
             return 1;
         }
         AnimationResource *anim = new AnimationResource;
         FileManager::GetInstance()->Load(anim, argv[1]);
-        AnimationData data = anim->GetAnimationData(1);
+        unsigned index = std::atoi(argv[2]);
+        AnimationData data = anim->GetAnimationData(index);
         printf("%s %s %s\n", anim->GetVersion().c_str(), data.name.c_str(), data.resource.c_str());
         FileBuffer *scr = anim->GetScript();
         while (!scr->AtEnd())
