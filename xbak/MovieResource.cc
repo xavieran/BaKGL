@@ -24,6 +24,20 @@
 #include "ResourceTag.h"
 #include "MovieResource.h"
 
+std::ostream& operator<<(std::ostream& os, const MovieChunk& mc)
+{
+    os << "MovieChunk { code: " << std::hex << mc.code << std::dec 
+        << ", name: " << mc.name << " data: [";
+    char sep = ' ';
+    for (const auto d : mc.data)
+    {
+        os << sep << d << ' ';
+        sep = ',';
+    }
+    os << "] }";
+    return os;
+}
+
 MovieResource::MovieResource()
         : TaggedResource()
         , version("")
@@ -91,6 +105,7 @@ MovieResource::Load(FileBuffer *buffer)
         tt3buf->DecompressRLE(tmpbuf);
         ResourceTag tags;
         tags.Load(tagbuf);
+        std::cout << "Loading movie chunks" << std::endl;
         while (!tmpbuf->AtEnd())
         {
             MovieChunk *mc = new MovieChunk;
@@ -124,6 +139,8 @@ MovieResource::Load(FileBuffer *buffer)
                     mc->data.push_back(tmpbuf->GetSint16LE());
                 }
             }
+
+            std::cout << *mc << std::endl;
             movieChunks.push_back(mc);
         }
         delete tmpbuf;

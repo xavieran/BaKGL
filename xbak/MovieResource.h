@@ -20,6 +20,7 @@
 #ifndef MOVIE_RESOURCE_H
 #define MOVIE_RESOURCE_H
 
+#include <iostream>
 #include <vector>
 
 #ifdef HAVE_CONFIG_H
@@ -34,6 +35,8 @@ struct MovieChunk
     std::string name;
     std::vector<int> data;
 };
+
+std::ostream& operator<<(std::ostream&, const MovieChunk& mc);
 
 class MovieResource
             : public TaggedResource

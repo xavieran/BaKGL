@@ -24,6 +24,8 @@
 #include "MoviePlayer.h"
 #include "PointerManager.h"
 
+#include <iostream>
+
 const unsigned int SAVE_BACKGROUND    = 0x0020;
 const unsigned int DRAW_BACKGROUND    = 0x0080;
 const unsigned int PURGE              = 0x0110;
@@ -158,6 +160,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
             switch ( mc->code )
             {
             case SAVE_BACKGROUND:
+                std::cout << "Save background\n";
                 if ( backgroundImage == 0 )
                 {
                     backgroundImage = new Image ( media->GetVideo()->GetWidth(), media->GetVideo()->GetHeight() );
@@ -166,6 +169,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 backgroundImageDrawn = false;
                 break;
             case DRAW_BACKGROUND:
+                std::cout << "Draw background\n";
                 if ( backgroundImage != 0 )
                 {
                     backgroundImage->Draw ( 0, 0 );
@@ -173,6 +177,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 }
                 break;
             case PURGE:
+                std::cout << "Purge\n";
                 if ( backgroundImage != 0 )
                 {
                     delete backgroundImage;
@@ -185,6 +190,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 }
                 break;
             case UPDATE:
+                std::cout << "Update\n";
                 if ( ( backgroundImage != 0 ) && ( !backgroundImageDrawn ) )
                 {
                     backgroundImage->Draw ( 0, 0 );
@@ -210,31 +216,41 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 savedImageDrawn = false;
                 break;
             case DELAY:
+                std::cout << "DELAY\n";
                 currDelay = mc->data[0] * 10;
+                std::cout << "Delay: " << currDelay << '\n';
                 break;
             case SLOT_IMAGE:
                 currImage = mc->data[0];
+                std::cout << "Slot image: " << currImage << '\n';
                 break;
             case SLOT_PALETTE:
                 currPalette = mc->data[0];
                 paletteActivated = false;
+                std::cout << "Slot palette: " << currPalette << '\n';
                 break;
             case SET_SCENE:
+                std::cout << "Set scene\n";
                 break;
             case SET_FRAME0:
+                std::cout << "Set frame0\n";
             case SET_FRAME1:
                 currFrame = mc->data[1];
+                std::cout << "Set frame1: " << currFrame << "\n";
                 break;
             case FADE_OUT:
                 paletteSlot[currPalette]->GetPalette()->FadeOut ( mc->data[0], mc->data[1], 64 << ( mc->data[2] & 0x0f ), 2 << mc->data[3] );
                 media->GetVideo()->Clear();
                 paletteActivated = true;
+                std::cout << "Fade out\n";
                 break;
             case FADE_IN:
                 paletteSlot[currPalette]->GetPalette()->FadeIn ( mc->data[0], mc->data[1], 64 << ( mc->data[2] & 0x0f ), 2 << mc->data[3] );
                 paletteActivated = true;
+                std::cout << "Fade in\n";
                 break;
             case SAVE_IMAGE0:
+                std::cout << "Save image0\n";
             case SAVE_IMAGE1:
                 if ( savedImage != 0 )
                 {
@@ -245,13 +261,20 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 savedImage = new Image ( mc->data[2], mc->data[3] );
                 savedImage->Read ( xSavedImage, ySavedImage );
                 savedImageDrawn = false;
+                std::cout << "Save image1: (" << xSavedImage << ", " << ySavedImage << "), "
+                    << "(" << mc->data[2] << ", " << mc->data[3] << ")\n";
                 break;
             case SET_WINDOW:
+                std::cout << "Set window\n";
                 break;
             case DRAW_SPRITE0:
+                std::cout << "Draw sprite0\n";
             case DRAW_SPRITE1:
+                std::cout << "Draw sprite1\n";
             case DRAW_SPRITE2:
+                std::cout << "Draw sprite2\n";
             case DRAW_SPRITE3:
+                std::cout << "Draw sprite3\n";
                 if ( ( backgroundImage != 0 ) && ( !backgroundImageDrawn ) )
                 {
                     backgroundImage->Draw ( 0, 0 );
@@ -268,6 +291,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 }
                 break;
             case DRAW_SCREEN:
+                std::cout << "Draw screen\n";
                 if ( ( backgroundImage != 0 ) && ( !backgroundImageDrawn ) )
                 {
                     backgroundImage->Draw ( 0, 0 );
@@ -279,9 +303,11 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 }
                 break;
             case LOAD_SOUNDRESOURCE:
+                std::cout << "Load sound\n";
                 break;
             case SELECT_SOUND:
             {
+                std::cout << "Select sound\n";
                 std::map<unsigned int, int>::iterator it = soundMap.find ( mc->data[0] );
                 if ( it != soundMap.end() )
                 {
@@ -296,6 +322,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
             break;
             case DESELECT_SOUND:
             {
+                std::cout << "Deselect sound\n";
                 std::map<unsigned int, int>::iterator it = soundMap.find ( mc->data[0] );
                 if ( it != soundMap.end() )
                 {
@@ -309,6 +336,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
             break;
             case PLAY_SOUND:
             {
+                std::cout << "Play sound\n";
                 std::map<unsigned int, int>::iterator it = soundMap.find ( mc->data[0] );
                 if ( it != soundMap.end() )
                 {
@@ -323,6 +351,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
             break;
             case STOP_SOUND:
             {
+                std::cout << "Stop sound\n";
                 std::map<unsigned int, int>::iterator it = soundMap.find ( mc->data[0] );
                 if ( it != soundMap.end() )
                 {
@@ -335,6 +364,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
             }
             break;
             case LOAD_SCREEN:
+                std::cout << "Load screen\n";
                 if ( screenSlot )
                 {
                     delete screenSlot;
@@ -345,6 +375,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 screenSlot->GetImage()->Draw ( 0, 0 );
                 break;
             case LOAD_IMAGE:
+                std::cout << "Load image\n";
                 if ( imageSlot[currImage] )
                 {
                     delete imageSlot[currImage];
@@ -354,6 +385,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 FileManager::GetInstance()->Load ( imageSlot[currImage], mc->name );
                 break;
             case LOAD_PALETTE:
+                std::cout << "Load palette: " << mc->name << "\n";
                 if ( paletteSlot[currPalette] )
                 {
                     delete paletteSlot[currPalette];

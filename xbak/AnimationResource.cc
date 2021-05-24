@@ -89,8 +89,10 @@ AnimationResource::Load(FileBuffer *buffer)
             ClearTags();
             throw DataCorruption(__FILE__, __LINE__);
         }
-        script = new FileBuffer(scrbuf->GetUint32LE());
+        auto decompressedSize = scrbuf->GetUint32LE();
+        script = new FileBuffer(decompressedSize);
         scrbuf->DecompressLZW(script);
+        scrbuf->Dump(decompressedSize);
         ResourceTag tags;
         tags.Load(tagbuf);
         unsigned int n = resbuf->GetUint16LE();

@@ -18,7 +18,6 @@ public:
     {
         BAK::DialogStore dialogStore{};
         dialogStore.Load();
-
         auto length = fb.GetUint16LE();
         std::cout << "Length: " << length << std::endl;
         auto name = fb.GetString(6);
