@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include "src/logger.hpp"
 
 #include "graphics/shaderProgram.hpp"
 

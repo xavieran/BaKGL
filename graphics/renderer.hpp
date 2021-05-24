@@ -1,8 +1,8 @@
 #pragma once
 
-#include "logger.hpp"
+#include "src/logger.hpp"
 
-#include "worldFactory.hpp"
+#include "src/worldFactory.hpp"
 
 #include <GL/glew.h>
 

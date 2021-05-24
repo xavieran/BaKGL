@@ -1,7 +1,7 @@
-#include "scene.hpp"
-#include "dialog.hpp"
+#include "src/scene.hpp"
+#include "src/dialog.hpp"
 
-#include "logger.hpp"
+#include "src/logger.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"

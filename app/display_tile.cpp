@@ -1,13 +1,13 @@
-#include "logger.hpp"
+#include "src/logger.hpp"
 
-#include "worldFactory.hpp"
+#include "src/glm.hpp"
+#include "src/worldFactory.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"
 #include "xbak/Palette.h"
 #include "xbak/PaletteResource.h"
 
-#include "glm.hpp"
 
 int main(int argc, char** argv)
 {

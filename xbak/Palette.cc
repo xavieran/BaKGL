@@ -66,7 +66,7 @@ Palette::Fill()
     size = WINDOW_COLORS;
     colors = new Color[size];
     memset(colors, 0, size * sizeof(Color));
-    for (int i = 0; i < size; i++)
+    for (unsigned i = 0; i < size; i++)
     {
         colors[i].r = i;
         colors[i].g = i;

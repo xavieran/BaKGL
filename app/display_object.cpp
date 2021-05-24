@@ -1,6 +1,6 @@
-#include "logger.hpp"
+#include "src/logger.hpp"
 
-#include "worldFactory.hpp"
+#include "src/worldFactory.hpp"
 
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"

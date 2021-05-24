@@ -34,7 +34,7 @@ const int ANGLE_VIEW_DISTANCE = MAX_VIEW_DISTANCE / 2;
 
 const int TERRAIN_HEIGHT = 38;
 
-class Vertex
+class Vertex final
 {
     protected:
         Vector3D pos;
@@ -45,7 +45,6 @@ class Vertex
     public:
         Vertex();
         Vertex ( const Vector3D &p );
-        virtual ~Vertex();
         Vertex& operator= ( const Vertex &v );
         const Vector3D& GetPosition() const;
         const Vector3D& GetRelativePosition() const;

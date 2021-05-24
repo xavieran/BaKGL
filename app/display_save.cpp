@@ -1,6 +1,6 @@
-#include "gameData.hpp"
+#include "src/gameData.hpp"
 
-#include "logger.hpp"
+#include "src/logger.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"

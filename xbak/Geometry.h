@@ -38,7 +38,7 @@ const unsigned int ANGLE_BITS = 8;
 const unsigned int ANGLE_SIZE = 1 << ANGLE_BITS;
 const unsigned int ANGLE_MASK = ANGLE_SIZE - 1;
 
-class Angle
+class Angle final
 {
 private:
     int m_angle;
@@ -48,12 +48,12 @@ private:
     static double m_tanTbl[ANGLE_SIZE];
 public:
     Angle ( const int a );
-    ~Angle();
     int Get() const;
     void Set ( const int a );
     double GetCos() const;
     double GetSin() const;
     double GetTan() const;
+    Angle( const Angle &a ) = default;
     Angle& operator= ( const Angle &a );
     Angle& operator+= ( const Angle &a );
     Angle& operator-= ( const Angle &a );
@@ -67,7 +67,7 @@ public:
     bool operator>= ( const Angle &a ) const;
 };
 
-class Vector2D
+class Vector2D final
 {
 private:
     int m_x;
@@ -76,7 +76,6 @@ public:
     Vector2D();
     Vector2D ( const int x, const int y );
     Vector2D ( const Vector2D &p );
-    virtual ~Vector2D();
     Vector2D& operator= ( const Vector2D &p );
     Vector2D& operator+= ( const Vector2D &p );
     Vector2D& operator-= ( const Vector2D &p );
@@ -106,7 +105,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Vector2D& d);
 };
 
-class Vector3D
+class Vector3D final
 {
 private:
     int m_x;
@@ -117,7 +116,6 @@ public:
     Vector3D ( const int x, const int y, const int z );
     Vector3D ( const Vector3D &p );
     Vector3D ( const Vector2D &p );
-    virtual ~Vector3D();
     Vector3D& operator= ( const Vector3D &p );
     Vector3D& operator+= ( const Vector3D &p );
     Vector3D& operator-= ( const Vector3D &p );

@@ -11,8 +11,8 @@
 #include "xbak/PaletteResource.h"
 #include "xbak/RequestResource.h"
 
-#include "worldFactory.hpp"
-#include "eventHandler.hpp"
+#include "src/worldFactory.hpp"
+#include "src/eventHandler.hpp"
 
 #include <fstream>   
 #include <iostream>   

@@ -1,6 +1,6 @@
-#include "dialog.hpp"
-#include "logger.hpp"
-#include "ostream.hpp"
+#include "src/dialog.hpp"
+#include "src/logger.hpp"
+#include "src/ostream.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 

@@ -40,10 +40,6 @@ Vertex::Vertex(const Vector3D &p)
 {
 }
 
-Vertex::~Vertex()
-{
-}
-
 Vertex& Vertex::operator= ( const Vertex &v )
 {
     pos = v.pos;

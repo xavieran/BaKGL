@@ -39,10 +39,6 @@ Angle::Angle ( const int a )
     }
 }
 
-Angle::~Angle()
-{
-}
-
 int Angle::Get() const
 {
     return m_angle;
@@ -141,10 +137,6 @@ Vector2D::Vector2D(const int x, const int y)
 Vector2D::Vector2D(const Vector2D &p)
         : m_x(p.m_x)
         , m_y(p.m_y)
-{
-}
-
-Vector2D::~Vector2D()
 {
 }
 
@@ -342,10 +334,6 @@ Vector3D::Vector3D(const Vector2D &p)
     : m_x(p.GetX())
     , m_y(p.GetY())
     , m_z(0)
-{
-}
-
-Vector3D::~Vector3D()
 {
 }
 

@@ -46,8 +46,8 @@ PortraitWidget::Draw()
 {
     if (IsVisible())
     {
-        int xoff = 0;
-        int yoff = 0;
+        //int xoff = 0;
+        //int yoff = 0;
         if (horizontalBorder && verticalBorder)
         {
             horizontalBorder->Draw(rect.GetXPos() + verticalBorder->GetWidth(), rect.GetYPos(), 0, 0,
@@ -58,8 +58,8 @@ PortraitWidget::Draw()
                                  verticalBorder->GetWidth(), rect.GetHeight());
             verticalBorder->Draw(rect.GetXPos() + rect.GetWidth() - verticalBorder->GetWidth(), rect.GetYPos(), 0, 0,
                                  verticalBorder->GetWidth(), rect.GetHeight());
-            xoff = verticalBorder->GetWidth();
-            yoff = horizontalBorder->GetHeight();
+            //xoff = verticalBorder->GetWidth();
+            //yoff = horizontalBorder->GetHeight();
         }
         // playerCharacter->GetPortraitImage()->Draw(rect.GetXPos() +xoff, rect.GetYPos() + yoff, 0);
     }

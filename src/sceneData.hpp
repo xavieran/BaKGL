@@ -1,11 +1,14 @@
 #pragma once
 
+#include <cstdint>
+#include <string>
+
 #include <variant>
 
 
 namespace BAK {
 
-enum class SceneAction
+enum class Actions
 {
     SAVE_BACKGROUND    = 0x0020,
     DRAW_BACKGROUND    = 0x0080,

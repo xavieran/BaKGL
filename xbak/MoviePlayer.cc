@@ -233,7 +233,6 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 std::cout << "Set scene\n";
                 break;
             case SET_FRAME0:
-                std::cout << "Set frame0\n";
             case SET_FRAME1:
                 currFrame = mc->data[1];
                 std::cout << "Set frame1: " << currFrame << "\n";
@@ -250,7 +249,6 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 std::cout << "Fade in\n";
                 break;
             case SAVE_IMAGE0:
-                std::cout << "Save image0\n";
             case SAVE_IMAGE1:
                 if ( savedImage != 0 )
                 {
@@ -268,11 +266,8 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 std::cout << "Set window\n";
                 break;
             case DRAW_SPRITE0:
-                std::cout << "Draw sprite0\n";
             case DRAW_SPRITE1:
-                std::cout << "Draw sprite1\n";
             case DRAW_SPRITE2:
-                std::cout << "Draw sprite2\n";
             case DRAW_SPRITE3:
                 std::cout << "Draw sprite3\n";
                 if ( ( backgroundImage != 0 ) && ( !backgroundImageDrawn ) )

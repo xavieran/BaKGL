@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.hpp"
+#include "src/logger.hpp"
 
 #include <GL/glew.h>
 
