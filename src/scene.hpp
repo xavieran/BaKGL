@@ -8,37 +8,92 @@
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 
+#include <glm/glm.hpp>
+
+#include <string_view>
+
 namespace BAK {
+
+enum class HotspotAction
+{
+    DIALOG = 2,
+    EXIT = 3,
+    GOTO = 4,
+    BARMAID = 5,
+    SHOP = 6,
+    INN = 7,
+    CONTAINER = 8,
+    LUTE = 9,
+    TELEPORT = 11,
+    TEMPLE = 13,
+    NOT_SURE = 15,
+    REPAIR = 16,
+};
+
+std::ostream& operator<<(std::ostream&, HotspotAction);
+
+struct Hotspot
+{
+    std::uint16_t mHotspot;
+    glm::vec<2, int> mTopLeft;
+    glm::vec<2, int> mDimensions;
+    std::uint16_t mKeyword;
+    HotspotAction mAction;
+    KeyTarget mTooltip;
+    KeyTarget mDialog;
+};
+
+std::ostream& operator<<(std::ostream&, const Hotspot&);
 
 // Loaded from a GDS File
 class Scene
 {
 public:
+    std::string mPrefix;
+    // Which scene in the list of ADS/TTM tags is this?
+    std::uint16_t mSceneIndex;
+
     void Load(FileBuffer& fb)
     {
         BAK::DialogStore dialogStore{};
         dialogStore.Load();
+
+        const auto GetText = [&](auto& tgt) -> std::string_view
+        {
+            try
+            {
+                return dialogStore.GetSnippet(KeyTarget{tgt}).GetText();
+            }
+            catch (const std::runtime_error& e)
+            {
+                return e.what();
+            }
+        };
+
         auto length = fb.GetUint16LE();
         std::cout << "Length: " << length << std::endl;
-        auto name = fb.GetString(6);
-        std::cout << "Name: " << name << std::endl;
+        mPrefix = fb.GetString(6);
+        std::cout << "Prefix: " << mPrefix << std::endl;
+
         fb.DumpAndSkip(4);
         fb.DumpAndSkip(2);
         std::cout << "XX: " << std::hex << fb.GetUint16LE() 
             << " YY: " << fb.GetUint16LE() << std::endl;
         fb.DumpAndSkip(4); // Some kind of addr?
-        fb.DumpAndSkip(2); // Not sure
-        fb.DumpAndSkip(5); // Inn background/people identifier
+        fb.DumpAndSkip(5); // Not sure
+        mSceneIndex = fb.GetUint16LE();
+        std::cout << "Scene index: " << mSceneIndex << "\n";
         auto numHotSpots = fb.GetUint16LE(); 
         std::uint32_t flavourText = fb.GetUint32LE(); 
         std::cout << "Hotspots: " << std::dec << numHotSpots << std::endl;
         std::cout << "Flavour Text: " << std::hex << flavourText << std::endl;
-        auto snip = dialogStore.GetSnippet(KeyTarget{flavourText});
-        std::cout << snip.GetText() << std::endl;
-        fb.Dump(4);
-        fb.Skip(4);
-        fb.Dump(4);
-        fb.Skip(4);
+        std::cout << GetText(flavourText) << std::endl;
+
+        fb.DumpAndSkip(4);
+        fb.DumpAndSkip(4);
+
+        std::vector<Hotspot> hotspots;
+
         for (unsigned i = 0; i < numHotSpots; i++)
         {
             auto x = fb.GetUint16LE();
@@ -48,40 +103,34 @@ public:
             std::cout << "Hotspot #" << std::dec << i << std::endl;
             std::cout << "coords: " << std::dec << x << " " << y
                 << " " << w << " " << h << std::endl;
-            fb.Dump(2); // Seems to have some effect...
-            fb.Skip(2);
+            fb.DumpAndSkip(2); // Seems to have some effect...
             auto keyword = fb.GetUint16LE();
             std::cout << "Kw: " << keyword << std::endl;
-            auto action = fb.GetUint16LE();
+            auto action = fb.GetUint16LE();//static_cast<HotspotAction>(fb.GetUint16LE());
             std::cout << "Action: " << action << std::endl;
-            fb.Dump(4); // Seems to have some effect...
-            fb.Skip(4);
-            fb.Dump(4); // Seems to have some effect...
-            fb.Skip(4);
-            {
-            std::uint32_t text = fb.GetUint32LE(); 
-            auto snip2 = dialogStore.GetSnippet(KeyTarget{text});
-            std::cout << "RightClick: " << std::hex << text << snip2.GetText() << std::endl;
-            }
-            fb.Dump(4); // Seems to have some effect...
-            fb.Skip(4);
-            {
-            std::uint32_t text = fb.GetUint32LE(); 
-            std::cout << "LeftClick: " << std::hex << text << std::endl;
-            if (text != 0 && text != 0x10000)
-            {
-                try
-                {
-                    auto snip2 = dialogStore.GetSnippet(KeyTarget{text});
-                    std::cout << snip2.GetText() << std::endl;
-                }
-                catch (const std::runtime_error& e)
-                {
-                    std::cout << e.what() << "\n";
-                }
-            }
-            }
-            fb.Skip(2);
+            fb.DumpAndSkip(4); // Seems to have some effect...
+            fb.DumpAndSkip(4); // Seems to have some effect...
+            std::uint32_t tooltip = fb.GetUint32LE(); 
+            std::cout << "RightClick: " << std::hex << tooltip << GetText(tooltip) << std::endl;
+            fb.DumpAndSkip(4); // Seems to have some effect...
+            std::uint32_t dialog = fb.GetUint32LE(); 
+            std::cout << "LeftClick: " << std::hex << dialog << std::endl;
+            std::cout << GetText(dialog) << std::endl;
+            fb.DumpAndSkip(2);
+
+            hotspots.emplace_back(
+                i,
+                glm::vec<2, int>{x, y},
+                glm::vec<2, int>{w, h},
+                keyword,
+                static_cast<HotspotAction>(action),
+                KeyTarget{tooltip},
+                KeyTarget{dialog});
+        }
+
+        for (auto& hs : hotspots)
+        {
+            std::cout << hs << "\n";
         }
     }
 };

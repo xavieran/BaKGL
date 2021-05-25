@@ -16,7 +16,7 @@ add_library(bak
     logger.hpp logger.cpp
     ostream.hpp
     resourceNames.hpp
-    scene.hpp
+    scene.hpp scene.cpp
     sceneData.hpp
     screens.hpp
     systems.hpp
