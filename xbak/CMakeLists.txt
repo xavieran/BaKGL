@@ -11,6 +11,7 @@ list(APPEND XBAK_BINARIES
     dumpchar_bmx
     dumpzone_bmx
     dumppal
+    dumpreq
     dumpobj
     dumptbl
     dumpscx
