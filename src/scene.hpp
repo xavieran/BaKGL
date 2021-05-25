@@ -22,16 +22,13 @@ public:
         std::cout << "Length: " << length << std::endl;
         auto name = fb.GetString(6);
         std::cout << "Name: " << name << std::endl;
-        fb.Skip(4);
-        fb.Skip(2);
+        fb.DumpAndSkip(4);
+        fb.DumpAndSkip(2);
         std::cout << "XX: " << std::hex << fb.GetUint16LE() 
             << " YY: " << fb.GetUint16LE() << std::endl;
-        fb.Dump(4); // Some kind of addr?
-        fb.Skip(4);
-        fb.Dump(2); // Not sure
-        fb.Skip(2);
-        fb.Dump(5); // Inn background/people identifier
-        fb.Skip(5);
+        fb.DumpAndSkip(4); // Some kind of addr?
+        fb.DumpAndSkip(2); // Not sure
+        fb.DumpAndSkip(5); // Inn background/people identifier
         auto numHotSpots = fb.GetUint16LE(); 
         std::uint32_t flavourText = fb.GetUint32LE(); 
         std::cout << "Hotspots: " << std::dec << numHotSpots << std::endl;
@@ -73,8 +70,15 @@ public:
             std::cout << "LeftClick: " << std::hex << text << std::endl;
             if (text != 0 && text != 0x10000)
             {
-                auto snip2 = dialogStore.GetSnippet(KeyTarget{text});
-                std::cout << snip2.GetText() << std::endl;
+                try
+                {
+                    auto snip2 = dialogStore.GetSnippet(KeyTarget{text});
+                    std::cout << snip2.GetText() << std::endl;
+                }
+                catch (const std::runtime_error& e)
+                {
+                    std::cout << e.what() << "\n";
+                }
             }
             }
             fb.Skip(2);

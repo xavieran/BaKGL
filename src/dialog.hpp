@@ -256,7 +256,12 @@ public:
     OffsetTarget GetTarget(KeyTarget dialogKey)
     {
         auto it = mDialogMap.find(dialogKey);
-        if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
+        if (it == mDialogMap.end())
+        {
+            std::stringstream err{};
+            err << "Key not found: " << std::hex << dialogKey << std::dec;
+            throw std::runtime_error(err.str());
+        }
         return it->second;
     }
 
@@ -277,14 +282,24 @@ public:
     const DialogSnippet& operator()(KeyTarget dialogKey) const 
     {
         auto it = mDialogMap.find(dialogKey);
-        if (it == mDialogMap.end()) throw std::runtime_error("Key not found");
+        if (it == mDialogMap.end())
+        {
+            std::stringstream err{};
+            err << "Key not found: " << std::hex << dialogKey << std::dec;
+            throw std::runtime_error(err.str());
+        }
         return (*this)(it->second);
     }
 
     const DialogSnippet& operator()(OffsetTarget snippetKey) const
     {
         auto snip = mSnippetMap.find(snippetKey);
-        if (snip == mSnippetMap.end()) throw std::runtime_error("Offset not found");
+        if (snip == mSnippetMap.end())
+        {
+            std::stringstream err{};
+            err << "Offset not found: " << std::hex << snippetKey << std::dec;
+            throw std::runtime_error(err.str());
+        }
         return snip->second;
     }
 

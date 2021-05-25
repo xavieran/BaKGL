@@ -37,7 +37,9 @@ public:
     virtual ~ResourceTag();
     void Load ( FileBuffer *buffer );
     bool Find ( const unsigned int id, std::string &name );
+    const auto& GetTagMap() const { return tagMap; }
 };
+
 
 #endif
 

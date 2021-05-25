@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
         AnimationData data = anim->GetAnimationData(index);
         printf("%s %s %s\n", anim->GetVersion().c_str(), data.name.c_str(), data.resource.c_str());
         FileBuffer *scr = anim->GetScript();
+        scr->Rewind();
         while (!scr->AtEnd())
         {
             unsigned int code = scr->GetUint16LE();

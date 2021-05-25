@@ -90,17 +90,22 @@ AnimationResource::Load(FileBuffer *buffer)
             throw DataCorruption(__FILE__, __LINE__);
         }
         auto decompressedSize = scrbuf->GetUint32LE();
+        std::cout << "Decomp size: " << decompressedSize << std::endl;
         script = new FileBuffer(decompressedSize);
         scrbuf->DecompressLZW(script);
-        scrbuf->Dump(decompressedSize);
+        scrbuf->Rewind();
+        scrbuf->Dump(std::cout, decompressedSize);
         ResourceTag tags;
         tags.Load(tagbuf);
+        for (const auto& [id, tag] : tags.GetTagMap())
+            std::cout << "Id: " << id << " tag: " << tag << "\n";
         unsigned int n = resbuf->GetUint16LE();
         std::cout << "Resources: " << n << "\n";
         for (unsigned int i = 0; i < n; i++)
         {
             unsigned int id = resbuf->GetUint16LE();
             std::string resource = resbuf->GetString();
+            std::cout << "Resource: " << resource << " id: " << id << "\n";
             std::string name;
             if (tags.Find(id, name))
             {
@@ -108,7 +113,7 @@ AnimationResource::Load(FileBuffer *buffer)
                 data.name = name;
                 data.resource = resource;
                 std::cout << "ID: " << id << " " << name << "\n";
-                animationMap.insert(std::pair<unsigned int, AnimationData>(id, data));
+                animationMap.insert(std::make_pair(id, data));
             }
             else
             {

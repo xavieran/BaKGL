@@ -102,9 +102,13 @@ MovieResource::Load(FileBuffer *buffer)
         pages = pagbuf->GetUint16LE();
         tt3buf->Skip(1);
         FileBuffer *tmpbuf = new FileBuffer(tt3buf->GetUint32LE());
-        tt3buf->DecompressRLE(tmpbuf);
+        auto decomped = tt3buf->DecompressRLE(tmpbuf);
+        std::cout << "Decompressed size:" << decomped << "\n";
+        tmpbuf->Dump(decomped);
         ResourceTag tags;
         tags.Load(tagbuf);
+        for (const auto& [id, tag] : tags.GetTagMap())
+            std::cout << "Id: " << id << " tag: " << tag << "\n";
         std::cout << "Loading movie chunks" << std::endl;
         while (!tmpbuf->AtEnd())
         {
@@ -123,7 +127,7 @@ MovieResource::Load(FileBuffer *buffer)
                     mc->name = name;
                 }
             }
-            else if (size == 15)
+            else if (size == 0xf)
             {
                 mc->name = tmpbuf->GetString();
                 transform(mc->name.begin(), mc->name.end(), mc->name.begin(), toupper);
@@ -136,7 +140,7 @@ MovieResource::Load(FileBuffer *buffer)
             {
                 for (unsigned int i = 0; i < size; i++)
                 {
-                    mc->data.push_back(tmpbuf->GetSint16LE());
+                   mc->data.push_back(tmpbuf->GetSint16LE());
                 }
             }
 
