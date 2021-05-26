@@ -57,6 +57,7 @@ std::vector<Town> LoadTowns()
         const int yOff = fb.GetUint8();
         fb.DumpAndSkip(1);
         const int transition = fb.GetUint8();
+        fb.DumpAndSkip(1);
 
         towns.emplace_back(
             tag,
