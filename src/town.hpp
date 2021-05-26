@@ -1,3 +1,11 @@
+#pragma once
+
+#include "dialogTarget.hpp"
+
+#include "xbak/FileBuffer.h"
+
+#include <glm/glm.hpp>
+
 /*
 DEF_TOWN.DAT
 0d00 14    town tag    entry dg  exit dg xo yo transition
@@ -17,3 +25,48 @@ DEF_TOWN.DAT
 0000                                   
 
 */
+
+namespace BAK {
+
+struct Town
+{
+    std::uint32_t mTownTag;
+    KeyTarget mEntryDialog;
+    KeyTarget mExitDialog;
+
+    glm::vec<2, int> mDestOffset;
+    std::uint32_t mTransitionStyle;
+};
+
+std::vector<Town> LoadTowns()
+{
+    std::vector<Town> towns;
+
+    auto fb = FileBufferFactory::CreateFileBuffer("DEF_TOWN.DAT");
+
+    const unsigned nTowns = fb.GetUint16LE();
+
+    for (unsigned i = 0; i < nTowns; i++)
+    {
+        fb.DumpAndSkip(4);
+        const unsigned tag = fb.GetUint16LE();
+        fb.DumpAndSkip(3);
+        const auto entryDialog = KeyTarget{fb.GetUint32LE()};
+        const auto exitDialog  = KeyTarget{fb.GetUint32LE()};
+        const int xOff = fb.GetUint8();
+        const int yOff = fb.GetUint8();
+        fb.DumpAndSkip(1);
+        const int transition = fb.GetUint8();
+
+        towns.emplace_back(
+            tag,
+            entryDialog,
+            exitDialog,
+            glm::vec<2, int>{xOff, yOff},
+            transition);
+    }
+
+    return towns;
+}
+
+}

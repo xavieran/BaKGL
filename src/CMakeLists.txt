@@ -21,6 +21,7 @@ add_library(bak
     screens.hpp
     systems.hpp
     texture.hpp
+    town.hpp
     worldFactory.hpp
 )
 

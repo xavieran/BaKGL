@@ -39,6 +39,8 @@ struct Hotspot
     glm::vec<2, int> mDimensions;
     std::uint16_t mKeyword;
     HotspotAction mAction;
+    std::uint32_t mActionArg1;
+    std::uint32_t mActionArg2;
     KeyTarget mTooltip;
     KeyTarget mDialog;
 };
@@ -77,8 +79,7 @@ public:
 
         fb.DumpAndSkip(4);
         fb.DumpAndSkip(2);
-        std::cout << "XX: " << std::hex << fb.GetUint16LE() 
-            << " YY: " << fb.GetUint16LE() << std::endl;
+        fb.DumpAndSkip(4);
         fb.DumpAndSkip(4); // Some kind of addr?
         fb.DumpAndSkip(5); // Not sure
         mSceneIndex = fb.GetUint16LE();
@@ -101,21 +102,22 @@ public:
             auto w = fb.GetUint16LE();
             auto h = fb.GetUint16LE();
             std::cout << "Hotspot #" << std::dec << i << std::endl;
-            std::cout << "coords: " << std::dec << x << " " << y
-                << " " << w << " " << h << std::endl;
+            //std::cout << "coords: " << std::dec << x << " " << y
+            //    << " " << w << " " << h << std::endl;
             fb.DumpAndSkip(2); // Seems to have some effect...
             auto keyword = fb.GetUint16LE();
-            std::cout << "Kw: " << keyword << std::endl;
-            auto action = fb.GetUint16LE();//static_cast<HotspotAction>(fb.GetUint16LE());
+            //std::cout << "Kw: " << keyword << std::endl;
+            auto action = static_cast<HotspotAction>(fb.GetUint16LE());
             std::cout << "Action: " << action << std::endl;
-            fb.DumpAndSkip(4); // Seems to have some effect...
-            fb.DumpAndSkip(4); // Seems to have some effect...
+            auto actionArg1 = fb.GetUint32LE();
+            auto actionArg2 = fb.GetUint32LE();
+            std::cout << "A1: " << actionArg1 << std::hex << " A2: " << actionArg2 << std::dec << "\n";
             std::uint32_t tooltip = fb.GetUint32LE(); 
             std::cout << "RightClick: " << std::hex << tooltip << GetText(tooltip) << std::endl;
             fb.DumpAndSkip(4); // Seems to have some effect...
             std::uint32_t dialog = fb.GetUint32LE(); 
-            std::cout << "LeftClick: " << std::hex << dialog << std::endl;
-            std::cout << GetText(dialog) << std::endl;
+            //std::cout << "LeftClick: " << std::hex << dialog << std::endl;
+           // std::cout << GetText(dialog) << std::endl;
             fb.DumpAndSkip(2);
 
             hotspots.emplace_back(
@@ -124,6 +126,8 @@ public:
                 glm::vec<2, int>{w, h},
                 keyword,
                 static_cast<HotspotAction>(action),
+                actionArg1,
+                actionArg2,
                 KeyTarget{tooltip},
                 KeyTarget{dialog});
         }

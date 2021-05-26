@@ -8,6 +8,7 @@
 #include "src/logger.hpp"
 #include "src/screens.hpp"
 #include "src/systems.hpp"
+#include "src/town.hpp"
 #include "src/worldFactory.hpp"
 
 #include "graphics/line.hpp"
@@ -145,7 +146,7 @@ int main(int argc, char** argv)
         "clickable",
         Graphics::SphereToMeshObject(sphere, glm::vec4{.0, .0, 1.0, .7}));
 
-    auto systems = Systems{};
+   auto systems = Systems{};
     std::unordered_map<unsigned, const BAK::Encounter*> encounters{};
     std::unordered_map<unsigned, const BAK::WorldItemInstance*> clickables{};
 
@@ -206,6 +207,8 @@ int main(int argc, char** argv)
             encounters.emplace(id, &enc);
         }
     }
+
+    const auto towns = BAK::LoadTowns();
 
     glfwSetErrorCallback([](int error, const char* desc){ puts(desc); });
     if( !glfwInit() )
@@ -431,14 +434,29 @@ int main(int argc, char** argv)
                 << std::hex << activeEncounter->GetSaveAddress() << std::endl;
             ImGui::Text(ss.str().c_str());
             ImGui::End();
-
-            if (activeEncounter->GetType() == BAK::EncounterType::Dialog)
+            
+            const auto encounterType = activeEncounter->GetType();
+            switch (encounterType)
             {
-                ShowDialogGuiIndex(
-                    activeEncounter->GetIndex(),
-                    dialogStore,
-                    dialogIndex,
-                    gameData);
+                case BAK::EncounterType::Dialog:
+                {
+                    ShowDialogGuiIndex(
+                        activeEncounter->GetIndex(),
+                        dialogStore,
+                        dialogIndex,
+                        gameData);
+                } break;
+                case BAK::EncounterType::Town:
+                {
+                    ShowDialogGui(
+                        towns[activeEncounter->GetIndex()].mEntryDialog,
+                        dialogStore,
+                        dialogIndex,
+                        gameData);
+                } break;
+                default:
+                {
+                } break;
             }
         }
 
