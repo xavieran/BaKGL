@@ -1,4 +1,4 @@
-#include "src/scene.hpp"
+#include "src/hotspot.hpp"
 #include "src/dialog.hpp"
 
 #include "src/logger.hpp"
@@ -17,8 +17,8 @@ int main(int argc, char** argv)
     logger.Info() << "Loading gds:" << gdsFile << std::endl;
 
     auto fb = FileBufferFactory::CreateFileBuffer(gdsFile);
-    BAK::Scene scene{};
-    scene.Load(fb);
+    BAK::SceneHotspots sceneHotspots{};
+    sceneHotspots.Load(fb);
 
     return 0;
 }

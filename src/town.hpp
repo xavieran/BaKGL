@@ -40,7 +40,7 @@ struct Town
 
 std::vector<Town> LoadTowns()
 {
-    std::vector<Town> towns;
+    std::vector<Town> towns{};
 
     auto fb = FileBufferFactory::CreateFileBuffer("DEF_TOWN.DAT");
 

@@ -11,13 +11,14 @@ add_library(bak
     fixedObject.hpp fixedObject.cpp
     gameData.hpp
     glm.hpp
+    hotspot.hpp hotspot.cpp
     inputHandler.hpp
     inventory.hpp
     logger.hpp logger.cpp
     ostream.hpp
     resourceNames.hpp
     scene.hpp scene.cpp
-    sceneData.hpp
+    sceneData.hpp sceneData.cpp
     screens.hpp
     systems.hpp
     texture.hpp

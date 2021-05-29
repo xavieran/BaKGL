@@ -120,7 +120,7 @@ RequestResource::Load(FileBuffer *buffer)
         int *offset = new int[numRecords];
         for (unsigned int i = 0; i < numRecords; i++)
         {
-            auto pos = buffer->current - buffer->buffer;
+            auto pos = buffer->GetBytesDone();
             RequestData reqData;
             reqData.widget = buffer->GetUint16LE();
             reqData.action = buffer->GetSint16LE();

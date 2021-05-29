@@ -17,11 +17,13 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <map>
 
 #include <cassert>
+#include <cstring>
 #include <limits>
 
 #include "SDL_endian.h"
@@ -52,18 +54,37 @@ FileBuffer FileBufferFactory::CreateFileBuffer(const std::string& path)
     return fb;
 }
 
-FileBuffer::FileBuffer(const unsigned int n)
+FileBuffer::FileBuffer(
+    std::uint8_t* buf,
+    std::uint8_t* cur,
+    std::uint32_t sz,
+    std::uint32_t nb)
+:
+    buffer{buf},
+    current{cur},
+    size{sz},
+    nextbit{nb},
+    ownbuffer{false}
 {
-    buffer = new uint8_t[n];
-    memset(buffer, 0, n);
-    current = buffer;
-    size = n;
-    nextbit = 0;
+}
+
+FileBuffer::FileBuffer(const unsigned int n)
+:
+    buffer{std::invoke([n](){
+        auto buf = new uint8_t[n];
+        memset(buf, 0, n);
+        return buf;
+    })},
+    current{buffer},
+    size{n},
+    nextbit{0},
+    ownbuffer{true}
+{
 }
 
 FileBuffer::~FileBuffer()
 {
-    if (buffer)
+    if (buffer && ownbuffer)
     {
         delete[] buffer;
     }
@@ -97,6 +118,31 @@ FileBuffer::Fill(FileBuffer *buf)
         current = buffer;
         buf->GetData(buffer, MIN(size, buf->GetSize()));
     }
+}
+
+FileBuffer FileBuffer::Find(std::uint32_t tag) const
+{
+    auto *search = buffer;
+    for (; search < (buffer + size - sizeof(std::uint32_t)); search++)
+    {
+        auto cur = *reinterpret_cast<std::uint32_t*>(search);
+        if (cur == tag)
+        {
+            search += 4;
+            const auto bufferSize = *reinterpret_cast<std::uint32_t*>(search);
+            search += 4;
+            return FileBuffer{
+                search,
+                search,
+                bufferSize,
+                0};
+        }
+
+    }
+
+    std::stringstream ss{};
+    ss << "Tag not found: " << std::hex << tag;
+    throw std::runtime_error(ss.str());
 }
 
 void

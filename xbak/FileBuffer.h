@@ -42,15 +42,27 @@ const unsigned int COMPRESSION_RLE  = 2;
 
 class FileBuffer
 {
-    public:
+    private:
+        // Be nicer if this was a shared ptr...
         uint8_t * buffer;
         uint8_t * current;
         unsigned int size;
         unsigned int nextbit;
+        const bool ownbuffer;
+
+        FileBuffer(
+            std::uint8_t*,
+            std::uint8_t*,
+            std::uint32_t,
+            std::uint32_t);
+
     public:
         FileBuffer ( const unsigned int n );
-        FileBuffer ( std::string path );
+        //FileBuffer ( std::string path );
         virtual ~FileBuffer();
+
+        // Create a new file buffer starting from this tag
+        FileBuffer Find(std::uint32_t tag) const;
 
         void Load ( std::ifstream &ifs );
         void Save ( std::ofstream &ofs );

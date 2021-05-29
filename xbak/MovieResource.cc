@@ -91,15 +91,16 @@ MovieResource::Load(FileBuffer *buffer)
         FileBuffer *tt3buf;
         FileBuffer *tagbuf;
         if (!Find(TAG_VER, verbuf) ||
-                !Find(TAG_PAG, pagbuf) ||
-                !Find(TAG_TT3, tt3buf) ||
-                !Find(TAG_TAG, tagbuf))
+            !Find(TAG_PAG, pagbuf) ||
+            !Find(TAG_TT3, tt3buf) ||
+            !Find(TAG_TAG, tagbuf))
         {
             ClearTags();
             throw DataCorruption(__FILE__, __LINE__);
         }
         version = verbuf->GetString();
         pages = pagbuf->GetUint16LE();
+        std::cout << "Pages:" << pages << "\n";
         tt3buf->Skip(1);
         FileBuffer *tmpbuf = new FileBuffer(tt3buf->GetUint32LE());
         auto decomped = tt3buf->DecompressRLE(tmpbuf);

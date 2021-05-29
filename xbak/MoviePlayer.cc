@@ -96,7 +96,7 @@ void MoviePlayer::Play ( std::vector<MovieChunk *> *movie, const bool repeat )
         paletteSlot[currPalette]->GetPalette()->Retrieve ( 0, WINDOW_COLORS );
         paletteActivated = false;
 
-        PointerManager::GetInstance()->GetCurrentPointer()->SetVisible ( false );
+        PointerManager::GetInstance()->GetCurrentPointer()->SetVisible ( true );
 
         while ( playing )
         {
@@ -152,6 +152,7 @@ void MoviePlayer::Play ( std::vector<MovieChunk *> *movie, const bool repeat )
 
 void MoviePlayer::PlayChunk ( MediaToolkit* media )
 {
+    static bool setScene = false;
     try
     {
         while ( ( playing ) && ( !delayed ) )
@@ -231,6 +232,9 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 break;
             case SET_SCENE:
                 std::cout << "Set scene\n";
+                if (!setScene) 
+                    currDelay = 1000 * 10;
+                setScene = true;
                 break;
             case SET_FRAME0:
             case SET_FRAME1:
@@ -383,7 +387,7 @@ void MoviePlayer::PlayChunk ( MediaToolkit* media )
                 std::cout << "Load palette: " << mc->name << "\n";
                 if ( paletteSlot[currPalette] )
                 {
-                    delete paletteSlot[currPalette];
+                    //delete paletteSlot[currPalette];
                 }
                 paletteSlot[currPalette] = new PaletteResource;
                 FileManager::GetInstance()->Load ( paletteSlot[currPalette], mc->name );

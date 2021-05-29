@@ -5,8 +5,9 @@ list(APPEND APP_BINARIES
     display_dialog
     display_gds
     display_object
-    display_tile
     display_save
+    display_tile
+    display_ttm
     main2d
     main3d
     show_imgui
