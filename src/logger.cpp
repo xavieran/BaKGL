@@ -3,7 +3,7 @@
 
 namespace Logging {
 
-std::string LevelToString(LogLevel level)
+std::string_view LevelToString(LogLevel level)
 {
     switch (level)
     {

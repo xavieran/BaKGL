@@ -10,6 +10,7 @@
 #include "src/systems.hpp"
 #include "src/town.hpp"
 #include "src/worldFactory.hpp"
+#include "src/zone.hpp"
 
 #include "graphics/line.hpp"
 #include "graphics/meshObject.hpp"
@@ -209,6 +210,7 @@ int main(int argc, char** argv)
     }
 
     const auto towns = BAK::LoadTowns();
+    const auto zones = BAK::LoadZones();
 
     glfwSetErrorCallback([](int error, const char* desc){ puts(desc); });
     if( !glfwInit() )
@@ -450,6 +452,14 @@ int main(int argc, char** argv)
                 {
                     ShowDialogGui(
                         towns[activeEncounter->GetIndex()].mEntryDialog,
+                        dialogStore,
+                        dialogIndex,
+                        gameData);
+                } break;
+                case BAK::EncounterType::Zone:
+                {
+                    ShowDialogGui(
+                        zones[activeEncounter->GetIndex()].mDialog,
                         dialogStore,
                         dialogIndex,
                         gameData);

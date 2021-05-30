@@ -126,7 +126,7 @@ int main(int argc, char** argv)
                     ss << "Action :: " << action.mAction << std::endl;
                 ImGui::TextWrapped(ss.str().c_str());
             }
-            ImGui::TextWrapped("Text:\n %s", snippet.GetText().c_str());
+            ImGui::TextWrapped("Text:\n %s", snippet.GetText().data());
 
             if (ImGui::Button("Back") && (!history.empty()))
             {
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
                 }
 
                 ImGui::TextWrapped(dialogStore.GetFirstText(
-                    dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).c_str());
+                    dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());
             }
 
             ImGui::End();

@@ -18,7 +18,7 @@ enum class LogLevel
     Always
 };
 
-std::string LevelToString(LogLevel level);
+std::string_view LevelToString(LogLevel level);
 
 class Logger;
 
