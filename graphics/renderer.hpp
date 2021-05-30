@@ -197,8 +197,8 @@ public:
 
         glTexStorage3D(
             GL_TEXTURE_2D_ARRAY,
-            5, 
-            GL_RGBA8,        // Internal format
+            5,              // levels
+            GL_RGBA8,       // Internal format
             maxDim, maxDim, // width,height
             64              // Number of layers
         );

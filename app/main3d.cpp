@@ -147,7 +147,7 @@ int main(int argc, char** argv)
         "clickable",
         Graphics::SphereToMeshObject(sphere, glm::vec4{.0, .0, 1.0, .7}));
 
-   auto systems = Systems{};
+    auto systems = Systems{};
     std::unordered_map<unsigned, const BAK::Encounter*> encounters{};
     std::unordered_map<unsigned, const BAK::WorldItemInstance*> clickables{};
 
@@ -205,6 +205,7 @@ int main(int argc, char** argv)
                     id,
                     3000,
                     enc.GetLocation()});
+
             encounters.emplace(id, &enc);
         }
     }
@@ -257,13 +258,13 @@ int main(int argc, char** argv)
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
     auto spriteShader = ShaderProgram{
-        "spriteVertex.glsl",
-        "spriteFragment.glsl"};
+        "sprite.vert.glsl",
+        "sprite.frag.glsl"};
     auto spriteShaderId = spriteShader.Compile();
 
     auto modelShader = ShaderProgram{
-        "vertex.glsl",
-        "fragment.glsl"};
+        "normal.vert.glsl",
+        "normal.frag.glsl"};
     auto modelShaderId = modelShader.Compile();
 
     GLuint VertexArrayID;
@@ -288,8 +289,9 @@ int main(int argc, char** argv)
     glBindVertexArray(0);
 
     BAK::TextureBuffer textureBuffer{};
-    textureBuffer.LoadTexturesGL(textureStore.GetTextures(), textureStore.GetMaxDim());
-
+    textureBuffer.LoadTexturesGL(
+        textureStore.GetTextures(),
+        textureStore.GetMaxDim());
 
     glm::mat4 viewMatrix{1};
     glm::mat4 modelMatrix{1.0f};
@@ -415,6 +417,7 @@ int main(int argc, char** argv)
                 std::make_pair(
                     camera.GetPosition(), 
                     camera.GetPosition() + (camera.GetDirection() * 3000.0f)));
+
             if (bestId)
                 activeClickable = clickables[*bestId];
         }

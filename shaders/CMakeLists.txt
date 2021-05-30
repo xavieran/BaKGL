@@ -1,12 +1,30 @@
-#include_directories("src")
-# Be nice to run this over all the shaders
-# Need to add dependencies on "compile_shaders" and on the shaders referenced...
-execute_process(
-	COMMAND "${CMAKE_BINARY_DIR}/compile_shaders vertex.glsl fragment.glsl" 
-	RESULT_VARIABLE STATUS)
+set(LINK_3D_LIBRARIES 
+    bak
+    glfw
+    graphics
+    imgui
+    xbak
+    ${GLEW_LIBRARIES} 
+    ${GLM_LIBRARIES}
+    ${OPENGL_LIBRARY}
+)
 
-if(${STATUS} AND NOT ${STATUS} EQUAL "0")
-    message(FATAL_ERROR "Failed to compile shaders")
-endif()
+add_executable (compile_shaders compile_shaders.cpp)
+target_link_libraries(compile_shaders
+    stdc++
+    m
+    dl
+    pthread 
+    ${LINK_3D_LIBRARIES}
+    SDL)
 
+list(APPEND SHADERS
+    normal
+    sprite
+)
 
+foreach (SHADER IN LISTS SHADERS)
+    add_custom_target(
+        compileShader${SHADER} ALL COMMAND 
+        ${CMAKE_BINARY_DIR}/compile_shaders ${SHADER}.vert.glsl ${SHADER}.frag.glsl)
+endforeach()

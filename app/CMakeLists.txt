@@ -1,6 +1,5 @@
 
 list(APPEND APP_BINARIES
-    compile_shaders 
     dialog_explorer
     display_dialog
     display_fo

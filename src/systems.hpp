@@ -144,6 +144,7 @@ public:
         {
             glm::vec3 p;
             glm::vec3 n;
+
             bool intersecting = glm::intersectLineSphere(
                 line.first,
                 line.second,
@@ -153,6 +154,7 @@ public:
                 n,
                 p,
                 n);
+
             if (intersecting)
             {
                 auto distance = glm::distance(line.first, clickable.GetLocation());
