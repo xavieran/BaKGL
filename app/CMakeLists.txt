@@ -11,6 +11,7 @@ list(APPEND APP_BINARIES
     main2d
     main3d
     show_imgui
+    show_scene
 )
 
 set(LINK_3D_LIBRARIES 
