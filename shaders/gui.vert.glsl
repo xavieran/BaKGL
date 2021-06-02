@@ -15,9 +15,10 @@ uniform mat4 M;
 
 void main(){
 	// Output position of the vertex, in clip space : MVP * position
-	gl_Position =  MVP * vec4(vertexPosition_screenspace, 1);
+	//gl_Position =  MVP * vec4(vertexPosition_screenspace, 1);
 	
+	gl_Position =  vec4(vertexPosition_screenspace, 1);
 	// Position of the vertex, in worldspace : M * position
-	Position_screenspace = (M * vec4(vertexPosition_screenspace,1)).xyz;
+	Position_screenspace = vec4(vertexPosition_screenspace,1).xyz;
     uvCoords = textureCoords.xyz;
 }

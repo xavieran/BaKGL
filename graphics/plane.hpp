@@ -17,17 +17,21 @@ public:
     Quad(double width, double height, double maxDim, unsigned textureIndex)
     :
         Quad{{
-                {0,0,0},
-                {height, 0, 0},
-                {height, width, 0},
-                {0, width, 0}
+                {height, width, 0.1},
+                {0, width, 0.1},
+                {0,0,0.1},
+                {height, width, 0.1},
+                {0,0,0.1},
+                {height, 0, 0.1}
             },{
-                {0,0,textureIndex},
-                {height / maxDim, 0, textureIndex},
                 {height / maxDim, width / maxDim, textureIndex},
-                {0, width / maxDim, textureIndex}
+                {0, width / maxDim, textureIndex},
+                {0,0,textureIndex},
+                {height / maxDim, width / maxDim, textureIndex},
+                {0,0,textureIndex},
+                {height / maxDim, 0, textureIndex}
             },{
-                0, 1, 2, 0, 2, 3}}
+                0, 1, 2, 3, 4, 5}}
     {}
 
     Quad(
@@ -39,6 +43,12 @@ public:
         mTextureCoords{textureCoords},
         mIndices{indices}
     {
+        for (const auto& v : mVertices)
+            std::cout << "v: " << v << "\n";
+        for (const auto& t : mTextureCoords)
+            std::cout << "t: " << t << "\n";
+        for (const auto& i : mIndices)
+            std::cout << "i: " << i << "\n";
     }
 
     unsigned long GetNumVertices() const

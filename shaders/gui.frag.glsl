@@ -15,8 +15,9 @@ void main()
     vec3 textureColor  = textureSample.xyz;
     float textureAlpha = textureSample.a;
 
-    if (textureAlpha == 0) discard;
+    //if (textureAlpha == 0) discard;
 
+    //color = vec4(1,0,0,1);
     color = vec4(textureColor, textureAlpha);
 }
 
