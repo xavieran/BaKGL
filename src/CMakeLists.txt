@@ -1,4 +1,3 @@
-
 add_library(bak
     camera.hpp
     constants.hpp

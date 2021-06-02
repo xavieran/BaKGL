@@ -1,4 +1,3 @@
-
 list(APPEND APP_BINARIES
     dialog_explorer
     display_dialog

@@ -12,6 +12,7 @@
 #include "src/worldFactory.hpp"
 #include "src/zone.hpp"
 
+#include "graphics/glfw.hpp"
 #include "graphics/line.hpp"
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"
@@ -191,7 +192,7 @@ int main(int argc, char** argv)
 
         for (const auto& enc : world.GetEncounters())
         {
-            unsigned id = systems.GetNextItemId();
+            auto id = systems.GetNextItemId();
             systems.AddRenderable(
                 Renderable{
                     id,
@@ -213,46 +214,17 @@ int main(int argc, char** argv)
     const auto towns = BAK::LoadTowns();
     const auto zones = BAK::LoadZones();
 
-    glfwSetErrorCallback([](int error, const char* desc){ puts(desc); });
-    if( !glfwInit() )
-    {
-        logger.Error() << "Failed to initialize GLFW" << std::endl;
-        std::exit(1);
-    }
-
-    GLFWwindow* window;
-
-    const unsigned antiAliasingSamples = 4;
-    glfwWindowHint(GLFW_SAMPLES, antiAliasingSamples);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+    /* OPEN GL / GLFW SETUP  */
     unsigned height = 800;
     unsigned width  = 1400;
 
-    window = glfwCreateWindow(width, height, "BaK", NULL, NULL);
-    if( window == NULL )
-    {
-        logger.Log(Logging::LogLevel::Error) << "Failed to open GLFW window" << std::endl;
-        glfwTerminate();
-        std::exit(1);
-    }
+    auto window = Graphics::MakeGlfwWindow(
+        height,
+        width,
+        "BaK");
 
-    glfwMakeContextCurrent(window);
-
-    glewExperimental = true;
-    if (glewInit() != GLEW_OK)
-    {
-        logger.Log(Logging::LogLevel::Error) << "Failed to initialize GLEW" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    ImguiWrapper::Initialise(window);
+    ImguiWrapper::Initialise(window.get());
     
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
     
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
@@ -318,7 +290,7 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime = 0;
 
-    glfwSetCursorPos(window, width/2, height/2);
+    glfwSetCursorPos(window.get(), width/2, height/2);
 
     glEnable(GL_MULTISAMPLE);  
 
@@ -347,8 +319,8 @@ int main(int argc, char** argv)
         camera.SetDeltaTime(deltaTime);
         
         glfwPollEvents();
-        glfwGetCursorPos(window, &pointerPosX, &pointerPosY);
-        inputHandler.HandleInput(window);
+        glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
+        inputHandler.HandleInput(window.get());
 
         lightPos.x = camera.GetNormalisedPosition().x;
         lightPos.z = camera.GetNormalisedPosition().z;
@@ -398,20 +370,20 @@ int main(int argc, char** argv)
         glBindVertexArray(VertexArrayID);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(modelShaderId);
-        RenderItems(modelShaderId, systems.GetRenderables());
+        glUseProgram(modelShaderId.GetHandle());
+        RenderItems(modelShaderId.GetHandle(), systems.GetRenderables());
 
-        glUseProgram(spriteShaderId);
-        RenderItems(spriteShaderId, systems.GetSprites());
+        glUseProgram(spriteShaderId.GetHandle());
+        RenderItems(spriteShaderId.GetHandle(), systems.GetSprites());
         
         auto intersectable = systems.RunIntersection(camera.GetPosition());
         if (intersectable)
             activeEncounter = encounters[*intersectable];
 
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
             activeClickable = nullptr;
 
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
             auto bestId = systems.RunClickable(
                 std::make_pair(
@@ -498,22 +470,19 @@ int main(int argc, char** argv)
                 ShowDialogGui(fit->mDialogKey, dialogStore, dialogIndex, gameData);
         }
 
-        ImguiWrapper::Draw(window);
+        ImguiWrapper::Draw(window.get());
 
         // *** IMGUI END *** }
         
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window.get());
     }
-    while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS 
-        && glfwWindowShouldClose(window) == 0);
+    while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 
+        && glfwWindowShouldClose(window.get()) == 0);
 
     glDeleteVertexArrays(1, &VertexArrayID);
-    glDeleteProgram(modelShaderId);
-    glDeleteProgram(spriteShaderId);
 
     ImguiWrapper::Shutdown();
 
-    glfwDestroyWindow(window);
     glfwTerminate();
 
     delete gameData;

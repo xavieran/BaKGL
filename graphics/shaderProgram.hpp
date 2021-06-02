@@ -22,6 +22,45 @@ std::string ShaderTypeToString(GLenum shaderType)
     }
 }
 
+class ShaderProgramHandle
+{
+public:
+    ShaderProgramHandle(GLuint handle)
+    :
+        mHandle{handle}
+    {}
+
+    ShaderProgramHandle& operator=(ShaderProgramHandle&& other)
+    {
+        mHandle = other.mHandle;
+        other.mHandle = 0;
+        return *this;
+    }
+
+    ShaderProgramHandle(ShaderProgramHandle&& other)
+    {
+        mHandle = other.mHandle;
+        other.mHandle = 0;
+    }
+
+    ~ShaderProgramHandle()
+    {
+        glDeleteProgram(mHandle);
+        mHandle = 0;
+    }
+
+    ShaderProgramHandle& operator=(const ShaderProgramHandle&) = delete;
+    ShaderProgramHandle(const ShaderProgramHandle&) = delete;
+
+    GLuint GetHandle() const
+    {
+        return mHandle;
+    }
+
+private:
+    GLuint mHandle;
+};
+
 class ShaderProgram
 {
 public:
@@ -44,7 +83,7 @@ public:
         mLogger{Logging::LogState::GetLogger("ShaderProgram")}
     {}
 
-    GLuint Compile()
+    ShaderProgramHandle Compile()
     {
         std::vector<GLuint> shaders{};
         shaders.emplace_back(CompileShader(mVertexShader, GL_VERTEX_SHADER));
@@ -81,7 +120,7 @@ public:
         
         mProgramId = programId;
 
-        return programId;
+        return ShaderProgramHandle{programId};
     }
 
     GLuint GetProgramId() const { return mProgramId; }

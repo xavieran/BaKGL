@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 
     try
     {
-        GLuint programID = program.Compile();
+        auto programID = program.Compile();
     }
     catch (const std::exception& e)
     {

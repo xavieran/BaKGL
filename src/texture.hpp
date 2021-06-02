@@ -1,7 +1,11 @@
 #pragma once
 
+#include "src/coordinates.hpp"
+
 #include "xbak/Image.h"
 #include "xbak/Palette.h"
+
+#include <glm/glm.hpp>
 
 namespace BAK {
 

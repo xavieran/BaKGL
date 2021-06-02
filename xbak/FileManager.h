@@ -41,13 +41,14 @@ private:
     FileBuffer* LoadGame ( const std::string &name );
     void SaveGame ( const std::string &name, FileBuffer* buffer );
     void SaveGame ( const std::string &name, FileBuffer* buffer, const unsigned int n );
-    FileBuffer* LoadResource ( const std::string &name );
     void SaveResource ( const std::string &name, FileBuffer* buffer );
     void SaveResource ( const std::string &name, FileBuffer* buffer, const unsigned int n );
     static FileManager *instance;
 protected:
     FileManager();
 public:
+    FileBuffer* LoadResource ( const std::string &name );
+
     ~FileManager();
     static FileManager* GetInstance();
     static void CleanUp();

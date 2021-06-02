@@ -21,6 +21,7 @@ target_link_libraries(compile_shaders
 list(APPEND SHADERS
     normal
     sprite
+    gui
 )
 
 foreach (SHADER IN LISTS SHADERS)

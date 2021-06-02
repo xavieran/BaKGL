@@ -182,10 +182,10 @@ int main(int argc, char** argv)
         indices.emplace_back(i);
     */
 
-    GLuint textureID     = glGetUniformLocation(programId, "texture0");
-    GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
-    GLuint modelMatrixID = glGetUniformLocation(programId, "M");
-    GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
+    GLuint textureID     = glGetUniformLocation(programId.GetHandle(), "texture0");
+    GLuint mvpMatrixID   = glGetUniformLocation(programId.GetHandle(), "MVP");
+    GLuint modelMatrixID = glGetUniformLocation(programId.GetHandle(), "M");
+    GLuint viewMatrixID  = glGetUniformLocation(programId.GetHandle(), "V");
 
     glm::mat4 projectionMatrix = glm::perspective(
         glm::radians(45.0f),
@@ -223,11 +223,11 @@ int main(int argc, char** argv)
     double lastTime = 0;
     float deltaTime;
 
-    GLuint LightID = glGetUniformLocation(programId, "lightPosition_worldspace");
-    GLuint CameraPositionID = glGetUniformLocation(programId, "cameraPosition_worldspace");
+    GLuint LightID = glGetUniformLocation(programId.GetHandle(), "lightPosition_worldspace");
+    GLuint CameraPositionID = glGetUniformLocation(programId.GetHandle(), "cameraPosition_worldspace");
 
     // Setup active arrays and textures
-    glUseProgram(programId);
+    glUseProgram(programId.GetHandle());
 
     glEnable(GL_MULTISAMPLE);  
 
@@ -371,7 +371,6 @@ int main(int argc, char** argv)
 
     // Cleanup VBO
     glDeleteVertexArrays(1, &VertexArrayID);
-    glDeleteProgram(programId);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();

@@ -6,7 +6,7 @@
 
 #include "logger.hpp"
 #include "resourceNames.hpp"
-#include "texture.hpp"
+#include "src/texture.hpp"
 
 #include "graphics/meshObject.hpp"
 

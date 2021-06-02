@@ -6,9 +6,11 @@
 #include "src/systems.hpp"
 
 #include "graphics/glfw.hpp"
+#include "graphics/plane.hpp"
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/shaderProgram.hpp"
+#include "graphics/texture.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -39,12 +41,6 @@ int main(int argc, char** argv)
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
 
-    auto objStore = Graphics::MeshObjectStorage{};
-    auto sphere = Sphere{30.0, 12, 6, true};
-    objStore.AddObject(
-        "quad",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 0, .7}));
-
     auto height = 800;
     auto width = 1400;
     auto window = Graphics::MakeGlfwWindow(
@@ -57,30 +53,43 @@ int main(int argc, char** argv)
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
-    auto modelShader = ShaderProgram{
-        "normal.vert.glsl",
-        "normal.frag.glsl"};
-    auto modelShaderId = modelShader.Compile();
+    auto guiShader = ShaderProgram{
+        "gui.vert.glsl",
+        "gui.frag.glsl"};
+    auto guiShaderId = guiShader.Compile();
+
+    const auto textures = Graphics::Texture{"SHOP1ARM.BMX", "SHOP1.PAL"};
+
+    BAK::TextureBuffer textureBuffer{};
+    textureBuffer.LoadTexturesGL(
+        textures.GetTextures(),
+        textures.GetMaxDim());
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
-    
+
+    auto objStore = Graphics::QuadStorage{};
+    for (unsigned i = 0; i < textures.GetTextures().size(); i++)
+    {
+        const auto& tex = textures.GetTexture(i);
+        objStore.AddObject(
+            Graphics::Quad{
+                static_cast<double>(tex.GetWidth()),
+                static_cast<double>(tex.GetHeight()),
+                static_cast<double>(textures.GetMaxDim()),
+                i});
+    }
+
     BAK::GLBuffers buffers{};
     buffers.AddBuffer("vertex", 0, 3);
     buffers.AddBuffer("textureCoord", 1, 3);
 
     buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, objStore.mVertices);
-    buffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, objStore.mTextureBlends);
-
+    buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, objStore.mTextureCoords);
     buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, objStore.mIndices);
     buffers.BindArraysGL();
     glBindVertexArray(0);
-
-    //BAK::TextureBuffer textureBuffer{};
-    //textureBuffer.LoadTexturesGL(
-    //    textureStore.GetTextures(),
-    //    textureStore.GetMaxDim());
 
     glm::mat4 viewMatrix{1};
     glm::mat4 modelMatrix{1.0f};
@@ -105,6 +114,7 @@ int main(int argc, char** argv)
 
     double pointerPosX, pointerPosY;
 
+    glUseProgram(guiShaderId.GetHandle());
     do
     {
         currentTime = glfwGetTime();
@@ -115,17 +125,43 @@ int main(int argc, char** argv)
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
 
+        glBindVertexArray(VertexArrayID);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        const auto programId = guiShaderId.GetHandle();
+        GLuint textureID = glGetUniformLocation(programId, "texture0");
+        glUniform1i(textureID, 0);
+
+        viewMatrix = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.01f, 1.0f);
+
+        GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
+        GLuint modelMatrixID = glGetUniformLocation(programId, "M");
+        GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
+
+        const auto [offset, length] = objStore.GetObject(0);
+        MVP = viewMatrix;
+
+        glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+        glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+        glDrawElementsBaseVertex(
+            GL_TRIANGLES,
+            length,
+            GL_UNSIGNED_INT,
+            (void*) (offset * sizeof(GLuint)),
+            offset
+        );
+
         glfwSwapBuffers(window.get());
     }
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 
         && glfwWindowShouldClose(window.get()) == 0);
 
     glDeleteVertexArrays(1, &VertexArrayID);
-    glDeleteProgram(modelShaderId);
 
     ImguiWrapper::Shutdown();
 
-    glfwDestroyWindow(window.get());
     glfwTerminate();
 
     return 0;
