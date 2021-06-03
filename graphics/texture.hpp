@@ -40,7 +40,10 @@ public:
             assert(images.GetImage(j));
             const auto& image = *images.GetImage(j);
 
-            mTextures.push_back(BAK::ImageToTexture(image, *palette.GetPalette()));
+            mTextures.push_back(
+                BAK::ImageToTexture(
+                    image,
+                    *palette.GetPalette()));
 
             textures++;
         }
@@ -70,6 +73,8 @@ public:
     const std::vector<BAK::Texture>& GetTextures() const { return mTextures; }
 
     unsigned GetMaxDim() const { return mMaxDim; }
+    unsigned GetMaxHeight() const { return mMaxHeight; }
+    unsigned GetMaxWidth() const { return mMaxWidth; }
 
 private:
     std::vector<BAK::Texture> mTextures;

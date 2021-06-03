@@ -76,8 +76,16 @@ public:
     {
         mBuffers.emplace(
             name,
-            GLBuffer{location, elems, BindPoint::ArrayBuffer, GenBufferGL()});
-        BindAttribArrayGL(location, elems, mBuffers[name].mBuffer);
+            GLBuffer{
+                location,
+                elems,
+                BindPoint::ArrayBuffer,
+                GenBufferGL()});
+
+        BindAttribArrayGL(
+            location,
+            elems,
+            mBuffers[name].mBuffer);
     }
     
     static GLuint GenBufferGL()
@@ -230,8 +238,9 @@ public:
         // Doesn't actually look very good with mipmaps...
         //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         constexpr auto interpolation = GL_NEAREST;
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);   
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        constexpr auto extend = GL_REPEAT;
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, extend);   
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, extend);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, interpolation);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, interpolation);
     }

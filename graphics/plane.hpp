@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "src/logger.hpp"
 
 #include <glm/glm.hpp>
@@ -14,24 +13,40 @@ namespace Graphics {
 class Quad
 {
 public:
-    Quad(double width, double height, double maxDim, unsigned textureIndex)
+    Quad(
+        double width,
+        double height,
+        double maxWidth,
+        double maxHeight,
+        unsigned textureIndex)
     :
-        Quad{{
-                {height, width, 0.1},
-                {0, width, 0.1},
-                {0,0,0.1},
-                {height, width, 0.1},
-                {0,0,0.1},
-                {height, 0, 0.1}
-            },{
-                {height / maxDim, width / maxDim, textureIndex},
-                {0, width / maxDim, textureIndex},
-                {0,0,textureIndex},
-                {height / maxDim, width / maxDim, textureIndex},
-                {0,0,textureIndex},
-                {height / maxDim, 0, textureIndex}
-            },{
-                0, 1, 2, 3, 4, 5}}
+        Quad{
+            std::invoke([&](){
+                const auto top = height / 2;
+                const auto bottom = -height / 2;
+                const auto left = -width / 2;
+                const auto right = width / 2;
+                return std::vector<glm::vec3>{
+                    {left,  bottom, 0},
+                    {left,  top,    0},
+                    {right, top,    0},
+                    {left,  bottom, 0},
+                    {right, top,    0},
+                    {right, bottom, 0}};
+            }),
+            std::invoke([&](){
+                const auto maxU = width / maxWidth;
+                const auto maxV = height / maxHeight;
+                return std::vector<glm::vec3>{
+                    {0,       0, textureIndex},
+                    {0,    maxV, textureIndex},
+                    {maxU, maxV, textureIndex},
+                    {0,       0, textureIndex},
+                    {maxU, maxV, textureIndex},
+                    {maxU,    0, textureIndex}};
+
+            }),
+            {0, 1, 2, 3, 4, 5}}
     {}
 
     Quad(
@@ -43,12 +58,6 @@ public:
         mTextureCoords{textureCoords},
         mIndices{indices}
     {
-        for (const auto& v : mVertices)
-            std::cout << "v: " << v << "\n";
-        for (const auto& t : mTextureCoords)
-            std::cout << "t: " << t << "\n";
-        for (const auto& i : mIndices)
-            std::cout << "i: " << i << "\n";
     }
 
     unsigned long GetNumVertices() const

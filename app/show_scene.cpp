@@ -60,8 +60,8 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
 
-    //const auto textures = Graphics::Texture{"SHOP1ARM.BMX", "SHOP1.PAL"};
-    const auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
+    const auto textures = Graphics::Texture{"BICONS2.BMX", "OPTIONS.PAL"};
+    //const auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
 
     BAK::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(
@@ -75,13 +75,14 @@ int main(int argc, char** argv)
     auto objStore = Graphics::QuadStorage{};
     for (unsigned i = 0; i < textures.GetTextures().size(); i++)
     {
-        auto guiScale = 1;
+        auto guiScale = 8;
         const auto& tex = textures.GetTexture(i);
         objStore.AddObject(
             Graphics::Quad{
-                static_cast<double>(tex.GetWidth()) / (width / guiScale),
-                static_cast<double>(tex.GetHeight()) / (height / guiScale),
-                static_cast<double>(textures.GetMaxDim()) / (std::max(width, height) / guiScale),
+                static_cast<double>(tex.GetWidth()) / 320, //(width / guiScale),
+                static_cast<double>(tex.GetHeight()) / 240, //(height / guiScale),
+                static_cast<double>(textures.GetMaxDim()) / 320, // (width / guiScale),
+                static_cast<double>(textures.GetMaxDim()) / 240, // (height / guiScale),
                 i});
     }
 
@@ -99,9 +100,9 @@ int main(int argc, char** argv)
     glm::mat4 modelMatrix{1.0f};
     glm::mat4 MVP{0};
 
-    //double currentTime = 0;
-    //double lastTime = 0;
-    //float deltaTime = 0;
+    double currentTime = 0;
+    double lastTime = 0;
+    float deltaTime = 0;
 
     glfwSetCursorPos(window.get(), width/2, height/2);
 
@@ -120,12 +121,20 @@ int main(int argc, char** argv)
     double pointerPosX, pointerPosY;
 
     glUseProgram(guiShaderId.GetHandle());
-
+    double acc = 0;
+    unsigned i = 0;
     do
     {
-        //currentTime = glfwGetTime();
-        //deltaTime = float(currentTime - lastTime);
-        //lastTime = currentTime;
+        currentTime = glfwGetTime();
+        deltaTime = float(currentTime - lastTime);
+        acc += deltaTime;
+        if (acc > 1)
+        { 
+            i = i + 1 % textures.GetTextures().size();
+            acc = 0;
+        }
+
+        lastTime = currentTime;
 
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
@@ -149,7 +158,7 @@ int main(int argc, char** argv)
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
         glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
 
-        const auto [offset, length] = objStore.GetObject(0);
+        const auto [offset, length] = objStore.GetObject(i);
         glDrawElementsBaseVertex(
             GL_TRIANGLES,
             length,
