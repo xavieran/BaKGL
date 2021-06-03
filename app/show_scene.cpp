@@ -60,7 +60,7 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
 
-    const auto textures = Graphics::Texture{"BICONS2.BMX", "OPTIONS.PAL"};
+    const auto textures = Graphics::Texture{"INVSHP1.BMX", "INVENTOR.PAL"};
     //const auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
 
     BAK::TextureBuffer textureBuffer{};
@@ -79,10 +79,10 @@ int main(int argc, char** argv)
         const auto& tex = textures.GetTexture(i);
         objStore.AddObject(
             Graphics::Quad{
-                static_cast<double>(tex.GetWidth()) / 320, //(width / guiScale),
-                static_cast<double>(tex.GetHeight()) / 240, //(height / guiScale),
-                static_cast<double>(textures.GetMaxDim()) / 320, // (width / guiScale),
-                static_cast<double>(textures.GetMaxDim()) / 240, // (height / guiScale),
+                static_cast<double>(tex.GetWidth()),
+                static_cast<double>(tex.GetHeight()),
+                static_cast<double>(textures.GetMaxDim()),
+                static_cast<double>(textures.GetMaxDim()),
                 i});
     }
 
@@ -96,9 +96,16 @@ int main(int argc, char** argv)
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, glm::vec3{1/320.});
     glm::mat4 viewMatrix{1};
     glm::mat4 modelMatrix{1.0f};
-    glm::mat4 MVP{0};
+    glm::mat4 MVP{1};
+
+    InputHandler inputHandler{};
+    inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 1.0/60, 0}); });
+    inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -1.0/60, 0}); });
+    inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-1.0/60, 0, 0}); });
+    inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {1.0/60, 0, 0}); });
 
     double currentTime = 0;
     double lastTime = 0;
@@ -138,6 +145,7 @@ int main(int argc, char** argv)
 
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
+        inputHandler.HandleInput(window.get());
 
         glBindVertexArray(VertexArrayID);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -152,7 +160,7 @@ int main(int argc, char** argv)
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
-        MVP = viewMatrix;
+        MVP = viewMatrix * modelMatrix * scaleMatrix;
 
         glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));

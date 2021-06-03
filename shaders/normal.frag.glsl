@@ -12,7 +12,6 @@ in float DistanceFromCamera;
 // Ouput data
 out vec4 color;
 
-uniform mat4 MV;
 uniform vec3 lightPosition_worldspace;
 uniform sampler2DArray texture0;
 

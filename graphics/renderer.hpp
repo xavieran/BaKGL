@@ -208,7 +208,7 @@ public:
             5,              // levels
             GL_RGBA8,       // Internal format
             maxDim, maxDim, // width,height
-            64              // Number of layers
+            128             // Number of layers
         );
         
         unsigned index = 0;

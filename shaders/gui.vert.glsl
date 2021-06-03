@@ -1,11 +1,11 @@
 #version 330 core
 
 // Input vertex data, different for all executions of this shader.
-layout(location = 0) in vec3 vertexPosition_screenspace;
+layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec3 textureCoords;
 
 // Output data ; will be interpolated for each fragment.
-out vec3 Position_screenspace;
+out vec3 Position_worldspace;
 out vec3 uvCoords;
 
 // Values that stay constant for the whole mesh.
@@ -15,10 +15,8 @@ uniform mat4 M;
 
 void main(){
 	// Output position of the vertex, in clip space : MVP * position
-	//gl_Position =  MVP * vec4(vertexPosition_screenspace, 1);
-	
-	gl_Position =  vec4(vertexPosition_screenspace, 1);
+	gl_Position =  MVP * vec4(vertexPosition_modelspace, 1);
 	// Position of the vertex, in worldspace : M * position
-	Position_screenspace = vec4(vertexPosition_screenspace,1).xyz;
+	Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;
     uvCoords = textureCoords.xyz;
 }
