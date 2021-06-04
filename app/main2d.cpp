@@ -11,8 +11,8 @@
 #include "xbak/PaletteResource.h"
 #include "xbak/RequestResource.h"
 
-#include "src/worldFactory.hpp"
-#include "src/eventHandler.hpp"
+#include "bak/worldFactory.hpp"
+#include "bak/eventHandler.hpp"
 
 #include <fstream>   
 #include <iostream>   
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 
     auto& pal = *palz->GetPalette();
 
-    auto textures  = BAK::TextureStore{zone, pal};
+    auto textures  = BAK::ZoneTextureStore{zone, pal};
     auto zoneItems = BAK::ZoneItemStore{zone, textures};
 
     auto worlds = std::vector<BAK::World>{};

@@ -1,16 +1,16 @@
-#include "src/camera.hpp"
-#include "src/constants.hpp"
-#include "src/container.hpp"
-#include "src/coordinates.hpp"
-#include "src/fixedObject.hpp"
-#include "src/gameData.hpp"
-#include "src/inputHandler.hpp"
-#include "src/logger.hpp"
-#include "src/screens.hpp"
-#include "src/systems.hpp"
-#include "src/town.hpp"
-#include "src/worldFactory.hpp"
-#include "src/zone.hpp"
+#include "bak/camera.hpp"
+#include "bak/constants.hpp"
+#include "bak/container.hpp"
+#include "bak/coordinates.hpp"
+#include "bak/fixedObject.hpp"
+#include "bak/gameData.hpp"
+#include "bak/inputHandler.hpp"
+#include "bak/logger.hpp"
+#include "bak/screens.hpp"
+#include "bak/systems.hpp"
+#include "bak/town.hpp"
+#include "bak/worldFactory.hpp"
+#include "bak/zone.hpp"
 
 #include "graphics/glfw.hpp"
 #include "graphics/line.hpp"
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
     FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
     auto& pal = *palz->GetPalette();
 
-    auto textureStore = BAK::TextureStore{zoneLabel, pal};
+    auto textureStore = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textureStore};
     auto worlds      = BAK::WorldTileStore{zoneItems};
 
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
     
-    BAK::GLBuffers buffers{};
+    Graphics::GLBuffers buffers{};
     buffers.AddBuffer("vertex", 0, 3);
     buffers.AddBuffer("normal", 1, 3);
     buffers.AddBuffer("color", 2, 4);
@@ -260,7 +260,7 @@ int main(int argc, char** argv)
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
-    BAK::TextureBuffer textureBuffer{};
+    Graphics::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(
         textureStore.GetTextures(),
         textureStore.GetMaxDim());

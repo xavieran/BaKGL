@@ -1,11 +1,11 @@
 add_library(bak
     camera.hpp
     constants.hpp
-    coordinates.hpp
+    coordinates.hpp coordinates.cpp
     dialog.hpp dialog.cpp
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
-    encounter.hpp
+    encounter.hpp encounter.cpp
     eventHandler.hpp
     fixedObject.hpp fixedObject.cpp
     gameData.hpp
@@ -20,9 +20,9 @@ add_library(bak
     sceneData.hpp sceneData.cpp
     screens.hpp
     systems.hpp
-    texture.hpp
+    textureFactory.hpp textureFactory.cpp
     town.hpp
-    worldFactory.hpp
+    worldFactory.hpp worldFactory.cpp
 )
 
-target_link_libraries(bak xbak)
+target_link_libraries(bak graphics xbak)

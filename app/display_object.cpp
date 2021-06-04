@@ -1,6 +1,6 @@
-#include "src/logger.hpp"
+#include "bak/logger.hpp"
 
-#include "src/worldFactory.hpp"
+#include "bak/worldFactory.hpp"
 
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
     auto& pal = *palz->GetPalette();
 
-    auto textureStore  = BAK::TextureStore{zoneLabel, pal};
+    auto textureStore  = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems = BAK::ZoneItemStore{zoneLabel, textureStore};
 
     auto objStore = Graphics::MeshObjectStorage{};
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     const auto& textureBlends = objStore.mTextureBlends;
     const auto& indices       = objStore.mIndices;
 
-    BAK::GLBuffers buffers{};
+    Graphics::GLBuffers buffers{};
     buffers.AddBuffer("vertex", 0, 3);
     buffers.AddBuffer("normal", 1, 3);
     buffers.AddBuffer("color", 2, 4);
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
-    BAK::TextureBuffer textureBuffer{};
+    Graphics::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(textureStore.GetTextures(), textureStore.GetMaxDim());
 
     /*

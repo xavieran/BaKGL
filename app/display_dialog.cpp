@@ -1,8 +1,8 @@
-#include "src/dialog.hpp"
+#include "bak/dialog.hpp"
 
-#include "src/resourceNames.hpp"
+#include "bak/resourceNames.hpp"
 
-#include "src/logger.hpp"
+#include "bak/logger.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"

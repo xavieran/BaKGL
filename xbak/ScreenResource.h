@@ -39,7 +39,7 @@ private:
 public:
     ScreenResource();
     virtual ~ScreenResource();
-    Image* GetImage();
+    Image* GetImage() const;
     void Clear();
     void Load ( FileBuffer *buffer );
     unsigned int Save ( FileBuffer *buffer );

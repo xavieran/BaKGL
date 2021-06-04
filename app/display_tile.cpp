@@ -1,7 +1,7 @@
-#include "src/logger.hpp"
+#include "bak/logger.hpp"
 
-#include "src/glm.hpp"
-#include "src/worldFactory.hpp"
+#include "bak/glm.hpp"
+#include "bak/worldFactory.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
     auto& pal = *palz->GetPalette();
 
-    auto textures = BAK::TextureStore{zoneLabel, pal};
+    auto textures = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems = BAK::ZoneItemStore{zoneLabel, textures};
 
     logger.Info() << "Loading world tile:" << tileX << tileY << std::endl;

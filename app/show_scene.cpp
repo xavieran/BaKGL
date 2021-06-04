@@ -1,9 +1,10 @@
-#include "src/camera.hpp"
-#include "src/coordinates.hpp"
-#include "src/inputHandler.hpp"
-#include "src/logger.hpp"
-#include "src/screens.hpp"
-#include "src/systems.hpp"
+#include "bak/camera.hpp"
+#include "bak/coordinates.hpp"
+#include "bak/inputHandler.hpp"
+#include "bak/logger.hpp"
+#include "bak/screens.hpp"
+#include "bak/systems.hpp"
+#include "bak/textureFactory.hpp"
 
 #include "graphics/glfw.hpp"
 #include "graphics/plane.hpp"
@@ -59,12 +60,13 @@ int main(int argc, char** argv)
         "gui.vert.glsl",
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
+    
+    auto textures = BAK::TextureFactory::MakeTextureStore("G_NORTHW.BMX", "G_NORTHW.PAL");
+    //auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
+    //textures += Graphics::Texture{"G_MALACS.BMX", "G_MALACS.PAL"};
+    //textures += Graphics::Texture{"G_BKFRST.BMX", "G_BKFRST.PAL"};
 
-    auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
-    textures += Graphics::Texture{"G_MALACS.BMX", "G_MALACS.PAL"};
-    textures += Graphics::Texture{"G_BKFRST.BMX", "G_BKFRST.PAL"};
-
-    BAK::TextureBuffer textureBuffer{};
+    Graphics::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(
         textures.GetTextures(),
         textures.GetMaxDim());
@@ -85,7 +87,7 @@ int main(int argc, char** argv)
                 i});
     }
 
-    BAK::GLBuffers buffers{};
+    Graphics::GLBuffers buffers{};
     buffers.AddBuffer("vertex", 0, 3);
     buffers.AddBuffer("textureCoord", 1, 3);
 

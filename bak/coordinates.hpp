@@ -42,12 +42,7 @@ glm::vec<3, T> ToGlCoord(const glm::vec<2, int>& coord)
 }
 
 // Convert a 16 bit BAK angle to radians
-glm::vec3 ToGlAngle(const Vector3D& angle)
-{
-    return BAK::ToGlCoord<float>(angle) 
-        / static_cast<float>(0xffff)
-        * 2.0f * glm::pi<float>();
-}
+glm::vec3 ToGlAngle(const Vector3D& angle);
 
 template <typename T, typename C>
 glm::vec<4, T> ToGlColor(const C& color, bool transparent)

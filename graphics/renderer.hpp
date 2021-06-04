@@ -1,14 +1,14 @@
 #pragma once
 
-#include "src/logger.hpp"
+#include "graphics/texture.hpp"
 
-#include "src/worldFactory.hpp"
+#include "bak/logger.hpp"
 
 #include <GL/glew.h>
 
 #include <cmath>
 
-namespace BAK {
+namespace Graphics {
 
 enum class BindPoint
 {
@@ -238,7 +238,8 @@ public:
         // Doesn't actually look very good with mipmaps...
         //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         constexpr auto interpolation = GL_NEAREST;
-        constexpr auto extend = GL_CLAMP_TO_EDGE;
+        //constexpr auto interpolation = GL_LINEAR;
+        constexpr auto extend = GL_REPEAT;
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, extend);   
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, extend);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, interpolation);

@@ -30,7 +30,7 @@ ScreenResource::~ScreenResource()
     Clear();
 }
 
-Image * ScreenResource::GetImage()
+Image * ScreenResource::GetImage() const
 {
     return image;
 }

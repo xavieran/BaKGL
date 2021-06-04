@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 project( BaKGL )
 
 # Project wide CXX flags
-set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-parameter -Wno-unused-private-field -Wno-format-security -Wno-c++17-extensions")
+set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-parameter -Wno-unused-private-field -Wno-unused-function -Wno-format-security -Wno-c++17-extensions")
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)
@@ -27,8 +27,8 @@ find_package(glfw3 3.3 REQUIRED)
 include_directories(".")
 
 add_subdirectory("app")
+add_subdirectory("bak")
 add_subdirectory("graphics")
 add_subdirectory("imgui")
-add_subdirectory("src")
 add_subdirectory("shaders")
 add_subdirectory("xbak")

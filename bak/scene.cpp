@@ -1,6 +1,6 @@
-#include "src/scene.hpp"
+#include "bak/scene.hpp"
 
-#include "src/logger.hpp"
+#include "bak/logger.hpp"
 
 #include "xbak/ResourceTag.h"
 #include "xbak/TaggedResource.h"
