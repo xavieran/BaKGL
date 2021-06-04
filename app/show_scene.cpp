@@ -60,8 +60,9 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
 
-    const auto textures = Graphics::Texture{"INVSHP1.BMX", "INVENTOR.PAL"};
-    //const auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
+    auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
+    textures += Graphics::Texture{"G_MALACS.BMX", "G_MALACS.PAL"};
+    textures += Graphics::Texture{"G_BKFRST.BMX", "G_BKFRST.PAL"};
 
     BAK::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(
@@ -75,13 +76,11 @@ int main(int argc, char** argv)
     auto objStore = Graphics::QuadStorage{};
     for (unsigned i = 0; i < textures.GetTextures().size(); i++)
     {
-        auto guiScale = 8;
         const auto& tex = textures.GetTexture(i);
         objStore.AddObject(
             Graphics::Quad{
                 static_cast<double>(tex.GetWidth()),
                 static_cast<double>(tex.GetHeight()),
-                static_cast<double>(textures.GetMaxDim()),
                 static_cast<double>(textures.GetMaxDim()),
                 i});
     }
@@ -96,7 +95,7 @@ int main(int argc, char** argv)
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, glm::vec3{1/320.});
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, glm::vec3{1.});
     glm::mat4 viewMatrix{1};
     glm::mat4 modelMatrix{1.0f};
     glm::mat4 MVP{1};
@@ -106,6 +105,8 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -1.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-1.0/60, 0, 0}); });
     inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {1.0/60, 0, 0}); });
+    inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
+    inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
 
     double currentTime = 0;
     double lastTime = 0;
@@ -116,7 +117,6 @@ int main(int argc, char** argv)
     glEnable(GL_MULTISAMPLE);  
 
     glDisable(GL_DEPTH_TEST);
-    //glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
     glEnable(GL_BLEND);
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
         acc += deltaTime;
         if (acc > 1)
         { 
-            i = i + 1 % textures.GetTextures().size();
+            i = (i + 1) % textures.GetTextures().size();
             acc = 0;
         }
 
@@ -153,8 +153,6 @@ int main(int argc, char** argv)
         const auto programId = guiShaderId.GetHandle();
         GLuint textureID = glGetUniformLocation(programId, "texture0");
         glUniform1i(textureID, 0);
-
-        //viewMatrix = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.01f, 1.0f);
 
         GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");

@@ -238,7 +238,7 @@ public:
         // Doesn't actually look very good with mipmaps...
         //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         constexpr auto interpolation = GL_NEAREST;
-        constexpr auto extend = GL_REPEAT;
+        constexpr auto extend = GL_CLAMP_TO_EDGE;
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, extend);   
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, extend);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, interpolation);

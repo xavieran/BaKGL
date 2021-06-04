@@ -70,6 +70,22 @@ public:
         return mTextures[i];
     }
 
+    Texture& operator+=(const Texture& textures)
+    {
+        for (const auto& tex : textures.GetTextures())
+        {
+            if (tex.GetHeight() > mMaxHeight)
+                mMaxHeight = tex.GetHeight();
+            if (tex.GetWidth() > mMaxWidth)
+                mMaxWidth = tex.GetWidth();
+            mTextures.emplace_back(tex);
+        }
+
+        mMaxDim = std::max(mMaxWidth, mMaxHeight);
+
+        return *this;
+    }
+
     const std::vector<BAK::Texture>& GetTextures() const { return mTextures; }
 
     unsigned GetMaxDim() const { return mMaxDim; }

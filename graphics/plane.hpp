@@ -16,16 +16,17 @@ public:
     Quad(
         double width,
         double height,
-        double maxWidth,
-        double maxHeight,
+        double maxDim,
         unsigned textureIndex)
     :
         Quad{
             std::invoke([&](){
-                const auto top = height / 2;
-                const auto bottom = -height / 2;
-                const auto left = -width / 2;
-                const auto right = width / 2;
+                const auto normHeight = height / (maxDim * 2);
+                const auto normWidth  = width / (maxDim * 2);
+                const auto top = normHeight;
+                const auto bottom = -normHeight;
+                const auto left = -normWidth;
+                const auto right = normWidth;
                 return std::vector<glm::vec3>{
                     {left,  bottom, 0},
                     {left,  top,    0},
@@ -35,8 +36,8 @@ public:
                     {right, bottom, 0}};
             }),
             std::invoke([&](){
-                const auto maxU = width / maxWidth;
-                const auto maxV = height / maxHeight;
+                const auto maxU = width / maxDim;
+                const auto maxV = height / maxDim;
                 return std::vector<glm::vec3>{
                     {0,       0, textureIndex},
                     {0,    maxV, textureIndex},
@@ -58,6 +59,8 @@ public:
         mTextureCoords{textureCoords},
         mIndices{indices}
     {
+        for (auto v : vertices)
+            std::cout << "V: " << v << "\n";
     }
 
     unsigned long GetNumVertices() const
