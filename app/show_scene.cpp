@@ -42,8 +42,8 @@ int main(int argc, char** argv)
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
 
-    auto height = 800;
-    auto width = 1400;
+    auto width = 640;
+    auto height = 480;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
@@ -61,12 +61,18 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
     
-    //auto textures = BAK::TextureFactory::MakeTextureStore("G_NORTHW.BMX", "G_NORTHW.PAL");
-    auto textures = BAK::TextureFactory::MakeTextureStore("C12A1.BMX", "C11A.PAL");
-    BAK::TextureFactory::AddToTextureStore(textures, "C11A2.BMX", "C11A.PAL");
-    //auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
-    //textures += Graphics::Texture{"G_MALACS.BMX", "G_MALACS.PAL"};
-    //textures += Graphics::Texture{"G_BKFRST.BMX", "G_BKFRST.PAL"};
+    //auto textures = BAK::TextureFactory::MakeTextureStore("G_LAMUT.BMX", "G_LAMUT.PAL");
+    auto textures = Graphics::TextureStore{};
+    //BAK::TextureFactory::AddToTextureStore(textures, "CAST.BMX", "INVENTOR.PAL");
+    BAK::TextureFactory::AddScreenToTextureStore(textures, "ENCAMP.SCX", "OPTIONS.PAL");
+    BAK::TextureFactory::AddToTextureStore(textures, "BICONS1.BMX", "OPTIONS.PAL");
+    BAK::TextureFactory::AddToTextureStore(textures, "BICONS2.BMX", "OPTIONS.PAL");
+    //BAK::TextureFactory::AddToTextureStore(textures, "POINTER.BMX", "Z01.PAL");
+    //BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "Z01.PAL");
+    //BAK::TextureFactory::AddToTextureStore(textures, "COMPASS.BMX", "Z01.PAL");
+    //BAK::TextureFactory::AddToTextureStore(textures, "MAPICONS.BMX", "Z01.PAL");
+    //BAK::TextureFactory::AddToTextureStore(textures, "C11A2.BMX", "C11A.PAL");
+    //BAK::TextureFactory::AddToTextureStore(textures, "C11B.BMX", "C11B.PAL");
 
     Graphics::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(
@@ -99,7 +105,7 @@ int main(int argc, char** argv)
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, glm::vec3{1.});
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, glm::vec3{width/320., height/240., 0.});
     glm::mat4 viewMatrix = glm::ortho(
         0.0f,
         static_cast<float>(width),
@@ -110,6 +116,8 @@ int main(int argc, char** argv)
     glm::mat4 modelMatrix{1.0f};
     glm::mat4 MVP{1};
 
+    unsigned picture = 0;
+
     InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 50.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -50.0/60, 0}); });
@@ -117,6 +125,12 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {50.0/60, 0, 0}); });
     inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
     inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
+    inputHandler.Bind(GLFW_KEY_RIGHT, [&]{ picture += 1; picture %= textures.GetTextures().size(); });
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ picture -= 1; picture %= textures.GetTextures().size(); });
+    inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT, [&](auto x, auto y)
+    {
+        logger.Debug() << "mx: " << x << " my: " << y << "\n";
+    });
 
     double currentTime = 0;
     double lastTime = 0;
@@ -156,6 +170,7 @@ int main(int argc, char** argv)
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
         inputHandler.HandleInput(window.get());
+        inputHandler.HandleMouseInput(window.get());
 
         glBindVertexArray(VertexArrayID);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -174,7 +189,7 @@ int main(int argc, char** argv)
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
         glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
 
-        const auto [offset, length] = objStore.GetObject(i);
+        const auto [offset, length] = objStore.GetObject(picture);
         glDrawElementsBaseVertex(
             GL_TRIANGLES,
             length,

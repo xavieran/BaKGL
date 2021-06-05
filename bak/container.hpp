@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glm.hpp"
+#include "graphics/glm.hpp"
 #include <glm/glm.hpp>
 
 #include "xbak/ObjectResource.h"

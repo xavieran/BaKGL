@@ -1,5 +1,6 @@
 
 add_library(graphics
+    glm.hpp
     glfw.hpp glfw.cpp
     line.hpp
     meshObject.hpp meshObject.cpp

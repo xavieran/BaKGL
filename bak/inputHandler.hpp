@@ -9,16 +9,28 @@
 class InputHandler
 {
 public:
-    using Callback = std::function<void()>;
+    using KeyCallback = std::function<void()>;
+    using MouseCallback = std::function<void(double, double)>;
 
-    void Bind(int key, Callback&& callback)
+    //void BindToWindow(GLFWwindow* window)
+    //{
+    //    glfwSetMouseButtonCallback(window, this->MouseAction);
+    //}
+
+    void Bind(int key, KeyCallback&& callback)
     {
-        mBindings.emplace(key, std::move(callback));
+        mKeyBindings.emplace(key, std::move(callback));
     }
+
+    void BindMouse(int button, MouseCallback&& callback)
+    {
+        mMouseBindings.emplace(button, std::move(callback));
+    }
+
 
     void HandleInput(GLFWwindow* window)
     {
-        for (const auto& keyVal : mBindings)
+        for (const auto& keyVal : mKeyBindings)
         {
             if (glfwGetKey(window, keyVal.first) == GLFW_PRESS)
             {
@@ -27,6 +39,25 @@ public:
         }
     }
 
+    void HandleMouseInput(GLFWwindow* window)
+    {
+        for (const auto& keyVal : mMouseBindings)
+        {
+            if (glfwGetMouseButton(window, keyVal.first) == GLFW_PRESS)
+            {
+                double pointerX, pointerY;
+                glfwGetCursorPos(window, &pointerX, &pointerY);
+                std::invoke(keyVal.second, pointerX, pointerY);
+            }
+        }
+    }
+
+    void MouseAction(GLFWwindow* window, int button, int action, int mods)
+    {
+
+    }
+
 private:
-    std::unordered_map<int, std::function<void()>> mBindings;
+    std::unordered_map<int, KeyCallback> mKeyBindings;
+    std::unordered_map<int, MouseCallback> mMouseBindings;
 };

@@ -1,6 +1,6 @@
 #include "bak/hotspot.hpp"
 
-#include "bak/glm.hpp"
+#include "graphics/glm.hpp"
 
 namespace BAK {
 

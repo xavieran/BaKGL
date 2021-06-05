@@ -1,11 +1,5 @@
 #include "bak/coordinates.hpp"
 
-#include "glm.hpp"
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "xbak/Geometry.h"
-
 namespace BAK {
 
 // Convert a 16 bit BAK angle to radians

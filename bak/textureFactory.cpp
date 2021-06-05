@@ -95,6 +95,24 @@ void TextureFactory::AddToTextureStore(
         ImageToTexture(screen.GetImage(), palette));
 }
 
+void TextureFactory::AddScreenToTextureStore(
+    Graphics::TextureStore& store,
+    std::string_view scx,
+    std::string_view pal)
+{
+    PaletteResource palette{};
+    palette.Load(FileManager::GetInstance()->LoadResource(std::string{pal}));
+    assert(palette.GetPalette());
+
+    ScreenResource screen;
+    screen.Load(FileManager::GetInstance()->LoadResource(std::string{scx}));
+
+    AddToTextureStore(
+        store,
+        screen,
+        *palette.GetPalette());
+}
+
 void TextureFactory::AddTerrainToTextureStore(
     Graphics::TextureStore& store,
     const ScreenResource& terrain,

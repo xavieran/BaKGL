@@ -1,6 +1,7 @@
 #pragma once
 
-#include "glm.hpp"
+#include "graphics/glm.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtx/intersect.hpp>
 #include <glm/gtc/matrix_transform.hpp>

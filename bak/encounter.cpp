@@ -1,6 +1,6 @@
 #include "bak/encounter.hpp"
 
-#include "bak/glm.hpp"
+#include "graphics/glm.hpp"
 #include <glm/glm.hpp>
 
 #include <iostream>

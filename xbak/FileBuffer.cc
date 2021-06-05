@@ -677,8 +677,7 @@ FileBuffer::Decompress(FileBuffer *result, const unsigned int method)
         {
             throw DataCorruption(__FILE__, __LINE__);
         }
-        return DecompressLZW(result);
-        break;
+        return DecompressLZW(result); break;
     case COMPRESSION_LZSS:
         return DecompressLZSS(result);
         break;

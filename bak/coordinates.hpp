@@ -15,7 +15,8 @@
 // Need to convert this to open gl system by swapping y and z
 // and negating z (depth goes towards us)
 
-#include "glm.hpp"
+#include "graphics/glm.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 

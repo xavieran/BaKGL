@@ -1,6 +1,6 @@
 #include "bak/logger.hpp"
 
-#include "bak/glm.hpp"
+#include "graphics/glm.hpp"
 #include "bak/worldFactory.hpp"
 
 #include "xbak/FileBuffer.h"

@@ -9,7 +9,6 @@ add_library(bak
     eventHandler.hpp
     fixedObject.hpp fixedObject.cpp
     gameData.hpp
-    glm.hpp
     hotspot.hpp hotspot.cpp
     inputHandler.hpp
     inventory.hpp

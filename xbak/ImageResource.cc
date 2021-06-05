@@ -20,6 +20,8 @@
 #include "Exception.h"
 #include "ImageResource.h"
 
+#include <iostream>
+
 ImageResource::ImageResource()
         : compression ( COMPRESSION_LZW )
         , numImages ( 0 )
@@ -83,8 +85,13 @@ void ImageResource::Load ( FileBuffer *buffer )
             Image *img = new Image ( width, height, flags );
             images.push_back ( img );
         }
-        // * 2 why is this necessary? 
-        // Some times the number of how much to decomp is not correct?
+        std::cout << "cmp: " << compression << " imgs: " << numImages
+            << " size " << size << "\n";
+        if (compression == 1)
+        {
+            // Not sure why this is needed or if *2 is the right number
+            size *= 2;
+        }
         FileBuffer *decompressed = new FileBuffer (size);
         buffer->Decompress ( decompressed, compression );
         for ( unsigned int i = 0; i < numImages; i++ )
