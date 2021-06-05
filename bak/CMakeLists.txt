@@ -10,7 +10,7 @@ add_library(bak
     fixedObject.hpp fixedObject.cpp
     gameData.hpp
     hotspot.hpp hotspot.cpp
-    inputHandler.hpp
+    inputHandler.hpp inputHandler.cpp
     inventory.hpp
     logger.hpp logger.cpp
     ostream.hpp

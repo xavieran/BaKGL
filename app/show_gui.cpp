@@ -13,11 +13,14 @@
 #include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 
+#include "gui/gui.hpp"
+
 #include "imgui/imguiWrapper.hpp"
 
 #include "xbak/FileManager.h"
 #include "xbak/FileBuffer.h"
 #include "xbak/PaletteResource.h"
+#include "xbak/RequestResource.h"
 
 #include <GL/glew.h>
 
@@ -42,12 +45,14 @@ int main(int argc, char** argv)
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
 
-    auto width = 640;
-    auto height = 480;
+    auto width = 640.0f;
+    auto height = 480.0f;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
         "Show Scene");
+
+    auto guiScale = glm::vec3{width / 320, height / 200, 0};
 
     glViewport(0, 0, width, height);
 
@@ -61,18 +66,44 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
     
-    //auto textures = BAK::TextureFactory::MakeTextureStore("G_LAMUT.BMX", "G_LAMUT.PAL");
     auto textures = Graphics::TextureStore{};
-    //BAK::TextureFactory::AddToTextureStore(textures, "CAST.BMX", "INVENTOR.PAL");
-    BAK::TextureFactory::AddScreenToTextureStore(textures, "ENCAMP.SCX", "OPTIONS.PAL");
+    BAK::TextureFactory::AddScreenToTextureStore(textures, "FRAME.SCX", "OPTIONS.PAL");
+    BAK::TextureFactory::AddToTextureStore(textures, "HEADS.BMX", "OPTIONS.PAL");
+    unsigned off = textures.GetTextures().size();
     BAK::TextureFactory::AddToTextureStore(textures, "BICONS1.BMX", "OPTIONS.PAL");
+    unsigned off2 = textures.GetTextures().size();
     BAK::TextureFactory::AddToTextureStore(textures, "BICONS2.BMX", "OPTIONS.PAL");
-    //BAK::TextureFactory::AddToTextureStore(textures, "POINTER.BMX", "Z01.PAL");
-    //BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "Z01.PAL");
-    //BAK::TextureFactory::AddToTextureStore(textures, "COMPASS.BMX", "Z01.PAL");
-    //BAK::TextureFactory::AddToTextureStore(textures, "MAPICONS.BMX", "Z01.PAL");
-    //BAK::TextureFactory::AddToTextureStore(textures, "C11A2.BMX", "C11A.PAL");
-    //BAK::TextureFactory::AddToTextureStore(textures, "C11B.BMX", "C11B.PAL");
+
+    RequestResource request;
+    FileManager::GetInstance()->Load(&request, "REQ_MAIN.DAT");
+    logger.Info() << request << "\n";
+
+    std::vector<Gui::GuiElement> elements;
+    elements.emplace_back(0, 0, 0); // background
+    for (unsigned i = 0; i < request.GetSize(); i++)
+    {
+        auto data = request.GetRequestData(i);
+        switch (data.widget)
+        {
+        case REQ_USERDEFINED:
+        {
+            int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
+            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+            elements.emplace_back(false, data.image + 1, data.image + 1, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+        }
+            break;
+        case REQ_IMAGEBUTTON:
+        {
+            int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
+            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+            elements.emplace_back(false, data.image + off, data.image + off2, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+        }
+            break;
+        default:
+            logger.Info() << "Unhandled: " << i << "\n";
+            break;
+        }
+    }
 
     Graphics::TextureBuffer textureBuffer{};
     textureBuffer.LoadTexturesGL(
@@ -105,7 +136,8 @@ int main(int argc, char** argv)
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, glm::vec3{width/320., height/240., 0.});
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
+    //glm::mat4 scaleMatrix = glm::mat4{1};
     glm::mat4 viewMatrix = glm::ortho(
         0.0f,
         static_cast<float>(width),
@@ -116,21 +148,45 @@ int main(int argc, char** argv)
     glm::mat4 modelMatrix{1.0f};
     glm::mat4 MVP{1};
 
-    unsigned picture = 0;
-
     InputHandler inputHandler{};
+    InputHandler::BindMouseToWindow(window.get(), inputHandler);
+    InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
     inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 50.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -50.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-50.0/60, 0, 0}); });
     inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {50.0/60, 0, 0}); });
     inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
     inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
-    inputHandler.Bind(GLFW_KEY_RIGHT, [&]{ picture += 1; picture %= textures.GetTextures().size(); });
-    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ picture -= 1; picture %= textures.GetTextures().size(); });
-    inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT, [&](auto x, auto y)
-    {
-        logger.Debug() << "mx: " << x << " my: " << y << "\n";
-    });
+    inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT,
+        [&](auto x, auto y)
+        {
+            logger.Debug() << "mx: " << x << " my: " << y << "\n";
+            for (auto& elem : elements)
+            {
+                auto scaledTL = guiScale * elem.mPosition;
+                auto scaledBR = guiScale * (elem.mPosition + elem.mDims);
+                if ((x >= scaledTL.x && x <= scaledBR.x)
+                    && (y >= scaledTL.y && y <= scaledBR.y))
+                {
+                    elem.mPressed = true;
+                }
+            }
+        },
+        [&](auto x, auto y)
+        {
+            logger.Debug() << "mx: " << x << " my: " << y << "\n";
+            for (auto& elem : elements)
+            {
+                auto scaledTL = guiScale * elem.mPosition;
+                auto scaledBR = guiScale * (elem.mPosition + elem.mDims);
+                if ((x >= scaledTL.x && x <= scaledBR.x)
+                    && (y >= scaledTL.y && y <= scaledBR.y))
+                {
+                    elem.mPressed = false;
+                }
+            }
+        }
+    );
 
     double currentTime = 0;
     double lastTime = 0;
@@ -169,8 +225,6 @@ int main(int argc, char** argv)
 
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
-        inputHandler.HandleInput(window.get());
-        inputHandler.HandleMouseInput(window.get());
 
         glBindVertexArray(VertexArrayID);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -183,20 +237,25 @@ int main(int argc, char** argv)
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
-        MVP = viewMatrix * modelMatrix * scaleMatrix;
+        for (const auto& [pressed, image, pImage, pos, dim] : elements)
+        {
+            modelMatrix = glm::translate(glm::mat4{1}, pos);
+            MVP = viewMatrix * scaleMatrix * modelMatrix;
 
-        glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
-        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-        glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
-
-        const auto [offset, length] = objStore.GetObject(picture);
-        glDrawElementsBaseVertex(
-            GL_TRIANGLES,
-            length,
-            GL_UNSIGNED_INT,
-            (void*) (offset * sizeof(GLuint)),
-            offset
-        );
+            glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
+            glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+            glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
+        
+            auto sel = pressed ? pImage : image;
+            const auto [offset, length] = objStore.GetObject(sel);
+            glDrawElementsBaseVertex(
+                GL_TRIANGLES,
+                length,
+                GL_UNSIGNED_INT,
+                (void*) (offset * sizeof(GLuint)),
+                offset
+            );
+        }
 
         glfwSwapBuffers(window.get());
     }

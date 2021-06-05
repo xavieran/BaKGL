@@ -9,8 +9,9 @@ list(APPEND APP_BINARIES
     display_ttm
     main2d
     main3d
+    show_gui
     show_imgui
-    show_scene
+    bmx_explorer
 )
 
 set(LINK_3D_LIBRARIES 

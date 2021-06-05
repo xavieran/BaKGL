@@ -155,8 +155,6 @@ struct RequestData
     int image;
     int group;
     std::string label;
-
-    friend std::ostream& operator<<(std::ostream& os, const RequestData& d);
 };
 
 std::ostream& operator<<(std::ostream& os, const RequestData& d);

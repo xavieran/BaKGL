@@ -4,6 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <cassert>
 #include <functional>
 
 class InputHandler
@@ -12,52 +13,25 @@ public:
     using KeyCallback = std::function<void()>;
     using MouseCallback = std::function<void(double, double)>;
 
-    //void BindToWindow(GLFWwindow* window)
-    //{
-    //    glfwSetMouseButtonCallback(window, this->MouseAction);
-    //}
+    static void BindMouseToWindow(GLFWwindow* window, InputHandler& handler);
+    static void BindKeyboardToWindow(GLFWwindow* window, InputHandler& handler);
 
-    void Bind(int key, KeyCallback&& callback)
-    {
-        mKeyBindings.emplace(key, std::move(callback));
-    }
-
-    void BindMouse(int button, MouseCallback&& callback)
-    {
-        mMouseBindings.emplace(button, std::move(callback));
-    }
+    void Bind(int key, KeyCallback&& callback);
+    void BindMouse(int button, MouseCallback&& pressed, MouseCallback&& released);
 
 
-    void HandleInput(GLFWwindow* window)
-    {
-        for (const auto& keyVal : mKeyBindings)
-        {
-            if (glfwGetKey(window, keyVal.first) == GLFW_PRESS)
-            {
-                std::invoke(keyVal.second);
-            }
-        }
-    }
+    void HandleInput(GLFWwindow* window);
+    void HandleMouseInput(GLFWwindow* window);
+    void HandleKeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void HandleMouseCallback(GLFWwindow* window, int button, int action, int mods);
 
-    void HandleMouseInput(GLFWwindow* window)
-    {
-        for (const auto& keyVal : mMouseBindings)
-        {
-            if (glfwGetMouseButton(window, keyVal.first) == GLFW_PRESS)
-            {
-                double pointerX, pointerY;
-                glfwGetCursorPos(window, &pointerX, &pointerY);
-                std::invoke(keyVal.second, pointerX, pointerY);
-            }
-        }
-    }
-
-    void MouseAction(GLFWwindow* window, int button, int action, int mods)
-    {
-
-    }
 
 private:
+    static void MouseAction(GLFWwindow* window, int button, int action, int mods);
+    static void KeyboardAction(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+    static InputHandler* sHandler;
+
     std::unordered_map<int, KeyCallback> mKeyBindings;
-    std::unordered_map<int, MouseCallback> mMouseBindings;
+    std::unordered_map<int, std::pair<MouseCallback, MouseCallback>> mMouseBindings;
 };

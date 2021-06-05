@@ -59,8 +59,6 @@ public:
         mTextureCoords{textureCoords},
         mIndices{indices}
     {
-        for (auto v : vertices)
-            std::cout << "V: " << v << "\n";
     }
 
     unsigned long GetNumVertices() const

@@ -10,6 +10,7 @@ set(LINK_3D_LIBRARIES
 )
 
 add_executable (compile_shaders compile_shaders.cpp)
+
 target_link_libraries(compile_shaders
     stdc++
     m
@@ -27,5 +28,6 @@ list(APPEND SHADERS
 foreach (SHADER IN LISTS SHADERS)
     add_custom_target(
         compileShader${SHADER} ALL COMMAND 
-        ${CMAKE_BINARY_DIR}/compile_shaders ${SHADER}.vert.glsl ${SHADER}.frag.glsl)
+        ${CMAKE_BINARY_DIR}/compile_shaders ${SHADER}.vert.glsl ${SHADER}.frag.glsl
+        DEPENDS compile_shaders)
 endforeach()

@@ -201,6 +201,10 @@ public:
         const std::vector<Texture>& textures,
         unsigned maxDim)
     {
+        constexpr auto maxTextures = 1024;
+        if (textures.size() > maxTextures)
+            throw std::runtime_error("Too many textures");
+
         glBindTexture(GL_TEXTURE_2D_ARRAY, mTextureBuffer);
 
         glTexStorage3D(
@@ -208,7 +212,7 @@ public:
             5,              // levels
             GL_RGBA8,       // Internal format
             maxDim, maxDim, // width,height
-            128             // Number of layers
+            maxTextures     // Number of layers
         );
         
         unsigned index = 0;
