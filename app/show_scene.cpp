@@ -61,7 +61,9 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
     
-    auto textures = BAK::TextureFactory::MakeTextureStore("G_NORTHW.BMX", "G_NORTHW.PAL");
+    //auto textures = BAK::TextureFactory::MakeTextureStore("G_NORTHW.BMX", "G_NORTHW.PAL");
+    auto textures = BAK::TextureFactory::MakeTextureStore("C12A1.BMX", "C11A.PAL");
+    BAK::TextureFactory::AddToTextureStore(textures, "C11A2.BMX", "C11A.PAL");
     //auto textures = Graphics::Texture{"G_NORTHW.BMX", "G_NORTHW.PAL"};
     //textures += Graphics::Texture{"G_MALACS.BMX", "G_MALACS.PAL"};
     //textures += Graphics::Texture{"G_BKFRST.BMX", "G_BKFRST.PAL"};
@@ -98,15 +100,21 @@ int main(int argc, char** argv)
     glBindVertexArray(0);
 
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, glm::vec3{1.});
-    glm::mat4 viewMatrix{1};
+    glm::mat4 viewMatrix = glm::ortho(
+        0.0f,
+        static_cast<float>(width),
+        static_cast<float>(height),
+        0.0f,
+        -1.0f,
+        1.0f);  
     glm::mat4 modelMatrix{1.0f};
     glm::mat4 MVP{1};
 
     InputHandler inputHandler{};
-    inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 1.0/60, 0}); });
-    inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -1.0/60, 0}); });
-    inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-1.0/60, 0, 0}); });
-    inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {1.0/60, 0, 0}); });
+    inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 50.0/60, 0}); });
+    inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -50.0/60, 0}); });
+    inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-50.0/60, 0, 0}); });
+    inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {50.0/60, 0, 0}); });
     inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
     inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
 
@@ -137,7 +145,7 @@ int main(int argc, char** argv)
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         acc += deltaTime;
-        if (acc > 1)
+        if (acc > .2)
         { 
             i = (i + 1) % textures.GetTextures().size();
             acc = 0;

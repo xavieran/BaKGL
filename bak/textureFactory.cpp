@@ -69,6 +69,25 @@ void TextureFactory::AddToTextureStore(
 
 void TextureFactory::AddToTextureStore(
     Graphics::TextureStore& store,
+    std::string_view bmx,
+    std::string_view pal)
+{
+    PaletteResource palette{};
+    palette.Load(FileManager::GetInstance()->LoadResource(std::string{pal}));
+    assert(palette.GetPalette());
+
+    ImageResource images;
+    images.Load(FileManager::GetInstance()->LoadResource(std::string{bmx}));
+
+    AddToTextureStore(
+        store,
+        images,
+        *palette.GetPalette());
+}
+
+
+void TextureFactory::AddToTextureStore(
+    Graphics::TextureStore& store,
     const ScreenResource& screen,
     const Palette& palette)
 {

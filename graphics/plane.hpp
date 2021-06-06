@@ -21,12 +21,16 @@ public:
     :
         Quad{
             std::invoke([&](){
-                const auto normHeight = height / (maxDim * 2);
-                const auto normWidth  = width / (maxDim * 2);
-                const auto top = normHeight;
-                const auto bottom = -normHeight;
-                const auto left = -normWidth;
-                const auto right = normWidth;
+                const auto top = 0;
+                const auto bottom = height;
+                const auto left = 0;
+                const auto right = width;
+                //const auto normHeight = height / (maxDim * 2);
+                //const auto normWidth  = width / (maxDim * 2);
+                //const auto top = normHeight;
+                //const auto bottom = -normHeight;
+                //const auto left = -normWidth;
+                //const auto right = normWidth;
                 return std::vector<glm::vec3>{
                     {left,  bottom, 0},
                     {left,  top,    0},
@@ -45,6 +49,13 @@ public:
                     {0,       0, textureIndex},
                     {maxU, maxV, textureIndex},
                     {maxU,    0, textureIndex}};
+                //return std::vector<glm::vec3>{
+                //    {0,       0, textureIndex},
+                //    {0,    maxV, textureIndex},
+                //    {maxU, maxV, textureIndex},
+                //    {0,       0, textureIndex},
+                //    {maxU, maxV, textureIndex},
+                //    {maxU,    0, textureIndex}};
 
             }),
             {0, 1, 2, 3, 4, 5}}

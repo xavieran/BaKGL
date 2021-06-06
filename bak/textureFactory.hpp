@@ -36,6 +36,11 @@ public:
 
     static void AddToTextureStore(
         Graphics::TextureStore&,
+        std::string_view bmx,
+        std::string_view pal);
+
+    static void AddToTextureStore(
+        Graphics::TextureStore&,
         const ScreenResource&,
         const Palette&);
 
