@@ -19,3 +19,15 @@ vec<3, S> cast(const vec<3, T>& x)
 }
 
 }
+
+namespace Graphics {
+
+template <typename T>
+bool PointWithinRectangle(glm::vec<2, T> point, glm::vec<2, T> topLeft, glm::vec<2, T> dimensions)
+{
+    const auto bottomRight = topLeft + dimensions;
+    return glm::all(glm::greaterThanEqual(point, topLeft))
+        && glm::all(glm::lessThanEqual(point, bottomRight));
+}
+
+}

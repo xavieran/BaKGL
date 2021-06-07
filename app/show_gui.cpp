@@ -50,16 +50,17 @@ int main(int argc, char** argv)
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
-        "Show Scene");
+        "Show GUI");
 
     auto guiScale = glm::vec3{width / 320, height / 200, 0};
+    auto guiScaleInv = glm::vec3{320 / width, 200 / height, 0};
 
     glViewport(0, 0, width, height);
 
     ImguiWrapper::Initialise(window.get());
     
     // Dark blue background
-    glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0, 0.0f);
 
     auto guiShader = ShaderProgram{
         "gui.vert.glsl",
@@ -67,19 +68,26 @@ int main(int argc, char** argv)
     auto guiShaderId = guiShader.Compile();
     
     auto textures = Graphics::TextureStore{};
-    BAK::TextureFactory::AddScreenToTextureStore(textures, "FRAME.SCX", "OPTIONS.PAL");
-    BAK::TextureFactory::AddToTextureStore(textures, "HEADS.BMX", "OPTIONS.PAL");
-    unsigned off = textures.GetTextures().size();
-    BAK::TextureFactory::AddToTextureStore(textures, "BICONS1.BMX", "OPTIONS.PAL");
-    unsigned off2 = textures.GetTextures().size();
-    BAK::TextureFactory::AddToTextureStore(textures, "BICONS2.BMX", "OPTIONS.PAL");
+    BAK::TextureFactory::AddScreenToTextureStore(textures, "DIALOG.SCX", "OPTIONS.PAL");
+    //BAK::TextureFactory::AddScreenToTextureStore(textures, "INVENTOR.SCX", "INVENTOR.PAL");
+    BAK::TextureFactory::AddToTextureStore(textures, "G_NORTHW.BMX", "G_NORTHW.PAL");
+    unsigned off = 1; //textures.GetTextures().size();
+    unsigned off2 = 1; //textures.GetTextures().size();
+    //BAK::TextureFactory::AddToTextureStore(textures, "BICONS1.BMX", "OPTIONS.PAL");
+    //unsigned off2 = textures.GetTextures().size();
+    //BAK::TextureFactory::AddToTextureStore(textures, "BICONS2.BMX", "OPTIONS.PAL");
 
     RequestResource request;
-    FileManager::GetInstance()->Load(&request, "REQ_MAIN.DAT");
+    FileManager::GetInstance()->Load(&request, "REQ_GDS.DAT");
     logger.Info() << request << "\n";
 
-    std::vector<Gui::GuiElement> elements;
-    elements.emplace_back(0, 0, 0); // background
+    auto frame = Gui::Frame{
+        glm::vec3{0,0,0},
+        glm::vec3{320, 240, 0}};
+
+    auto& elements = frame.mChildren;
+    elements.emplace_back(0, false, 0, 0, glm::vec3{0}, glm::vec3{320, 240, 0}); // background
+    elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
     for (unsigned i = 0; i < request.GetSize(); i++)
     {
         auto data = request.GetRequestData(i);
@@ -87,16 +95,17 @@ int main(int argc, char** argv)
         {
         case REQ_USERDEFINED:
         {
+            if (data.action != 1) break;
             int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
             int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-            elements.emplace_back(false, data.image + 1, data.image + 1, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+            //elements.emplace_back(data.action, false, data.image + 1, data.image + 1, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
         }
             break;
         case REQ_IMAGEBUTTON:
         {
             int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
             int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-            elements.emplace_back(false, data.image + off, data.image + off2, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+            elements.emplace_back(data.action, false, data.image + off, data.image + off2, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
         }
             break;
         default:
@@ -158,33 +167,15 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
     inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
     inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT,
-        [&](auto x, auto y)
+        [&](auto click)
         {
-            logger.Debug() << "mx: " << x << " my: " << y << "\n";
-            for (auto& elem : elements)
-            {
-                auto scaledTL = guiScale * elem.mPosition;
-                auto scaledBR = guiScale * (elem.mPosition + elem.mDims);
-                if ((x >= scaledTL.x && x <= scaledBR.x)
-                    && (y >= scaledTL.y && y <= scaledBR.y))
-                {
-                    elem.mPressed = true;
-                }
-            }
+            logger.Debug() << click << "\n";
+            frame.MousePress(guiScaleInv * click);
         },
-        [&](auto x, auto y)
+        [&](auto click)
         {
-            logger.Debug() << "mx: " << x << " my: " << y << "\n";
-            for (auto& elem : elements)
-            {
-                auto scaledTL = guiScale * elem.mPosition;
-                auto scaledBR = guiScale * (elem.mPosition + elem.mDims);
-                if ((x >= scaledTL.x && x <= scaledBR.x)
-                    && (y >= scaledTL.y && y <= scaledBR.y))
-                {
-                    elem.mPressed = false;
-                }
-            }
+            logger.Debug() << click << "\n";
+            frame.MouseRelease(guiScaleInv * click);
         }
     );
 
@@ -237,7 +228,7 @@ int main(int argc, char** argv)
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
-        for (const auto& [pressed, image, pImage, pos, dim] : elements)
+        for (const auto& [action, pressed, image, pImage, pos, dim] : elements)
         {
             modelMatrix = glm::translate(glm::mat4{1}, pos);
             MVP = viewMatrix * scaleMatrix * modelMatrix;

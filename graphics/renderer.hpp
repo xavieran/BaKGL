@@ -201,7 +201,7 @@ public:
         const std::vector<Texture>& textures,
         unsigned maxDim)
     {
-        constexpr auto maxTextures = 1024;
+        constexpr auto maxTextures = 256;
         if (textures.size() > maxTextures)
             throw std::runtime_error("Too many textures");
 

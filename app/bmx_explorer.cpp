@@ -6,6 +6,7 @@
 #include "bak/systems.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "graphics/glm.hpp"
 #include "graphics/glfw.hpp"
 #include "graphics/plane.hpp"
 #include "graphics/meshObject.hpp"
@@ -129,11 +130,11 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
     inputHandler.Bind(GLFW_KEY_RIGHT, [&]{ picture += 1; picture %= textures.GetTextures().size(); logger.Debug() << "Pic: " << picture << "\n";});
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{ picture -= 1; picture %= textures.GetTextures().size(); logger.Debug() << "Pic: " << picture << "\n";});
-    inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT, [&](auto x, auto y)
+    inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT, [&](auto p)
     {
-        logger.Debug() << "mx: " << x << " my: " << y << "\n";
+        logger.Debug() << p << "\n";
     },
-    [](auto, auto){});
+    [](auto){});
 
     double currentTime = 0;
     double lastTime = 0;

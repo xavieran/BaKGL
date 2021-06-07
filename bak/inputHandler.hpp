@@ -1,17 +1,21 @@
 #pragma once
 
+
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+
 #include <cassert>
 #include <functional>
+
 
 class InputHandler
 {
 public:
     using KeyCallback = std::function<void()>;
-    using MouseCallback = std::function<void(double, double)>;
+    using MouseCallback = std::function<void(glm::vec3)>;
 
     static void BindMouseToWindow(GLFWwindow* window, InputHandler& handler);
     static void BindKeyboardToWindow(GLFWwindow* window, InputHandler& handler);

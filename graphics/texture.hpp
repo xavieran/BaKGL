@@ -92,4 +92,9 @@ private:
 
 };
 
+class TextureAtlas
+{
+
+};
+
 }

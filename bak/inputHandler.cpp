@@ -48,13 +48,13 @@ void InputHandler::HandleMouseCallback(GLFWwindow* window, int button, int actio
         {
             double pointerX, pointerY;
             glfwGetCursorPos(window, &pointerX, &pointerY);
-            std::invoke(it->second.first, pointerX, pointerY);
+            std::invoke(it->second.first, glm::vec3{pointerX, pointerY, 0});
         }
         else if (action == GLFW_RELEASE)
         {
             double pointerX, pointerY;
             glfwGetCursorPos(window, &pointerX, &pointerY);
-            std::invoke(it->second.second, pointerX, pointerY);
+            std::invoke(it->second.second, glm::vec3{pointerX, pointerY, 0});
         }
     }
 }
@@ -79,9 +79,9 @@ void InputHandler::HandleMouseInput(GLFWwindow* window)
     for (const auto& keyVal : mMouseBindings)
     {
         if (glfwGetMouseButton(window, keyVal.first) == GLFW_PRESS)
-            std::invoke(keyVal.second.first, pointerX, pointerY);
+            std::invoke(keyVal.second.first, glm::vec3{pointerX, pointerY, 0});
         if (glfwGetMouseButton(window, keyVal.first) == GLFW_RELEASE)
-            std::invoke(keyVal.second.second, pointerX, pointerY);
+            std::invoke(keyVal.second.second, glm::vec3{pointerX, pointerY, 0});
     }
 }
 
