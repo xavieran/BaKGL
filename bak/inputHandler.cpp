@@ -7,6 +7,7 @@ void InputHandler::BindMouseToWindow(GLFWwindow* window, InputHandler& handler)
 {
     sHandler = &handler;
     glfwSetMouseButtonCallback(window, InputHandler::MouseAction);
+    glfwSetCursorPosCallback(window, InputHandler::MouseMotionAction);
 }
 
 void InputHandler::BindKeyboardToWindow(GLFWwindow* window, InputHandler& handler)
@@ -26,6 +27,11 @@ void InputHandler::BindMouse(int button, MouseCallback&& pressed, MouseCallback&
         std::make_pair(
             std::move(pressed),
             std::move(released)));
+}
+
+void InputHandler::BindMouseMotion(MouseCallback&& moved)
+{
+    mMouseMovedBinding = std::move(moved);
 }
 
 void InputHandler::HandleInput(GLFWwindow* window)
@@ -57,6 +63,12 @@ void InputHandler::HandleMouseCallback(GLFWwindow* window, int button, int actio
             std::invoke(it->second.second, glm::vec3{pointerX, pointerY, 0});
         }
     }
+}
+
+void InputHandler::HandleMouseMotionCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (mMouseMovedBinding)
+        std::invoke(mMouseMovedBinding, glm::vec3{xpos, ypos, 0});
 }
 
 void InputHandler::HandleKeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -91,11 +103,16 @@ void InputHandler::MouseAction(GLFWwindow* window, int button, int action, int m
     sHandler->HandleMouseCallback(window, button, action, mods);
 }
 
+void InputHandler::MouseMotionAction(GLFWwindow* window, double xpos, double ypos)
+{
+    assert(sHandler);
+    sHandler->HandleMouseMotionCallback(window, xpos, ypos);
+}
+
 void InputHandler::KeyboardAction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     assert(sHandler);
     sHandler->HandleKeyboardCallback(window, key, scancode, action, mods);
 }
-
 
 InputHandler* InputHandler::sHandler = nullptr;

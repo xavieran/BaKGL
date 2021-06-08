@@ -1,6 +1,7 @@
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/inputHandler.hpp"
+#include "bak/hotspot.hpp"
 #include "bak/logger.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
@@ -45,8 +46,8 @@ int main(int argc, char** argv)
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
 
-    auto width = 640.0f;
-    auto height = 480.0f;
+    auto width = 640.0f * 1;
+    auto height = 480.0f * 1;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(textures, "DIALOG.SCX", "OPTIONS.PAL");
     //BAK::TextureFactory::AddScreenToTextureStore(textures, "INVENTOR.SCX", "INVENTOR.PAL");
-    BAK::TextureFactory::AddToTextureStore(textures, "G_NORTHW.BMX", "G_NORTHW.PAL");
+    BAK::TextureFactory::AddToTextureStore(textures, "G_KRONDO.BMX", "G_KRONDO.PAL");
     unsigned off = 1; //textures.GetTextures().size();
     unsigned off2 = 1; //textures.GetTextures().size();
     //BAK::TextureFactory::AddToTextureStore(textures, "BICONS1.BMX", "OPTIONS.PAL");
@@ -88,30 +89,46 @@ int main(int argc, char** argv)
     auto& elements = frame.mChildren;
     elements.emplace_back(0, false, 0, 0, glm::vec3{0}, glm::vec3{320, 240, 0}); // background
     elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
-    for (unsigned i = 0; i < request.GetSize(); i++)
+    //for (unsigned i = 0; i < request.GetSize(); i++)
+    //{
+    //    auto data = request.GetRequestData(i);
+    //    switch (data.widget)
+    //    {
+    //    case REQ_USERDEFINED:
+    //    {
+    //        if (data.action != 1) break;
+    //        int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
+    //        int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+    //        //elements.emplace_back(data.action, false, data.image + 1, data.image + 1, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+    //    }
+    //        break;
+    //    case REQ_IMAGEBUTTON:
+    //    {
+    //        int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
+    //        int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+    //        elements.emplace_back(data.action, false, data.image + off, data.image + off2, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+    //    }
+    //        break;
+    //    default:
+    //        logger.Info() << "Unhandled: " << i << "\n";
+    //        break;
+    //    }
+    //}
+    auto gdsOff = textures.GetTextures().size();
+    BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "OPTIONS.PAL");
+    auto scene = BAK::SceneHotspots{};
+    auto fb = FileBufferFactory::CreateFileBuffer("GDS2A.DAT");
+    scene.Load(fb);
+
+    for (const auto& hs : scene.mHotspots)
     {
-        auto data = request.GetRequestData(i);
-        switch (data.widget)
-        {
-        case REQ_USERDEFINED:
-        {
-            if (data.action != 1) break;
-            int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-            //elements.emplace_back(data.action, false, data.image + 1, data.image + 1, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
-        }
-            break;
-        case REQ_IMAGEBUTTON:
-        {
-            int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-            elements.emplace_back(data.action, false, data.image + off, data.image + off2, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
-        }
-            break;
-        default:
-            logger.Info() << "Unhandled: " << i << "\n";
-            break;
-        }
+        auto pic = hs.mKeyword - 1;
+        auto pos = glm::vec3{hs.mTopLeft, 0} + elements[1].mPosition;
+        elements.emplace_back(0, false,
+            2,
+            pic + gdsOff,
+            glm::vec3{pos.x, pos.y, 0},
+            glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0});
     }
 
     Graphics::TextureBuffer textureBuffer{};
@@ -157,15 +174,19 @@ int main(int argc, char** argv)
     glm::mat4 modelMatrix{1.0f};
     glm::mat4 MVP{1};
 
+
     InputHandler inputHandler{};
+
     InputHandler::BindMouseToWindow(window.get(), inputHandler);
     InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
+
     inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 50.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -50.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-50.0/60, 0, 0}); });
     inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {50.0/60, 0, 0}); });
     inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
     inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
+
     inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT,
         [&](auto click)
         {
@@ -178,6 +199,13 @@ int main(int argc, char** argv)
             frame.MouseRelease(guiScaleInv * click);
         }
     );
+
+    inputHandler.BindMouseMotion(
+        [&](auto pos)
+        {
+            //logger.Debug() << pos << "\n";
+            frame.MouseMoved(guiScaleInv * pos);
+        });
 
     double currentTime = 0;
     double lastTime = 0;

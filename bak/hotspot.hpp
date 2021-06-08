@@ -55,6 +55,8 @@ public:
     // Which scene in the list of ADS/TTM tags is this?
     std::uint16_t mSceneIndex;
 
+    std::vector<Hotspot> mHotspots;
+
     void Load(FileBuffer& fb)
     {
         BAK::DialogStore dialogStore{};
@@ -136,6 +138,8 @@ public:
         {
             std::cout << hs << "\n";
         }
+
+        mHotspots = hotspots;
     }
 };
 
