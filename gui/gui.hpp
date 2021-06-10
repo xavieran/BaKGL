@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <unordered_map>
 
 namespace Gui {
 
@@ -93,8 +94,9 @@ class ScreenFactory
 
 class GDSScreen
 {
-    std::string_view mScreen  = "DIALOG.SCX";
-    std::string_view mBackground = "G_NORTHW.BMX";
+    Graphics::TextureStore mTextures;
+    std::unordered_map<unsigned, unsigned> mSlotToOffset;
+
 };
 
 }

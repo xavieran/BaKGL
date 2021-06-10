@@ -78,9 +78,9 @@ int main(int argc, char** argv)
         << " " << hotspots.mSceneIndex << "\n";
     auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneReference);
     auto scenes = BAK::LoadScenes(fb2);
-    const auto& scene = scenes[hotspots.mSceneIndex];
-    auto palette = scene.GetFirstAction<BAK::LoadPalette>().mPaletteName;
-    auto image = scene.GetFirstAction<BAK::LoadImage>().mImageName;
+    const auto& scene = scenes[hotspots.mSceneIndex - 1];
+    auto palette = "G_BKBAR2.PAL";//scene.GetFirstAction<BAK::LoadPalette>().mPaletteName;
+    auto image = "G_BKBAR2.BMX";//scene.GetFirstAction<BAK::LoadImage>().mImageName;
     std::cout << "tag: " << scene.mSceneTag << " pal: " 
         << palette << " img: " << image << "\n";
 

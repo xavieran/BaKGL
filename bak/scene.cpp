@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cctype>
 #include <functional>
+#include <unordered_map>
 
 namespace BAK {
 
@@ -96,51 +97,91 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
                 sep = ',';
             }
             std::cout << "]\n";
-            chunks.emplace_back(action, std::optional<std::string>{}, args);
+            chunks.emplace_back(
+                action,
+                std::optional<std::string>{},
+                args);
         }
     }
 
     std::vector<Scene> scenes{};
     Scene currentScene;
     bool loadingScene = false;
+    std::optional<unsigned> slot = 0;
+    std::unordered_map<unsigned, std::string> palettes{};
+    std::unordered_map<unsigned, std::string> images{};
+
 
     for (const auto& chunk : chunks)
     {
         switch (chunk.mAction)
         {
+        case Actions::SLOT_IMAGE: [[fallthrough]];
+        case Actions::SLOT_PALETTE:
+            slot = chunk.mArguments[0];
+            break;
         case Actions::SET_SCENE:
             if (loadingScene)
             {
                 scenes.emplace_back(currentScene);
                 assert(chunk.mResourceName);
+                slot = std::optional<unsigned>{};
                 currentScene.mSceneTag = *chunk.mResourceName;
                 currentScene.mActions = std::vector<SceneAction>{};
+                currentScene.mPalettes = palettes;
+                currentScene.mImages = images;
             }
             else
             {
                 loadingScene = true;
                 assert(chunk.mResourceName);
+                slot = std::optional<unsigned>{};
                 currentScene.mSceneTag = *chunk.mResourceName;
                 currentScene.mActions = std::vector<SceneAction>{};
+                currentScene.mPalettes = palettes;
+                currentScene.mImages = images;
             }
             break;
         case Actions::LOAD_PALETTE:
             assert(loadingScene);
             assert(chunk.mResourceName);
-            currentScene.mActions.emplace_back(
-                LoadPalette{*chunk.mResourceName});
+            assert(slot);
+            palettes.emplace(*slot, *chunk.mResourceName);
             break;
         case Actions::LOAD_IMAGE:
         {
             assert(loadingScene);
             assert(chunk.mResourceName);
+            assert(slot);
             auto name = *chunk.mResourceName;
             (*(name.end() - 1)) = 'X';
             std::cout << "BMX: " << name << "\n";
-            currentScene.mActions.emplace_back(
-                LoadImage{name});
+            images.emplace(*slot, name);
         }
             break;
+        case Actions::DRAW_SPRITE0:
+            currentScene.mActions.emplace_back(
+                DrawSprite0{
+                    false,
+                    chunk.mArguments[0],
+                    chunk.mArguments[1],
+                    chunk.mArguments[2],
+                    chunk.mArguments[3],
+                    0,
+                    0});
+            break;
+        case Actions::DRAW_SPRITE_FLIP:
+            currentScene.mActions.emplace_back(
+                DrawSprite0{
+                    true,
+                    chunk.mArguments[0],
+                    chunk.mArguments[1],
+                    chunk.mArguments[2],
+                    chunk.mArguments[3],
+                    0,
+                    0});
+            break;
+
         default:
             logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
             break;

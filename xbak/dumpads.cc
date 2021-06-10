@@ -34,15 +34,14 @@ int main(int argc, char *argv[])
 {
     try
     {
-        if (argc != 3)
+        if (argc != 2)
         {
-            std::cerr << "Usage: " << argv[0] << " <ADS-file>" << " <TagIndex>" << std::endl;
+            std::cerr << "Usage: " << argv[0] << " <ADS-file>" << std::endl;
             return 1;
         }
         AnimationResource *anim = new AnimationResource;
         FileManager::GetInstance()->Load(anim, argv[1]);
-        unsigned index = std::atoi(argv[2]);
-        AnimationData data = anim->GetAnimationData(index);
+        AnimationData data = anim->GetAnimationData(0);
         printf("%s %s %s\n", anim->GetVersion().c_str(), data.name.c_str(), data.resource.c_str());
         FileBuffer *scr = anim->GetScript();
         scr->Rewind();
@@ -50,36 +49,57 @@ int main(int argc, char *argv[])
         {
             unsigned int code = scr->GetUint16LE();
             printf("%04x ", code);
-            switch (code)
+            if (code < 0xff)
             {
-            case 0x0001:
-                break;
-            case 0x1030:
-                printf(" %d %d", scr->GetUint16LE(), scr->GetUint16LE());
-                break;
-            case 0x1330:
-                printf(" %d %d", scr->GetUint16LE(), scr->GetUint16LE());
-                break;
-            case 0x1350:
-                printf(" %d %d", scr->GetUint16LE(), scr->GetUint16LE());
-                break;
-            case 0x1420:
-                break;
-            case 0x1510:
-                break;
-            case 0x1520:
-                break;
-            case 0x2005:
-                printf(" %d %d %d %d", scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE());
-                break;
-            case 0x2010:
-                printf(" %d %d %d", scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE());
-                break;
-            case 0xffff:
-                break;
-            default:
-                printf(" unknown");
-                break;
+                printf("Index: %d", code);
+            }
+            else
+            {
+                switch (code)
+                {
+                case 0x1030:
+                    printf(" %d %d", scr->GetUint16LE(), scr->GetUint16LE());
+                    break;
+                case 0x1330:
+                    printf("IF NOT PLAYED %d %d", scr->GetUint16LE(), scr->GetUint16LE());
+                    break;
+                case 0x1350:
+                    printf("IF PLAYED %d %d", scr->GetUint16LE(), scr->GetUint16LE());
+                    break;
+                case 0x1420:
+                    printf("AND");
+                    break;
+                case 0x1430:
+                    printf("OR");
+                    break;
+                case 0x1510: 
+                    printf("PLAY_SCENE");
+                    break;
+                case 0x1520:
+                    printf("PLAY_SCENE2");
+                    break;
+                case 0x2000:
+                    printf("ADD SCENE ?? %d %d %d %d", scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE());
+                    break;
+                case 0x2005:
+                    printf("ADD SCENE %d %d %d %d", scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE());
+                    break;
+                case 0x2010:
+                    printf("STOP SCENE %d %d %d", scr->GetUint16LE(), scr->GetUint16LE(), scr->GetUint16LE());
+                    break;
+                case 0xf010:
+                    printf("FADE OUT");
+                    break;
+                case 0xfff0:
+                    printf("ENDIF");
+                    break;
+                case 0xffff:
+                    printf("END");
+                    break;
+                default:
+                    printf(" unknown");
+                    break;
+                }
             }
             printf("\n");
         }

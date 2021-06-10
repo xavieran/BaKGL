@@ -24,33 +24,33 @@ enum class Actions
     SLOT_IMAGE          = 0x1050,
     SLOT_PALETTE        = 0x1060,
     SLOT_UNKNOWN        = 0x1070,
-    SET_SCENEA          = 0x1100,
-    SET_SCENE           = 0x1110,
-    SET_SCENEB          = 0x1120,
-    SET_SCENEC          = 0x1200,
-    SET_FRAME0          = 0x2000,
-    SET_FRAME1          = 0x2010,
+    SET_SCENEA          = 0x1100, // Local taG?
+    SET_SCENE           = 0x1110, // TAG??
+    SET_SCENEB          = 0x1120, // SET BACKGROUND
+    SET_SCENEC          = 0x1200, // GOTO TAG
+    SET_COLORS          = 0x2000, // SET_COLORS
+    SET_FRAME1          = 0x2010, 
     UNKNOWN3            = 0x2300,
     UNKNOWN6            = 0x2310,
     UNKNOWN7            = 0x2320,
     UNKNOWN4            = 0x2400,
-    UNKNOWN1            = 0x4000,
+    SET_CLIP_REGION     = 0x4000, // SET_CLIP_REGION
     FADE_OUT            = 0x4110,
     FADE_IN             = 0x4120,
-    SAVE_IMAGE0         = 0x4200,
-    SAVE_IMAGE1         = 0x4210,
+    SAVE_IMAGE0         = 0x4200, // DRAW_BACKGROUND_REGION
+    SAVE_IMAGE1         = 0x4210, // SAVE_IMIAGE_REGION
     SET_UNKNOWN         = 0xa090,
     SET_WINDOWA         = 0xa010,
     SET_WINDOWB         = 0xa030,
-    SET_WINDOWC         = 0xa0b0,
-    SET_WINDOW          = 0xa100,
-    UNKNOWN5            = 0xa110,
+    SET_WINDOWC         = 0xa0b0, // draw line?
+    DRAW_RECT           = 0xa100,
+    UNKNOWN5            = 0xa110, 
     DRAW_SPRITE0        = 0xa500,
     DRAW_SPRITE1        = 0xa510,
-    DRAW_SPRITE2        = 0xa520,
+    DRAW_SPRITE_FLIP    = 0xa520,
     DRAW_SPRITE3        = 0xa530,
     DRAW_SPRITEA        = 0xa5a0,
-    DRAW_SPRITEB        = 0xa600,
+    DRAW_SPRITEB        = 0xa600, // CLEAR_SCREEN
     DRAW_SCREEN         = 0xb600,
     LOAD_SOUND_RESOURCE = 0xc020,
     SELECT_SOUND        = 0xc030,
@@ -74,49 +74,37 @@ struct SetScene
 
 std::ostream& operator<<(std::ostream&, const SetScene&);
 
-struct SlotPalette
-{
-    std::int16_t mSlot;
-};
-
-struct LoadPalette
-{ 
-    std::string mPaletteName;
-};
-
 struct LoadScreen
 { 
     std::string mScreenName;
 };
 
-struct SlotImage
-{ 
-    std::int16_t mSlot;
+// Don't draw outside this region
+struct SetClipRegion
+{
+    std::int16_t mTLX;
+    std::int16_t mTLY;
+    std::int16_t mBRX;
+    std::int16_t mBRY;
 };
 
-struct LoadImage
+struct DrawRect
 {
-    std::string mImageName;
+    std::int16_t mTLX;
+    std::int16_t mTLY;
+    std::int16_t mBRX;
+    std::int16_t mBRY;
 };
 
 struct DrawSprite0
 {
+    bool mFlippedInY;
     std::int16_t mX;
     std::int16_t mY;
     std::int16_t mSpriteIndex;
     std::int16_t mImageSlot;
-};
-
-// DrawSprite1 ??
-
-struct DrawSprite2
-{
-    std::int16_t mX;
-    std::int16_t mY;
-    std::int16_t mSpriteIndex;
-    std::int16_t mImageSlot;
-    std::int16_t mNotSure1;
-    std::int16_t mNotSure2;
+    std::int16_t mWidth;
+    std::int16_t mHeight;
 };
 
 struct PlaySound
@@ -151,11 +139,11 @@ struct Delay
     std::uint16_t mDelayMs; // units??
 };
 
-struct SetFrame0
+struct SetColors
 {
-    // Not sure on these values
-    std::uint16_t mX;
-    std::uint16_t mY;
+    unsigned mSlot; // which slot palette to pull colors from
+    std::uint16_t mForegroundColor;
+    std::uint16_t mBackgroundColor;
 };
 
 struct FadeOut
@@ -168,24 +156,19 @@ struct Purge
     
 };
 
-using SceneAction = std::variant<
-    SetScene,
-    SlotPalette,
-    LoadPalette,
+using SceneAction = DrawSprite0; 
+/*std::variant<
     LoadScreen,
-    SlotImage,
-    LoadImage,
     DrawSprite0,
-    DrawSprite2,
-    PlaySound,
-    Update,
-    SaveImage,
-    SetWindow,
-    Delay,
-    SetFrame0,
-    FadeOut,
-    Purge>;
-
+    DrawRect,
+    //PlaySound,
+    Update>;
+    //SaveImage,
+    //Delay,
+    //SetFrame0,
+    //FadeOut,
+    //Purge>;
+*/
 }
 
 

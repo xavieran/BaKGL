@@ -6,6 +6,7 @@
 
 #include <optional>
 #include <vector>
+#include <unordered_map>
 
 namespace BAK {
 
@@ -20,6 +21,8 @@ struct Scene
 {
     std::string mSceneTag;
     std::vector<SceneAction> mActions;
+    std::unordered_map<unsigned, std::string> mPalettes;
+    std::unordered_map<unsigned, std::string> mImages;
 
     template <typename T>
     const T& GetFirstAction() const

@@ -24,7 +24,7 @@ std::string_view ToString(Actions a)
     case Actions::SET_SCENEA: return "SETSCENEA";
     case Actions::SET_SCENEB: return "SETSCENEB";
     case Actions::SET_SCENEC: return "SETSCENEC";
-    case Actions::SET_FRAME0: return "SetFrame0";
+    case Actions::SET_COLORS: return "SetColors";
     case Actions::SET_FRAME1: return "SetFrame1";
     case Actions::FADE_OUT: return "FadeOut";
     case Actions::FADE_IN: return "FadeIn";
@@ -34,10 +34,10 @@ std::string_view ToString(Actions a)
     case Actions::SET_WINDOWA: return "SETWINDOWA";
     case Actions::SET_WINDOWB: return "SETWINDOWB";
     case Actions::SET_WINDOWC: return "SETWINDOWC";
-    case Actions::SET_WINDOW: return "SetWindow";
+    case Actions::DRAW_RECT: return "DrawRect";
     case Actions::DRAW_SPRITE0: return "DrawSprite0";
     case Actions::DRAW_SPRITE1: return "DrawSprite1";
-    case Actions::DRAW_SPRITE2: return "DrawSprite2";
+    case Actions::DRAW_SPRITE_FLIP: return "DrawSpriteFlip";
     case Actions::DRAW_SPRITE3: return "DrawSprite3";
     case Actions::DRAW_SPRITEA: return "DRAWSPRITEA";
     case Actions::DRAW_SPRITEB: return "DRAWSPRITEB";
@@ -51,7 +51,7 @@ std::string_view ToString(Actions a)
     case Actions::LOAD_IMAGE: return "LoadImage";
     case Actions::LOAD_PALETTE: return "LoadPalette";
     case Actions::LOAD_UNKNOWN: return "LOAD_UNKNOWN";
-    case Actions::UNKNOWN1: return "UNKNOWN1";
+    case Actions::SET_CLIP_REGION: return "SetClipRegion";
     case Actions::UNKNOWN_A: return "UNKNOWN_A";
     case Actions::UNKNOWN3: return "UNKNOWN3";
     case Actions::UNKNOWN4: return "UNKNOWN4";
