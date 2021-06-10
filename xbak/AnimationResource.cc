@@ -105,14 +105,13 @@ AnimationResource::Load(FileBuffer *buffer)
         {
             unsigned int id = resbuf->GetUint16LE();
             std::string resource = resbuf->GetString();
-            std::cout << "Resource: " << resource << " id: " << id << "\n";
             std::string name;
             if (tags.Find(id, name))
             {
                 AnimationData data;
                 data.name = name;
                 data.resource = resource;
-                std::cout << "ID: " << id << " " << name << "\n";
+                std::cout << "ID: " << id << " " << name << " res: " << resource << "\n";
                 animationMap.insert(std::make_pair(id, data));
             }
             else

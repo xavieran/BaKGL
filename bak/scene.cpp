@@ -12,11 +12,23 @@
 
 namespace BAK {
 
+std::ostream& operator<<(std::ostream& os, const Scene& scene)
+{
+    os << "Scene :: " << scene.mSceneTag << " [";
+    auto sep = ' ';
+    //for (const auto& a : scene.mActions)
+    //{
+    //    os << sep << a;
+    //}
+    os << " ]";
+    return os;
+}
+
 std::vector<Scene> LoadScenes(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
-    std::vector<Scene> scenes{};
+    std::vector<SceneChunk> chunks;
 
     fb.DumpAndSkip(20);
 
@@ -46,8 +58,9 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
         unsigned int code = decompBuffer.GetUint16LE();
         unsigned int size = code & 0x000f;
         code &= 0xfff0;
+        auto action = static_cast<Actions>(code);
         logger.Debug() << "Code: " << std::hex << code << " " 
-            << static_cast<Actions>(code) << " sz: "
+            << action << " sz: "
             << std::dec << size << "\n";
         
         if ((code == 0x1110) && (size == 1))
@@ -57,30 +70,85 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
             if (tags.Find(id, name))
             {
                 logger.Debug() << "Name: " << name <<"\n";
+                chunks.emplace_back(action, name, std::vector<std::int16_t>{});
             }
         }
         else if (size == 0xf)
         {
-            auto name = decompBuffer.GetString();
-            //std::transform(name.begin(), name.end(), name.begin(), std::toupper);
+            std::string name = decompBuffer.GetString();
+            std::transform(name.begin(), name.end(), name.begin(), [](auto c){ return std::toupper(c); });
             logger.Debug() << "Name: " << name <<"\n";
             if (decompBuffer.GetBytesLeft() & 1)
-                decompBuffer.Skip(1);
+                decompBuffer.DumpAndSkip(1);
+            chunks.emplace_back(action, name, std::vector<std::int16_t>{});
         }
         else
         {
             std::stringstream ss{};
+            std::vector<std::int16_t> args{};
             for (unsigned int i = 0; i < size; i++)
-                ss << " " << decompBuffer.GetSint16LE();
-            logger.Debug() << ss.str() << "\n";
-
-               //mc->data.push_back(decompBuffer.GetSint16LE());
+                args.emplace_back(decompBuffer.GetSint16LE());
+            std::cout << "args [ ";
+            auto sep = ' ';
+            for (const auto& a : args)
+            {
+                std::cout << sep << a;
+                sep = ',';
+            }
+            std::cout << "]\n";
+            chunks.emplace_back(action, std::optional<std::string>{}, args);
         }
-
     }
 
-    //for (const auto& scene : scenes)
-    //    std::cout << "Scene: " << scene.mScene << "\n";
+    std::vector<Scene> scenes{};
+    Scene currentScene;
+    bool loadingScene = false;
+
+    for (const auto& chunk : chunks)
+    {
+        switch (chunk.mAction)
+        {
+        case Actions::SET_SCENE:
+            if (loadingScene)
+            {
+                scenes.emplace_back(currentScene);
+                assert(chunk.mResourceName);
+                currentScene.mSceneTag = *chunk.mResourceName;
+                currentScene.mActions = std::vector<SceneAction>{};
+            }
+            else
+            {
+                loadingScene = true;
+                assert(chunk.mResourceName);
+                currentScene.mSceneTag = *chunk.mResourceName;
+                currentScene.mActions = std::vector<SceneAction>{};
+            }
+            break;
+        case Actions::LOAD_PALETTE:
+            assert(loadingScene);
+            assert(chunk.mResourceName);
+            currentScene.mActions.emplace_back(
+                LoadPalette{*chunk.mResourceName});
+            break;
+        case Actions::LOAD_IMAGE:
+        {
+            assert(loadingScene);
+            assert(chunk.mResourceName);
+            auto name = *chunk.mResourceName;
+            (*(name.end() - 1)) = 'X';
+            std::cout << "BMX: " << name << "\n";
+            currentScene.mActions.emplace_back(
+                LoadImage{name});
+        }
+            break;
+        default:
+            logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
+            break;
+        }
+    }
+
+    for (const auto& s : scenes)
+        std::cout << "Scene: " << s << "\n";
 
     return scenes;
 }

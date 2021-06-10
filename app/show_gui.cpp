@@ -4,6 +4,8 @@
 #include "bak/hotspot.hpp"
 #include "bak/logger.hpp"
 #include "bak/screens.hpp"
+#include "bak/scene.hpp"
+#include "bak/sceneData.hpp"
 #include "bak/systems.hpp"
 #include "bak/textureFactory.hpp"
 
@@ -68,15 +70,23 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
     
+    auto hotspots = BAK::SceneHotspots{};
+    auto fb = FileBufferFactory::CreateFileBuffer(argv[1]);
+    hotspots.Load(fb);
+    
+    std::cout << "SceneRef: " << hotspots.mSceneReference
+        << " " << hotspots.mSceneIndex << "\n";
+    auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneReference);
+    auto scenes = BAK::LoadScenes(fb2);
+    const auto& scene = scenes[hotspots.mSceneIndex];
+    auto palette = scene.GetFirstAction<BAK::LoadPalette>().mPaletteName;
+    auto image = scene.GetFirstAction<BAK::LoadImage>().mImageName;
+    std::cout << "tag: " << scene.mSceneTag << " pal: " 
+        << palette << " img: " << image << "\n";
+
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(textures, "DIALOG.SCX", "OPTIONS.PAL");
-    //BAK::TextureFactory::AddScreenToTextureStore(textures, "INVENTOR.SCX", "INVENTOR.PAL");
-    BAK::TextureFactory::AddToTextureStore(textures, "G_KRONDO.BMX", "G_KRONDO.PAL");
-    unsigned off = 1; //textures.GetTextures().size();
-    unsigned off2 = 1; //textures.GetTextures().size();
-    //BAK::TextureFactory::AddToTextureStore(textures, "BICONS1.BMX", "OPTIONS.PAL");
-    //unsigned off2 = textures.GetTextures().size();
-    //BAK::TextureFactory::AddToTextureStore(textures, "BICONS2.BMX", "OPTIONS.PAL");
+    BAK::TextureFactory::AddToTextureStore(textures, image, palette);
 
     RequestResource request;
     FileManager::GetInstance()->Load(&request, "REQ_GDS.DAT");
@@ -89,38 +99,10 @@ int main(int argc, char** argv)
     auto& elements = frame.mChildren;
     elements.emplace_back(0, false, 0, 0, glm::vec3{0}, glm::vec3{320, 240, 0}); // background
     elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
-    //for (unsigned i = 0; i < request.GetSize(); i++)
-    //{
-    //    auto data = request.GetRequestData(i);
-    //    switch (data.widget)
-    //    {
-    //    case REQ_USERDEFINED:
-    //    {
-    //        if (data.action != 1) break;
-    //        int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-    //        int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-    //        //elements.emplace_back(data.action, false, data.image + 1, data.image + 1, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
-    //    }
-    //        break;
-    //    case REQ_IMAGEBUTTON:
-    //    {
-    //        int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-    //        int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-    //        elements.emplace_back(data.action, false, data.image + off, data.image + off2, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
-    //    }
-    //        break;
-    //    default:
-    //        logger.Info() << "Unhandled: " << i << "\n";
-    //        break;
-    //    }
-    //}
     auto gdsOff = textures.GetTextures().size();
     BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "OPTIONS.PAL");
-    auto scene = BAK::SceneHotspots{};
-    auto fb = FileBufferFactory::CreateFileBuffer("GDS2A.DAT");
-    scene.Load(fb);
 
-    for (const auto& hs : scene.mHotspots)
+    for (const auto& hs : hotspots.mHotspots)
     {
         auto pic = hs.mKeyword - 1;
         auto pos = glm::vec3{hs.mTopLeft, 0} + elements[1].mPosition;

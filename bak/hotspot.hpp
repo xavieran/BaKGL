@@ -10,6 +10,7 @@
 
 #include <glm/glm.hpp>
 
+#include <cctype>
 #include <string_view>
 
 namespace BAK {
@@ -51,7 +52,8 @@ std::ostream& operator<<(std::ostream&, const Hotspot&);
 class SceneHotspots
 {
 public:
-    std::string mPrefix;
+    // What ADS file to go to
+    std::string mSceneReference;
     // Which scene in the list of ADS/TTM tags is this?
     std::uint16_t mSceneIndex;
 
@@ -76,15 +78,16 @@ public:
 
         auto length = fb.GetUint16LE();
         std::cout << "Length: " << length << std::endl;
-        mPrefix = fb.GetString(6);
-        std::cout << "Prefix: " << mPrefix << std::endl;
+        mSceneReference = fb.GetString(6) + ".TTM";
+        std::transform(mSceneReference.begin(), mSceneReference.end(), mSceneReference.begin(), [](auto c){ return std::toupper(c); });
+        std::cout << "Scene Ref: " << mSceneReference << std::endl;
 
         fb.DumpAndSkip(4);
         fb.DumpAndSkip(2);
         fb.DumpAndSkip(4);
-        fb.DumpAndSkip(4); // Some kind of addr?
-        fb.DumpAndSkip(5); // Not sure
+        fb.DumpAndSkip(5); // Some kind of addr?
         mSceneIndex = fb.GetUint16LE();
+        fb.DumpAndSkip(4); // Not sure
         std::cout << "Scene index: " << mSceneIndex << "\n";
         auto numHotSpots = fb.GetUint16LE(); 
         std::uint32_t flavourText = fb.GetUint32LE(); 

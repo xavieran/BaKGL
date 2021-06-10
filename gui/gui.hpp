@@ -100,3 +100,29 @@ class GDSScreen
 }
 
 
+
+//for (unsigned i = 0; i < request.GetSize(); i++)
+    //{
+    //    auto data = request.GetRequestData(i);
+    //    switch (data.widget)
+    //    {
+    //    case REQ_USERDEFINED:
+    //    {
+    //        if (data.action != 1) break;
+    //        int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
+    //        int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+    //        //elements.emplace_back(data.action, false, data.image + 1, data.image + 1, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+    //    }
+    //        break;
+    //    case REQ_IMAGEBUTTON:
+    //    {
+    //        int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
+    //        int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+    //        elements.emplace_back(data.action, false, data.image + off, data.image + off2, glm::vec3{x, y, 0}, glm::vec3{data.width, data.height, 0});
+    //    }
+    //        break;
+    //    default:
+    //        logger.Info() << "Unhandled: " << i << "\n";
+    //        break;
+    //    }
+    //}
