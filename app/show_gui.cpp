@@ -48,8 +48,8 @@ int main(int argc, char** argv)
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
 
-    auto width = 640.0f * 1;
-    auto height = 480.0f * 1;
+    auto width = 640.0f * 2;
+    auto height = 480.0f * 2;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
     glViewport(0, 0, width, height);
 
     ImguiWrapper::Initialise(window.get());
-    
+
     // Dark blue background
     glClearColor(0.0f, 0.0f, 0.0, 0.0f);
 
@@ -69,28 +69,38 @@ int main(int argc, char** argv)
         "gui.vert.glsl",
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
-    
+
     auto hotspots = BAK::SceneHotspots{};
     auto fb = FileBufferFactory::CreateFileBuffer(argv[1]);
     hotspots.Load(fb);
-    
-    std::cout << "SceneRef: " << hotspots.mSceneReference
-        << " " << hotspots.mSceneIndex << "\n";
+
     auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneReference);
     auto scenes = BAK::LoadScenes(fb2);
-    const auto& scene = scenes[hotspots.mSceneIndex - 1];
-    auto palette = "G_BKBAR2.PAL";//scene.GetFirstAction<BAK::LoadPalette>().mPaletteName;
-    auto image = "G_BKBAR2.BMX";//scene.GetFirstAction<BAK::LoadImage>().mImageName;
-    std::cout << "tag: " << scene.mSceneTag << " pal: " 
-        << palette << " img: " << image << "\n";
+    //const auto& scene = scenes[hotspots.mSceneIndex];
+    const auto& scene = scenes[std::atoi(argv[2])];
+    std::cout << "SceneRef: " << hotspots.mSceneReference
+        << " " << hotspots.mSceneIndex << "\n"
+        << scene << "\n";
 
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(textures, "DIALOG.SCX", "OPTIONS.PAL");
-    BAK::TextureFactory::AddToTextureStore(textures, image, palette);
+    std::unordered_map<unsigned, unsigned> offsets;
+    for (const auto& [key, imagePal] : scene.mImages)
+    {
+        const auto& [image, palKey] = imagePal;
+        const auto& palette = scene.mPalettes.find(palKey)->second;
+        offsets[key] = textures.GetTextures().size();
+        std::cout << "K: " << key << " img; " << image << " Pal: "
+            << palette << " off: "  << offsets[key] << "\n";
+        BAK::TextureFactory::AddToTextureStore(
+                textures,
+                image,
+                palette);
+    }
 
     RequestResource request;
     FileManager::GetInstance()->Load(&request, "REQ_GDS.DAT");
-    logger.Info() << request << "\n";
+    //logger.Info() << request << "\n";
 
     auto frame = Gui::Frame{
         glm::vec3{0,0,0},
@@ -98,7 +108,19 @@ int main(int argc, char** argv)
 
     auto& elements = frame.mChildren;
     elements.emplace_back(0, false, 0, 0, glm::vec3{0}, glm::vec3{320, 240, 0}); // background
-    elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
+    //elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
+    for (const auto& action : scene.mActions)
+    {
+        const auto sprite = action.mSpriteIndex + offsets[action.mImageSlot];
+        elements.emplace_back(
+            0,
+            false,
+            sprite,
+            sprite,
+            glm::vec3{action.mX, action.mY, 0},
+            glm::vec3{action.mWidth, action.mHeight, 0});
+
+    }
     auto gdsOff = textures.GetTextures().size();
     BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "OPTIONS.PAL");
 
@@ -107,7 +129,7 @@ int main(int argc, char** argv)
         auto pic = hs.mKeyword - 1;
         auto pos = glm::vec3{hs.mTopLeft, 0} + elements[1].mPosition;
         elements.emplace_back(0, false,
-            2,
+            gdsOff,
             pic + gdsOff,
             glm::vec3{pos.x, pos.y, 0},
             glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0});

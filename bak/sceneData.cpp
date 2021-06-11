@@ -55,7 +55,7 @@ std::string_view ToString(Actions a)
     case Actions::UNKNOWN_A: return "UNKNOWN_A";
     case Actions::UNKNOWN3: return "UNKNOWN3";
     case Actions::UNKNOWN4: return "UNKNOWN4";
-    case Actions::UNKNOWN5: return "UNKNOWN5";
+    case Actions::DRAW_FRAME: return "DrawFrame";
     case Actions::UNKNOWN6: return "UNKNOWN6";
     case Actions::UNKNOWN7: return "UNKNOWN7";
     default:
@@ -74,9 +74,18 @@ std::ostream& operator<<(std::ostream& os, Actions a)
 
 std::ostream& operator<<(std::ostream& os, const SetScene& ss)
 {
-    os << "SetScene{" << ss.mSceneNumber << " " << ss.mName << "}";
+    os << "SetScene {" << ss.mSceneNumber << " " << ss.mName << "}";
     return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const DrawSprite0& a)
+{
+    os << a.mFlippedInY << " Pos { " << a.mX << ", " << a.mY
+        << "} Sprite: " << a.mSpriteIndex << " imgSlot: " << a.mImageSlot
+        << " Dims { " << a.mWidth << ", " << a.mHeight << " }";
+    return os;
+}
+
 
 }
 

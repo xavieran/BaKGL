@@ -44,7 +44,7 @@ enum class Actions
     SET_WINDOWB         = 0xa030,
     SET_WINDOWC         = 0xa0b0, // draw line?
     DRAW_RECT           = 0xa100,
-    UNKNOWN5            = 0xa110, 
+    DRAW_FRAME          = 0xa110, 
     DRAW_SPRITE0        = 0xa500,
     DRAW_SPRITE1        = 0xa510,
     DRAW_SPRITE_FLIP    = 0xa520,
@@ -106,6 +106,8 @@ struct DrawSprite0
     std::int16_t mWidth;
     std::int16_t mHeight;
 };
+
+std::ostream& operator<<(std::ostream&, const DrawSprite0&);
 
 struct PlaySound
 {

@@ -85,8 +85,6 @@ void ImageResource::Load ( FileBuffer *buffer )
             Image *img = new Image ( width, height, flags );
             images.push_back ( img );
         }
-        std::cout << "cmp: " << compression << " imgs: " << numImages
-            << " size " << size << "\n";
         if (compression == 1)
         {
             // Not sure why this is needed or if *2 is the right number
