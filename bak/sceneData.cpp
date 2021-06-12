@@ -82,7 +82,7 @@ std::ostream& operator<<(std::ostream& os, const DrawSprite0& a)
 {
     os << a.mFlippedInY << " Pos { " << a.mX << ", " << a.mY
         << "} Sprite: " << a.mSpriteIndex << " imgSlot: " << a.mImageSlot
-        << " Dims { " << a.mWidth << ", " << a.mHeight << " }";
+        << " Dims { " << a.mTargetWidth << ", " << a.mTargetHeight << " }";
     return os;
 }
 

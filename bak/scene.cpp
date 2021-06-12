@@ -52,8 +52,6 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
     tt3Buffer.Skip(1);
     FileBuffer decompBuffer = FileBuffer(tt3Buffer.GetUint32LE());
     auto decomped = tt3Buffer.DecompressRLE(&decompBuffer);
-    std::cout << "Decompressed size:" << decomped << "\n";
-    decompBuffer.Dump(decomped);
     ResourceTag tags;
     tags.Load(&tagBuffer);
 
@@ -69,8 +67,7 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
         code &= 0xfff0;
         auto action = static_cast<Actions>(code);
         logger.Debug() << "Code: " << std::hex << code << " " 
-            << action << " sz: "
-            << std::dec << size << "\n";
+            << action << std::dec << " ";
         
         if ((code == 0x1110) && (size == 1))
         {
@@ -85,7 +82,8 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
         else if (size == 0xf)
         {
             std::string name = decompBuffer.GetString();
-            std::transform(name.begin(), name.end(), name.begin(), [](auto c){ return std::toupper(c); });
+            std::transform(name.begin(), name.end(), name.begin(),
+                [](auto c){ return std::toupper(c); });
             logger.Debug() << "Name: " << name <<"\n";
             if (decompBuffer.GetBytesLeft() & 1)
                 decompBuffer.DumpAndSkip(1);
@@ -178,6 +176,8 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
             break;
         case Actions::DRAW_SPRITE1: [[fallthrough]];
         case Actions::DRAW_SPRITE0:
+        {
+            const auto scaled = chunk.mArguments.size() == 6;
             currentScene.mActions.emplace_back(
                 DrawSprite0{
                     false,
@@ -185,10 +185,13 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
                     chunk.mArguments[1],
                     chunk.mArguments[2],
                     chunk.mArguments[3],
-                    0,
-                    0});
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0),
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[6] : 0)});
+        }
             break;
         case Actions::DRAW_SPRITE_FLIP:
+        {
+            const auto scaled = chunk.mArguments.size() >= 5;
             currentScene.mActions.emplace_back(
                 DrawSprite0{
                     true,
@@ -196,8 +199,9 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
                     chunk.mArguments[1],
                     chunk.mArguments[2],
                     chunk.mArguments[3],
-                    0,
-                    0});
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0),
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[6] : 0)});
+        }
             break;
 
         default:

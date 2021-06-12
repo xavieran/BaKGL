@@ -103,8 +103,8 @@ struct DrawSprite0
     std::int16_t mY;
     std::int16_t mSpriteIndex;
     std::int16_t mImageSlot;
-    std::int16_t mWidth;
-    std::int16_t mHeight;
+    std::int16_t mTargetWidth;
+    std::int16_t mTargetHeight;
 };
 
 std::ostream& operator<<(std::ostream&, const DrawSprite0&);

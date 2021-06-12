@@ -48,8 +48,8 @@ int main(int argc, char** argv)
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
 
-    auto width = 640.0f * 2;
-    auto height = 480.0f * 2;
+    auto width = 640.0f * 1;
+    auto height = 480.0f * 1;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
@@ -100,25 +100,34 @@ int main(int argc, char** argv)
 
     RequestResource request;
     FileManager::GetInstance()->Load(&request, "REQ_GDS.DAT");
-    //logger.Info() << request << "\n";
 
     auto frame = Gui::Frame{
         glm::vec3{0,0,0},
         glm::vec3{320, 240, 0}};
 
     auto& elements = frame.mChildren;
-    elements.emplace_back(0, false, 0, 0, glm::vec3{0}, glm::vec3{320, 240, 0}); // background
+    elements.emplace_back(0, false, 0, 0, glm::vec3{0}, glm::vec3{320, 240, 0}, glm::vec3{1,1,0}); // background
     //elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
     for (const auto& action : scene.mActions)
     {
         const auto sprite = action.mSpriteIndex + offsets[action.mImageSlot];
+        const auto tex = textures.GetTexture(sprite);
+        auto scale = glm::vec3{1,1,1};
+        if (action.mTargetWidth != 0)
+        {
+            scale.x = tex.GetWidth() / static_cast<float>(action.mTargetWidth);
+            scale.y = tex.GetWidth() / static_cast<float>(action.mTargetWidth);
+        }
+        //if (action.mTargetHeight != 0) 
+        if (action.mFlippedInY) scale.x *= -1;
         elements.emplace_back(
             0,
             false,
             sprite,
             sprite,
             glm::vec3{action.mX, action.mY, 0},
-            glm::vec3{action.mWidth, action.mHeight, 0});
+            glm::vec3{action.mTargetWidth, action.mTargetHeight, 0},
+            scale);
 
     }
     auto gdsOff = textures.GetTextures().size();
@@ -132,7 +141,8 @@ int main(int argc, char** argv)
             gdsOff,
             pic + gdsOff,
             glm::vec3{pos.x, pos.y, 0},
-            glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0});
+            glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0},
+            glm::vec3{1,1,1});
     }
 
     Graphics::TextureBuffer textureBuffer{};
@@ -260,9 +270,10 @@ int main(int argc, char** argv)
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
-        for (const auto& [action, pressed, image, pImage, pos, dim] : elements)
+        for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
         {
             modelMatrix = glm::translate(glm::mat4{1}, pos);
+            modelMatrix = glm::scale(glm::mat4{1}, scale) * modelMatrix;
             MVP = viewMatrix * scaleMatrix * modelMatrix;
 
             glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));

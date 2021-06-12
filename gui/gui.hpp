@@ -46,6 +46,7 @@ struct GuiElement
     unsigned mPressedImage;
     glm::vec3 mPosition;
     glm::vec3 mDims;
+    glm::vec3 mScale;
 };
 
 class Frame
