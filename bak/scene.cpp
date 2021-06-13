@@ -102,7 +102,7 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
                 std::cout << sep << a;
                 sep = ',';
             }
-            std::cout << "]\n";
+            std::cout << " ]\n";
             chunks.emplace_back(
                 action,
                 std::optional<std::string>{},
@@ -177,7 +177,7 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
         case Actions::DRAW_SPRITE1: [[fallthrough]];
         case Actions::DRAW_SPRITE0:
         {
-            const auto scaled = chunk.mArguments.size() == 6;
+            const auto scaled = chunk.mArguments.size() >= 5;
             currentScene.mActions.emplace_back(
                 DrawSprite0{
                     false,
@@ -185,8 +185,8 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
                     chunk.mArguments[1],
                     chunk.mArguments[2],
                     chunk.mArguments[3],
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0),
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[6] : 0)});
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
         }
             break;
         case Actions::DRAW_SPRITE_FLIP:
@@ -199,8 +199,8 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
                     chunk.mArguments[1],
                     chunk.mArguments[2],
                     chunk.mArguments[3],
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0),
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[6] : 0)});
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
+                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
         }
             break;
 

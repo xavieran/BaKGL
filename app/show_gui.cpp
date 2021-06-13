@@ -106,19 +106,26 @@ int main(int argc, char** argv)
         glm::vec3{320, 240, 0}};
 
     auto& elements = frame.mChildren;
-    elements.emplace_back(0, false, 0, 0, glm::vec3{0}, glm::vec3{320, 240, 0}, glm::vec3{1,1,0}); // background
+    elements.emplace_back(
+        0,
+        false,
+        0,
+        0,
+        glm::vec3{0},
+        glm::vec3{320, 240, 0},
+        glm::vec3{1,1,0}); // background
     //elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
     for (const auto& action : scene.mActions)
     {
         const auto sprite = action.mSpriteIndex + offsets[action.mImageSlot];
         const auto tex = textures.GetTexture(sprite);
         auto scale = glm::vec3{1,1,1};
+        std::cout <<"ACTION: " << action << "\n";
         if (action.mTargetWidth != 0)
         {
-            scale.x = tex.GetWidth() / static_cast<float>(action.mTargetWidth);
-            scale.y = tex.GetWidth() / static_cast<float>(action.mTargetWidth);
+            scale.x = static_cast<float>(action.mTargetWidth) / tex.GetWidth();
+            scale.y = static_cast<float>(action.mTargetHeight) / tex.GetHeight() ;
         }
-        //if (action.mTargetHeight != 0) 
         if (action.mFlippedInY) scale.x *= -1;
         elements.emplace_back(
             0,
@@ -272,8 +279,9 @@ int main(int argc, char** argv)
 
         for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
         {
-            modelMatrix = glm::translate(glm::mat4{1}, pos);
-            modelMatrix = glm::scale(glm::mat4{1}, scale) * modelMatrix;
+            auto sprScale = glm::scale(glm::mat4{1}, scale);
+            auto sprTrans = glm::translate(glm::mat4{1}, pos);
+            modelMatrix = sprTrans * sprScale;
             MVP = viewMatrix * scaleMatrix * modelMatrix;
 
             glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
