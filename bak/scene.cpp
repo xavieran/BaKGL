@@ -135,24 +135,34 @@ std::vector<Scene> LoadScenes(FileBuffer& fb)
             {
                 scenes.emplace_back(currentScene);
                 assert(chunk.mResourceName);
-                //paletteSlot = std::optional<unsigned>{};
-                imageSlot   = std::optional<unsigned>{};
                 currentScene.mSceneTag = *chunk.mResourceName;
-                currentScene.mActions = std::vector<SceneAction>{};
                 currentScene.mPalettes = palettes;
                 currentScene.mImages = images;
+
+                currentScene.mActions = std::vector<SceneAction>{};
+                imageSlot   = std::optional<unsigned>{};
             }
             else
             {
                 loadingScene = true;
                 assert(chunk.mResourceName);
-                //paletteSlot = std::optional<unsigned>{};
-                imageSlot   = std::optional<unsigned>{};
+                imageSlot = std::optional<unsigned>{};
                 currentScene.mSceneTag = *chunk.mResourceName;
                 currentScene.mActions = std::vector<SceneAction>{};
                 currentScene.mPalettes = palettes;
                 currentScene.mImages = images;
             }
+            break;
+        case Actions::SET_CLIP_REGION:
+        {
+            const auto width = chunk.mArguments[2] - chunk.mArguments[0];
+            const auto height = chunk.mArguments[3] - chunk.mArguments[1];
+            currentScene.mClipRegion = ClipRegion{
+                glm::vec2{
+                    chunk.mArguments[0],
+                    2.5 * chunk.mArguments[1] + height},
+                glm::vec2{width, height - chunk.mArguments[1]}};
+        }
             break;
         case Actions::LOAD_PALETTE:
             assert(loadingScene);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <cstdint>
 #include <string>
 
@@ -79,15 +81,6 @@ struct LoadScreen
     std::string mScreenName;
 };
 
-// Don't draw outside this region
-struct SetClipRegion
-{
-    std::int16_t mTLX;
-    std::int16_t mTLY;
-    std::int16_t mBRX;
-    std::int16_t mBRY;
-};
-
 struct DrawRect
 {
     std::int16_t mTLX;
@@ -114,9 +107,10 @@ struct PlaySound
     std::uint16_t mSoundIndex;
 };
 
-struct Update
+struct ClipRegion
 {
-
+    glm::vec<2, int> mBottomLeft;
+    glm::vec<2, int> mDims;
 };
 
 struct SaveImage

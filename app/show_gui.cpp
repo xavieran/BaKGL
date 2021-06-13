@@ -48,15 +48,15 @@ int main(int argc, char** argv)
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
 
-    auto width = 640.0f * 1;
-    auto height = 480.0f * 1;
+    auto width = 320.0f * 2;
+    auto height = 240.0f * 2;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
         "Show GUI");
 
-    auto guiScale = glm::vec3{width / 320, height / 200, 0};
-    auto guiScaleInv = glm::vec3{320 / width, 200 / height, 0};
+    auto guiScale = glm::vec3{width / 320, height / 240, 0};
+    auto guiScaleInv = glm::vec3{320 / width, 240 / height, 0};
 
     glViewport(0, 0, width, height);
 
@@ -93,9 +93,9 @@ int main(int argc, char** argv)
         std::cout << "K: " << key << " img; " << image << " Pal: "
             << palette << " off: "  << offsets[key] << "\n";
         BAK::TextureFactory::AddToTextureStore(
-                textures,
-                image,
-                palette);
+            textures,
+            image,
+            palette);
     }
 
     RequestResource request;
@@ -120,19 +120,25 @@ int main(int argc, char** argv)
         const auto sprite = action.mSpriteIndex + offsets[action.mImageSlot];
         const auto tex = textures.GetTexture(sprite);
         auto scale = glm::vec3{1,1,1};
+        auto x = action.mX;
+        auto y = action.mY;
         std::cout <<"ACTION: " << action << "\n";
         if (action.mTargetWidth != 0)
         {
             scale.x = static_cast<float>(action.mTargetWidth) / tex.GetWidth();
             scale.y = static_cast<float>(action.mTargetHeight) / tex.GetHeight() ;
         }
-        if (action.mFlippedInY) scale.x *= -1;
+        if (action.mFlippedInY)
+        {
+            x += (static_cast<float>(tex.GetWidth()) * scale.x);
+            scale.x *= -1;
+        }
         elements.emplace_back(
             0,
             false,
             sprite,
             sprite,
-            glm::vec3{action.mX, action.mY, 0},
+            glm::vec3{x, y, 0},
             glm::vec3{action.mTargetWidth, action.mTargetHeight, 0},
             scale);
 
@@ -277,8 +283,21 @@ int main(int argc, char** argv)
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
+        if (scene.mClipRegion)
+        {
+            glScissor(
+                scene.mClipRegion->mBottomLeft.x * guiScale.x,
+                scene.mClipRegion->mBottomLeft.y * guiScale.y,
+                scene.mClipRegion->mDims.x * guiScale.x,
+                scene.mClipRegion->mDims.y * guiScale.y);
+        }
+        
+        unsigned i = 0;
         for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
         {
+            if (i > 1)
+                glEnable(GL_SCISSOR_TEST);
+            i++;
             auto sprScale = glm::scale(glm::mat4{1}, scale);
             auto sprTrans = glm::translate(glm::mat4{1}, pos);
             modelMatrix = sprTrans * sprScale;
@@ -298,6 +317,8 @@ int main(int argc, char** argv)
                 offset
             );
         }
+
+        glDisable(GL_SCISSOR_TEST);
 
         glfwSwapBuffers(window.get());
     }

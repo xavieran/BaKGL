@@ -23,6 +23,8 @@ struct Scene
     std::vector<SceneAction> mActions;
     std::unordered_map<unsigned, std::string> mPalettes;
     std::unordered_map<unsigned, std::pair<std::string, unsigned>> mImages;
+
+    std::optional<ClipRegion> mClipRegion;
 };
 
 std::ostream& operator<<(std::ostream&, const Scene&);
