@@ -18,6 +18,7 @@ add_library(bak
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
     screens.hpp
+    string.hpp string.cpp
     systems.hpp
     textureFactory.hpp textureFactory.cpp
     town.hpp

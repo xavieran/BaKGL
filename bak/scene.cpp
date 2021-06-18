@@ -1,14 +1,13 @@
 #include "bak/scene.hpp"
 
+#include "bak/string.hpp"
 #include "bak/logger.hpp"
 #include "bak/ostream.hpp"
 
 #include "xbak/ResourceTag.h"
 #include "xbak/TaggedResource.h"
 
-
 #include <cassert>
-#include <cctype>
 #include <functional>
 #include <unordered_map>
 
@@ -59,7 +58,7 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
         logger.Debug() << "Id: " << id << " tag: " << tag << "\n";
     
     std::optional<unsigned> currentIndex{};
-    std::optional<unsigned> ttmIndex = 0;
+    std::optional<unsigned> ttmIndex{};
 
     std::unordered_map<unsigned, SceneIndex> sceneIndices;
 
@@ -197,9 +196,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         }
         else if (size == 0xf)
         {
-            std::string name = decompBuffer.GetString();
-            std::transform(name.begin(), name.end(), name.begin(),
-                [](auto c){ return std::toupper(c); });
+            std::string name = ToUpper(decompBuffer.GetString());
             ss << " Name: " << name;
             if (decompBuffer.GetBytesLeft() & 1) decompBuffer.Skip(1);
             chunks.emplace_back(action, name, std::vector<std::int16_t>{});
@@ -230,12 +227,27 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
 
     Scene currentScene;
     bool loadingScene = false;
+    bool flipped = false;
     std::optional<unsigned> imageSlot = 0;
     std::optional<unsigned> paletteSlot = 0;
     std::unordered_map<unsigned, std::string> palettes{};
     std::unordered_map<
         unsigned,
         std::pair<std::string, unsigned>> images{};
+
+    const auto PushScene = [&]{
+        currentScene.mPalettes = palettes;
+        currentScene.mImages = images;
+
+        const auto& tagMap = tags.GetTagMap();
+        auto it = std::find_if(tagMap.begin(), tagMap.end(),
+            [&](const auto& it){ return it.second == currentScene.mSceneTag; });
+
+        if (it != tagMap.end())
+            scenes[it->first] = currentScene;
+        else
+            throw std::runtime_error("Tag not found");
+    };
 
     for (const auto& chunk : chunks)
     {
@@ -248,35 +260,21 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             paletteSlot = chunk.mArguments[0];
             break;
         case Actions::SET_SCENE:
-            logger.Info() << currentScene.mSceneTag << "\n";
             if (loadingScene)
-            {
-                const auto& tagMap = tags.GetTagMap();
-                auto it = std::find_if(tagMap.begin(), tagMap.end(),
-                    [&](const auto& it){ return it.second == currentScene.mSceneTag; });
-                if (it != tagMap.end())
-                    scenes[it->first] = currentScene;
-                else
-                    throw std::runtime_error("Tag not found");
-                assert(chunk.mResourceName);
-                currentScene.mSceneTag = *chunk.mResourceName;
-                currentScene.mPalettes = palettes;
-                currentScene.mImages = images;
+                PushScene();
 
-                currentScene.mActions = std::vector<SceneAction>{};
-                imageSlot   = std::optional<unsigned>{};
-            }
-            else
-            {
-                loadingScene = true;
-                assert(chunk.mResourceName);
-                imageSlot = std::optional<unsigned>{};
-                currentScene.mSceneTag = *chunk.mResourceName;
-                currentScene.mActions = std::vector<SceneAction>{};
-                currentScene.mPalettes = palettes;
-                currentScene.mImages = images;
-            }
+            assert(chunk.mResourceName);
+            currentScene.mSceneTag = *chunk.mResourceName;
+            currentScene.mActions.clear();
+            currentScene.mImages.clear();
+            currentScene.mPalettes.clear();
+            images.clear();
+            palettes.clear();
+            imageSlot.reset();
+            //paletteSlot.reset();
+            loadingScene = true;
             break;
+
         case Actions::SET_CLIP_REGION:
         {
             // Transform this to opengl coords...
@@ -290,12 +288,14 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 glm::vec2{width, height - chunk.mArguments[1]}};
         }
             break;
+
         case Actions::LOAD_PALETTE:
             assert(loadingScene);
             assert(chunk.mResourceName);
             assert(paletteSlot);
             palettes[*paletteSlot] = *chunk.mResourceName;
             break;
+
         case Actions::LOAD_IMAGE:
         {
             assert(loadingScene);
@@ -305,59 +305,50 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             auto name = *chunk.mResourceName;
             (*(name.end() - 1)) = 'X';
             images[*imageSlot] = std::make_pair(name, *paletteSlot);
-
         }
             break;
         case Actions::DRAW_SPRITE1: [[fallthrough]];
+        case Actions::DRAW_SPRITE_FLIP:
+            flipped = true;
+            [[fallthrough]];
         case Actions::DRAW_SPRITE0:
         {
             const auto scaled = chunk.mArguments.size() >= 5;
             currentScene.mActions.emplace_back(
                 DrawSprite0{
-                    false,
+                    flipped,
                     chunk.mArguments[0],
                     chunk.mArguments[1],
                     chunk.mArguments[2],
                     chunk.mArguments[3],
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
+            flipped = false;
         }
             break;
-        case Actions::DRAW_SPRITE_FLIP:
-        {
-            const auto scaled = chunk.mArguments.size() >= 5;
-            currentScene.mActions.emplace_back(
-                DrawSprite0{
-                    true,
-                    chunk.mArguments[0],
-                    chunk.mArguments[1],
-                    chunk.mArguments[2],
-                    chunk.mArguments[3],
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
-        }
-            break;
-
         default:
             logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
             break;
         }
     }
 
+    // Push final scene
+    PushScene();
+
     // Some TTM seem to have a specific "Display" command
     // Insert this into the scene actions
-    const auto displayScene = std::find_if(scenes.begin(), scenes.end(),
-        [&](const auto& s){ return s.second.mSceneTag == "Display"; });
+    //const auto displayScene = std::find_if(scenes.begin(), scenes.end(),
+    //    [&](const auto& s){ return s.second.mSceneTag == "Display"; });
 
-    for (auto& [k, s] : scenes)
-    {
-        if (displayScene != scenes.end())
-        {
-            s.mActions.insert(s.mActions.begin(), *displayScene->second.mActions.begin());
-        }
+    //for (auto& [k, s] : scenes)
+    //{
+    //    if (displayScene != scenes.end())
+    //    {
+    //        s.mActions.insert(s.mActions.begin(), *displayScene->second.mActions.begin());
+    //    }
 
-        logger.Debug() << "Scene: " << k << " :: " << s << "\n";
-    }
+    //    logger.Debug() << "Scene: " << k << " :: " << s << "\n";
+    //}
 
     return scenes;
 }

@@ -1,16 +1,16 @@
 #pragma once
 
-#include "constants.hpp"
-#include "dialog.hpp"
-#include "resourceNames.hpp"
-#include "logger.hpp"
+#include "bak/constants.hpp"
+#include "bak/dialog.hpp"
+#include "bak/resourceNames.hpp"
+#include "bak/logger.hpp"
+#include "bak/string.hpp"
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 
 #include <glm/glm.hpp>
 
-#include <cctype>
 #include <string_view>
 
 namespace BAK {
@@ -54,8 +54,9 @@ class SceneHotspots
 public:
     std::string mSceneTTM;
     std::string mSceneADS;
-    // Which scene in the list of ADS/TTM tags is this?
-    std::uint16_t mSceneIndex;
+
+    std::uint16_t mSceneIndex1;
+    std::uint16_t mSceneIndex2;
 
     std::vector<Hotspot> mHotspots;
 
@@ -79,25 +80,20 @@ public:
         auto length = fb.GetUint16LE();
         std::cout << "Length: " << length << std::endl;
         const auto resource = fb.GetString(6);
-        mSceneTTM = resource + ".TTM";
-        std::transform(mSceneTTM.begin(), mSceneTTM.end(), mSceneTTM.begin(), [](auto c){ return std::toupper(c); });
-        mSceneADS = resource + ".ADS";
-        std::transform(mSceneADS.begin(), mSceneADS.end(), mSceneADS.begin(), [](auto c){ return std::toupper(c); });
-        std::cout << "Scene Ref: " << mSceneTTM<< std::endl;
+        mSceneTTM = ToUpper(resource + ".TTM");
+        mSceneADS = ToUpper(resource + ".ADS");
+        std::cout << "Scene Ref: " << mSceneTTM << std::endl;
 
         fb.DumpAndSkip(4);
         fb.DumpAndSkip(2);
         fb.DumpAndSkip(4);
         fb.DumpAndSkip(5); // Some kind of addr?
         // For all towns, scene index1.
-        mSceneIndex = fb.GetUint16LE();
-        std::cout << "Scene index1: " << mSceneIndex << "\n";
+        mSceneIndex1 = fb.GetUint16LE();
+        std::cout << "Scene index1: " << mSceneIndex1 << "\n";
         fb.DumpAndSkip(2); // Not sure
-        if (mSceneIndex == 1)
-            mSceneIndex = fb.GetUint16LE();
-        else
-            fb.GetUint16LE();
-        std::cout << "Scene index2: " << mSceneIndex << "\n";
+        mSceneIndex2 = fb.GetUint16LE();
+        std::cout << "Scene index2: " << mSceneIndex2 << "\n";
         auto numHotSpots = fb.GetUint16LE(); 
         std::uint32_t flavourText = fb.GetUint32LE(); 
         std::cout << "Hotspots: " << std::dec << numHotSpots << std::endl;
