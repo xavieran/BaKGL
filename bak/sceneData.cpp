@@ -4,6 +4,39 @@
 
 namespace BAK {
 
+std::string_view ToString(AdsActions a)
+{
+    switch (a)
+    {
+    case AdsActions::INDEX: return "Index";
+    case AdsActions::IF_NOT_PLAYED: return "IfNotPlayed";
+    case AdsActions::IF_PLAYED: return "IfPlayed";
+    case AdsActions::UNKNOWN: return "UNKNOWN";
+    case AdsActions::UNKNOWN2: return "UNKNOWN2";
+    case AdsActions::UNKNOWN3: return "UNKNOWN3";
+    case AdsActions::AND: return "And";
+    case AdsActions::OR: return "Or";
+    case AdsActions::ADD_SCENE2: return "AddScene2";
+    case AdsActions::ADD_SCENE: return "AddScene";
+    case AdsActions::STOP_SCENE: return "StopScene";
+    case AdsActions::PLAY_SCENE: return "PlayScene";
+    case AdsActions::PLAY_SCENE2: return "PlayScene2";
+    case AdsActions::FADE_OUT: return "FadeOut";
+    case AdsActions::END_IF: return "EndIf";
+    case AdsActions::END: return "End";
+    default:
+        std::stringstream ss{};
+        ss << "Invalid ads action: 0x" << std::hex 
+            << static_cast<int>(a) << "\n";
+        throw std::runtime_error(ss.str());
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, AdsActions a)
+{
+    os << ToString(a);
+    return os;
+}
 std::string_view ToString(Actions a)
 {
     switch (a)

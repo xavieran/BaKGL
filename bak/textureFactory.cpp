@@ -47,11 +47,19 @@ Graphics::TextureStore TextureFactory::MakeTextureStore(
     std::string_view pal)
 {
     PaletteResource palette{};
-    palette.Load(FileManager::GetInstance()->LoadResource(std::string{pal}));
+    {
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            std::string{pal});
+        palette.Load(&fb);
+    }
     assert(palette.GetPalette());
 
     ImageResource images;
-    images.Load(FileManager::GetInstance()->LoadResource(std::string{bmx}));
+    {
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            std::string{bmx});
+        images.Load(&fb);
+    }
     return MakeTextureStore(images, *palette.GetPalette());
 }
 
@@ -73,11 +81,20 @@ void TextureFactory::AddToTextureStore(
     std::string_view pal)
 {
     PaletteResource palette{};
-    palette.Load(FileManager::GetInstance()->LoadResource(std::string{pal}));
+    {
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            std::string{pal});
+        palette.Load(&fb);
+    }
+
     assert(palette.GetPalette());
 
     ImageResource images;
-    images.Load(FileManager::GetInstance()->LoadResource(std::string{bmx}));
+    {
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            std::string{bmx});
+        images.Load(&fb);
+    }
 
     AddToTextureStore(
         store,
@@ -101,11 +118,19 @@ void TextureFactory::AddScreenToTextureStore(
     std::string_view pal)
 {
     PaletteResource palette{};
-    palette.Load(FileManager::GetInstance()->LoadResource(std::string{pal}));
+    {
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            std::string{pal});
+        palette.Load(&fb);
+    }
     assert(palette.GetPalette());
 
     ScreenResource screen;
-    screen.Load(FileManager::GetInstance()->LoadResource(std::string{scx}));
+    {
+        auto fb = FileBufferFactory::CreateFileBuffer(
+            std::string{scx});
+        screen.Load(&fb);
+    }
 
     AddToTextureStore(
         store,

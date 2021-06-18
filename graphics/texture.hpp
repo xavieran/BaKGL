@@ -11,6 +11,7 @@
 
 #include <glm/glm.hpp>
 
+#include <cassert>
 
 namespace Graphics {
 
@@ -78,7 +79,7 @@ public:
     }
 
     const std::vector<Texture>& GetTextures() const { return mTextures; }
-    const Texture& GetTexture(std::size_t i) const { return mTextures[i]; }
+    const Texture& GetTexture(std::size_t i) const { assert(i < mTextures.size()); return mTextures[i]; }
 
     unsigned GetMaxDim() const { return mMaxDim; }
     unsigned GetMaxHeight() const { return mMaxHeight; }

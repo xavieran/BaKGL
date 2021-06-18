@@ -74,13 +74,20 @@ int main(int argc, char** argv)
     auto fb = FileBufferFactory::CreateFileBuffer(argv[1]);
     hotspots.Load(fb);
 
-    auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneReference);
-    auto scenes = BAK::LoadScenes(fb2);
-    //const auto& scene = scenes[hotspots.mSceneIndex];
-    const auto& scene = scenes[std::atoi(argv[2])];
-    std::cout << "SceneRef: " << hotspots.mSceneReference
-        << " " << hotspots.mSceneIndex << "\n"
-        << scene << "\n";
+    logger.Debug() << "ADS: " << hotspots.mSceneADS
+        << "ADS: " << hotspots.mSceneTTM
+        << " " << hotspots.mSceneIndex << "\n";
+        //<< scene << "\n";
+
+    auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneADS);
+    auto sceneIndices = BAK::LoadSceneIndices(fb2);
+    auto fb3 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneTTM);
+    auto scenes = BAK::LoadScenes(fb3);
+
+    const auto& sceneIndex = sceneIndices[hotspots.mSceneIndex];
+    logger.Debug() << "Hotspot index: " << hotspots.mSceneIndex << " ADS Index: " 
+        << sceneIndex.mSceneTag << " " << sceneIndex.mSceneIndex << "\n";
+    const auto& scene = scenes[sceneIndex.mSceneIndex];
 
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(textures, "DIALOG.SCX", "OPTIONS.PAL");
@@ -114,25 +121,27 @@ int main(int argc, char** argv)
         glm::vec3{0},
         glm::vec3{320, 240, 0},
         glm::vec3{1,1,0}); // background
-    //elements.emplace_back(1, false, 1, 1, glm::vec3{15, 11, 0}, glm::vec3{320, 100, 0});
+
     for (const auto& action : scene.mActions)
     {
+        logger.Debug() << "ACTION: " << action << "\n";
         const auto sprite = action.mSpriteIndex + offsets[action.mImageSlot];
         const auto tex = textures.GetTexture(sprite);
         auto scale = glm::vec3{1,1,1};
         auto x = action.mX;
         auto y = action.mY;
-        std::cout <<"ACTION: " << action << "\n";
+
         if (action.mTargetWidth != 0)
         {
             scale.x = static_cast<float>(action.mTargetWidth) / tex.GetWidth();
-            scale.y = static_cast<float>(action.mTargetHeight) / tex.GetHeight() ;
+            scale.y = static_cast<float>(action.mTargetHeight) / tex.GetHeight();
         }
         if (action.mFlippedInY)
         {
             x += (static_cast<float>(tex.GetWidth()) * scale.x);
             scale.x *= -1;
         }
+
         elements.emplace_back(
             0,
             false,
@@ -141,16 +150,20 @@ int main(int argc, char** argv)
             glm::vec3{x, y, 0},
             glm::vec3{action.mTargetWidth, action.mTargetHeight, 0},
             scale);
-
     }
+
     auto gdsOff = textures.GetTextures().size();
     BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "OPTIONS.PAL");
 
     for (const auto& hs : hotspots.mHotspots)
     {
         auto pic = hs.mKeyword - 1;
-        auto pos = glm::vec3{hs.mTopLeft, 0} + elements[1].mPosition;
-        elements.emplace_back(0, false,
+        assert(elements.size() >= 2);
+        auto pos = glm::vec3{hs.mTopLeft.x, hs.mTopLeft.y, 0}; //+ elements[1].mPosition;
+        logger.Debug() << "Add HS: " << pic << " " << pos << "\n";
+        elements.emplace_back(
+            0,
+            false,
             gdsOff,
             pic + gdsOff,
             glm::vec3{pos.x, pos.y, 0},
@@ -230,7 +243,6 @@ int main(int argc, char** argv)
     inputHandler.BindMouseMotion(
         [&](auto pos)
         {
-            //logger.Debug() << pos << "\n";
             frame.MouseMoved(guiScaleInv * pos);
         });
 
@@ -284,20 +296,17 @@ int main(int argc, char** argv)
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
         if (scene.mClipRegion)
-        {
             glScissor(
                 scene.mClipRegion->mBottomLeft.x * guiScale.x,
                 scene.mClipRegion->mBottomLeft.y * guiScale.y,
                 scene.mClipRegion->mDims.x * guiScale.x,
                 scene.mClipRegion->mDims.y * guiScale.y);
-        }
         
         unsigned i = 0;
         for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
         {
-            if (i > 1)
-                glEnable(GL_SCISSOR_TEST);
-            i++;
+            if (i++ > 1) glEnable(GL_SCISSOR_TEST);
+
             auto sprScale = glm::scale(glm::mat4{1}, scale);
             auto sprTrans = glm::translate(glm::mat4{1}, pos);
             modelMatrix = sprTrans * sprScale;
@@ -319,7 +328,6 @@ int main(int argc, char** argv)
         }
 
         glDisable(GL_SCISSOR_TEST);
-
         glfwSwapBuffers(window.get());
     }
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 

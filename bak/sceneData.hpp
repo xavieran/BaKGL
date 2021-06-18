@@ -11,6 +11,29 @@
 
 namespace BAK {
 
+enum class AdsActions
+{
+    INDEX         = 0x1030,
+    IF_NOT_PLAYED = 0x1330,
+    IF_PLAYED     = 0x1350,
+    UNKNOWN       = 0x13a0,
+    UNKNOWN3      = 0x13b0,
+    AND           = 0x1420,
+    OR            = 0x1430,
+    UNKNOWN2      = 0x1500,
+    ADD_SCENE2    = 0x2000,
+    ADD_SCENE     = 0x2005,
+    STOP_SCENE    = 0x2010,
+    PLAY_SCENE    = 0x1510,
+    PLAY_SCENE2   = 0x1520,
+    FADE_OUT      = 0xf010,
+    END_IF        = 0xfff0,
+    END           = 0xffff
+};
+
+std::string_view ToString(AdsActions a);
+std::ostream& operator<<(std::ostream&, AdsActions);
+
 enum class Actions
 {
     SAVE_BACKGROUND     = 0x0020,

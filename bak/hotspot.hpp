@@ -52,8 +52,8 @@ std::ostream& operator<<(std::ostream&, const Hotspot&);
 class SceneHotspots
 {
 public:
-    // What ADS file to go to
-    std::string mSceneReference;
+    std::string mSceneTTM;
+    std::string mSceneADS;
     // Which scene in the list of ADS/TTM tags is this?
     std::uint16_t mSceneIndex;
 
@@ -78,17 +78,26 @@ public:
 
         auto length = fb.GetUint16LE();
         std::cout << "Length: " << length << std::endl;
-        mSceneReference = fb.GetString(6) + ".TTM";
-        std::transform(mSceneReference.begin(), mSceneReference.end(), mSceneReference.begin(), [](auto c){ return std::toupper(c); });
-        std::cout << "Scene Ref: " << mSceneReference << std::endl;
+        const auto resource = fb.GetString(6);
+        mSceneTTM = resource + ".TTM";
+        std::transform(mSceneTTM.begin(), mSceneTTM.end(), mSceneTTM.begin(), [](auto c){ return std::toupper(c); });
+        mSceneADS = resource + ".ADS";
+        std::transform(mSceneADS.begin(), mSceneADS.end(), mSceneADS.begin(), [](auto c){ return std::toupper(c); });
+        std::cout << "Scene Ref: " << mSceneTTM<< std::endl;
 
         fb.DumpAndSkip(4);
         fb.DumpAndSkip(2);
         fb.DumpAndSkip(4);
         fb.DumpAndSkip(5); // Some kind of addr?
+        // For all towns, scene index1.
         mSceneIndex = fb.GetUint16LE();
-        fb.DumpAndSkip(4); // Not sure
-        std::cout << "Scene index: " << mSceneIndex << "\n";
+        std::cout << "Scene index1: " << mSceneIndex << "\n";
+        fb.DumpAndSkip(2); // Not sure
+        if (mSceneIndex == 1)
+            mSceneIndex = fb.GetUint16LE();
+        else
+            fb.GetUint16LE();
+        std::cout << "Scene index2: " << mSceneIndex << "\n";
         auto numHotSpots = fb.GetUint16LE(); 
         std::uint32_t flavourText = fb.GetUint32LE(); 
         std::cout << "Hotspots: " << std::dec << numHotSpots << std::endl;
@@ -122,7 +131,7 @@ public:
             fb.DumpAndSkip(4); // Seems to have some effect...
             std::uint32_t dialog = fb.GetUint32LE(); 
             //std::cout << "LeftClick: " << std::hex << dialog << std::endl;
-           // std::cout << GetText(dialog) << std::endl;
+            // std::cout << GetText(dialog) << std::endl;
             fb.DumpAndSkip(2);
 
             hotspots.emplace_back(
