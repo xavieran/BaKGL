@@ -18,6 +18,7 @@ set(LINK_3D_LIBRARIES
     bak
     glfw
     graphics
+    gui
     imgui
     xbak
     ${GLEW_LIBRARIES} 

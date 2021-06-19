@@ -1,4 +1,5 @@
 #include "bak/sceneData.hpp"
+#include "graphics/glm.hpp"
 
 #include <sstream>
 
@@ -68,7 +69,7 @@ std::string_view ToString(Actions a)
     case Actions::SET_WINDOWB: return "SETWINDOWB";
     case Actions::SET_WINDOWC: return "SETWINDOWC";
     case Actions::DRAW_RECT: return "DrawRect";
-    case Actions::DRAW_SPRITE0: return "DrawSprite0";
+    case Actions::DRAW_SPRITE0: return "DrawSprite";
     case Actions::DRAW_SPRITE1: return "DrawSprite1";
     case Actions::DRAW_SPRITE_FLIP: return "DrawSpriteFlip";
     case Actions::DRAW_SPRITE3: return "DrawSprite3";
@@ -111,15 +112,32 @@ std::ostream& operator<<(std::ostream& os, const SetScene& ss)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const DrawSprite0& a)
+std::ostream& operator<<(std::ostream& os, const DrawSprite& a)
 {
-    os << a.mFlippedInY << " Pos { " << a.mX << ", " << a.mY
+    os << "DrawSprite{ " << a.mFlippedInY << " Pos { " << a.mX << ", " << a.mY
         << "} Sprite: " << a.mSpriteIndex << " imgSlot: " << a.mImageSlot
-        << " Dims { " << a.mTargetWidth << ", " << a.mTargetHeight << " }";
+        << " Dims { " << a.mTargetWidth << ", " << a.mTargetHeight << " } }";
     return os;
 }
 
-
+std::ostream& operator<<(std::ostream& os, const ClipRegion& a)
+{
+    os << "ClipRegion{ TL: " << a.mTopLeft << " BR: " << a.mBottomRight << " } }";
+    return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const DisableClipRegion& a)
+{
+    return os << "DisableClipRegion";
+}
 
+std::ostream& operator<<(std::ostream& os, const SceneAction& sa)
+{
+    std::visit(overloaded{
+        [&](const auto& x){ os << x; }},
+        sa);
+
+    return os;
+}
+
+}

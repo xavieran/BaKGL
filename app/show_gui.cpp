@@ -8,6 +8,7 @@
 #include "bak/sceneData.hpp"
 #include "bak/systems.hpp"
 #include "bak/textureFactory.hpp"
+#include "bak/visit.hpp"
 
 #include "graphics/glfw.hpp"
 #include "graphics/plane.hpp"
@@ -17,6 +18,7 @@
 #include "graphics/texture.hpp"
 
 #include "gui/gui.hpp"
+#include "gui/scene.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -99,28 +101,22 @@ int main(int argc, char** argv)
         glm::vec3{0,0,0},
         glm::vec3{320, 240, 0}};
 
-    auto& elements = frame.mChildren;
-    elements.emplace_back(
-        0,
-        false,
-        0,
-        0,
-        glm::vec3{0},
-        glm::vec3{320, 240, 0},
-        glm::vec3{1,1,0}); // background
 
-
-    std::unordered_map<unsigned, unsigned> offsets;
+    std::unordered_map<unsigned, unsigned> offsets{};
+    std::vector<Gui::DrawingAction> drawActions{};
+    drawActions.emplace_back(
+        Gui::SceneSprite{
+            0,
+            glm::vec3{0},
+            glm::vec3{1}});
 
     for (const auto& scene : {scene1, scene2})
     {
-        for (const auto& [key, imagePal] : scene.mImages)
+        for (const auto& [imageKey, imagePal] : scene.mImages)
         {
             const auto& [image, palKey] = imagePal;
             const auto& palette = scene.mPalettes.find(palKey)->second;
-            offsets[key] = textures.GetTextures().size();
-            std::cout << "K: " << key << " img; " << image << " Pal: "
-                << palette << " off: "  << offsets[key] << "\n";
+            offsets[imageKey] = textures.GetTextures().size();
             BAK::TextureFactory::AddToTextureStore(
                 textures,
                 image,
@@ -129,48 +125,32 @@ int main(int argc, char** argv)
 
         for (const auto& action : scene.mActions)
         {
-            logger.Debug() << "ACTION: " << action << "\n";
-            const auto sprite = action.mSpriteIndex + offsets[action.mImageSlot];
-            const auto tex = textures.GetTexture(sprite);
-            auto scale = glm::vec3{1,1,1};
-            auto x = action.mX;
-            auto y = action.mY;
-
-            if (action.mTargetWidth != 0)
-            {
-                scale.x = static_cast<float>(action.mTargetWidth) / tex.GetWidth();
-                scale.y = static_cast<float>(action.mTargetHeight) / tex.GetHeight();
-            }
-
-            if (action.mFlippedInY)
-            {
-                // Need to shift before flip to ensure sprite stays in same
-                // relative pos. One way of achieving rotation about the 
-                // center of the sprite...
-                x += (static_cast<float>(tex.GetWidth()) * scale.x);
-                scale.x *= -1;
-            }
-
-            elements.emplace_back(
-                0,
-                false,
-                sprite,
-                sprite,
-                glm::vec3{x, y, 0},
-                glm::vec3{action.mTargetWidth, action.mTargetHeight, 0},
-                scale);
+            drawActions.emplace_back(
+                std::visit(overloaded{
+                    [&](const BAK::DrawSprite& sa) -> Gui::DrawingAction {
+                        return Gui::ConvertSceneAction(
+                            sa,
+                            textures,
+                            offsets);
+                    },
+                    [](auto&& a) -> Gui::DrawingAction {
+                        return Gui::ConvertSceneAction(a);
+                    }
+                },
+                action));
         }
     }
 
     auto gdsOff = textures.GetTextures().size();
     BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "OPTIONS.PAL");
 
+    auto& elements = frame.mChildren;
     for (const auto& hs : hotspots.mHotspots)
     {
         auto pic = hs.mKeyword - 1;
-        assert(elements.size() >= 2);
-        auto pos = glm::vec3{hs.mTopLeft.x, hs.mTopLeft.y, 0}
-            + elements[1].mPosition;
+        //assert(elements.size() >= 2);
+        auto pos = glm::vec3{hs.mTopLeft.x, hs.mTopLeft.y, 0};
+            //+ elements[1].mPosition;
         logger.Debug() << "Add HS: " << pic << " " << pos << "\n";
         elements.emplace_back(
             0,
@@ -214,7 +194,6 @@ int main(int argc, char** argv)
     glBindVertexArray(0);
 
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
-    //glm::mat4 scaleMatrix = glm::mat4{1};
     glm::mat4 viewMatrix = glm::ortho(
         0.0f,
         static_cast<float>(width),
@@ -224,7 +203,6 @@ int main(int argc, char** argv)
         1.0f);  
     glm::mat4 modelMatrix{1.0f};
     glm::mat4 MVP{1};
-
 
     InputHandler inputHandler{};
 
@@ -306,29 +284,15 @@ int main(int argc, char** argv)
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
 
-        //if (scene.mClipRegion)
-        //    glScissor(
-        //        scene.mClipRegion->mBottomLeft.x * guiScale.x,
-        //        scene.mClipRegion->mBottomLeft.y * guiScale.y,
-        //        scene.mClipRegion->mDims.x * guiScale.x,
-        //        scene.mClipRegion->mDims.y * guiScale.y);
-        
-        unsigned i = 0;
-        for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
+        const auto Draw = [&](auto modelMatrix, auto object)
         {
-            if (i++ > 1) glEnable(GL_SCISSOR_TEST);
-
-            auto sprScale = glm::scale(glm::mat4{1}, scale);
-            auto sprTrans = glm::translate(glm::mat4{1}, pos);
-            modelMatrix = sprTrans * sprScale;
             MVP = viewMatrix * scaleMatrix * modelMatrix;
 
             glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
             glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
             glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
         
-            auto sel = pressed ? pImage : image;
-            const auto [offset, length] = objStore.GetObject(sel);
+            const auto [offset, length] = objStore.GetObject(object);
             glDrawElementsBaseVertex(
                 GL_TRIANGLES,
                 length,
@@ -336,9 +300,40 @@ int main(int argc, char** argv)
                 (void*) (offset * sizeof(GLuint)),
                 offset
             );
+        };
+
+        for (const auto& action : drawActions)
+        {
+            std::visit(overloaded{
+                [&](const Gui::SceneSprite& sprite){
+                    auto sprScale = glm::scale(glm::mat4{1}, sprite.mScale);
+                    auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
+                    modelMatrix = sprTrans * sprScale;
+                    Draw(modelMatrix, sprite.mImage);
+                },
+                [&](const Gui::EnableClipRegion& clip){
+                    glScissor(
+                        clip.mBottomLeft.x * guiScale.x,
+                        clip.mBottomLeft.y * guiScale.y,
+                        clip.mDims.x * guiScale.x,
+                        clip.mDims.y * guiScale.y);
+                    glEnable(GL_SCISSOR_TEST);
+                },
+                [&](const Gui::DisableClipRegion& clip){
+                    glDisable(GL_SCISSOR_TEST);
+                }},
+                action);
         }
 
-        glDisable(GL_SCISSOR_TEST);
+        for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
+        {
+            auto sprScale = glm::scale(glm::mat4{1}, scale);
+            auto sprTrans = glm::translate(glm::mat4{1}, pos);
+            modelMatrix = sprTrans * sprScale;
+            auto sel = pressed ? pImage : image;
+            Draw(modelMatrix, sel);
+        }
+
         glfwSwapBuffers(window.get());
     }
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 

@@ -238,10 +238,12 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     const auto PushScene = [&]{
         currentScene.mPalettes = palettes;
         currentScene.mImages = images;
+        currentScene.mActions.emplace_back(DisableClipRegion{});
 
         const auto& tagMap = tags.GetTagMap();
         auto it = std::find_if(tagMap.begin(), tagMap.end(),
-            [&](const auto& it){ return it.second == currentScene.mSceneTag; });
+            [&](const auto& it){
+                return it.second == currentScene.mSceneTag; });
 
         if (it != tagMap.end())
             scenes[it->first] = currentScene;
@@ -278,14 +280,10 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         case Actions::SET_CLIP_REGION:
         {
             // Transform this to opengl coords...
-            const auto width = chunk.mArguments[2] - chunk.mArguments[0];
-            const auto height = chunk.mArguments[3] - chunk.mArguments[1];
-            currentScene.mClipRegion = ClipRegion{
-                glm::vec2{
-                    chunk.mArguments[0],
-                    // Where does 2.5 come from...?
-                    2.5 * chunk.mArguments[1] + height},
-                glm::vec2{width, height - chunk.mArguments[1]}};
+            currentScene.mActions.emplace_back(
+                ClipRegion{
+                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
+                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
         }
             break;
 
@@ -315,7 +313,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         {
             const auto scaled = chunk.mArguments.size() >= 5;
             currentScene.mActions.emplace_back(
-                DrawSprite0{
+                DrawSprite{
                     flipped,
                     chunk.mArguments[0],
                     chunk.mArguments[1],
@@ -335,20 +333,6 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     // Push final scene
     PushScene();
 
-    // Some TTM seem to have a specific "Display" command
-    // Insert this into the scene actions
-    //const auto displayScene = std::find_if(scenes.begin(), scenes.end(),
-    //    [&](const auto& s){ return s.second.mSceneTag == "Display"; });
-
-    //for (auto& [k, s] : scenes)
-    //{
-    //    if (displayScene != scenes.end())
-    //    {
-    //        s.mActions.insert(s.mActions.begin(), *displayScene->second.mActions.begin());
-    //    }
-
-    //    logger.Debug() << "Scene: " << k << " :: " << s << "\n";
-    //}
 
     return scenes;
 }

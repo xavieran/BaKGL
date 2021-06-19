@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/visit.hpp"
+
 #include <glm/glm.hpp>
 
 #include <cstdint>
@@ -112,7 +114,7 @@ struct DrawRect
     std::int16_t mBRY;
 };
 
-struct DrawSprite0
+struct DrawSprite
 {
     bool mFlippedInY;
     std::int16_t mX;
@@ -123,7 +125,7 @@ struct DrawSprite0
     std::int16_t mTargetHeight;
 };
 
-std::ostream& operator<<(std::ostream&, const DrawSprite0&);
+std::ostream& operator<<(std::ostream&, const DrawSprite&);
 
 struct PlaySound
 {
@@ -132,9 +134,17 @@ struct PlaySound
 
 struct ClipRegion
 {
-    glm::vec<2, int> mBottomLeft;
-    glm::vec<2, int> mDims;
+    glm::vec<2, int> mTopLeft;
+    glm::vec<2, int> mBottomRight;
 };
+
+std::ostream& operator<<(std::ostream& os, const ClipRegion& a);
+
+struct DisableClipRegion
+{
+};
+
+std::ostream& operator<<(std::ostream& os, const DisableClipRegion& a);
 
 struct SaveImage
 {
@@ -175,19 +185,11 @@ struct Purge
     
 };
 
-using SceneAction = DrawSprite0; 
-/*std::variant<
-    LoadScreen,
-    DrawSprite0,
-    DrawRect,
-    //PlaySound,
-    Update>;
-    //SaveImage,
-    //Delay,
-    //SetFrame0,
-    //FadeOut,
-    //Purge>;
-*/
+using SceneAction = std::variant<
+    DrawSprite,
+    ClipRegion,
+    DisableClipRegion>;
+
+std::ostream& operator<<(std::ostream& os, const SceneAction& sa);
+
 }
-
-
