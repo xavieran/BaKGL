@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bak/logger.hpp"
+#include "com/logger.hpp"
 
 #include "graphics/glm.hpp"
 #include <glm/glm.hpp>

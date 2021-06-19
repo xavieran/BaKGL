@@ -2,7 +2,7 @@
 
 #include "graphics/texture.hpp"
 
-#include "bak/logger.hpp"
+#include "com/logger.hpp"
 
 #include <GL/glew.h>
 

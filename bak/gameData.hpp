@@ -2,11 +2,12 @@
 
 #include <glm/glm.hpp>
 
-#include "constants.hpp"
-#include "container.hpp"
-#include "encounter.hpp"
-#include "logger.hpp"
-#include "resourceNames.hpp"
+#include "bak/constants.hpp"
+#include "bak/container.hpp"
+#include "bak/encounter.hpp"
+#include "bak/resourceNames.hpp"
+
+#include "com/logger.hpp"
 
 #include "xbak/DialogResource.h"
 #include "xbak/FileBuffer.h"

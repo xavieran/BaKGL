@@ -3,8 +3,9 @@
 #include "bak/constants.hpp"
 #include "bak/dialog.hpp"
 #include "bak/resourceNames.hpp"
-#include "bak/logger.hpp"
-#include "bak/string.hpp"
+
+#include "com/logger.hpp"
+#include "com/string.hpp"
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"

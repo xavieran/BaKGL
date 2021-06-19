@@ -5,7 +5,7 @@
 #include "bak/fixedObject.hpp"
 #include "bak/gameData.hpp"
 #include "bak/inputHandler.hpp"
-#include "bak/logger.hpp"
+#include "com/logger.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
 #include "bak/town.hpp"

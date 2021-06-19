@@ -12,13 +12,10 @@ add_library(bak
     hotspot.hpp hotspot.cpp
     inputHandler.hpp inputHandler.cpp
     inventory.hpp
-    logger.hpp logger.cpp
-    ostream.hpp
     resourceNames.hpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
     screens.hpp
-    string.hpp string.cpp
     systems.hpp
     textureFactory.hpp textureFactory.cpp
     town.hpp

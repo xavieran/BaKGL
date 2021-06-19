@@ -1,7 +1,8 @@
 #pragma once
 
-#include "dialog.hpp"
-#include "logger.hpp"
+#include "bak/dialog.hpp"
+
+#include "com/logger.hpp"
 
 #include <glm/glm.hpp>
 

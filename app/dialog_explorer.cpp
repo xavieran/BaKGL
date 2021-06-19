@@ -1,6 +1,6 @@
 #include "bak/dialog.hpp"
-#include "bak/logger.hpp"
-#include "bak/ostream.hpp"
+#include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 

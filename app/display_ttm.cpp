@@ -1,6 +1,6 @@
 #include "bak/scene.hpp"
 
-#include "bak/logger.hpp"
+#include "com/logger.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"

@@ -3,7 +3,7 @@
 #include "bak/constants.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/encounter.hpp"
-#include "bak/logger.hpp"
+#include "com/logger.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/textureFactory.hpp"
 

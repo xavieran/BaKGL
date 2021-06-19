@@ -9,13 +9,14 @@ list(APPEND APP_BINARIES
     display_ttm
     main2d
     main3d
-    show_gui
+    show_scene
     show_imgui
     bmx_explorer
 )
 
 set(LINK_3D_LIBRARIES 
     bak
+    com
     glfw
     graphics
     gui

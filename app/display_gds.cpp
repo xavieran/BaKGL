@@ -1,7 +1,7 @@
 #include "bak/hotspot.hpp"
 #include "bak/dialog.hpp"
 
-#include "bak/logger.hpp"
+#include "com/logger.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"

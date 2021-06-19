@@ -1,10 +1,11 @@
-#include "camera.hpp"
-#include "container.hpp"
-#include "constants.hpp"
-#include "dialog.hpp"
-#include "gameData.hpp"
-#include "logger.hpp"
-#include "ostream.hpp"
+#include "bak/camera.hpp"
+#include "bak/container.hpp"
+#include "bak/constants.hpp"
+#include "bak/dialog.hpp"
+#include "bak/gameData.hpp"
+
+#include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"

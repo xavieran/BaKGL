@@ -1,5 +1,6 @@
 set(LINK_3D_LIBRARIES 
     bak
+    com
     glfw
     graphics
     imgui

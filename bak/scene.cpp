@@ -1,8 +1,8 @@
 #include "bak/scene.hpp"
 
-#include "bak/string.hpp"
-#include "bak/logger.hpp"
-#include "bak/ostream.hpp"
+#include "com/string.hpp"
+#include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include "xbak/ResourceTag.h"
 #include "xbak/TaggedResource.h"

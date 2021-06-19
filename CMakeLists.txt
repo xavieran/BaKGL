@@ -28,6 +28,7 @@ include_directories(".")
 
 add_subdirectory("app")
 add_subdirectory("bak")
+add_subdirectory("com")
 add_subdirectory("graphics")
 add_subdirectory("gui")
 add_subdirectory("imgui")

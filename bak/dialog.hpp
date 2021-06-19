@@ -1,10 +1,11 @@
 #pragma once
 
-#include "constants.hpp"
-#include "dialogTarget.hpp"
-#include "resourceNames.hpp"
-#include "logger.hpp"
-#include "ostream.hpp"
+#include "bak/constants.hpp"
+#include "bak/dialogTarget.hpp"
+#include "bak/resourceNames.hpp"
+
+#include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
