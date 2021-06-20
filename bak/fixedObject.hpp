@@ -1,10 +1,14 @@
 #pragma once
 
 #include "bak/dialog.hpp"
+#include "bak/hotspot.hpp"
 
 #include "com/logger.hpp"
 
 #include <glm/glm.hpp>
+
+#include <optional>
+
 
 namespace BAK {
 
@@ -14,16 +18,19 @@ public:
     FixedObject(
         Target dialogKey,
         glm::vec<2, unsigned> location,
-        std::uint8_t type)
+        std::uint8_t type,
+        std::optional<HotspotRef> hotspotRef)
     :
         mDialogKey{dialogKey},
         mLocation{location},
-        mType{type}
+        mType{type},
+        mHotspotRef{hotspotRef}
     {}
 
     Target mDialogKey;
     glm::vec<2, unsigned> mLocation;
     std::uint8_t mType;
+    std::optional<HotspotRef> mHotspotRef;
 };
 
 std::vector<FixedObject> LoadFixedObjects(unsigned targetZone);

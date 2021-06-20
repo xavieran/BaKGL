@@ -32,6 +32,7 @@ std::vector<FixedObject> LoadFixedObjects(unsigned targetZone)
 
             auto type = fb.GetUint8();
             std::uint32_t dialogKey = 0;
+            auto hotspotRef = std::optional<HotspotRef>{};
 
             if (type == 0x0)
             {
@@ -53,19 +54,25 @@ std::vector<FixedObject> LoadFixedObjects(unsigned targetZone)
             {
                 fb.DumpAndSkip(2);
                 dialogKey = fb.GetUint32LE();
-                fb.DumpAndSkip(9);
+                fb.DumpAndSkip(4);
+                hotspotRef = HotspotRef{
+                    fb.GetUint8(),
+                    static_cast<char>(
+                        fb.GetUint8() + 0x40)};
+                fb.DumpAndSkip(3);
             }
 
             logger.Debug() << "(" << x << "," << y << ") zone: " << +zone
                 << " tp: " << +type << " dialog: " << std::hex
-                << dialogKey << std::dec << std::endl;
+                << dialogKey << " hs: " << hotspotRef << std::dec << std::endl;
 
             if (targetZone == zone)
             {
                 fixedObjects.emplace_back(
                     KeyTarget{dialogKey},
                     glm::vec<2, unsigned>{x, y},
-                    type);
+                    type,
+                    hotspotRef);
             }
         }
     }

@@ -1,44 +1,16 @@
-Lamut Entrance (Night)
-
- 937649909: FILES:file open command 0 file DEF_TOWN.DAT                                            
- 937657316: FILES:file open command 0 file DIAL_Z15.DDX                                            
- 938846510: FILES:file open command 0 file KEYWORD.DAT                                             
- 964154931: FILES:file open command 0 file DEF_TOWN.DAT                                            
-1056105456: FILES:file open command 0 file POINTERG.BMX                                            
-1056542122: FILES:file open command 0 file REQ_GDS.DAT                                             
-1056575003: FILES:file open command 0 file GDS1D.DAT                                               
-1056585339: FILES:file open command 0 file G_TOWN.ADS                                              
-1056593542: FILES:file open command 0 file G_TOWN.TTM                                              
-1056695187: FILES:file open command 0 file DIAL_Z15.DDX                                            
-1056822014: FILES:file open command 0 file OBJFIXED.DAT                                            
-1056834784: FILES:file open command 0 file G_LAMUT2.PAL                                            
-1056855510: FILES:file open command 0 file G_LAMUT2.BMX
-
--- Tavern
-1457710283: FILES:file open command 0 file GDS1B.DAT                                               
-1457721964: FILES:file open command 0 file TVRN2.ADS                                               
-1457728707: FILES:file open command 0 file TVRN2.TTM                                               
-1458075302: FILES:file open command 0 file DIAL_Z15.DDX                                            
-1458099820: FILES:file open command 0 file G_BKBAR2.PAL                                            
-1458121376: FILES:file open command 0 file G_BKBAR2.BMX                                            
-1460007061: FILES:file open command 0 file TVRN2.PAL                                               
-1460027538: FILES:file open command 0 file TVRN2.BMX                                               
-1462728343: FILES:file open command 0 file TVRN2PPL.BMX                                            
-1467771973: FILES:file open command 0 file TVRN2BAK.BMX 
-
---
-TVRN2-*
-Column near Sumani (3)
-Bar (4)
-Table (8) ?
-Door (10)
-Barrel (14)
-
-PPL-*
-Sumani (0)
-Naddur (1)
-Sitting Man (11)
-Barmaid (26)
-
-How do we get to GDS1 ? not sure...
+Yabon Shop
+T011116.DAT 
+OBJFIXED.DAT
+DIAL_Z31.DDX
+DIAL_Z31.DDX
+POINTERG.BMX
+REQ_GDS.DAT 
+GDS51A.DAT  
+SHOP2.ADS   
+SHOP2.TTM   
+DIAL_Z13.DDX
+SHOP2.PAL   
+SHOP2.BMX   
+SHOP2ARM.BMX
+SHOP2BAK.BMX
 
