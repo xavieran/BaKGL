@@ -2,12 +2,13 @@
 #include "bak/coordinates.hpp"
 #include "bak/inputHandler.hpp"
 #include "bak/hotspot.hpp"
-#include "com/logger.hpp"
 #include "bak/screens.hpp"
 #include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
 #include "bak/systems.hpp"
 #include "bak/textureFactory.hpp"
+
+#include "com/logger.hpp"
 #include "com/visit.hpp"
 
 #include "graphics/glfw.hpp"
@@ -92,15 +93,12 @@ int main(int argc, char** argv)
     const auto& scene2 = scenes[sceneIndices[hotspots.mSceneIndex2].mSceneIndex];
 
     auto textures = Graphics::TextureStore{};
-    BAK::TextureFactory::AddScreenToTextureStore(textures, "DIALOG.SCX", "OPTIONS.PAL");
-
-    RequestResource request;
-    FileManager::GetInstance()->Load(&request, "REQ_GDS.DAT");
+    BAK::TextureFactory::AddScreenToTextureStore(
+        textures, "DIALOG.SCX", "OPTIONS.PAL");
 
     auto frame = Gui::Frame{
         glm::vec3{0,0,0},
         glm::vec3{320, 240, 0}};
-
 
     std::unordered_map<unsigned, unsigned> offsets{};
     std::vector<Gui::DrawingAction> drawActions{};
@@ -142,7 +140,10 @@ int main(int argc, char** argv)
     }
 
     auto gdsOff = textures.GetTextures().size();
-    BAK::TextureFactory::AddToTextureStore(textures, "POINTERG.BMX", "OPTIONS.PAL");
+    BAK::TextureFactory::AddToTextureStore(
+        textures,
+        "POINTERG.BMX",
+        "OPTIONS.PAL");
 
     auto& elements = frame.mChildren;
     for (const auto& hs : hotspots.mHotspots)
@@ -249,8 +250,7 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureBuffer.mTextureBuffer);
+    textureBuffer.BindGL();
 
     double pointerPosX, pointerPosY;
 
@@ -277,8 +277,6 @@ int main(int argc, char** argv)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         const auto programId = guiShaderId.GetHandle();
-        GLuint textureID = glGetUniformLocation(programId, "texture0");
-        glUniform1i(textureID, 0);
 
         GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");

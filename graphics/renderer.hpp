@@ -26,6 +26,61 @@ GLenum ToGlEnum(BindPoint p)
     }
 }
 
+class VertexArrayObject
+{
+public:
+    VertexArrayObject()
+    :
+        mVertexArrayId{GenVertexArrayGL()},
+        mActive{true}
+    {}
+
+    VertexArrayObject(const VertexArrayObject&) = delete;
+    VertexArrayObject& operator=(const VertexArrayObject&) = delete;
+
+    VertexArrayObject(VertexArrayObject&& other)
+    {
+        (*this) = std::move(other);
+    }
+
+    VertexArrayObject& operator=(VertexArrayObject&& other)
+    {
+        other.mVertexArrayId = mVertexArrayId;
+        other.mActive = false;
+        return *this;
+    }
+
+    ~VertexArrayObject()
+    {
+        if (mActive)
+        {
+            Logging::LogDebug("GLBuffers") << "Deleting GL vertex array id" << mVertexArrayId << "\n";
+            glDeleteVertexArrays(1, &mVertexArrayId);
+        }
+    }
+
+    void BindGL()
+    {
+        glBindVertexArray(mVertexArrayId);
+    }
+
+    void UnbindGL()
+    {
+        glBindVertexArray(0);
+    }
+
+    static GLuint GenVertexArrayGL()
+    {
+        GLuint vertexArrayId;
+        glGenVertexArrays(1, &vertexArrayId);
+        return vertexArrayId;
+    }
+
+private:
+    GLuint mVertexArrayId;
+    bool mActive;
+};
+
 class GLBuffers
 {
 public:
@@ -197,6 +252,11 @@ public:
         }
     {}
 
+    void BindGL()
+    {
+        glBindTexture(mTextureType, mTextureBuffer);
+    }
+
     void LoadTexturesGL(
         const std::vector<Texture>& textures,
         unsigned maxDim)
@@ -205,10 +265,10 @@ public:
         if (textures.size() > maxTextures)
             throw std::runtime_error("Too many textures");
 
-        glBindTexture(GL_TEXTURE_2D_ARRAY, mTextureBuffer);
+        BindGL();
 
         glTexStorage3D(
-            GL_TEXTURE_2D_ARRAY,
+            mTextureType,
             5,              // levels
             GL_RGBA8,       // Internal format
             maxDim, maxDim, // width,height
@@ -229,7 +289,7 @@ public:
                     paddedTex[x + y * maxDim] = tex.GetPixel(x, y);
 
             glTexSubImage3D(
-                GL_TEXTURE_2D_ARRAY,
+                mTextureType,
                 0,                 // Mipmap number
                 0, 0, index,       // xoffset, yoffset, zoffset
                 maxDim, maxDim, 1, // width, height, depth
@@ -240,18 +300,22 @@ public:
         }
         
         // Doesn't actually look very good with mipmaps...
-        //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        //glGenerateMipmap(mTextureType);
         constexpr auto interpolation = GL_NEAREST;
         //constexpr auto interpolation = GL_LINEAR;
         constexpr auto extend = GL_REPEAT;
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, extend);   
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, extend);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, interpolation);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, interpolation);
+        glTexParameteri(mTextureType, GL_TEXTURE_WRAP_S, extend);   
+        glTexParameteri(mTextureType, GL_TEXTURE_WRAP_T, extend);
+        glTexParameteri(mTextureType, GL_TEXTURE_MIN_FILTER, interpolation);
+        glTexParameteri(mTextureType, GL_TEXTURE_MAG_FILTER, interpolation);
+        
+        // Unbind now
+        glBindTexture(mTextureType, 0);
     }
 
 //private:
     GLuint mTextureBuffer;
+    static constexpr GLuint mTextureType = GL_TEXTURE_2D_ARRAY;
 };
 
 }

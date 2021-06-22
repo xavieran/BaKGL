@@ -7,6 +7,7 @@ add_library(graphics
     renderer.hpp
     shaderProgram.hpp
     sphere.hpp sphere.cpp
+    sprites.hpp
     texture.hpp
 )
 
