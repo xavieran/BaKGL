@@ -49,6 +49,11 @@ std::string HotspotRef::ToString() const
     return ss.str();
 }
 
+std::string HotspotRef::ToFilename() const
+{
+    return "GDS" + ToString() + ".DAT";
+}
+
 std::ostream& operator<<(std::ostream& os, const HotspotRef& hr)
 {
     os << hr.ToString();

@@ -20,6 +20,7 @@
 
 #include "gui/gui.hpp"
 #include "gui/scene.hpp"
+#include "gui/gdsScene.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -73,72 +74,16 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
 
-    auto hotspots = BAK::SceneHotspots{};
-    auto fb = FileBufferFactory::CreateFileBuffer(argv[1]);
-    hotspots.Load(fb);
-
-    logger.Debug() << "ADS: " << hotspots.mSceneADS
-        << " TTM: " << hotspots.mSceneTTM
-        << " " << hotspots.mSceneIndex1
-        << " " << hotspots.mSceneIndex2 << "\n";
-
-    auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneADS);
-    auto sceneIndices = BAK::LoadSceneIndices(fb2);
-    auto fb3 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneTTM);
-    auto scenes = BAK::LoadScenes(fb3);
-
-    //logger.Debug() << "Hotspot index: " << hotspots.mSceneIndex << " ADS Index: " 
-    //    << sceneIndex.mSceneTag << " " << sceneIndex.mSceneIndex << "\n";
-    const auto& scene1 = scenes[sceneIndices[hotspots.mSceneIndex1].mSceneIndex];
-    const auto& scene2 = scenes[sceneIndices[hotspots.mSceneIndex2].mSceneIndex];
-
-    auto textures = Graphics::TextureStore{};
-    BAK::TextureFactory::AddScreenToTextureStore(
-        textures, "DIALOG.SCX", "OPTIONS.PAL");
+    auto scene = Gui::GDSScene{
+        BAK::HotspotRef{
+            static_cast<std::uint8_t>(std::atoi(argv[1])),
+            *argv[2]}};
 
     auto frame = Gui::Frame{
         glm::vec3{0,0,0},
         glm::vec3{320, 240, 0}};
 
-    std::unordered_map<unsigned, unsigned> offsets{};
-    std::vector<Gui::DrawingAction> drawActions{};
-    drawActions.emplace_back(
-        Gui::SceneSprite{
-            0,
-            glm::vec3{0},
-            glm::vec3{1}});
-
-    for (const auto& scene : {scene1, scene2})
-    {
-        for (const auto& [imageKey, imagePal] : scene.mImages)
-        {
-            const auto& [image, palKey] = imagePal;
-            const auto& palette = scene.mPalettes.find(palKey)->second;
-            offsets[imageKey] = textures.GetTextures().size();
-            BAK::TextureFactory::AddToTextureStore(
-                textures,
-                image,
-                palette);
-        }
-
-        for (const auto& action : scene.mActions)
-        {
-            drawActions.emplace_back(
-                std::visit(overloaded{
-                    [&](const BAK::DrawSprite& sa) -> Gui::DrawingAction {
-                        return Gui::ConvertSceneAction(
-                            sa,
-                            textures,
-                            offsets);
-                    },
-                    [](auto&& a) -> Gui::DrawingAction {
-                        return Gui::ConvertSceneAction(a);
-                    }
-                },
-                action));
-        }
-    }
-
+    auto textures = Graphics::TextureStore{};
     auto gdsOff = textures.GetTextures().size();
     BAK::TextureFactory::AddToTextureStore(
         textures,
@@ -146,7 +91,7 @@ int main(int argc, char** argv)
         "OPTIONS.PAL");
 
     auto& elements = frame.mChildren;
-    for (const auto& hs : hotspots.mHotspots)
+    for (const auto& hs : scene.mHotspots.mHotspots)
     {
         auto pic = hs.mKeyword - 1;
         //assert(elements.size() >= 2);
@@ -163,36 +108,8 @@ int main(int argc, char** argv)
             glm::vec3{1,1,1});
     }
 
-    Graphics::TextureBuffer textureBuffer{};
-    textureBuffer.LoadTexturesGL(
-        textures.GetTextures(),
-        textures.GetMaxDim());
-
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-
-    auto objStore = Graphics::QuadStorage{};
-    for (unsigned i = 0; i < textures.GetTextures().size(); i++)
-    {
-        const auto& tex = textures.GetTexture(i);
-        objStore.AddObject(
-            Graphics::Quad{
-                static_cast<double>(tex.GetWidth()),
-                static_cast<double>(tex.GetHeight()),
-                static_cast<double>(textures.GetMaxDim()),
-                i});
-    }
-
-    Graphics::GLBuffers buffers{};
-    buffers.AddBuffer("vertex", 0, 3);
-    buffers.AddBuffer("textureCoord", 1, 3);
-
-    buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, objStore.mVertices);
-    buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, objStore.mTextureCoords);
-    buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, objStore.mIndices);
-    buffers.BindArraysGL();
-    glBindVertexArray(0);
+    Graphics::Sprites hotspotSprites{};
+    hotspotSprites.LoadTexturesGL(textures);
 
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
     glm::mat4 viewMatrix = glm::ortho(
@@ -250,8 +167,6 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    textureBuffer.BindGL();
-
     double pointerPosX, pointerPosY;
 
     glUseProgram(guiShaderId.GetHandle());
@@ -273,7 +188,6 @@ int main(int argc, char** argv)
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
 
-        glBindVertexArray(VertexArrayID);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         const auto programId = guiShaderId.GetHandle();
@@ -290,7 +204,7 @@ int main(int argc, char** argv)
             glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
             glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
         
-            const auto [offset, length] = objStore.GetObject(object);
+            const auto [offset, length] = object;
             glDrawElementsBaseVertex(
                 GL_TRIANGLES,
                 length,
@@ -299,15 +213,18 @@ int main(int argc, char** argv)
                 offset
             );
         };
+        
+        scene.mSprites.BindGL();
 
-        for (const auto& action : drawActions)
+        for (const auto& action : scene.mDrawActions)
         {
             std::visit(overloaded{
                 [&](const Gui::SceneSprite& sprite){
                     auto sprScale = glm::scale(glm::mat4{1}, sprite.mScale);
                     auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
                     modelMatrix = sprTrans * sprScale;
-                    Draw(modelMatrix, sprite.mImage);
+                    auto object = scene.mSprites.mObjects.GetObject(sprite.mImage);
+                    Draw(modelMatrix, object);
                 },
                 [&](const Gui::EnableClipRegion& clip){
                     glScissor(
@@ -323,21 +240,21 @@ int main(int argc, char** argv)
                 action);
         }
 
+        hotspotSprites.BindGL();
         for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
         {
             auto sprScale = glm::scale(glm::mat4{1}, scale);
             auto sprTrans = glm::translate(glm::mat4{1}, pos);
             modelMatrix = sprTrans * sprScale;
             auto sel = pressed ? pImage : image;
-            Draw(modelMatrix, sel);
+            auto object = hotspotSprites.mObjects.GetObject(sel);
+            Draw(modelMatrix, object);
         }
 
         glfwSwapBuffers(window.get());
     }
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 
         && glfwWindowShouldClose(window.get()) == 0);
-
-    glDeleteVertexArrays(1, &VertexArrayID);
 
     ImguiWrapper::Shutdown();
 

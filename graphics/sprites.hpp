@@ -12,7 +12,9 @@ namespace Graphics {
 
 class Sprites
 {
+public:
     Sprites()
+    :
         mBuffers{},
         mTextureBuffer{},
         mObjects{}
@@ -31,7 +33,7 @@ class Sprites
         mTextureBuffer.UnbindGL();
     }
 
-    void LoadGL(const TextureStore& textures)
+    void LoadTexturesGL(const TextureStore& textures)
     {
         mTextureBuffer.LoadTexturesGL(
             textures.GetTextures(),
@@ -40,8 +42,8 @@ class Sprites
         for (unsigned i = 0; i < textures.GetTextures().size(); i++)
         {
             const auto& tex = textures.GetTexture(i);
-            objStore.AddObject(
-                Graphics::Quad{
+            mObjects.AddObject(
+                Quad{
                     static_cast<double>(tex.GetWidth()),
                     static_cast<double>(tex.GetHeight()),
                     static_cast<double>(textures.GetMaxDim()),
@@ -50,13 +52,13 @@ class Sprites
 
         mVertexArray.BindGL();
 
-        buffers.AddBuffer("vertex", 0, 3);
-        buffers.AddBuffer("textureCoord", 1, 3);
+        mBuffers.AddBuffer("vertex", 0, 3);
+        mBuffers.AddBuffer("textureCoord", 1, 3);
 
-        buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, objStore.mVertices);
-        buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, objStore.mTextureCoords);
-        buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, objStore.mIndices);
-        buffers.BindArraysGL();
+        mBuffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, mObjects.mVertices);
+        mBuffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, mObjects.mTextureCoords);
+        mBuffers.LoadBufferDataGL(mBuffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, mObjects.mIndices);
+        mBuffers.BindArraysGL();
         
         UnbindGL();
     }

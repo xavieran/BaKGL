@@ -257,6 +257,11 @@ public:
         glBindTexture(mTextureType, mTextureBuffer);
     }
 
+    void UnbindGL()
+    {
+        glBindTexture(mTextureType, 0);
+    }
+
     void LoadTexturesGL(
         const std::vector<Texture>& textures,
         unsigned maxDim)
@@ -309,8 +314,7 @@ public:
         glTexParameteri(mTextureType, GL_TEXTURE_MIN_FILTER, interpolation);
         glTexParameteri(mTextureType, GL_TEXTURE_MAG_FILTER, interpolation);
         
-        // Unbind now
-        glBindTexture(mTextureType, 0);
+        UnbindGL();
     }
 
 //private:

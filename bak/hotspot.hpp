@@ -40,6 +40,7 @@ struct HotspotRef
     char mGdsChar;
 
     std::string ToString() const;
+    std::string ToFilename() const;
 };
 
 std::ostream& operator<<(std::ostream&, const HotspotRef&);
