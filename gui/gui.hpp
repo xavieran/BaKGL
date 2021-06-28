@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 
+#include <functional>
 #include <vector>
 #include <unordered_map>
 
@@ -11,7 +12,29 @@ namespace Gui {
 
 struct GuiElement
 {
-    bool IsClicked(glm::vec3 click)
+    GuiElement(
+        bool pressed,
+        bool highlighted,
+        unsigned image,
+        unsigned pressedImage,
+        glm::vec3 position,
+        glm::vec3 dims,
+        glm::vec3 scale,
+        std::function<void()>&& released)
+    :
+        mPressed{pressed},
+        mHighlighted{highlighted},
+        mImage{image},
+        mPressedImage{pressedImage},
+        mPosition{position},
+        mDims{dims},
+        mScale{scale},
+        mReleasedCallback{std:move(released)}
+    {
+        assert(mReleasedCallback);
+    }
+
+    bool Within(glm::vec3 click)
     {
         return Graphics::PointWithinRectangle(
             glm::vec2{click},
@@ -21,7 +44,7 @@ struct GuiElement
 
     void MousePress(glm::vec3 click)
     {
-        if (IsClicked(click))
+        if (Within(click))
         {
             mPressed = true;
         }
@@ -30,23 +53,26 @@ struct GuiElement
     void MouseRelease(glm::vec3 click)
     {
         mPressed = false;
+        if (Within(click))
+            std::invoke(mReleasedCallback);
     }
 
     void MouseMoved(glm::vec3 pos)
     {
-        if (IsClicked(pos))
-            mPressed = true;
+        if (Within(pos))
+            mHighlighted = true;
         else
-            mPressed = false;
+            mHighlighted = false;
     }
 
-    unsigned mAction;
     bool mPressed;
+    bool mHighlighted;
     unsigned mImage;
     unsigned mPressedImage;
     glm::vec3 mPosition;
     glm::vec3 mDims;
     glm::vec3 mScale;
+    const std::function<void()> mReleasedCallback;
 };
 
 class Frame

@@ -59,12 +59,12 @@ public:
         }
     }
 
-    void BindGL()
+    void BindGL() const
     {
         glBindVertexArray(mVertexArrayId);
     }
 
-    void UnbindGL()
+    void UnbindGL() const
     {
         glBindVertexArray(0);
     }
@@ -252,12 +252,12 @@ public:
         }
     {}
 
-    void BindGL()
+    void BindGL() const
     {
         glBindTexture(mTextureType, mTextureBuffer);
     }
 
-    void UnbindGL()
+    void UnbindGL() const
     {
         glBindTexture(mTextureType, 0);
     }

@@ -21,12 +21,13 @@ public:
 
     GDSScene(BAK::HotspotRef hotspotRef)
     :
+        mReference{hotspotRef},
         mHotspots{},
         mDrawActions{},
         mSprites{},
         mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
     {
-        auto fb = FileBufferFactory::CreateFileBuffer(hotspotRef.ToFilename());
+        auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
         mHotspots.Load(fb);
 
         mLogger.Debug() << "ADS: " << mHotspots.mSceneADS
@@ -88,9 +89,22 @@ public:
         mSprites.LoadTexturesGL(textures);
     }
 
+    GDSScene& operator=(GDSScene&& other)
+    {
+        this->mHotspots = std::move(other.mHotspots);
+        this->mDrawActions = std::move(other.mDrawActions);
+        this->mSprites = std::move(other.mSprites);
+        return *this;
+    }
+
+    GDSScene(const GDSScene&) = delete;
+    GDSScene& operator=(const GDSScene&) = delete;
+
+    BAK::HotspotRef mReference;
     BAK::SceneHotspots mHotspots;
     std::vector<DrawingAction> mDrawActions;
     Graphics::Sprites mSprites;
+
     const Logging::Logger& mLogger;
 };
 

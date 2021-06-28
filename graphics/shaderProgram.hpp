@@ -43,6 +43,11 @@ public:
         other.mHandle = 0;
     }
 
+    void UseProgramGL() const
+    {
+        glUseProgram(GetHandle());
+    }
+
     ~ShaderProgramHandle()
     {
         glDeleteProgram(mHandle);
@@ -68,7 +73,10 @@ public:
         const std::string& vertexShader,
         const std::string& fragmentShader)
     :
-        ShaderProgram(vertexShader, std::optional<std::string>{}, fragmentShader)
+        ShaderProgram(
+            vertexShader,
+            std::optional<std::string>{},
+            fragmentShader)
     {}
 
     ShaderProgram(

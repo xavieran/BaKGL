@@ -15,19 +15,41 @@ class Sprites
 public:
     Sprites()
     :
+        mVertexArray{},
         mBuffers{},
         mTextureBuffer{},
         mObjects{}
     {
     }
 
-    void BindGL()
+    Sprites(const Sprites& other) = delete;
+    Sprites& operator=(const Sprites& other) = delete;
+
+    Sprites(Sprites&& other)
+    :
+        mVertexArray{std::move(other.mVertexArray)},
+        mBuffers{std::move(other.mBuffers)},
+        mTextureBuffer{std::move(other.mTextureBuffer)},
+        mObjects{other.mObjects}
+    {
+    }
+
+    Sprites& operator=(Sprites&& other)
+    {
+        this->mVertexArray = std::move(other.mVertexArray);
+        this->mBuffers = std::move(other.mBuffers);
+        this->mTextureBuffer = std::move(other.mTextureBuffer);
+        this->mObjects = other.mObjects;
+        return *this;
+    }
+
+    void BindGL() const
     {
         mVertexArray.BindGL();
         mTextureBuffer.BindGL();
     }
 
-    void UnbindGL()
+    void UnbindGL() const
     {
         mVertexArray.UnbindGL();
         mTextureBuffer.UnbindGL();
@@ -61,6 +83,11 @@ public:
         mBuffers.BindArraysGL();
         
         UnbindGL();
+    }
+
+    std::size_t size()
+    {
+        return mObjects.mObjects.size();
     }
     
     VertexArrayObject mVertexArray;

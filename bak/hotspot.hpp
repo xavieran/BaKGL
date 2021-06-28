@@ -39,6 +39,17 @@ struct HotspotRef
     std::uint8_t mGdsNumber;
     char mGdsChar;
 
+    bool operator==(const auto& rhs)
+    {
+        return mGdsNumber == rhs.mGdsNumber
+            && mGdsChar == rhs.mGdsChar;
+    }
+
+    bool operator!=(const auto& rhs)
+    {
+        return !(*this == rhs);
+    }
+
     std::string ToString() const;
     std::string ToFilename() const;
 };

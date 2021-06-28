@@ -18,6 +18,7 @@
 #include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 
+#include "gui/cursor.hpp"
 #include "gui/gui.hpp"
 #include "gui/scene.hpp"
 #include "gui/gdsScene.hpp"
@@ -49,11 +50,12 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    BAK::DialogStore dialogStore{};
-    dialogStore.Load();
+    Logging::LogState::Disable("LoadScenes");
+    Logging::LogState::Disable("LoadSceneIndices");
 
-    auto width = 320.0f * 2;
-    auto height = 240.0f * 2;
+
+    auto width  = 320.0f * 1;
+    auto height = 240.0f * 1;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
@@ -74,42 +76,59 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShaderId = guiShader.Compile();
 
-    auto scene = Gui::GDSScene{
-        BAK::HotspotRef{
-            static_cast<std::uint8_t>(std::atoi(argv[1])),
-            *argv[2]}};
+    const auto root = static_cast<std::uint8_t>(std::atoi(argv[1]));
+    auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
+    
+    auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
+    auto frames = std::stack<std::unique_ptr<Gui::Frame>>{};
 
-    auto frame = Gui::Frame{
-        glm::vec3{0,0,0},
-        glm::vec3{320, 240, 0}};
+    const auto MakeScene = [&](auto ref){
+        scenes.emplace(std::make_unique<Gui::GDSScene>(ref));
+        frames.emplace(std::make_unique<Gui::Frame>(
+            glm::vec3{0,0,0},
+            glm::vec3{320, 240, 0}));
 
-    auto textures = Graphics::TextureStore{};
-    auto gdsOff = textures.GetTextures().size();
-    BAK::TextureFactory::AddToTextureStore(
-        textures,
-        "POINTERG.BMX",
-        "OPTIONS.PAL");
+        for (const auto& hs : scenes.top()->mHotspots.mHotspots)
+        {
+            auto pic = hs.mKeyword - 1;
+            auto pos = glm::vec3{hs.mTopLeft.x, hs.mTopLeft.y, 0};
+            frames.top()->mChildren.emplace_back(
+                false,
+                false,
+                0,
+                pic,
+                glm::vec3{pos.x, pos.y, 0},
+                glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0},
+                glm::vec3{1,1,1},
+                [&, arg=hs.mActionArg1](){
+                    if (hs.mAction == BAK::HotspotAction::GOTO)
+                    {
+                        char c = static_cast<char>(65 + arg - 1);
+                        currentSceneRef = BAK::HotspotRef{root, c};
+                        logger.Debug() << "Switching to: " << c << " " 
+                            << currentSceneRef.ToFilename() << "\n";
+                    }
+                    else if (hs.mAction == BAK::HotspotAction::EXIT)
+                    {
+                        if (scenes.size() > 1)
+                        {
+                            scenes.pop();
+                            frames.pop();
+                            currentSceneRef = scenes.top()->mReference;
+                        }
+                        else
+                        {
+                            std::exit(0);
+                        }
+                    }
+                }
+            );
+        }
+    };
 
-    auto& elements = frame.mChildren;
-    for (const auto& hs : scene.mHotspots.mHotspots)
-    {
-        auto pic = hs.mKeyword - 1;
-        //assert(elements.size() >= 2);
-        auto pos = glm::vec3{hs.mTopLeft.x, hs.mTopLeft.y, 0};
-            //+ elements[1].mPosition;
-        logger.Debug() << "Add HS: " << pic << " " << pos << "\n";
-        elements.emplace_back(
-            0,
-            false,
-            gdsOff,
-            pic + gdsOff,
-            glm::vec3{pos.x, pos.y, 0},
-            glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0},
-            glm::vec3{1,1,1});
-    }
+    MakeScene(currentSceneRef);
 
-    Graphics::Sprites hotspotSprites{};
-    hotspotSprites.LoadTexturesGL(textures);
+    auto cursor = Gui::Cursor{};
 
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
     glm::mat4 viewMatrix = glm::ortho(
@@ -134,23 +153,26 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
     inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
 
-    inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT,
+    inputHandler.BindMouse(
+        GLFW_MOUSE_BUTTON_LEFT,
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frame.MousePress(guiScaleInv * click);
+            frames.top()->MousePress(guiScaleInv * click);
         },
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frame.MouseRelease(guiScaleInv * click);
+            frames.top()->MouseRelease(guiScaleInv * click);
         }
     );
 
+    glm::vec3 mousePos;
     inputHandler.BindMouseMotion(
         [&](auto pos)
         {
-            frame.MouseMoved(guiScaleInv * pos);
+            frames.top()->MouseMoved(guiScaleInv * pos);
+            mousePos = pos;
         });
 
     double currentTime = 0;
@@ -158,6 +180,8 @@ int main(int argc, char** argv)
     float deltaTime = 0;
 
     glfwSetCursorPos(window.get(), width/2, height/2);
+    // Hide it we will draw one ourselves
+    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     glEnable(GL_MULTISAMPLE);  
 
@@ -169,9 +193,11 @@ int main(int argc, char** argv)
     
     double pointerPosX, pointerPosY;
 
-    glUseProgram(guiShaderId.GetHandle());
+    guiShaderId.UseProgramGL();
+
     double acc = 0;
     unsigned i = 0;
+
     do
     {
         currentTime = glfwGetTime();
@@ -179,7 +205,6 @@ int main(int argc, char** argv)
         acc += deltaTime;
         if (acc > .2)
         { 
-            i = (i + 1) % textures.GetTextures().size();
             acc = 0;
         }
 
@@ -214,6 +239,7 @@ int main(int argc, char** argv)
             );
         };
         
+        auto& scene = *scenes.top();
         scene.mSprites.BindGL();
 
         for (const auto& action : scene.mDrawActions)
@@ -230,8 +256,8 @@ int main(int argc, char** argv)
                     glScissor(
                         clip.mBottomLeft.x * guiScale.x,
                         clip.mBottomLeft.y * guiScale.y,
-                        clip.mDims.x * guiScale.x,
-                        clip.mDims.y * guiScale.y);
+                        clip.mDims.x       * guiScale.x,
+                        clip.mDims.y       * guiScale.y);
                     glEnable(GL_SCISSOR_TEST);
                 },
                 [&](const Gui::DisableClipRegion& clip){
@@ -240,15 +266,23 @@ int main(int argc, char** argv)
                 action);
         }
 
-        hotspotSprites.BindGL();
-        for (const auto& [action, pressed, image, pImage, pos, dim, scale] : elements)
+        cursor.GetSprites().BindGL();
+
         {
-            auto sprScale = glm::scale(glm::mat4{1}, scale);
-            auto sprTrans = glm::translate(glm::mat4{1}, pos);
-            modelMatrix = sprTrans * sprScale;
-            auto sel = pressed ? pImage : image;
-            auto object = hotspotSprites.mObjects.GetObject(sel);
+            unsigned draw = 0;
+            for (const auto& [pressed, highlighted, image, pImage, pos, dim, scale, cb] : frames.top()->mChildren)
+                if (highlighted)
+                    draw = pImage;
+
+            auto cursorTrans = glm::translate(glm::mat4{1}, mousePos * guiScaleInv);
+            modelMatrix = cursorTrans;
+            auto object = cursor.GetSprites().mObjects.GetObject(draw);
             Draw(modelMatrix, object);
+
+            if (currentSceneRef != scenes.top()->mReference)
+            {
+                MakeScene(currentSceneRef);
+            }
         }
 
         glfwSwapBuffers(window.get());

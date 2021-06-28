@@ -3,6 +3,7 @@
 #include "com/logger.hpp"
 
 #include "graphics/glm.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -102,7 +103,7 @@ public:
         return offsetAndLength;
     }
 
-    OffsetAndLength GetObject(std::size_t i)
+    OffsetAndLength GetObject(std::size_t i) const
     {   
         if (i >= mObjects.size())
         {
@@ -120,9 +121,6 @@ public:
     std::vector<glm::vec3> mVertices;
     std::vector<glm::vec3> mTextureCoords;
     std::vector<unsigned> mIndices;
-
-    const Logging::Logger& mLog{
-        Logging::LogState::GetLogger("QuadStorage")};
 };
 
 }

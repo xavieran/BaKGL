@@ -370,10 +370,10 @@ int main(int argc, char** argv)
         glBindVertexArray(VertexArrayID);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(modelShaderId.GetHandle());
+        modelShaderId.UseProgramGL();
         RenderItems(modelShaderId.GetHandle(), systems.GetRenderables());
 
-        glUseProgram(spriteShaderId.GetHandle());
+        spriteShaderId.UseProgramGL();
         RenderItems(spriteShaderId.GetHandle(), systems.GetSprites());
         
         auto intersectable = systems.RunIntersection(camera.GetPosition());
