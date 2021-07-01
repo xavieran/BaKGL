@@ -18,18 +18,49 @@ struct Glyph
 
 Graphics::Texture GlyphToTexture(const Glyph&);
 
-struct Font
+class Font
 {
-    auto GetIndex(char c) const { return c - mFirstChar; }
+public:
+    Font(
+        int firstChar,
+        unsigned height,
+        Graphics::TextureStore textures)
+    :
+        mFirstChar{firstChar},
+        mHeight{height},
+        mCharacters{textures}
+    {}
+
+    auto GetIndex(char c) const
+    {
+        assert(mFirstChar <= c);
+        return c - mFirstChar;
+    }
+
+    const auto& GetCharacters(){ return mCharacters; }
+
+    auto GetSpace() const
+    {
+        // The width of 'a'
+        return static_cast<float>(
+            mCharacters.GetTexture(0).GetWidth());
+    }
+
+    auto GetFirstChar() const { return mFirstChar; }
     auto GetWidth(char c) const
     {
         return mCharacters.GetTexture(GetIndex(c)).GetWidth();
     }
 
+    auto GetHeight() const
+    {
+        return mHeight;
+    }
+
+private:
     int mFirstChar;
     unsigned mHeight;
     Graphics::TextureStore mCharacters;
-    //std::vector<Glyph> mItalicGlyphs;
 };
 
 Font LoadFont(FileBuffer& fb);

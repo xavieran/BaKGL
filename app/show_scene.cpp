@@ -20,9 +20,10 @@
 #include "graphics/texture.hpp"
 
 #include "gui/cursor.hpp"
+#include "gui/gdsScene.hpp"
 #include "gui/gui.hpp"
 #include "gui/scene.hpp"
-#include "gui/gdsScene.hpp"
+#include "gui/textBox.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -157,14 +158,9 @@ int main(int argc, char** argv)
 
     auto cursor = Gui::Cursor{};
 
-    
-    auto fb = FileBufferFactory::CreateFileBuffer("GAME.FNT");
-    auto font = BAK::LoadFont(fb);
-    auto fontSprites = Graphics::Sprites{};
-    fontSprites.LoadTexturesGL(font.mCharacters);
-        
-    auto text = std::string{"abcd efg hjklm nopqrstuvwxyz\nABCDEFG HIJKL MNOP _ --"};
+    const auto fontRenderer = Gui::FontRenderer{"GAME.FNT"};
 
+        
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
     glm::mat4 viewMatrix = glm::ortho(
         0.0f,
@@ -315,43 +311,21 @@ int main(int argc, char** argv)
                 }},
                 action);
         }
+        
+        const auto& text = dialog
+            ? *dialog 
+            : GetText(scenes.top()->mHotspots.mFlavourText);
 
-        fontSprites.BindGL();
-
-        auto textPos = glm::vec3{10, 58, 0};
-        //for (const char c : text)
-        int i = 0;
-        for (const char c : 
-            dialog ? *dialog : GetText(
-            scenes.top()->mHotspots.mFlavourText))
-        {
-            i++;
-            if (i % 60 == 0)
-            {
-                textPos.x = 10;
-                textPos += glm::vec3{0, font.mHeight / guiScalar, 0};
-            }
-            if (c == '\n')
-            {
-                textPos.x = 10;
-                textPos += glm::vec3{0, font.mHeight / guiScalar, 0};
-                continue;
-            }
-            else if (c < font.mFirstChar)
-            {
-                textPos += glm::vec3{8.0f / guiScalar, 0, 0};
-                continue;
-            }
-            auto textTrans = glm::translate(
-                glm::mat4{1},
-                textPos * guiScale);
-            modelMatrix = textTrans;
-            textPos += glm::vec3{static_cast<float>(font.GetWidth(c)) / guiScalar, 0, 0};
-
-            auto object = fontSprites.Get(font.GetIndex(c));
-
-            Draw(modelMatrix, object);
-        }
+        fontRenderer.GetSprites().BindGL();
+        Gui::TextBox{
+            glm::vec3{10, 120, 0},
+            glm::vec3{320 - 40, 240 - 120, 0}}.Render(
+            fontRenderer,
+            text,
+            [&](const auto& pos, auto object){
+                modelMatrix = pos;
+                Draw(modelMatrix, object);
+            });
 
         cursor.GetSprites().BindGL();
 
