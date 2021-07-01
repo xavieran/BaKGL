@@ -81,6 +81,8 @@ public:
     std::uint16_t mSceneIndex1;
     std::uint16_t mSceneIndex2;
 
+    std::uint32_t mFlavourText;
+
     std::vector<Hotspot> mHotspots;
 
     void Load(FileBuffer&);

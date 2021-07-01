@@ -8,6 +8,7 @@ add_library(bak
     encounter.hpp encounter.cpp
     eventHandler.hpp
     fixedObject.hpp fixedObject.cpp
+    font.hpp font.cpp
     gameData.hpp
     hotspot.hpp hotspot.cpp
     inputHandler.hpp inputHandler.cpp

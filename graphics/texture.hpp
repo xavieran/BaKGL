@@ -84,6 +84,7 @@ public:
     unsigned GetMaxDim() const { return mMaxDim; }
     unsigned GetMaxHeight() const { return mMaxHeight; }
     unsigned GetMaxWidth() const { return mMaxWidth; }
+
 private:
     std::vector<Texture> mTextures;
 

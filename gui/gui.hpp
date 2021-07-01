@@ -20,7 +20,8 @@ struct GuiElement
         glm::vec3 position,
         glm::vec3 dims,
         glm::vec3 scale,
-        std::function<void()>&& released)
+        std::function<void()>&& leftRelease,
+        std::function<void()>&& rightRelease)
     :
         mPressed{pressed},
         mHighlighted{highlighted},
@@ -29,9 +30,11 @@ struct GuiElement
         mPosition{position},
         mDims{dims},
         mScale{scale},
-        mReleasedCallback{std:move(released)}
+        mLeftReleased{std:move(leftRelease)},
+        mRightReleased{std:move(rightRelease)}
     {
-        assert(mReleasedCallback);
+        assert(mLeftReleased);
+        assert(mRightReleased);
     }
 
     bool Within(glm::vec3 click)
@@ -42,7 +45,7 @@ struct GuiElement
             glm::vec2{mDims});
     }
 
-    void MousePress(glm::vec3 click)
+    void LeftMousePress(glm::vec3 click)
     {
         if (Within(click))
         {
@@ -50,11 +53,21 @@ struct GuiElement
         }
     }
 
-    void MouseRelease(glm::vec3 click)
+    void LeftMouseRelease(glm::vec3 click)
     {
         mPressed = false;
         if (Within(click))
-            std::invoke(mReleasedCallback);
+            std::invoke(mLeftReleased);
+    }
+
+    void RightMousePress(glm::vec3 click)
+    {
+    }
+
+    void RightMouseRelease(glm::vec3 click)
+    {
+        if (Within(click))
+            std::invoke(mRightReleased);
     }
 
     void MouseMoved(glm::vec3 pos)
@@ -72,7 +85,8 @@ struct GuiElement
     glm::vec3 mPosition;
     glm::vec3 mDims;
     glm::vec3 mScale;
-    const std::function<void()> mReleasedCallback;
+    const std::function<void()> mLeftReleased;
+    const std::function<void()> mRightReleased;
 };
 
 class Frame
@@ -86,16 +100,28 @@ public:
     {
     }
 
-    void MousePress(glm::vec3 click)
+    void LeftMousePress(glm::vec3 click)
     {
         for (auto& c : mChildren)
-            c.MousePress(click - mPosition);
+            c.LeftMousePress(click - mPosition);
     }
 
-    void MouseRelease(glm::vec3 click)
+    void LeftMouseRelease(glm::vec3 click)
     {
         for (auto& c : mChildren)
-            c.MouseRelease(click - mPosition);
+            c.LeftMouseRelease(click - mPosition);
+    }
+
+    void RightMousePress(glm::vec3 click)
+    {
+        for (auto& c : mChildren)
+            c.RightMousePress(click - mPosition);
+    }
+
+    void RightMouseRelease(glm::vec3 click)
+    {
+        for (auto& c : mChildren)
+            c.RightMouseRelease(click - mPosition);
     }
 
     void MouseMoved(glm::vec3 pos)

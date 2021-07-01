@@ -89,6 +89,11 @@ public:
     {
         return mObjects.mObjects.size();
     }
+
+    auto Get(unsigned i) const
+    {
+        return mObjects.GetObject(i);
+    }
     
     VertexArrayObject mVertexArray;
     GLBuffers mBuffers;

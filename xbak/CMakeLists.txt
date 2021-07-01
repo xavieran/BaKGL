@@ -8,6 +8,7 @@ list(APPEND XBAK_BINARIES
     dumpads
     dumpbmx
     dumpact_bmx
+    dumpfnt
     dumpchar_bmx
     dumpzone_bmx
     dumppal

@@ -25,14 +25,17 @@ int main ( int argc, char *argv[] )
 
         for (unsigned i = 1; i < 54; i++)
         {
-            std::string charA = "";
-            for (int k = 0; k < 2; k++)
+            char charA = 'A' - 1;
+            for (int k = 0; k < 4; k++)
             {
                 std::stringstream actN{};
                 actN << "ACT0" << std::setw ( 2 ) << std::setfill('0') << i;
 
                 std::stringstream spriteStream{""};
-                spriteStream << actN.str() << charA << ".BMX";
+                spriteStream << actN.str();
+                if (charA >= 'A') spriteStream << charA;
+                spriteStream << ".BMX";
+
                 std::stringstream palStream{""};
                 palStream << actN.str() << ".PAL";
 
@@ -51,14 +54,16 @@ int main ( int argc, char *argv[] )
 
                         std::ofstream out{""};
                         std::stringstream fname{""};
-                        fname << actN.str() << charA << ".BMP";
+                        fname << actN.str();
+                        if (charA >= 'A') fname << charA;
+                        fname << ".BMP";
                         out.open(fname.str(), std::ios::out | std::ios::binary);
 
                         std::cout << "Writing: " << fname.str() << std::endl;
                         WriteBMP(out, *img, *palette->GetPalette());
                     }
-                    charA = "A";
                 }
+                charA++;
             }
         }
 

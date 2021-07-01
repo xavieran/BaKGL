@@ -95,10 +95,10 @@ void SceneHotspots::Load(FileBuffer& fb)
     mSceneIndex2 = fb.GetUint16LE();
     std::cout << "Scene index2: " << mSceneIndex2 << "\n";
     auto numHotSpots = fb.GetUint16LE(); 
-    std::uint32_t flavourText = fb.GetUint32LE(); 
+    mFlavourText = fb.GetUint32LE(); 
     std::cout << "Hotspots: " << std::dec << numHotSpots << std::endl;
-    std::cout << "Flavour Text: " << std::hex << flavourText << std::endl;
-    std::cout << GetText(flavourText) << std::endl;
+    std::cout << "Flavour Text: " << std::hex << mFlavourText << std::endl;
+    std::cout << GetText(mFlavourText) << std::endl;
 
     fb.DumpAndSkip(4);
     fb.DumpAndSkip(4);

@@ -42,7 +42,8 @@ SceneSprite ConvertSceneAction(
     const T& textures,
     S& offsets) // make this const
 {
-    const auto sprite = action.mSpriteIndex + offsets[action.mImageSlot];
+    const auto sprite = action.mSpriteIndex 
+        + offsets[action.mImageSlot];
     const auto tex = textures.GetTexture(sprite);
 
     auto x = action.mX;

@@ -114,6 +114,11 @@ public:
         return mObjects[i];
     }
 
+    std::size_t size() const
+    {
+        return mObjects.size();
+    }
+
 //private:
     unsigned long mOffset;
     std::vector<OffsetAndLength> mObjects;

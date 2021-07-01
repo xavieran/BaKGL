@@ -1,5 +1,6 @@
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
+#include "bak/font.hpp"
 #include "bak/inputHandler.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/screens.hpp"
@@ -53,16 +54,22 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("LoadSceneIndices");
 
+    
+    auto guiScalar = 2.0f;
 
-    auto width  = 320.0f * 1;
-    auto height = 240.0f * 1;
+    auto nativeWidth = 320.0f;
+    auto nativeHeight = 240.0f;
+
+    auto width = nativeWidth * guiScalar;
+    auto height = nativeHeight * guiScalar;
+
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
         "Show GUI");
 
-    auto guiScale = glm::vec3{width / 320, height / 240, 0};
-    auto guiScaleInv = glm::vec3{320 / width, 240 / height, 0};
+    auto guiScale = glm::vec3{guiScalar, guiScalar, 0};
+    auto guiScaleInv = glm::vec3{1 / guiScalar, 1 / guiScalar, 0};
 
     glViewport(0, 0, width, height);
 
@@ -81,6 +88,21 @@ int main(int argc, char** argv)
     
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
     auto frames = std::stack<std::unique_ptr<Gui::Frame>>{};
+    auto dialog = std::optional<std::string_view>{};
+
+    BAK::DialogStore dialogStore{};
+    dialogStore.Load();
+    const auto GetText = [&](const auto& tgt) -> std::string_view
+    {
+        try
+        {
+            return dialogStore.GetSnippet(BAK::KeyTarget{tgt}).GetText();
+        }
+        catch (const std::runtime_error& e)
+        {
+            return e.what();
+        }
+    };
 
     const auto MakeScene = [&](auto ref){
         scenes.emplace(std::make_unique<Gui::GDSScene>(ref));
@@ -101,6 +123,7 @@ int main(int argc, char** argv)
                 glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0},
                 glm::vec3{1,1,1},
                 [&, arg=hs.mActionArg1](){
+                    if (dialog) dialog.reset();
                     if (hs.mAction == BAK::HotspotAction::GOTO)
                     {
                         char c = static_cast<char>(65 + arg - 1);
@@ -121,6 +144,10 @@ int main(int argc, char** argv)
                             std::exit(0);
                         }
                     }
+                },
+                [&, tooltip=hs.mTooltip](){
+                    if (dialog) dialog.reset();
+                    else dialog = GetText(tooltip);
                 }
             );
         }
@@ -129,6 +156,14 @@ int main(int argc, char** argv)
     MakeScene(currentSceneRef);
 
     auto cursor = Gui::Cursor{};
+
+    
+    auto fb = FileBufferFactory::CreateFileBuffer("GAME.FNT");
+    auto font = BAK::LoadFont(fb);
+    auto fontSprites = Graphics::Sprites{};
+    fontSprites.LoadTexturesGL(font.mCharacters);
+        
+    auto text = std::string{"abcd efg hjklm nopqrstuvwxyz\nABCDEFG HIJKL MNOP _ --"};
 
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
     glm::mat4 viewMatrix = glm::ortho(
@@ -158,14 +193,29 @@ int main(int argc, char** argv)
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frames.top()->MousePress(guiScaleInv * click);
+            frames.top()->LeftMousePress(guiScaleInv * click);
         },
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frames.top()->MouseRelease(guiScaleInv * click);
+            frames.top()->LeftMouseRelease(guiScaleInv * click);
         }
     );
+
+    inputHandler.BindMouse(
+        GLFW_MOUSE_BUTTON_RIGHT,
+        [&](auto click)
+        {
+            logger.Debug() << click << "\n";
+            frames.top()->RightMousePress(guiScaleInv * click);
+        },
+        [&](auto click)
+        {
+            logger.Debug() << click << "\n";
+            frames.top()->RightMouseRelease(guiScaleInv * click);
+        }
+    );
+
 
     glm::vec3 mousePos;
     inputHandler.BindMouseMotion(
@@ -266,11 +316,48 @@ int main(int argc, char** argv)
                 action);
         }
 
+        fontSprites.BindGL();
+
+        auto textPos = glm::vec3{10, 58, 0};
+        //for (const char c : text)
+        int i = 0;
+        for (const char c : 
+            dialog ? *dialog : GetText(
+            scenes.top()->mHotspots.mFlavourText))
+        {
+            i++;
+            if (i % 60 == 0)
+            {
+                textPos.x = 10;
+                textPos += glm::vec3{0, font.mHeight / guiScalar, 0};
+            }
+            if (c == '\n')
+            {
+                textPos.x = 10;
+                textPos += glm::vec3{0, font.mHeight / guiScalar, 0};
+                continue;
+            }
+            else if (c < font.mFirstChar)
+            {
+                textPos += glm::vec3{8.0f / guiScalar, 0, 0};
+                continue;
+            }
+            auto textTrans = glm::translate(
+                glm::mat4{1},
+                textPos * guiScale);
+            modelMatrix = textTrans;
+            textPos += glm::vec3{static_cast<float>(font.GetWidth(c)) / guiScalar, 0, 0};
+
+            auto object = fontSprites.Get(font.GetIndex(c));
+
+            Draw(modelMatrix, object);
+        }
+
         cursor.GetSprites().BindGL();
 
         {
             unsigned draw = 0;
-            for (const auto& [pressed, highlighted, image, pImage, pos, dim, scale, cb] : frames.top()->mChildren)
+            for (const auto& [pressed, highlighted, image, pImage, pos, dim, scale, cb, cr] : frames.top()->mChildren)
                 if (highlighted)
                     draw = pImage;
 
@@ -278,12 +365,10 @@ int main(int argc, char** argv)
             modelMatrix = cursorTrans;
             auto object = cursor.GetSprites().mObjects.GetObject(draw);
             Draw(modelMatrix, object);
-
-            if (currentSceneRef != scenes.top()->mReference)
-            {
-                MakeScene(currentSceneRef);
-            }
         }
+
+        if (currentSceneRef != scenes.top()->mReference)
+            MakeScene(currentSceneRef);
 
         glfwSwapBuffers(window.get());
     }
