@@ -4,6 +4,7 @@
 
 #include "xbak/FileBuffer.h"
 
+#include <iostream>
 #include <vector>
 
 namespace BAK {
@@ -33,6 +34,10 @@ public:
 
     auto GetIndex(char c) const
     {
+        if (!(mFirstChar <= c))
+        {
+            std::cout << "BAD:{" << +c << "}\n";
+        }
         assert(mFirstChar <= c);
         return c - mFirstChar;
     }

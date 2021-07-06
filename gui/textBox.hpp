@@ -47,10 +47,10 @@ public:
     }
 
     template <typename DrawF>
-    void Render(
+    std::optional<std::string_view> Render(
         const FontRenderer& fr,
         std::string_view text,
-        DrawF&& Draw)
+        DrawF&& Draw) const
     {
         const auto& font = fr.GetFont();
         auto charPos = mPosition;
@@ -61,23 +61,42 @@ public:
             charPos.y += font.GetHeight();
         };
 
-        const auto Advance = [&](auto w){
+        const auto AdvanceChar = [&](auto w){
             charPos.x += w;
+        };
+
+        const auto Advance = [&](auto w){
+            AdvanceChar(w);
             if (charPos.x > limit.x)
                 NextLine();
         };
 
         auto bold = false;
+        auto inWord = false;
+        unsigned wordLetters = 0;
 
-        for (const char c : text)
+        for (unsigned i = 0; i < text.size(); i++)
         {
-            if (c == '\n' || c == '\t')
+            const auto c = text[i];
+
+            if (c == '\n')
+            {
                 NextLine();
-            else if (c == ' '
-                || c < font.GetFirstChar())
+            }
+            else if (c == '\t')
+            {
+                NextLine();
+                Advance(font.GetSpace() * 5);
+            }
+            else if (c == ' ')
+            {
+                //|| c < font.GetFirstChar())
                 Advance(font.GetSpace());
+            }
             else if (c == '#')
+            {
                 bold = !bold;
+            }
             else
             {
                 auto textTrans = glm::translate(
@@ -88,7 +107,8 @@ public:
                     textTrans,
                     fr.GetSprites().Get(
                         font.GetIndex(c)));
-                    Advance(font.GetWidth(c));
+                std::cout << c;
+                Advance(font.GetWidth(c));
 
                 if (bold)
                 {
@@ -100,18 +120,51 @@ public:
 
                     textTrans = glm::scale(
                         textTrans,
-                        glm::vec3{
-                            boldness,
-                            boldness,
-                            0.0f});
+                        glm::vec3{boldness, boldness, 0.0f});
+
                     Draw(
                         textTrans,
                         fr.GetSprites().Get(
                             font.GetIndex(c)));
-                        Advance(2);
                 }
             }
+            const auto nextChar = i + 1;
+            if (nextChar < text.size())
+            {
+                const auto ch = text[nextChar];
+                const auto isAlphaNum = ch >= '!' || c <= 'z';
+
+                if (isAlphaNum && !inWord)
+                {
+                    const auto tmpPos = charPos;
+                    const auto wordStart = text.begin() + nextChar;
+                    const auto it = std::find_if(
+                        wordStart,
+                        text.begin() + text.size(),
+                        [](const auto& c){ return c < '!' || c > 'z'; });
+
+                    wordLetters = std::distance(wordStart, it);
+                    for (const auto& ch : text.substr(nextChar, wordLetters))
+                        AdvanceChar(font.GetWidth(ch));
+
+                    if (charPos.x >= limit.x)
+                        NextLine();
+                    else
+                        charPos = tmpPos;
+                }
+                else if (isAlphaNum)
+                    inWord = true;
+                else
+                    inWord = false;
+            }
+
+            if (charPos.y > limit.y)
+            {
+                return text.substr(i, text.size() - 1);
+            }
         }
+
+        return std::optional<std::string_view>{};
     }
 
 private:

@@ -53,7 +53,7 @@ void ShowDialogGui(
         ss << "[ ds: " << std::hex << +snippet.mDisplayStyle << " act: " << +snippet.mActor
             << " ds2: " << +snippet.mDisplayStyle2 << " ds3: " << +snippet.mDisplayStyle3 << " ]" << std::endl;
         for (const auto& action : snippet.mActions)
-            ss << "Action :: " << action.mAction << std::endl;
+            ss << "Action :: " << action << std::endl;
         ImGui::TextWrapped(ss.str().c_str());
     }
     ImGui::TextWrapped("Text:\n %s", snippet.GetText().data());

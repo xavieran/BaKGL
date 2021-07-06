@@ -20,115 +20,72 @@ namespace BAK {
 class Keywords
 {
 public:
-    void Load(FileBuffer& fb)
-    {
-        auto length = fb.GetUint16LE();
-        std::cout << "Loading keywords" << std::endl;
-        std::cout << "Length: " << length << std::endl;
-
-        unsigned i = 0;
-        while (fb.Tell() != 0x2b8)
-        {
-            std::cout << "I: " << i << " " << std::hex << fb.GetUint16LE()
-                << std::dec << std::endl;
-            i++;
-        }
-        i = 0;
-        while (fb.GetBytesLeft() != 0)
-        {
-            std::cout << "Str:" << i << " :: " << fb.GetString() << std::endl;
-            i++;
-        }
-    }
+    void Load(FileBuffer& fb);
 };
 
 enum class ChoiceState
 {
     Money   = 0x7531,
     Chapter = 0x7537,
+    Time    = 0x7539,
 
 };
+
+enum class DisplayFlags
+{
+    Fullscreen = 0x6,
+};
+
+enum class DialogResult
+{
+    GiveItem = 0x02,
+};
+
+struct DialogChoice
+{
+    DialogChoice(
+        std::uint16_t state,
+        std::uint16_t choice1,
+        std::uint16_t choice2,
+        Target target)
+    :
+        mState{state},
+        mChoice1{choice1},
+        mChoice2{choice2},
+        mTarget{target}
+    {}
+
+    std::uint16_t mState;
+    std::uint16_t mChoice1;
+    std::uint16_t mChoice2;
+    Target mTarget;
+};
+
+struct DialogAction
+{
+    DialogAction(
+        //std::uint16_t first,
+        //std::uint16_t result,
+        const std::array<std::uint8_t, 10>& rest)
+    :
+        //mFirst{first},
+        //mResult{static_cast<DialogResult>(result)},
+        mRest{rest}
+    {}
+
+    //std::uint16_t mFirst;
+    //DialogResult mResult;
+    std::array<std::uint8_t, 10> mRest;
+};
+
+std::ostream& operator<<(std::ostream& os, const DialogAction& d);
 
 class DialogSnippet
 {
 public:
-    struct Choice
-    {
-        Choice(
-            std::uint16_t state,
-            std::uint16_t choice1,
-            std::uint16_t choice2,
-            Target target)
-        :
-            mState{state},
-            mChoice1{choice1},
-            mChoice2{choice2},
-            mTarget{target}
-        {}
+    DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile);
 
-        std::uint16_t mState;
-        std::uint16_t mChoice1;
-        std::uint16_t mChoice2;
-        Target mTarget;
-    };
-
-    struct Action
-    {
-        Action(
-            const std::array<std::uint8_t, 10>& action)
-        :
-            mAction{action}
-        {}
-
-        std::array<std::uint8_t, 10> mAction;
-    };
-
-    DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
-    {
-        mDisplayStyle        = fb.GetUint8();
-        mActor               = fb.GetUint16LE();
-        mDisplayStyle2       = fb.GetUint8();
-        mDisplayStyle3       = fb.GetUint8();
-        std::uint8_t choices = fb.GetUint8();
-        std::uint8_t actions = fb.GetUint8();
-        auto length          = fb.GetUint16LE();
-        
-        std::uint8_t i;
-
-        const auto GetTarget = [dialogFile](auto rawTarget) -> Target
-        {
-            constexpr std::uint32_t targetBit = 0x80000000;
-            if (targetBit & rawTarget)
-                return KeyTarget{rawTarget & (targetBit - 1)};
-            else
-                return OffsetTarget{dialogFile, rawTarget};
-        };
-
-        for (i = 0; i < choices; i++)
-        {
-            const auto state   = fb.GetUint16LE();
-            const auto choice1 = fb.GetUint16LE();
-            const auto choice2 = fb.GetUint16LE();
-            const auto offset  = fb.GetUint32LE();
-            const auto target  = GetTarget(offset);
-            // FIXME: Should work out what to do with offset == 0
-            if (offset != 0)
-                mChoices.emplace_back(state, choice1, choice2, target);
-        }
-
-        for (i = 0; i < actions; i++)
-        {
-            mActions.emplace_back(fb.GetArray<10>());
-        }
-        
-        if (length > 0)
-            mText = fb.GetString(length);
-        else
-            mText = "";
-    }
-
-
-    const std::vector<Choice>& GetChoices() const { return mChoices; }
+    const auto& GetChoices() const { return mChoices; }
     std::string_view GetText() const { return mText; }
 
     std::uint8_t mDisplayStyle;
@@ -136,8 +93,8 @@ public:
     std::uint8_t mDisplayStyle2;
     std::uint8_t mDisplayStyle3;
 
-    std::vector<Choice> mChoices;
-    std::vector<Action> mActions;
+    std::vector<DialogChoice> mChoices;
+    std::vector<DialogAction> mActions;
     std::string mText;
 };
 

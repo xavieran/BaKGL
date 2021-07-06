@@ -318,8 +318,8 @@ int main(int argc, char** argv)
 
         fontRenderer.GetSprites().BindGL();
         Gui::TextBox{
-            glm::vec3{10, 120, 0},
-            glm::vec3{320 - 40, 240 - 120, 0}}.Render(
+            glm::vec3{16, 120, 0},
+            glm::vec3{320 - 16 - 16, 240 - 120, 0}}.Render(
             fontRenderer,
             text,
             [&](const auto& pos, auto object){
@@ -331,11 +331,14 @@ int main(int argc, char** argv)
 
         {
             unsigned draw = 0;
-            for (const auto& [pressed, highlighted, image, pImage, pos, dim, scale, cb, cr] : frames.top()->mChildren)
-                if (highlighted)
-                    draw = pImage;
+            for (const auto& child : frames.top()->mChildren)
+                if (child.mHighlighted)
+                    draw = child.mPressedImage;
 
-            auto cursorTrans = glm::translate(glm::mat4{1}, mousePos * guiScaleInv);
+            auto cursorTrans = glm::translate(
+                glm::mat4{1},
+                mousePos * guiScaleInv);
+
             modelMatrix = cursorTrans;
             auto object = cursor.GetSprites().mObjects.GetObject(draw);
             Draw(modelMatrix, object);

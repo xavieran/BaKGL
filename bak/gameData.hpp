@@ -98,12 +98,13 @@ public:
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
-        ReadEvent(0x7537);
-        LoadLocation();
+        ReadEventWord(0xdac0);
+        ReadEventWord(0xc0da); // 0xb08
+        //LoadLocation();
         //LoadCombatStats(0xdb, 6);
         //LoadCombatInventories(0x3a7f7, 6);
         //LoadInventoryOffsetsP();
-        LoadContainer();
+        //LoadContainer();
         //LoadCombatEntityLists();
         //LoadCombatInventories(0x46053, 1733);
         //LoadCombatStats(0x914b, 1698);
@@ -117,13 +118,25 @@ public:
         mBuffer.Seek(eventLocation);
         unsigned eventData = mBuffer.GetUint16LE();
         unsigned bitValue = (eventData >> bitOffset) & 0x1;
-        mLogger.Info() << "Ptr: " << std::hex << eventPtr << " loc: "
+        mLogger.Spam() << "Ptr: " << std::hex << eventPtr << " loc: "
             << eventLocation << " val: " << eventData << " bitVal: "
             << bitValue << std::dec << std::endl;
 
         return bitValue;
     }
 
+    unsigned ReadEventWord(unsigned eventPtr) const
+    {
+        unsigned startOffset = 0x6e2;
+        unsigned bitOffset = eventPtr & 0xf;
+        unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
+        mBuffer.Seek(eventLocation);
+        unsigned eventData = mBuffer.GetUint32LE();
+        mLogger.Spam() << "Ptr: " << std::hex << eventPtr << " loc: "
+            << eventLocation << " val: " << eventData << std::dec << "\n";
+
+        return eventData;
+    }
     void LoadLocation()
     {
         mBuffer.Seek(0x5a);

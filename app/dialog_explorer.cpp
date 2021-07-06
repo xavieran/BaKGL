@@ -1,4 +1,6 @@
 #include "bak/dialog.hpp"
+#include "bak/gameData.hpp"
+
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -20,6 +22,10 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
     BAK::ZoneLabel zoneLabel{"Z01"};
+    std::unique_ptr<BAK::GameData> gameData{nullptr};
+
+    if (argc == 2)
+        gameData = std::make_unique<BAK::GameData>(argv[1]);
 
     BAK::DialogStore dialogStore{};
     dialogStore.Load();
@@ -123,7 +129,7 @@ int main(int argc, char** argv)
                 ss << "[ ds: " << std::hex << +snippet.mDisplayStyle << " act: " << +snippet.mActor
                     << " ds2: " << +snippet.mDisplayStyle2 << " ds3: " << +snippet.mDisplayStyle3 << " ]" << std::endl;
                 for (const auto& action : snippet.mActions)
-                    ss << "Action :: " << action.mAction << std::endl;
+                    ss << "Action :: " << action << std::endl;
                 ImGui::TextWrapped(ss.str().c_str());
             }
             ImGui::TextWrapped("Text:\n %s", snippet.GetText().data());
@@ -144,7 +150,11 @@ int main(int argc, char** argv)
                     history.push(current);
                     current = choice.mTarget;
                 }
-
+                if (gameData != nullptr)
+                {
+                    ss.str(""); ss << "Val: " << gameData->ReadEvent(choice.mState) << " Word: " << std::hex << gameData->ReadEventWord(choice.mState);
+                    ImGui::SameLine(); ImGui::Text(ss.str().c_str());
+                }
                 ImGui::TextWrapped(dialogStore.GetFirstText(
                     dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());
             }

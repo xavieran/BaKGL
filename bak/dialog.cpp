@@ -2,6 +2,92 @@
 
 namespace BAK {
 
+void Keywords::Load(FileBuffer& fb)
+{
+    auto length = fb.GetUint16LE();
+    std::cout << "Loading keywords" << std::endl;
+    std::cout << "Length: " << length << std::endl;
+
+    unsigned i = 0;
+    while (fb.Tell() != 0x2b8)
+    {
+        std::cout << "I: " << i << " " << std::hex << fb.GetUint16LE()
+            << std::dec << std::endl;
+        i++;
+    }
+    i = 0;
+    while (fb.GetBytesLeft() != 0)
+    {
+        std::cout << "Str:" << i << " :: " << fb.GetString() << std::endl;
+        i++;
+    }
+}
+
+
+DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
+{
+    mDisplayStyle        = fb.GetUint8();
+    mActor               = fb.GetUint16LE();
+    mDisplayStyle2       = fb.GetUint8();
+    mDisplayStyle3       = fb.GetUint8();
+    std::uint8_t choices = fb.GetUint8();
+    std::uint8_t actions = fb.GetUint8();
+    auto length          = fb.GetUint16LE();
+    
+    std::uint8_t i;
+
+    const auto GetTarget = [dialogFile](auto rawTarget) -> Target
+    {
+        constexpr std::uint32_t targetBit = 0x80000000;
+        if (targetBit & rawTarget)
+            return KeyTarget{rawTarget & (targetBit - 1)};
+        else
+            return OffsetTarget{dialogFile, rawTarget};
+    };
+
+    for (i = 0; i < choices; i++)
+    {
+        const auto state   = fb.GetUint16LE();
+        const auto choice1 = fb.GetUint16LE();
+        const auto choice2 = fb.GetUint16LE();
+        const auto offset  = fb.GetUint32LE();
+        const auto target  = GetTarget(offset);
+        // FIXME: Should work out what to do with offset == 0
+        if (offset != 0)
+            mChoices.emplace_back(state, choice1, choice2, target);
+    }
+
+    for (i = 0; i < actions; i++)
+    {
+        mActions.emplace_back(
+            //fb.GetUint16LE(),
+            //fb.GetUint16LE(),
+            fb.GetArray<10>());
+    }
+    
+    if (length > 0)
+        mText = fb.GetString(length);
+    else
+        mText = "";
+}
+
+std::ostream& operator<<(std::ostream& os, const DialogResult& d)
+{
+    switch (d)
+    {
+        case DialogResult::GiveItem: return os << "GiveItem";
+        default: return os << "(" << static_cast<unsigned>(d) << ")";
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const DialogAction& d)
+{
+    os << "DA { " 
+       // << " fst: " << d.mFirst << " result: " << d.mResult 
+        << " rst: [" << d.mRest << "]}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
 {
     os << "[ ds: " << std::hex << +d.mDisplayStyle << " act: " << +d.mActor
@@ -10,7 +96,7 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
     
     for (const auto& action : d.mActions)
     {
-        os << "++ " << action.mAction << std::endl;
+        os << "++ " << action << std::endl;
     }
 
     for (const auto& choice : d.mChoices)
