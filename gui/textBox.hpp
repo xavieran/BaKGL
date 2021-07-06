@@ -97,6 +97,10 @@ public:
             {
                 bold = !bold;
             }
+            else if (c == static_cast<char>(0xf1))
+            {
+
+            }
             else
             {
                 auto textTrans = glm::translate(
@@ -107,7 +111,6 @@ public:
                     textTrans,
                     fr.GetSprites().Get(
                         font.GetIndex(c)));
-                std::cout << c;
                 Advance(font.GetWidth(c));
 
                 if (bold)
