@@ -233,7 +233,6 @@ const DialogSnippet& DialogStore::operator()(KeyTarget dialogKey) const
         err << "Key not found: " << std::hex << dialogKey << std::dec;
         throw std::runtime_error(err.str());
     }
-    mLogger.Debug() << "Key:: " << dialogKey << " :: " << it->second << "\n";
     return (*this)(it->second);
 }
 

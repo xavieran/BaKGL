@@ -4,6 +4,9 @@
 
 #include <GL/glew.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -46,6 +49,21 @@ public:
     void UseProgramGL() const
     {
         glUseProgram(GetHandle());
+    }
+
+    void SetUniform(GLuint id, const glm::mat4& value)
+    {
+        glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(value));
+    }
+
+    void SetUniform(GLuint id, int value)
+    {
+        glUniform1i(id, value);
+    }
+
+    void SetUniform(GLuint id, const glm::vec4& value)
+    {
+        glUniform4f(id, value.r, value.g, value.b, value.a);
     }
 
     ~ShaderProgramHandle()

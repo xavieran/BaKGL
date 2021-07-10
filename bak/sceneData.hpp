@@ -55,7 +55,7 @@ enum class Actions
     SET_SCENE           = 0x1110, // TAG??
     SET_SCENEB          = 0x1120, // SET BACKGROUND
     SET_SCENEC          = 0x1200, // GOTO TAG
-    SET_COLORS          = 0x2000, // SET_COLORS
+    SET_COLOR          = 0x2000, // SET_COLOR
     SET_FRAME1          = 0x2010, 
     UNKNOWN3            = 0x2300,
     UNKNOWN6            = 0x2310,
@@ -108,10 +108,9 @@ struct LoadScreen
 
 struct DrawRect
 {
-    std::int16_t mTLX;
-    std::int16_t mTLY;
-    std::int16_t mBRX;
-    std::int16_t mBRY;
+    std::pair<unsigned, unsigned> mPaletteColor;
+    glm::vec<2, int> mTopLeft;
+    glm::vec<2, int> mBottomRight;
 };
 
 struct DrawSprite
@@ -186,9 +185,10 @@ struct Purge
 };
 
 using SceneAction = std::variant<
-    DrawSprite,
     ClipRegion,
-    DisableClipRegion>;
+    DisableClipRegion,
+    DrawRect,
+    DrawSprite>;
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa);
 

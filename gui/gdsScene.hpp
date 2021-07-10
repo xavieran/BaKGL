@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
@@ -11,6 +12,7 @@
 
 #include <glm/glm.hpp>
 
+#include <iostream>
 #include <variant>
 
 namespace Gui {
@@ -49,12 +51,6 @@ public:
 
         std::unordered_map<unsigned, unsigned> offsets{};
 
-        mDrawActions.emplace_back(
-            SceneSprite{
-                0,
-                glm::vec3{0},
-                glm::vec3{1}});
-
         for (const auto& scene : {scene1, scene2})
         {
             for (const auto& [imageKey, imagePal] : scene.mImages)
@@ -70,21 +66,51 @@ public:
 
             for (const auto& action : scene.mActions)
             {
-                mDrawActions.emplace_back(
-                    std::visit(overloaded{
+                auto drawAction = std::visit(
+                    overloaded{
                         [&](const BAK::DrawSprite& sa) -> DrawingAction {
                             return ConvertSceneAction(
                                 sa,
                                 textures,
                                 offsets);
                         },
+                        [&](const BAK::DrawRect& sr) -> DrawingAction {
+                            const auto [palKey, colorKey] = sr.mPaletteColor;
+                            assert(textures.size() > 0);
+                            const auto [iwidth, iheight] = textures.GetTexture(0).GetDims();
+                            const auto width  = static_cast<float>(iwidth);
+                            const auto height = static_cast<float>(iheight);
+                            const auto scale = glm::vec3{
+                                sr.mBottomRight.x / width,
+                                sr.mBottomRight.y / height,
+                                0};
+                            return SceneRect{
+                                colorKey == 6 
+                                    ? glm::vec4{0.3, 0.11, 0.094, 1.0}
+                                    : glm::vec4{1.0, 1.0, 1.0, 1.0},
+                                glm::vec3{sr.mTopLeft.x, sr.mTopLeft.y, 0},
+                                glm::vec3{scale}
+                            };
+                        },
                         [](auto&& a) -> DrawingAction {
                             return ConvertSceneAction(a);
                         }
                     },
-                    action));
+                    action);
+
+                if (std::holds_alternative<SceneRect>(drawAction))
+                    mDrawActions.insert(mDrawActions.begin(), drawAction);
+                else
+                    mDrawActions.emplace_back(drawAction);
             }
         }
+
+        mDrawActions.insert(
+            mDrawActions.begin(),
+            SceneSprite{
+                0,
+                glm::vec3{0},
+                glm::vec3{1}});
 
         mSprites.LoadTexturesGL(textures);
     }

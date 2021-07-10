@@ -9,6 +9,7 @@
 #include "bak/systems.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "com/algorithm.hpp"
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
@@ -41,6 +42,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
 #include <functional>
 #include <memory>
 #include <sstream>
@@ -52,8 +54,8 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    Logging::LogState::Disable("LoadScenes");
-    Logging::LogState::Disable("LoadSceneIndices");
+    //Logging::LogState::Disable("LoadScenes");
+    //Logging::LogState::Disable("LoadSceneIndices");
 
     
     auto guiScalar = 2.0f;
@@ -79,10 +81,10 @@ int main(int argc, char** argv)
     // Dark blue background
     glClearColor(0.0f, 0.0f, 0.0, 0.0f);
 
-    auto guiShader = ShaderProgram{
+    auto guiShaderProgram = ShaderProgram{
         "gui.vert.glsl",
         "gui.frag.glsl"};
-    auto guiShaderId = guiShader.Compile();
+    auto guiShader = guiShaderProgram.Compile();
 
     const auto root = static_cast<std::uint8_t>(std::atoi(argv[1]));
     auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
@@ -239,7 +241,7 @@ int main(int argc, char** argv)
     
     double pointerPosX, pointerPosY;
 
-    guiShaderId.UseProgramGL();
+    guiShader.UseProgramGL();
 
     double acc = 0;
     unsigned i = 0;
@@ -261,19 +263,27 @@ int main(int argc, char** argv)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        const auto programId = guiShaderId.GetHandle();
+        const auto programId = guiShader.GetHandle();
 
         GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
+        GLuint blockColorId  = glGetUniformLocation(programId, "blockColor");
+        GLuint useColorId    = glGetUniformLocation(programId, "useColor");
+
+        // ...
+        int useColor = 0;
+        auto blockColor = glm::vec4{0};
 
         const auto Draw = [&](auto modelMatrix, auto object)
         {
             MVP = viewMatrix * scaleMatrix * modelMatrix;
 
-            glUniformMatrix4fv(mvpMatrixID,   1, GL_FALSE, glm::value_ptr(MVP));
-            glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            glUniformMatrix4fv(viewMatrixID,  1, GL_FALSE, glm::value_ptr(viewMatrix));
+            guiShader.SetUniform(mvpMatrixID,   MVP);
+            guiShader.SetUniform(modelMatrixID, modelMatrix);
+            guiShader.SetUniform(viewMatrixID,  viewMatrix);
+            guiShader.SetUniform(useColorId,    useColor);
+            guiShader.SetUniform(blockColorId,  blockColor);
         
             const auto [offset, length] = object;
             glDrawElementsBaseVertex(
@@ -295,8 +305,19 @@ int main(int argc, char** argv)
                     auto sprScale = glm::scale(glm::mat4{1}, sprite.mScale);
                     auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
                     modelMatrix = sprTrans * sprScale;
-                    auto object = scene.mSprites.mObjects.GetObject(sprite.mImage);
+                    auto object = scene.mSprites.Get(sprite.mImage);
+                    useColor = 0;
                     Draw(modelMatrix, object);
+                },
+                [&](const Gui::SceneRect& rect){
+                    auto sprScale = glm::scale(glm::mat4{1}, rect.mDimensions);
+                    auto sprTrans = glm::translate(
+                        glm::mat4{1},
+                        rect.mPosition);
+                    modelMatrix = sprTrans * sprScale;
+                    useColor = 1;
+                    blockColor = rect.mColor;
+                    Draw(modelMatrix, std::make_pair(0, 6));
                 },
                 [&](const Gui::EnableClipRegion& clip){
                     glScissor(
@@ -311,12 +332,30 @@ int main(int argc, char** argv)
                 }},
                 action);
         }
+
+        useColor = 0;
         
-        const auto& text = dialog
+        fontRenderer.GetSprites().BindGL();
+
+        auto text = dialog
             ? *dialog 
             : GetText(scenes.top()->mHotspots.mFlavourText);
+        const auto titleIt = find_nth(text.begin(), text.end(), '#', 2);
+        if (titleIt != text.end())
+        {
+            const auto titleLen = std::distance(text.begin(), titleIt);
+            Gui::TextBox{
+                glm::vec3{144.0, 108.0, 0},
+                glm::vec3{320 - 16 - 16, 240 - 120, 0}}.Render(
+                fontRenderer,
+                text.substr(0, titleLen),
+                [&](const auto& pos, auto object){
+                    modelMatrix = pos;
+                    Draw(modelMatrix, object);
+                });
+            text = text.substr(titleLen, text.size() - titleLen);
+        }
 
-        fontRenderer.GetSprites().BindGL();
         Gui::TextBox{
             glm::vec3{16, 120, 0},
             glm::vec3{320 - 16 - 16, 240 - 120, 0}}.Render(
@@ -340,7 +379,7 @@ int main(int argc, char** argv)
                 mousePos * guiScaleInv);
 
             modelMatrix = cursorTrans;
-            auto object = cursor.GetSprites().mObjects.GetObject(draw);
+            auto object = cursor.GetSprites().Get(draw);
             Draw(modelMatrix, object);
         }
 

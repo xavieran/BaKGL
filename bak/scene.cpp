@@ -230,6 +230,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     bool flipped = false;
     std::optional<unsigned> imageSlot = 0;
     std::optional<unsigned> paletteSlot = 0;
+    std::optional<std::pair<unsigned, unsigned>> activeColor{};
     std::unordered_map<unsigned, std::string> palettes{};
     std::unordered_map<
         unsigned,
@@ -273,18 +274,16 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             images.clear();
             palettes.clear();
             imageSlot.reset();
-            //paletteSlot.reset();
+            activeColor.reset();
             loadingScene = true;
             break;
 
         case Actions::SET_CLIP_REGION:
-        {
             // Transform this to opengl coords...
             currentScene.mActions.emplace_back(
                 ClipRegion{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
-        }
             break;
 
         case Actions::LOAD_PALETTE:
@@ -294,6 +293,12 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             palettes[*paletteSlot] = *chunk.mResourceName;
             break;
 
+        case Actions::SET_COLOR:
+            assert(paletteSlot);
+            activeColor = std::make_pair(
+                *paletteSlot,
+                chunk.mArguments[0]);
+            break;
         case Actions::LOAD_IMAGE:
         {
             assert(loadingScene);
@@ -304,6 +309,15 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             (*(name.end() - 1)) = 'X';
             images[*imageSlot] = std::make_pair(name, *paletteSlot);
         }
+            break;
+        case Actions::DRAW_RECT:
+        case Actions::DRAW_FRAME:
+            assert(activeColor);
+            currentScene.mActions.emplace_back(
+                DrawRect{
+                    *activeColor,
+                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
+                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
             break;
         case Actions::DRAW_SPRITE1: [[fallthrough]];
         case Actions::DRAW_SPRITE_FLIP:

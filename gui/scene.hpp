@@ -26,14 +26,22 @@ struct SceneSprite
     glm::vec3 mScale;
 };
 
+struct SceneRect
+{
+    glm::vec4 mColor;
+    glm::vec3 mPosition;
+    glm::vec3 mDimensions;
+};
+
 using DrawingAction = std::variant<
     EnableClipRegion,
     DisableClipRegion,
-    SceneSprite>;
+    SceneSprite,
+    SceneRect>;
 
 DrawingAction ConvertSceneAction(const BAK::SceneAction& action);
 
-EnableClipRegion ConvertSceneAction(const BAK::ClipRegion& clipRegion);
+EnableClipRegion ConvertSceneAction(const BAK::ClipRegion&);
 DisableClipRegion ConvertSceneAction(const BAK::DisableClipRegion&);
 
 template <typename T, typename S>

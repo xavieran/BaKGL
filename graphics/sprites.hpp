@@ -87,14 +87,15 @@ public:
 
     std::size_t size()
     {
-        return mObjects.mObjects.size();
+        return mObjects.size();
     }
 
     auto Get(unsigned i) const
     {
         return mObjects.GetObject(i);
     }
-    
+
+private:
     VertexArrayObject mVertexArray;
     GLBuffers mBuffers;
     TextureBuffer mTextureBuffer;

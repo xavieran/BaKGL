@@ -49,6 +49,11 @@ public:
 
     unsigned GetWidth() const { return mWidth; }
     unsigned GetHeight() const { return mHeight; }
+    std::pair<unsigned, unsigned> GetDims() const
+    {
+        return std::make_pair(GetWidth(), GetHeight());
+    }
+
     const TextureType& GetTexture() const { return mTexture; }
 
 private:
@@ -84,6 +89,7 @@ public:
     unsigned GetMaxDim() const { return mMaxDim; }
     unsigned GetMaxHeight() const { return mMaxHeight; }
     unsigned GetMaxWidth() const { return mMaxWidth; }
+    std::size_t size() const { return mTextures.size(); }
 
 private:
     std::vector<Texture> mTextures;

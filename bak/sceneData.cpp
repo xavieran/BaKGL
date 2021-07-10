@@ -58,7 +58,7 @@ std::string_view ToString(Actions a)
     case Actions::SET_SCENEA: return "SETSCENEA";
     case Actions::SET_SCENEB: return "SETSCENEB";
     case Actions::SET_SCENEC: return "SETSCENEC";
-    case Actions::SET_COLORS: return "SetColors";
+    case Actions::SET_COLOR: return "SetColors";
     case Actions::SET_FRAME1: return "SetFrame1";
     case Actions::FADE_OUT: return "FadeOut";
     case Actions::FADE_IN: return "FadeIn";

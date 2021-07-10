@@ -6,7 +6,8 @@ in vec3 uvCoords;
 // Ouput data
 out vec4 color;
 
-uniform mat4 MV;
+uniform int  useColor;
+uniform vec4 blockColor;
 uniform sampler2DArray texture0;
 
 void main()
@@ -15,9 +16,8 @@ void main()
     vec3 textureColor  = textureSample.xyz;
     float textureAlpha = textureSample.a;
 
-    //if (textureAlpha == 0) discard;
-
-    //color = vec4(1,0,0,1);
-    color = vec4(textureColor, textureAlpha);
+    if (useColor != 0)
+        color = blockColor;
+    else
+        color = vec4(textureColor, textureAlpha);
 }
-
