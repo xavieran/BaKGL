@@ -99,7 +99,9 @@ public:
             }
             else if (c == static_cast<char>(0xf1))
             {
-
+            }
+            else if (c == static_cast<char>(0xf3))
+            {
             }
             else
             {
