@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.19)
 project( BaKGL )
 
 # Project wide CXX flags
-set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-parameter -Wno-unused-private-field -Wno-unused-function -Wno-format-security -Wno-c++17-extensions")
+set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-parameter -Wno-unused-private-field -Wno-unused-function -Wno-format-security")
+#-Wno-c++17-extensions")
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)

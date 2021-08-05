@@ -9,6 +9,7 @@ add_library(graphics
     sphere.hpp sphere.cpp
     sprites.hpp
     texture.hpp
+    types.hpp
 )
 
 target_link_libraries(graphics glfw)

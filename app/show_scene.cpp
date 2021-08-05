@@ -14,6 +14,7 @@
 #include "com/visit.hpp"
 
 #include "graphics/glfw.hpp"
+#include "graphics/guiRenderer.hpp"
 #include "graphics/plane.hpp"
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"
@@ -80,6 +81,8 @@ int main(int argc, char** argv)
 
     // Dark blue background
     glClearColor(0.0f, 0.0f, 0.0, 0.0f);
+
+    auto guiRenderer = Graphics::GuiRenderer{width, height, guiScalar};
 
     auto guiShaderProgram = ShaderProgram{
         "gui.vert.glsl",
@@ -164,15 +167,7 @@ int main(int argc, char** argv)
 
         
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
-    glm::mat4 viewMatrix = glm::ortho(
-        0.0f,
-        static_cast<float>(width),
-        static_cast<float>(height),
-        0.0f,
-        -1.0f,
-        1.0f);  
     glm::mat4 modelMatrix{1.0f};
-    glm::mat4 MVP{1};
 
     InputHandler inputHandler{};
 
@@ -263,38 +258,20 @@ int main(int argc, char** argv)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        const auto programId = guiShader.GetHandle();
-
-        GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
-        GLuint modelMatrixID = glGetUniformLocation(programId, "M");
-        GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
-        GLuint blockColorId  = glGetUniformLocation(programId, "blockColor");
-        GLuint useColorId    = glGetUniformLocation(programId, "useColor");
-
         // ...
-        int useColor = 0;
+        int colorMode = 0;
         auto blockColor = glm::vec4{0};
 
         const auto Draw = [&](auto modelMatrix, auto object)
         {
-            MVP = viewMatrix * scaleMatrix * modelMatrix;
-
-            guiShader.SetUniform(mvpMatrixID,   MVP);
-            guiShader.SetUniform(modelMatrixID, modelMatrix);
-            guiShader.SetUniform(viewMatrixID,  viewMatrix);
-            guiShader.SetUniform(useColorId,    useColor);
-            guiShader.SetUniform(blockColorId,  blockColor);
-        
-            const auto [offset, length] = object;
-            glDrawElementsBaseVertex(
-                GL_TRIANGLES,
-                length,
-                GL_UNSIGNED_INT,
-                (void*) (offset * sizeof(GLuint)),
-                offset
-            );
+            guiRenderer.Draw(
+                modelMatrix,
+                Graphics::ColorMode{colorMode},
+                blockColor,
+                0, // unused
+                object);
         };
-        
+
         auto& scene = *scenes.top();
         scene.mSprites.BindGL();
 
@@ -306,17 +283,16 @@ int main(int argc, char** argv)
                     auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
                     modelMatrix = sprTrans * sprScale;
                     auto object = scene.mSprites.Get(sprite.mImage);
-                    useColor = 0;
+                    colorMode = 0;
                     Draw(modelMatrix, object);
                 },
                 [&](const Gui::SceneRect& rect){
                     auto sprScale = glm::scale(glm::mat4{1}, rect.mDimensions);
-                    auto sprTrans = glm::translate(
-                        glm::mat4{1},
-                        rect.mPosition);
+                    auto sprTrans = glm::translate(glm::mat4{1}, rect.mPosition);
                     modelMatrix = sprTrans * sprScale;
-                    useColor = 1;
+                    colorMode = 1;
                     blockColor = rect.mColor;
+                    // 6 vertices for quad...
                     Draw(modelMatrix, std::make_pair(0, 6));
                 },
                 [&](const Gui::EnableClipRegion& clip){
@@ -333,10 +309,8 @@ int main(int argc, char** argv)
                 action);
         }
 
-        useColor = 0;
-        
+        colorMode = 0;
         fontRenderer.GetSprites().BindGL();
-
         auto text = dialog
             ? *dialog 
             : GetText(scenes.top()->mHotspots.mFlavourText);
@@ -363,7 +337,10 @@ int main(int argc, char** argv)
             text,
             [&](const auto& pos, auto object){
                 modelMatrix = pos;
+                colorMode = 2;
+                blockColor = glm::vec4{1, 0, 1, .5};
                 Draw(modelMatrix, object);
+                colorMode = 0;
             });
 
         cursor.GetSprites().BindGL();

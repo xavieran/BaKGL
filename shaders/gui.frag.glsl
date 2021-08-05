@@ -6,7 +6,7 @@ in vec3 uvCoords;
 // Ouput data
 out vec4 color;
 
-uniform int  useColor;
+uniform int  colorMode;
 uniform vec4 blockColor;
 uniform sampler2DArray texture0;
 
@@ -14,10 +14,13 @@ void main()
 {
     vec4 textureSample = texture(texture0, uvCoords);
     vec3 textureColor  = textureSample.xyz;
-    float textureAlpha = textureSample.a;
-
-    if (useColor != 0)
+    vec3 blockColorB   = blockColor.xyz;
+    if (colorMode == 1)
         color = blockColor;
+    else if (colorMode == 2)
+        color = vec4(
+            mix(blockColorB, textureColor, .5),
+            textureSample.a);
     else
-        color = vec4(textureColor, textureAlpha);
+        color = vec4(textureColor, textureSample.a);
 }

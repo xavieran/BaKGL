@@ -33,6 +33,9 @@ public:
         mHandle{handle}
     {}
 
+    ShaderProgramHandle& operator=(const ShaderProgramHandle&) = delete;
+    ShaderProgramHandle(const ShaderProgramHandle&) = delete;
+
     ShaderProgramHandle& operator=(ShaderProgramHandle&& other)
     {
         mHandle = other.mHandle;
@@ -51,17 +54,17 @@ public:
         glUseProgram(GetHandle());
     }
 
-    void SetUniform(GLuint id, const glm::mat4& value)
+    static void SetUniform(GLuint id, const glm::mat4& value)
     {
         glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(value));
     }
 
-    void SetUniform(GLuint id, int value)
+    static void SetUniform(GLuint id, int value)
     {
         glUniform1i(id, value);
     }
 
-    void SetUniform(GLuint id, const glm::vec4& value)
+    static void SetUniform(GLuint id, const glm::vec4& value)
     {
         glUniform4f(id, value.r, value.g, value.b, value.a);
     }
@@ -71,9 +74,13 @@ public:
         glDeleteProgram(mHandle);
         mHandle = 0;
     }
-
-    ShaderProgramHandle& operator=(const ShaderProgramHandle&) = delete;
-    ShaderProgramHandle(const ShaderProgramHandle&) = delete;
+    
+    GLuint GetUniformLocation(const std::string& name)
+    {
+        return glGetUniformLocation(
+            mHandle,
+            name.c_str());
+    }
 
     GLuint GetHandle() const
     {
