@@ -1,9 +1,12 @@
 #pragma once
 
+#include "bak/textureFactory.hpp"
+
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
 #include <cassert>
+#include <stack>
 
 namespace Gui {
 
@@ -32,13 +35,16 @@ public:
     {
         assert(cursor < mSprites.size());
         mCursors.push(cursor);
+        return cursor;
     }
 
     unsigned PopCursor()
     {
         // We should always have at least one cursor
         assert(mCursors.size() >= 2);
+        const auto top = mCursors.top();
         mCursors.pop();
+        return top;
     }
 
     unsigned GetCursor()
