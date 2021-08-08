@@ -1,5 +1,7 @@
 # BaK GL
 
+![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/cmake.yml/badge.svg)
+
 Modern implementation of Betrayal at Krondor using OpenGL for true 3D graphics.
 
 Main goals are to get the game running (graphics, world exploration, combat, and eventually story).
