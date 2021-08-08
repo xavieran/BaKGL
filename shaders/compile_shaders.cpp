@@ -4,6 +4,12 @@
 
 #include <GLFW/glfw3.h>
 
+void ErrorCallback(int code, const char* desc)
+{
+    const auto& logger = Logging::LogState::GetLogger("GLFW");
+    logger.Error() << " Code: " << code << " desc: " << desc << std::endl;
+}
+
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
@@ -15,6 +21,8 @@ int main(int argc, char** argv)
     auto program = ShaderProgram{vertexShaderPath, std::optional<std::string>{}, fragmentShaderPath};
 
     logger.Info() << "Compiling " << vertexShaderPath << " and " << fragmentShaderPath << std::endl;
+
+    glfwSetErrorCallback(ErrorCallback);
 
     if( !glfwInit() )
     {

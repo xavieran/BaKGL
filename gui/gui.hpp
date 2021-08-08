@@ -30,8 +30,8 @@ struct GuiElement
         mPosition{position},
         mDims{dims},
         mScale{scale},
-        mLeftReleased{std:move(leftRelease)},
-        mRightReleased{std:move(rightRelease)}
+        mLeftReleased{std::move(leftRelease)},
+        mRightReleased{std::move(rightRelease)}
     {
         assert(mLeftReleased);
         assert(mRightReleased);
