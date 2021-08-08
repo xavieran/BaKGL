@@ -39,7 +39,7 @@ struct HotspotRef
     std::uint8_t mGdsNumber;
     char mGdsChar;
 
-    bool operator==(const auto& rhs)
+    bool operator==(const auto& rhs) const
     {
         return mGdsNumber == rhs.mGdsNumber
             && mGdsChar == rhs.mGdsChar;
