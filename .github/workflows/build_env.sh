@@ -5,4 +5,4 @@ sudo apt-get update
 sudo apt-get install g++-11 freeglut3-dev libsdl-dev libgl-dev libglew-dev libglm-dev libglfw3-dev
 
 echo `which g++`
-ls /usr/bin | grep gcc
+ls /usr/bin | grep g++
