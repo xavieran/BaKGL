@@ -4,10 +4,12 @@
 #include "bak/hotspot.hpp"
 #include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
+#include "bak/textureFactory.hpp"
 
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/IGuiElement.hpp"
 #include "gui/scene.hpp"
 
 #include <glm/glm.hpp>
@@ -17,16 +19,42 @@
 
 namespace Gui {
 
+struct SceneElement : public IGuiElement
+{
+public:
+
+    template <typename ...Args>
+    SceneElement(Args&& ...args)
+    :
+        IGuiElement{std::forward<Args>(args)...},
+        mChildren{}
+    {}
+
+    const std::vector<IGuiElement*>& GetChildren() const override
+    {
+        return mChildren;
+    }
+
+private:
+    std::vector<IGuiElement*> mChildren;
+};
+
 class GDSScene
 {
 public:
 
-    GDSScene(BAK::HotspotRef hotspotRef)
+    GDSScene(
+        BAK::HotspotRef hotspotRef,
+        Graphics::SpriteManager& spriteManager)
     :
         mReference{hotspotRef},
         mHotspots{},
         mDrawActions{},
-        mSprites{},
+        mSpriteSheet{std::invoke([&spriteManager]{
+            const auto& it = spriteManager.AddSpriteSheet();
+            return it->first;
+        })},
+        mChildren{},
         mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
     {
         auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
@@ -85,6 +113,7 @@ public:
                                 sr.mBottomRight.y / height,
                                 0};
                             return SceneRect{
+                                // Reddy brown frame color
                                 colorKey == 6 
                                     ? glm::vec4{0.3, 0.11, 0.094, 1.0}
                                     : glm::vec4{1.0, 1.0, 1.0, 1.0},
@@ -99,9 +128,25 @@ public:
                     action);
 
                 if (std::holds_alternative<SceneRect>(drawAction))
+                {
                     mDrawActions.insert(mDrawActions.begin(), drawAction);
+                    const auto& sr = std::get<SceneRect>(drawAction);
+                    auto* action = new SceneElement{
+                        std::optional<Graphics::SpriteSheetIndex>{mSpriteSheet},
+                        0, // no image index
+                        Graphics::ColorMode::SolidColor,
+                        sr.mColor,
+                        sr.mPosition,
+                        sr.mDimensions,
+                        glm::vec3{1,1,1},
+                        false};
+
+                    mChildren.emplace_back(static_cast<IGuiElement*>(action));
+                }
                 else
+                {
                     mDrawActions.emplace_back(drawAction);
+                }
             }
         }
 
@@ -112,14 +157,13 @@ public:
                 glm::vec3{0},
                 glm::vec3{1}});
 
-        mSprites.LoadTexturesGL(textures);
+        spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
     GDSScene& operator=(GDSScene&& other)
     {
         this->mHotspots = std::move(other.mHotspots);
         this->mDrawActions = std::move(other.mDrawActions);
-        this->mSprites = std::move(other.mSprites);
         return *this;
     }
 
@@ -129,7 +173,9 @@ public:
     BAK::HotspotRef mReference;
     BAK::SceneHotspots mHotspots;
     std::vector<DrawingAction> mDrawActions;
-    Graphics::Sprites mSprites;
+
+    Graphics::SpriteSheetIndex mSpriteSheet;
+    std::vector<IGuiElement*> mChildren;
 
     const Logging::Logger& mLogger;
 };

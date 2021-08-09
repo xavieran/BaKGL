@@ -252,6 +252,11 @@ public:
         }
     {}
 
+    ~TextureBuffer()
+    {
+        glDeleteTextures(1, &mTextureBuffer);
+    }
+
     void BindGL() const
     {
         glBindTexture(mTextureType, mTextureBuffer);

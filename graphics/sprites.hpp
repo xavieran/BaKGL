@@ -3,6 +3,7 @@
 #include "graphics/plane.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/texture.hpp"
+#include "graphics/types.hpp"
 
 #include "com/logger.hpp"
 
@@ -100,6 +101,54 @@ private:
     GLBuffers mBuffers;
     TextureBuffer mTextureBuffer;
     QuadStorage mObjects;
+};
+
+class SpriteManager
+{
+public:
+    SpriteManager()
+    :
+        mSpriteSheets{},
+        mNextSpriteSheet{1},
+        mActiveSpriteSheet{0}
+    {
+    }
+
+    auto AddSpriteSheet()
+    {
+        const auto spriteSheetIndex = NextSpriteSheet();
+        auto [it, emplaced] = mSpriteSheets.emplace(
+            spriteSheetIndex,
+            Sprites{});
+        assert(emplaced);
+        assert(it != mSpriteSheets.end());
+        return it;
+    }
+
+    void ActivateSpriteSheet(SpriteSheetIndex spriteSheet)
+    {
+        if (spriteSheet != mActiveSpriteSheet)
+            GetSpriteSheet(spriteSheet).BindGL();
+    }
+
+    Sprites& GetSpriteSheet(SpriteSheetIndex spriteSheet)
+    {
+        assert(mSpriteSheets.contains(spriteSheet));
+        return mSpriteSheets[spriteSheet];
+    }
+
+private:
+    SpriteSheetIndex NextSpriteSheet()
+    {
+        return mNextSpriteSheet++;
+    }
+
+    std::unordered_map<
+        SpriteSheetIndex,
+        Sprites> mSpriteSheets;
+
+    SpriteSheetIndex mNextSpriteSheet;
+    SpriteSheetIndex mActiveSpriteSheet;
 };
 
 }

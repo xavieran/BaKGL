@@ -110,8 +110,10 @@ int main(int argc, char** argv)
         }
     };
 
+    auto spriteManager = Graphics::SpriteManager{};
+
     const auto MakeScene = [&](auto ref){
-        scenes.emplace(std::make_unique<Gui::GDSScene>(ref));
+        scenes.emplace(std::make_unique<Gui::GDSScene>(ref, spriteManager));
         frames.emplace(std::make_unique<Gui::Frame>(
             glm::vec3{0,0,0},
             glm::vec3{320, 240, 0}));
@@ -272,8 +274,13 @@ int main(int argc, char** argv)
                 object);
         };
 
+        // UI
+        // Scene
+        // Frame
+        // TextBox
+        // Label
+        //
         auto& scene = *scenes.top();
-        scene.mSprites.BindGL();
 
         for (const auto& action : scene.mDrawActions)
         {
@@ -282,7 +289,7 @@ int main(int argc, char** argv)
                     auto sprScale = glm::scale(glm::mat4{1}, sprite.mScale);
                     auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
                     modelMatrix = sprTrans * sprScale;
-                    auto object = scene.mSprites.Get(sprite.mImage);
+                    auto object = spriteManager.GetSpriteSheet(scene.mSpriteSheet).Get(sprite.mImage);
                     colorMode = 0;
                     Draw(modelMatrix, object);
                 },
