@@ -1,5 +1,6 @@
 
 add_library(graphics
+    IGuiElement.hpp
     glm.hpp
     glfw.hpp glfw.cpp
     line.hpp

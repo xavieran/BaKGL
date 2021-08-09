@@ -9,13 +9,18 @@
 
 #include <GL/glew.h>
 
+#include <memory>
+#include <optional>
+#include <vector>
+
 namespace Graphics {
 
 class Sprites
 {
 public:
-    Sprites()
+    Sprites() noexcept
     :
+        mNonSpriteObjects{1},
         mVertexArray{},
         mBuffers{},
         mTextureBuffer{},
@@ -23,19 +28,17 @@ public:
     {
     }
 
-    Sprites(const Sprites& other) = delete;
-    Sprites& operator=(const Sprites& other) = delete;
+    Sprites(const Sprites&) = delete;
+    Sprites& operator=(const Sprites&) = delete;
 
-    Sprites(Sprites&& other)
+    Sprites(Sprites&& other) noexcept
     :
-        mVertexArray{std::move(other.mVertexArray)},
-        mBuffers{std::move(other.mBuffers)},
-        mTextureBuffer{std::move(other.mTextureBuffer)},
-        mObjects{other.mObjects}
+        mNonSpriteObjects{other.mNonSpriteObjects}
     {
+        (*this) = std::move(other);
     }
 
-    Sprites& operator=(Sprites&& other)
+    Sprites& operator=(Sprites&& other) noexcept
     {
         this->mVertexArray = std::move(other.mVertexArray);
         this->mBuffers = std::move(other.mBuffers);
@@ -61,6 +64,10 @@ public:
         mTextureBuffer.LoadTexturesGL(
             textures.GetTextures(),
             textures.GetMaxDim());
+
+        // Normal quad for use as arbitrary rectangle
+        mObjects.AddObject(Quad{1.0, 1.0, 1.0, 0});
+        // This is why mNonSpriteObjects = 1;
 
         for (unsigned i = 0; i < textures.GetTextures().size(); i++)
         {
@@ -93,10 +100,11 @@ public:
 
     auto Get(unsigned i) const
     {
-        return mObjects.GetObject(i);
+        return mObjects.GetObject(i + mNonSpriteObjects);
     }
 
 private:
+    const std::size_t mNonSpriteObjects;
     VertexArrayObject mVertexArray;
     GLBuffers mBuffers;
     TextureBuffer mTextureBuffer;
@@ -108,33 +116,47 @@ class SpriteManager
 public:
     SpriteManager()
     :
-        mSpriteSheets{},
-        mNextSpriteSheet{1},
-        mActiveSpriteSheet{0}
+        mSprites(),
+        mNextSpriteSheet{0},
+        mActiveSpriteSheet{}
     {
+        mSprites.reserve(128);
     }
 
     auto AddSpriteSheet()
     {
+        const auto& logger = Logging::LogState::GetLogger("SpriteManager");
         const auto spriteSheetIndex = NextSpriteSheet();
-        auto [it, emplaced] = mSpriteSheets.emplace(
+        logger.Debug() << "Adding sprite sheet index: " << spriteSheetIndex << "\n";
+        assert(mSprites.size() == spriteSheetIndex);
+        auto& sprites = mSprites.emplace_back();
+        return std::make_pair(
             spriteSheetIndex,
-            Sprites{});
-        assert(emplaced);
-        assert(it != mSpriteSheets.end());
-        return it;
+            std::reference_wrapper<Sprites>(sprites));
+    }
+
+    void DeactivateSpriteSheet()
+    {
+        if (mActiveSpriteSheet)
+        {
+            GetSpriteSheet(*mActiveSpriteSheet).UnbindGL();
+            mActiveSpriteSheet = std::optional<SpriteSheetIndex>{};
+        }
     }
 
     void ActivateSpriteSheet(SpriteSheetIndex spriteSheet)
     {
-        if (spriteSheet != mActiveSpriteSheet)
+        if (!mActiveSpriteSheet || spriteSheet != *mActiveSpriteSheet)
+        {
             GetSpriteSheet(spriteSheet).BindGL();
+            mActiveSpriteSheet = spriteSheet;
+        }
     }
 
     Sprites& GetSpriteSheet(SpriteSheetIndex spriteSheet)
     {
-        assert(mSpriteSheets.contains(spriteSheet));
-        return mSpriteSheets[spriteSheet];
+        assert(mSprites.size() > spriteSheet);
+        return mSprites[spriteSheet];
     }
 
 private:
@@ -143,12 +165,10 @@ private:
         return mNextSpriteSheet++;
     }
 
-    std::unordered_map<
-        SpriteSheetIndex,
-        Sprites> mSpriteSheets;
+    std::vector<Sprites> mSprites;
 
     SpriteSheetIndex mNextSpriteSheet;
-    SpriteSheetIndex mActiveSpriteSheet;
+    std::optional<SpriteSheetIndex> mActiveSpriteSheet;
 };
 
 }
