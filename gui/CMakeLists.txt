@@ -1,5 +1,4 @@
 add_library(gui
-    IGuiElement.hpp
     gui.hpp
     gdsScene.hpp
     scene.hpp scene.cpp

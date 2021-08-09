@@ -1,6 +1,8 @@
 #pragma once
 
+#include "graphics/IGuiElement.hpp"
 #include "graphics/shaderProgram.hpp"
+#include "graphics/sprites.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/types.hpp"
 
@@ -11,16 +13,6 @@
 #include <cmath>
 
 namespace Graphics {
-
-enum class ColorMode
-{
-    // Use the color from the given texture
-    Texture = 0,
-    // Use a solid color
-    SolidColor = 1,
-    // Tint the texture this color (respects texture alpha)
-    TintColor = 2 
-};
 
 // Tightly coupled with the GUI shader
 
@@ -60,10 +52,12 @@ public:
     GuiRenderer(
         float width,
         float height,
-        float scale)
+        float scale,
+        SpriteManager& spriteManager)
     :
         mShader{ShaderProgram{vertexShader, fragmentShader}
             .Compile()},
+        mSpriteManager{spriteManager},
         mCamera{
             glm::scale(glm::mat4{1}, glm::vec3{scale, scale, 0}),
             glm::ortho(
@@ -82,6 +76,28 @@ public:
         mBlockColorId{mShader.GetUniformLocation("blockColor")},
         mColorModeId{mShader.GetUniformLocation("colorMode")}
     {}
+
+    void RenderGui(
+        Graphics::IGuiElement* element)
+    {
+        assert(element);
+        if (element->mSpriteSheet)
+            mSpriteManager.ActivateSpriteSheet(*element->mSpriteSheet);
+
+        const auto sprScale = glm::scale(glm::mat4{1}, element->mDimensions);
+        const auto sprTrans = glm::translate(glm::mat4{1}, element->mPosition);
+        const auto modelMatrix = sprTrans * sprScale;
+
+        Draw(
+            modelMatrix,
+            element->mColorMode,
+            element->mColor,
+            element->mTexture,
+            mSpriteManager.GetSpriteSheet(*element->mSpriteSheet).Get(element->mTexture));
+
+        for (auto* elem : element->GetChildren())
+            RenderGui(elem);
+    }
 
     void Draw(
         const glm::mat4& modelMatrix,
@@ -108,6 +124,7 @@ public:
 
 private:
     ShaderProgramHandle mShader;
+    SpriteManager& mSpriteManager;
 
     GuiCamera mCamera;
 

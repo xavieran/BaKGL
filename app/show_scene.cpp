@@ -57,7 +57,6 @@ int main(int argc, char** argv)
 
     //Logging::LogState::Disable("LoadScenes");
     //Logging::LogState::Disable("LoadSceneIndices");
-
     
     auto guiScalar = 2.0f;
 
@@ -82,7 +81,12 @@ int main(int argc, char** argv)
     // Dark blue background
     glClearColor(0.0f, 0.0f, 0.0, 0.0f);
 
-    auto guiRenderer = Graphics::GuiRenderer{width, height, guiScalar};
+    auto spriteManager = Graphics::SpriteManager{};
+    auto guiRenderer = Graphics::GuiRenderer{
+        width,
+        height,
+        guiScalar,
+        spriteManager};
 
     auto guiShaderProgram = ShaderProgram{
         "gui.vert.glsl",
@@ -109,8 +113,6 @@ int main(int argc, char** argv)
             return e.what();
         }
     };
-
-    auto spriteManager = Graphics::SpriteManager{};
 
     const auto MakeScene = [&](auto ref){
         scenes.emplace(std::make_unique<Gui::GDSScene>(ref, spriteManager));
@@ -282,39 +284,44 @@ int main(int argc, char** argv)
         //
         auto& scene = *scenes.top();
 
-        for (const auto& action : scene.mDrawActions)
-        {
-            std::visit(overloaded{
-                [&](const Gui::SceneSprite& sprite){
-                    auto sprScale = glm::scale(glm::mat4{1}, sprite.mScale);
-                    auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
-                    modelMatrix = sprTrans * sprScale;
-                    auto object = spriteManager.GetSpriteSheet(scene.mSpriteSheet).Get(sprite.mImage);
-                    colorMode = 0;
-                    Draw(modelMatrix, object);
-                },
-                [&](const Gui::SceneRect& rect){
-                    auto sprScale = glm::scale(glm::mat4{1}, rect.mDimensions);
-                    auto sprTrans = glm::translate(glm::mat4{1}, rect.mPosition);
-                    modelMatrix = sprTrans * sprScale;
-                    colorMode = 1;
-                    blockColor = rect.mColor;
-                    // 6 vertices for quad...
-                    Draw(modelMatrix, std::make_pair(0, 6));
-                },
-                [&](const Gui::EnableClipRegion& clip){
-                    glScissor(
-                        clip.mBottomLeft.x * guiScale.x,
-                        clip.mBottomLeft.y * guiScale.y,
-                        clip.mDims.x       * guiScale.x,
-                        clip.mDims.y       * guiScale.y);
-                    glEnable(GL_SCISSOR_TEST);
-                },
-                [&](const Gui::DisableClipRegion& clip){
-                    glDisable(GL_SCISSOR_TEST);
-                }},
-                action);
-        }
+        guiRenderer.RenderGui(
+            static_cast<Graphics::IGuiElement*>(
+                &scene.mGuiElement));
+        spriteManager.DeactivateSpriteSheet();
+
+        //for (const auto& action : scene.mDrawActions)
+        //{
+        //    std::visit(overloaded{
+        //        [&](const Gui::SceneSprite& sprite){
+        //            auto sprScale = glm::scale(glm::mat4{1}, sprite.mScale);
+        //            auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
+        //            modelMatrix = sprTrans * sprScale;
+        //            const auto object = spriteManager.GetSpriteSheet(scene.mSpriteSheet).Get(sprite.mImage);
+        //            colorMode = 0;
+        //            Draw(modelMatrix, object);
+        //        },
+        //        [&](const Gui::SceneRect& rect){
+        //            auto sprScale = glm::scale(glm::mat4{1}, rect.mDimensions);
+        //            auto sprTrans = glm::translate(glm::mat4{1}, rect.mPosition);
+        //            modelMatrix = sprTrans * sprScale;
+        //            colorMode = 1;
+        //            blockColor = rect.mColor;
+        //            // 6 vertices for quad...
+        //            Draw(modelMatrix, std::make_pair(0, 6));
+        //        },
+        //        [&](const Gui::EnableClipRegion& clip){
+        //            glScissor(
+        //                clip.mBottomLeft.x * guiScale.x,
+        //                clip.mBottomLeft.y * guiScale.y,
+        //                clip.mDims.x       * guiScale.x,
+        //                clip.mDims.y       * guiScale.y);
+        //            glEnable(GL_SCISSOR_TEST);
+        //        },
+        //        [&](const Gui::DisableClipRegion& clip){
+        //            glDisable(GL_SCISSOR_TEST);
+        //        }},
+        //        action);
+        //}
 
         colorMode = 0;
         fontRenderer.GetSprites().BindGL();
