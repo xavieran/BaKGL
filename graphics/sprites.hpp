@@ -98,6 +98,11 @@ public:
         return mObjects.size();
     }
 
+    auto GetRect() const
+    {
+        return mObjects.GetObject(0);
+    }
+
     auto Get(unsigned i) const
     {
         return mObjects.GetObject(i + mNonSpriteObjects);

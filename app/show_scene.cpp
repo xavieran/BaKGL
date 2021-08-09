@@ -289,26 +289,6 @@ int main(int argc, char** argv)
                 &scene.mGuiElement));
         spriteManager.DeactivateSpriteSheet();
 
-        //for (const auto& action : scene.mDrawActions)
-        //{
-        //    std::visit(overloaded{
-        //        [&](const Gui::SceneSprite& sprite){
-        //            auto sprScale = glm::scale(glm::mat4{1}, sprite.mScale);
-        //            auto sprTrans = glm::translate(glm::mat4{1}, sprite.mPosition);
-        //            modelMatrix = sprTrans * sprScale;
-        //            const auto object = spriteManager.GetSpriteSheet(scene.mSpriteSheet).Get(sprite.mImage);
-        //            colorMode = 0;
-        //            Draw(modelMatrix, object);
-        //        },
-        //        [&](const Gui::SceneRect& rect){
-        //            auto sprScale = glm::scale(glm::mat4{1}, rect.mDimensions);
-        //            auto sprTrans = glm::translate(glm::mat4{1}, rect.mPosition);
-        //            modelMatrix = sprTrans * sprScale;
-        //            colorMode = 1;
-        //            blockColor = rect.mColor;
-        //            // 6 vertices for quad...
-        //            Draw(modelMatrix, std::make_pair(0, 6));
-        //        },
         //        [&](const Gui::EnableClipRegion& clip){
         //            glScissor(
         //                clip.mBottomLeft.x * guiScale.x,
@@ -319,9 +299,6 @@ int main(int argc, char** argv)
         //        },
         //        [&](const Gui::DisableClipRegion& clip){
         //            glDisable(GL_SCISSOR_TEST);
-        //        }},
-        //        action);
-        //}
 
         colorMode = 0;
         fontRenderer.GetSprites().BindGL();

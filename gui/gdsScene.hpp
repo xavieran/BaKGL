@@ -19,46 +19,6 @@
 
 namespace Gui {
 
-struct SceneElement : public Graphics::IGuiElement
-{
-public:
-
-    SceneElement(
-        std::optional<Graphics::SpriteSheetIndex> spriteSheet,
-        Graphics::TextureIndex texture,
-        Graphics::ColorMode colorMode,
-        glm::vec4 color,
-        glm::vec3 position,
-        glm::vec3 dims,
-        //glm::vec3 scale,
-        bool clipToDims)
-    :
-        Graphics::IGuiElement{
-            spriteSheet,
-            texture,
-            colorMode,
-            color,
-            position,
-            dims,
-           // scale,
-            clipToDims},
-        mChildren{}
-    {}
-
-    void AddChild(Graphics::IGuiElement* elem)
-    {
-        mChildren.emplace_back(elem);
-    }
-
-    const std::vector<Graphics::IGuiElement*>& GetChildren() const override
-    {
-        return mChildren;
-    }
-
-private:
-    std::vector<Graphics::IGuiElement*> mChildren;
-};
-
 class GDSScene
 {
 public:
@@ -69,12 +29,12 @@ public:
     :
         mReference{hotspotRef},
         mHotspots{},
-        mDrawActions{},
         mSpriteSheet{std::invoke([&spriteManager]{
             const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
             return sheetIndex;
         })},
         mGuiElement{
+            Graphics::DrawMode::Sprite,
             mSpriteSheet,
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
@@ -122,86 +82,53 @@ public:
 
             for (const auto& action : scene.mActions)
             {
-                auto drawAction = std::visit(
+                std::visit(
                     overloaded{
-                        [&](const BAK::DrawSprite& sa) -> DrawingAction {
-                            return ConvertSceneAction(
+                        [&](const BAK::DrawSprite& sa){
+                            const auto sceneSprite = ConvertSceneAction(
                                 sa,
                                 textures,
                                 offsets);
+
+                            auto* action = new Graphics::IGuiElement{
+                                Graphics::DrawMode::Sprite,
+                                mSpriteSheet,
+                                sceneSprite.mImage,
+                                Graphics::ColorMode::Texture,
+                                glm::vec4{1},
+                                sceneSprite.mPosition,
+                                sceneSprite.mScale,
+                                false};
+                            mGuiElement.AddChildBack(action);
                         },
-                        [&](const BAK::DrawRect& sr) -> DrawingAction {
+                        [&](const BAK::DrawRect& sr){
                             const auto [palKey, colorKey] = sr.mPaletteColor;
-                            assert(textures.size() > 0);
-                            const auto [iwidth, iheight] = textures.GetTexture(0).GetDims();
-                            const auto width  = static_cast<float>(iwidth);
-                            const auto height = static_cast<float>(iheight);
-                            const auto scale = glm::vec3{
-                                sr.mBottomRight.x,
-                                sr.mBottomRight.y,
-                                0};
-                            //const auto scale = glm::vec3{
-                            //    sr.mBottomRight.x / width,
-                            //    sr.mBottomRight.y / height,
-                            //    0};
-                            return SceneRect{
+                            const auto sceneRect = SceneRect{
                                 // Reddy brown frame color
                                 colorKey == 6 
                                     ? glm::vec4{0.3, 0.11, 0.094, 1.0}
                                     : glm::vec4{1.0, 1.0, 1.0, 1.0},
                                 glm::vec3{sr.mTopLeft.x, sr.mTopLeft.y, 0},
-                                glm::vec3{scale}
-                            };
+                                glm::vec3{sr.mBottomRight.x, sr.mBottomRight.y, 0}};
+
+                            auto* action = new Graphics::IGuiElement{
+                                Graphics::DrawMode::Rect,
+                                mSpriteSheet,
+                                0, // no image index
+                                Graphics::ColorMode::SolidColor,
+                                sceneRect.mColor,
+                                sceneRect.mPosition,
+                                sceneRect.mDimensions,
+                                false};
+                            mGuiElement.AddChildFront(action);
                         },
-                        [](auto&& a) -> DrawingAction {
-                            return ConvertSceneAction(a);
+                        [](auto&& a) {
+                            //return ConvertSceneAction(a);
                         }
                     },
                     action);
-
-                if (std::holds_alternative<SceneRect>(drawAction))
-                {
-                    mDrawActions.insert(mDrawActions.begin(), drawAction);
-                    const auto& sr = std::get<SceneRect>(drawAction);
-                    auto* action = new SceneElement{
-                        std::optional<Graphics::SpriteSheetIndex>{mSpriteSheet},
-                        0, // no image index
-                        Graphics::ColorMode::Texture,
-                        sr.mColor,
-                        sr.mPosition,
-                        sr.mDimensions,
-                        false};
-
-                    mGuiElement.AddChild(static_cast<Graphics::IGuiElement*>(action));
-                }
-                else if (std::holds_alternative<SceneSprite>(drawAction))
-                {
-                    mDrawActions.emplace_back(drawAction);
-                    const auto& ss = std::get<SceneSprite>(drawAction);
-                    auto* action = new SceneElement{
-                        std::optional<Graphics::SpriteSheetIndex>{mSpriteSheet},
-                        ss.mImage,
-                        Graphics::ColorMode::Texture,
-                        glm::vec4{1},
-                        ss.mPosition,
-                        ss.mScale,
-                        false};
-
-                    mGuiElement.AddChild(static_cast<Graphics::IGuiElement*>(action));
-                }
-                else
-                {
-                    mDrawActions.emplace_back(drawAction);
-                }
             }
         }
-
-        mDrawActions.insert(
-            mDrawActions.begin(),
-            SceneSprite{
-                0,
-                glm::vec3{0},
-                glm::vec3{1}});
 
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
@@ -209,7 +136,6 @@ public:
     GDSScene& operator=(GDSScene&& other)
     {
         this->mHotspots = std::move(other.mHotspots);
-        this->mDrawActions = std::move(other.mDrawActions);
         return *this;
     }
 
@@ -218,10 +144,9 @@ public:
 
     BAK::HotspotRef mReference;
     BAK::SceneHotspots mHotspots;
-    std::vector<DrawingAction> mDrawActions;
 
     Graphics::SpriteSheetIndex mSpriteSheet;
-    SceneElement mGuiElement;
+    Graphics::IGuiElement mGuiElement;
 
     const Logging::Logger& mLogger;
 };
