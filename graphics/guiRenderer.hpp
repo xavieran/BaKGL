@@ -80,23 +80,38 @@ public:
     void RenderGui(
         Graphics::IGuiElement* element)
     {
+        RenderGuiImpl(
+            glm::vec3{0},
+            element);
+    }
+
+    void RenderGuiImpl(
+        glm::vec3 translate,
+        Graphics::IGuiElement* element)
+    {
         assert(element);
-        if (element->mSpriteSheet)
-            mSpriteManager.ActivateSpriteSheet(*element->mSpriteSheet);
+
+        mSpriteManager.ActivateSpriteSheet(element->mSpriteSheet);
+        const auto finalPos = translate + element->mPosition;
 
         const auto sprScale = glm::scale(glm::mat4{1}, element->mDimensions);
-        const auto sprTrans = glm::translate(glm::mat4{1}, element->mPosition);
+        const auto sprTrans = glm::translate(glm::mat4{1}, finalPos);
         const auto modelMatrix = sprTrans * sprScale;
 
+        const auto& sprites = mSpriteManager.GetSpriteSheet(element->mSpriteSheet);
+        const auto object = element->mDrawMode == DrawMode::Sprite
+            ? sprites.Get(element->mTexture)
+            : sprites.GetRect();
+            
         Draw(
             modelMatrix,
             element->mColorMode,
             element->mColor,
             element->mTexture,
-            mSpriteManager.GetSpriteSheet(*element->mSpriteSheet).Get(element->mTexture));
+            object);
 
         for (auto* elem : element->GetChildren())
-            RenderGui(elem);
+            RenderGuiImpl(finalPos, elem);
     }
 
     void Draw(
