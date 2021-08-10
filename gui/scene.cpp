@@ -5,13 +5,13 @@ namespace Gui {
 EnableClipRegion ConvertSceneAction(
     const BAK::ClipRegion& clip)
 {
-    const auto width = clip.mBottomRight.x - clip.mTopLeft.x;
+    const auto width  = clip.mBottomRight.x - clip.mTopLeft.x;
     const auto height = clip.mBottomRight.y - clip.mTopLeft.y;
 
     return EnableClipRegion{
         glm::vec2{
             clip.mTopLeft.x,
-            240 - clip.mBottomRight.y}, // FIXME: This sucks...
+            clip.mTopLeft.y},
         glm::vec2{width, height}
     };
 }

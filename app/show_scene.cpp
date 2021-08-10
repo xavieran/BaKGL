@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     //Logging::LogState::Disable("LoadScenes");
     //Logging::LogState::Disable("LoadSceneIndices");
     
-    auto guiScalar = 2.0f;
+    auto guiScalar = 3.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 240.0f;
@@ -276,29 +276,12 @@ int main(int argc, char** argv)
                 object);
         };
 
-        // UI
-        // Scene
-        // Frame
-        // TextBox
-        // Label
-        //
         auto& scene = *scenes.top();
 
         guiRenderer.RenderGui(
             static_cast<Graphics::IGuiElement*>(
                 &scene.mGuiElement));
         spriteManager.DeactivateSpriteSheet();
-
-        //        [&](const Gui::EnableClipRegion& clip){
-        //            glScissor(
-        //                clip.mBottomLeft.x * guiScale.x,
-        //                clip.mBottomLeft.y * guiScale.y,
-        //                clip.mDims.x       * guiScale.x,
-        //                clip.mDims.y       * guiScale.y);
-        //            glEnable(GL_SCISSOR_TEST);
-        //        },
-        //        [&](const Gui::DisableClipRegion& clip){
-        //            glDisable(GL_SCISSOR_TEST);
 
         colorMode = 0;
         fontRenderer.GetSprites().BindGL();

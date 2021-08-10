@@ -11,7 +11,7 @@ namespace Gui {
 
 struct EnableClipRegion
 {
-    glm::vec<2, int> mBottomLeft;
+    glm::vec<2, int> mTopLeft;
     glm::vec<2, int> mDims;
 };
 
