@@ -52,6 +52,27 @@ std::ostream& operator<<(std::ostream& os, const ColorMode& dm)
     }
 }
 
+class SolidRect
+{
+    glm::vec4 mColor;
+    glm::vec3 mPosition;
+    glm::vec3 mDimensions;
+};
+
+class Sprite
+{
+    SpriteSheetIndex mSpriteSheet;
+    TextureIndex mTexture;
+    glm::vec3 mPosition;
+    glm::vec3 mDimensions;
+};
+
+class ClipRegion
+{
+    glm::vec3 mPosition;
+    glm::vec3 mDimensions;
+};
+
 class IGuiElement
 {
 public:

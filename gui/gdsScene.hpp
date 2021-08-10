@@ -159,6 +159,8 @@ public:
 
         for (const auto& action : drawables)
         {
+            // do this to account for the position of the clip region...
+            // children are rendered relative to their parent...
             action->mPosition -= addTo->mPosition;
             addTo->AddChildBack(action);
         }
