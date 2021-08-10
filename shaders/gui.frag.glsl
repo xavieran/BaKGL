@@ -15,9 +15,9 @@ void main()
     vec4 textureSample = texture(texture0, uvCoords);
     vec3 textureColor  = textureSample.xyz;
     vec3 blockColorB   = blockColor.xyz;
-    if (colorMode == 1)
+    if (colorMode == 1) // block mode
         color = blockColor;
-    else if (colorMode == 2)
+    else if (colorMode == 2) // tint mode
         color = vec4(
             mix(blockColorB, textureColor, .5),
             textureSample.a);
