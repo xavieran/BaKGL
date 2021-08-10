@@ -41,7 +41,7 @@ public:
             glm::vec4{1},
             glm::vec3{0},
             glm::vec3{1},
-            true
+            false 
         },
         mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
     {
@@ -66,6 +66,14 @@ public:
             textures, "DIALOG.SCX", "OPTIONS.PAL");
 
         std::unordered_map<unsigned, unsigned> offsets{};
+
+        // We do some pretty wacky stuff here to end up with 
+        // Background
+        // -> Rect
+        // -> ClipRegion
+        // ---> Scene Elements
+
+        std::vector<Graphics::IGuiElement*> drawables{};
 
         for (const auto& scene : {scene1, scene2})
         {
@@ -99,7 +107,7 @@ public:
                                 sceneSprite.mPosition,
                                 sceneSprite.mScale,
                                 false};
-                            mGuiElement.AddChildBack(action);
+                            drawables.emplace_back(action);
                         },
                         [&](const BAK::DrawRect& sr){
                             const auto [palKey, colorKey] = sr.mPaletteColor;
@@ -122,8 +130,22 @@ public:
                                 false};
                             mGuiElement.AddChildFront(action);
                         },
-                        [](auto&& a) {
-                            //return ConvertSceneAction(a);
+                        [&](const BAK::ClipRegion& a){
+                            const auto clip = ConvertSceneAction(a);
+                            auto* action = new Graphics::IGuiElement{
+                                Graphics::DrawMode::ClipRegion,
+                                mSpriteSheet,
+                                0, // no image index
+                                Graphics::ColorMode::SolidColor,
+                                glm::vec4{1},
+                                glm::vec3{clip.mTopLeft.x, clip.mTopLeft.y, 0},
+                                glm::vec3{clip.mDims.x, clip.mDims.y, 0},
+                                true};
+
+                            mGuiElement.AddChildBack(action);
+                        },
+                        [&](const BAK::DisableClipRegion&){
+
                         }
                     },
                     action);
@@ -131,6 +153,15 @@ public:
         }
 
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
+        Graphics::IGuiElement* addTo = mGuiElement.mChildren.size() > 1
+            ? mGuiElement.mChildren.back()
+            : &mGuiElement;
+
+        for (const auto& action : drawables)
+        {
+            action->mPosition -= addTo->mPosition;
+            addTo->AddChildBack(action);
+        }
     }
 
     GDSScene& operator=(GDSScene&& other)

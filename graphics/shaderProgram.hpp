@@ -75,7 +75,7 @@ public:
         mHandle = 0;
     }
     
-    GLuint GetUniformLocation(const std::string& name)
+    GLuint GetUniformLocation(const std::string& name) const
     {
         return glGetUniformLocation(
             mHandle,

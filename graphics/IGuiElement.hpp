@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <optional>
+#include <ostream>
 #include <vector>
 #include <unordered_map>
 
@@ -19,6 +20,17 @@ enum class DrawMode
     ClipRegion = 2
 };
 
+std::ostream& operator<<(std::ostream& os, const DrawMode& dm)
+{
+    switch (dm)
+    {
+    case DrawMode::Rect:       return os << "Rect";
+    case DrawMode::Sprite:     return os << "Sprite";
+    case DrawMode::ClipRegion: return os << "ClipRegion";
+    default:  return os << "Unknown";
+    }
+}
+
 enum class ColorMode
 {
     // Use the color from the given texture
@@ -28,6 +40,17 @@ enum class ColorMode
     // Tint the texture this color (respects texture alpha)
     TintColor = 2 
 };
+
+std::ostream& operator<<(std::ostream& os, const ColorMode& dm)
+{
+    switch (dm)
+    {
+    case ColorMode::Texture:    return os << "Texture";
+    case ColorMode::SolidColor: return os << "SolidColor";
+    case ColorMode::TintColor:  return os << "TintColor";
+    default:  return os << "Unknown";
+    }
+}
 
 class IGuiElement
 {
@@ -79,11 +102,20 @@ public:
     
     glm::vec3 mPosition;
     glm::vec3 mDimensions;
-    glm::vec3 mScale;
 
     bool mClipToDims;
 
     std::vector<Graphics::IGuiElement*> mChildren;
 };
+
+std::ostream& operator<<(std::ostream& os, const IGuiElement& element)
+{
+    os  << "Element: { dm: " << element.mDrawMode << ", ss: " << element.mSpriteSheet
+        << " , tex: " << element.mTexture << ", cm: " << element.mColorMode
+        << " , pos: " << element.mPosition << " , dim: " << element.mDimensions
+        << " , clip: " << element.mClipToDims << " , childs: " << element.mChildren.size()
+        << " }";
+    return os;
+}
 
 }
