@@ -6,6 +6,8 @@
 #include "graphics/glm.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/colors.hpp"
+
 #include "xbak/FileBuffer.h"
 
 #include <glm/glm.hpp>
@@ -16,31 +18,6 @@ class FontRenderer
 {
 public:
     FontRenderer(
-        const std::string& font)
-    :
-        mFont{std::invoke([&]{
-            auto fb = FileBufferFactory::CreateFileBuffer(font);
-            return BAK::LoadFont(fb);
-        })},
-        mSprites{std::invoke([&]{
-            auto sprites = Graphics::Sprites{};
-            sprites.LoadTexturesGL(mFont.GetCharacters());
-            return sprites;
-        })}
-    {}
-
-    const auto& GetFont() const { return mFont; }
-    const auto& GetSprites() const { return mSprites; }
-
-private:
-    BAK::Font mFont;
-    Graphics::Sprites mSprites;
-};
-
-class NewFontRenderer
-{
-public:
-    NewFontRenderer(
         const std::string& font,
         Graphics::SpriteManager& spriteManager)
     :
@@ -64,10 +41,10 @@ private:
 };
 
 
-class TextBoxElement : public Graphics::IGuiElement
+class TextBox : public Graphics::IGuiElement
 {
 public:
-    TextBoxElement(
+    TextBox(
         glm::vec3 pos,
         glm::vec3 dim)
     :
@@ -77,17 +54,19 @@ public:
             0,
             Graphics::ColorMode::SolidColor,
             glm::vec4{0},
+            //glm::vec4{.2,.2,.2,.3},
             pos,
-            dim,
-            false
+            dim
         }
     {
     }
 
     void AddText(
-        const NewFontRenderer& fr,
+        const FontRenderer& fr,
         std::string_view text)
     {
+        mText.clear();
+
         const auto& font = fr.GetFont();
         const auto initialPosition = glm::vec3{0, 0, 0};
         auto charPos = initialPosition;
@@ -112,19 +91,16 @@ public:
         auto inWord = false;
         unsigned wordLetters = 0;
 
-        const auto Draw = [&](const auto& pos, auto c)
+        const auto Draw = [&](const auto& pos, auto c, const auto& color)
         {
-            this->AddChildBack(
-                new Graphics::IGuiElement{
-                    Graphics::DrawMode::Sprite,
-                    fr.GetSpriteSheet(),
-                    static_cast<Graphics::TextureIndex>(c),
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1, .0, .0, 1},
-                    pos,
-                    glm::vec3{1},
-                    false
-                });
+            mText.emplace_back(
+                Graphics::DrawMode::Sprite,
+                fr.GetSpriteSheet(),
+                static_cast<Graphics::TextureIndex>(c),
+                Graphics::ColorMode::ReplaceColor,
+                color,
+                pos,
+                glm::vec3{1});
         };
 
         for (unsigned i = 0; i < text.size(); i++)
@@ -159,166 +135,26 @@ public:
             {
                 Draw(
                     charPos,
-                    font.GetIndex(c));
-
-                Advance(font.GetWidth(c));
-
-                //if (bold)
-                //{
-                //    float boldness = 8.8f / 8.0f;
-
-                //    textTrans = glm::translate(
-                //        textTrans,
-                //        -glm::vec3{0.6f, 0.6f, 0});
-
-                //    textTrans = glm::scale(
-                //        textTrans,
-                //        glm::vec3{boldness, boldness, 0.0f});
-
-                //    Draw(
-                //        glm::vec3{textTrans * glm::vec4{charPos, 0}},
-                //        font.GetIndex(c));
-                //}
-            }
-            const auto nextChar = i + 1;
-            if (nextChar < text.size())
-            {
-                const auto ch = text[nextChar];
-                const auto isAlphaNum = ch >= '!' || c <= 'z';
-
-                if (isAlphaNum && !inWord)
-                {
-                    const auto tmpPos = charPos;
-                    const auto wordStart = text.begin() + nextChar;
-                    const auto it = std::find_if(
-                        wordStart,
-                        text.begin() + text.size(),
-                        [](const auto& c){ return c < '!' || c > 'z'; });
-
-                    wordLetters = std::distance(wordStart, it);
-                    for (const auto& ch : text.substr(nextChar, wordLetters))
-                        AdvanceChar(font.GetWidth(ch));
-
-                    if (charPos.x >= limit.x)
-                        NextLine();
-                    else
-                        charPos = tmpPos;
-                }
-                else if (isAlphaNum)
-                    inWord = true;
-                else
-                    inWord = false;
-            }
-
-            if (charPos.y > limit.y)
-            {
-                return;
-            }
-        }
-
-        return;
-    }
-};
-
-class TextBox
-{
-public:
-    TextBox(
-        glm::vec3 pos,
-        glm::vec3 dim)
-    :
-        mPosition{pos},
-        mDims{dim}
-    {
-    }
-
-    template <typename DrawF>
-    std::optional<std::string_view> Render(
-        const FontRenderer& fr,
-        std::string_view text,
-        DrawF&& Draw) const
-    {
-        const auto& font = fr.GetFont();
-        auto charPos = mPosition;
-        auto limit = mPosition + mDims;
-
-        const auto NextLine = [&]{
-            charPos.x = mPosition.x;
-            charPos.y += font.GetHeight();
-        };
-
-        const auto AdvanceChar = [&](auto w){
-            charPos.x += w;
-        };
-
-        const auto Advance = [&](auto w){
-            AdvanceChar(w);
-            if (charPos.x > limit.x)
-                NextLine();
-        };
-
-        auto bold = false;
-        auto inWord = false;
-        unsigned wordLetters = 0;
-
-        for (unsigned i = 0; i < text.size(); i++)
-        {
-            const auto c = text[i];
-
-            if (c == '\n')
-            {
-                NextLine();
-            }
-            else if (c == '\t')
-            {
-                NextLine();
-                Advance(font.GetSpace() * 5);
-            }
-            else if (c == ' ')
-            {
-                //|| c < font.GetFirstChar())
-                Advance(font.GetSpace());
-            }
-            else if (c == '#')
-            {
-                bold = !bold;
-            }
-            else if (c == static_cast<char>(0xf1))
-            {
-            }
-            else if (c == static_cast<char>(0xf3))
-            {
-            }
-            else
-            {
-                auto textTrans = glm::translate(
-                    glm::mat4{1},
-                    charPos);
-
-                Draw(
-                    textTrans,
-                    fr.GetSprites().Get(
-                        font.GetIndex(c)));
-                Advance(font.GetWidth(c));
+                    font.GetIndex(c),
+                    Color::black);
 
                 if (bold)
                 {
-                    float boldness = 8.8f / 8.0f;
-
-                    textTrans = glm::translate(
-                        textTrans,
-                        -glm::vec3{0.6f, 0.6f, 0});
-
-                    textTrans = glm::scale(
-                        textTrans,
-                        glm::vec3{boldness, boldness, 0.0f});
+                    Draw(
+                        charPos + glm::vec3{0,1,0},
+                        font.GetIndex(c),
+                        Color::buttonShadow);
 
                     Draw(
-                        textTrans,
-                        fr.GetSprites().Get(
-                            font.GetIndex(c)));
+                        charPos,
+                        font.GetIndex(c),
+                        Color::fontHighlight);
                 }
+
+                Advance(font.GetWidth(c));
+
             }
+
             const auto nextChar = i + 1;
             if (nextChar < text.size())
             {
@@ -351,16 +187,18 @@ public:
 
             if (charPos.y > limit.y)
             {
-                return text.substr(i, text.size() - 1);
+                break;
             }
         }
 
-        return std::optional<std::string_view>{};
+        for (auto& elem : mText)
+            this->AddChildBack(&elem);
+
+        return;
     }
 
 private:
-    glm::vec3 mPosition;
-    glm::vec3 mDims;
+    std::vector<Graphics::IGuiElement> mText;
 };
 
 }

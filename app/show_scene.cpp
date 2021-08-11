@@ -168,8 +168,7 @@ int main(int argc, char** argv)
 
     auto cursor = Gui::Cursor{};
 
-    const auto fontRenderer = Gui::FontRenderer{"GAME.FNT"};
-    const auto newFontRenderer = Gui::NewFontRenderer{"GAME.FNT", spriteManager};
+    const auto fontRenderer = Gui::FontRenderer{"GAME.FNT", spriteManager};
 
         
     glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
@@ -285,57 +284,37 @@ int main(int argc, char** argv)
         //mDialogScene.ShowText(dialogText);
         //mDialogScene.ShowChoices(dialogChoices);
 
-        Graphics::IGuiElement root{
-            Graphics::DrawMode::ClipRegion,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            glm::vec4{0},
-            glm::vec3{0},
-            glm::vec3{width / guiScalar, height / guiScalar, 0},
-            true};
-        root.AddChildBack(&scene.mGuiElement);
+        //Graphics::IGuiElement root{
+        //    Graphics::DrawMode::ClipRegion,
+        //    0,
+        //    0,
+        //    Graphics::ColorMode::SolidColor,
+        //    glm::vec4{0},
+        //    glm::vec3{0},
+        //    glm::vec3{width / guiScalar, height / guiScalar, 0}};
+        //root.AddChildBack(&scene);
 
-        auto tb = Gui::TextBoxElement{
-            glm::vec3{16, 120, 0},
-            glm::vec3{320 - 16 - 16, 240 - 120, 0}};
-        auto text2 = dialog
-            ? *dialog 
-            : GetText(scenes.top()->mHotspots.mFlavourText);
-        tb.AddText(newFontRenderer, text2);
+        //auto tb = Gui::TextBox{
+        //    glm::vec3{16, 120, 0},
+        //    glm::vec3{320 - 16 - 16, 240 - 120, 0}};
+        //auto text2 = dialog
+        //    ? *dialog 
+        //    : GetText(scenes.top()->mHotspots.mFlavourText);
+        //tb.AddText(fontRenderer, text2);
 
-        root.AddChildBack(static_cast<Graphics::IGuiElement*>(&tb));
+        //root.AddChildBack(static_cast<Graphics::IGuiElement*>(&tb));
 
-        auto but = Gui::Button{
-            glm::vec3{100, 104, 0},
-            glm::vec3{80, 16, 0}};
-        root.AddChildBack(static_cast<Graphics::IGuiElement*>(&but));
-            
+        //auto but = Gui::Button{
+        //    glm::vec3{100, 104, 0},
+        //    glm::vec3{80, 16, 0}};
+        //root.AddChildBack(static_cast<Graphics::IGuiElement*>(&but));
+        //    
 
-        guiRenderer.RenderGui(&root);
+        //guiRenderer.RenderGui(&root);
 
         spriteManager.DeactivateSpriteSheet();
 
         colorMode = 0;
-        fontRenderer.GetSprites().BindGL();
-        auto text = dialog
-            ? *dialog 
-            : GetText(scenes.top()->mHotspots.mFlavourText);
-        const auto titleIt = find_nth(text.begin(), text.end(), '#', 2);
-        if (titleIt != text.end())
-        {
-            const auto titleLen = std::distance(text.begin(), titleIt);
-            Gui::TextBox{
-                glm::vec3{144.0, 108.0, 0},
-                glm::vec3{320 - 16 - 16, 240 - 120, 0}}.Render(
-                fontRenderer,
-                text.substr(0, titleLen),
-                [&](const auto& pos, auto object){
-                    modelMatrix = pos;
-                    Draw(modelMatrix, object);
-                });
-            text = text.substr(titleLen, text.size() - titleLen);
-        }
 
         cursor.GetSprites().BindGL();
 

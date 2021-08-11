@@ -10,6 +10,7 @@
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/colors.hpp"
 #include "gui/scene.hpp"
 
 #include <glm/glm.hpp>
@@ -19,7 +20,7 @@
 
 namespace Gui {
 
-class GDSScene
+class GDSScene : public Graphics::IGuiElement
 {
 public:
 
@@ -27,24 +28,42 @@ public:
         BAK::HotspotRef hotspotRef,
         Graphics::SpriteManager& spriteManager)
     :
-        mReference{hotspotRef},
-        mHotspots{},
-        mSpriteSheet{std::invoke([&spriteManager]{
-            const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
-            return sheetIndex;
-        })},
-        mGuiElement{
+        Graphics::IGuiElement{
             Graphics::DrawMode::Sprite,
-            mSpriteSheet,
+            std::invoke([&spriteManager]{
+                const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
+                return sheetIndex;
+            }),
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec3{0},
-            glm::vec3{1},
-            false 
+            glm::vec3{1}
         },
+        mReference{hotspotRef},
+        mHotspots{},
+        mFrame{
+            Graphics::DrawMode::Rect,
+            this->mSpriteSheet,
+            Graphics::TextureIndex{0},
+            Graphics::ColorMode::Texture,
+            glm::vec4{1},
+            glm::vec3{0},
+            glm::vec3{1}
+        },
+        mClipRegion{
+            Graphics::DrawMode::ClipRegion,
+            this->mSpriteSheet,
+            Graphics::TextureIndex{0},
+            Graphics::ColorMode::Texture,
+            glm::vec4{1},
+            glm::vec3{0},
+            glm::vec3{1}
+        },
+        mSceneElements{},
         mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
     {
+
         auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
         mHotspots.Load(fb);
 
@@ -73,8 +92,6 @@ public:
         // -> ClipRegion
         // ---> Scene Elements
 
-        std::vector<Graphics::IGuiElement*> drawables{};
-
         for (const auto& scene : {scene1, scene2})
         {
             for (const auto& [imageKey, imagePal] : scene.mImages)
@@ -98,51 +115,47 @@ public:
                                 textures,
                                 offsets);
 
-                            auto* action = new Graphics::IGuiElement{
+                            mSceneElements.emplace_back(
                                 Graphics::DrawMode::Sprite,
                                 mSpriteSheet,
                                 sceneSprite.mImage,
                                 Graphics::ColorMode::Texture,
                                 glm::vec4{1},
                                 sceneSprite.mPosition,
-                                sceneSprite.mScale,
-                                false};
-                            drawables.emplace_back(action);
+                                sceneSprite.mScale);
                         },
                         [&](const BAK::DrawRect& sr){
                             const auto [palKey, colorKey] = sr.mPaletteColor;
                             const auto sceneRect = SceneRect{
                                 // Reddy brown frame color
                                 colorKey == 6 
-                                    ? glm::vec4{0.3, 0.11, 0.094, 1.0}
-                                    : glm::vec4{1.0, 1.0, 1.0, 1.0},
+                                    ? Gui::Color::frameMaroon
+                                    : Gui::Color::black,
                                 glm::vec3{sr.mTopLeft.x, sr.mTopLeft.y, 0},
                                 glm::vec3{sr.mBottomRight.x, sr.mBottomRight.y, 0}};
 
-                            auto* action = new Graphics::IGuiElement{
+                            mFrame = Graphics::IGuiElement{
                                 Graphics::DrawMode::Rect,
                                 mSpriteSheet,
                                 0, // no image index
                                 Graphics::ColorMode::SolidColor,
                                 sceneRect.mColor,
                                 sceneRect.mPosition,
-                                sceneRect.mDimensions,
-                                false};
-                            mGuiElement.AddChildFront(action);
+                                sceneRect.mDimensions};
+
+                            this->AddChildFront(&mFrame);
                         },
                         [&](const BAK::ClipRegion& a){
                             const auto clip = ConvertSceneAction(a);
-                            auto* action = new Graphics::IGuiElement{
+                            mClipRegion = Graphics::IGuiElement{
                                 Graphics::DrawMode::ClipRegion,
                                 mSpriteSheet,
                                 0, // no image index
                                 Graphics::ColorMode::SolidColor,
                                 glm::vec4{1},
                                 glm::vec3{clip.mTopLeft.x, clip.mTopLeft.y, 0},
-                                glm::vec3{clip.mDims.x, clip.mDims.y, 0},
-                                true};
-
-                            mGuiElement.AddChildBack(action);
+                                glm::vec3{clip.mDims.x, clip.mDims.y, 0}};
+                            this->AddChildBack(&mClipRegion);
                         },
                         [&](const BAK::DisableClipRegion&){
 
@@ -153,16 +166,16 @@ public:
         }
 
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
-        Graphics::IGuiElement* addTo = mGuiElement.mChildren.size() > 1
-            ? mGuiElement.mChildren.back()
-            : &mGuiElement;
+        Graphics::IGuiElement* addTo = this->mChildren.size() > 1
+            ? this->mChildren.back()
+            : this;
 
-        for (const auto& action : drawables)
+        for (auto& action : mSceneElements)
         {
             // do this to account for the position of the clip region...
             // children are rendered relative to their parent...
-            action->mPosition -= addTo->mPosition;
-            addTo->AddChildBack(action);
+            action.mPosition -= addTo->mPosition;
+            addTo->AddChildBack(&action);
         }
     }
 
@@ -178,8 +191,9 @@ public:
     BAK::HotspotRef mReference;
     BAK::SceneHotspots mHotspots;
 
-    Graphics::SpriteSheetIndex mSpriteSheet;
-    Graphics::IGuiElement mGuiElement;
+    Graphics::IGuiElement mFrame;
+    Graphics::IGuiElement mClipRegion;
+    std::vector<Graphics::IGuiElement> mSceneElements;
 
     const Logging::Logger& mLogger;
 };
