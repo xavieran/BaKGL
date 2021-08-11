@@ -12,11 +12,18 @@
 #include "bak/worldFactory.hpp"
 #include "bak/zone.hpp"
 
+#include "graphics/IGuiElement.hpp"
+#include "graphics/guiRenderer.hpp"
 #include "graphics/glfw.hpp"
 #include "graphics/line.hpp"
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/shaderProgram.hpp"
+#include "graphics/sprites.hpp"
+#include "graphics/texture.hpp"
+
+#include "gui/gui.hpp"
+#include "gui/mainView.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -214,9 +221,15 @@ int main(int argc, char** argv)
     const auto towns = BAK::LoadTowns();
     const auto zones = BAK::LoadZones();
 
+    auto guiScalar = 3.0f;
+
+    auto nativeWidth = 320.0f;
+    auto nativeHeight = 240.0f;
+
+    auto width = nativeWidth * guiScalar;
+    auto height = nativeHeight * guiScalar * 0.82f;
+
     /* OPEN GL / GLFW SETUP  */
-    unsigned height = 800;
-    unsigned width  = 1400;
 
     auto window = Graphics::MakeGlfwWindow(
         height,
@@ -238,6 +251,30 @@ int main(int argc, char** argv)
         "normal.vert.glsl",
         "normal.frag.glsl"};
     auto modelShaderId = modelShader.Compile();
+
+    auto spriteManager = Graphics::SpriteManager{};
+    auto guiRenderer = Graphics::GuiRenderer{
+        width,
+        height,
+        guiScalar,
+        spriteManager};
+
+    auto guiShaderProgram = ShaderProgram{
+        "gui.vert.glsl",
+        "gui.frag.glsl"};
+    auto guiShader = guiShaderProgram.Compile();
+
+    Graphics::IGuiElement root{
+        Graphics::DrawMode::ClipRegion,
+        0,
+        0,
+        Graphics::ColorMode::SolidColor,
+        glm::vec4{0},
+        glm::vec3{0},
+        glm::vec3{width / guiScalar, height / guiScalar, 0}};
+
+    auto mv = Gui::MainView{spriteManager};
+    root.AddChildBack(&mv);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -271,7 +308,7 @@ int main(int argc, char** argv)
 
     glm::vec3 lightPos = glm::vec3(0,220,0);
     
-    Camera camera{width, height, 400 * 30.0f, 2.0f};
+    Camera camera{static_cast<unsigned int>(width), static_cast<unsigned int>(height), 400 * 30.0f, 2.0f};
     camera.SetPosition(startPosition);
 
     InputHandler inputHandler{};
@@ -301,7 +338,7 @@ int main(int argc, char** argv)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureBuffer.mTextureBuffer);
+    textureBuffer.BindGL();
 
     const BAK::Encounter* activeEncounter{nullptr};
     const BAK::WorldItemInstance* activeClickable{nullptr};
@@ -368,6 +405,7 @@ int main(int argc, char** argv)
         };
 
         glBindVertexArray(VertexArrayID);
+        textureBuffer.BindGL();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         modelShaderId.UseProgramGL();
@@ -393,6 +431,14 @@ int main(int argc, char** argv)
             if (bestId)
                 activeClickable = clickables[*bestId];
         }
+
+        // { *** GUI START ***
+        glDisable(GL_DEPTH_TEST);
+        guiShader.UseProgramGL();
+        guiRenderer.RenderGui(&root);
+        spriteManager.DeactivateSpriteSheet();
+        glEnable(GL_DEPTH_TEST);
+
 
         // { *** IMGUI START ***
         ImGui_ImplOpenGL3_NewFrame();
