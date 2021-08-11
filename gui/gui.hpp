@@ -154,9 +154,7 @@ class GDSScreen
 
 }
 
-
-
-//for (unsigned i = 0; i < request.GetSize(); i++)
+    //for (unsigned i = 0; i < request.GetSize(); i++)
     //{
     //    auto data = request.GetRequestData(i);
     //    switch (data.widget)

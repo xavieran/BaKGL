@@ -25,6 +25,7 @@
 #include "gui/cursor.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/gui.hpp"
+#include "gui/mainView.hpp"
 #include "gui/scene.hpp"
 #include "gui/textBox.hpp"
 
@@ -33,7 +34,6 @@
 #include "xbak/FileManager.h"
 #include "xbak/FileBuffer.h"
 #include "xbak/PaletteResource.h"
-#include "xbak/RequestResource.h"
 
 #include <GL/glew.h>
 
@@ -284,33 +284,31 @@ int main(int argc, char** argv)
         //mDialogScene.ShowText(dialogText);
         //mDialogScene.ShowChoices(dialogChoices);
 
-        //Graphics::IGuiElement root{
-        //    Graphics::DrawMode::ClipRegion,
-        //    0,
-        //    0,
-        //    Graphics::ColorMode::SolidColor,
-        //    glm::vec4{0},
-        //    glm::vec3{0},
-        //    glm::vec3{width / guiScalar, height / guiScalar, 0}};
-        //root.AddChildBack(&scene);
+        Graphics::IGuiElement root{
+            Graphics::DrawMode::ClipRegion,
+            0,
+            0,
+            Graphics::ColorMode::SolidColor,
+            glm::vec4{0},
+            glm::vec3{0},
+            glm::vec3{width / guiScalar, height / guiScalar, 0}};
+        root.AddChildBack(&scene);
 
-        //auto tb = Gui::TextBox{
-        //    glm::vec3{16, 120, 0},
-        //    glm::vec3{320 - 16 - 16, 240 - 120, 0}};
-        //auto text2 = dialog
-        //    ? *dialog 
-        //    : GetText(scenes.top()->mHotspots.mFlavourText);
-        //tb.AddText(fontRenderer, text2);
 
-        //root.AddChildBack(static_cast<Graphics::IGuiElement*>(&tb));
+        auto tb = Gui::TextBox{
+            glm::vec3{16, 120, 0},
+            glm::vec3{320 - 16 - 16, 240 - 120, 0}};
+        auto text2 = dialog
+            ? *dialog 
+            : GetText(scenes.top()->mHotspots.mFlavourText);
+        tb.AddText(fontRenderer, text2);
 
-        //auto but = Gui::Button{
-        //    glm::vec3{100, 104, 0},
-        //    glm::vec3{80, 16, 0}};
-        //root.AddChildBack(static_cast<Graphics::IGuiElement*>(&but));
-        //    
+        root.AddChildBack(static_cast<Graphics::IGuiElement*>(&tb));
 
-        //guiRenderer.RenderGui(&root);
+        auto mv = Gui::MainView{spriteManager};
+        root.AddChildBack(&mv);
+
+        guiRenderer.RenderGui(&root);
 
         spriteManager.DeactivateSpriteSheet();
 
