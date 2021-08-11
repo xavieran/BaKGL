@@ -221,13 +221,13 @@ int main(int argc, char** argv)
     const auto towns = BAK::LoadTowns();
     const auto zones = BAK::LoadZones();
 
-    auto guiScalar = 3.0f;
+    auto guiScalar = 3.5f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 240.0f;
 
     auto width = nativeWidth * guiScalar;
-    auto height = nativeHeight * guiScalar * 0.82f;
+    auto height = nativeHeight * guiScalar * 0.83f;
 
     /* OPEN GL / GLFW SETUP  */
 

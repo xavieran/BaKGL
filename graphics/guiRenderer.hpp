@@ -196,8 +196,8 @@ public:
     {
         mCamera.UpdateModelViewMatrix(modelMatrix);
 
-        ShaderProgramHandle::SetUniform(mColorModeId, static_cast<unsigned>(colorMode));
-        ShaderProgramHandle::SetUniform(mBlockColorId, blockColor);
+        mShader.SetUniform(mColorModeId, static_cast<unsigned>(colorMode));
+        mShader.SetUniform(mBlockColorId, blockColor);
         
         const auto [offset, length] = object;
 

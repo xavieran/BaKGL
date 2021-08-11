@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     auto nativeHeight = 240.0f;
 
     auto width = nativeWidth * guiScalar;
-    auto height = nativeHeight * guiScalar;
+    auto height = nativeHeight * guiScalar * 0.82f;
 
     auto window = Graphics::MakeGlfwWindow(
         height,
@@ -267,16 +267,6 @@ int main(int argc, char** argv)
         int colorMode = 0;
         auto blockColor = glm::vec4{0};
 
-        const auto Draw = [&](auto modelMatrix, auto object)
-        {
-            guiRenderer.Draw(
-                modelMatrix,
-                Graphics::ColorMode{colorMode},
-                blockColor,
-                0, // unused
-                object);
-        };
-
         auto& scene = *scenes.top();
 
         //mDialogScene.SetScene(gdsScene);
@@ -305,9 +295,6 @@ int main(int argc, char** argv)
 
         root.AddChildBack(static_cast<Graphics::IGuiElement*>(&tb));
 
-        auto mv = Gui::MainView{spriteManager};
-        root.AddChildBack(&mv);
-
         guiRenderer.RenderGui(&root);
 
         spriteManager.DeactivateSpriteSheet();
@@ -328,7 +315,12 @@ int main(int argc, char** argv)
 
             modelMatrix = cursorTrans;
             auto object = cursor.GetSprites().Get(draw);
-            Draw(modelMatrix, object);
+            guiRenderer.Draw(
+                modelMatrix,
+                Graphics::ColorMode{colorMode},
+                blockColor,
+                0, // unused
+                object);
         }
 
         if (currentSceneRef != scenes.top()->mReference)
