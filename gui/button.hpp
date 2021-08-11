@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graphics/IGuiElement.hpp"
+#include "gui/colors.hpp"
 
 namespace Gui {
 
@@ -18,39 +19,36 @@ public:
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            glm::vec4{.333, .271, .173, 1},
+            Gui::Color::buttonShadow,
             pos,
-            dim,
-            false 
+            dim
+        },
+        mTopRightEdge{
+            Graphics::DrawMode::Rect,
+            0,
+            0,
+            Graphics::ColorMode::SolidColor,
+            Gui::Color::buttonHighlight,
+            glm::vec3{1, 0, 0},
+            dim - glm::vec3{1, 1, 0}
+        },
+        mCenter{
+            Graphics::DrawMode::Rect,
+            0,
+            0,
+            Graphics::ColorMode::SolidColor,
+            Gui::Color::buttonBackground,
+            glm::vec3{1, 1, 0},
+            dim - glm::vec3{2, 2, 0}
         }
     {
         // Top Right edge
-        this->AddChildBack(new
-            Graphics::IGuiElement{
-                Graphics::DrawMode::Rect,
-                0,
-                0,
-                Graphics::ColorMode::SolidColor,
-                glm::vec4{.651, .573, .255, 1},
-                glm::vec3{1, 0, 0},
-                dim - glm::vec3{1, 1, 0},
-                false 
-            });
-
-        // Center
-        this->AddChildBack(new
-            Graphics::IGuiElement{
-                Graphics::DrawMode::Rect,
-                0,
-                0,
-                Graphics::ColorMode::SolidColor,
-                glm::vec4{.604, .427, .220, 1},
-                glm::vec3{1, 1, 0},
-                dim - glm::vec3{2, 2, 0},
-                false
-            });
+        this->AddChildBack(&mTopRightEdge);
+        this->AddChildBack(&mCenter);
     }
 
+    Graphics::IGuiElement mTopRightEdge;
+    Graphics::IGuiElement mCenter;
 };
 
 }

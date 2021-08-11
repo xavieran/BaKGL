@@ -137,7 +137,7 @@ public:
     void RenderGui(
         Graphics::IGuiElement* element)
     {
-        mLogger.Debug() << "Beginning Render\n";
+        mLogger.Spam() << "Beginning Render\n";
         RenderGuiImpl(
             glm::vec3{0},
             element);
@@ -148,11 +148,11 @@ public:
         Graphics::IGuiElement* element)
     {
         assert(element);
-        mLogger.Debug() << "Rendering GUI Element: " << *element << "\n";
+        mLogger.Spam() << "Rendering GUI Element: " << *element << "\n";
 
         auto finalPos = translate + element->mPosition;
 
-        if (element->mClipToDims)
+        if (element->mDrawMode == DrawMode::ClipRegion)
         {
             mCamera.ScissorRegion(
                 finalPos,
@@ -182,7 +182,7 @@ public:
         for (auto* elem : element->GetChildren())
             RenderGuiImpl(finalPos, elem);
 
-        if (element->mClipToDims)
+        if (element->mDrawMode == DrawMode::ClipRegion)
             mCamera.DisableScissor();
 
     }
