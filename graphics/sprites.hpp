@@ -125,6 +125,7 @@ public:
         mNextSpriteSheet{0},
         mActiveSpriteSheet{}
     {
+        // Seems excessive...
         mSprites.reserve(128);
     }
 

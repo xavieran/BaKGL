@@ -1,11 +1,11 @@
 #pragma once
 
-#include "graphics/IGuiElement.hpp"
+#include "gui/fixedGuiElement.hpp"
 #include "gui/colors.hpp"
 
 namespace Gui {
 
-class Button: public Graphics::IGuiElement
+class Button: public FixedGuiElement
 
 {
 public:
@@ -14,14 +14,15 @@ public:
         glm::vec3 dim)
     :
         // Bottom left edge
-        Graphics::IGuiElement{
+        FixedGuiElement{
             Graphics::DrawMode::Rect,
             0,
             0,
             Graphics::ColorMode::SolidColor,
             Gui::Color::buttonShadow,
             pos,
-            dim
+            dim,
+            true
         },
         mTopRightEdge{
             Graphics::DrawMode::Rect,
@@ -30,7 +31,8 @@ public:
             Graphics::ColorMode::SolidColor,
             Gui::Color::buttonHighlight,
             glm::vec3{1, 0, 0},
-            dim - glm::vec3{1, 1, 0}
+            dim - glm::vec3{1, 1, 0},
+            true
         },
         mCenter{
             Graphics::DrawMode::Rect,
@@ -39,7 +41,8 @@ public:
             Graphics::ColorMode::SolidColor,
             Gui::Color::buttonBackground,
             glm::vec3{1, 1, 0},
-            dim - glm::vec3{2, 2, 0}
+            dim - glm::vec3{2, 2, 0},
+            true
         }
     {
         // Top Right edge
@@ -47,8 +50,8 @@ public:
         this->AddChildBack(&mCenter);
     }
 
-    Graphics::IGuiElement mTopRightEdge;
-    Graphics::IGuiElement mCenter;
+    FixedGuiElement mTopRightEdge;
+    FixedGuiElement mCenter;
 };
 
 }

@@ -150,41 +150,47 @@ public:
         assert(element);
         mLogger.Spam() << "Rendering GUI Element: " << *element << "\n";
 
-        auto finalPos = translate + element->mPosition;
+        const auto& di = element->GetDrawInfo();
+        const auto& pi = element->GetPositionInfo();
 
-        if (element->mDrawMode == DrawMode::ClipRegion)
+        auto finalPos = translate + pi.mPosition;
+
+        if (di.mDrawMode == DrawMode::ClipRegion)
         {
             mCamera.ScissorRegion(
                 finalPos,
-                element->mDimensions);
+                pi.mDimensions);
         }
         else
         {
-            mSpriteManager.ActivateSpriteSheet(element->mSpriteSheet);
+            mSpriteManager.ActivateSpriteSheet(di.mSpriteSheet);
 
-            const auto sprScale = glm::scale(glm::mat4{1}, element->mDimensions);
+            const auto sprScale = glm::scale(glm::mat4{1}, pi.mDimensions);
             const auto sprTrans = glm::translate(glm::mat4{1}, finalPos);
             const auto modelMatrix = sprTrans * sprScale;
 
-            const auto& sprites = mSpriteManager.GetSpriteSheet(element->mSpriteSheet);
-            const auto object = element->mDrawMode == DrawMode::Sprite
-                ? sprites.Get(element->mTexture)
+            const auto& sprites = mSpriteManager.GetSpriteSheet(di.mSpriteSheet);
+            const auto object = di.mDrawMode == DrawMode::Sprite
+                ? sprites.Get(di.mTexture)
                 : sprites.GetRect();
                 
             Draw(
                 modelMatrix,
-                element->mColorMode,
-                element->mColor,
-                element->mTexture,
+                di.mColorMode,
+                di.mColor,
+                di.mTexture,
                 object);
         }
 
         for (auto* elem : element->GetChildren())
-            RenderGuiImpl(finalPos, elem);
+            RenderGuiImpl(
+                pi.mChildrenRelative
+                    ? finalPos
+                    : translate,
+                elem);
 
-        if (element->mDrawMode == DrawMode::ClipRegion)
+        if (di.mDrawMode == DrawMode::ClipRegion)
             mCamera.DisableScissor();
-
     }
 
     void Draw(

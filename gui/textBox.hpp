@@ -7,6 +7,7 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/colors.hpp"
+#include "gui/fixedGuiElement.hpp"
 
 #include "xbak/FileBuffer.h"
 
@@ -41,14 +42,14 @@ private:
 };
 
 
-class TextBox : public Graphics::IGuiElement
+class TextBox : public FixedGuiElement
 {
 public:
     TextBox(
         glm::vec3 pos,
         glm::vec3 dim)
     :
-        Graphics::IGuiElement{
+        FixedGuiElement{
             Graphics::DrawMode::Rect,
             0,
             0,
@@ -56,7 +57,8 @@ public:
             glm::vec4{0},
             //glm::vec4{.2,.2,.2,.3},
             pos,
-            dim
+            dim,
+            true
         }
     {
     }
@@ -70,7 +72,7 @@ public:
         const auto& font = fr.GetFont();
         const auto initialPosition = glm::vec3{0, 0, 0};
         auto charPos = initialPosition;
-        auto limit = initialPosition + mDimensions;
+        auto limit = initialPosition + GetPositionInfo().mDimensions;
 
         const auto NextLine = [&]{
             charPos.x = initialPosition.x;
@@ -100,7 +102,8 @@ public:
                 Graphics::ColorMode::ReplaceColor,
                 color,
                 pos,
-                glm::vec3{1});
+                glm::vec3{1},
+                true);
         };
 
         for (unsigned i = 0; i < text.size(); i++)
@@ -198,7 +201,7 @@ public:
     }
 
 private:
-    std::vector<Graphics::IGuiElement> mText;
+    std::vector<FixedGuiElement> mText;
 };
 
 }

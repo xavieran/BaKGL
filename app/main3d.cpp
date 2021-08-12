@@ -23,6 +23,7 @@
 #include "graphics/texture.hpp"
 
 #include "gui/gui.hpp"
+#include "gui/fixedGuiElement.hpp"
 #include "gui/mainView.hpp"
 
 #include "imgui/imguiWrapper.hpp"
@@ -264,14 +265,15 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShader = guiShaderProgram.Compile();
 
-    Graphics::IGuiElement root{
+    Gui::FixedGuiElement root{
         Graphics::DrawMode::ClipRegion,
         0,
         0,
         Graphics::ColorMode::SolidColor,
         glm::vec4{0},
         glm::vec3{0},
-        glm::vec3{width / guiScalar, height / guiScalar, 0}};
+        glm::vec3{width / guiScalar, height / guiScalar, 0},
+        true};
 
     auto mv = Gui::MainView{spriteManager};
     root.AddChildBack(&mv);

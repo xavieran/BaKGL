@@ -11,6 +11,7 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/colors.hpp"
+#include "gui/fixedGuiElement.hpp"
 #include "gui/scene.hpp"
 
 #include <glm/glm.hpp>
@@ -20,7 +21,7 @@
 
 namespace Gui {
 
-class GDSScene : public Graphics::IGuiElement
+class GDSScene : public FixedGuiElement
 {
 public:
 
@@ -28,7 +29,7 @@ public:
         BAK::HotspotRef hotspotRef,
         Graphics::SpriteManager& spriteManager)
     :
-        Graphics::IGuiElement{
+        FixedGuiElement{
             Graphics::DrawMode::Sprite,
             std::invoke([&spriteManager]{
                 const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
@@ -38,27 +39,31 @@ public:
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec3{0},
-            glm::vec3{1}
+            glm::vec3{1},
+            false
         },
         mReference{hotspotRef},
         mHotspots{},
+        mSpriteSheet{GetDrawInfo().mSpriteSheet},
         mFrame{
             Graphics::DrawMode::Rect,
-            this->mSpriteSheet,
+            mSpriteSheet,
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec3{0},
-            glm::vec3{1}
+            glm::vec3{1},
+           false 
         },
         mClipRegion{
             Graphics::DrawMode::ClipRegion,
-            this->mSpriteSheet,
+            mSpriteSheet,
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec3{0},
-            glm::vec3{1}
+            glm::vec3{1},
+            false
         },
         mSceneElements{},
         mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
@@ -122,7 +127,8 @@ public:
                                 Graphics::ColorMode::Texture,
                                 glm::vec4{1},
                                 sceneSprite.mPosition,
-                                sceneSprite.mScale);
+                                sceneSprite.mScale,
+                                false);
                         },
                         [&](const BAK::DrawRect& sr){
                             const auto [palKey, colorKey] = sr.mPaletteColor;
@@ -134,27 +140,29 @@ public:
                                 glm::vec3{sr.mTopLeft.x, sr.mTopLeft.y, 0},
                                 glm::vec3{sr.mBottomRight.x, sr.mBottomRight.y, 0}};
 
-                            mFrame = Graphics::IGuiElement{
+                            mFrame = FixedGuiElement{
                                 Graphics::DrawMode::Rect,
                                 mSpriteSheet,
                                 0, // no image index
                                 Graphics::ColorMode::SolidColor,
                                 sceneRect.mColor,
                                 sceneRect.mPosition,
-                                sceneRect.mDimensions};
+                                sceneRect.mDimensions,
+                                false};
 
                             this->AddChildFront(&mFrame);
                         },
                         [&](const BAK::ClipRegion& a){
                             const auto clip = ConvertSceneAction(a);
-                            mClipRegion = Graphics::IGuiElement{
+                            mClipRegion = FixedGuiElement{
                                 Graphics::DrawMode::ClipRegion,
                                 mSpriteSheet,
                                 0, // no image index
                                 Graphics::ColorMode::SolidColor,
                                 glm::vec4{1},
                                 glm::vec3{clip.mTopLeft.x, clip.mTopLeft.y, 0},
-                                glm::vec3{clip.mDims.x, clip.mDims.y, 0}};
+                                glm::vec3{clip.mDims.x, clip.mDims.y, 0},
+                                false};
                             this->AddChildBack(&mClipRegion);
                         },
                         [&](const BAK::DisableClipRegion&){
@@ -172,9 +180,6 @@ public:
 
         for (auto& action : mSceneElements)
         {
-            // do this to account for the position of the clip region...
-            // children are rendered relative to their parent...
-            action.mPosition -= addTo->mPosition;
             addTo->AddChildBack(&action);
         }
     }
@@ -191,9 +196,10 @@ public:
     BAK::HotspotRef mReference;
     BAK::SceneHotspots mHotspots;
 
-    Graphics::IGuiElement mFrame;
-    Graphics::IGuiElement mClipRegion;
-    std::vector<Graphics::IGuiElement> mSceneElements;
+    Graphics::SpriteSheetIndex mSpriteSheet;
+    FixedGuiElement mFrame;
+    FixedGuiElement mClipRegion;
+    std::vector<FixedGuiElement> mSceneElements;
 
     const Logging::Logger& mLogger;
 };

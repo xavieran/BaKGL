@@ -23,6 +23,7 @@
 
 #include "gui/button.hpp"
 #include "gui/cursor.hpp"
+#include "gui/fixedGuiElement.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/gui.hpp"
 #include "gui/mainView.hpp"
@@ -274,14 +275,15 @@ int main(int argc, char** argv)
         //mDialogScene.ShowText(dialogText);
         //mDialogScene.ShowChoices(dialogChoices);
 
-        Graphics::IGuiElement root{
+        Gui::FixedGuiElement root{
             Graphics::DrawMode::ClipRegion,
             0,
             0,
             Graphics::ColorMode::SolidColor,
             glm::vec4{0},
             glm::vec3{0},
-            glm::vec3{width / guiScalar, height / guiScalar, 0}};
+            glm::vec3{width / guiScalar, height / guiScalar, 0},
+            false};
         root.AddChildBack(&scene);
 
 

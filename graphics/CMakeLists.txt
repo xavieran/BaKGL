@@ -3,6 +3,7 @@ add_library(graphics
     IGuiElement.hpp
     glm.hpp
     glfw.hpp glfw.cpp
+    guiTypes.hpp guiTypes.cpp
     line.hpp
     meshObject.hpp meshObject.cpp
     renderer.hpp

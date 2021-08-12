@@ -11,6 +11,7 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/colors.hpp"
+#include "gui/fixedGuiElement.hpp"
 #include "gui/scene.hpp"
 
 #include "xbak/RequestResource.h"
@@ -22,14 +23,14 @@
 
 namespace Gui {
 
-class MainView : public Graphics::IGuiElement
+class MainView : public FixedGuiElement
 {
 public:
 
     MainView(
         Graphics::SpriteManager& spriteManager)
     :
-        Graphics::IGuiElement{
+        FixedGuiElement{
             Graphics::DrawMode::Sprite,
             std::invoke([&spriteManager]{
                 const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
@@ -39,8 +40,11 @@ public:
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec3{0},
-            glm::vec3{1}
+            glm::vec3{1},
+            true
         },
+        mSpriteSheet{GetDrawInfo().mSpriteSheet},
+        mSceneElements{},
         mLogger{Logging::LogState::GetLogger("Gui::MainView")}
     {
         auto textures = Graphics::TextureStore{};
@@ -86,7 +90,8 @@ public:
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec3{x, y, 0},
-                    glm::vec3{1,});
+                    glm::vec3{1,},
+                    true);
             }
                 break;
             case REQ_IMAGEBUTTON:
@@ -100,7 +105,8 @@ public:
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec3{x, y, 0},
-                    glm::vec3{1,1,0});
+                    glm::vec3{1,1,0},
+                    true);
             }
                 break;
             default:
@@ -118,7 +124,8 @@ public:
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec3{x + 14, y + 144, 0},
-                    glm::vec3{1});
+                    glm::vec3{1},
+                    true);
         mSceneElements.emplace_back(
                     Graphics::DrawMode::Sprite,
                     mSpriteSheet,
@@ -126,7 +133,8 @@ public:
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec3{x + 73, y + 144, 0},
-                    glm::vec3{1});
+                    glm::vec3{1},
+                    true);
         mSceneElements.emplace_back(
                     Graphics::DrawMode::Sprite,
                     mSpriteSheet,
@@ -134,7 +142,8 @@ public:
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec3{x + 132, y + 144, 0},
-                    glm::vec3{1});
+                    glm::vec3{1},
+                    true);
 
         for (auto& action : mSceneElements)
         {
@@ -144,7 +153,8 @@ public:
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
-    std::vector<Graphics::IGuiElement> mSceneElements;
+    Graphics::SpriteSheetIndex mSpriteSheet;
+    std::vector<FixedGuiElement> mSceneElements;
 
     const Logging::Logger& mLogger;
 };
