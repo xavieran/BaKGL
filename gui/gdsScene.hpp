@@ -11,7 +11,9 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/colors.hpp"
-#include "gui/fixedGuiElement.hpp"
+#include "gui/dialogRunner.hpp"
+#include "gui/hotspot.hpp"
+#include "gui/widget.hpp"
 #include "gui/scene.hpp"
 
 #include <glm/glm.hpp>
@@ -21,15 +23,17 @@
 
 namespace Gui {
 
-class GDSScene : public FixedGuiElement
+class GDSScene : public Widget
 {
 public:
 
     GDSScene(
+        Cursor& cursor,
         BAK::HotspotRef hotspotRef,
-        Graphics::SpriteManager& spriteManager)
+        Graphics::SpriteManager& spriteManager,
+        DialogRunner& dialogRunner)
     :
-        FixedGuiElement{
+        Widget{
             Graphics::DrawMode::Sprite,
             std::invoke([&spriteManager]{
                 const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
@@ -38,12 +42,12 @@ public:
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
-            glm::vec3{0},
-            glm::vec3{1},
+            glm::vec2{0},
+            glm::vec2{1},
             false
         },
         mReference{hotspotRef},
-        mHotspots{},
+        mFlavourText{BAK::KeyTarget{0x10000}},
         mSpriteSheet{GetDrawInfo().mSpriteSheet},
         mFrame{
             Graphics::DrawMode::Rect,
@@ -51,8 +55,8 @@ public:
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
-            glm::vec3{0},
-            glm::vec3{1},
+            glm::vec2{0},
+            glm::vec2{1},
            false 
         },
         mClipRegion{
@@ -61,39 +65,45 @@ public:
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
-            glm::vec3{0},
-            glm::vec3{1},
+            glm::vec2{0},
+            glm::vec2{1},
             false
         },
+        mHotspots{},
         mSceneElements{},
+        mDialogRunner{dialogRunner},
         mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
     {
 
         auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
-        mHotspots.Load(fb);
+        BAK::SceneHotspots hotspots{};
+        hotspots.Load(fb);
+        mFlavourText = BAK::KeyTarget{hotspots.mFlavourText};
 
-        mLogger.Debug() << "ADS: " << mHotspots.mSceneADS
-            << " TTM: " << mHotspots.mSceneTTM
-            << " " << mHotspots.mSceneIndex1
-            << " " << mHotspots.mSceneIndex2 << "\n";
+        mLogger.Debug() << "ADS: " << hotspots.mSceneADS
+            << " TTM: " << hotspots.mSceneTTM
+            << " " << hotspots.mSceneIndex1
+            << " " << hotspots.mSceneIndex2 << "\n";
 
-        auto fb2 = FileBufferFactory::CreateFileBuffer(mHotspots.mSceneADS);
+        auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneADS);
         auto sceneIndices = BAK::LoadSceneIndices(fb2);
-        auto fb3 = FileBufferFactory::CreateFileBuffer(mHotspots.mSceneTTM);
+        auto fb3 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneTTM);
         auto scenes = BAK::LoadScenes(fb3);
 
-        const auto& scene1 = scenes[sceneIndices[mHotspots.mSceneIndex1].mSceneIndex];
-        const auto& scene2 = scenes[sceneIndices[mHotspots.mSceneIndex2].mSceneIndex];
+        const auto& scene1 = scenes[sceneIndices[hotspots.mSceneIndex1].mSceneIndex];
+        const auto& scene2 = scenes[sceneIndices[hotspots.mSceneIndex2].mSceneIndex];
 
         auto textures = Graphics::TextureStore{};
         BAK::TextureFactory::AddScreenToTextureStore(
             textures, "DIALOG.SCX", "OPTIONS.PAL");
+        const auto [x, y] = textures.GetTexture(0).GetDims();
+        this->mPositionInfo.mDimensions = glm::vec2{x, y};
 
         std::unordered_map<unsigned, unsigned> offsets{};
 
         // We do some pretty wacky stuff here to end up with 
         // Background
-        // -> Rect
+        // -> Rect OR
         // -> ClipRegion
         // ---> Scene Elements
 
@@ -137,10 +147,10 @@ public:
                                 colorKey == 6 
                                     ? Gui::Color::frameMaroon
                                     : Gui::Color::black,
-                                glm::vec3{sr.mTopLeft.x, sr.mTopLeft.y, 0},
-                                glm::vec3{sr.mBottomRight.x, sr.mBottomRight.y, 0}};
+                                glm::vec2{sr.mTopLeft.x, sr.mTopLeft.y},
+                                glm::vec2{sr.mBottomRight.x, sr.mBottomRight.y}};
 
-                            mFrame = FixedGuiElement{
+                            mFrame = Widget{
                                 Graphics::DrawMode::Rect,
                                 mSpriteSheet,
                                 0, // no image index
@@ -154,14 +164,14 @@ public:
                         },
                         [&](const BAK::ClipRegion& a){
                             const auto clip = ConvertSceneAction(a);
-                            mClipRegion = FixedGuiElement{
+                            mClipRegion = Widget{
                                 Graphics::DrawMode::ClipRegion,
                                 mSpriteSheet,
                                 0, // no image index
                                 Graphics::ColorMode::SolidColor,
                                 glm::vec4{1},
-                                glm::vec3{clip.mTopLeft.x, clip.mTopLeft.y, 0},
-                                glm::vec3{clip.mDims.x, clip.mDims.y, 0},
+                                glm::vec2{clip.mTopLeft.x, clip.mTopLeft.y},
+                                glm::vec2{clip.mDims.x, clip.mDims.y},
                                 false};
                             this->AddChildBack(&mClipRegion);
                         },
@@ -182,24 +192,47 @@ public:
         {
             addTo->AddChildBack(&action);
         }
+
+
+        // Want our refs to be stable..
+        mHotspots.reserve(hotspots.mHotspots.size());
+        for (const auto& hs : hotspots.mHotspots)
+        {
+            mHotspots.emplace_back(
+                cursor,
+                hs.mTopLeft,
+                hs.mDimensions,
+                hs.mKeyword - 1, // cursor index
+                [this, hs](){
+                    HandleHotspotClicked(hs);
+                },
+                [](){});
+
+            AddChildBack(
+                &mHotspots.back());
+        }
     }
 
-    GDSScene& operator=(GDSScene&& other)
+    void HandleHotspotClicked(const BAK::Hotspot& hotspot)
     {
-        this->mHotspots = std::move(other.mHotspots);
-        return *this;
+        Logging::LogDebug("Gui::GDSScene") << "Hotspot: " << hotspot << "\n";
+        mDialogRunner.BeginDialog(
+            hotspot.mTooltip);
     }
 
     GDSScene(const GDSScene&) = delete;
     GDSScene& operator=(const GDSScene&) = delete;
 
     BAK::HotspotRef mReference;
-    BAK::SceneHotspots mHotspots;
+    BAK::Target mFlavourText;
 
     Graphics::SpriteSheetIndex mSpriteSheet;
-    FixedGuiElement mFrame;
-    FixedGuiElement mClipRegion;
-    std::vector<FixedGuiElement> mSceneElements;
+    Widget mFrame;
+    Widget mClipRegion;
+
+    std::vector<Hotspot> mHotspots;
+    std::vector<Widget> mSceneElements;
+    DialogRunner& mDialogRunner;
 
     const Logging::Logger& mLogger;
 };

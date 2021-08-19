@@ -21,14 +21,16 @@
 #include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 
-#include "gui/button.hpp"
-#include "gui/cursor.hpp"
-#include "gui/fixedGuiElement.hpp"
+#include "gui/clickButton.hpp"
+#include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
-#include "gui/gui.hpp"
+#include "gui/hotspot.hpp"
+#include "gui/label.hpp"
 #include "gui/mainView.hpp"
 #include "gui/scene.hpp"
 #include "gui/textBox.hpp"
+#include "gui/widget.hpp"
+#include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -57,8 +59,8 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    //Logging::LogState::Disable("LoadScenes");
-    //Logging::LogState::Disable("LoadSceneIndices");
+    Logging::LogState::Disable("LoadScenes");
+    Logging::LogState::Disable("LoadSceneIndices");
     
     auto guiScalar = 3.0f;
 
@@ -66,14 +68,14 @@ int main(int argc, char** argv)
     auto nativeHeight = 240.0f;
 
     auto width = nativeWidth * guiScalar;
-    auto height = nativeHeight * guiScalar * 0.82f;
+    auto height = nativeHeight * guiScalar * 0.83f;
 
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
         "Show GUI");
 
-    auto guiScale = glm::vec3{guiScalar, guiScalar, 0};
+    //auto guiScale = glm::vec3{guiScalar, guiScalar, 0};
     auto guiScaleInv = glm::vec3{1 / guiScalar, 1 / guiScalar, 0};
 
     glViewport(0, 0, width, height);
@@ -99,30 +101,55 @@ int main(int argc, char** argv)
     auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
     
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
-    auto frames = std::stack<std::unique_ptr<Gui::Frame>>{};
-    auto dialog = std::optional<std::string_view>{};
+    //auto dialog = std::optional<std::string_view>{};
 
-    BAK::DialogStore dialogStore{};
-    dialogStore.Load();
-    const auto GetText = [&](const auto& tgt) -> std::string_view
-    {
-        try
-        {
-            return dialogStore.GetSnippet(BAK::KeyTarget{tgt}).GetText();
-        }
-        catch (const std::runtime_error& e)
-        {
-            return e.what();
-        }
-    };
+    const auto fontRenderer = Gui::FontRenderer{"GAME.FNT", spriteManager};
+
+    Gui::Window rootWidget{
+        spriteManager,
+        width / guiScalar,
+        height / guiScalar};
+
+    unsigned c = 1;
+    auto bt = Gui::ClickButton{
+        glm::vec2{20, 20},
+        glm::vec2{80, 20},
+        fontRenderer,
+        "#Change Cursor#",
+        [&](){
+            rootWidget.GetCursor().PushCursor(c++);
+        }};
+
+    auto bt2 = Gui::ClickButton{
+        glm::vec2{100, 20},
+        glm::vec2{80, 20},
+        fontRenderer,
+        "Revert Cursor",
+        [&](){
+            c--;
+            rootWidget.GetCursor().PopCursor();
+        }};
+
+    Gui::DialogRunner dialogRunner{
+        glm::vec2{12, 114},
+        glm::vec2{320, 240},
+        fontRenderer};
+
+    rootWidget.AddChildBack(&dialogRunner);
+    //rootWidget.AddChildFront(&bt);
+    //rootWidget.AddChildFront(&bt2);
 
     const auto MakeScene = [&](auto ref){
-        scenes.emplace(std::make_unique<Gui::GDSScene>(ref, spriteManager));
-        frames.emplace(std::make_unique<Gui::Frame>(
-            glm::vec3{0,0,0},
-            glm::vec3{320, 240, 0}));
+        scenes.emplace(
+            std::make_unique<Gui::GDSScene>(
+                rootWidget.GetCursor(),
+                ref,
+                spriteManager,
+                dialogRunner));
+        rootWidget.AddChildFront(scenes.top().get());
+        dialogRunner.BeginDialog(scenes.top()->mFlavourText);
 
-        for (const auto& hs : scenes.top()->mHotspots.mHotspots)
+        /*for (const auto& hs : scenes.top()->mHotspots.mHotspots)
         {
             auto pic = hs.mKeyword - 1;
             auto pos = glm::vec3{hs.mTopLeft.x, hs.mTopLeft.y, 0};
@@ -162,42 +189,27 @@ int main(int argc, char** argv)
                     else dialog = GetText(tooltip);
                 }
             );
-        }
+        }*/
     };
 
     MakeScene(currentSceneRef);
-
-    auto cursor = Gui::Cursor{};
-
-    const auto fontRenderer = Gui::FontRenderer{"GAME.FNT", spriteManager};
-
-        
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4{1}, guiScale);
-    glm::mat4 modelMatrix{1.0f};
 
     InputHandler inputHandler{};
 
     InputHandler::BindMouseToWindow(window.get(), inputHandler);
     InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
 
-    inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 50.0/60, 0}); });
-    inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -50.0/60, 0}); });
-    inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-50.0/60, 0, 0}); });
-    inputHandler.Bind(GLFW_KEY_D, [&]{ modelMatrix = glm::translate(modelMatrix, {50.0/60, 0, 0}); });
-    inputHandler.Bind(GLFW_KEY_Q, [&]{ scaleMatrix = glm::scale(scaleMatrix, {.9, .9, 0}); });
-    inputHandler.Bind(GLFW_KEY_E, [&]{ scaleMatrix = glm::scale(scaleMatrix, {1.1, 1.1, 0}); });
-
     inputHandler.BindMouse(
         GLFW_MOUSE_BUTTON_LEFT,
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frames.top()->LeftMousePress(guiScaleInv * click);
+            rootWidget.LeftMousePress(guiScaleInv * click);
         },
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frames.top()->LeftMouseRelease(guiScaleInv * click);
+            rootWidget.LeftMouseRelease(guiScaleInv * click);
         }
     );
 
@@ -206,21 +218,18 @@ int main(int argc, char** argv)
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frames.top()->RightMousePress(guiScaleInv * click);
         },
         [&](auto click)
         {
             logger.Debug() << click << "\n";
-            frames.top()->RightMouseRelease(guiScaleInv * click);
         }
     );
-
 
     glm::vec3 mousePos;
     inputHandler.BindMouseMotion(
         [&](auto pos)
         {
-            frames.top()->MouseMoved(guiScaleInv * pos);
+            rootWidget.MouseMoved(guiScaleInv * pos);
             mousePos = pos;
         });
 
@@ -264,69 +273,25 @@ int main(int argc, char** argv)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // ...
-        int colorMode = 0;
-        auto blockColor = glm::vec4{0};
-
-        auto& scene = *scenes.top();
-
         //mDialogScene.SetScene(gdsScene);
         //mDialogScene.SetTitle(dialogTitle);
         //mDialogScene.ShowText(dialogText);
         //mDialogScene.ShowChoices(dialogChoices);
 
-        Gui::FixedGuiElement root{
-            Graphics::DrawMode::ClipRegion,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            glm::vec4{0},
-            glm::vec3{0},
-            glm::vec3{width / guiScalar, height / guiScalar, 0},
-            false};
-        root.AddChildBack(&scene);
+        //rootWidget.AddChildBack(&scene);
 
+        //auto tb = Gui::TextBox{
+        //    glm::vec2{16, 120},
+        //    glm::vec2{320 - 16 - 16, 240 - 120}};
+        //auto text2 = dialog
+        //    ? *dialog 
+        //    : GetText(scenes.top()->mHotspots.mFlavourText);
+        //tb.AddText(fontRenderer, text2);
 
-        auto tb = Gui::TextBox{
-            glm::vec3{16, 120, 0},
-            glm::vec3{320 - 16 - 16, 240 - 120, 0}};
-        auto text2 = dialog
-            ? *dialog 
-            : GetText(scenes.top()->mHotspots.mFlavourText);
-        tb.AddText(fontRenderer, text2);
+        //rootWidget.AddChildBack(&tb);
+        //rootWidget.AddChildBack(&bt);
 
-        root.AddChildBack(static_cast<Graphics::IGuiElement*>(&tb));
-
-        guiRenderer.RenderGui(&root);
-
-        spriteManager.DeactivateSpriteSheet();
-
-        colorMode = 0;
-
-        cursor.GetSprites().BindGL();
-
-        {
-            unsigned draw = 0;
-            for (const auto& child : frames.top()->mChildren)
-                if (child.mHighlighted)
-                    draw = child.mPressedImage;
-
-            auto cursorTrans = glm::translate(
-                glm::mat4{1},
-                mousePos * guiScaleInv);
-
-            modelMatrix = cursorTrans;
-            auto object = cursor.GetSprites().Get(draw);
-            guiRenderer.Draw(
-                modelMatrix,
-                Graphics::ColorMode{colorMode},
-                blockColor,
-                0, // unused
-                object);
-        }
-
-        if (currentSceneRef != scenes.top()->mReference)
-            MakeScene(currentSceneRef);
+        guiRenderer.RenderGui(&rootWidget);
 
         glfwSwapBuffers(window.get());
     }

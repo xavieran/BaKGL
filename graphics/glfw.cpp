@@ -26,7 +26,6 @@ std::unique_ptr<GLFWwindow, DestroyGlfwWindow> MakeGlfwWindow(
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
     window = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
     if( window == nullptr)
     {

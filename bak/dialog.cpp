@@ -132,7 +132,7 @@ void DialogStore::Load()
         auto fname = GetDialogFile(dialogFile);
         auto fb = FileBufferFactory::CreateFileBuffer(fname);
         unsigned dialogs = fb.GetUint16LE();
-        mLogger.Info() << "Dialog " << fname << " has: " << dialogs << " dialogs" << std::endl;
+        mLogger.Debug() << "Dialog " << fname << " has: " << dialogs << " dialogs" << std::endl;
 
         for (unsigned i = 0; i < dialogs; i++)
         {

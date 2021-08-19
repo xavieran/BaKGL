@@ -24,9 +24,9 @@ public:
         Quad{
             std::invoke([&](){
                 const auto top = 0;
-                const auto bottom = height;
+                const auto bottom = 1;
                 const auto left = 0;
-                const auto right = width;
+                const auto right = 1;
 
                 return std::vector<glm::vec3>{
                     {left,  bottom, 0},

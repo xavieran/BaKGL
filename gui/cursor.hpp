@@ -5,49 +5,71 @@
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/widget.hpp"
+
 #include <cassert>
 #include <stack>
 
 namespace Gui {
 
-class Cursor
+class Cursor : public Widget
 {
 public:
+    using Dimensions = glm::vec2;
+    using CursorIndex = unsigned;
 
-    Cursor()
+    Cursor(
+        Graphics::SpriteManager& spriteManager)
     :
-        mCursors{{0}},
-        mSprites{std::invoke([]{
-            auto textures = Graphics::TextureStore{};
-            BAK::TextureFactory::AddToTextureStore(
-                textures,
-                "POINTERG.BMX",
-                "OPTIONS.PAL");
-
-            auto sprites = Graphics::Sprites{};
-            sprites.LoadTexturesGL(textures);
-            return sprites;
-        })},
+        Widget{
+            Graphics::DrawMode::Sprite,
+            std::invoke([&spriteManager]{
+                const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
+                auto textures = Graphics::TextureStore{};
+                BAK::TextureFactory::AddToTextureStore(
+                    textures,
+                    "POINTERG.BMX",
+                    "OPTIONS.PAL");
+                sprites.LoadTexturesGL(textures);
+                return sheetIndex;
+            }),
+            Graphics::TextureIndex{0},
+            Graphics::ColorMode::Texture,
+            glm::vec4{1},
+            glm::vec2{0},
+            glm::vec2{1},
+            false
+        },
+        mCursors{},
+        mSprites{
+            spriteManager.GetSpriteSheet(
+                mDrawInfo.mSpriteSheet)},
         mLogger{Logging::LogState::GetLogger("Gui::Cursor")}
-    {}
-
-    unsigned PushCursor(unsigned cursor)
     {
-        assert(cursor < mSprites.size());
-        mCursors.push(cursor);
-        return cursor;
+        PushCursor(0);
     }
 
-    unsigned PopCursor()
+    void PushCursor(unsigned cursor)
+    {
+        assert(cursor < mSprites.size());
+        mCursors.push(
+            std::make_pair(
+                mSprites.GetDimensions(cursor),
+                cursor));
+        mLogger.Spam() << "Pushed Cursor: " << cursor << "\n";
+        UpdateCursor();
+    }
+
+    void PopCursor()
     {
         // We should always have at least one cursor
         assert(mCursors.size() >= 2);
-        const auto top = mCursors.top();
+        mLogger.Spam() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
         mCursors.pop();
-        return top;
+        UpdateCursor();
     }
 
-    unsigned GetCursor()
+    const auto& GetCursor()
     {
         assert(mCursors.size() >= 1);
         return mCursors.top();
@@ -59,8 +81,16 @@ public:
     }
 
 private:
-    std::stack<unsigned> mCursors;
-    Graphics::Sprites mSprites;
+    void UpdateCursor()
+    {
+        assert(mCursors.size() >= 1);
+        const auto & [dimensions, texture] = GetCursor();
+        mDrawInfo.mTexture = texture;
+        mPositionInfo.mDimensions = dimensions;
+    }
+
+    std::stack<std::pair<Dimensions, CursorIndex>> mCursors;
+    Graphics::Sprites& mSprites;
     const Logging::Logger& mLogger;
 };
 

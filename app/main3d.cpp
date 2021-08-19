@@ -22,8 +22,7 @@
 #include "graphics/sprites.hpp"
 #include "graphics/texture.hpp"
 
-#include "gui/gui.hpp"
-#include "gui/fixedGuiElement.hpp"
+#include "gui/widget.hpp"
 #include "gui/mainView.hpp"
 
 #include "imgui/imguiWrapper.hpp"
@@ -222,13 +221,14 @@ int main(int argc, char** argv)
     const auto towns = BAK::LoadTowns();
     const auto zones = BAK::LoadZones();
 
-    auto guiScalar = 3.5f;
+    auto guiScalar = 3.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 240.0f;
 
     auto width = nativeWidth * guiScalar;
     auto height = nativeHeight * guiScalar * 0.83f;
+    auto guiScaleInv = glm::vec3{1 / guiScalar, 1 / guiScalar, 0};
 
     /* OPEN GL / GLFW SETUP  */
 
@@ -265,7 +265,7 @@ int main(int argc, char** argv)
         "gui.frag.glsl"};
     auto guiShader = guiShaderProgram.Compile();
 
-    Gui::FixedGuiElement root{
+    Gui::Widget root{
         Graphics::DrawMode::ClipRegion,
         0,
         0,
@@ -324,6 +324,21 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_Y, [&]{ camera.RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_P, [&]{ lightPos.y += .5; });
     inputHandler.Bind(GLFW_KEY_L, [&]{ lightPos.y -= .5; });
+
+    InputHandler::BindMouseToWindow(window.get(), inputHandler);
+    inputHandler.BindMouse(
+        GLFW_MOUSE_BUTTON_LEFT,
+        [&](auto click)
+        {
+            logger.Debug() << click << "\n";
+            mv.LeftMousePress(guiScaleInv * click);
+        },
+        [&](auto click)
+        {
+            logger.Debug() << click << "\n";
+            mv.LeftMouseRelease(guiScaleInv * click);
+        }
+    );
 
     double currentTime = 0;
     double lastTime = 0;

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "graphics/IGuiElement.hpp"
-#include "graphics/sprites.hpp"
-
-#include "gui/scene.hpp"
+#include "gui/colors.hpp"
+#include "gui/textBox.hpp"
+#include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
 
@@ -12,50 +11,49 @@
 
 namespace Gui {
 
-class Label
+class Label : public Widget
 {
 public:
 
     Label(
-        Graphics::SpriteManager& spriteManager)
+        glm::vec2 pos,
+        glm::vec2 dims,
+        const FontRenderer& fr,
+        const std::string& text)
     :
-        mSpriteSheet{std::invoke([&spriteManager]{
-            const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
-            return sheetIndex;
-        })},
-        mGuiElement{
-            Graphics::DrawMode::Sprite,
-            mSpriteSheet,
+        Widget{
+            Graphics::DrawMode::Rect,
+            0,
             Graphics::TextureIndex{0},
-            Graphics::ColorMode::Texture,
-            glm::vec4{1},
-            glm::vec3{0},
-            glm::vec3{1},
+            Graphics::ColorMode::SolidColor,
+            Color::buttonBackground,
+            pos,
+            dims,
             true
         },
-        mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
+        mTextBox{
+            glm::vec2{2},
+            dims
+        },
+        mFontRenderer{fr},
+        mLogger{Logging::LogState::GetLogger("Gui::Label")}
     {
-        //auto* action = new Graphics::IGuiElement{
-        //    Graphics::DrawMode::Rect,
-        //    mSpriteSheet,
-        //    0, // no image index
-        //    Graphics::ColorMode::SolidColor,
-        //    sceneRect.mColor,
-        //    sceneRect.mPosition,
-        //    sceneRect.mDimensions,
-        //    false};
-
-        //mGuiElement.AddChild(elem);
+        AddChildBack(&mTextBox);
+        SetText(text);
     }
 
     void SetText(std::string_view text)
     {
+        auto dims = mTextBox
+            .AddText(mFontRenderer, text);
+        // Add margin
+        dims += glm::vec2{3};
 
+        mPositionInfo.mDimensions = dims;
     }
 
-    Graphics::SpriteSheetIndex mSpriteSheet;
-    SceneElement mGuiElement;
-
+    TextBox mTextBox;
+    const FontRenderer& mFontRenderer;
     const Logging::Logger& mLogger;
 };
 

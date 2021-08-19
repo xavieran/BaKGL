@@ -38,7 +38,17 @@ enum class DisplayFlags
 
 enum class DialogResult
 {
-    GiveItem = 0x02,
+    // Maybe also something to do wih tstate?
+    Unknown1  = 0x01,
+    GiveItem  = 0x02,
+    LoseItem  = 0x03, // pt2 object, pt3 amount
+    // Unlocks dialog options / Sets event state
+    SetFlag   = 0x04,
+    GainSkill = 0x09,
+    // Maybe?
+    PlaySound = 0xc,
+    // something to with state?
+    Unknown = 0x10,
 };
 
 struct DialogChoice

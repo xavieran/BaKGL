@@ -42,6 +42,19 @@ public:
         mChildren.emplace_back(elem);
     }
 
+    void RemoveChild(Graphics::IGuiElement* elem)
+    {
+        const auto it = std::find(mChildren.begin(), mChildren.end(), elem);
+        assert(it != mChildren.end());
+        mChildren.erase(it);
+    }
+
+    void ClearChildren()
+    {
+        mChildren.clear();
+    }
+
+private:
     std::vector<Graphics::IGuiElement*> mChildren;
 };
 

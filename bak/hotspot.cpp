@@ -34,8 +34,8 @@ std::ostream& operator<<(std::ostream& os, const Hotspot& hs)
 {
     os << "Hotspot { id: " << hs.mHotspot << " topLeft: " << hs.mTopLeft
         << " dim: " << hs.mDimensions << " kw: " << hs.mKeyword 
-        << " act: " << hs.mAction << " arg1: " << hs.mActionArg1
-        << " arg2: " << std::hex << hs.mActionArg2 
+        << " act: " << hs.mAction << " arg1: " << std::hex << hs.mActionArg1
+        << " arg2: " << hs.mActionArg2 
         << " tip: " << hs.mTooltip
         << " dialog: " << hs.mDialog << std::dec
         << " }";

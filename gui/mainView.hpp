@@ -11,7 +11,9 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/colors.hpp"
-#include "gui/fixedGuiElement.hpp"
+#include "gui/compass.hpp"
+#include "gui/clickButton.hpp"
+#include "gui/widget.hpp"
 #include "gui/scene.hpp"
 
 #include "xbak/RequestResource.h"
@@ -23,14 +25,14 @@
 
 namespace Gui {
 
-class MainView : public FixedGuiElement
+class MainView : public Widget
 {
 public:
 
     MainView(
         Graphics::SpriteManager& spriteManager)
     :
-        FixedGuiElement{
+        Widget{
             Graphics::DrawMode::Sprite,
             std::invoke([&spriteManager]{
                 const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
@@ -39,11 +41,13 @@ public:
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
-            glm::vec3{0},
-            glm::vec3{1},
+            glm::vec2{0},
+            glm::vec2{320, 200},
             true
         },
         mSpriteSheet{GetDrawInfo().mSpriteSheet},
+        mCompass{},
+        mButtons{},
         mSceneElements{},
         mLogger{Logging::LogState::GetLogger("Gui::MainView")}
     {
@@ -51,12 +55,12 @@ public:
         BAK::TextureFactory::AddScreenToTextureStore(
             textures, "FRAME.SCX", "Z01.PAL");
 
-        const auto iconsOffset = textures.size();
+        const auto normalOffset = textures.size();
 
         BAK::TextureFactory::AddToTextureStore(
             textures, "BICONS1.BMX", "OPTIONS.PAL");
 
-        const auto iconsOffset2 = textures.size();
+        const auto pressedOffset = textures.size();
 
         BAK::TextureFactory::AddToTextureStore(
             textures, "BICONS2.BMX", "OPTIONS.PAL");
@@ -66,11 +70,26 @@ public:
         BAK::TextureFactory::AddToTextureStore(
             textures, "HEADS.BMX", "OPTIONS.PAL");
 
+        const auto compassOffset = textures.size();
+        BAK::TextureFactory::AddToTextureStore(
+            textures, "COMPASS.BMX", "OPTIONS.PAL");
+
+        auto [w, h] = textures.GetTexture(compassOffset).GetDims();
+        mCompass.emplace(
+            glm::vec2{144,121},
+            glm::vec2{32,12},
+            glm::vec2{w, h + 1},
+            mSpriteSheet,
+            static_cast<Graphics::TextureIndex>(compassOffset));
+
         RequestResource request{};
         {
             auto fb = FileBufferFactory::CreateFileBuffer("REQ_MAIN.DAT");
             request.Load(&fb);
         }
+
+        mButtons.reserve(request.GetSize());
+        mSceneElements.reserve(request.GetSize());
 
         for (unsigned i = 0; i < request.GetSize(); i++)
         {
@@ -80,17 +99,19 @@ public:
             {
             case REQ_USERDEFINED:
             {
-                if (data.action != 1) break;
+                if (data.action == 192) break;
                 int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
                 int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+                int w = request.GetRectangle().GetWidth();
+                int h = request.GetRectangle().GetHeight();
                 mSceneElements.emplace_back(
                     Graphics::DrawMode::Sprite,
                     mSpriteSheet,
                     data.image + headsOffset,
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
-                    glm::vec3{x, y, 0},
-                    glm::vec3{1,},
+                    glm::vec2{x, y},
+                    glm::vec2{data.width, data.height},
                     true);
             }
                 break;
@@ -98,15 +119,14 @@ public:
             {
                 int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
                 int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-                mSceneElements.emplace_back(
-                    Graphics::DrawMode::Sprite,
+
+                mButtons.emplace_back(
+                    glm::vec2{x, y},
+                    glm::vec2{data.width, data.height},
                     mSpriteSheet,
-                    data.image + iconsOffset,
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1},
-                    glm::vec3{x, y, 0},
-                    glm::vec3{1,1,0},
-                    true);
+                    Graphics::TextureIndex{static_cast<unsigned>(data.image + normalOffset)},
+                    Graphics::TextureIndex{static_cast<unsigned>(data.image + pressedOffset)},
+                    []{});
             }
                 break;
             default:
@@ -115,46 +135,23 @@ public:
             }
         }
 
-        int x = request.GetRectangle().GetXPos() + request.GetXOff();
-        int y = request.GetRectangle().GetYPos() + request.GetYOff();
-        mSceneElements.emplace_back(
-                    Graphics::DrawMode::Sprite,
-                    mSpriteSheet,
-                    headsOffset,
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1},
-                    glm::vec3{x + 14, y + 144, 0},
-                    glm::vec3{1},
-                    true);
-        mSceneElements.emplace_back(
-                    Graphics::DrawMode::Sprite,
-                    mSpriteSheet,
-                    headsOffset + 1,
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1},
-                    glm::vec3{x + 73, y + 144, 0},
-                    glm::vec3{1},
-                    true);
-        mSceneElements.emplace_back(
-                    Graphics::DrawMode::Sprite,
-                    mSpriteSheet,
-                    headsOffset + 4,
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1},
-                    glm::vec3{x + 132, y + 144, 0},
-                    glm::vec3{1},
-                    true);
-
         for (auto& action : mSceneElements)
-        {
             AddChildBack(&action);
-        }
+
+        for (auto& button : mButtons)
+            AddChildBack(&button);
+
+        assert(mCompass);
+        AddChildBack(&(*mCompass));
 
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
+private:
     Graphics::SpriteSheetIndex mSpriteSheet;
-    std::vector<FixedGuiElement> mSceneElements;
+    std::optional<Compass> mCompass;
+    std::vector<ClickButtonImage> mButtons;
+    std::vector<Widget> mSceneElements;
 
     const Logging::Logger& mLogger;
 };

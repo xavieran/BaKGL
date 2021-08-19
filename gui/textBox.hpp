@@ -7,7 +7,7 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/colors.hpp"
-#include "gui/fixedGuiElement.hpp"
+#include "gui/widget.hpp"
 
 #include "xbak/FileBuffer.h"
 
@@ -42,20 +42,19 @@ private:
 };
 
 
-class TextBox : public FixedGuiElement
+class TextBox : public Widget
 {
 public:
     TextBox(
-        glm::vec3 pos,
-        glm::vec3 dim)
+        glm::vec2 pos,
+        glm::vec2 dim)
     :
-        FixedGuiElement{
+        Widget{
             Graphics::DrawMode::Rect,
             0,
             0,
             Graphics::ColorMode::SolidColor,
             glm::vec4{0},
-            //glm::vec4{.2,.2,.2,.3},
             pos,
             dim,
             true
@@ -63,14 +62,15 @@ public:
     {
     }
 
-    void AddText(
+    glm::vec2 AddText(
         const FontRenderer& fr,
         std::string_view text)
     {
         mText.clear();
+        ClearChildren();
 
         const auto& font = fr.GetFont();
-        const auto initialPosition = glm::vec3{0, 0, 0};
+        const auto initialPosition = glm::vec2{0};
         auto charPos = initialPosition;
         auto limit = initialPosition + GetPositionInfo().mDimensions;
 
@@ -98,11 +98,12 @@ public:
             mText.emplace_back(
                 Graphics::DrawMode::Sprite,
                 fr.GetSpriteSheet(),
-                static_cast<Graphics::TextureIndex>(c),
+                static_cast<Graphics::TextureIndex>(
+                    font.GetIndex(c)),
                 Graphics::ColorMode::ReplaceColor,
                 color,
                 pos,
-                glm::vec3{1},
+                glm::vec2{fr.GetFont().GetWidth(c), fr.GetFont().GetHeight()},
                 true);
         };
 
@@ -138,19 +139,19 @@ public:
             {
                 Draw(
                     charPos,
-                    font.GetIndex(c),
+                    c,
                     Color::black);
 
                 if (bold)
                 {
                     Draw(
-                        charPos + glm::vec3{0,1,0},
-                        font.GetIndex(c),
+                        charPos + glm::vec2{0,1},
+                        c,
                         Color::buttonShadow);
 
                     Draw(
                         charPos,
-                        font.GetIndex(c),
+                        c,
                         Color::fontHighlight);
                 }
 
@@ -197,11 +198,13 @@ public:
         for (auto& elem : mText)
             this->AddChildBack(&elem);
 
-        return;
+        // Bounding box...
+        charPos.y += font.GetHeight();
+        return charPos;
     }
 
 private:
-    std::vector<FixedGuiElement> mText;
+    std::vector<Widget> mText;
 };
 
 }

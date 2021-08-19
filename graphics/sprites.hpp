@@ -24,7 +24,8 @@ public:
         mVertexArray{},
         mBuffers{},
         mTextureBuffer{},
-        mObjects{}
+        mObjects{},
+        mSpriteDimensions{}
     {
     }
 
@@ -78,6 +79,9 @@ public:
                     static_cast<double>(tex.GetHeight()),
                     static_cast<double>(textures.GetMaxDim()),
                     i});
+            mSpriteDimensions.emplace_back(
+                tex.GetWidth(),
+                tex.GetHeight());
         }
 
         mVertexArray.BindGL();
@@ -95,7 +99,7 @@ public:
 
     std::size_t size()
     {
-        return mObjects.size();
+        return mSpriteDimensions.size();
     }
 
     auto GetRect() const
@@ -108,12 +112,19 @@ public:
         return mObjects.GetObject(i + mNonSpriteObjects);
     }
 
+    auto GetDimensions(unsigned i) const
+    {
+        assert(i < mSpriteDimensions.size());
+        return mSpriteDimensions[i];
+    }
+
 private:
     const std::size_t mNonSpriteObjects;
     VertexArrayObject mVertexArray;
     GLBuffers mBuffers;
     TextureBuffer mTextureBuffer;
     QuadStorage mObjects;
+    std::vector<glm::vec2> mSpriteDimensions;
 };
 
 class SpriteManager

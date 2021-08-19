@@ -70,7 +70,7 @@ public:
         ShaderProgramHandle::SetUniform(mViewMatrixId , mViewMatrix);
     }
 
-    void ScissorRegion(glm::vec3 topLeft, glm::vec3 dimensions)
+    void ScissorRegion(glm::vec2 topLeft, glm::vec2 dimensions)
     {
         // So bottom in terms of glScissor is going to be:
         // screenHeight - scaledBottom
@@ -131,22 +131,26 @@ public:
         },
         mBlockColorId{mShader.GetUniformLocation("blockColor")},
         mColorModeId{mShader.GetUniformLocation("colorMode")},
+        mRenderCalls{0},
         mLogger{Logging::LogState::GetLogger("GuiRenderer")}
     {}
 
     void RenderGui(
         Graphics::IGuiElement* element)
     {
+        mRenderCalls = 0;
         mLogger.Spam() << "Beginning Render\n";
         RenderGuiImpl(
             glm::vec3{0},
             element);
+        mLogger.Spam() << "Rendered Gui, Calls: " << mRenderCalls << "\n";
     }
 
     void RenderGuiImpl(
-        glm::vec3 translate,
+        glm::vec2 translate,
         Graphics::IGuiElement* element)
     {
+        mRenderCalls++;
         assert(element);
         mLogger.Spam() << "Rendering GUI Element: " << *element << "\n";
 
@@ -165,8 +169,8 @@ public:
         {
             mSpriteManager.ActivateSpriteSheet(di.mSpriteSheet);
 
-            const auto sprScale = glm::scale(glm::mat4{1}, pi.mDimensions);
-            const auto sprTrans = glm::translate(glm::mat4{1}, finalPos);
+            const auto sprScale = glm::scale(glm::mat4{1}, glm::vec3{pi.mDimensions, 0});
+            const auto sprTrans = glm::translate(glm::mat4{1}, glm::vec3{finalPos, 0});
             const auto modelMatrix = sprTrans * sprScale;
 
             const auto& sprites = mSpriteManager.GetSpriteSheet(di.mSpriteSheet);
@@ -226,6 +230,8 @@ private:
     // These are straight from the shader...
     GLuint mBlockColorId;
     GLuint mColorModeId;
+
+    unsigned mRenderCalls;
 
     const Logging::Logger& mLogger;
 };

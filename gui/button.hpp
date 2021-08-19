@@ -1,25 +1,29 @@
 #pragma once
 
-#include "gui/fixedGuiElement.hpp"
+#include "gui/widget.hpp"
 #include "gui/colors.hpp"
 
 namespace Gui {
 
-class Button: public FixedGuiElement
+class Button : public Widget
 
 {
 public:
     Button(
-        glm::vec3 pos,
-        glm::vec3 dim)
+        glm::vec2 pos,
+        glm::vec2 dim,
+        glm::vec4 mainColor,
+        glm::vec4 highlight,
+        glm::vec4 shadow,
+        glm::vec4 dropShadow=Color::black)
     :
         // Bottom left edge
-        FixedGuiElement{
+        Widget{
             Graphics::DrawMode::Rect,
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            Gui::Color::buttonShadow,
+            shadow,
             pos,
             dim,
             true
@@ -29,9 +33,9 @@ public:
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            Gui::Color::buttonHighlight,
-            glm::vec3{1, 0, 0},
-            dim - glm::vec3{1, 1, 0},
+            highlight,
+            glm::vec2{1, 0},
+            dim - glm::vec2{1, 1},
             true
         },
         mCenter{
@@ -39,9 +43,9 @@ public:
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            Gui::Color::buttonBackground,
-            glm::vec3{1, 1, 0},
-            dim - glm::vec3{2, 2, 0},
+            mainColor,
+            glm::vec2{1, 1},
+            dim - glm::vec2{2, 2},
             true
         }
     {
@@ -50,8 +54,8 @@ public:
         this->AddChildBack(&mCenter);
     }
 
-    FixedGuiElement mTopRightEdge;
-    FixedGuiElement mCenter;
+    Widget mTopRightEdge;
+    Widget mCenter;
 };
 
 }

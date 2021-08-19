@@ -22,15 +22,15 @@ struct DisableClipRegion
 struct SceneSprite
 {
     unsigned mImage;
-    glm::vec3 mPosition;
-    glm::vec3 mScale;
+    glm::vec2 mPosition;
+    glm::vec2 mScale;
 };
 
 struct SceneRect
 {
     glm::vec4 mColor;
-    glm::vec3 mPosition;
-    glm::vec3 mDimensions;
+    glm::vec2 mPosition;
+    glm::vec2 mDimensions;
 };
 
 using DrawingAction = std::variant<
@@ -57,12 +57,12 @@ SceneSprite ConvertSceneAction(
     auto x = action.mX;
     auto y = action.mY;
 
-    auto scale = glm::vec3{1,1,1};
+    auto scale = glm::vec2{tex.GetWidth(), tex.GetHeight()};
 
     if (action.mTargetWidth != 0)
     {
-        scale.x = static_cast<float>(action.mTargetWidth) / tex.GetWidth();
-        scale.y = static_cast<float>(action.mTargetHeight) / tex.GetHeight();
+        scale.x = static_cast<float>(action.mTargetWidth);
+        scale.y = static_cast<float>(action.mTargetHeight);
     }
 
     if (action.mFlippedInY)
@@ -70,13 +70,13 @@ SceneSprite ConvertSceneAction(
         // Need to shift before flip to ensure sprite stays in same
         // relative pos. One way of achieving rotation about the 
         // centerline of the sprite...
-        x += (static_cast<float>(tex.GetWidth()) * scale.x);
+        x += scale.x;
         scale.x *= -1;
     }
     
     return SceneSprite{
         sprite,
-        glm::vec3{x, y, 0},
+        glm::vec2{x, y},
         scale};
 }
 

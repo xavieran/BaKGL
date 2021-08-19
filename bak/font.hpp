@@ -32,7 +32,7 @@ public:
         mCharacters{textures}
     {}
 
-    auto GetIndex(char c) const
+    char GetIndex(char c) const
     {
         if (!(mFirstChar <= c))
         {
@@ -44,20 +44,20 @@ public:
 
     const auto& GetCharacters(){ return mCharacters; }
 
-    auto GetSpace() const
+    std::size_t GetSpace() const
     {
         // The width of 'a'
         return static_cast<float>(
             mCharacters.GetTexture(0).GetWidth());
     }
 
-    auto GetFirstChar() const { return mFirstChar; }
-    auto GetWidth(char c) const
+    char GetFirstChar() const { return mFirstChar; }
+    unsigned GetWidth(char c) const
     {
         return mCharacters.GetTexture(GetIndex(c)).GetWidth();
     }
 
-    auto GetHeight() const
+    unsigned GetHeight() const
     {
         return mHeight;
     }

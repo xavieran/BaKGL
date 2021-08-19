@@ -39,8 +39,8 @@ struct DrawInfo
 
 struct PositionInfo
 {
-    glm::vec3 mPosition;
-    glm::vec3 mDimensions; // actually more like scale than dim.....
+    glm::vec2 mPosition;
+    glm::vec2 mDimensions; // actually more like scale than dim.....
     bool mChildrenRelative;
 };
 

@@ -100,9 +100,4 @@ private:
 
 };
 
-class TextureAtlas
-{
-
-};
-
 }

@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     /*unsigned height = 1600;
     unsigned width  = 2400;*/
 
-    window = glfwCreateWindow(width, height, "BaK", NULL, NULL);
+    window = glfwCreateWindow(width, height, argc == 2 ? argv[1] : "Dialog Explorer", NULL, NULL);
     if( window == NULL )
     {
         logger.Log(Logging::LogLevel::Error) << "Failed to open GLFW window" << std::endl;
@@ -152,7 +152,8 @@ int main(int argc, char** argv)
                 }
                 if (gameData != nullptr)
                 {
-                    ss.str(""); ss << "Val: " << gameData->ReadEvent(choice.mState) << " Word: " << std::hex << gameData->ReadEventWord(choice.mState);
+                    ss.str(""); ss << "Val: " << gameData->ReadEvent(choice.mState) << " Word: " << std::hex << gameData->ReadEventWord(choice.mState)
+                        << " @state: " << choice.mState;
                     ImGui::SameLine(); ImGui::Text(ss.str().c_str());
                 }
                 ImGui::TextWrapped(dialogStore.GetFirstText(
