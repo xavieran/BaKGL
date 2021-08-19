@@ -21,7 +21,9 @@
 #include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 
+#include "gui/actors.hpp"
 #include "gui/clickButton.hpp"
+#include "gui/contents.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/hotspot.hpp"
@@ -114,7 +116,15 @@ int main(int argc, char** argv)
         glm::vec2{320, 240},
         fontRenderer};
 
-    rootWidget.AddChildBack(&dialogRunner);
+    //auto contents = Gui::GenericRequestScreen{
+    //    spriteManager,
+    //    "FULLMAP.PAL",
+    //    "REQ_FMAP.DAT",
+    //    "FULLMAP.SCX"
+    //};
+    //rootWidget.AddChildFront(&contents);
+
+    rootWidget.AddChildFront(&dialogRunner);
 
     scenes.emplace(
         std::make_unique<Gui::GDSScene>(
@@ -122,6 +132,19 @@ int main(int argc, char** argv)
             currentSceneRef,
             spriteManager,
             dialogRunner));
+
+    auto act = Gui::Actors{spriteManager};
+    const auto [ss, im] = act.GetActor(1);
+    auto sumani = Gui::Widget{
+        Graphics::DrawMode::Sprite,
+        ss,
+        im,
+        Graphics::ColorMode::Texture,
+        Gui::Color::debug,
+        glm::vec2{100,18},
+        spriteManager.GetSpriteSheet(ss).GetDimensions(im),
+        true};
+    rootWidget.AddChildFront(&sumani);
     rootWidget.AddChildFront(scenes.top().get());
     //dialogRunner.BeginDialog(scenes.top()->mFlavourText);
     dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6cf});

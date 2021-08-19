@@ -26,12 +26,11 @@ public:
             auto fb = FileBufferFactory::CreateFileBuffer(font);
             return BAK::LoadFont(fb);
         })},
-        mSpriteSheet{std::invoke([&]{
-            const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
-            sprites.LoadTexturesGL(mFont.GetCharacters());
-            return sheetIndex;
-        })}
-    {}
+        mSpriteSheet{spriteManager.AddSpriteSheet()}
+    {
+        spriteManager.GetSpriteSheet(mSpriteSheet)
+            .LoadTexturesGL(mFont.GetCharacters());
+    }
 
     const auto& GetFont() const { return mFont; }
     const auto& GetSpriteSheet() const { return mSpriteSheet; }

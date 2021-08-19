@@ -35,10 +35,7 @@ public:
     :
         Widget{
             Graphics::DrawMode::Sprite,
-            std::invoke([&spriteManager]{
-                const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
-                return sheetIndex;
-            }),
+            spriteManager.AddSpriteSheet(),
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},

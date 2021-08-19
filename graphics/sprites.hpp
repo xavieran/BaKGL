@@ -146,10 +146,8 @@ public:
         const auto spriteSheetIndex = NextSpriteSheet();
         logger.Debug() << "Adding sprite sheet index: " << spriteSheetIndex << "\n";
         assert(mSprites.size() == spriteSheetIndex);
-        auto& sprites = mSprites.emplace_back();
-        return std::make_pair(
-            spriteSheetIndex,
-            std::reference_wrapper<Sprites>(sprites));
+        mSprites.emplace_back();
+        return spriteSheetIndex;
     }
 
     void DeactivateSpriteSheet()

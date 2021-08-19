@@ -23,16 +23,7 @@ public:
     :
         Widget{
             Graphics::DrawMode::Sprite,
-            std::invoke([&spriteManager]{
-                const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
-                auto textures = Graphics::TextureStore{};
-                BAK::TextureFactory::AddToTextureStore(
-                    textures,
-                    "POINTERG.BMX",
-                    "OPTIONS.PAL");
-                sprites.LoadTexturesGL(textures);
-                return sheetIndex;
-            }),
+            spriteManager.AddSpriteSheet(),
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
@@ -46,6 +37,13 @@ public:
                 mDrawInfo.mSpriteSheet)},
         mLogger{Logging::LogState::GetLogger("Gui::Cursor")}
     {
+        auto textures = Graphics::TextureStore{};
+        BAK::TextureFactory::AddToTextureStore(
+            textures,
+            "POINTERG.BMX",
+            "OPTIONS.PAL");
+        mSprites.LoadTexturesGL(textures);
+
         PushCursor(0);
     }
 
