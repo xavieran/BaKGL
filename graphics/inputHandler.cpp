@@ -1,7 +1,9 @@
-#include "bak/inputHandler.hpp"
+#include "graphics/inputHandler.hpp"
 
 #include <cassert>
 #include <functional>
+
+namespace Graphics {
 
 void InputHandler::BindMouseToWindow(GLFWwindow* window, InputHandler& handler)
 {
@@ -116,3 +118,5 @@ void InputHandler::KeyboardAction(GLFWwindow* window, int key, int scancode, int
 }
 
 InputHandler* InputHandler::sHandler = nullptr;
+
+}

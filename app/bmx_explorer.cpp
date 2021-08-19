@@ -1,6 +1,6 @@
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
-#include "bak/inputHandler.hpp"
+#include "graphics/inputHandler.hpp"
 #include "com/logger.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
@@ -119,9 +119,9 @@ int main(int argc, char** argv)
 
     int picture = 0;
 
-    InputHandler inputHandler{};
-    InputHandler::BindMouseToWindow(window.get(), inputHandler);
-    InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
+    Graphics::InputHandler inputHandler{};
+    Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
+    Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
     inputHandler.Bind(GLFW_KEY_W, [&]{ modelMatrix = glm::translate(modelMatrix, {0, 50.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_S, [&]{ modelMatrix = glm::translate(modelMatrix, {0, -50.0/60, 0}); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ modelMatrix = glm::translate(modelMatrix, {-50.0/60, 0, 0}); });
@@ -184,6 +184,7 @@ int main(int argc, char** argv)
         GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");
+
 
         MVP = viewMatrix * modelMatrix * scaleMatrix;
 

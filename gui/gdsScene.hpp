@@ -218,6 +218,27 @@ public:
         Logging::LogDebug("Gui::GDSScene") << "Hotspot: " << hotspot << "\n";
         mDialogRunner.BeginDialog(
             hotspot.mTooltip);
+
+        /*if (hs.mAction == BAK::HotspotAction::GOTO)
+        {
+            char c = static_cast<char>(65 + arg - 1);
+            currentSceneRef = BAK::HotspotRef{root, c};
+            logger.Debug() << "Switching to: " << c << " " 
+                << currentSceneRef.ToFilename() << "\n";
+        }
+        else if (hs.mAction == BAK::HotspotAction::EXIT)
+        {
+            if (scenes.size() > 1)
+            {
+                scenes.pop();
+                frames.pop();
+                currentSceneRef = scenes.top()->mReference;
+            }
+            else
+            {
+                std::exit(0);
+            }
+        }*/
     }
 
     GDSScene(const GDSScene&) = delete;

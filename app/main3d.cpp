@@ -4,7 +4,7 @@
 #include "bak/coordinates.hpp"
 #include "bak/fixedObject.hpp"
 #include "bak/gameData.hpp"
-#include "bak/inputHandler.hpp"
+#include "graphics/inputHandler.hpp"
 #include "com/logger.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
@@ -313,7 +313,7 @@ int main(int argc, char** argv)
     Camera camera{static_cast<unsigned int>(width), static_cast<unsigned int>(height), 400 * 30.0f, 2.0f};
     camera.SetPosition(startPosition);
 
-    InputHandler inputHandler{};
+    Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_W, [&]{ camera.MoveForward(); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ camera.StrafeLeft(); });
     inputHandler.Bind(GLFW_KEY_D, [&]{ camera.StrafeRight(); });
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_P, [&]{ lightPos.y += .5; });
     inputHandler.Bind(GLFW_KEY_L, [&]{ lightPos.y -= .5; });
 
-    InputHandler::BindMouseToWindow(window.get(), inputHandler);
+    Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
     inputHandler.BindMouse(
         GLFW_MOUSE_BUTTON_LEFT,
         [&](auto click)

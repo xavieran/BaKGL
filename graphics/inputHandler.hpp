@@ -10,6 +10,7 @@
 #include <cassert>
 #include <functional>
 
+namespace Graphics {
 
 class InputHandler
 {
@@ -27,13 +28,11 @@ public:
         MouseCallback&& released);
     void BindMouseMotion(MouseCallback&& moved);
 
-
     void HandleInput(GLFWwindow* window);
     void HandleMouseInput(GLFWwindow* window);
     void HandleKeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void HandleMouseCallback(GLFWwindow* window, int button, int action, int mods);
     void HandleMouseMotionCallback(GLFWwindow* window, double xpos, double ypos);
-
 
 private:
     static void MouseAction(GLFWwindow* window, int button, int action, int mods);
@@ -46,3 +45,5 @@ private:
     std::unordered_map<int, std::pair<MouseCallback, MouseCallback>> mMouseBindings;
     MouseCallback mMouseMovedBinding;
 };
+
+}

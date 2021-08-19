@@ -1,7 +1,7 @@
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/font.hpp"
-#include "bak/inputHandler.hpp"
+#include "graphics/inputHandler.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/screens.hpp"
 #include "bak/scene.hpp"
@@ -101,7 +101,6 @@ int main(int argc, char** argv)
     auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
     
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
-    //auto dialog = std::optional<std::string_view>{};
 
     const auto fontRenderer = Gui::FontRenderer{"GAME.FNT", spriteManager};
 
@@ -110,94 +109,28 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
-    unsigned c = 1;
-    auto bt = Gui::ClickButton{
-        glm::vec2{20, 20},
-        glm::vec2{80, 20},
-        fontRenderer,
-        "#Change Cursor#",
-        [&](){
-            rootWidget.GetCursor().PushCursor(c++);
-        }};
-
-    auto bt2 = Gui::ClickButton{
-        glm::vec2{100, 20},
-        glm::vec2{80, 20},
-        fontRenderer,
-        "Revert Cursor",
-        [&](){
-            c--;
-            rootWidget.GetCursor().PopCursor();
-        }};
-
     Gui::DialogRunner dialogRunner{
         glm::vec2{12, 114},
         glm::vec2{320, 240},
         fontRenderer};
 
     rootWidget.AddChildBack(&dialogRunner);
-    //rootWidget.AddChildFront(&bt);
-    //rootWidget.AddChildFront(&bt2);
 
-    const auto MakeScene = [&](auto ref){
-        scenes.emplace(
-            std::make_unique<Gui::GDSScene>(
-                rootWidget.GetCursor(),
-                ref,
-                spriteManager,
-                dialogRunner));
-        rootWidget.AddChildFront(scenes.top().get());
-        dialogRunner.BeginDialog(scenes.top()->mFlavourText);
+    scenes.emplace(
+        std::make_unique<Gui::GDSScene>(
+            rootWidget.GetCursor(),
+            currentSceneRef,
+            spriteManager,
+            dialogRunner));
+    rootWidget.AddChildFront(scenes.top().get());
+    //dialogRunner.BeginDialog(scenes.top()->mFlavourText);
+    dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6cf});
 
-        /*for (const auto& hs : scenes.top()->mHotspots.mHotspots)
-        {
-            auto pic = hs.mKeyword - 1;
-            auto pos = glm::vec3{hs.mTopLeft.x, hs.mTopLeft.y, 0};
-            frames.top()->mChildren.emplace_back(
-                false,
-                false,
-                0,
-                pic,
-                glm::vec3{pos.x, pos.y, 0},
-                glm::vec3{hs.mDimensions.x, hs.mDimensions.y, 0},
-                glm::vec3{1,1,1},
-                [&, arg=hs.mActionArg1](){
-                    if (dialog) dialog.reset();
-                    if (hs.mAction == BAK::HotspotAction::GOTO)
-                    {
-                        char c = static_cast<char>(65 + arg - 1);
-                        currentSceneRef = BAK::HotspotRef{root, c};
-                        logger.Debug() << "Switching to: " << c << " " 
-                            << currentSceneRef.ToFilename() << "\n";
-                    }
-                    else if (hs.mAction == BAK::HotspotAction::EXIT)
-                    {
-                        if (scenes.size() > 1)
-                        {
-                            scenes.pop();
-                            frames.pop();
-                            currentSceneRef = scenes.top()->mReference;
-                        }
-                        else
-                        {
-                            std::exit(0);
-                        }
-                    }
-                },
-                [&, tooltip=hs.mTooltip](){
-                    if (dialog) dialog.reset();
-                    else dialog = GetText(tooltip);
-                }
-            );
-        }*/
-    };
+    // Set up input callbacks
+    Graphics::InputHandler inputHandler{};
 
-    MakeScene(currentSceneRef);
-
-    InputHandler inputHandler{};
-
-    InputHandler::BindMouseToWindow(window.get(), inputHandler);
-    InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
+    Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
+    Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
 
     inputHandler.BindMouse(
         GLFW_MOUSE_BUTTON_LEFT,
@@ -225,20 +158,14 @@ int main(int argc, char** argv)
         }
     );
 
-    glm::vec3 mousePos;
     inputHandler.BindMouseMotion(
         [&](auto pos)
         {
             rootWidget.MouseMoved(guiScaleInv * pos);
-            mousePos = pos;
-        });
+        }
+    );
 
-    double currentTime = 0;
-    double lastTime = 0;
-    float deltaTime = 0;
-
-    glfwSetCursorPos(window.get(), width/2, height/2);
-    // Hide it we will draw one ourselves
+    // Graphics stuff
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     glEnable(GL_MULTISAMPLE);  
@@ -249,60 +176,22 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    double pointerPosX, pointerPosY;
-
     guiShader.UseProgramGL();
-
-    double acc = 0;
-    unsigned i = 0;
 
     do
     {
-        currentTime = glfwGetTime();
-        deltaTime = float(currentTime - lastTime);
-        acc += deltaTime;
-        if (acc > .2)
-        { 
-            acc = 0;
-        }
-
-        lastTime = currentTime;
-
-        glfwPollEvents();
-        glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        //mDialogScene.SetScene(gdsScene);
-        //mDialogScene.SetTitle(dialogTitle);
-        //mDialogScene.ShowText(dialogText);
-        //mDialogScene.ShowChoices(dialogChoices);
-
-        //rootWidget.AddChildBack(&scene);
-
-        //auto tb = Gui::TextBox{
-        //    glm::vec2{16, 120},
-        //    glm::vec2{320 - 16 - 16, 240 - 120}};
-        //auto text2 = dialog
-        //    ? *dialog 
-        //    : GetText(scenes.top()->mHotspots.mFlavourText);
-        //tb.AddText(fontRenderer, text2);
-
-        //rootWidget.AddChildBack(&tb);
-        //rootWidget.AddChildBack(&bt);
 
         guiRenderer.RenderGui(&rootWidget);
 
         glfwSwapBuffers(window.get());
+
+        glfwPollEvents();
     }
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 
         && glfwWindowShouldClose(window.get()) == 0);
 
     ImguiWrapper::Shutdown();
 
-    glfwTerminate();
-
     return 0;
 }
-
-

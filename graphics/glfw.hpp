@@ -12,6 +12,7 @@ struct DestroyGlfwWindow
     void operator()(GLFWwindow* window)
     {
         glfwDestroyWindow(window);
+        glfwTerminate();
     }
 };
 

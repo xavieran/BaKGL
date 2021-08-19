@@ -11,7 +11,6 @@ add_library(bak
     font.hpp font.cpp
     gameData.hpp
     hotspot.hpp hotspot.cpp
-    inputHandler.hpp inputHandler.cpp
     inventory.hpp
     resourceNames.hpp
     scene.hpp scene.cpp
