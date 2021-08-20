@@ -63,6 +63,7 @@ int main(int argc, char** argv)
 
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("LoadSceneIndices");
+    Logging::LogState::Disable("Gui::Actors");
     
     auto guiScalar = 3.0f;
 
@@ -133,18 +134,18 @@ int main(int argc, char** argv)
             spriteManager,
             dialogRunner));
 
-    auto act = Gui::Actors{spriteManager};
-    const auto [ss, im] = act.GetActor(1);
-    auto sumani = Gui::Widget{
-        Graphics::DrawMode::Sprite,
-        ss,
-        im,
-        Graphics::ColorMode::Texture,
-        Gui::Color::debug,
-        glm::vec2{100,18},
-        spriteManager.GetSpriteSheet(ss).GetDimensions(im),
-        true};
-    rootWidget.AddChildFront(&sumani);
+    //auto act = Gui::Actors{spriteManager};
+    //const auto [ss, im] = act.GetActor(1);
+    //auto sumani = Gui::Widget{
+    //    Graphics::DrawMode::Sprite,
+    //    ss,
+    //    im,
+    //    Graphics::ColorMode::Texture,
+    //    Gui::Color::debug,
+    //    glm::vec2{100,19},
+    //    spriteManager.GetSpriteSheet(ss).GetDimensions(im),
+    //    true};
+    //rootWidget.AddChildFront(&sumani);
     rootWidget.AddChildFront(scenes.top().get());
     //dialogRunner.BeginDialog(scenes.top()->mFlavourText);
     dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6cf});
@@ -159,12 +160,10 @@ int main(int argc, char** argv)
         GLFW_MOUSE_BUTTON_LEFT,
         [&](auto click)
         {
-            logger.Debug() << click << "\n";
             rootWidget.LeftMousePress(guiScaleInv * click);
         },
         [&](auto click)
         {
-            logger.Debug() << click << "\n";
             rootWidget.LeftMouseRelease(guiScaleInv * click);
         }
     );
@@ -173,11 +172,11 @@ int main(int argc, char** argv)
         GLFW_MOUSE_BUTTON_RIGHT,
         [&](auto click)
         {
-            logger.Debug() << click << "\n";
+            rootWidget.RightMousePress(guiScaleInv * click);
         },
         [&](auto click)
         {
-            logger.Debug() << click << "\n";
+            rootWidget.RightMouseRelease(guiScaleInv * click);
         }
     );
 

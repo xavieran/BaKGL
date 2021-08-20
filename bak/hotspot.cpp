@@ -62,46 +62,31 @@ std::ostream& operator<<(std::ostream& os, const HotspotRef& hr)
 
 void SceneHotspots::Load(FileBuffer& fb)
 {
-    BAK::DialogStore dialogStore{};
-    dialogStore.Load();
-
-    const auto GetText = [&](auto& tgt) -> std::string_view
-    {
-        try
-        {
-            return dialogStore.GetSnippet(KeyTarget{tgt}).GetText();
-        }
-        catch (const std::runtime_error& e)
-        {
-            return e.what();
-        }
-    };
-
+    const auto& logger = Logging::LogState::GetLogger("BAK::SceneHotspots");
     auto length = fb.GetUint16LE();
-    std::cout << "Length: " << length << std::endl;
+    logger.Spam() << "Length: " << length << std::endl;
     const auto resource = fb.GetString(6);
     mSceneTTM = ToUpper(resource + ".TTM");
     mSceneADS = ToUpper(resource + ".ADS");
-    std::cout << "Scene Ref: " << mSceneTTM << std::endl;
+    logger.Spam() << "Scene Ref: " << mSceneTTM << std::endl;
 
-    fb.DumpAndSkip(4);
-    fb.DumpAndSkip(2);
-    fb.DumpAndSkip(4);
-    fb.DumpAndSkip(5); // Some kind of addr?
+    fb.Skip(4);
+    fb.Skip(2);
+    fb.Skip(4);
+    fb.Skip(5); // Some kind of addr?
     // For all towns, scene index1.
     mSceneIndex1 = fb.GetUint16LE();
-    std::cout << "Scene index1: " << mSceneIndex1 << "\n";
-    fb.DumpAndSkip(2); // Not sure
+    logger.Spam() << "Scene index1: " << mSceneIndex1 << "\n";
+    fb.Skip(2); // Not sure
     mSceneIndex2 = fb.GetUint16LE();
-    std::cout << "Scene index2: " << mSceneIndex2 << "\n";
+    logger.Spam() << "Scene index2: " << mSceneIndex2 << "\n";
     auto numHotSpots = fb.GetUint16LE(); 
     mFlavourText = fb.GetUint32LE(); 
-    std::cout << "Hotspots: " << std::dec << numHotSpots << std::endl;
-    std::cout << "Flavour Text: " << std::hex << mFlavourText << std::endl;
-    std::cout << GetText(mFlavourText) << std::endl;
+    logger.Spam() << "Hotspots: " << std::dec << numHotSpots << std::endl;
+    logger.Spam() << "Flavour Text: " << std::hex << mFlavourText << std::endl;
 
-    fb.DumpAndSkip(4);
-    fb.DumpAndSkip(4);
+    fb.Skip(4);
+    fb.Skip(4);
 
     std::vector<Hotspot> hotspots;
 
@@ -111,24 +96,23 @@ void SceneHotspots::Load(FileBuffer& fb)
         auto y = fb.GetUint16LE();
         auto w = fb.GetUint16LE();
         auto h = fb.GetUint16LE();
-        std::cout << "Hotspot #" << std::dec << i << std::endl;
-        //std::cout << "coords: " << std::dec << x << " " << y
+        logger.Spam() << "Hotspot #" << std::dec << i << std::endl;
+        //logger.Spam() << "coords: " << std::dec << x << " " << y
         //    << " " << w << " " << h << std::endl;
-        fb.DumpAndSkip(2); // Seems to have some effect...
+        fb.Skip(2); // Seems to have some effect...
         auto keyword = fb.GetUint16LE();
-        //std::cout << "Kw: " << keyword << std::endl;
+        //logger.Spam() << "Kw: " << keyword << std::endl;
         auto action = static_cast<HotspotAction>(fb.GetUint16LE());
-        std::cout << "Action: " << action << std::endl;
+        logger.Spam() << "Action: " << action << std::endl;
         auto actionArg1 = fb.GetUint32LE();
         auto actionArg2 = fb.GetUint32LE();
-        std::cout << "A1: " << actionArg1 << std::hex << " A2: " << actionArg2 << std::dec << "\n";
+        logger.Spam() << "A1: " << actionArg1 << std::hex << " A2: " << actionArg2 << std::dec << "\n";
         std::uint32_t tooltip = fb.GetUint32LE(); 
-        std::cout << "RightClick: " << std::hex << tooltip << GetText(tooltip) << std::endl;
-        fb.DumpAndSkip(4); // Seems to have some effect...
+        logger.Spam() << "RightClick: " << std::hex << tooltip << std::endl;
+        fb.Skip(4); // Seems to have some effect...
         std::uint32_t dialog = fb.GetUint32LE(); 
-        //std::cout << "LeftClick: " << std::hex << dialog << std::endl;
-        // std::cout << GetText(dialog) << std::endl;
-        fb.DumpAndSkip(2);
+        logger.Spam() << "LeftClick: " << std::hex << dialog << std::endl;
+        fb.Skip(2);
 
         hotspots.emplace_back(
             i,
@@ -144,7 +128,7 @@ void SceneHotspots::Load(FileBuffer& fb)
 
     for (auto& hs : hotspots)
     {
-        std::cout << hs << "\n";
+        logger.Spam() << hs << "\n";
     }
 
     mHotspots = hotspots;

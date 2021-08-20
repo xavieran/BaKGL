@@ -10,7 +10,7 @@ add_library(gui
     mainView.hpp
     scene.hpp scene.cpp
     textBox.hpp
-    widget.hpp
+    widget.hpp widget.cpp
     window.hpp
 )
 

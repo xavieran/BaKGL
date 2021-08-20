@@ -17,52 +17,23 @@ namespace Graphics {
 class IGuiElement
 {
 public:
-    IGuiElement()
-    :
-        mChildren{}
-    {}
+    IGuiElement();
+    virtual ~IGuiElement();
 
     virtual const DrawInfo& GetDrawInfo() const = 0;
     virtual const PositionInfo& GetPositionInfo() const = 0;
 
-    virtual const std::vector<IGuiElement*>& GetChildren() const
-    {
-        return mChildren;
-    }
+    virtual const std::vector<IGuiElement*>& GetChildren() const;
 
-    virtual ~IGuiElement(){}
-
-    void AddChildFront(Graphics::IGuiElement* elem)
-    {
-        mChildren.insert(mChildren.begin(), elem);
-    }
-
-    void AddChildBack(Graphics::IGuiElement* elem)
-    {
-        mChildren.emplace_back(elem);
-    }
-
-    void RemoveChild(Graphics::IGuiElement* elem)
-    {
-        const auto it = std::find(mChildren.begin(), mChildren.end(), elem);
-        assert(it != mChildren.end());
-        mChildren.erase(it);
-    }
-
-    void ClearChildren()
-    {
-        mChildren.clear();
-    }
+    void AddChildFront(Graphics::IGuiElement* elem);
+    void AddChildBack(Graphics::IGuiElement* elem);
+    void RemoveChild(Graphics::IGuiElement* elem);
+    void ClearChildren();
 
 private:
     std::vector<Graphics::IGuiElement*> mChildren;
 };
 
-std::ostream& operator<<(std::ostream& os, const IGuiElement& element)
-{
-    os  << "Element: { " << element.GetDrawInfo() << ", "
-        << element.GetPositionInfo() << "}";
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const IGuiElement& element);
 
 }

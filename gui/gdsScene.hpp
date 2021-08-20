@@ -54,7 +54,7 @@ public:
             glm::vec4{1},
             glm::vec2{0},
             glm::vec2{1},
-           false 
+            false 
         },
         mClipRegion{
             Graphics::DrawMode::ClipRegion,
@@ -65,6 +65,26 @@ public:
             glm::vec2{0},
             glm::vec2{1},
             false
+        },
+        mSceneFrame{
+            Graphics::DrawMode::Rect,
+            0,
+            Graphics::TextureIndex{0},
+            Graphics::ColorMode::SolidColor,
+            glm::vec4{0},
+            glm::vec2{0},
+            glm::vec2{1},
+            false 
+        },
+        mBackgroundFrame{
+            Graphics::DrawMode::Sprite,
+            mSpriteSheet,
+            Graphics::TextureIndex{0},
+            Graphics::ColorMode::Texture,
+            glm::vec4{1},
+            glm::vec2{0},
+            glm::vec2{1},
+            false 
         },
         mHotspots{},
         mSceneElements{},
@@ -93,24 +113,21 @@ public:
         auto textures = Graphics::TextureStore{};
         BAK::TextureFactory::AddScreenToTextureStore(
             textures, "DIALOG.SCX", "OPTIONS.PAL");
+
         const auto [x, y] = textures.GetTexture(0).GetDims();
-        this->mPositionInfo.mDimensions = glm::vec2{x, y};
+        SetDimensions(glm::vec2{x, y});
 
         std::unordered_map<unsigned, unsigned> offsets{};
-
-        // We do some pretty wacky stuff here to end up with 
-        // Background
-        // -> Rect OR
-        // -> ClipRegion
-        // ---> Scene Elements
 
         for (const auto& scene : {scene1, scene2})
         {
             for (const auto& [imageKey, imagePal] : scene.mImages)
             {
                 const auto& [image, palKey] = imagePal;
+                mLogger.Debug() << "Loading image slot: " << imageKey << " (" << image << ")\n";
                 const auto& palette = scene.mPalettes.find(palKey)->second;
                 offsets[imageKey] = textures.GetTextures().size();
+
                 BAK::TextureFactory::AddToTextureStore(
                     textures,
                     image,
@@ -158,6 +175,9 @@ public:
                                 false};
 
                             this->AddChildFront(&mFrame);
+                            // DialogBackground will have same dims...
+                            mBackgroundFrame.SetPosition(sceneRect.mPosition);
+                            mBackgroundFrame.SetDimensions(sceneRect.mDimensions);
                         },
                         [&](const BAK::ClipRegion& a){
                             const auto clip = ConvertSceneAction(a);
@@ -167,8 +187,8 @@ public:
                                 0, // no image index
                                 Graphics::ColorMode::SolidColor,
                                 glm::vec4{1},
-                                glm::vec2{clip.mTopLeft.x, clip.mTopLeft.y},
-                                glm::vec2{clip.mDims.x, clip.mDims.y},
+                                clip.mTopLeft,
+                                clip.mDims,
                                 false};
                             this->AddChildBack(&mClipRegion);
                         },
@@ -180,16 +200,16 @@ public:
             }
         }
 
-        spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
-        Graphics::IGuiElement* addTo = this->mChildren.size() > 1
-            ? this->mChildren.back()
-            : this;
-
-        for (auto& action : mSceneElements)
+        for (auto& element : mSceneElements)
         {
-            addTo->AddChildBack(&action);
+            mSceneFrame.AddChildBack(&element);
         }
 
+        const auto dialogBackground = offsets.find(5);
+        if (dialogBackground != offsets.end())
+        {
+            mBackgroundFrame.SetTexture(dialogBackground->second);
+        }
 
         // Want our refs to be stable..
         mHotspots.reserve(hotspots.mHotspots.size());
@@ -201,16 +221,46 @@ public:
                 hs.mDimensions,
                 hs.mKeyword - 1, // cursor index
                 [this, hs](){
-                    HandleHotspotClicked(hs);
+                    HandleHotspotLeftClicked(hs);
                 },
-                [](){});
+                [this, hs](){
+                    HandleHotspotRightClicked(hs);
+                });
 
-            AddChildBack(
+            //mSceneFrame.AddChildBack(
+            mClipRegion.AddChildBack(
                 &mHotspots.back());
         }
+
+        spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
+
+        SetDisplayScene();
     }
 
-    void HandleHotspotClicked(const BAK::Hotspot& hotspot)
+    void SetDisplayScene()
+    {
+        Graphics::IGuiElement* addTo = GetChildren().size() > 1
+            ? GetChildren().back()
+            : this;
+        const auto scenePtr = std::find(addTo->GetChildren().begin(), addTo->GetChildren().end(), &mBackgroundFrame);
+        if (scenePtr != addTo->GetChildren().end())
+            addTo->RemoveChild(&mBackgroundFrame);
+        addTo->AddChildBack(&mSceneFrame);
+    }
+
+    void SetDisplayBackground()
+    {
+        mLogger.Debug() << "Set to background\n";
+        Graphics::IGuiElement* addTo = GetChildren().size() > 1
+            ? GetChildren().back()
+            : this;
+        const auto scenePtr = std::find(addTo->GetChildren().begin(), addTo->GetChildren().end(), &mSceneFrame);
+        if (scenePtr != addTo->GetChildren().end())
+            addTo->RemoveChild(&mSceneFrame);
+        addTo->AddChildBack(&mBackgroundFrame);
+    }
+
+    void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     {
         Logging::LogDebug("Gui::GDSScene") << "Hotspot: " << hotspot << "\n";
         mDialogRunner.BeginDialog(
@@ -238,6 +288,11 @@ public:
         }*/
     }
 
+    void HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
+    {
+        SetDisplayBackground();
+    }
+
     GDSScene(const GDSScene&) = delete;
     GDSScene& operator=(const GDSScene&) = delete;
 
@@ -247,6 +302,8 @@ public:
     Graphics::SpriteSheetIndex mSpriteSheet;
     Widget mFrame;
     Widget mClipRegion;
+    Widget mSceneFrame;
+    Widget mBackgroundFrame;
 
     std::vector<Hotspot> mHotspots;
     std::vector<Widget> mSceneElements;

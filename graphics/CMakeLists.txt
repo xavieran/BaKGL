@@ -1,6 +1,6 @@
 
 add_library(graphics
-    IGuiElement.hpp
+    IGuiElement.hpp IGuiElement.cpp
     glm.hpp
     glfw.hpp glfw.cpp
     guiTypes.hpp guiTypes.cpp

@@ -50,6 +50,16 @@ public:
         }
     }
 
+    void RightMousePress(glm::vec2 click) override
+    {
+        Logging::LogDebug("ClickButton") << "Got RMC: " << click << std::endl;
+        if (Within(click))
+        {
+            if (mRightPressed)
+                std::invoke(mRightPressed);
+        }
+    }
+
     void MouseMoved(glm::vec2 pos) override
     {
         if (!mWithinWidget)
