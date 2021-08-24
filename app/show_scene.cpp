@@ -113,7 +113,7 @@ int main(int argc, char** argv)
         height / guiScalar};
 
     Gui::DialogRunner dialogRunner{
-        glm::vec2{12, 114},
+        glm::vec2{0, 0},
         glm::vec2{320, 240},
         font};
 

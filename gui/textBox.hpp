@@ -118,11 +118,13 @@ public:
             {
                 NextLine();
                 Advance(font.GetSpace() * 4);
+                bold = false;
             }
             else if (c == ' ')
             {
                 //|| c < font.GetFirstChar())
                 Advance(font.GetSpace());
+                bold = false;
             }
             else if (c == '#')
             {
@@ -130,9 +132,12 @@ public:
             }
             else if (c == static_cast<char>(0xf1))
             {
+                // color light blue
             }
             else if (c == static_cast<char>(0xf3))
             {
+                // italic
+                bold = !bold;
             }
             else
             {

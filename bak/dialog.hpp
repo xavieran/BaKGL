@@ -28,6 +28,8 @@ enum class ChoiceState
     Money   = 0x7531,
     Chapter = 0x7537,
     Time    = 0x7539,
+    // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4
+    ShopType = 0x7542,
 };
 
 enum class DisplayFlags

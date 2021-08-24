@@ -59,11 +59,13 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
 
     for (i = 0; i < actions; i++)
     {
-        const auto type = fb.GetUint16LE();
-        const auto& rest = fb.GetArray<8>();
+        const auto type = 0;//fb.GetUint16LE();
+        const auto& rest = fb.GetArray<10>();
+        std::array<std::uint8_t, 8> x2;
+        std::copy(rest.begin(), rest.begin() + 8, x2.begin());
 
         mActions.emplace_back(
-            rest,
+            x2,//rest,
             type);
     }
     
@@ -291,10 +293,10 @@ void DialogIndex::Load()
 
         // Affects the dialog selected
         auto dialogKey = KeyTarget{fb.GetUint32LE()};
-        std::cout << "#" << std::dec << i << std::hex << " " 
-            << +x << " " << +y << " " << " dialogKey: " 
-            << dialogKey << " target: " << dialogStore.GetTarget(dialogKey)
-            << "\n";
+        //std::cout << "#" << std::dec << i << std::hex << " " 
+        //    << +x << " " << +y << " " << " dialogKey: " 
+        //    << dialogKey << " target: " << dialogStore.GetTarget(dialogKey)
+        //    << "\n";
 
         const auto& emplaced = mKeys.emplace_back(dialogKey);
     }

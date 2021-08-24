@@ -28,7 +28,7 @@ int main(int argc, char** argv)
         gameData = std::make_unique<BAK::GameData>(argv[1]);
 
     BAK::DialogStore dialogStore{};
-    BAK::DialogIndex dialogIndex{};
+    //BAK::DialogIndex dialogIndex{};
 
     if( !glfwInit() )
     {
@@ -78,7 +78,8 @@ int main(int argc, char** argv)
 
 
     auto history = std::stack<BAK::Target>{};
-    auto current = dialogIndex.GetKeys().front();
+    //auto current = dialogIndex.GetKeys().front();
+    auto current = BAK::Target{BAK::KeyTarget{0x72}};
     
     do
     {
@@ -99,7 +100,7 @@ int main(int argc, char** argv)
             ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
 
             ImGui::Begin("Dialog");
-            ImGui::Text("Dialog indices: %zu", dialogIndex.GetKeys().size());
+            //ImGui::Text("Dialog indices: %zu", dialogIndex.GetKeys().size());
             static char curIndex[64] = "0"; ImGui::InputText("Index ", curIndex, 10); //, ImGuiInputTextFlags_CharsHex);
             ImGui::SameLine(); if (ImGui::Button("Change"))
             {
