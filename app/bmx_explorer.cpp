@@ -40,15 +40,12 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    BAK::DialogStore dialogStore{};
-    dialogStore.Load();
-
     auto width = 640;
     auto height = 480;
     auto window = Graphics::MakeGlfwWindow(
         height,
         width,
-        "Show Scene");
+        "BMX Explorer");
 
     glViewport(0, 0, width, height);
 

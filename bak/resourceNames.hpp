@@ -5,6 +5,9 @@
 
 namespace BAK {
 
+constexpr auto DIALOG_POINTERS = "DEF_TOWN.DAT";
+constexpr auto TOWN_DEFINITIONS = "DEF_TOWN.DAT";
+
 class ZoneLabel
 {
 public:
@@ -17,11 +20,6 @@ public:
     :
         mZoneLabel{zoneLabel}
     {}
-
-    std::string GetDialogPointers() const
-    {
-        return "DEF_DIAL.DAT";
-    }
 
     std::string GetHorizon() const
     {

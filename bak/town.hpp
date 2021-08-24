@@ -1,6 +1,7 @@
 #pragma once
 
-#include "dialogTarget.hpp"
+#include "bak/dialogTarget.hpp"
+#include "bak/resourceNames.hpp"
 
 #include "xbak/FileBuffer.h"
 
@@ -42,7 +43,7 @@ std::vector<Town> LoadTowns()
 {
     std::vector<Town> towns{};
 
-    auto fb = FileBufferFactory::CreateFileBuffer("DEF_TOWN.DAT");
+    auto fb = FileBufferFactory::CreateFileBuffer(TOWN_DEFINITIONS);
 
     const unsigned nTowns = fb.GetUint16LE();
 	fb.DumpAndSkip(4);

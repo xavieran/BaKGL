@@ -15,7 +15,6 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     
     BAK::DialogStore dialog{};
-    dialog.Load();
     
     //dialog.ShowAllDialogs();
     return 0;

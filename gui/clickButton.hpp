@@ -13,7 +13,7 @@ public:
     ClickButton(
         glm::vec2 pos,
         glm::vec2 dims,
-        const FontRenderer& fr,
+        const Font& fr,
         const std::string& label,
         std::function<void()>&& onLeftMousePress)
         //std::function<void()>&& onLeftMouseRelease)

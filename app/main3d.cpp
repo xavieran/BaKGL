@@ -90,9 +90,7 @@ int main(int argc, char** argv)
     auto fixedObjects = BAK::LoadFixedObjects(zoneLabel.GetZoneNumber());
 
     BAK::DialogStore dialogStore{};
-    dialogStore.Load();
-    BAK::DialogIndex dialogIndex{zoneLabel};
-    dialogIndex.Load();
+    BAK::DialogIndex dialogIndex{};
 
     auto palz = std::make_unique<PaletteResource>();
     FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());

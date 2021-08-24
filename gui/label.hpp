@@ -18,7 +18,7 @@ public:
     Label(
         glm::vec2 pos,
         glm::vec2 dims,
-        const FontRenderer& fr,
+        const Font& fr,
         const std::string& text)
     :
         Widget{
@@ -35,7 +35,7 @@ public:
             glm::vec2{2},
             dims
         },
-        mFontRenderer{fr},
+        mFont{fr},
         mLogger{Logging::LogState::GetLogger("Gui::Label")}
     {
         AddChildBack(&mTextBox);
@@ -45,7 +45,7 @@ public:
     void SetText(std::string_view text)
     {
         auto dims = mTextBox
-            .AddText(mFontRenderer, text);
+            .AddText(mFont, text);
         // Add margin
         dims += glm::vec2{3};
 
@@ -53,7 +53,7 @@ public:
     }
 
     TextBox mTextBox;
-    const FontRenderer& mFontRenderer;
+    const Font& mFont;
     const Logging::Logger& mLogger;
 };
 

@@ -28,9 +28,7 @@ int main(int argc, char** argv)
         gameData = std::make_unique<BAK::GameData>(argv[1]);
 
     BAK::DialogStore dialogStore{};
-    dialogStore.Load();
-    BAK::DialogIndex dialogIndex{zoneLabel};
-    dialogIndex.Load();
+    BAK::DialogIndex dialogIndex{};
 
     if( !glfwInit() )
     {

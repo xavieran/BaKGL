@@ -19,13 +19,7 @@ public:
         Target dialogKey,
         glm::vec<2, unsigned> location,
         std::uint8_t type,
-        std::optional<HotspotRef> hotspotRef)
-    :
-        mDialogKey{dialogKey},
-        mLocation{location},
-        mType{type},
-        mHotspotRef{hotspotRef}
-    {}
+        std::optional<HotspotRef> hotspotRef);
 
     Target mDialogKey;
     glm::vec<2, unsigned> mLocation;
@@ -33,6 +27,7 @@ public:
     std::optional<HotspotRef> mHotspotRef;
 };
 
-std::vector<FixedObject> LoadFixedObjects(unsigned targetZone);
+std::vector<FixedObject>
+LoadFixedObjects(unsigned targetZone);
 
 }

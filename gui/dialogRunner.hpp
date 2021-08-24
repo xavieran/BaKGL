@@ -16,7 +16,7 @@ public:
     DialogRunner(
         glm::vec2 pos,
         glm::vec2 dims,
-        const FontRenderer& fr)
+        const Font& fr)
     :
         Widget{
             Graphics::DrawMode::Rect,
@@ -40,7 +40,6 @@ public:
             glm::vec2{2, 2},
             glm::vec2{260, 240}}
     {
-        mDialogStore.Load();
         AddChildBack(&mLabel);
         AddChildBack(&mTextBox);
     }
@@ -60,7 +59,7 @@ public:
     void BeginDialog(BAK::Target target)
     {
         Logging::LogDebug("Gui::DialogRunner") << "BeginDialog " << target << "\n";
-        mTextBox.AddText(mLabel.mFontRenderer, GetText(target));
+        mTextBox.AddText(mLabel.mFont, GetText(target));
         mLabel.SetCenter(mCenter);
     }
 

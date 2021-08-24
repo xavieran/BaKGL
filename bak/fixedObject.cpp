@@ -2,8 +2,20 @@
 
 namespace BAK {
 
+FixedObject::FixedObject(
+    Target dialogKey,
+    glm::vec<2, unsigned> location,
+    std::uint8_t type,
+    std::optional<HotspotRef> hotspotRef)
+:
+    mDialogKey{dialogKey},
+    mLocation{location},
+    mType{type},
+    mHotspotRef{hotspotRef}
+{}
 
-std::vector<FixedObject> LoadFixedObjects(unsigned targetZone)
+std::vector<FixedObject> LoadFixedObjects(
+    unsigned targetZone)
 {
     std::vector<FixedObject> fixedObjects;
 

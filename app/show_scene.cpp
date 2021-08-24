@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
 
-    const auto fontRenderer = Gui::FontRenderer{"GAME.FNT", spriteManager};
+    const auto font = Gui::Font{"GAME.FNT", spriteManager};
 
     Gui::Window rootWidget{
         spriteManager,
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
     Gui::DialogRunner dialogRunner{
         glm::vec2{12, 114},
         glm::vec2{320, 240},
-        fontRenderer};
+        font};
 
     //auto contents = Gui::GenericRequestScreen{
     //    spriteManager,

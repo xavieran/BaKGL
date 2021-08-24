@@ -123,7 +123,9 @@ DialogStore::DialogStore()
     mDialogMap{},
     mSnippetMap{},
     mLogger{Logging::LogState::GetLogger("DialogStore")}
-{}
+{
+    Load();
+}
 
 void DialogStore::Load()
 {
@@ -255,20 +257,19 @@ std::string DialogStore::GetDialogFile(std::uint8_t i)
     return ss.str();
 }
 
-DialogIndex::DialogIndex(const ZoneLabel& zoneLabel)
+DialogIndex::DialogIndex()
 :
     mKeys{},
-    mZoneLabel{zoneLabel},
     mLogger{Logging::LogState::GetLogger("DialogIndex")}
 {
+    Load();
 }
 
 void DialogIndex::Load()
 {
     BAK::DialogStore dialogStore{};
-    dialogStore.Load();
 
-    auto fb = FileBufferFactory::CreateFileBuffer(mZoneLabel.GetDialogPointers());
+    auto fb = FileBufferFactory::CreateFileBuffer(DIALOG_POINTERS);
 
     const unsigned dialogs = fb.GetUint16LE();
     mLogger.Debug() << "Loading: " << dialogs << std::endl;

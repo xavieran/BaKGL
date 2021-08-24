@@ -115,8 +115,6 @@ class DialogStore
 public:
     DialogStore();
 
-    void Load();
-
     void ShowAllDialogs();
     void ShowDialog(Target dialogKey);
 
@@ -132,6 +130,8 @@ public:
     const DialogSnippet& operator()(OffsetTarget snippetKey) const;
 
 private:
+    void Load();
+
     std::string GetDialogFile(std::uint8_t i);
 
     std::unordered_map<
@@ -148,17 +148,16 @@ private:
 class DialogIndex
 {
 public:
-
-    DialogIndex(const ZoneLabel& zoneLabel);
-
-    void Load();
+    DialogIndex();
 
     const auto& GetKeys() const { return mKeys; }
 
 private:
+    void Load();
+
+
     std::vector<Target> mKeys;
 
-    const ZoneLabel& mZoneLabel;
     const Logging::Logger& mLogger;
 };
 

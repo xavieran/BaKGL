@@ -15,10 +15,10 @@
 
 namespace Gui {
 
-class FontRenderer
+class Font
 {
 public:
-    FontRenderer(
+    Font(
         const std::string& font,
         Graphics::SpriteManager& spriteManager)
     :
@@ -62,7 +62,7 @@ public:
     }
 
     glm::vec2 AddText(
-        const FontRenderer& fr,
+        const Font& fr,
         std::string_view text)
     {
         mText.clear();
