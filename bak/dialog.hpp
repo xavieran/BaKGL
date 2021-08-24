@@ -109,14 +109,15 @@ public:
     // Actor > 0x6 show normal background
     // Actor == 0xff party leader is talking
     std::uint16_t mActor;
-    // 0x10 Center of screen, background is with flowers, text always scrolls in
+    // 0x10 Vertically centered, background is with flowers, text always scrolls in
+    // 0x04 Vertically and horizontally centered
     // 0x03 Show background
     std::uint8_t mDisplayStyle2;
 
     // Display Style 3:
     // 0x0 -> No choices
     // 0x2 -> Lay choices side by side (e.g. Yes/No prompt)
-    // 0x4 -> (Character "asked about") 
+    // 0x4 -> (Dialog tree root... Character "asked about") 
     //       -> Choices in grid
     //       -> Goodbye is special and immediately quits the dialog
     std::uint8_t mDisplayStyle3;
