@@ -36,24 +36,18 @@ public:
             glm::vec2{320, 20},
             fr,
             "#LABEL#"},
-        mTextBox{
+        mFullscreenTextBox{
             glm::vec2{2, 2},
+            glm::vec2{260, 240}},
+        mActionAreaTextBox{
+            glm::vec2{2, 2},
+            glm::vec2{260, 240}},
+        mLowerTextBox{
+            glm::vec2{152, 2},
             glm::vec2{260, 240}}
     {
         AddChildBack(&mLabel);
         AddChildBack(&mTextBox);
-    }
-
-    std::string_view GetText(BAK::Target tgt)
-    {
-        try
-        {
-            return mDialogStore.GetSnippet(tgt).GetText();
-        }
-        catch (const std::runtime_error& e)
-        {
-            return e.what();
-        }
     }
 
     void BeginDialog(BAK::Target target)
@@ -66,20 +60,22 @@ public:
     void LeftMousePress(glm::vec2 click) override
     {
         Logging::LogDebug("Gui::DialogRunner") << "Got LMC: " << click << std::endl;
-        //if (Within(click))
-        //{
-        //    if (mLeftPressed)
-        //        std::invoke(mLeftPressed);
-        //}
+        if (Within(click))
+        {
+            if (mLeftPressed)
+                std::invoke(mLeftPressed);
+        }
     }
-
 
 private:
 
     BAK::DialogStore mDialogStore;
     glm::vec2 mCenter;
     Label mLabel;
-    TextBox mTextBox;
+
+    TextBox mFullscreenTextBox;
+    TextBox mActionAreaTextBox;
+    TextBox mLowerTextBox;
 };
 
 }

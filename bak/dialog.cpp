@@ -5,20 +5,20 @@ namespace BAK {
 void Keywords::Load(FileBuffer& fb)
 {
     auto length = fb.GetUint16LE();
-    std::cout << "Loading keywords" << std::endl;
-    std::cout << "Length: " << length << std::endl;
+    std::cout << "Loading keywords" << "\n";
+    std::cout << "Length: " << length << "\n";
 
     unsigned i = 0;
     while (fb.Tell() != 0x2b8)
     {
         std::cout << "I: " << i << " " << std::hex << fb.GetUint16LE()
-            << std::dec << std::endl;
+            << std::dec << "\n";
         i++;
     }
     i = 0;
     while (fb.GetBytesLeft() != 0)
     {
-        std::cout << "Str:" << i << " :: " << fb.GetString() << std::endl;
+        std::cout << "Str:" << i << " :: " << fb.GetString() << "\n";
         i++;
     }
 }
@@ -59,10 +59,12 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
 
     for (i = 0; i < actions; i++)
     {
+        const auto type = fb.GetUint16LE();
+        const auto& rest = fb.GetArray<8>();
+
         mActions.emplace_back(
-            //fb.GetUint16LE(),
-            //fb.GetUint16LE(),
-            fb.GetArray<10>());
+            rest,
+            type);
     }
     
     if (length > 0)
@@ -76,6 +78,10 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
     switch (d)
     {
         case DialogResult::GiveItem: return os << "GiveItem";
+        case DialogResult::LoseItem: return os << "LoseItem";
+        case DialogResult::SetFlag: return os << "SetFlag";
+        case DialogResult::GainSkill: return os << "GainSkill";
+        case DialogResult::PlaySound: return os << "PlaySound";
         default: return os << "(" << static_cast<unsigned>(d) << ")";
     }
 }
@@ -83,8 +89,15 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
 std::ostream& operator<<(std::ostream& os, const DialogAction& d)
 {
     os << "DA { " 
-       // << " fst: " << d.mFirst << " result: " << d.mResult 
+        << " type: " << d.mType
         << " rst: [" << d.mRest << "]}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const DialogChoice& d)
+{
+    os << std::hex << d.mState << " -> " << d.mChoice1 
+    << " | " << d.mChoice2 << " " << d.mTarget << std::dec;
     return os;
 }
 
@@ -92,27 +105,21 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
 {
     os << "[ ds: " << std::hex << +d.mDisplayStyle << " act: " << +d.mActor
         << " ds2: " << +d.mDisplayStyle2 << " ds3: " << +d.mDisplayStyle3
-        << " ]" << std::endl;
+        << " ]" << "\n";
     
     for (const auto& action : d.mActions)
-    {
-        os << "++ " << action << std::endl;
-    }
+        os << "++ " << action << "\n";
 
     for (const auto& choice : d.mChoices)
-    {
-        os << ">> " << choice.mState << " -> " << choice.mChoice1 
-            << " | " << choice.mChoice2 << " " << choice.mTarget
-            << std::endl;
-    }
+        os << ">> " << choice << "\n";
 
-    os << "Text [ " << d.mText << " ]" << std::endl;
+    os << "Text [ " << d.mText << " ]" << "\n";
     os << "Next [ ";
     if (d.mChoices.size() > 0)
         os << d.mChoices.back().mTarget;
     else
         os << "None";
-    os << " ]" << std::endl;
+    os << " ]" << "\n";
     os << std::dec;
 
     return os;
@@ -134,7 +141,7 @@ void DialogStore::Load()
         auto fname = GetDialogFile(dialogFile);
         auto fb = FileBufferFactory::CreateFileBuffer(fname);
         unsigned dialogs = fb.GetUint16LE();
-        mLogger.Debug() << "Dialog " << fname << " has: " << dialogs << " dialogs" << std::endl;
+        mLogger.Debug() << "Dialog " << fname << " has: " << dialogs << " dialogs" << "\n";
 
         for (unsigned i = 0; i < dialogs; i++)
         {
@@ -146,14 +153,14 @@ void DialogStore::Load()
             assert(emplaced);
             auto [checkF, checkV] = it->second;
             mLogger.Spam() << std::hex << "0x" << it->first 
-                << " -> 0x" << checkV << std::dec << std::endl;
+                << " -> 0x" << checkV << std::dec << "\n";
         }
 
         while (fb.GetBytesLeft() > 0)
         {
             const auto offset = OffsetTarget{dialogFile, fb.Tell()};
             auto snippet = DialogSnippet{fb, dialogFile};
-            mLogger.Spam() << offset << " @ " << snippet << std::endl;
+            mLogger.Spam() << offset << " @ " << snippet << "\n";
             const auto& [it, emplaced] = mSnippetMap.emplace(offset, snippet);
         }
     }
@@ -169,7 +176,7 @@ void DialogStore::ShowAllDialogs()
         }
         catch (const std::runtime_error&)
         {
-            mLogger.Error() << "Failed to walk dialog tree: " << dialogKey.first << std::endl;
+            mLogger.Error() << "Failed to walk dialog tree: " << dialogKey.first << "\n";
         }
     }
 }
@@ -178,8 +185,8 @@ void DialogStore::ShowDialog(Target dialogKey)
 {
     auto snippet = std::visit(*this, dialogKey);
     bool noText = true;
-    mLogger.Info() << "Dialog for key: " << std::hex << dialogKey << std::endl;
-    mLogger.Debug() << "Text: " << GetFirstText(snippet) << std::endl;
+    mLogger.Info() << "Dialog for key: " << std::hex << dialogKey << "\n";
+    mLogger.Debug() << "Text: " << GetFirstText(snippet) << "\n";
 }
 
 const DialogSnippet& DialogStore::GetSnippet(Target target) const
@@ -272,7 +279,7 @@ void DialogIndex::Load()
     auto fb = FileBufferFactory::CreateFileBuffer(DIALOG_POINTERS);
 
     const unsigned dialogs = fb.GetUint16LE();
-    mLogger.Debug() << "Loading: " << dialogs << std::endl;
+    mLogger.Debug() << "Loading: " << dialogs << "\n";
 
     for (unsigned i = 0; i < dialogs; i++)
     {
@@ -287,7 +294,7 @@ void DialogIndex::Load()
         std::cout << "#" << std::dec << i << std::hex << " " 
             << +x << " " << +y << " " << " dialogKey: " 
             << dialogKey << " target: " << dialogStore.GetTarget(dialogKey)
-            << std::endl;
+            << "\n";
 
         const auto& emplaced = mKeys.emplace_back(dialogKey);
     }

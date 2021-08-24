@@ -148,7 +148,7 @@ int main(int argc, char** argv)
     //rootWidget.AddChildFront(&sumani);
     rootWidget.AddChildFront(scenes.top().get());
     //dialogRunner.BeginDialog(scenes.top()->mFlavourText);
-    dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6cf});
+    dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6d4});
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};

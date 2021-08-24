@@ -28,7 +28,6 @@ enum class ChoiceState
     Money   = 0x7531,
     Chapter = 0x7537,
     Time    = 0x7539,
-
 };
 
 enum class DisplayFlags
@@ -48,7 +47,7 @@ enum class DialogResult
     // Maybe?
     PlaySound = 0xc,
     // something to with state?
-    Unknown = 0x10,
+    Unknown   = 0x10,
 };
 
 struct DialogChoice
@@ -71,21 +70,20 @@ struct DialogChoice
     Target mTarget;
 };
 
+std::ostream& operator<<(std::ostream&, const DialogChoice&);
+
 struct DialogAction
 {
     DialogAction(
-        //std::uint16_t first,
-        //std::uint16_t result,
-        const std::array<std::uint8_t, 10>& rest)
+        const std::array<std::uint8_t, 8>& rest,
+        std::uint16_t type)
     :
-        //mFirst{first},
-        //mResult{static_cast<DialogResult>(result)},
+        mType{static_cast<DialogResult>(type)},
         mRest{rest}
     {}
 
-    //std::uint16_t mFirst;
-    //DialogResult mResult;
-    std::array<std::uint8_t, 10> mRest;
+    DialogResult mType;
+    std::array<std::uint8_t, 8> mRest;
 };
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);
@@ -98,9 +96,27 @@ public:
     const auto& GetChoices() const { return mChoices; }
     std::string_view GetText() const { return mText; }
 
+    // Display Style One - where to display text
+    // 0x00 -> Center of full screen
+    // 0x02 -> In action/game part of screen
+    // 0x03 -> In non-bold at bottom
+    // 0x04 -> In bold at bottom
+    // 0x06 -> Center of full screen
     std::uint8_t mDisplayStyle;
+    // Actor <= 0x6 => Show alternate background (player character is talking...)
+    // Actor > 0x6 show normal background
+    // Actor == 0xff party leader is talking
     std::uint16_t mActor;
+    // 0x10 Center of screen, background is with flowers, text always scrolls in
+    // 0x03 Show background
     std::uint8_t mDisplayStyle2;
+
+    // Display Style 3:
+    // 0x0 -> No choices
+    // 0x2 -> Lay choices side by side (e.g. Yes/No prompt)
+    // 0x4 -> (Character "asked about") 
+    //       -> Choices in grid
+    //       -> Goodbye is special and immediately quits the dialog
     std::uint8_t mDisplayStyle3;
 
     std::vector<DialogChoice> mChoices;
