@@ -21,9 +21,9 @@
 #include "DialogResource.h"
 
 DialogData::DialogData()
-        : childDialogs(0)
-        , text()
-        , childData()
+    : childDialogs(0)
+    , text()
+    , childData()
 {
 }
 
@@ -57,7 +57,7 @@ bool DialogResource::Find(const unsigned int n, DialogData* data)
     auto it = dialogMap.find(n);
     if (it != dialogMap.end())
     {
-        data = it->second;
+        //data = it->second;
         return true;
     }
     return false;

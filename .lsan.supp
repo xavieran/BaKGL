@@ -1,0 +1,2 @@
+# LSAN_OPTIONS=suppressions=MyLSan.supp
+leak:*nvidia-glcore*

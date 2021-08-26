@@ -5,7 +5,7 @@
 
 namespace BAK {
 
-constexpr auto DIALOG_POINTERS = "DEF_TOWN.DAT";
+constexpr auto DIALOG_POINTERS = "DEF_DIAL.DAT";
 constexpr auto TOWN_DEFINITIONS = "DEF_TOWN.DAT";
 
 class ZoneLabel

@@ -6,7 +6,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include <stdio.h>
+#include <cstdio>
+#include <iostream>
 
 // About Desktop OpenGL function loaders:
 //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
@@ -46,11 +47,13 @@ using namespace gl;
 
 static void glfw_error_callback(int error, const char* description)
 {
-    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+    std::cerr << "Glfw Error " << error << " : " << description << std::endl;
 }
 
-int main(int, char**)
+int main(int argc, char** argv)
 {
+    (void) argc;
+    (void) argv;
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -187,7 +190,9 @@ int main(int, char**)
             ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
             ImGui::Text("Hello from another window!");
             if (ImGui::Button("Close Me"))
+            {
                 show_another_window = false;
+            }
             ImGui::End();
         }
 

@@ -27,6 +27,8 @@ set(LINK_3D_LIBRARIES
     ${OPENGL_LIBRARY}
 )
 
+set(CMAKE_CXX_CLANG_TIDY "")
+
 foreach (APP_BIN IN LISTS APP_BINARIES)
     add_executable (${APP_BIN} ${APP_BIN}.cpp)
     target_link_libraries(${APP_BIN}

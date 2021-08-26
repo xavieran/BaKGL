@@ -174,7 +174,6 @@ public:
 private:
     void Load();
 
-
     std::vector<Target> mKeys;
 
     const Logging::Logger& mLogger;

@@ -170,4 +170,4 @@ void TextureFactory::AddTerrainToTextureStore(
     }
 }
 
-}
+} // namespace BAK {

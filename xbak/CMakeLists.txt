@@ -28,3 +28,4 @@ endforeach()
 add_executable (xbak_main xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
 target_link_libraries(xbak_main dl pthread xbak SDL stdc++ m)
 
+set(CMAKE_CXX_CLANG_TIDY "")
