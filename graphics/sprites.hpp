@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/plane.hpp"
+#include "graphics/quad.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/types.hpp"

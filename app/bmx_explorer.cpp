@@ -8,7 +8,7 @@
 
 #include "graphics/glm.hpp"
 #include "graphics/glfw.hpp"
-#include "graphics/plane.hpp"
+#include "graphics/quad.hpp"
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/shaderProgram.hpp"

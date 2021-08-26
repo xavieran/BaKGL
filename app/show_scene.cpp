@@ -1,7 +1,6 @@
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/font.hpp"
-#include "graphics/inputHandler.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/screens.hpp"
 #include "bak/scene.hpp"
@@ -15,13 +14,14 @@
 
 #include "graphics/glfw.hpp"
 #include "graphics/guiRenderer.hpp"
-#include "graphics/plane.hpp"
+#include "graphics/inputHandler.hpp"
 #include "graphics/meshObject.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 
 #include "gui/actors.hpp"
+#include "gui/backgrounds.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/contents.hpp"
 #include "gui/dialogRunner.hpp"
@@ -61,8 +61,8 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    Logging::LogState::Disable("LoadScenes");
-    Logging::LogState::Disable("LoadSceneIndices");
+    //Logging::LogState::Disable("LoadScenes");
+    //Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("Gui::Actors");
     
     auto guiScalar = 3.0f;
@@ -106,6 +106,8 @@ int main(int argc, char** argv)
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
 
     const auto font = Gui::Font{"GAME.FNT", spriteManager};
+    const auto backgrounds = Gui::Backgrounds{spriteManager};
+
 
     Gui::Window rootWidget{
         spriteManager,
@@ -115,6 +117,7 @@ int main(int argc, char** argv)
     Gui::DialogRunner dialogRunner{
         glm::vec2{0, 0},
         glm::vec2{320, 240},
+        backgrounds,
         font};
 
     //auto contents = Gui::GenericRequestScreen{
@@ -125,7 +128,7 @@ int main(int argc, char** argv)
     //};
     //rootWidget.AddChildFront(&contents);
 
-    rootWidget.AddChildFront(&dialogRunner);
+    //rootWidget.AddChildFront(&dialogRunner);
 
     scenes.emplace(
         std::make_unique<Gui::GDSScene>(
