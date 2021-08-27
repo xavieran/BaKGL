@@ -58,21 +58,21 @@ public:
         },
         mActionAreaFrame{
             glm::vec2{15, 5},
-            glm::vec2{220, 110}
+            glm::vec2{220, 100}
         },
         mLowerFrame{
             glm::vec2{15, 120},
-            glm::vec2{260, 200}
+            glm::vec2{260, 76}
         },
         mFullscreenTextBox{
-            glm::vec2{28, 2},
-            glm::vec2{320 - 26*2, 240}},
+            glm::vec2{30, 35},
+            glm::vec2{320 - 30*2, 140}},
         mActionAreaTextBox{
             glm::vec2{2, 2},
-            glm::vec2{260, 240}},
+            glm::vec2{260, 100}},
         mLowerTextBox{
             glm::vec2{2, 2},
-            glm::vec2{260, 240}},
+            glm::vec2{260, 80}},
         mLogger{Logging::LogState::GetLogger("Gui::DialogRunner")}
     {
         mFullscreenFrame.AddChildBack(&mFullscreenTextBox);
@@ -88,24 +88,25 @@ public:
     void AddText(
         std::string_view text,
         DialogFrame dialogFrame,
+        bool centeredX,
         bool centeredY)
     {
         switch (dialogFrame)
         {
         case DialogFrame::Fullscreen:
         {
-            const auto dims = mFullscreenTextBox.AddText(
+            mFullscreenTextBox.AddText(
                 mFont,
-                text);
-            const auto frameDims = mFullscreenFrame
-                .GetPositionInfo()
-                .mDimensions;
-            const auto centerY = (frameDims.y / 2.0) - (dims.y / 2.0);
-            const auto textPos = mFullscreenTextBox.GetPositionInfo().mPosition;
-            mFullscreenTextBox.SetPosition(
-                glm::vec2{
-                    textPos.x,
-                    centerY});
+                text,
+                centeredX,
+                centeredY);
+            //const auto frameDims = mFullscreenFrame
+            //    .GetPositionInfo()
+            //    .mDimensions;
+            //const auto centerY = frameDims.y / 2.0 - dims.y / 2.0;
+            //const auto textPos = mFullscreenTextBox.GetPositionInfo().mPosition;
+            //mFullscreenTextBox.SetPosition(
+            //    glm::vec2{textPos.x, centerY});
                     
             ClearChildren();
             AddChildBack(&mFullscreenFrame);
@@ -114,7 +115,9 @@ public:
         {
             mActionAreaTextBox.AddText(
                 mFont,
-                text);
+                text,
+                centeredX,
+                centeredY);
             ClearChildren();
             AddChildBack(&mActionAreaFrame);
         } break;
@@ -122,7 +125,9 @@ public:
         {
             mLowerTextBox.AddText(
                 mFont,
-                text);
+                text,
+                centeredX,
+                centeredY);
             ClearChildren();
             AddChildBack(&mLowerFrame);
         } break;
@@ -143,7 +148,7 @@ public:
             const auto text = dialogSnippet.GetText();
             if (text != empty) 
             {
-                auto ds1 = dialogSnippet.mDisplayStyle;
+                const auto ds1 = dialogSnippet.mDisplayStyle;
                 const auto dialogFrame = std::invoke([&ds1]{
                     if (ds1 == 0x02)
                         return DialogFrame::ActionArea;
@@ -153,11 +158,18 @@ public:
                     else
                         return DialogFrame::Fullscreen;
                 });
+                
+                const auto ds2 = dialogSnippet.mDisplayStyle2;
+                const bool verticallyCentered
+                    = (ds2 & 0x10) == 0x10;
+                const bool horizontallyCentered 
+                    = (ds2 & 0x4) == 0x4;
 
                 AddText(
                     text,
                     dialogFrame,
-                    false);
+                    horizontallyCentered,
+                    verticallyCentered);
 
                 mLogger.Debug() << "Snippet: " << dialogSnippet << "\n";
 
@@ -165,7 +177,10 @@ public:
             }
             else
             {
-                current = dialogSnippet.GetChoices()[0].mTarget;
+                if (dialogSnippet.GetChoices().size() > 1)
+                    current = dialogSnippet.GetChoices().back().mTarget;
+                else
+                    current = dialogSnippet.GetChoices().front().mTarget;
                 dialogSnippet = mDialogStore.GetSnippet(current);
             }
         }

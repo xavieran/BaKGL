@@ -29,10 +29,7 @@
 class Audio
 {
 public:
-    Audio()
-    {};
-    virtual ~Audio()
-    {};
+    virtual ~Audio() noexcept(false) {}
     virtual int PlaySound ( FileBuffer *buffer, const int repeat = 0 ) = 0;
     virtual void StopSound ( const int channel = -1 ) = 0;
 };

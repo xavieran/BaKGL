@@ -20,7 +20,11 @@ set(
 
 # Packages
 find_package(SDL REQUIRED)
+find_package(SDL_mixer REQUIRED)
+find_package(SDL_sound REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
+include_directories(${SDL_mixer_INCLUDE_DIR})
+include_directories(${SDL_sound_INCLUDE_DIR})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/glm")
 

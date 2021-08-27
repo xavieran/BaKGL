@@ -39,8 +39,7 @@ public:
     std::vector<Sound *> sounds;
 };
 
-class SoundResource
-            : public TaggedResource
+class SoundResource : public TaggedResource
 {
 private:
     std::map<unsigned int, SoundData> soundMap;

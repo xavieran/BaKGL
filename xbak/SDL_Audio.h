@@ -24,7 +24,7 @@
 #include "config.h"
 #endif
 
-#if defined(HAVE_LIBSDL_MIXER) && defined(HAVE_LIBSDL_SOUND)
+//#if defined(HAVE_LIBSDL_MIXER) && defined(HAVE_LIBSDL_SOUND)
 
 #include "Audio.h"
 
@@ -33,11 +33,11 @@ class SDL_Audio
 {
 public:
     SDL_Audio();
-    virtual ~SDL_Audio();
+    virtual ~SDL_Audio() noexcept(false);
     int PlaySound ( FileBuffer *buffer, const int repeat = 0 );
     void StopSound ( const int channel = -1 );
 };
 
-#endif
+//#endif
 
 #endif

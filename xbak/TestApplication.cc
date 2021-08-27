@@ -215,15 +215,49 @@ void TestApplication::PlayMovie ( const std::string& name )
 
 void TestApplication::PlaySound ( const unsigned int index )
 {
+    const auto GetFormat = [](auto f)
+    {
+        if (f == SF_MIDI)
+            return "SF_MIDI";
+        else if (f == SF_WAVE)
+            return "SF_WAVE";
+        else
+            return "SF_UNKNOWN";
+    };
+
     try
     {
-        MediaToolkit *media = MediaToolkit::GetInstance();
-        SoundData data = SoundResource::GetInstance()->GetSoundData ( index );
-        unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( data.sounds[0]->GetSamples() );
-        media->GetClock()->StartTimer ( TMR_TEST_APP, ( index < 1000 ? 5000 : 30000 ) );
-        media->WaitEventLoop();
-        media->GetClock()->CancelTimer ( TMR_TEST_APP );
-        media->GetAudio()->StopSound ( channel );
+        for (unsigned i = 0; i < 92; i++)
+        {
+            try
+            {
+                std::cout << "Playing sound : " << i << "\n";
+                MediaToolkit *media = MediaToolkit::GetInstance();
+                SoundData data = SoundResource::GetInstance()->GetSoundData ( i );
+                std::cout << "SoundName: " << data.name << " SoundType: " << data.type << "\n";
+                if (data.sounds.size() == 0)
+                {
+                    std::cout << "Sound is empty!\n";
+                    continue;
+                }
+
+                for (const auto* s : data.sounds)
+                {
+                    std::cout << "\tSound { type: " << s->GetType() << ", channel: " << s->GetChannel()
+                        << ", format: " << GetFormat(s->GetFormat()) << "\n";
+                }
+                unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( data.sounds[0]->GetSamples() );
+                media->GetClock()->StartTimer ( TMR_TEST_APP, ( i < 1000 ? 5000 : 30000 ) );
+                media->WaitEventLoop();
+                media->GetClock()->CancelTimer ( TMR_TEST_APP );
+                std::cout << "Stopping sound : " << i << "\n";
+                media->GetAudio()->StopSound ( channel );
+            }
+            catch (Exception& e)
+            {
+                e.Print ( "TestApplication::PlaySound" );
+            }
+        }
     }
     catch ( Exception &e )
     {

@@ -20,7 +20,7 @@
 #include "Exception.h"
 #include "SDL_Audio.h"
 
-#if defined(HAVE_LIBSDL_MIXER) && defined(HAVE_LIBSDL_SOUND)
+//#if defined(HAVE_LIBSDL_MIXER) && defined(HAVE_LIBSDL_SOUND)
 
 #include "SDL.h"
 #include "SDL_mixer.h"
@@ -137,4 +137,4 @@ void SDL_Audio::StopSound(const int channel)
     Mix_HaltChannel(channel);
 }
 
-#endif
+//#endif

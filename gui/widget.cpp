@@ -123,6 +123,11 @@ void Widget::SetPosition(glm::vec2 pos)
     mPositionInfo.mPosition = pos;
 }
 
+void Widget::AdjustPosition(glm::vec2 adj)
+{
+    mPositionInfo.mPosition += adj;
+}
+
 void Widget::SetTexture(Graphics::TextureIndex texture)
 {
     mDrawInfo.mTexture = texture;

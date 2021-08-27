@@ -2,6 +2,8 @@
 
 #include "bak/font.hpp"
 
+#include "com/logger.hpp"
+
 #include "graphics/IGuiElement.hpp"
 #include "graphics/glm.hpp"
 #include "graphics/sprites.hpp"
@@ -53,19 +55,35 @@ public:
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            glm::vec4{0},
+            Color::debug,
+            //glm::vec4{0},
             pos,
             dim,
             true
-        }
+        },
+        mText{}
     {
+        // should be enough...
+        mText.reserve(2048);
     }
+
+    struct Line
+    {
+        std::vector<Widget*> mChars;
+        glm::vec2 mDimensions;
+    };
 
     glm::vec2 AddText(
         const Font& fr,
-        std::string_view text)
+        std::string_view text,
+        bool centerHorizontal=false,
+        bool centerVertical=false)
     {
+        // otherwise iters not stable...
+        assert(text.size() < 2048);
+
         mText.clear();
+
         ClearChildren();
 
         const auto& font = fr.GetFont();
@@ -73,7 +91,18 @@ public:
         auto charPos = initialPosition;
         auto limit = initialPosition + GetPositionInfo().mDimensions;
 
+        std::vector<Line> lines{};
+        lines.emplace_back(Line{{}, glm::vec2{0}});
+
         const auto NextLine = [&]{
+            // Save this line's dims and move on to the next
+            assert(lines.size() > 0);
+            lines.back().mDimensions = glm::vec2{
+                charPos.x + font.GetSpace(),
+                charPos.y + font.GetHeight()
+            };
+            lines.emplace_back(Line{{}, glm::vec2{0}});
+
             charPos.x = initialPosition.x;
             charPos.y += font.GetHeight();
         };
@@ -88,8 +117,10 @@ public:
                 NextLine();
         };
 
-        auto bold = false;
-        auto inWord = false;
+        auto italic   = false;
+        auto emphasis = false;
+        auto bold     = false;
+        auto inWord   = false;
         unsigned wordLetters = 0;
 
         const auto Draw = [&](const auto& pos, auto c, const auto& color)
@@ -104,6 +135,9 @@ public:
                 pos,
                 glm::vec2{fr.GetFont().GetWidth(c), fr.GetFont().GetHeight()},
                 true);
+
+            assert(lines.size() > 0);
+            lines.back().mChars.emplace_back(&mText.back());
         };
 
         for (unsigned i = 0; i < text.size(); i++)
@@ -116,7 +150,7 @@ public:
             }
             else if (c == '\t')
             {
-                NextLine();
+                //NextLine();
                 Advance(font.GetSpace() * 4);
                 bold = false;
             }
@@ -132,12 +166,11 @@ public:
             }
             else if (c == static_cast<char>(0xf1))
             {
-                // color light blue
+                emphasis = true;
             }
             else if (c == static_cast<char>(0xf3))
             {
-                // italic
-                bold = !bold;
+                italic = true;
             }
             else
             {
@@ -159,6 +192,19 @@ public:
                         Color::fontHighlight);
                 }
 
+                if (emphasis || italic)
+                {
+                    Draw(
+                        charPos,
+                        c,
+                        Color::fontEmphasis);
+                }
+
+                if (italic)
+                {
+                    // Draw italic...
+                }
+
                 Advance(font.GetWidth(c));
 
             }
@@ -178,6 +224,7 @@ public:
                         text.begin() + text.size(),
                         [](const auto& c){ return c < '!' || c > 'z'; });
 
+                    // Check if this word would overflow our bounds
                     wordLetters = std::distance(wordStart, it);
                     for (const auto& ch : text.substr(nextChar, wordLetters))
                         AdvanceChar(font.GetWidth(ch));
@@ -188,9 +235,16 @@ public:
                         charPos = tmpPos;
                 }
                 else if (isAlphaNum)
+                {
                     inWord = true;
+                }
                 else
+                {
+                    // Exiting a word
+                    emphasis = false;
+                    italic = false;
                     inWord = false;
+                }
             }
 
             if (charPos.y > limit.y)
@@ -199,11 +253,45 @@ public:
             }
         }
 
+        // Trigger the final line being set
+        NextLine();
+
         for (auto& elem : mText)
             this->AddChildBack(&elem);
 
-        // Bounding box...
+        // charPos is now the final dims of the drawn text
+        charPos.x += font.GetSpace();
         charPos.y += font.GetHeight();
+
+        if (centerVertical)
+        {
+            const auto verticalAdjustment = (limit.y - charPos.y) / 2.0;
+            Logging::LogDebug("TEXT") << "Height: " << charPos.y << " limit: " 
+                    << limit << " vertAdj: " << verticalAdjustment << "\n";
+            for (auto& w : mText)
+            {
+                w.AdjustPosition(
+                    glm::vec2{0, verticalAdjustment});
+            }
+        }
+
+        if (centerHorizontal)
+        {
+            for (const auto& line : lines)
+            {
+                const auto lineWidth = line.mDimensions.x;
+                const auto horizontalAdjustment = (limit.x - lineWidth) / 2.0;
+                Logging::LogDebug("TEXT") << "LW: " << lineWidth << " limit: " 
+                    << limit << " horzAdj: " << horizontalAdjustment << "\n";
+                for (auto* c : line.mChars)
+                {
+                    assert(c);
+                    c->AdjustPosition(
+                        glm::vec2{horizontalAdjustment, 0});
+                }
+            }
+        }
+
         return charPos;
     }
 

@@ -71,7 +71,7 @@ get_command_type ( char *cmd )
     {
         return CT_SCX;
     }
-    if ( strncmp ( cmd, "SND", 3 ) == 0 )
+    if ( strncmp ( cmd, "SND", 2 ) == 0 )
     {
         return CT_SND;
     }

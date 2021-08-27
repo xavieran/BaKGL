@@ -40,6 +40,7 @@ public:
 
     void SetCenter(glm::vec2 pos);
     void SetPosition(glm::vec2 pos);
+    void AdjustPosition(glm::vec2 adj);
     void SetDimensions(glm::vec2 dims);
 
     void SetTexture(Graphics::TextureIndex);
