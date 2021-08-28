@@ -55,8 +55,8 @@ public:
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            Color::debug,
-            //glm::vec4{0},
+            //Color::debug,
+            glm::vec4{0},
             pos,
             dim,
             true
@@ -150,15 +150,14 @@ public:
             }
             else if (c == '\t')
             {
-                //NextLine();
                 Advance(font.GetSpace() * 4);
                 bold = false;
             }
             else if (c == ' ')
             {
-                //|| c < font.GetFirstChar())
                 Advance(font.GetSpace());
-                bold = false;
+                emphasis = false;
+                italic = false;
             }
             else if (c == '#')
             {
@@ -192,7 +191,7 @@ public:
                         Color::fontHighlight);
                 }
 
-                if (emphasis || italic)
+                if (emphasis)
                 {
                     Draw(
                         charPos,
@@ -202,6 +201,10 @@ public:
 
                 if (italic)
                 {
+                    Draw(
+                        charPos,
+                        c,
+                        Color::fontLowlight);
                     // Draw italic...
                 }
 

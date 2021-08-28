@@ -56,16 +56,7 @@ public:
             glm::vec2{1},
             false 
         },
-        mClipRegion{
-            Graphics::DrawMode::ClipRegion,
-            mSpriteSheet,
-            Graphics::TextureIndex{0},
-            Graphics::ColorMode::Texture,
-            glm::vec4{1},
-            glm::vec2{0},
-            glm::vec2{1},
-            false
-        },
+        mClipRegion{},
         mSceneFrame{
             Graphics::DrawMode::Rect,
             0,
@@ -181,7 +172,7 @@ public:
                         },
                         [&](const BAK::ClipRegion& a){
                             const auto clip = ConvertSceneAction(a);
-                            mClipRegion = Widget{
+                            mClipRegion.emplace(
                                 Graphics::DrawMode::ClipRegion,
                                 mSpriteSheet,
                                 0, // no image index
@@ -189,8 +180,8 @@ public:
                                 glm::vec4{1},
                                 clip.mTopLeft,
                                 clip.mDims,
-                                false};
-                            this->AddChildBack(&mClipRegion);
+                                false);
+                            this->AddChildBack(&(*mClipRegion));
                         },
                         [&](const BAK::DisableClipRegion&){
 
@@ -227,9 +218,12 @@ public:
                     HandleHotspotRightClicked(hs);
                 });
 
-            //mSceneFrame.AddChildBack(
-            mClipRegion.AddChildBack(
-                &mHotspots.back());
+            if (mClipRegion)
+                mClipRegion->AddChildBack(
+                    &mHotspots.back());
+            else
+                mFrame.AddChildBack(
+                    &mHotspots.back());
         }
 
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
@@ -254,43 +248,33 @@ public:
         Graphics::IGuiElement* addTo = GetChildren().size() > 1
             ? GetChildren().back()
             : this;
-        const auto scenePtr = std::find(addTo->GetChildren().begin(), addTo->GetChildren().end(), &mSceneFrame);
+
+        const auto scenePtr = std::find(
+            addTo->GetChildren().begin(),
+            addTo->GetChildren().end(),
+            &mSceneFrame);
+
         if (scenePtr != addTo->GetChildren().end())
             addTo->RemoveChild(&mSceneFrame);
+
         addTo->AddChildBack(&mBackgroundFrame);
     }
 
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     {
         Logging::LogDebug("Gui::GDSScene") << "Hotspot: " << hotspot << "\n";
-        mDialogRunner.BeginDialog(
-            hotspot.mTooltip);
-
-        /*if (hs.mAction == BAK::HotspotAction::GOTO)
+        if (hotspot.mAction == BAK::HotspotAction::DIALOG)
         {
-            char c = static_cast<char>(65 + arg - 1);
-            currentSceneRef = BAK::HotspotRef{root, c};
-            logger.Debug() << "Switching to: " << c << " " 
-                << currentSceneRef.ToFilename() << "\n";
+            mDialogRunner.BeginDialog(
+                BAK::KeyTarget{hotspot.mActionArg2});
         }
-        else if (hs.mAction == BAK::HotspotAction::EXIT)
-        {
-            if (scenes.size() > 1)
-            {
-                scenes.pop();
-                frames.pop();
-                currentSceneRef = scenes.top()->mReference;
-            }
-            else
-            {
-                std::exit(0);
-            }
-        }*/
     }
 
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
     {
-        SetDisplayBackground();
+        //SetDisplayBackground();
+        mDialogRunner.BeginDialog(
+            hotspot.mTooltip);
     }
 
     GDSScene(const GDSScene&) = delete;
@@ -301,7 +285,7 @@ public:
 
     Graphics::SpriteSheetIndex mSpriteSheet;
     Widget mFrame;
-    Widget mClipRegion;
+    std::optional<Widget> mClipRegion;
     Widget mSceneFrame;
     Widget mBackgroundFrame;
 

@@ -65,14 +65,14 @@ public:
             glm::vec2{260, 76}
         },
         mFullscreenTextBox{
-            glm::vec2{30, 35},
-            glm::vec2{320 - 30*2, 140}},
+            glm::vec2{30, 30},
+            glm::vec2{320 - 30*2, 135}},
         mActionAreaTextBox{
             glm::vec2{2, 2},
             glm::vec2{260, 100}},
         mLowerTextBox{
-            glm::vec2{2, 2},
-            glm::vec2{260, 80}},
+            glm::vec2{0, 0},
+            glm::vec2{290, 70}},
         mLogger{Logging::LogState::GetLogger("Gui::DialogRunner")}
     {
         mFullscreenFrame.AddChildBack(&mFullscreenTextBox);
@@ -84,13 +84,14 @@ public:
     //{
     //    return mActiveFrame;
     //}
-    //
+    
     void AddText(
         std::string_view text,
         DialogFrame dialogFrame,
         bool centeredX,
         bool centeredY)
     {
+        ClearChildren();
         switch (dialogFrame)
         {
         case DialogFrame::Fullscreen:
@@ -100,15 +101,6 @@ public:
                 text,
                 centeredX,
                 centeredY);
-            //const auto frameDims = mFullscreenFrame
-            //    .GetPositionInfo()
-            //    .mDimensions;
-            //const auto centerY = frameDims.y / 2.0 - dims.y / 2.0;
-            //const auto textPos = mFullscreenTextBox.GetPositionInfo().mPosition;
-            //mFullscreenTextBox.SetPosition(
-            //    glm::vec2{textPos.x, centerY});
-                    
-            ClearChildren();
             AddChildBack(&mFullscreenFrame);
         } break;
         case DialogFrame::ActionArea:
@@ -118,7 +110,6 @@ public:
                 text,
                 centeredX,
                 centeredY);
-            ClearChildren();
             AddChildBack(&mActionAreaFrame);
         } break;
         case DialogFrame::LowerArea:
@@ -128,7 +119,6 @@ public:
                 text,
                 centeredX,
                 centeredY);
-            ClearChildren();
             AddChildBack(&mLowerFrame);
         } break;
         }
@@ -141,15 +131,19 @@ public:
 
         bool progressing = true;
         auto current = target;
-        auto dialogSnippet = mDialogStore.GetSnippet(current);
+        mCurrentDialog = mDialogStore.GetSnippet(current);
         constexpr std::string_view empty = "";
         while (progressing)
         {
-            const auto text = dialogSnippet.GetText();
+            const auto text = mCurrentDialog->GetText();
             if (text != empty) 
             {
-                const auto ds1 = dialogSnippet.mDisplayStyle;
-                const auto dialogFrame = std::invoke([&ds1]{
+                const auto ds1 = mCurrentDialog->mDisplayStyle;
+                const auto act = mCurrentDialog->mActor;
+                const auto dialogFrame = std::invoke([ds1, act]{
+                    if (act != 0x0)
+                        return DialogFrame::LowerArea;
+
                     if (ds1 == 0x02)
                         return DialogFrame::ActionArea;
                     else if (ds1 == 0x03
@@ -159,7 +153,7 @@ public:
                         return DialogFrame::Fullscreen;
                 });
                 
-                const auto ds2 = dialogSnippet.mDisplayStyle2;
+                const auto ds2 = mCurrentDialog->mDisplayStyle2;
                 const bool verticallyCentered
                     = (ds2 & 0x10) == 0x10;
                 const bool horizontallyCentered 
@@ -171,26 +165,37 @@ public:
                     horizontallyCentered,
                     verticallyCentered);
 
-                mLogger.Debug() << "Snippet: " << dialogSnippet << "\n";
+                mLogger.Debug() << "Snippet: " << mCurrentDialog << "\n";
 
                 return;
             }
             else
             {
-                if (dialogSnippet.GetChoices().size() > 1)
-                    current = dialogSnippet.GetChoices().back().mTarget;
+                //if (mCurrentDialog->GetChoices().size() > 1)
+                //    current = mCurrentDialog->GetChoices().back().mTarget;
+                //else
+                mLogger.Debug() << "Snippet: " << mCurrentDialog << "\n";
+                if (mCurrentDialog && mCurrentDialog->GetChoices().size() >= 1)
+                    current = mCurrentDialog->GetChoices().front().mTarget;
                 else
-                    current = dialogSnippet.GetChoices().front().mTarget;
-                dialogSnippet = mDialogStore.GetSnippet(current);
+                    current = BAK::KeyTarget{0x2dc6d4};
+                mCurrentDialog = mDialogStore.GetSnippet(current);
             }
         }
     }
 
-    void LeftMousePress(glm::vec2 click) override
+    void RightMousePress(glm::vec2 click) override
     {
         mLogger.Debug() << "Got LMC: " << click << std::endl;
         if (Within(click))
         {
+            if (mCurrentDialog && mCurrentDialog->GetChoices().size() > 0)
+            {
+                BeginDialog(
+                    mCurrentDialog->GetChoices().front().mTarget);
+            }
+            else
+                BeginDialog(BAK::KeyTarget{0x2dc6d4});
         }
     }
 
@@ -208,6 +213,8 @@ private:
     TextBox mFullscreenTextBox;
     TextBox mActionAreaTextBox;
     TextBox mLowerTextBox;
+
+    std::optional<BAK::DialogSnippet> mCurrentDialog;
 
     const Logging::Logger& mLogger;
 };

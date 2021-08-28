@@ -314,6 +314,7 @@ public:
         constexpr auto interpolation = GL_NEAREST;
         //constexpr auto interpolation = GL_LINEAR;
         constexpr auto extend = GL_REPEAT;
+        //constexpr auto extend = GL_CLAMP_TO_BORDER;
         glTexParameteri(mTextureType, GL_TEXTURE_WRAP_S, extend);   
         glTexParameteri(mTextureType, GL_TEXTURE_WRAP_T, extend);
         glTexParameteri(mTextureType, GL_TEXTURE_MIN_FILTER, interpolation);

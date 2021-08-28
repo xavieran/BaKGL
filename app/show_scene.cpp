@@ -150,10 +150,10 @@ int main(int argc, char** argv)
     //    true};
     //rootWidget.AddChildFront(&sumani);
     rootWidget.AddChildFront(scenes.top().get());
-    //dialogRunner.BeginDialog(scenes.top()->mFlavourText);
+    dialogRunner.BeginDialog(scenes.top()->mFlavourText);
     //dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6d4});
     //dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6ed});
-    dialogRunner.BeginDialog(BAK::OffsetTarget{30, 0x1793});
+    //dialogRunner.BeginDialog(BAK::OffsetTarget{30, 0x1793});
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};
