@@ -26,6 +26,11 @@ public:
         //return 1; // nighttime
     }
 
+    auto GetShopType() const
+    {
+        return 4;
+    }
+
     std::string_view GetPartyLeader()
     {
         return mPartyLeader;

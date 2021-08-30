@@ -240,6 +240,11 @@ public:
                 {
                     return c.mTarget;
                 }
+                else if (choiceState == BAK::ChoiceState::ShopType
+                    && mGameState.GetShopType() == c.mChoice1)
+                {
+                    return c.mTarget;
+                }
                 else if (c.mState == 0x0)
                 {
                     return c.mTarget;
