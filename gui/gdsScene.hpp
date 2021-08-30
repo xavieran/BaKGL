@@ -273,6 +273,7 @@ public:
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
     {
         //SetDisplayBackground();
+        Logging::LogDebug("Gui::GDSScene") << "Hotspot: " << hotspot << "\n";
         mDialogRunner.BeginDialog(
             hotspot.mTooltip);
     }

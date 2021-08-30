@@ -1,6 +1,7 @@
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/font.hpp"
+#include "bak/gameState.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/screens.hpp"
 #include "bak/scene.hpp"
@@ -114,11 +115,15 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
+
+
+    auto gs = BAK::GameState{};
     Gui::DialogRunner dialogRunner{
         glm::vec2{0, 0},
         glm::vec2{320, 240},
         backgrounds,
-        font};
+        font,
+        gs};
 
     //auto contents = Gui::GenericRequestScreen{
     //    spriteManager,

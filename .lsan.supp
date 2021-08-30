@@ -1,3 +1,4 @@
 # LSAN_OPTIONS=suppressions=MyLSan.supp
 leak:*nvidia-glcore*
 leak:*i965_dri*
+leak:*libmikmod*

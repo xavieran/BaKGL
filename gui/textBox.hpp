@@ -94,6 +94,11 @@ public:
         std::vector<Line> lines{};
         lines.emplace_back(Line{{}, glm::vec2{0}});
 
+        auto italic   = false;
+        auto emphasis = false;
+        auto bold     = false;
+        auto inWord   = false;
+
         const auto NextLine = [&]{
             // Save this line's dims and move on to the next
             assert(lines.size() > 0);
@@ -105,6 +110,11 @@ public:
 
             charPos.x = initialPosition.x;
             charPos.y += font.GetHeight();
+
+            italic = false;
+            bold = false;
+            emphasis = false;
+            inWord = false;
         };
 
         const auto AdvanceChar = [&](auto w){
@@ -117,10 +127,6 @@ public:
                 NextLine();
         };
 
-        auto italic   = false;
-        auto emphasis = false;
-        auto bold     = false;
-        auto inWord   = false;
         unsigned wordLetters = 0;
 
         const auto Draw = [&](const auto& pos, auto c, const auto& color)
@@ -163,6 +169,10 @@ public:
             {
                 bold = !bold;
             }
+            else if (c == static_cast<char>(0xf0))
+            {
+                emphasis = true;
+            }
             else if (c == static_cast<char>(0xf1))
             {
                 emphasis = true;
@@ -181,7 +191,7 @@ public:
                 if (bold)
                 {
                     Draw(
-                        charPos + glm::vec2{0,1},
+                        charPos + glm::vec2{0, 1},
                         c,
                         Color::buttonShadow);
 
