@@ -44,7 +44,7 @@ public:
 
     void SetText(std::string_view text)
     {
-        auto dims = mTextBox
+        auto [dims, remaining] = mTextBox
             .AddText(mFont, text);
         // Add margin
         dims += glm::vec2{3};

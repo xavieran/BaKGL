@@ -73,7 +73,7 @@ public:
         glm::vec2 mDimensions;
     };
 
-    glm::vec2 AddText(
+    std::pair<glm::vec2, std::string_view> AddText(
         const Font& fr,
         std::string_view text,
         bool centerHorizontal=false,
@@ -81,7 +81,7 @@ public:
         bool isBold=false)
     {
         // otherwise iters not stable...
-        assert(text.size() < 2048);
+        //assert(text.size() < 2048);
 
         mText.clear();
 
@@ -105,12 +105,12 @@ public:
             assert(lines.size() > 0);
             lines.back().mDimensions = glm::vec2{
                 charPos.x + font.GetSpace(),
-                charPos.y + font.GetHeight()
+                charPos.y + font.GetHeight() + 1
             };
             lines.emplace_back(Line{{}, glm::vec2{0}});
 
             charPos.x = initialPosition.x;
-            charPos.y += font.GetHeight();
+            charPos.y += font.GetHeight() + 1;
 
             italic = false;
             bold = false;
@@ -167,10 +167,11 @@ public:
                 c,
                 Color::fontHighlight);
         };
-
-        for (unsigned i = 0; i < text.size(); i++)
+        
+        unsigned currentChar = 0;
+        for (; currentChar < text.size(); currentChar++)
         {
-            const auto c = text[i];
+            const auto c = text[currentChar];
 
             if (c == '\n')
             {
@@ -202,6 +203,12 @@ public:
             else if (c == static_cast<char>(0xf3))
             {
                 italic = true;
+            }
+            else if (c == static_cast<char>(0xe1))
+            {
+                // Book text.. quoted or something
+                DrawNormal(charPos, ' ');
+                Advance(font.GetSpace() / 2.0);
             }
             else
             {
@@ -238,7 +245,7 @@ public:
                 Advance(font.GetWidth(c));
             }
 
-            const auto nextChar = i + 1;
+            const auto nextChar = currentChar + 1;
             if (nextChar < text.size())
             {
                 const auto ch = text[nextChar];
@@ -276,25 +283,27 @@ public:
                 }
             }
 
-            if (charPos.y > limit.y)
+            if (charPos.y + font.GetHeight() > limit.y)
             {
                 break;
             }
         }
 
-        // Trigger the final line being set
+        // Set the dims of the final line
         NextLine();
 
         for (auto& elem : mText)
             this->AddChildBack(&elem);
 
         // charPos is now the final dims of the drawn text
-        charPos.x += font.GetSpace();
-        charPos.y += font.GetHeight();
+        //charPos.x += font.GetSpace();
+        //charPos.y += font.GetHeight();
 
         if (centerVertical)
         {
-            const auto verticalAdjustment = (limit.y - charPos.y) / 2.0;
+            const auto verticalAdjustment = limit.y > charPos.y
+                ? (limit.y - charPos.y ) / 2.0
+                : 0;
             Logging::LogDebug("TEXT") << "Height: " << charPos.y << " limit: " 
                     << limit << " vertAdj: " << verticalAdjustment << "\n";
             for (auto& w : mText)
@@ -303,6 +312,7 @@ public:
                     glm::vec2{0, verticalAdjustment});
             }
         }
+
 
         if (centerHorizontal)
         {
@@ -321,7 +331,11 @@ public:
             }
         }
 
-        return charPos;
+        return std::make_pair(
+            charPos,
+            text.substr(
+                currentChar,
+                text.size() - currentChar));
     }
 
 private:

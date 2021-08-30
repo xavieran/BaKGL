@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     //Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("Gui::Actors");
     
-    auto guiScalar = 3.0f;
+    auto guiScalar = 2.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 240.0f;

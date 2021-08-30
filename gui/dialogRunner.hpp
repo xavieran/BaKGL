@@ -77,18 +77,24 @@ public:
             true
         },
         mLowerFrame{
-            glm::vec2{15, 120},
-            glm::vec2{260, 100}
+            glm::vec2{15, 125},
+            glm::vec2{285, 66}
         },
         mFullscreenTextBox{
             glm::vec2{30, 30},
-            glm::vec2{320 - 30*2, 135}},
+            glm::vec2{320 - 30*2, 135}
+        },
         mActionAreaTextBox{
             glm::vec2{4, 4},
-            glm::vec2{290, 103}},
+            glm::vec2{290, 103}
+        },
         mLowerTextBox{
             glm::vec2{0, 0},
-            glm::vec2{290, 70}},
+            glm::vec2{285, 66}
+        },
+        mCurrentTarget{},
+        mCurrentDialog{},
+        mRemainingText{""},
         mLogger{Logging::LogState::GetLogger("Gui::DialogRunner")}
     {
         mFullscreenFrame.AddChildBack(&mFullscreenTextBox);
@@ -104,7 +110,7 @@ public:
     //    return mActiveFrame;
     //}
     
-    void AddText(
+    auto AddText(
         std::string_view text,
         DialogFrame dialogFrame,
         bool centeredX,
@@ -116,40 +122,46 @@ public:
         {
         case DialogFrame::Fullscreen:
         {
-            mFullscreenTextBox.AddText(
+            AddChildBack(&mFullscreenFrame);
+            return mFullscreenTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
-            AddChildBack(&mFullscreenFrame);
         } break;
         case DialogFrame::ActionArea:
         {
-            mActionAreaTextBox.AddText(
+            AddChildBack(&mActionAreaFrame);
+            return mActionAreaTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
-            AddChildBack(&mActionAreaFrame);
         } break;
         case DialogFrame::LowerArea:
         {
-            mLowerTextBox.AddText(
+            AddChildBack(&mLowerFrame);
+            return mLowerTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
-            AddChildBack(&mLowerFrame);
         } break;
+        default:
+            throw std::runtime_error("Invalid DialogArea");
         }
     }
 
     void UpdateSnippet()
     {
-        auto text = std::string{mCurrentDialog->GetText()};
+        std::string text;
+        if (!mRemainingText.empty())
+            text = std::string{mRemainingText};
+        else
+            text = std::string{mCurrentDialog->GetText()};
 
         text = std::regex_replace(
             text,
@@ -190,14 +202,15 @@ public:
             = (ds2 & 0x4) == 0x4;
         const bool isBold
             = ds2 == 0x3;
-
-        AddText(
+    
+        const auto [charPos, remainingText] = AddText(
             text,
             dialogFrame,
             horizontallyCentered,
             verticallyCentered,
             isBold);
 
+        mRemainingText = std::string{remainingText};
         mLogger.Debug() << "Snippet: " << mCurrentDialog << "\n";
     }
 
@@ -253,6 +266,12 @@ public:
     void RunDialog()
     {
         bool progressing = true;
+
+        if (!mRemainingText.empty())
+        {
+            UpdateSnippet();
+            return;
+        }
 
         auto current = ProgressDialog();
         auto currentDialog = mDialogStore.GetSnippet(current);
@@ -317,6 +336,7 @@ private:
 
     std::optional<BAK::Target> mCurrentTarget;
     std::optional<BAK::DialogSnippet> mCurrentDialog;
+    std::string mRemainingText;
 
     const Logging::Logger& mLogger;
 };

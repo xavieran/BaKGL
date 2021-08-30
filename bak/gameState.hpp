@@ -22,8 +22,8 @@ public:
 
     auto GetTime() const
     {
-        //return 0; // daytime
-        return 1; // daytime
+        return 0; // daytime
+        //return 1; // nighttime
     }
 
     std::string_view GetPartyLeader()

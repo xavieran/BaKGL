@@ -20,8 +20,8 @@ public:
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            //Color::debug,
-            glm::vec4{0},
+            Color::debug,
+            //glm::vec4{0},
             pos,
             dims,
             true
