@@ -2,9 +2,17 @@ cmake_minimum_required(VERSION 3.19)
 project( BaKGL )
 
 # Project wide CXX flags
-set(CXX_IGNORE "-Wno-unused-variable -Wno-unused-parameter -Wno-unused-private-field -Wno-unused-function -Wno-format-security -Wno-deprecated-enum-enum-conversion")
-#-Wno-unused-but-set-parameter 
-#-Wno-c++17-extensions")
+string(CONCAT CXX_IGNORES
+    "-Wno-unused-variable "
+    "-Wno-unused-parameter "
+#   "-Wno-unused-but-set-parameter "
+#   " -Wno-c++17-extensions "
+    "-Wno-unused-private-field "
+    "-Wno-unused-function "
+    "-Wno-format-security "
+    "-Wno-deprecated-enum-enum-conversion "
+    )
+set(CXX_IGNORE ${CXX_IGNORES})
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -fsanitize=address -fno-omit-frame-pointer ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)

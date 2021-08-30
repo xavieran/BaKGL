@@ -77,7 +77,8 @@ public:
         const Font& fr,
         std::string_view text,
         bool centerHorizontal=false,
-        bool centerVertical=false)
+        bool centerVertical=false,
+        bool isBold=false)
     {
         // otherwise iters not stable...
         assert(text.size() < 2048);
@@ -146,6 +147,27 @@ public:
             lines.back().mChars.emplace_back(&mText.back());
         };
 
+        const auto DrawNormal = [&](const auto& pos, auto c)
+        {
+            Draw(
+                charPos,
+                c,
+                Color::black);
+        };
+
+        const auto DrawBold = [&](const auto& pos, auto c)
+        {
+            Draw(
+                charPos + glm::vec2{0, 1},
+                c,
+                Color::buttonShadow);
+
+            Draw(
+                charPos,
+                c,
+                Color::fontHighlight);
+        };
+
         for (unsigned i = 0; i < text.size(); i++)
         {
             const auto c = text[i];
@@ -183,33 +205,21 @@ public:
             }
             else
             {
-                Draw(
-                    charPos,
-                    c,
-                    Color::black);
-
                 if (bold)
                 {
-                    Draw(
-                        charPos + glm::vec2{0, 1},
-                        c,
-                        Color::buttonShadow);
-
-                    Draw(
-                        charPos,
-                        c,
-                        Color::fontHighlight);
+                    if (isBold)
+                        DrawNormal(charPos, c);
+                    else
+                        DrawBold(charPos, c);
                 }
-
-                if (emphasis)
+                else if (emphasis)
                 {
                     Draw(
                         charPos,
                         c,
                         Color::fontEmphasis);
                 }
-
-                if (italic)
+                else if (italic)
                 {
                     Draw(
                         charPos,
@@ -217,9 +227,15 @@ public:
                         Color::fontLowlight);
                     // Draw italic...
                 }
+                else
+                {
+                    if (isBold)
+                        DrawBold(charPos, c);
+                    else
+                        DrawNormal(charPos, c);
+                }
 
                 Advance(font.GetWidth(c));
-
             }
 
             const auto nextChar = i + 1;

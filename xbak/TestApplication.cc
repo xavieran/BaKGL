@@ -227,7 +227,9 @@ void TestApplication::PlaySound ( const unsigned int index )
 
     try
     {
-        for (unsigned i = 0; i < 92; i++)
+        unsigned i = index;
+        //for (unsigned i = 0; i < 92; i++)S
+        for (unsigned k = 0; k < 1; k++)
         {
             try
             {

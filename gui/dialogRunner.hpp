@@ -108,7 +108,8 @@ public:
         std::string_view text,
         DialogFrame dialogFrame,
         bool centeredX,
-        bool centeredY)
+        bool centeredY,
+        bool isBold)
     {
         ClearChildren();
         switch (dialogFrame)
@@ -119,7 +120,8 @@ public:
                 mFont,
                 text,
                 centeredX,
-                centeredY);
+                centeredY,
+                isBold);
             AddChildBack(&mFullscreenFrame);
         } break;
         case DialogFrame::ActionArea:
@@ -128,7 +130,8 @@ public:
                 mFont,
                 text,
                 centeredX,
-                centeredY);
+                centeredY,
+                isBold);
             AddChildBack(&mActionAreaFrame);
         } break;
         case DialogFrame::LowerArea:
@@ -137,7 +140,8 @@ public:
                 mFont,
                 text,
                 centeredX,
-                centeredY);
+                centeredY,
+                isBold);
             AddChildBack(&mLowerFrame);
         } break;
         }
@@ -184,12 +188,15 @@ public:
             = ((ds2 & 0x10) == 0x10) || (ds2 == 0x3);
         const bool horizontallyCentered 
             = (ds2 & 0x4) == 0x4;
+        const bool isBold
+            = ds2 == 0x3;
 
         AddText(
             text,
             dialogFrame,
             horizontallyCentered,
-            verticallyCentered);
+            verticallyCentered,
+            isBold);
 
         mLogger.Debug() << "Snippet: " << mCurrentDialog << "\n";
     }

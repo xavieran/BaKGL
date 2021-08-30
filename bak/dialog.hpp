@@ -46,8 +46,7 @@ enum class DialogResult
     // Unlocks dialog options / Sets event state
     SetFlag   = 0x04,
     GainSkill = 0x09,
-    // Maybe?
-    PlaySound = 0xc,
+    PlaySound = 0x0c,
     // something to with state?
     Unknown   = 0x10,
 };
