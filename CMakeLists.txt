@@ -15,7 +15,6 @@ string(CONCAT CXX_IGNORES
 set(CXX_IGNORE ${CXX_IGNORES})
 
 set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
-set(CXX_ASAN "")
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_ASAN} ${CXX_IGNORE}")

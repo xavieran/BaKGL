@@ -74,9 +74,9 @@ enum class Actions
     DRAW_FRAME          = 0xa110, 
     DRAW_SPRITE0        = 0xa500,
     DRAW_SPRITE1        = 0xa510,
-    DRAW_SPRITE_FLIP    = 0xa520,
-    DRAW_SPRITE3        = 0xa530,
-    DRAW_SPRITEA        = 0xa5a0,
+    DRAW_SPRITE_FLIP_Y  = 0xa520,
+    DRAW_SPRITE_FLIP_XY = 0xa530,
+    DRAW_SPRITE_ROTATE  = 0xa5a0,
     DRAW_SPRITEB        = 0xa600, // CLEAR_SCREEN
     DRAW_SCREEN         = 0xb600,
     LOAD_SOUND_RESOURCE = 0xc020,
@@ -112,6 +112,8 @@ struct DrawRect
     glm::vec<2, int> mTopLeft;
     glm::vec<2, int> mBottomRight;
 };
+
+std::ostream& operator<<(std::ostream&, const DrawRect&);
 
 struct DrawSprite
 {

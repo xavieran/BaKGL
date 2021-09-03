@@ -14,14 +14,18 @@
 namespace BAK {
 
 
+std::ostream& operator<<(std::ostream& os, const SceneIndex& si)
+{
+    os << "SceneIndex{ tag: " << si.mSceneTag << " index: " << si.mSceneIndex << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const Scene& scene)
 {
-    os << "Scene :: " << scene.mSceneTag << " [";
-    auto sep = ' ';
+    os << "Scene :: " << scene.mSceneTag << " [\n";
     for (const auto& a : scene.mActions)
     {
-        os << sep << a;
-        sep = '\n';
+        os << '\t' << a << "\n";
     }
     os << " ]\n";
     for (const auto& [key, imagePal] : scene.mImages)
@@ -320,9 +324,13 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
             break;
         case Actions::DRAW_SPRITE1: [[fallthrough]];
-        case Actions::DRAW_SPRITE_FLIP:
+        case Actions::DRAW_SPRITE_FLIP_Y:
             flipped = true;
             [[fallthrough]];
+        // FIXME: Implement flip x and y
+        case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
+        // FIXME: Implement the rotation
+        case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
         case Actions::DRAW_SPRITE0:
         {
             const auto scaled = chunk.mArguments.size() >= 5;

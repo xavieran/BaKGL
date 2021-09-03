@@ -348,6 +348,7 @@ public:
         }
 
         constexpr std::string_view empty = "";
+        unsigned iters = 0;
         do
         {
             auto current       = ProgressDialog();
@@ -371,7 +372,7 @@ public:
                 return true;
             }
 
-        } while (progressing);
+        } while (progressing && (iters++ < 20));
 
         return true;
     }

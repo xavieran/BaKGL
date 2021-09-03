@@ -49,6 +49,8 @@ enum class DialogResult
     PlaySound = 0x0c,
     // something to with state?
     Unknown   = 0x10,
+    // Transition to another location? e.g. sewer dialog 231861
+    Transition = 0x14,
 };
 
 struct DialogChoice

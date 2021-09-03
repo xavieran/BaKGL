@@ -26,18 +26,29 @@ public:
             0,
             Graphics::TextureIndex{0},
             Graphics::ColorMode::SolidColor,
-            Color::buttonBackground,
+            Color::frameMaroon,
             pos,
             dims,
             true
         },
+        mForeground{
+            Graphics::DrawMode::Rect,
+            0,
+            Graphics::TextureIndex{0},
+            Graphics::ColorMode::SolidColor,
+            Color::buttonBackground,
+            glm::vec2{1,1},
+            dims,
+            true
+        },
         mTextBox{
-            glm::vec2{2},
+            glm::vec2{3},
             dims
         },
         mFont{fr},
         mLogger{Logging::LogState::GetLogger("Gui::Label")}
     {
+        AddChildBack(&mForeground);
         AddChildBack(&mTextBox);
         SetText(text);
     }
@@ -48,10 +59,13 @@ public:
             .AddText(mFont, text);
         // Add margin
         dims += glm::vec2{3};
+        mForeground.SetDimensions(
+            dims - glm::vec2{2,2});
 
         mPositionInfo.mDimensions = dims;
     }
 
+    Widget mForeground;
     TextBox mTextBox;
     const Font& mFont;
     const Logging::Logger& mLogger;

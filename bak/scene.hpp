@@ -10,19 +10,13 @@
 
 namespace BAK {
 
-struct SceneChunk
-{
-    Actions mAction;
-    std::optional<std::string> mResourceName;
-    std::vector<std::int16_t> mArguments;
-};
-
 struct SceneIndex
 {
     std::string mSceneTag;
-    // Actually it's more complicated than this...
     unsigned mSceneIndex;
 };
+
+std::ostream& operator<<(std::ostream&, const SceneIndex&);
 
 struct Scene
 {
@@ -38,5 +32,13 @@ std::ostream& operator<<(std::ostream&, const Scene&);
 
 std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
-    
+
+// Helper during loading
+struct SceneChunk
+{
+    Actions mAction;
+    std::optional<std::string> mResourceName;
+    std::vector<std::int16_t> mArguments;
+};
+
 }

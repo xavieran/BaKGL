@@ -71,9 +71,9 @@ std::string_view ToString(Actions a)
     case Actions::DRAW_RECT: return "DrawRect";
     case Actions::DRAW_SPRITE0: return "DrawSprite";
     case Actions::DRAW_SPRITE1: return "DrawSprite1";
-    case Actions::DRAW_SPRITE_FLIP: return "DrawSpriteFlip";
-    case Actions::DRAW_SPRITE3: return "DrawSprite3";
-    case Actions::DRAW_SPRITEA: return "DRAWSPRITEA";
+    case Actions::DRAW_SPRITE_FLIP_Y: return "DrawSpriteFlipY";
+    case Actions::DRAW_SPRITE_FLIP_XY: return "DrawSpriteFlipXY";
+    case Actions::DRAW_SPRITE_ROTATE: return "DrawSpriteRotate";
     case Actions::DRAW_SPRITEB: return "DRAWSPRITEB";
     case Actions::DRAW_SCREEN: return "DrawScreen";
     case Actions::LOAD_SOUND_RESOURCE: return "LoadSoundResource";
@@ -112,9 +112,18 @@ std::ostream& operator<<(std::ostream& os, const SetScene& ss)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const DrawRect& a)
+{
+    os << "DrawRect { PaletteColor: (" << std::get<0>(a.mPaletteColor)
+        << ", " << std::get<1>(a.mPaletteColor)
+        << "), TopLeft: " << a.mTopLeft << ", BottomRight: "
+        << a.mBottomRight << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const DrawSprite& a)
 {
-    os << "DrawSprite{ " << a.mFlippedInY << " Pos { " << a.mX << ", " << a.mY
+    os << "DrawSprite{ flipped: " << a.mFlippedInY << " Pos { " << a.mX << ", " << a.mY
         << "} Sprite: " << a.mSpriteIndex << " imgSlot: " << a.mImageSlot
         << " Dims { " << a.mTargetWidth << ", " << a.mTargetHeight << " } }";
     return os;

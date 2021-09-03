@@ -100,9 +100,17 @@ public:
         auto sceneIndices = BAK::LoadSceneIndices(fb2);
         auto fb3 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneTTM);
         auto scenes = BAK::LoadScenes(fb3);
+        //hotspots.mSceneIndex2 = 0xf;
 
-        const auto& scene1 = scenes[sceneIndices[hotspots.mSceneIndex1].mSceneIndex];
-        const auto& scene2 = scenes[sceneIndices[hotspots.mSceneIndex2].mSceneIndex];
+        const auto sceneIndex1 = sceneIndices[hotspots.mSceneIndex1];
+        const auto sceneIndex2 = sceneIndices[hotspots.mSceneIndex2];
+
+        const auto& scene1 = scenes[sceneIndex1.mSceneIndex];
+        const auto& scene2 = scenes[sceneIndex2.mSceneIndex];
+
+        mLogger.Debug() << "S1: " << sceneIndex1 << " S2: " << sceneIndex2 << "\n";
+        mLogger.Debug() << "S1: " << scene1 << "\n";
+        mLogger.Debug() << "S2: " << scene2 << "\n";
 
         auto textures = Graphics::TextureStore{};
         BAK::TextureFactory::AddScreenToTextureStore(
@@ -275,7 +283,7 @@ public:
             {
                 mLogger.Debug() << "Dialog finished, back to flavour text\n";
                 mDialogRunner.ShowFlavourText(mFlavourText);
-                mCursor.Show();
+                mCursor.PopCursor();
             }
         }
         // Only propagate event if no dialog active
@@ -283,7 +291,6 @@ public:
         {
             Widget::LeftMousePress(pos);
         }
-
     }
 
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
@@ -295,7 +302,7 @@ public:
             mDialogState.ActivateDialog();
             mDialogRunner.BeginDialog(
                 BAK::KeyTarget{hotspot.mActionArg2});
-            mCursor.Hide();
+            mCursor.PushCursor(0);
         }
     }
 
@@ -306,11 +313,10 @@ public:
         {
             mDialogRunner.BeginDialog(hotspot.mTooltip);
             mDialogState.ActivateTooltip(mMousePos);
-            mCursor.Hide();
         }
     }
 
-    void MouseMoved(glm::vec2 pos)
+    void MouseMoved(glm::vec2 pos) override
     {
         mMousePos = pos;
 
@@ -318,7 +324,6 @@ public:
             pos,
             [&]{
                 mDialogRunner.ShowFlavourText(mFlavourText);
-                mCursor.Show();
             }
         );
         
