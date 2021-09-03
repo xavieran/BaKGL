@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     logger.Info() << "Loading TTM:" << ttmFile << std::endl;
 
     auto fb = FileBufferFactory::CreateFileBuffer(ttmFile);
-    BAK::LoadScenes(fb);
+    BAK::LoadSceneIndices(fb);
 
     return 0;
 }

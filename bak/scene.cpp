@@ -132,8 +132,8 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
                 ss << a << " " << b << " " << c;
             }
                 break;
-            case AdsActions::UNKNOWN: [[fallthrough]];
-            case AdsActions::IF_CHAP_LESS:
+            case AdsActions::IF_CHAP_LTE: [[fallthrough]];
+            case AdsActions::IF_CHAP_GTE:
             {
                 const auto a = script.GetUint16LE();
                 ss << a;

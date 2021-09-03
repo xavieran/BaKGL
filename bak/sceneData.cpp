@@ -12,9 +12,9 @@ std::string_view ToString(AdsActions a)
     case AdsActions::INDEX: return "Index";
     case AdsActions::IF_NOT_PLAYED: return "IfNotPlayed";
     case AdsActions::IF_PLAYED: return "IfPlayed";
-    case AdsActions::UNKNOWN: return "UNKNOWN";
+    case AdsActions::IF_CHAP_LTE: return "IfChapterLTE";
     case AdsActions::ELSE: return "Else";
-    case AdsActions::IF_CHAP_LESS: return "IfChapterLess";
+    case AdsActions::IF_CHAP_GTE: return "IfChapterGTE";
     case AdsActions::AND: return "And";
     case AdsActions::OR: return "Or";
     case AdsActions::ADD_SCENE2: return "AddScene2";
