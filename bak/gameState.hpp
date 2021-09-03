@@ -7,8 +7,21 @@ namespace BAK {
 class GameState
 {
 public:
-    static constexpr std::string_view mPartyLeader = "Locklear";
-    static constexpr std::string_view mPartyFollower = "Owyn";
+    GameState()
+    :
+        mPartyLeader{
+            "Locklear",
+            1},
+        mPartyFollower{
+            "Owyn",
+            2}
+    {}
+
+    struct Character
+    {
+        std::string mName;
+        unsigned mIndex;
+    };
 
     auto GetChapter() const
     {
@@ -31,16 +44,19 @@ public:
         return 4;
     }
 
-    std::string_view GetPartyLeader()
+    const Character& GetPartyLeader()
     {
         return mPartyLeader;
     }
 
     // Return random person who's not the leader...
-    std::string_view GetPartyFollower()
+    const Character& GetPartyFollower()
     {
         return mPartyFollower;
     }
+
+    Character mPartyLeader;
+    Character mPartyFollower;
 };
 
 }
