@@ -125,14 +125,6 @@ int main(int argc, char** argv)
         font,
         gs};
 
-    //auto contents = Gui::GenericRequestScreen{
-    //    spriteManager,
-    //    "FULLMAP.PAL",
-    //    "REQ_FMAP.DAT",
-    //    "FULLMAP.SCX"
-    //};
-    //rootWidget.AddChildFront(&contents);
-
     rootWidget.AddChildFront(&dialogRunner);
 
     scenes.emplace(
@@ -142,22 +134,8 @@ int main(int argc, char** argv)
             spriteManager,
             dialogRunner));
 
-    //const auto [ss, im] = act.GetActor(1);
-    //auto sumani = Gui::Widget{
-    //    Graphics::DrawMode::Sprite,
-    //    ss,
-    //    im,
-    //    Graphics::ColorMode::Texture,
-    //    Gui::Color::debug,
-    //    glm::vec2{100,19},
-    //    spriteManager.GetSpriteSheet(ss).GetDimensions(im),
-    //    true};
-    //rootWidget.AddChildFront(&sumani);
     rootWidget.AddChildFront(scenes.top().get());
     dialogRunner.ShowFlavourText(scenes.top()->mFlavourText);
-    //dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6d4});
-    //dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6ed});
-    //dialogRunner.BeginDialog(BAK::OffsetTarget{30, 0x1793});
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};

@@ -133,13 +133,13 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
             }
                 break;
             case AdsActions::UNKNOWN: [[fallthrough]];
-            case AdsActions::UNKNOWN3:
+            case AdsActions::IF_CHAP_LESS:
             {
                 const auto a = script.GetUint16LE();
                 ss << a;
             }
                 break;
-            case AdsActions::UNKNOWN2: [[fallthrough]];
+            case AdsActions::ELSE: [[fallthrough]];
             case AdsActions::AND: [[fallthrough]];
             case AdsActions::OR: [[fallthrough]];
             case AdsActions::FADE_OUT: [[fallthrough]];
