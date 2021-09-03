@@ -25,6 +25,9 @@ public:
 
 enum class ChoiceState
 {
+    // This seems to be some sort of per scene temporary flag store.
+    // e.g. for Krondor palace chapter 1 clicking on the gate sets the flag
+    TemporaryFlag = 0x7530,
     Money   = 0x7531,
     Chapter = 0x7537,
     Time    = 0x7539,

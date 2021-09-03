@@ -70,14 +70,18 @@ void SceneHotspots::Load(FileBuffer& fb)
     mSceneADS = ToUpper(resource + ".ADS");
     logger.Spam() << "Scene Ref: " << mSceneTTM << std::endl;
 
-    fb.Skip(4);
-    fb.Skip(2);
-    fb.Skip(4);
-    fb.Skip(5); // Some kind of addr?
+    const auto unknownData = fb.GetArray<11>();
+    logger.Spam() << "Unknown data: " << std::hex 
+        << unknownData << std::dec << "\n";
+    const auto song = fb.GetUint16LE();
+    logger.Spam() << "Song: " << song << "\n";
+    const auto unknownIndex = fb.GetUint16LE();
+    logger.Spam() << "UnknownIndex: " << unknownIndex << "\n";
     // For all towns, scene index1.
     mSceneIndex1 = fb.GetUint16LE();
     logger.Spam() << "Scene index1: " << mSceneIndex1 << "\n";
-    fb.Skip(2); // Not sure
+    const auto unknown16 = fb.GetUint16LE();
+    logger.Spam() << "Unknown 16:" << unknown16 << "\n";
     mSceneIndex2 = fb.GetUint16LE();
     logger.Spam() << "Scene index2: " << mSceneIndex2 << "\n";
     auto numHotSpots = fb.GetUint16LE(); 
@@ -85,8 +89,9 @@ void SceneHotspots::Load(FileBuffer& fb)
     logger.Spam() << "Hotspots: " << std::dec << numHotSpots << std::endl;
     logger.Spam() << "Flavour Text: " << std::hex << mFlavourText << std::endl;
 
-    fb.Skip(4);
-    fb.Skip(4);
+    const auto moreUnknownData = fb.GetArray<8>();
+    logger.Spam() << "More unknown data: " << std::hex 
+        << moreUnknownData << std::dec << "\n";
 
     std::vector<Hotspot> hotspots;
 
@@ -97,22 +102,22 @@ void SceneHotspots::Load(FileBuffer& fb)
         auto w = fb.GetUint16LE();
         auto h = fb.GetUint16LE();
         logger.Spam() << "Hotspot #" << std::dec << i << std::endl;
-        //logger.Spam() << "coords: " << std::dec << x << " " << y
-        //    << " " << w << " " << h << std::endl;
-        fb.Skip(2); // Seems to have some effect...
-        auto keyword = fb.GetUint16LE();
-        //logger.Spam() << "Kw: " << keyword << std::endl;
-        auto action = static_cast<HotspotAction>(fb.GetUint16LE());
+        const auto unknown = fb.GetUint16LE();
+        logger.Spam() << "Unknown: " << std::hex << unknown << std::dec << std::endl;
+        const auto keyword = fb.GetUint16LE();
+        const auto action = static_cast<HotspotAction>(fb.GetUint16LE());
         logger.Spam() << "Action: " << action << std::endl;
-        auto actionArg1 = fb.GetUint32LE();
-        auto actionArg2 = fb.GetUint32LE();
+        const auto actionArg1 = fb.GetUint32LE();
+        const auto actionArg2 = fb.GetUint32LE();
         logger.Spam() << "A1: " << actionArg1 << std::hex << " A2: " << actionArg2 << std::dec << "\n";
         std::uint32_t tooltip = fb.GetUint32LE(); 
         logger.Spam() << "RightClick: " << std::hex << tooltip << std::endl;
-        fb.Skip(4); // Seems to have some effect...
+        const auto unknown2 = fb.GetUint32LE();
+        logger.Spam() << "Unknown2: " << std::hex << unknown2 << std::dec << std::endl;
         std::uint32_t dialog = fb.GetUint32LE(); 
         logger.Spam() << "LeftClick: " << std::hex << dialog << std::endl;
-        fb.Skip(2);
+        const auto unknown3 = fb.GetUint16LE();
+        logger.Spam() << "Unknown3: " << std::hex << unknown3 << std::dec << std::endl;
 
         hotspots.emplace_back(
             i,

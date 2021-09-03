@@ -3,6 +3,7 @@
 #include "bak/constants.hpp"
 #include "bak/dialog.hpp"
 #include "bak/resourceNames.hpp"
+#include "bak/types.hpp"
 
 #include "com/logger.hpp"
 #include "com/string.hpp"
@@ -78,8 +79,10 @@ public:
     std::string mSceneTTM;
     std::string mSceneADS;
 
-    std::uint16_t mSceneIndex1;
-    std::uint16_t mSceneIndex2;
+    SongIndex mSong;
+
+    AdsSceneIndex mSceneIndex1;
+    AdsSceneIndex mSceneIndex2;
 
     std::uint32_t mFlavourText;
 

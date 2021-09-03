@@ -323,14 +323,14 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
             break;
+        // FIXME: Implement the rotation
+        case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
+        // FIXME: Implement flip in x and y
+        case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
         case Actions::DRAW_SPRITE1: [[fallthrough]];
         case Actions::DRAW_SPRITE_FLIP_Y:
             flipped = true;
             [[fallthrough]];
-        // FIXME: Implement flip x and y
-        case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
-        // FIXME: Implement the rotation
-        case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
         case Actions::DRAW_SPRITE0:
         {
             const auto scaled = chunk.mArguments.size() >= 5;

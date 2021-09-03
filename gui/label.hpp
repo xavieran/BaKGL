@@ -42,7 +42,7 @@ public:
             true
         },
         mTextBox{
-            glm::vec2{3},
+            glm::vec2{3, 2},
             dims
         },
         mFont{fr},
@@ -58,11 +58,11 @@ public:
         auto [dims, remaining] = mTextBox
             .AddText(mFont, text);
         // Add margin
-        dims += glm::vec2{3};
+        dims += glm::vec2{3, 4};
+        // Resize to flow around text
+        SetDimensions(dims);
         mForeground.SetDimensions(
             dims - glm::vec2{2,2});
-
-        mPositionInfo.mDimensions = dims;
     }
 
     Widget mForeground;

@@ -100,7 +100,7 @@ public:
         auto sceneIndices = BAK::LoadSceneIndices(fb2);
         auto fb3 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneTTM);
         auto scenes = BAK::LoadScenes(fb3);
-        //hotspots.mSceneIndex2 = 0xf;
+        //hotspots.mSceneIndex2 = 0x8;
 
         const auto sceneIndex1 = sceneIndices[hotspots.mSceneIndex1];
         const auto sceneIndex2 = sceneIndices[hotspots.mSceneIndex2];

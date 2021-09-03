@@ -48,7 +48,7 @@ public:
         },
         mDialogStore{},
         mGameState{gameState},
-        mCenter{148, 113},
+        mCenter{150, 112},
         mFont{fr},
         mActors{actors},
         mLabel{
