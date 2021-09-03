@@ -311,6 +311,13 @@ public:
         RunDialog(true);
     }
 
+    void AddLabel(std::string_view text)
+    {
+        mLabel.SetText(text);
+        mLabel.SetCenter(mCenter);
+        AddChildBack(&mLabel);
+    }
+
     void ShowFlavourText(BAK::Target target)
     {
 
@@ -323,9 +330,7 @@ public:
         UpdateSnippet();
 
         auto label = std::string{text.begin(), flavourText};
-        mLabel.SetText(label);
-        mLabel.SetCenter(mCenter);
-        AddChildBack(&mLabel);
+        AddLabel(label);
 
         Logging::LogDebug("Gui::DialogRunner")
             << "ShowFlavourText" << target << " snip: " << mCurrentDialog << "\n";
