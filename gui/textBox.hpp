@@ -331,8 +331,14 @@ public:
             }
         }
 
+        auto maxX = std::max_element(
+            lines.begin(), lines.end(), [](auto lhs, auto rhs)
+            {
+                return lhs.mDimensions.x < rhs.mDimensions.x;
+            });
+
         return std::make_pair(
-            charPos,
+            glm::vec2{maxX->mDimensions.x, charPos.y},
             text.substr(
                 currentChar,
                 text.size() - currentChar));

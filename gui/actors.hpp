@@ -23,6 +23,7 @@ public:
         Graphics::SpriteManager& spriteManager)
     :
         mSpriteSheet{spriteManager.AddSpriteSheet()},
+        mActorDimensions{},
         mLogger{Logging::LogState::GetLogger("Gui::Actors")}
     {
         auto textures = Graphics::TextureStore{};
@@ -36,10 +37,10 @@ public:
             pal << actN.str() << ".PAL";
             
             // Add all alternates ... "A"
-            if (   i == 30 
+            if (   i ==  9 
+                || i == 12 
                 || i == 18
-                || i == 12
-                || i == 9)
+                || i == 30)
                 actN << "A";
 
             std::stringstream bmx{};
@@ -49,19 +50,34 @@ public:
                 textures, bmx.str(), pal.str());
         }
 
-        spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
+        auto& spriteSheet = spriteManager.GetSpriteSheet(mSpriteSheet);
+        spriteSheet.LoadTexturesGL(textures);
+
+        for (unsigned i = 1; i < 54; i++)
+            mActorDimensions.emplace_back(
+                spriteSheet.GetDimensions(i - 1));
+    }
+
+    Graphics::SpriteSheetIndex GetSpriteSheet() const
+    {
+        return mSpriteSheet;
     }
 
     std::pair<
-        Graphics::SpriteSheetIndex,
-        Graphics::TextureIndex>
-    GetActor(unsigned i) const
+        Graphics::TextureIndex,
+        glm::vec2>
+    GetActor(unsigned actor) const
     {
-        return std::make_pair(mSpriteSheet, i - 1);
+        unsigned index = actor - 1;
+        assert(index < mActorDimensions.size());
+        return std::make_pair(
+            index,
+            mActorDimensions[index]);
     }
 
 private:
     Graphics::SpriteSheetIndex mSpriteSheet;
+    std::vector<glm::vec2> mActorDimensions;
 
     const Logging::Logger& mLogger;
 };

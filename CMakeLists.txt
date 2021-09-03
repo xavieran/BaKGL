@@ -13,8 +13,12 @@ string(CONCAT CXX_IGNORES
     "-Wno-deprecated-enum-enum-conversion "
     )
 set(CXX_IGNORE ${CXX_IGNORES})
+
+set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
+set(CXX_ASAN "")
+
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -fsanitize=address -fno-omit-frame-pointer ${CXX_IGNORE}")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_ASAN} ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)
 
 set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")

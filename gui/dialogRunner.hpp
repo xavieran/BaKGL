@@ -3,6 +3,9 @@
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
 
+#include "com/algorithm.hpp"
+
+#include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
 #include "gui/frame.hpp"
@@ -27,6 +30,7 @@ public:
     DialogRunner(
         glm::vec2 pos,
         glm::vec2 dims,
+        const Actors& actors,
         const Backgrounds& bgs,
         const Font& fr,
         BAK::GameState& gameState)
@@ -44,13 +48,23 @@ public:
         },
         mDialogStore{},
         mGameState{gameState},
-        mCenter{150, 0},
+        mCenter{148, 113},
         mFont{fr},
+        mActors{actors},
         mLabel{
             mCenter,
             glm::vec2{320, 20},
             mFont,
             "#LABEL#"},
+        mActor{
+            Graphics::DrawMode::Sprite,
+            mActors.GetSpriteSheet(),
+            0,
+            Graphics::ColorMode::Texture,
+            glm::vec4{0},
+            glm::vec2{100, 19},
+            glm::vec2{0},
+            true},
         mFullscreenFrame{
             Graphics::DrawMode::Sprite,
             bgs.GetSpriteSheet(),
@@ -115,44 +129,62 @@ public:
         DialogFrame dialogFrame,
         bool centeredX,
         bool centeredY,
-        bool isBold)
+        bool isBold,
+        std::optional<unsigned> actor)
     {
         ClearChildren();
-        switch (dialogFrame)
+        auto addTextResult = std::invoke([&]
         {
-        case DialogFrame::Fullscreen:
+            switch (dialogFrame)
+            {
+            case DialogFrame::Fullscreen:
+            {
+                AddChildBack(&mFullscreenFrame);
+                return mFullscreenTextBox.AddText(
+                    mFont,
+                    text,
+                    centeredX,
+                    centeredY,
+                    isBold);
+            } break;
+            case DialogFrame::ActionArea:
+            {
+                AddChildBack(&mActionAreaFrame);
+                return mActionAreaTextBox.AddText(
+                    mFont,
+                    text,
+                    centeredX,
+                    centeredY,
+                    isBold);
+            } break;
+            case DialogFrame::LowerArea:
+            {
+                AddChildBack(&mLowerFrame);
+                return mLowerTextBox.AddText(
+                    mFont,
+                    text,
+                    centeredX,
+                    centeredY,
+                    isBold);
+            } break;
+            default:
+                throw std::runtime_error("Invalid DialogArea");
+            }
+        });
+
+        if (actor)
         {
-            AddChildBack(&mFullscreenFrame);
-            return mFullscreenTextBox.AddText(
-                mFont,
-                text,
-                centeredX,
-                centeredY,
-                isBold);
-        } break;
-        case DialogFrame::ActionArea:
-        {
-            AddChildBack(&mActionAreaFrame);
-            return mActionAreaTextBox.AddText(
-                mFont,
-                text,
-                centeredX,
-                centeredY,
-                isBold);
-        } break;
-        case DialogFrame::LowerArea:
-        {
-            AddChildBack(&mLowerFrame);
-            return mLowerTextBox.AddText(
-                mFont,
-                text,
-                centeredX,
-                centeredY,
-                isBold);
-        } break;
-        default:
-            throw std::runtime_error("Invalid DialogArea");
+            const auto& [
+                index,
+                dims] = mActors.GetActor(*actor);
+            mActor.SetTexture(index);
+            // we want the bottom of this picture to end up here
+            mActor.SetPosition(glm::vec2{100, 112 - dims.y});
+            mActor.SetDimensions(dims);
+            AddChildBack(&mActor);
         }
+
+        return addTextResult;
     }
 
     void UpdateSnippet()
@@ -166,12 +198,12 @@ public:
         text = std::regex_replace(
             text,
             std::regex{"@4"},
-            std::string{mGameState.GetPartyLeader()});
+            std::string{mGameState.GetPartyLeader().mName});
 
         text = std::regex_replace(
             text,
             std::regex{"@0"},
-            std::string{mGameState.GetPartyFollower()});
+            std::string{mGameState.GetPartyFollower().mName});
 
         const auto ds1 = mCurrentDialog->mDisplayStyle;
         const auto ds3 = mCurrentDialog->mDisplayStyle3;
@@ -202,13 +234,23 @@ public:
             = (ds2 & 0x4) == 0x4;
         const bool isBold
             = ds2 == 0x3;
-    
+
+        std::optional<unsigned> actor{};
+
+        if (act != 0)
+        {
+            actor = act;
+            if (act == 0xff)
+                actor = mGameState.GetPartyLeader().mIndex;
+        }
+
         const auto [charPos, remainingText] = AddText(
             text,
             dialogFrame,
             horizontallyCentered,
             verticallyCentered,
-            isBold);
+            isBold,
+            actor);
 
         mRemainingText = std::string{remainingText};
         mLogger.Debug() << "Snippet: " << mCurrentDialog << "\n";
@@ -263,63 +305,70 @@ public:
     {
         mCurrentTarget = target;
         mCurrentDialog = mDialogStore.GetSnippet(target);
+        mRemainingText = "";
         Logging::LogDebug("Gui::DialogRunner")
             << "BeginDialog" << target << " snip: " << mCurrentDialog << "\n";
-        RunDialog();
+        RunDialog(true);
     }
 
-    void RunDialog()
+    void ShowFlavourText(BAK::Target target)
+    {
+
+        mCurrentTarget = target;
+        mCurrentDialog = mDialogStore.GetSnippet(target);
+        const auto text = mCurrentDialog->GetText();
+        const auto flavourText = find_nth(text.begin(), text.end(), '#', 2);
+        assert(flavourText != text.end());
+        mRemainingText = std::string{flavourText, text.end()};
+        UpdateSnippet();
+
+        auto label = std::string{text.begin(), flavourText};
+        mLabel.SetText(label);
+        mLabel.SetCenter(mCenter);
+        AddChildBack(&mLabel);
+
+        Logging::LogDebug("Gui::DialogRunner")
+            << "ShowFlavourText" << target << " snip: " << mCurrentDialog << "\n";
+    }
+
+    // Call this when the player moves the dialog forward
+    bool RunDialog(bool first=false)
     {
         bool progressing = true;
 
         if (!mRemainingText.empty())
         {
             UpdateSnippet();
-            return;
+            return true;
         }
 
-        auto current = ProgressDialog();
-        auto currentDialog = mDialogStore.GetSnippet(current);
         constexpr std::string_view empty = "";
-        while (progressing)
+        do
         {
-            const auto text = currentDialog.GetText();
-            if (text != empty) 
+            auto current       = ProgressDialog();
+            auto currentDialog = mDialogStore.GetSnippet(current);
+            mLogger.Debug() << "Progressed through: " << current 
+                << "(" << mCurrentTarget << ") " << currentDialog << std::endl;
+            if (current == *mCurrentTarget && !first)
             {
-                mCurrentTarget = current;
-                mCurrentDialog = currentDialog;
+                progressing = false;
+                return false;
+            }
+
+            mCurrentTarget = current;
+            mCurrentDialog = currentDialog;
+
+            const auto text = currentDialog.GetText();
+            if (text != empty)
+            {
                 UpdateSnippet();
                 progressing = false;
+                return true;
             }
-            else
-            {
-                current       = ProgressDialog();
-                currentDialog = mDialogStore.GetSnippet(current);
-                mLogger.Debug() << "Progressed through: " << current 
-                    << " " << currentDialog << std::endl;
-                if (current == *mCurrentTarget)
-                    progressing = false;
-                mCurrentTarget = current;
-                mCurrentDialog = currentDialog;
-            }
-        }
-    }
 
-    void LeftMousePress(glm::vec2 click) override
-    {
-        mLogger.Debug() << "Got LMC: " << click << std::endl;
-        if (Within(click))
-        {
-            RunDialog();
-        }
-    }
+        } while (progressing);
 
-    void RightMousePress(glm::vec2 click) override
-    {
-        mLogger.Debug() << "Got RMC: " << click << std::endl;
-        if (Within(click))
-        {
-        }
+        return true;
     }
 
 private:
@@ -328,7 +377,9 @@ private:
     BAK::GameState& mGameState;
     glm::vec2 mCenter;
     const Font& mFont;
+    const Actors& mActors;
     Label mLabel;
+    Widget mActor;
 
     Widget mFullscreenFrame;
     Frame mActionAreaFrame;

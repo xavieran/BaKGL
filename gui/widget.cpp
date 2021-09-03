@@ -133,6 +133,10 @@ void Widget::SetTexture(Graphics::TextureIndex texture)
     mDrawInfo.mTexture = texture;
 }
 
+void Widget::SetColorMode(Graphics::ColorMode cm)
+{
+    mDrawInfo.mColorMode = cm;
+}
 void Widget::SetDimensions(glm::vec2 dims)
 {
     mPositionInfo.mDimensions = dims;

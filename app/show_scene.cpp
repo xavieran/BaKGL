@@ -107,6 +107,7 @@ int main(int argc, char** argv)
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
 
     const auto font = Gui::Font{"GAME.FNT", spriteManager};
+    const auto actors = Gui::Actors{spriteManager};
     const auto backgrounds = Gui::Backgrounds{spriteManager};
 
 
@@ -115,12 +116,11 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
-
-
     auto gs = BAK::GameState{};
     Gui::DialogRunner dialogRunner{
         glm::vec2{0, 0},
         glm::vec2{320, 240},
+        actors,
         backgrounds,
         font,
         gs};
@@ -142,7 +142,6 @@ int main(int argc, char** argv)
             spriteManager,
             dialogRunner));
 
-    //auto act = Gui::Actors{spriteManager};
     //const auto [ss, im] = act.GetActor(1);
     //auto sumani = Gui::Widget{
     //    Graphics::DrawMode::Sprite,
@@ -155,7 +154,7 @@ int main(int argc, char** argv)
     //    true};
     //rootWidget.AddChildFront(&sumani);
     rootWidget.AddChildFront(scenes.top().get());
-    dialogRunner.BeginDialog(scenes.top()->mFlavourText);
+    dialogRunner.ShowFlavourText(scenes.top()->mFlavourText);
     //dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6d4});
     //dialogRunner.BeginDialog(BAK::KeyTarget{0x2dc6ed});
     //dialogRunner.BeginDialog(BAK::OffsetTarget{30, 0x1793});

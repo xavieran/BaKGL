@@ -77,9 +77,12 @@ public:
             glm::vec2{1},
             false 
         },
+        mMousePos{glm::vec2{0}},
         mHotspots{},
         mSceneElements{},
+        mCursor{cursor},
         mDialogRunner{dialogRunner},
+        mDialogState{false, false, glm::vec2{0}},
         mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
     {
 
@@ -260,26 +263,113 @@ public:
         addTo->AddChildBack(&mBackgroundFrame);
     }
 
-    void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
+    void LeftMousePress(glm::vec2 pos) override
     {
-        Logging::LogDebug("Gui::GDSScene") << "Hotspot: " << hotspot << "\n";
+        if (mDialogState.mDialogActive)
+        {
+            const auto dialogActive = mDialogState.RunDialog([&]{
+                return mDialogRunner.RunDialog();
+            });
+
+            if (!dialogActive)
+            {
+                mLogger.Debug() << "Dialog finished, back to flavour text\n";
+                mDialogRunner.ShowFlavourText(mFlavourText);
+                mCursor.Show();
+            }
+        }
+        // Only propagate event if no dialog active
+        else
+        {
+            Widget::LeftMousePress(pos);
+        }
+
+    }
+
+    void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
+    { 
+        mLogger.Debug() << "Hotspot: " << hotspot << "\n";
+
         if (hotspot.mAction == BAK::HotspotAction::DIALOG)
         {
+            mDialogState.ActivateDialog();
             mDialogRunner.BeginDialog(
                 BAK::KeyTarget{hotspot.mActionArg2});
+            mCursor.Hide();
         }
     }
 
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
     {
-        //SetDisplayBackground();
-        Logging::LogDebug("Gui::GDSScene") << "Hotspot: " << hotspot << "\n";
-        mDialogRunner.BeginDialog(
-            hotspot.mTooltip);
+        mLogger.Debug() << "Hotspot: " << hotspot << "\n";
+        if (!mDialogState.mDialogActive)
+        {
+            mDialogRunner.BeginDialog(hotspot.mTooltip);
+            mDialogState.ActivateTooltip(mMousePos);
+            mCursor.Hide();
+        }
+    }
+
+    void MouseMoved(glm::vec2 pos)
+    {
+        mMousePos = pos;
+
+        mDialogState.DeactivateTooltip(
+            pos,
+            [&]{
+                mDialogRunner.ShowFlavourText(mFlavourText);
+                mCursor.Show();
+            }
+        );
+        
+        if (!mDialogState.mDialogActive)
+            Widget::MouseMoved(pos);
     }
 
     GDSScene(const GDSScene&) = delete;
     GDSScene& operator=(const GDSScene&) = delete;
+
+public:
+//private:
+    struct DialogState
+    {
+        void ActivateDialog()
+        {
+            mDialogActive = true;
+        }
+
+        template <typename F>
+        bool RunDialog(F&& f)
+        {
+            if (mDialogActive)
+            {
+                mDialogActive = f();
+            }
+            return mDialogActive;
+        }
+
+        void ActivateTooltip(glm::vec2 pos)
+        {
+            mTooltipPos = pos;
+            mTooltipActive = true;
+        }
+
+        template <typename F>
+        void DeactivateTooltip(glm::vec2 pos, F&& f)
+        {
+            constexpr auto tooltipSensitivity = 20;
+            if (mTooltipActive 
+                && glm::distance(pos, mTooltipPos) > tooltipSensitivity)
+            {
+                f();
+                mTooltipActive = false;
+            }
+        }
+
+        bool mDialogActive;
+        bool mTooltipActive;
+        glm::vec2 mTooltipPos;
+    };
 
     BAK::HotspotRef mReference;
     BAK::Target mFlavourText;
@@ -289,10 +379,14 @@ public:
     std::optional<Widget> mClipRegion;
     Widget mSceneFrame;
     Widget mBackgroundFrame;
+    glm::vec2 mMousePos;
 
     std::vector<Hotspot> mHotspots;
     std::vector<Widget> mSceneElements;
+
+    Cursor& mCursor;
     DialogRunner& mDialogRunner;
+    DialogState mDialogState;
 
     const Logging::Logger& mLogger;
 };

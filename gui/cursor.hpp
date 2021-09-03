@@ -26,7 +26,7 @@ public:
             spriteManager.AddSpriteSheet(),
             Graphics::TextureIndex{0},
             Graphics::ColorMode::Texture,
-            glm::vec4{1},
+            glm::vec4{0},
             glm::vec2{0},
             glm::vec2{1},
             false
@@ -65,6 +65,16 @@ public:
         mLogger.Spam() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
         mCursors.pop();
         UpdateCursor();
+    }
+
+    void Hide()
+    {
+        SetColorMode(Graphics::ColorMode::SolidColor);
+    }
+
+    void Show()
+    {
+        SetColorMode(Graphics::ColorMode::Texture);
     }
 
     const auto& GetCursor()
