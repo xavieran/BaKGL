@@ -3,6 +3,8 @@
 #include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
 
+#include "gui/widget.hpp"
+
 #include <glm/glm.hpp>
 
 #include <variant>
@@ -32,6 +34,18 @@ struct SceneRect
     glm::vec2 mPosition;
     glm::vec2 mDimensions;
 };
+
+//class Scene
+//{
+//    Scene()
+//    :
+//    {}
+//
+//    Widget mFrame;
+//    std::vector<Widget> Widget mSceneElements;
+//    std::optional<Widget> mClipRegion;
+//    std::optional<Widget> mBackgroundFrame;
+//};
 
 using DrawingAction = std::variant<
     EnableClipRegion,

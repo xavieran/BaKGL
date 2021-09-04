@@ -7,10 +7,11 @@ add_library(graphics
     inputHandler.hpp inputHandler.cpp
     line.hpp
     meshObject.hpp meshObject.cpp
-    renderer.hpp
-    shaderProgram.hpp
+    renderer.hpp renderer.cpp
+    guiRenderer.hpp guiRenderer.cpp
+    shaderProgram.hpp shaderProgram.cpp
     sphere.hpp sphere.cpp
-    sprites.hpp
+    sprites.hpp sprites.cpp
     texture.hpp
     types.hpp
 )

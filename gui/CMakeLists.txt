@@ -4,7 +4,7 @@ add_library(gui
     colors.hpp
     cursor.hpp
     dialogRunner.hpp
-    gdsScene.hpp
+    gdsScene.hpp gdsScene.cpp
     hotspot.hpp
     label.hpp
     mainView.hpp
@@ -14,4 +14,4 @@ add_library(gui
     window.hpp
 )
 
-target_link_libraries(gui graphics bak xbak)
+target_link_libraries(gui graphics bak com xbak)
