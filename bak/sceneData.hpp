@@ -55,7 +55,7 @@ enum class Actions
     SET_SCENE           = 0x1110, // TAG??
     SET_SCENEB          = 0x1120, // SET BACKGROUND
     SET_SCENEC          = 0x1200, // GOTO TAG
-    SET_COLOR          = 0x2000, // SET_COLOR
+    SET_COLOR           = 0x2000, // SET_COLOR
     SET_FRAME1          = 0x2010, 
     UNKNOWN3            = 0x2300,
     UNKNOWN6            = 0x2310,

@@ -15,6 +15,7 @@
 #include "gui/hotspot.hpp"
 #include "gui/widget.hpp"
 #include "gui/scene.hpp"
+#include "gui/staticTTM.hpp"
 
 #include <glm/glm.hpp>
 
@@ -73,7 +74,7 @@ public:
         template <typename F>
         void DeactivateTooltip(glm::vec2 pos, F&& f)
         {
-            constexpr auto tooltipSensitivity = 20;
+            constexpr auto tooltipSensitivity = 15;
             if (mTooltipActive 
                 && glm::distance(pos, mTooltipPos) > tooltipSensitivity)
             {
@@ -88,21 +89,24 @@ public:
     };
 
     BAK::HotspotRef mReference;
+    BAK::SceneHotspots mSceneHotspots;
     BAK::Target mFlavourText;
 
+    // Frame to surround the scene
     Graphics::SpriteSheetIndex mSpriteSheet;
+    Graphics::SpriteManager& mSpriteManager;
     Widget mFrame;
-    std::optional<Widget> mClipRegion;
-    Widget mSceneFrame;
-    Widget mBackgroundFrame;
+    std::vector<StaticTTM> mStaticTTMs;
+
     glm::vec2 mMousePos;
 
     std::vector<Hotspot> mHotspots;
-    std::vector<Widget> mSceneElements;
 
     Cursor& mCursor;
     DialogRunner& mDialogRunner;
     DialogState mDialogState;
+
+    static constexpr auto mMaxSceneNesting = 4;
 
     const Logging::Logger& mLogger;
 };

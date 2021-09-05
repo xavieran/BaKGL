@@ -14,6 +14,13 @@
 namespace BAK {
 
 
+std::ostream& operator<<(std::ostream& os, const ADSIndex& ai)
+{
+    os << "ADSIndex{ if (" << ai.mLessThan << " <= [chapter] <= "
+        << ai.mGreaterThan << ") then " << ai.mIf << " else " << ai.mElse;
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const SceneIndex& si)
 {
     os << "SceneIndex{ tag: " << si.mSceneTag << " index: " << si.mSceneIndex << "}";
@@ -63,6 +70,8 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
     
     std::optional<unsigned> currentIndex{};
     std::optional<unsigned> ttmIndex{};
+    auto adsIndex = ADSIndex{};
+    bool inElseClause = false;
 
     std::unordered_map<unsigned, SceneIndex> sceneIndices;
 
@@ -78,6 +87,7 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
         auto action = static_cast<AdsActions>(code);
         std::stringstream ss{};
         ss << std::hex << code << std::dec << " adsAct: " << action << " ";
+        
 
         switch (action)
         {
@@ -104,10 +114,14 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
                 const auto c = script.GetUint16LE();
                 const auto d = script.GetUint16LE();
                 ss << a << " " << b << " " << c << " " << d;
-                if (!ttmIndex)
-                    ttmIndex = std::max(
-                        std::max(a, b),
-                        std::max(c, d));
+                ttmIndex = std::max(
+                    std::max(a, b),
+                    std::max(c, d));
+
+                if (!inElseClause)
+                    adsIndex.mIf = *ttmIndex;
+                else
+                    adsIndex.mElse = *ttmIndex;
             }
                 break;
             case AdsActions::END:
@@ -119,9 +133,13 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
                     throw std::runtime_error("Tag not found");
                 sceneIndices[*currentIndex] = SceneIndex{
                     it->second,
-                    *ttmIndex};
-                currentIndex = std::optional<unsigned>{};
-                ttmIndex = std::optional<unsigned>{};
+                    adsIndex};
+
+                // Reset the state for next scene index
+                currentIndex.reset();
+                ttmIndex.reset();
+                adsIndex = ADSIndex{};
+                inElseClause = false;
             }
                 break;
             case AdsActions::STOP_SCENE:
@@ -132,14 +150,25 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
                 ss << a << " " << b << " " << c;
             }
                 break;
-            case AdsActions::IF_CHAP_LTE: [[fallthrough]];
             case AdsActions::IF_CHAP_GTE:
             {
                 const auto a = script.GetUint16LE();
                 ss << a;
+                adsIndex.mGreaterThan = a;
             }
                 break;
-            case AdsActions::ELSE: [[fallthrough]];
+            case AdsActions::IF_CHAP_LTE:
+            {
+                const auto a = script.GetUint16LE();
+                ss << a;
+                adsIndex.mLessThan = a;
+            }
+                break;
+            case AdsActions::ELSE:
+                inElseClause = true;
+                break;
+            // Currently only chapter conditions are implemented
+            // so and and or are not implemented...
             case AdsActions::AND: [[fallthrough]];
             case AdsActions::OR: [[fallthrough]];
             case AdsActions::FADE_OUT: [[fallthrough]];

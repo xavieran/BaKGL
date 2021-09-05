@@ -2,7 +2,9 @@
 
 #include "bak/constants.hpp"
 #include "bak/dialog.hpp"
+#include "bak/gameState.hpp"
 #include "bak/resourceNames.hpp"
+#include "bak/scene.hpp"
 #include "bak/types.hpp"
 
 #include "com/logger.hpp"
@@ -64,8 +66,9 @@ struct Hotspot
     glm::vec<2, int> mDimensions;
     std::uint16_t mKeyword;
     HotspotAction mAction;
-    std::uint32_t mActionArg1;
-    std::uint32_t mActionArg2;
+    std::uint16_t mActionArg1;
+    std::uint16_t mActionArg2;
+    std::uint32_t mActionArg3;
     KeyTarget mTooltip;
     KeyTarget mDialog;
 };
@@ -76,6 +79,8 @@ std::ostream& operator<<(std::ostream&, const Hotspot&);
 class SceneHotspots
 {
 public:
+    SceneHotspots(FileBuffer&&);
+
     std::string mSceneTTM;
     std::string mSceneADS;
 
@@ -87,8 +92,10 @@ public:
     std::uint32_t mFlavourText;
 
     std::vector<Hotspot> mHotspots;
+    std::unordered_map<unsigned, SceneIndex> mAdsIndices;
+    std::unordered_map<unsigned, Scene> mScenes;
 
-    void Load(FileBuffer&);
+    const Scene& GetScene(unsigned adsIndex, const GameState& gs);
 };
 
 }

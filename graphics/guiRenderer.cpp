@@ -119,7 +119,8 @@ void GuiRenderer::RenderGuiImpl(
 {
     mRenderCalls++;
     assert(element);
-    mLogger.Spam() << "Rendering GUI Element: " << *element << "\n";
+    mLogger.Spam() << "Rendering GUI Element: [0x" << std::hex 
+        << element << std::dec << "] " << *element << "\n";
 
     const auto& di = element->GetDrawInfo();
     const auto& pi = element->GetPositionInfo();

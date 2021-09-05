@@ -206,17 +206,11 @@ public:
             std::string{mGameState.GetPartyFollower().mName});
 
         const auto ds1 = mCurrentDialog->mDisplayStyle;
-        const auto ds3 = mCurrentDialog->mDisplayStyle3;
         const auto act = mCurrentDialog->mActor;
 
-        const auto dialogFrame = std::invoke([ds1, ds3, act]{
+        const auto dialogFrame = std::invoke([ds1, act]{
             if (act != 0x0)
                 return DialogFrame::LowerArea;
-
-            if (ds3 == 0x02)
-            {
-                return DialogFrame::ActionArea;
-            }
 
             if (ds1 == 0x02)
                 return DialogFrame::ActionArea;
@@ -226,6 +220,17 @@ public:
             else
                 return DialogFrame::Fullscreen;
         });
+
+
+        //const auto ds3 = mCurrentDialog->mDisplayStyle3;
+        //if (ds3 == 0x02)
+        //{
+        //    MakeOneLineButtons()
+        //}
+        //else if (ds4 == 0x04)
+        //{
+        //    MakeDialogTreeChoices()
+        //}
         
         const auto ds2 = mCurrentDialog->mDisplayStyle2;
         const bool verticallyCentered
@@ -305,7 +310,7 @@ public:
     {
         mCurrentTarget = target;
         mCurrentDialog = mDialogStore.GetSnippet(target);
-        mRemainingText = "";
+        mRemainingText = mCurrentDialog->GetText();
         Logging::LogDebug("Gui::DialogRunner")
             << "BeginDialog" << target << " snip: " << mCurrentDialog << "\n";
         RunDialog(true);

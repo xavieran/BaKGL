@@ -36,6 +36,7 @@ std::ostream& operator<<(std::ostream& os, const Hotspot& hs)
         << " dim: " << hs.mDimensions << " kw: " << hs.mKeyword 
         << " act: " << hs.mAction << " arg1: " << std::hex << hs.mActionArg1
         << " arg2: " << hs.mActionArg2 
+        << " arg3: " << hs.mActionArg3
         << " tip: " << hs.mTooltip
         << " dialog: " << hs.mDialog << std::dec
         << " }";
@@ -60,7 +61,7 @@ std::ostream& operator<<(std::ostream& os, const HotspotRef& hr)
     return os;
 }
 
-void SceneHotspots::Load(FileBuffer& fb)
+SceneHotspots::SceneHotspots(FileBuffer&& fb)
 {
     const auto& logger = Logging::LogState::GetLogger("BAK::SceneHotspots");
     auto length = fb.GetUint16LE();
@@ -107,9 +108,10 @@ void SceneHotspots::Load(FileBuffer& fb)
         const auto keyword = fb.GetUint16LE();
         const auto action = static_cast<HotspotAction>(fb.GetUint16LE());
         logger.Spam() << "Action: " << action << std::endl;
-        const auto actionArg1 = fb.GetUint32LE();
-        const auto actionArg2 = fb.GetUint32LE();
-        logger.Spam() << "A1: " << actionArg1 << std::hex << " A2: " << actionArg2 << std::dec << "\n";
+        const auto actionArg1 = fb.GetUint16LE();
+        const auto actionArg2 = fb.GetUint16LE();
+        const auto actionArg3 = fb.GetUint32LE();
+        logger.Spam() << "A1: " << actionArg1 << std::hex << " A2: " << actionArg2 << " A3: " << actionArg3 << std::dec << "\n";
         std::uint32_t tooltip = fb.GetUint32LE(); 
         logger.Spam() << "RightClick: " << std::hex << tooltip << std::endl;
         const auto unknown2 = fb.GetUint32LE();
@@ -127,16 +129,35 @@ void SceneHotspots::Load(FileBuffer& fb)
             static_cast<HotspotAction>(action),
             actionArg1,
             actionArg2,
+            actionArg3,
             KeyTarget{tooltip},
             KeyTarget{dialog});
     }
+
+    mHotspots = hotspots;
 
     for (auto& hs : hotspots)
     {
         logger.Spam() << hs << "\n";
     }
 
-    mHotspots = hotspots;
+    logger.Debug() << "ADS: " << mSceneADS
+        << " TTM: " << mSceneTTM
+        << " " << mSceneIndex1
+        << " " << mSceneIndex2 << "\n";
+
+    auto fb2 = FileBufferFactory::CreateFileBuffer(mSceneADS);
+    mAdsIndices = BAK::LoadSceneIndices(fb2);
+    auto fb3 = FileBufferFactory::CreateFileBuffer(mSceneTTM);
+    mScenes = BAK::LoadScenes(fb3);
+}
+
+const Scene& SceneHotspots::GetScene(
+    unsigned adsIndex,
+    const GameState& gs)
+{
+    const auto ttmIndex = mAdsIndices[adsIndex];
+    return mScenes[ttmIndex.mSceneIndex.GetTTMIndex(gs)];
 }
 
 }

@@ -1,0 +1,44 @@
+#pragma once
+
+#include "bak/scene.hpp"
+#include "bak/textureFactory.hpp"
+
+#include "com/logger.hpp"
+
+#include "graphics/guiTypes.hpp"
+#include "graphics/sprites.hpp"
+#include "graphics/texture.hpp"
+#include "graphics/types.hpp"
+
+#include "gui/colors.hpp"
+#include "gui/scene.hpp"
+#include "gui/widget.hpp"
+
+namespace Gui {
+
+/*
+ * Display a static TTM, e.g. Lamut, Inn, etc.
+ * */
+class StaticTTM 
+{
+public:
+    StaticTTM(
+        Graphics::SpriteManager& spriteManager,
+        const BAK::Scene& sceneInit,
+        const BAK::Scene& sceneContent);
+
+    Widget* GetScene();
+    Widget* GetBackground();
+
+private:
+    Graphics::SpriteSheetIndex mSpriteSheet;
+    Widget mSceneFrame;
+    std::optional<Widget> mDialogBackground;
+
+    std::vector<Widget> mSceneElements;
+    std::optional<Widget> mClipRegion;
+
+    const Logging::Logger& mLogger;
+};
+
+}
