@@ -35,18 +35,6 @@ struct SceneRect
     glm::vec2 mDimensions;
 };
 
-//class Scene
-//{
-//    Scene()
-//    :
-//    {}
-//
-//    Widget mFrame;
-//    std::vector<Widget> Widget mSceneElements;
-//    std::optional<Widget> mClipRegion;
-//    std::optional<Widget> mBackgroundFrame;
-//};
-
 using DrawingAction = std::variant<
     EnableClipRegion,
     DisableClipRegion,
@@ -62,10 +50,10 @@ template <typename T, typename S>
 SceneSprite ConvertSceneAction(
     const BAK::DrawSprite& action,
     const T& textures,
-    S& offsets) // make this const
+    const S& offsets) // make this const
 {
     const auto sprite = action.mSpriteIndex 
-        + offsets[action.mImageSlot];
+        + offsets.at(action.mImageSlot);
     const auto tex = textures.GetTexture(sprite);
 
     auto x = action.mX;

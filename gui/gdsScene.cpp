@@ -24,178 +24,63 @@ GDSScene::GDSScene(
         false
     },
     mReference{hotspotRef},
+    mSceneHotspots{
+        FileBufferFactory::CreateFileBuffer(
+            mReference.ToFilename())},
     mFlavourText{BAK::KeyTarget{0x10000}},
     mSpriteSheet{GetDrawInfo().mSpriteSheet},
+    mSpriteManager{spriteManager},
+    // bitofa hack - all gds scenes have such a frame
     mFrame{
         Graphics::DrawMode::Rect,
         mSpriteSheet,
         Graphics::TextureIndex{0},
-        Graphics::ColorMode::Texture,
-        glm::vec4{1},
-        glm::vec2{0},
-        glm::vec2{1},
-        false 
-    },
-    mClipRegion{},
-    mSceneFrame{
-        Graphics::DrawMode::Rect,
-        0,
-        Graphics::TextureIndex{0},
         Graphics::ColorMode::SolidColor,
-        glm::vec4{0},
-        glm::vec2{0},
-        glm::vec2{1},
-        false 
-    },
-    mBackgroundFrame{
-        Graphics::DrawMode::Sprite,
-        mSpriteSheet,
-        Graphics::TextureIndex{0},
-        Graphics::ColorMode::Texture,
-        glm::vec4{1},
-        glm::vec2{0},
-        glm::vec2{1},
-        false 
-    },
+        Color::frameMaroon,
+        glm::vec2{14, 10},
+        glm::vec2{291, 103},
+        false},
+    mStaticTTMs{},
     mMousePos{glm::vec2{0}},
     mHotspots{},
-    mSceneElements{},
     mCursor{cursor},
     mDialogRunner{dialogRunner},
     mDialogState{false, false, glm::vec2{0}},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
-
-    auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
-    BAK::SceneHotspots hotspots{};
-    hotspots.Load(fb);
-    mFlavourText = BAK::KeyTarget{hotspots.mFlavourText};
-
-    mLogger.Debug() << "ADS: " << hotspots.mSceneADS
-        << " TTM: " << hotspots.mSceneTTM
-        << " " << hotspots.mSceneIndex1
-        << " " << hotspots.mSceneIndex2 << "\n";
-
-    auto fb2 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneADS);
-    auto sceneIndices = BAK::LoadSceneIndices(fb2);
-    auto fb3 = FileBufferFactory::CreateFileBuffer(hotspots.mSceneTTM);
-    auto scenes = BAK::LoadScenes(fb3);
-    //hotspots.mSceneIndex2 = 0x6;
-
-    const auto sceneIndex1 = sceneIndices[hotspots.mSceneIndex1];
-    const auto sceneIndex2 = sceneIndices[hotspots.mSceneIndex2];
-
-    const auto& scene1 = scenes[sceneIndex1.mSceneIndex];
-    const auto& scene2 = scenes[sceneIndex2.mSceneIndex];
-
-    mLogger.Debug() << "S1: " << sceneIndex1 << " S2: " << sceneIndex2 << "\n";
-    mLogger.Debug() << "S1: " << scene1 << "\n";
-    mLogger.Debug() << "S2: " << scene2 << "\n";
-
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(
         textures, "DIALOG.SCX", "OPTIONS.PAL");
 
     const auto [x, y] = textures.GetTexture(0).GetDims();
+    mSpriteManager
+        .GetSpriteSheet(mSpriteSheet)
+        .LoadTexturesGL(textures);
+
     SetDimensions(glm::vec2{x, y});
 
-    std::unordered_map<unsigned, unsigned> offsets{};
+    auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
+    mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
 
-    for (const auto& scene : {scene1, scene2})
-    {
-        for (const auto& [imageKey, imagePal] : scene.mImages)
-        {
-            const auto& [image, palKey] = imagePal;
-            mLogger.Debug() << "Loading image slot: " << imageKey << " (" << image << ")\n";
-            const auto& palette = scene.mPalettes.find(palKey)->second;
-            offsets[imageKey] = textures.GetTextures().size();
+    const auto gs = BAK::GameState{};
+    const auto& scene1 = mSceneHotspots.GetScene(
+        mSceneHotspots.mSceneIndex1, gs);
+    const auto& scene2 = mSceneHotspots.GetScene(
+        mSceneHotspots.mSceneIndex2, gs);
 
-            BAK::TextureFactory::AddToTextureStore(
-                textures,
-                image,
-                palette);
-        }
+    // Unlikely we ever nest this deep
+    mStaticTTMs.reserve(mMaxSceneNesting);
+    mStaticTTMs.emplace_back(
+        mSpriteManager,
+        scene1,
+        scene2);
 
-        for (const auto& action : scene.mActions)
-        {
-            std::visit(
-                overloaded{
-                    [&](const BAK::DrawSprite& sa){
-                        const auto sceneSprite = ConvertSceneAction(
-                            sa,
-                            textures,
-                            offsets);
-
-                        mSceneElements.emplace_back(
-                            Graphics::DrawMode::Sprite,
-                            mSpriteSheet,
-                            sceneSprite.mImage,
-                            Graphics::ColorMode::Texture,
-                            glm::vec4{1},
-                            sceneSprite.mPosition,
-                            sceneSprite.mScale,
-                            false);
-                    },
-                    [&](const BAK::DrawRect& sr){
-                        const auto [palKey, colorKey] = sr.mPaletteColor;
-                        const auto sceneRect = SceneRect{
-                            // Reddy brown frame color
-                            colorKey == 6 
-                                ? Gui::Color::frameMaroon
-                                : Gui::Color::black,
-                            glm::vec2{sr.mTopLeft.x, sr.mTopLeft.y},
-                            glm::vec2{sr.mBottomRight.x, sr.mBottomRight.y}};
-
-                        mFrame = Widget{
-                            Graphics::DrawMode::Rect,
-                            mSpriteSheet,
-                            0, // no image index
-                            Graphics::ColorMode::SolidColor,
-                            sceneRect.mColor,
-                            sceneRect.mPosition,
-                            sceneRect.mDimensions,
-                            false};
-
-                        this->AddChildFront(&mFrame);
-                        // DialogBackground will have same dims...
-                        mBackgroundFrame.SetPosition(sceneRect.mPosition);
-                        mBackgroundFrame.SetDimensions(sceneRect.mDimensions);
-                    },
-                    [&](const BAK::ClipRegion& a){
-                        const auto clip = ConvertSceneAction(a);
-                        mClipRegion.emplace(
-                            Graphics::DrawMode::ClipRegion,
-                            mSpriteSheet,
-                            0, // no image index
-                            Graphics::ColorMode::SolidColor,
-                            glm::vec4{1},
-                            clip.mTopLeft,
-                            clip.mDims,
-                            false);
-                        this->AddChildBack(&(*mClipRegion));
-                    },
-                    [&](const BAK::DisableClipRegion&){
-
-                    }
-                },
-                action);
-        }
-    }
-
-    for (auto& element : mSceneElements)
-    {
-        mSceneFrame.AddChildBack(&element);
-    }
-
-    const auto dialogBackground = offsets.find(5);
-    if (dialogBackground != offsets.end())
-    {
-        mBackgroundFrame.SetTexture(dialogBackground->second);
-    }
+    AddChildBack(&mFrame);
+    mFrame.SetInactive();
 
     // Want our refs to be stable..
-    mHotspots.reserve(hotspots.mHotspots.size());
-    for (const auto& hs : hotspots.mHotspots)
+    mHotspots.reserve(mSceneHotspots.mHotspots.size());
+    for (const auto& hs : mSceneHotspots.mHotspots)
     {
         mHotspots.emplace_back(
             cursor,
@@ -209,46 +94,24 @@ GDSScene::GDSScene(
                 HandleHotspotRightClicked(hs);
             });
 
-        if (mClipRegion)
-            mClipRegion->AddChildBack(
-                &mHotspots.back());
-        else
-            mFrame.AddChildBack(
-                &mHotspots.back());
+        AddChildBack(&mHotspots.back());
     }
-
-    spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
 
     SetDisplayScene();
 }
 
 void GDSScene::SetDisplayScene()
 {
-    Graphics::IGuiElement* addTo = GetChildren().size() > 1
-        ? GetChildren().back()
-        : this;
-    const auto scenePtr = std::find(addTo->GetChildren().begin(), addTo->GetChildren().end(), &mBackgroundFrame);
-    if (scenePtr != addTo->GetChildren().end())
-        addTo->RemoveChild(&mBackgroundFrame);
-    addTo->AddChildBack(&mSceneFrame);
+    mFrame.ClearChildren();
+    assert(mStaticTTMs.size() > 0);
+    mFrame.AddChildBack(mStaticTTMs.back().GetScene());
 }
 
 void GDSScene::SetDisplayBackground()
 {
-    mLogger.Debug() << "Set to background\n";
-    Graphics::IGuiElement* addTo = GetChildren().size() > 1
-        ? GetChildren().back()
-        : this;
-
-    const auto scenePtr = std::find(
-        addTo->GetChildren().begin(),
-        addTo->GetChildren().end(),
-        &mSceneFrame);
-
-    if (scenePtr != addTo->GetChildren().end())
-        addTo->RemoveChild(&mSceneFrame);
-
-    addTo->AddChildBack(&mBackgroundFrame);
+    mFrame.ClearChildren();
+    assert(mStaticTTMs.size() > 0);
+    mFrame.AddChildBack(mStaticTTMs.back().GetBackground());
 }
 
 void GDSScene::LeftMousePress(glm::vec2 pos)
@@ -263,6 +126,11 @@ void GDSScene::LeftMousePress(glm::vec2 pos)
         {
             mLogger.Debug() << "Dialog finished, back to flavour text\n";
             mDialogRunner.ShowFlavourText(mFlavourText);
+
+            if (mStaticTTMs.size() > 1)
+                mStaticTTMs.pop_back();
+            SetDisplayScene();
+
             mCursor.PopCursor();
         }
     }
@@ -277,11 +145,29 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 { 
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
 
-    if (hotspot.mAction == BAK::HotspotAction::DIALOG)
+    if (hotspot.mAction == BAK::HotspotAction::DIALOG
+        && !mDialogState.mDialogActive) // arguably this shouldn't be necessary
     {
+        if (hotspot.mActionArg2 != 0x0)
+        {
+            const auto gs = BAK::GameState{};
+            const auto& scene1 = mSceneHotspots.GetScene(
+                mSceneHotspots.mSceneIndex1, gs);
+            const auto& scene2 = mSceneHotspots.GetScene(
+                hotspot.mActionArg2, gs);
+
+            // respect the reserve earlier
+            assert(mStaticTTMs.size () < mMaxSceneNesting);
+            mStaticTTMs.emplace_back(
+                mSpriteManager,
+                scene1,
+                scene2);
+            SetDisplayScene();
+        }
+
         mDialogState.ActivateDialog();
         mDialogRunner.BeginDialog(
-            BAK::KeyTarget{hotspot.mActionArg2});
+            BAK::KeyTarget{hotspot.mActionArg3});
         mCursor.PushCursor(0);
     }
 }

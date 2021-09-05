@@ -9,6 +9,7 @@ add_library(gui
     label.hpp
     mainView.hpp
     scene.hpp scene.cpp
+    staticTTM.hpp staticTTM.cpp
     textBox.hpp
     widget.hpp widget.cpp
     window.hpp

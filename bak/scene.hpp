@@ -1,6 +1,8 @@
 #pragma once
 
+#include "bak/gameState.hpp"
 #include "bak/sceneData.hpp"
+#include "bak/types.hpp"
 
 #include "xbak/FileBuffer.h"
 
@@ -10,10 +12,63 @@
 
 namespace BAK {
 
+using TTMIndex = unsigned;
+
+struct ADSIndex
+{
+    ADSIndex()
+    :
+        mIf{0},
+        mElse{},
+        mGreaterThan{},
+        mLessThan{}
+    {}
+
+    TTMIndex GetTTMIndex(const BAK::GameState& gs) const
+    {
+        const auto chapter = gs.GetChapter();
+        if (mGreaterThan && mLessThan)
+        {
+            if (chapter >= *mGreaterThan
+                && chapter <= *mLessThan)
+                return mIf;
+            else
+            {
+                assert(mElse);
+                return *mElse;
+            }
+        }
+        else if (mGreaterThan && chapter >= *mGreaterThan)
+        {
+            return mIf;
+        }
+        else if (mLessThan && chapter <= *mLessThan)
+        {
+            return mIf;
+        }
+        else if (!mGreaterThan && !mLessThan)
+        {
+            return mIf;
+        }
+        else
+        {
+            assert(mElse);
+            return *mElse;
+        }
+    }
+
+    TTMIndex mIf;
+    std::optional<TTMIndex> mElse;
+    std::optional<Chapter> mGreaterThan;
+    std::optional<Chapter> mLessThan;
+};
+
+std::ostream& operator<<(std::ostream&, const ADSIndex&);
+
 struct SceneIndex
 {
     std::string mSceneTag;
-    unsigned mSceneIndex;
+    ADSIndex mSceneIndex;
 };
 
 std::ostream& operator<<(std::ostream&, const SceneIndex&);
@@ -40,5 +95,6 @@ struct SceneChunk
     std::optional<std::string> mResourceName;
     std::vector<std::int16_t> mArguments;
 };
+
 
 }

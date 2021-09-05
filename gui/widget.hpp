@@ -45,6 +45,7 @@ public:
 
     void SetTexture(Graphics::TextureIndex);
     void SetColorMode(Graphics::ColorMode);
+    void SetColor(glm::vec4);
 
 protected:
     bool Within(glm::vec2 click);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/dialog.hpp"
+#include "bak/types.hpp"
 
 namespace BAK {
 
@@ -23,7 +24,7 @@ public:
         unsigned mIndex;
     };
 
-    auto GetChapter() const
+    Chapter GetChapter() const
     {
         return 1;
     }

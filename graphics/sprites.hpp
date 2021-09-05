@@ -59,6 +59,12 @@ class SpriteManager
 public:
     SpriteManager();
 
+    SpriteManager(const SpriteManager&) = delete;
+    SpriteManager& operator=(const SpriteManager&) = delete;
+
+    SpriteManager(SpriteManager&& other) = delete;
+    SpriteManager& operator=(SpriteManager&& other) = delete;
+
     SpriteSheetIndex AddSpriteSheet();
 
     void DeactivateSpriteSheet();
