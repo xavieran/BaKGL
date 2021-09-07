@@ -61,11 +61,11 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
     {
         const auto type = 0;//fb.GetUint16LE();
         const auto& rest = fb.GetArray<10>();
-        std::array<std::uint8_t, 8> x2;
-        std::copy(rest.begin(), rest.begin() + 8, x2.begin());
+        //std::array<std::uint8_t, 8> x2;
+        //std::copy(rest.begin(), rest.begin() + 8, x2.begin());
 
         mActions.emplace_back(
-            x2,//rest,
+            rest,
             type);
     }
     

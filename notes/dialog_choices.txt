@@ -1,0 +1,73 @@
+Sumani dialog 2dc6d4
+
+Sumani choices @key 1e8482, Offset{ 20@0x2fae }
+
+08:40:05.09 INFO  [main] Current: Key [ 1e8482 ] (Offset { 20 @ 0x2fae })
+08:40:05.09 INFO  [main] Snippet: [ ds: 0 act: ff ds2: 3 ds3: 4 ]
+++ DA {  type: (0) rst: [04 00 84 1e 00 00 00 00 01 00]}
+++ DA {  type: (0) rst: [01 00 00 00 1e 00 00 00 00 00]}
+++ DA {  type: (0) rst: [10 00 82 84 1e 80 00 00 00 00]}
+>> d -> 1 | ffff Offset { 20 @ 0x3039 }
+>> e -> 1 | ffff Offset { 20 @ 0x325c }
+>> f -> 1 | ffff Offset { 20 @ 0x35ed }
+>> 11 -> 1 | ffff Offset { 20 @ 0x40b7 }
+>> 12 -> 1 | ffff Offset { 20 @ 0x42be }
+>> 14 -> 1 | ffff Offset { 20 @ 0x450c }
+>> 15 -> 1 | ffff Offset { 20 @ 0x4bd4 }
+>> 16 -> 1 | ffff Offset { 20 @ 0x4e0d }
+>> 17 -> 1 | ffff Offset { 20 @ 0x5284 }
+>> 18 -> 1 | ffff Offset { 20 @ 0x54f6 }
+
+Sumani Choices
+When click "Sumani" flag is set at a8d. 
+This tells UI whether choice has been clicked or not
+Nothing clicked:
+< 00000a80: 0000 0008 0000 0000 0000 0000 0000 0000  ................
+"Sumani" clicked:
+< 00000a80: 0000 0008 0000 0000 0000 0000 0004 0000  ................
+---
+"Rift Gate" clicked
+> 00000a80: 0000 0008 0000 0000 0000 0000 0006 0000  ................
+
+
+Dubal - @2dc6e3
+"Speak to Dubal" - sets flag at 1ec7
+< 00000ab0: 0000 1000 0000 0000 0002 0000 0000 0000
+---
+> 00000ab0: 0000 1000 0000 0000 0002 8000 0000 0000
+
+Belfort - @1cfde7
+
+dac0 -> 400 | ff01 Offset { 19 @ 0x1381 } (0)
+-- this condition checks whether you've talked  to Belfort about the ruby
+dac0 -> 101 | ff01 Offset { 19 @ 0x995 } (1) 
+// Once you've talked to belfort this sets that condition at 0xb09 to 1
+++ DA {  type: (0) rst: [04 00 c0 da ff 01 00 00 00 00]
+
+dac0 seems to have no effect with ff01
+Changing the 01 part of ff01 writes different var.
+e.g. ffdc -> writes dc to 0xb09
+
+Jeremy @1cfdea
+Similar action to captain belfort,
+daca instead of dac0
+daca does have an effect though... this writes to 0xb0a instead of 0xb09
+
+│12:01:38.09 INFO  [main] Snippet: [ ds: 6 act: 0 ds2: 10 ds3: 0 ]
+│++ DA {  type: (0) rst: [04 00 c0 da ff 01 00 00 00 00]}
+
+// This is the chest jeremy is discussing. 
+// It note "dacc" at the bottom, potentially setting some state?
+
+13:58:36.09 INFO  [GameData]  Container: 29 addr: 3ba32                                      
+00000000: 01 0a a2 00              
+13:58:36.09 INFO  [GameData] DLog??: a20a01 882511,656147 #4 items: 2 capacity: 6 Tp: 25 Dunno
+13:58:36.09 INFO  [GameData] Items:       
+0x38 Emeralds  cond/qty: 15 mod: 0 y; 0
+0x75 Redweed Brew  cond/qty: 3 mod: 0 y; 0
+                                                       
+00000000: 04   
+13:58:36.09 INFO  [GameData] Picklock: 55 ContainerI: 6400
+00000000: 00 00                                        
+00000000: cc da 00 00 00 00 00 00 | 00 00 00 
+

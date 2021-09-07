@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace BAK {
 
 enum class TemporaryModifier
@@ -69,17 +72,17 @@ class Item
     int mAccuracyThrust;
     // Amount of space item takes?
     unsigned mImageSize;
-    Race mRace;
+    RacialModifier mRace;
     ItemType mType;
-    Effect mEffect;
-    Modifier mModifier;
+    TemporaryModifier mEffect;
+    PermanentModifier mModifier;
 };
 
 class InventoryItem
 {
     int mCondition;
-    const Item& mItem;
-}
+    Item mItem;
+};
 
 class Inventory
 {

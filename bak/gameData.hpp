@@ -86,8 +86,6 @@ public:
   * 00 00 08 AB  00 00 90 60  00 00 00 F0  20 40 5A 2B
   * 00 00 5A 2B  00 00 40 80  40 40 40 40  20 00 80   
   *
-  ** DEF_TOWN.DAT
-  * - Seems to affect zone crossing (e.g. from Tyr-Sog to highcastle etc.
   */
 
     GameData(const std::string& save)
@@ -98,18 +96,23 @@ public:
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
-        ReadEventWord(0xdac0);
-        ReadEventWord(0xc0da); // 0xb08
+        //ReadEventWord(0xdac0);
+        //ReadEventWord(0xc0da); // 0xb08
         //LoadLocation();
         //LoadCombatStats(0xdb, 6);
         //LoadCombatInventories(0x3a7f7, 6);
         //LoadInventoryOffsetsP();
-        //LoadContainer();
+        LoadContainer();
         //LoadCombatEntityLists();
         //LoadCombatInventories(0x46053, 1733);
         //LoadCombatStats(0x914b, 1698);
     }
 
+    /*
+     * Sumani dialog
+     * When click sumani we get a flag set at a8d
+     * This flag tells the UI whether a choice has been clicked or not
+     */
     unsigned ReadEvent(unsigned eventPtr) const
     {
         unsigned startOffset = 0x6e2;
