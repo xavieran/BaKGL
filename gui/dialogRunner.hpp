@@ -4,6 +4,7 @@
 #include "bak/gameState.hpp"
 
 #include "com/algorithm.hpp"
+#include "com/visit.hpp"
 
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
@@ -187,6 +188,22 @@ public:
         return addTextResult;
     }
 
+    void EvaluateSnippetActions()
+    {
+        for (const auto& action : mCurrentDialog->mActions)
+        {
+            std::visit(overloaded{
+                [&](const BAK::PushNextDialog& push){
+                    mLogger.Debug() << "Pushing :" << push.mTarget << "\n";
+                    mTargetStack.push(push.mTarget);
+                },
+                [&](const auto& a){
+                    mLogger.Debug() << "Doing nothing for: " << a << "\n";
+                }},
+                action);
+        }
+    }
+
     void UpdateSnippet()
     {
         std::string text;
@@ -310,6 +327,7 @@ public:
     {
         mCurrentTarget = target;
         mCurrentDialog = mDialogStore.GetSnippet(target);
+        EvaluateSnippetActions();
         mRemainingText = mCurrentDialog->GetText();
         Logging::LogDebug("Gui::DialogRunner")
             << "BeginDialog" << target << " snip: " << mCurrentDialog << "\n";
@@ -337,8 +355,8 @@ public:
         auto label = std::string{text.begin(), flavourText};
         AddLabel(label);
 
-        Logging::LogDebug("Gui::DialogRunner")
-            << "ShowFlavourText" << target << " snip: " << mCurrentDialog << "\n";
+        mLogger.Debug() << "ShowFlavourText" << target 
+            << " snip: " << mCurrentDialog << "\n";
     }
 
     // Call this when the player moves the dialog forward
@@ -362,12 +380,24 @@ public:
                 << "(" << mCurrentTarget << ") " << currentDialog << std::endl;
             if (current == *mCurrentTarget && !first)
             {
-                progressing = false;
-                return false;
+                if (!mTargetStack.empty())
+                {
+                    current = mTargetStack.top();
+                    currentDialog = mDialogStore.GetSnippet(current);
+                    mTargetStack.pop();
+                    mLogger.Debug() << "Evaluating stacked dialog\n";
+                }
+                else
+                {
+                    progressing = false;
+                    mLogger.Debug() << "Finished dialog\n";
+                    return false;
+                }
             }
 
             mCurrentTarget = current;
             mCurrentDialog = currentDialog;
+            EvaluateSnippetActions();
 
             const auto text = currentDialog.GetText();
             if (text != empty)
@@ -376,6 +406,10 @@ public:
                 progressing = false;
                 return true;
             }
+            else if (currentDialog.mDisplayStyle3 == 0x4)
+            {
+            }
+
 
         } while (progressing && (iters++ < 20));
 
@@ -403,6 +437,7 @@ private:
 
     std::optional<BAK::Target> mCurrentTarget;
     std::optional<BAK::DialogSnippet> mCurrentDialog;
+    std::stack<BAK::Target> mTargetStack;
     std::string mRemainingText;
 
     const Logging::Logger& mLogger;

@@ -38,9 +38,9 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
 
     const auto GetTarget = [dialogFile](auto rawTarget) -> Target
     {
-        constexpr std::uint32_t targetBit = 0x80000000;
+        constexpr std::uint32_t targetBit = 0xf0000000;
         if (targetBit & rawTarget)
-            return KeyTarget{rawTarget & (targetBit - 1)};
+            return KeyTarget{rawTarget & ~targetBit};
         else
             return OffsetTarget{dialogFile, rawTarget};
     };
@@ -59,41 +59,31 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
 
     for (i = 0; i < actions; i++)
     {
-        const auto type = 0;//fb.GetUint16LE();
-        const auto& rest = fb.GetArray<10>();
-        //std::array<std::uint8_t, 8> x2;
-        //std::copy(rest.begin(), rest.begin() + 8, x2.begin());
-
-        mActions.emplace_back(
-            rest,
-            type);
+        const auto type = fb.GetUint16LE();
+        const auto dr = static_cast<DialogResult>(type);
+        if (dr == DialogResult::PushNextDialog)
+        {
+            const auto offset = fb.GetUint32LE();
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                PushNextDialog{
+                    GetTarget(offset),
+                    rest});
+        }
+        else
+        {
+            const auto& rest = fb.GetArray<8>();
+            mActions.emplace_back(
+                UnknownAction{
+                    type,
+                    rest});
+        }
     }
     
     if (length > 0)
         mText = fb.GetString(length);
     else
         mText = "";
-}
-
-std::ostream& operator<<(std::ostream& os, const DialogResult& d)
-{
-    switch (d)
-    {
-        case DialogResult::GiveItem: return os << "GiveItem";
-        case DialogResult::LoseItem: return os << "LoseItem";
-        case DialogResult::SetFlag: return os << "SetFlag";
-        case DialogResult::GainSkill: return os << "GainSkill";
-        case DialogResult::PlaySound: return os << "PlaySound";
-        default: return os << "(" << static_cast<unsigned>(d) << ")";
-    }
-}
-
-std::ostream& operator<<(std::ostream& os, const DialogAction& d)
-{
-    os << "DA { " 
-        << " type: " << d.mType
-        << " rst: [" << d.mRest << "]}";
-    return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const DialogChoice& d)

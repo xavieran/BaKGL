@@ -3,6 +3,7 @@ add_library(bak
     constants.hpp
     coordinates.hpp coordinates.cpp
     dialog.hpp dialog.cpp
+    dialogAction.hpp dialogAction.cpp
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
     encounter.hpp encounter.cpp
