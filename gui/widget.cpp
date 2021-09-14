@@ -25,6 +25,10 @@ Widget::Widget(
     mActive{true}
 {}
 
+Widget::~Widget()
+{
+}
+
 void Widget::SetActive()
 {
     mActive = true;
@@ -98,6 +102,15 @@ void Widget::AddChildBack(Widget* widget)
         static_cast<Graphics::IGuiElement*>(widget));
 }
 
+void Widget::PopChild()
+{
+    if (mChildren.size() > 0)
+    {
+        auto widget = mChildren.back();
+        RemoveChild(widget);
+    }
+}
+
 void Widget::RemoveChild(Widget* elem)
 {
     Graphics::IGuiElement::RemoveChild(elem);
@@ -146,6 +159,11 @@ void Widget::SetColor(glm::vec4 color)
 void Widget::SetDimensions(glm::vec2 dims)
 {
     mPositionInfo.mDimensions = dims;
+}
+
+std::size_t Widget::size() const
+{
+    return mChildren.size();
 }
 
 bool Widget::Within(glm::vec2 click)

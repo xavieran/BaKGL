@@ -22,8 +22,8 @@
 #include "graphics/sprites.hpp"
 #include "graphics/texture.hpp"
 
-#include "gui/widget.hpp"
-#include "gui/mainView.hpp"
+#include "gui/guiManager.hpp"
+#include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -258,23 +258,25 @@ int main(int argc, char** argv)
         guiScalar,
         spriteManager};
 
+    auto root = Gui::Window{
+        spriteManager,
+        width / guiScalar,
+        height / guiScalar};
+        
+    auto gameState = BAK::GameState{};
+    auto guiManager = Gui::GuiManager{
+        root.GetCursor(),
+        spriteManager,
+        gameState
+    };
+    guiManager.EnterMainView();
+
+    root.AddChildFront(&guiManager);
+
     auto guiShaderProgram = ShaderProgram{
         "gui.vert.glsl",
         "gui.frag.glsl"};
     auto guiShader = guiShaderProgram.Compile();
-
-    Gui::Widget root{
-        Graphics::DrawMode::ClipRegion,
-        0,
-        0,
-        Graphics::ColorMode::SolidColor,
-        glm::vec4{0},
-        glm::vec3{0},
-        glm::vec3{width / guiScalar, height / guiScalar, 0},
-        true};
-
-    auto mv = Gui::MainView{spriteManager};
-    root.AddChildBack(&mv);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -328,13 +330,30 @@ int main(int argc, char** argv)
         GLFW_MOUSE_BUTTON_LEFT,
         [&](auto click)
         {
-            logger.Debug() << click << "\n";
-            mv.LeftMousePress(guiScaleInv * click);
+            root.LeftMousePress(guiScaleInv * click);
         },
         [&](auto click)
         {
-            logger.Debug() << click << "\n";
-            mv.LeftMouseRelease(guiScaleInv * click);
+            root.LeftMouseRelease(guiScaleInv * click);
+        }
+    );
+
+    inputHandler.BindMouse(
+        GLFW_MOUSE_BUTTON_RIGHT,
+        [&](auto click)
+        {
+            root.RightMousePress(guiScaleInv * click);
+        },
+        [&](auto click)
+        {
+            root.RightMouseRelease(guiScaleInv * click);
+        }
+    );
+
+    inputHandler.BindMouseMotion(
+        [&](auto pos)
+        {
+            root.MouseMoved(guiScaleInv * pos);
         }
     );
 
@@ -343,6 +362,7 @@ int main(int argc, char** argv)
     float deltaTime = 0;
 
     glfwSetCursorPos(window.get(), width/2, height/2);
+    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     glEnable(GL_MULTISAMPLE);  
 
@@ -486,11 +506,18 @@ int main(int argc, char** argv)
                 } break;
                 case BAK::EncounterType::Town:
                 {
+                    const auto& town = towns[activeEncounter->GetIndex()];
                     ShowDialogGui(
-                        towns[activeEncounter->GetIndex()].mEntryDialog,
+                        town.mEntryDialog,
                         dialogStore,
                         dialogIndex,
                         gameData);
+
+                    if (guiManager.mScreens.size() == 1)
+                        guiManager.EnterGDSScene(
+                            BAK::HotspotRef{
+                                town.mTownTag2,
+                                'A'});
                 } break;
                 case BAK::EncounterType::Zone:
                 {

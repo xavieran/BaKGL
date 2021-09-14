@@ -1,13 +1,13 @@
 #pragma once
 
 #include "bak/dialog.hpp"
-#include "bak/hotspot.hpp"
+#include "bak/gameState.hpp"
 
-#include "gui/colors.hpp"
-#include "gui/dialogRunner.hpp"
-#include "gui/hotspot.hpp"
+#include "gui/IGuiManager.hpp"
+
+#include "gui/gdsScene.hpp"
+#include "gui/mainView.hpp"
 #include "gui/widget.hpp"
-#include "gui/scene.hpp"
 
 #include <glm/glm.hpp>
 
@@ -16,34 +16,65 @@
 
 namespace Gui {
 
-class GuiManager : public Widget
+class GuiManager : public Widget, public IGuiManager
 {
 public:
 
     GuiManager(
+        Cursor& cursor,
         Graphics::SpriteManager& spriteManager,
-        DialogRunner& dialogRunner)
+        BAK::GameState& gameState)
     :
         Widget{
-            Graphics::DrawMode::Sprite,
-            std::invoke([&spriteManager]{
-                const auto& [sheetIndex, sprites] = spriteManager.AddSpriteSheet();
-                return sheetIndex;
-            }),
+            Graphics::DrawMode::Rect,
+            Graphics::SpriteSheetIndex{0},
             Graphics::TextureIndex{0},
-            Graphics::ColorMode::Texture,
-            glm::vec4{1},
+            Graphics::ColorMode::SolidColor,
+            glm::vec4{0},
             glm::vec2{0},
             glm::vec2{1},
             false
         },
-        mDialogRunner{dialogRunner},
+        mFont{"GAME.FNT", spriteManager},
+        mActors{spriteManager},
+        mBackgrounds{spriteManager},
+        mCursor{cursor},
+        mSpriteManager{spriteManager},
+        mMainView{spriteManager},
+        mGdsScenes{},
+        mScreens{},
+        mGameState{gameState},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
     {
+        AddChildBack(&mScreens);
     }
 
-    void RunGoto(const BAK::HotspotRef& hotspot)
+    void EnterMainView()
     {
+        mScreens.PushScreen(&mMainView);
+    }
+
+    void EnterGDSScene(const BAK::HotspotRef& hotspot) override
+    {
+        mCursor.PushCursor(0);
+        mGdsScenes.emplace_back(
+            std::make_unique<GDSScene>(
+                mCursor,
+                hotspot,
+                mSpriteManager,
+                mActors,
+                mBackgrounds,
+                mFont,
+                mGameState,
+                mScreens,
+                static_cast<IGuiManager&>(*this)));
+    }
+
+    void ExitGDSScene() override
+    {
+        mScreens.PopChild();
+        mCursor.PopCursor();
+        //mGdsScenes.pop_back();
     }
 
     void RunDialog(BAK::KeyTarget dialogTarget)
@@ -54,7 +85,19 @@ public:
     {
     }
 
-    DialogRunner& mDialogRunner;
+//private:
+    Font mFont;
+    Actors mActors;
+    Backgrounds mBackgrounds;
+
+    Cursor& mCursor;
+    Graphics::SpriteManager& mSpriteManager;
+
+    MainView mMainView;
+    std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
+    ScreenStack mScreens;
+
+    BAK::GameState& mGameState;
 
     const Logging::Logger& mLogger;
 };

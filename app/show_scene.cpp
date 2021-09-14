@@ -27,6 +27,7 @@
 #include "gui/contents.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
+#include "gui/guiManager.hpp"
 #include "gui/hotspot.hpp"
 #include "gui/label.hpp"
 #include "gui/mainView.hpp"
@@ -104,38 +105,28 @@ int main(int argc, char** argv)
     const auto root = static_cast<std::uint8_t>(std::atoi(argv[1]));
     auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
     
+    auto screens = Gui::ScreenStack{};
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
 
     const auto font = Gui::Font{"GAME.FNT", spriteManager};
     const auto actors = Gui::Actors{spriteManager};
     const auto backgrounds = Gui::Backgrounds{spriteManager};
 
-
     Gui::Window rootWidget{
         spriteManager,
         width / guiScalar,
         height / guiScalar};
 
-    auto gs = BAK::GameState{};
-    Gui::DialogRunner dialogRunner{
-        glm::vec2{0, 0},
-        glm::vec2{320, 240},
-        actors,
-        backgrounds,
-        font,
-        gs};
+    auto gameState = BAK::GameState{};
+    auto guiManager = Gui::GuiManager{
+        rootWidget.GetCursor(),
+        spriteManager,
+        gameState
+    };
 
-    rootWidget.AddChildFront(&dialogRunner);
+    rootWidget.AddChildFront(&guiManager);
 
-    scenes.emplace(
-        std::make_unique<Gui::GDSScene>(
-            rootWidget.GetCursor(),
-            currentSceneRef,
-            spriteManager,
-            dialogRunner));
-
-    rootWidget.AddChildFront(scenes.top().get());
-    dialogRunner.ShowFlavourText(scenes.top()->mFlavourText);
+    guiManager.EnterGDSScene(currentSceneRef);
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};

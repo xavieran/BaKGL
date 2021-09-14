@@ -16,7 +16,6 @@ public:
         const Font& fr,
         const std::string& label,
         std::function<void()>&& onLeftMousePress)
-        //std::function<void()>&& onLeftMouseRelease)
     :
         Widget{
             Graphics::DrawMode::Rect,
@@ -61,17 +60,29 @@ public:
         Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         assert(mButton.size() >= 1);
         if (Within(click))
-        {
             mButton[0] = &mPressed;
-            if (mPressedCallback)
-                std::invoke(mPressedCallback);
+    }
+
+    void MouseMoved(glm::vec2 pos) override
+    {
+        if (!Within(pos))
+        {
+            assert(mButton.size() >= 1);
+            mButton[0] = &mNormal;
         }
     }
 
     void LeftMouseRelease(glm::vec2 click) override
     {
+        Logging::LogDebug("ClickButton") << "Got LMR: " << click << std::endl;
         assert(mButton.size() >= 1);
         mButton[0] = &mNormal;
+
+        if (Within(click))
+        {
+            if (mPressedCallback)
+                std::invoke(mPressedCallback);
+        }
     }
 
 private:
@@ -138,17 +149,29 @@ public:
         Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         assert(mButton.size() >= 1);
         if (Within(click))
-        {
             mButton[0] = &mPressed;
-            if (mPressedCallback)
-                std::invoke(mPressedCallback);
+    }
+
+    void MouseMoved(glm::vec2 pos) override
+    {
+        if (!Within(pos))
+        {
+            assert(mButton.size() >= 1);
+            mButton[0] = &mNormal;
         }
     }
 
     void LeftMouseRelease(glm::vec2 click) override
     {
+        Logging::LogDebug("ClickButton") << "Got LMR: " << click << std::endl;
         assert(mButton.size() >= 1);
         mButton[0] = &mNormal;
+
+        if (Within(click))
+        {
+            if (mPressedCallback)
+                std::invoke(mPressedCallback);
+        }
     }
 
 private:

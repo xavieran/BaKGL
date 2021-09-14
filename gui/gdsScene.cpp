@@ -11,7 +11,12 @@ GDSScene::GDSScene(
     Cursor& cursor,
     BAK::HotspotRef hotspotRef,
     Graphics::SpriteManager& spriteManager,
-    DialogRunner& dialogRunner)
+    const Actors& actors,
+    const Backgrounds& backgrounds,
+    const Font& font,
+    BAK::GameState& gameState,
+    ScreenStack& screenStack,
+    IGuiManager& guiManager)
 :
     Widget{
         Graphics::DrawMode::Sprite,
@@ -41,11 +46,27 @@ GDSScene::GDSScene(
         glm::vec2{291, 103},
         false},
     mStaticTTMs{},
-    mMousePos{glm::vec2{0}},
     mHotspots{},
     mCursor{cursor},
-    mDialogRunner{dialogRunner},
-    mDialogState{false, false, glm::vec2{0}},
+    mScreenStack{screenStack},
+    mGuiManager{guiManager},
+    mDialogDisplay{
+        glm::vec2{0, 0},
+        glm::vec2{320, 240},
+        actors,
+        backgrounds,
+        font,
+        gameState},
+    mDialogRunner{
+        glm::vec2{0, 0},
+        glm::vec2{320, 240},
+        actors,
+        backgrounds,
+        font,
+        gameState,
+        screenStack,
+        *this, // IDialogScene
+        [this](){ FinishedDialog(); }},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
     auto textures = Graphics::TextureStore{};
@@ -97,48 +118,27 @@ GDSScene::GDSScene(
         AddChildBack(&mHotspots.back());
     }
 
-    SetDisplayScene();
+    DisplayNPCBackground();
+
+    mDialogDisplay.ShowFlavourText(mFlavourText);
+    AddChildBack(&mDialogDisplay);
+
+    mScreenStack.PushScreen(this);
+    mLogger.Debug() << "Constructed @" << std::hex << this << std::dec << "\n";
 }
 
-void GDSScene::SetDisplayScene()
+void GDSScene::DisplayNPCBackground()
 {
     mFrame.ClearChildren();
     assert(mStaticTTMs.size() > 0);
     mFrame.AddChildBack(mStaticTTMs.back().GetScene());
 }
 
-void GDSScene::SetDisplayBackground()
+void GDSScene::DisplayPlayerBackground()
 {
     mFrame.ClearChildren();
     assert(mStaticTTMs.size() > 0);
     mFrame.AddChildBack(mStaticTTMs.back().GetBackground());
-}
-
-void GDSScene::LeftMousePress(glm::vec2 pos)
-{
-    if (mDialogState.mDialogActive)
-    {
-        const auto dialogActive = mDialogState.RunDialog([&]{
-            return mDialogRunner.RunDialog();
-        });
-
-        if (!dialogActive)
-        {
-            mLogger.Debug() << "Dialog finished, back to flavour text\n";
-            mDialogRunner.ShowFlavourText(mFlavourText);
-
-            if (mStaticTTMs.size() > 1)
-                mStaticTTMs.pop_back();
-            SetDisplayScene();
-
-            mCursor.PopCursor();
-        }
-    }
-    // Only propagate event if no dialog active
-    else
-    {
-        Widget::LeftMousePress(pos);
-    }
 }
 
 void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
@@ -146,7 +146,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
 
     if (hotspot.mAction == BAK::HotspotAction::DIALOG
-        && !mDialogState.mDialogActive) // arguably this shouldn't be necessary
+        && !mDialogRunner.Active())
     {
         if (hotspot.mActionArg2 != 0x0)
         {
@@ -156,45 +156,56 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
             const auto& scene2 = mSceneHotspots.GetScene(
                 hotspot.mActionArg2, gs);
 
-            // respect the reserve earlier
+            // respect the earlier reserve
             assert(mStaticTTMs.size () < mMaxSceneNesting);
             mStaticTTMs.emplace_back(
                 mSpriteManager,
                 scene1,
                 scene2);
-            SetDisplayScene();
+            DisplayNPCBackground();
         }
 
-        mDialogState.ActivateDialog();
-        mDialogRunner.BeginDialog(
-            BAK::KeyTarget{hotspot.mActionArg3});
-        mCursor.PushCursor(0);
+        StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+    }
+    else if (hotspot.mAction == BAK::HotspotAction::EXIT)
+    {
+        mGuiManager.ExitGDSScene();
+    }
+    else if (hotspot.mAction == BAK::HotspotAction::GOTO)
+    {
+        auto hotspotRef = mReference;
+        hotspotRef.mGdsChar = BAK::MakeHotspotChar(hotspot.mActionArg1);
+        mGuiManager.EnterGDSScene(hotspotRef);
     }
 }
 
 void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
 {
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
-    if (!mDialogState.mDialogActive)
+    if (!mDialogRunner.Active())
     {
-        mDialogRunner.BeginDialog(hotspot.mTooltip);
-        mDialogState.ActivateTooltip(mMousePos);
+        StartDialog(hotspot.mTooltip, true);
     }
 }
 
-void GDSScene::MouseMoved(glm::vec2 pos)
+void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 {
-    mMousePos = pos;
+    mDialogDisplay.Clear();
+    mCursor.PushCursor(0);
+    mDialogRunner.BeginDialog(target, isTooltip);
+    mScreenStack.PushScreen(&mDialogRunner);
+}
 
-    mDialogState.DeactivateTooltip(
-        pos,
-        [&]{
-            mDialogRunner.ShowFlavourText(mFlavourText);
-        }
-    );
-    
-    if (!mDialogState.mDialogActive)
-        Widget::MouseMoved(pos);
+void GDSScene::FinishedDialog()
+{
+    mLogger.Debug() << "Dialog finished, back to flavour text\n";
+
+    mScreenStack.PopScreen();
+    mDialogDisplay.ShowFlavourText(mFlavourText);
+    if (mStaticTTMs.size() > 1)
+        mStaticTTMs.pop_back();
+    DisplayNPCBackground();
+    mCursor.PopCursor();
 }
 
 }

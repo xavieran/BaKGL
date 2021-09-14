@@ -57,6 +57,8 @@ struct HotspotRef
     std::string ToFilename() const;
 };
 
+char MakeHotspotChar(std::uint8_t);
+
 std::ostream& operator<<(std::ostream&, const HotspotRef&);
 
 struct Hotspot

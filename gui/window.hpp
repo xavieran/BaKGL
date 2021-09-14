@@ -15,11 +15,11 @@ public:
         float height)
     :
         Widget{
-            Graphics::DrawMode::Sprite,
+            Graphics::DrawMode::Rect,
             0,
             0,
-            Graphics::ColorMode::Texture,
-            Color::black,
+            Graphics::ColorMode::SolidColor,
+            glm::vec4{0},
             glm::vec2{0},
             glm::vec2{width, height},
             true},

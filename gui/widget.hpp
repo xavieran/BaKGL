@@ -21,9 +21,12 @@ public:
         glm::vec2 dims,
         bool childrenRelative);
 
+    virtual ~Widget();
+
     virtual void SetActive();
     virtual void SetInactive();
 
+    // FIXME: Replace these with tags or event objects
     virtual void LeftMousePress(glm::vec2 click);
     virtual void LeftMouseRelease(glm::vec2 click);
     virtual void RightMousePress(glm::vec2 click);
@@ -36,6 +39,7 @@ public:
     void AddChildFront(Widget* widget);
     void AddChildBack(Widget* widget);
     void RemoveChild(Widget* elem);
+    void PopChild();
     void ClearChildren();
 
     void SetCenter(glm::vec2 pos);
@@ -46,6 +50,8 @@ public:
     void SetTexture(Graphics::TextureIndex);
     void SetColorMode(Graphics::ColorMode);
     void SetColor(glm::vec4);
+
+    std::size_t size() const;
 
 protected:
     bool Within(glm::vec2 click);

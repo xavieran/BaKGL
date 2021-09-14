@@ -2,8 +2,18 @@
 
 namespace BAK {
 
-void Keywords::Load(FileBuffer& fb)
+Keywords::Keywords()
+:
+    mPartyMembers{
+        "Locklear",
+        "Owyn",
+        "Gorath",
+        "Pug",
+        "James",
+        "Patrus"},
+    mKeywords{}
 {
+    auto fb = FileBufferFactory::CreateFileBuffer("KEYWORD.DAT");
     auto length = fb.GetUint16LE();
     std::cout << "Loading keywords" << "\n";
     std::cout << "Length: " << length << "\n";
@@ -18,11 +28,30 @@ void Keywords::Load(FileBuffer& fb)
     i = 0;
     while (fb.GetBytesLeft() != 0)
     {
-        std::cout << "Str:" << i << " :: " << fb.GetString() << "\n";
+        const auto keyword = fb.GetString();
+        mKeywords.emplace_back(keyword);
+        std::cout << "Str:" << i << " :: " << keyword << "\n";
         i++;
     }
 }
 
+std::string_view Keywords::GetDialogChoice(unsigned i) const
+{
+    assert(i + mDialogChoiceOffset < mKeywords.size());
+    return mKeywords[i + mDialogChoiceOffset];
+}
+
+std::string_view Keywords::GetNPCName(unsigned i) const
+{
+    assert(i + mCharacterNameOffset < mKeywords.size());
+    assert(i + mCharacterNameOffset < mDialogChoiceOffset);
+    if (i < mPartyMembers.size())
+    {
+        assert(i != 0);
+        return mPartyMembers[i - 1];
+    }
+    return mKeywords[i + mCharacterNameOffset];
+}
 
 DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
 {

@@ -6,9 +6,12 @@
 #include "com/algorithm.hpp"
 #include "com/visit.hpp"
 
+#include "gui/IDialogScene.hpp"
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
+#include "gui/choiceScreen.hpp"
+#include "gui/dialogDisplay.hpp"
 #include "gui/frame.hpp"
 #include "gui/label.hpp"
 #include "gui/textBox.hpp"
@@ -18,23 +21,43 @@
 
 namespace Gui {
 
-enum class DialogFrame
-{
-    Fullscreen = 0,
-    ActionArea = 1,
-    LowerArea = 2
-};
-
 class DialogRunner : public Widget
 {
 public:
+    using FinishCallback = std::function<void()>;
+
     DialogRunner(
         glm::vec2 pos,
         glm::vec2 dims,
         const Actors& actors,
         const Backgrounds& bgs,
         const Font& fr,
-        BAK::GameState& gameState)
+        BAK::GameState& gameState,
+        ScreenStack& screenStack,
+        IDialogScene& dialogScene)
+    :
+        DialogRunner{
+            pos,
+            dims,
+            actors,
+            bgs,
+            fr,
+            gameState,
+            screenStack,
+            dialogScene,
+            []{}}
+    {}
+
+    DialogRunner(
+        glm::vec2 pos,
+        glm::vec2 dims,
+        const Actors& actors,
+        const Backgrounds& bgs,
+        const Font& fr,
+        BAK::GameState& gameState,
+        ScreenStack& screenStack,
+        IDialogScene& dialogScene,
+        FinishCallback&& finished)
     :
         Widget{
             Graphics::DrawMode::Rect,
@@ -47,145 +70,39 @@ public:
             dims,
             true
         },
+        mScreenStack{screenStack},
+        mDialogScene{dialogScene},
+        mDialogState{false, false, glm::vec2{0}, glm::vec2{0}},
+        mChoices{
+            pos,
+            dims,
+            fr,
+            screenStack,
+            [this](auto choice){
+                MakeChoice(choice);
+            }
+        },
         mDialogStore{},
+        mKeywords{},
         mGameState{gameState},
         mCenter{160, 112},
         mFont{fr},
         mActors{actors},
-        mLabel{
-            mCenter,
-            glm::vec2{320, 20},
-            mFont,
-            "#LABEL#"},
-        mActor{
-            Graphics::DrawMode::Sprite,
-            mActors.GetSpriteSheet(),
-            0,
-            Graphics::ColorMode::Texture,
-            glm::vec4{0},
-            glm::vec2{100, 19},
-            glm::vec2{0},
-            true},
-        mFullscreenFrame{
-            Graphics::DrawMode::Sprite,
-            bgs.GetSpriteSheet(),
-            bgs.GetScreen("OPTIONS2.SCX"),
-            Graphics::ColorMode::Texture,
-            glm::vec4{0},
-            glm::vec2{0, 0},
-            glm::vec2{320, 200},
-            true
-        },
-        mActionAreaFrame{
-            glm::vec2{15, 11},
-            glm::vec2{289, 101},
-            true
-        },
-        mActionAreaBackground{
-            Graphics::DrawMode::Sprite,
-            bgs.GetSpriteSheet(),
-            bgs.GetScreen("DIALOG.SCX"),
-            Graphics::ColorMode::Texture,
-            glm::vec4{0},
-            glm::vec2{-15, -11},
-            glm::vec2{320, 200},
-            true
-        },
-        mLowerFrame{
-            glm::vec2{15, 125},
-            glm::vec2{285, 66}
-        },
-        mFullscreenTextBox{
-            glm::vec2{30, 30},
-            glm::vec2{320 - 30*2, 135}
-        },
-        mActionAreaTextBox{
-            glm::vec2{4, 4},
-            glm::vec2{290, 103}
-        },
-        mLowerTextBox{
-            glm::vec2{0, 0},
-            glm::vec2{285, 66}
-        },
         mCurrentTarget{},
         mCurrentDialog{},
         mRemainingText{""},
+        mDialogDisplay{pos, dims, actors, bgs, fr, gameState},
+        mFinished{std::move(finished)},
         mLogger{Logging::LogState::GetLogger("Gui::DialogRunner")}
     {
-        mFullscreenFrame.AddChildBack(&mFullscreenTextBox);
-
-        mLowerFrame.AddChildBack(&mLowerTextBox);
-
-        mActionAreaFrame.AddChildBack(&mActionAreaBackground);
-        mActionAreaFrame.AddChildBack(&mActionAreaTextBox);
+        AddChildBack(&mDialogDisplay);
+        assert(mFinished);
     }
 
-    //const std::vector<Graphics::IGuiElement*>& GetChildren() const override
-    //{
-    //    return mActiveFrame;
-    //}
-    
-    auto AddText(
-        std::string_view text,
-        DialogFrame dialogFrame,
-        bool centeredX,
-        bool centeredY,
-        bool isBold,
-        std::optional<unsigned> actor)
+    bool Active()
     {
-        ClearChildren();
-        auto addTextResult = std::invoke([&]
-        {
-            switch (dialogFrame)
-            {
-            case DialogFrame::Fullscreen:
-            {
-                AddChildBack(&mFullscreenFrame);
-                return mFullscreenTextBox.AddText(
-                    mFont,
-                    text,
-                    centeredX,
-                    centeredY,
-                    isBold);
-            } break;
-            case DialogFrame::ActionArea:
-            {
-                AddChildBack(&mActionAreaFrame);
-                return mActionAreaTextBox.AddText(
-                    mFont,
-                    text,
-                    centeredX,
-                    centeredY,
-                    isBold);
-            } break;
-            case DialogFrame::LowerArea:
-            {
-                AddChildBack(&mLowerFrame);
-                return mLowerTextBox.AddText(
-                    mFont,
-                    text,
-                    centeredX,
-                    centeredY,
-                    isBold);
-            } break;
-            default:
-                throw std::runtime_error("Invalid DialogArea");
-            }
-        });
-
-        if (actor)
-        {
-            const auto& [
-                index,
-                dims] = mActors.GetActor(*actor);
-            mActor.SetTexture(index);
-            // we want the bottom of this picture to end up here
-            mActor.SetPosition(glm::vec2{100, 112 - dims.y});
-            mActor.SetDimensions(dims);
-            AddChildBack(&mActor);
-        }
-
-        return addTextResult;
+        return mDialogState.mDialogActive 
+            || mDialogState.mTooltipActive;
     }
 
     void EvaluateSnippetActions()
@@ -206,82 +123,20 @@ public:
 
     void UpdateSnippet()
     {
-        std::string text;
+        std::optional<std::string_view>  remaining{};
         if (!mRemainingText.empty())
-            text = std::string{mRemainingText};
-        else
-            text = std::string{mCurrentDialog->GetText()};
+            remaining = std::string_view{mRemainingText};
 
-        text = std::regex_replace(
-            text,
-            std::regex{"@4"},
-            std::string{mGameState.GetPartyLeader().mName});
+        mRemainingText = mDialogDisplay.DisplaySnippet(
+            mDialogScene,
+            *mCurrentDialog,
+            remaining);
 
-        text = std::regex_replace(
-            text,
-            std::regex{"@0"},
-            std::string{mGameState.GetPartyFollower().mName});
-
-        const auto ds1 = mCurrentDialog->mDisplayStyle;
-        const auto act = mCurrentDialog->mActor;
-
-        const auto dialogFrame = std::invoke([ds1, act]{
-            if (act != 0x0)
-                return DialogFrame::LowerArea;
-
-            if (ds1 == 0x02)
-                return DialogFrame::ActionArea;
-            else if (ds1 == 0x03
-                || ds1 == 0x04)
-                return DialogFrame::LowerArea;
-            else
-                return DialogFrame::Fullscreen;
-        });
-
-
-        //const auto ds3 = mCurrentDialog->mDisplayStyle3;
-        //if (ds3 == 0x02)
-        //{
-        //    MakeOneLineButtons()
-        //}
-        //else if (ds4 == 0x04)
-        //{
-        //    MakeDialogTreeChoices()
-        //}
-        
-        const auto ds2 = mCurrentDialog->mDisplayStyle2;
-        const bool verticallyCentered
-            = ((ds2 & 0x10) == 0x10) || (ds2 == 0x3);
-        const bool horizontallyCentered 
-            = (ds2 & 0x4) == 0x4;
-        const bool isBold
-            = ds2 == 0x3;
-
-        std::optional<unsigned> actor{};
-
-        if (act != 0)
-        {
-            actor = act;
-            if (act == 0xff)
-                actor = mGameState.GetPartyLeader().mIndex;
-        }
-
-        const auto [charPos, remainingText] = AddText(
-            text,
-            dialogFrame,
-            horizontallyCentered,
-            verticallyCentered,
-            isBold,
-            actor);
-
-        mRemainingText = std::string{remainingText};
         mLogger.Debug() << "Snippet: " << mCurrentDialog << "\n";
     }
 
     BAK::Target ProgressDialog()
     {
-        auto current = BAK::Target{BAK::KeyTarget{0}};
-
         if (mCurrentDialog && mCurrentDialog->GetChoices().size() >= 1)
         {
             for (const auto& c : mCurrentDialog->GetChoices())
@@ -323,8 +178,17 @@ public:
         }
     }
 
-    void BeginDialog(BAK::Target target)
+    // if pos is set then exit the dialog as soon as the 
+    // mouse moves away from pos (as in tooltips)
+    void BeginDialog(
+        BAK::Target target,
+        bool isTooltip)
     {
+        if (isTooltip)
+            mDialogState.ActivateTooltip();
+        else
+            mDialogState.ActivateDialog();
+
         mCurrentTarget = target;
         mCurrentDialog = mDialogStore.GetSnippet(target);
         EvaluateSnippetActions();
@@ -334,29 +198,61 @@ public:
         RunDialog(true);
     }
 
-    void AddLabel(std::string_view text)
+    void LeftMousePress(glm::vec2) override
     {
-        mLabel.SetText(text);
-        mLabel.SetCenter(mCenter);
-        AddChildBack(&mLabel);
+        RunDialog();
     }
 
-    void ShowFlavourText(BAK::Target target)
+    void MouseMoved(glm::vec2 pos) override
     {
 
-        mCurrentTarget = target;
-        mCurrentDialog = mDialogStore.GetSnippet(target);
-        const auto text = mCurrentDialog->GetText();
-        const auto flavourText = find_nth(text.begin(), text.end(), '#', 2);
-        assert(flavourText != text.end());
-        mRemainingText = std::string{flavourText, text.end()};
-        UpdateSnippet();
+        mDialogState.MouseMoved(pos);
+        mDialogState.DeactivateTooltip(
+            [this](){
+                std::invoke(mFinished);
+            });
+    }
 
-        auto label = std::string{text.begin(), flavourText};
-        AddLabel(label);
+    void MakeChoice(ChoiceScreen::ChoiceIndex choice)
+    {
+        mLogger.Debug() << "Made choice: " << choice << "\n";
+        mScreenStack.PopScreen();
+        const auto& choices = mCurrentDialog->GetChoices();
+        if (choice == choices.size())
+        {
+            // Break out of the question loop
+            mTargetStack.pop();
+            mCurrentTarget = mTargetStack.top();
+            mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
+            mTargetStack.pop();
+            UpdateSnippet();
+        }
+        else
+        {
+            mCurrentTarget = choices[choice].mTarget;
+            mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
+            RunDialog();
+        }
+    }
 
-        mLogger.Debug() << "ShowFlavourText" << target 
-            << " snip: " << mCurrentDialog << "\n";
+    void ShowDialogChoices()
+    {
+        mLogger.Debug() << "Choices: " << mCurrentDialog << "\n";
+        mChoices.SetPosition(glm::vec2{15, 125});
+        mChoices.SetDimensions(glm::vec2{285, 66});
+
+        auto choices = std::vector<std::string>{};
+        unsigned i = 0;
+        for (const auto& c : mCurrentDialog->GetChoices())
+        {
+            choices.emplace_back("#" + std::string{mKeywords.GetDialogChoice(c.mState)});
+        }
+        choices.emplace_back("Goodbye");
+        mChoices.StartChoices(choices);
+
+        mDialogDisplay.Clear();
+        mDialogDisplay.DisplayPlayer(mDialogScene);
+        mScreenStack.PushScreen(&mChoices);
     }
 
     // Call this when the player moves the dialog forward
@@ -391,6 +287,11 @@ public:
                 {
                     progressing = false;
                     mLogger.Debug() << "Finished dialog\n";
+                    mDialogDisplay.Clear();
+                    mDialogState.DeactivateDialog();
+
+                    std::invoke(mFinished);
+
                     return false;
                 }
             }
@@ -399,46 +300,85 @@ public:
             mCurrentDialog = currentDialog;
             EvaluateSnippetActions();
 
-            const auto text = currentDialog.GetText();
+            const auto text = mCurrentDialog->GetText();
             if (text != empty)
             {
                 UpdateSnippet();
                 progressing = false;
                 return true;
             }
-            else if (currentDialog.mDisplayStyle3 == 0x4)
+            else if (mCurrentDialog->mDisplayStyle3 == 0x4)
             {
+                ShowDialogChoices();
+                progressing = false;
             }
 
-
+        // FIXME: Fix the infinite loop sometimes...
         } while (progressing && (iters++ < 20));
 
         return true;
     }
 
 private:
+    struct DialogState
+    {
+        void ActivateDialog()
+        {
+            mDialogActive = true;
+        }
 
+        void MouseMoved(glm::vec2 pos)
+        {
+            mMousePos = pos;
+        }
+
+        void ActivateTooltip()
+        {
+            mTooltipPos = mMousePos;
+            mTooltipActive = true;
+        }
+
+        void DeactivateDialog()
+        {
+            mDialogActive = false;
+        }
+
+        template <typename F>
+        void DeactivateTooltip(F&& f)
+        {
+            constexpr auto tooltipSensitivity = 15;
+            if (mTooltipActive 
+                && glm::distance(mMousePos, mTooltipPos) > tooltipSensitivity)
+            {
+                f();
+                mTooltipActive = false;
+            }
+        }
+
+        bool mDialogActive;
+        bool mTooltipActive;
+        glm::vec2 mMousePos;
+        glm::vec2 mTooltipPos;
+    };
+
+    ScreenStack& mScreenStack;
+    IDialogScene& mDialogScene;
+    DialogState mDialogState;
+    ChoiceScreen mChoices;
     BAK::DialogStore mDialogStore;
+    BAK::Keywords mKeywords;
     BAK::GameState& mGameState;
     glm::vec2 mCenter;
+
     const Font& mFont;
     const Actors& mActors;
-    Label mLabel;
-    Widget mActor;
-
-    Widget mFullscreenFrame;
-    Frame mActionAreaFrame;
-    Widget mActionAreaBackground;
-    Frame mLowerFrame;
-
-    TextBox mFullscreenTextBox;
-    TextBox mActionAreaTextBox;
-    TextBox mLowerTextBox;
 
     std::optional<BAK::Target> mCurrentTarget;
     std::optional<BAK::DialogSnippet> mCurrentDialog;
     std::stack<BAK::Target> mTargetStack;
     std::string mRemainingText;
+    DialogDisplay mDialogDisplay;
+    FinishCallback mFinished;
 
     const Logging::Logger& mLogger;
 };

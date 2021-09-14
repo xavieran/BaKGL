@@ -24,6 +24,7 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Info);
+    BAK::Keywords{};
     
     BAK::DialogStore dialog{};
     

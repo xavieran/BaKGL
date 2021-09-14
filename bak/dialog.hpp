@@ -21,7 +21,15 @@ namespace BAK {
 class Keywords
 {
 public:
-    void Load(FileBuffer& fb);
+    Keywords();
+
+    std::string_view GetDialogChoice(unsigned i) const;
+    std::string_view GetNPCName(unsigned i) const;
+private:
+    static constexpr auto mCharacterNameOffset = 45;
+    static constexpr auto mDialogChoiceOffset = 98;
+    std::vector<std::string> mPartyMembers;
+    std::vector<std::string> mKeywords;
 };
 
 enum class ChoiceState

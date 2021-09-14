@@ -3,6 +3,8 @@
 #include "bak/dialogTarget.hpp"
 #include "bak/resourceNames.hpp"
 
+#include "graphics/glm.hpp"
+
 #include "xbak/FileBuffer.h"
 
 #include <glm/glm.hpp>
@@ -31,13 +33,22 @@ namespace BAK {
 
 struct Town
 {
-    std::uint32_t mTownTag;
+    std::uint8_t mTownTag;
+    std::uint8_t mTownTag2;
     KeyTarget mEntryDialog;
     KeyTarget mExitDialog;
 
     glm::vec<2, int> mDestOffset;
     std::uint32_t mTransitionStyle;
 };
+
+std::ostream& operator<<(std::ostream& os, const Town& town)
+{
+    os << "Town { Tag: (" << +town.mTownTag << ", " << +town.mTownTag2 << ") "
+        << " Entry: " << town.mEntryDialog << " Exit: " << town.mExitDialog 
+        << " DestOffset: " << town.mDestOffset << " Style: " << town.mTransitionStyle << "}";
+    return os;
+}
 
 std::vector<Town> LoadTowns()
 {
@@ -50,7 +61,8 @@ std::vector<Town> LoadTowns()
 
     for (unsigned i = 0; i < nTowns; i++)
     {
-        const unsigned tag = fb.GetUint16LE();
+        const unsigned tag = fb.GetUint8();
+        const unsigned tag2 = fb.GetUint8();
         fb.DumpAndSkip(3);
         const auto entryDialog = KeyTarget{fb.GetUint32LE()};
         const auto exitDialog  = KeyTarget{fb.GetUint32LE()};
@@ -63,10 +75,12 @@ std::vector<Town> LoadTowns()
 
         towns.emplace_back(
             tag,
+            tag2,
             entryDialog,
             exitDialog,
             glm::vec<2, int>{xOff, yOff},
             transition);
+        std::cout << towns.back() << "\n";
     }
 
     return towns;
