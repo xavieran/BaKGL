@@ -104,6 +104,16 @@ int main(int argc, char** argv)
 
     const auto root = static_cast<std::uint8_t>(std::atoi(argv[1]));
     auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
+
+    auto gameState = std::invoke([&](){
+        if (argc >= 4)
+        {
+            auto* data = new BAK::GameData{argv[3]};
+            return BAK::GameState{data};
+        }
+        else
+            return BAK::GameState{};
+    });
     
     auto screens = Gui::ScreenStack{};
     auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
@@ -117,7 +127,6 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
-    auto gameState = BAK::GameState{};
     auto guiManager = Gui::GuiManager{
         rootWidget.GetCursor(),
         spriteManager,
@@ -192,6 +201,8 @@ int main(int argc, char** argv)
         && glfwWindowShouldClose(window.get()) == 0);
 
     ImguiWrapper::Shutdown();
+
+    delete gameState.mGameData;
 
     return 0;
 }

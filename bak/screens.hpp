@@ -124,6 +124,7 @@ void ShowCameraGui(
 void ShowContainerGui(
     const BAK::Container& container)
 {
+    std::cout << "Container: " << container << std::endl;
     std::stringstream ss{};
     ss << "\nAddr: " << std::hex << container.mAddress << " #" << std::dec 
         << container.mNumber << " items: " << container.mNumberItems << " cap: " 

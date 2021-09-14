@@ -26,8 +26,8 @@ public:
             0,
             0,
             Graphics::ColorMode::SolidColor,
-            //glm::vec4{0},
-            Color::debug,
+            glm::vec4{0},
+            //Color::debug,
             // Filthy hack - make these a little smaller
             // because some of them overlap which breaks the cursor
             pos + glm::vec2{2},

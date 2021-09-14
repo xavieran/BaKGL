@@ -13,15 +13,16 @@ Keywords::Keywords()
         "Patrus"},
     mKeywords{}
 {
+    const auto& logger = Logging::LogState::GetLogger("Keywords");
     auto fb = FileBufferFactory::CreateFileBuffer("KEYWORD.DAT");
     auto length = fb.GetUint16LE();
-    std::cout << "Loading keywords" << "\n";
-    std::cout << "Length: " << length << "\n";
+    logger.Spam() << "Loading keywords" << "\n";
+    logger.Spam() << "Length: " << length << "\n";
 
     unsigned i = 0;
     while (fb.Tell() != 0x2b8)
     {
-        std::cout << "I: " << i << " " << std::hex << fb.GetUint16LE()
+        logger.Spam() << "I: " << i << " " << std::hex << fb.GetUint16LE()
             << std::dec << "\n";
         i++;
     }
@@ -30,7 +31,7 @@ Keywords::Keywords()
     {
         const auto keyword = fb.GetString();
         mKeywords.emplace_back(keyword);
-        std::cout << "Str:" << i << " :: " << keyword << "\n";
+        logger.Spam() << "Str:" << i << " :: " << keyword << "\n";
         i++;
     }
 }
@@ -97,6 +98,15 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             mActions.emplace_back(
                 PushNextDialog{
                     GetTarget(offset),
+                    rest});
+        }
+        else if (dr == DialogResult::SetFlag)
+        {
+            const auto eventPtr = fb.GetUint16LE();
+            const auto rest = fb.GetArray<6>();
+            mActions.emplace_back(
+                SetFlag{
+                    eventPtr,
                     rest});
         }
         else
@@ -312,7 +322,7 @@ void DialogIndex::Load()
 
         // Affects the dialog selected
         auto dialogKey = KeyTarget{fb.GetUint32LE()};
-        //std::cout << "#" << std::dec << i << std::hex << " " 
+        //logger << "#" << std::dec << i << std::hex << " " 
         //    << +x << " " << +y << " " << " dialogKey: " 
         //    << dialogKey << " target: " << dialogStore.GetTarget(dialogKey)
         //    << "\n";

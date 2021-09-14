@@ -111,8 +111,13 @@ public:
         {
             std::visit(overloaded{
                 [&](const BAK::PushNextDialog& push){
-                    mLogger.Debug() << "Pushing :" << push.mTarget << "\n";
+                    mLogger.Debug() << "Pushing: " << push.mTarget << "\n";
                     mTargetStack.push(push.mTarget);
+                },
+                [&](const BAK::SetFlag& set)
+                {
+                    mLogger.Debug() << "Setting flag of event: " << set.mEventPointer << "\n";
+                    mGameState.SetEventState(set.mEventPointer);
                 },
                 [&](const auto& a){
                     mLogger.Debug() << "Doing nothing for: " << a << "\n";
@@ -161,6 +166,11 @@ public:
                 }
                 else if (choiceState == BAK::ChoiceState::ShopType
                     && mGameState.GetShopType() == c.mChoice1)
+                {
+                    return c.mTarget;
+                }
+                else if (c.mState < 0x7000 
+                    && mGameState.GetEventState(c.mState))
                 {
                     return c.mTarget;
                 }
@@ -218,7 +228,11 @@ public:
         mLogger.Debug() << "Made choice: " << choice << "\n";
         mScreenStack.PopScreen();
         const auto& choices = mCurrentDialog->GetChoices();
-        if (choice == choices.size())
+        const auto it = std::find_if(choices.begin(), choices.end(),
+            [choice](const auto& c){
+                return c.mState == choice;
+            });
+        if (it == choices.end())
         {
             // Break out of the question loop
             mTargetStack.pop();
@@ -229,8 +243,11 @@ public:
         }
         else
         {
-            mCurrentTarget = choices[choice].mTarget;
+            mCurrentTarget = it->mTarget;
             mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
+            // blergh this and the above are really unpleasant this
+            // flow could be improved...
+            EvaluateSnippetActions();
             RunDialog();
         }
     }
@@ -241,13 +258,20 @@ public:
         mChoices.SetPosition(glm::vec2{15, 125});
         mChoices.SetDimensions(glm::vec2{285, 66});
 
-        auto choices = std::vector<std::string>{};
+        auto choices = std::vector<std::pair<unsigned, std::string>>{};
         unsigned i = 0;
         for (const auto& c : mCurrentDialog->GetChoices())
         {
-            choices.emplace_back("#" + std::string{mKeywords.GetDialogChoice(c.mState)});
+            if (mGameState.GetEventState(c.mState))
+            {
+                choices.emplace_back(
+                    std::make_pair(
+                        c.mState,
+                        "#" + std::string{
+                            mKeywords.GetDialogChoice(c.mState)}));
+            }
         }
-        choices.emplace_back("Goodbye");
+        choices.emplace_back(std::make_pair(-1, "Goodbye"));
         mChoices.StartChoices(choices);
 
         mDialogDisplay.Clear();

@@ -29,6 +29,7 @@ GDSScene::GDSScene(
         false
     },
     mReference{hotspotRef},
+    mGameState{gameState},
     mSceneHotspots{
         FileBufferFactory::CreateFileBuffer(
             mReference.ToFilename())},
@@ -83,11 +84,10 @@ GDSScene::GDSScene(
     auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
 
-    const auto gs = BAK::GameState{};
     const auto& scene1 = mSceneHotspots.GetScene(
-        mSceneHotspots.mSceneIndex1, gs);
+        mSceneHotspots.mSceneIndex1, mGameState);
     const auto& scene2 = mSceneHotspots.GetScene(
-        mSceneHotspots.mSceneIndex2, gs);
+        mSceneHotspots.mSceneIndex2, mGameState);
 
     // Unlikely we ever nest this deep
     mStaticTTMs.reserve(mMaxSceneNesting);
@@ -150,11 +150,10 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     {
         if (hotspot.mActionArg2 != 0x0)
         {
-            const auto gs = BAK::GameState{};
             const auto& scene1 = mSceneHotspots.GetScene(
-                mSceneHotspots.mSceneIndex1, gs);
+                mSceneHotspots.mSceneIndex1, mGameState);
             const auto& scene2 = mSceneHotspots.GetScene(
-                hotspot.mActionArg2, gs);
+                hotspot.mActionArg2, mGameState);
 
             // respect the earlier reserve
             assert(mStaticTTMs.size () < mMaxSceneNesting);

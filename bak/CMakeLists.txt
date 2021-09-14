@@ -1,6 +1,7 @@
 add_library(bak
     camera.hpp
     constants.hpp
+    container.hpp container.cpp
     coordinates.hpp coordinates.cpp
     dialog.hpp dialog.cpp
     dialogAction.hpp dialogAction.cpp
@@ -11,6 +12,7 @@ add_library(bak
     fixedObject.hpp fixedObject.cpp
     font.hpp font.cpp
     gameData.hpp
+    gameState.hpp
     hotspot.hpp hotspot.cpp
     inventory.hpp
     resourceNames.hpp

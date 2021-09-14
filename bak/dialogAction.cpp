@@ -28,6 +28,12 @@ std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const SetFlag& action)
+{
+    os << "SetFlag {" << action.mEventPointer << ", rest[" << action.mRest << "]}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const UnknownAction& action)
 {
     os << "DA { " 

@@ -222,10 +222,10 @@ int main(int argc, char** argv)
     auto guiScalar = 3.0f;
 
     auto nativeWidth = 320.0f;
-    auto nativeHeight = 240.0f;
+    auto nativeHeight = 200.0f;
 
     auto width = nativeWidth * guiScalar;
-    auto height = nativeHeight * guiScalar * 0.83f;
+    auto height = nativeHeight * guiScalar;
     auto guiScaleInv = glm::vec3{1 / guiScalar, 1 / guiScalar, 0};
 
     /* OPEN GL / GLFW SETUP  */
@@ -263,7 +263,7 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
         
-    auto gameState = BAK::GameState{};
+    auto gameState = BAK::GameState{gameData};
     auto guiManager = Gui::GuiManager{
         root.GetCursor(),
         spriteManager,

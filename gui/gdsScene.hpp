@@ -58,6 +58,7 @@ public:
     void FinishedDialog();
 
     BAK::HotspotRef mReference;
+    BAK::GameState& mGameState;
     BAK::SceneHotspots mSceneHotspots;
     BAK::Target mFlavourText;
 

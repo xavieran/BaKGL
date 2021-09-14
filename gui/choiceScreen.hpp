@@ -50,7 +50,7 @@ public:
     }
 
     void StartChoices(
-        std::vector<std::string> choices)
+        std::vector<std::pair<ChoiceIndex, std::string>> choices)
     {
         ClearChildren();
         mButtons.clear();
@@ -61,18 +61,16 @@ public:
         const auto buttonSize = glm::vec2{64, 14};
         const auto margin = 5;
         const auto limit = GetPositionInfo().mDimensions;
-        ChoiceIndex i = 0;
-        for (const auto& label : choices)
+        for (const auto& [index, label] : choices)
         {
             mButtons.emplace_back(
                 pos,
                 buttonSize,
                 mFont,
                 label,
-                [this, index=i](){
-                    Choose(index);
+                [this, choice=index](){
+                    Choose(choice);
                 });
-            i++;
             pos.x += buttonSize.x + margin;
             // if the next button would overflow...
             if ((pos.x + buttonSize.x) > limit.x)

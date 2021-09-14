@@ -34,6 +34,12 @@ struct PushNextDialog
     std::array<std::uint8_t, 4> mRest;
 };
 
+struct SetFlag
+{
+    std::uint16_t mEventPointer;
+    std::array<std::uint8_t, 6> mRest;
+};
+
 struct UnknownAction
 {
     UnknownAction(
@@ -51,9 +57,9 @@ struct UnknownAction
 
 using DialogAction = std::variant<
     PushNextDialog,
+    SetFlag,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);
-
 
 }

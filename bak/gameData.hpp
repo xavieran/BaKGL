@@ -98,7 +98,7 @@ public:
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         //ReadEventWord(0xdac0);
         //ReadEventWord(0xc0da); // 0xb08
-        //LoadLocation();
+        LoadLocation();
         //LoadCombatStats(0xdb, 6);
         //LoadCombatInventories(0x3a7f7, 6);
         //LoadInventoryOffsetsP();

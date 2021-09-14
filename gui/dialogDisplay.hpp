@@ -202,7 +202,6 @@ public:
             SetActor(*actor, dialogScene, true);
         }
 
-        mLogger.Debug() << "Snippet: " << snippet << "\n";
         return std::string{undisplayedText};
     }
 
@@ -218,9 +217,6 @@ public:
 
         const auto label = std::string{text.begin(), flavourText};
         AddLabel(label);
-
-        mLogger.Debug() << "ShowFlavourText" << target 
-            << " snip: " << snippet << "\n";
     }
 
 private:

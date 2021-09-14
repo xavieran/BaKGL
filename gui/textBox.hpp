@@ -65,6 +65,9 @@ public:
     {
         // should be enough...
         mText.reserve(2048);
+        // no point propagating MouseMoved to every
+        // character of text
+        SetInactive();
     }
 
     struct Line
