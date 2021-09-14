@@ -109,6 +109,17 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     eventPtr,
                     rest});
         }
+        else if (dr == DialogResult::SetPopupDimensions)
+        {
+            const auto posX = fb.GetUint16LE();
+            const auto posY = fb.GetUint16LE();
+            const auto dimsX = fb.GetUint16LE();
+            const auto dimsY = fb.GetUint16LE();
+            mActions.emplace_back(
+                SetPopupDimensions{
+                    glm::vec2{posX, posY},
+                    glm::vec2{dimsX, dimsY}});
+        }
         else
         {
             const auto& rest = fb.GetArray<8>();

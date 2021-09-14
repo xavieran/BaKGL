@@ -2,6 +2,8 @@
 
 #include "com/ostream.hpp"
 
+#include "graphics/glm.hpp"
+
 namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const DialogResult& d)
@@ -33,6 +35,13 @@ std::ostream& operator<<(std::ostream& os, const SetFlag& action)
     os << "SetFlag {" << action.mEventPointer << ", rest[" << action.mRest << "]}";
     return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const SetPopupDimensions& action)
+{
+    os << "SetPopupDimensions { pos: " << action.mPos << ", dims: " << action.mDims << "}";
+    return os;
+}
+
 
 std::ostream& operator<<(std::ostream& os, const UnknownAction& action)
 {

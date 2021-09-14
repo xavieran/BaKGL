@@ -2,8 +2,9 @@
 
 #include "bak/dialogTarget.hpp"
 
-#include <variant>
+#include <glm/glm.hpp>
 
+#include <variant>
 
 namespace BAK {
 
@@ -16,6 +17,8 @@ enum class DialogResult
     // Unlocks dialog options / Sets event state
     SetFlag    = 0x04,
     Unknown5   = 0x05,
+    // For popup dialogs sets the dimensions of the dialog
+    SetPopupDimensions = 0x06,
     // e.g. sickness when visiting orno (2f4e8c)
     GiveCondition = 0x08,
     GainSkill  = 0x09,
@@ -40,6 +43,12 @@ struct SetFlag
     std::array<std::uint8_t, 6> mRest;
 };
 
+struct SetPopupDimensions
+{
+    glm::vec2 mPos;
+    glm::vec2 mDims;
+};
+
 struct UnknownAction
 {
     UnknownAction(
@@ -58,6 +67,7 @@ struct UnknownAction
 using DialogAction = std::variant<
     PushNextDialog,
     SetFlag,
+    SetPopupDimensions,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);
