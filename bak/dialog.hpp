@@ -37,11 +37,14 @@ enum class ChoiceState
     // This seems to be some sort of per scene temporary flag store.
     // e.g. for Krondor palace chapter 1 clicking on the gate sets the flag
     TemporaryFlag = 0x7530,
-    Money   = 0x7531,
-    Chapter = 0x7537,
-    Time    = 0x7539,
+    Money      = 0x7531,
+    // Tried to buy but can't afford
+    CantAfford = 0x7533,
+    Chapter    = 0x7537,
+    NightTime  = 0x7539,
+    BeforeArvo = 0x753c,
     // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4
-    ShopType = 0x7542,
+    ShopType   = 0x7542,
 };
 
 enum class DisplayFlags
@@ -71,6 +74,30 @@ struct DialogChoice
 
 std::ostream& operator<<(std::ostream&, const DialogChoice&);
 
+enum class DialogStyle
+{
+    Fullscreen,
+    ActionArea, 
+    LowerArea,
+    Popup
+};
+
+enum class TextStyle
+{
+    VerticalCenter = 1,
+    HorizontalCenter = 2,
+    IsBold = 4
+};
+
+enum class ChoiceStyle
+{
+    EvaluateState,
+    Prompt, // e.g. display yes/no buttons
+    Dialog, // display "Locklear asked about: "
+    Random  // pick a random choice
+
+};
+
 class DialogSnippet
 {
 public:
@@ -84,6 +111,7 @@ public:
     // 0x02 -> In action/game part of screen
     // 0x03 -> In non-bold at bottom
     // 0x04 -> In bold at bottom
+    // 0x05 -> In large action/game part of screen (e.g. temple iface)
     // 0x06 -> Center of full screen
     std::uint8_t mDisplayStyle;
     // Actor <= 0x6 => Show alternate background (player character is talking...)
@@ -97,6 +125,7 @@ public:
 
     // Display Style 3:
     // 0x0 -> No choices
+    // 0x1 -> Show in action part of screen...
     // 0x2 -> Lay choices side by side (e.g. Yes/No prompt)
     // 0x4 -> (Dialog tree root... Character "asked about") 
     //       -> Choices in grid

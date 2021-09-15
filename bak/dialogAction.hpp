@@ -11,12 +11,12 @@ namespace BAK {
 enum class DialogResult
 {
     // Maybe also something to do wih tstate?
-    Unknown1   = 0x01,
-    GiveItem   = 0x02,
-    LoseItem   = 0x03, // pt2 object, pt3 amount
+    SetTextVariable = 0x01,
+    GiveItem        = 0x02,
+    LoseItem        = 0x03, // pt2 object, pt3 amount
     // Unlocks dialog options / Sets event state
-    SetFlag    = 0x04,
-    Unknown5   = 0x05,
+    SetFlag         = 0x04,
+    Unknown5        = 0x05,
     // For popup dialogs sets the dimensions of the dialog
     SetPopupDimensions = 0x06,
     // e.g. sickness when visiting orno (2f4e8c)
@@ -31,9 +31,21 @@ enum class DialogResult
     Transition = 0x14,
 };
 
-struct PushNextDialog
+struct SetTextVariable
 {
-    BAK::Target mTarget;
+    // Sets the variable (@mWhich) to mWhat
+    std::uint16_t mWhich;
+
+    // mWhat:
+    // 0x0b - selected party member (e.g. give item to b)
+    // 0x10 - other party member?
+    // 0x11 - monster ?
+    // 0x12 - chosen item (e.g. in bless screen choose a sword)
+    // 0x13 - shop cost (e.g. in bless screen cost of blessing)
+    // 0x14 - party wallet (e.g. in bless screen amount of cash)
+    // 0x1c - shop attendant name (e.g. shop keeper)
+    // 0x1d - Stat? e.g. health
+    std::uint16_t mWhat;
     std::array<std::uint8_t, 4> mRest;
 };
 
@@ -48,6 +60,13 @@ struct SetPopupDimensions
     glm::vec2 mPos;
     glm::vec2 mDims;
 };
+
+struct PushNextDialog
+{
+    BAK::Target mTarget;
+    std::array<std::uint8_t, 4> mRest;
+};
+
 
 struct UnknownAction
 {
@@ -65,9 +84,10 @@ struct UnknownAction
 };
 
 using DialogAction = std::variant<
-    PushNextDialog,
+    SetTextVariable,
     SetFlag,
     SetPopupDimensions,
+    PushNextDialog,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);

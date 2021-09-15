@@ -10,7 +10,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
 {
     switch (d)
     {
-        case DialogResult::Unknown1: return os << "Unknown[1]";
+        case DialogResult::SetTextVariable: return os << "SetTextVariable";
         case DialogResult::GiveItem: return os << "GiveItem";
         case DialogResult::LoseItem: return os << "LoseItem";
         case DialogResult::SetFlag: return os << "SetFlag";
@@ -24,9 +24,11 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         default: return os << "(" << static_cast<unsigned>(d) << ")";
     }
 }
-std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
+
+std::ostream& operator<<(std::ostream& os, const SetTextVariable& action)
 {
-    os << "PushNextDialog {" << action.mTarget << ", rest[" << action.mRest << "]}";
+    os << "SetTextVariable { var: " << action.mWhich << ", set to: " 
+        << action.mWhat << ", rest[" << action.mRest << "]}";
     return os;
 }
 
@@ -42,10 +44,17 @@ std::ostream& operator<<(std::ostream& os, const SetPopupDimensions& action)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
+{
+    os << "PushNextDialog {" << action.mTarget << ", rest[" << action.mRest << "]}";
+    return os;
+}
+
+
 
 std::ostream& operator<<(std::ostream& os, const UnknownAction& action)
 {
-    os << "DA { " 
+    os << "UnknownAction { " 
         << " type: " << action.mType
         << " rst: [" << action.mRest << "]}";
     return os;

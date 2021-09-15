@@ -100,6 +100,17 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     GetTarget(offset),
                     rest});
         }
+        else if (dr == DialogResult::SetTextVariable)
+        {
+            const auto which = fb.GetUint16LE();
+            const auto what = fb.GetUint16LE();
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                SetTextVariable{
+                    which,
+                    what,
+                    rest});
+        }
         else if (dr == DialogResult::SetFlag)
         {
             const auto eventPtr = fb.GetUint16LE();
