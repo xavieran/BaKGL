@@ -78,10 +78,15 @@ class Item
     PermanentModifier mModifier;
 };
 
+using ItemIndex = unsigned;
+
 class InventoryItem
 {
-    int mCondition;
-    Item mItem;
+    ItemIndex mItemIndex;
+    std::uint8_t mCondition;
+    unsigned mStatus;
+    TemporaryModifier mTemporaryMod;
+    PermanentModifier mPermanentMod;
 };
 
 class Inventory

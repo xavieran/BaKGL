@@ -1,0 +1,51 @@
+#pragma once
+
+#include <array>
+#include <ostream>
+#include <string_view>
+
+namespace BAK {
+
+enum class SkillType
+{
+    Health = 0,
+    Stamina,
+    Speed,
+    Strength,
+    Defense,
+    Crossbow,
+    Melee,
+    Casting,
+    Assessment,
+    Armorcraft,
+    Weaponcraft,
+    Barding,
+    Haggling,
+    Lockpick,
+    Scouting,
+    Stealth
+};
+
+std::string_view ToString(SkillType);
+
+struct Skill
+{
+    std::uint8_t mMax;
+    std::uint8_t mCurrent;
+    std::uint8_t mLimit;
+    std::uint8_t mExperience;
+    std::uint8_t mModifier;
+};
+
+std::ostream& operator<<(std::ostream&, const Skill&);
+
+struct Skills
+{
+    static constexpr auto sSkills = 16;
+    using SkillArray = std::array<Skill, sSkills>;
+     SkillArray mSkills;
+};
+
+std::ostream& operator<<(std::ostream&, const Skills&);
+
+}

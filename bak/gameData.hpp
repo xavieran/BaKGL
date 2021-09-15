@@ -3,9 +3,11 @@
 #include <glm/glm.hpp>
 
 #include "bak/constants.hpp"
+#include "bak/character.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter.hpp"
 #include "bak/resourceNames.hpp"
+#include "bak/skills.hpp"
 
 #include "com/logger.hpp"
 
@@ -13,9 +15,18 @@
 #include "xbak/FileBuffer.h"
 #include "xbak/ObjectResource.h"
 
+#include <vector>
 #include <memory>
 
 namespace BAK {
+
+struct Location
+{
+    unsigned mZone;
+    int mHeading;
+    glm::vec<2, int> mPosition;
+    glm::vec<2, int> mTile;
+};
 
 class GameData
 {   
@@ -88,24 +99,27 @@ public:
   *
   */
 
+    static constexpr auto sLocationOffset = 0x5a;
+
     GameData(const std::string& save)
     :
         mBuffer{FileBufferFactory::CreateFileBuffer(save)},
         mLogger{Logging::LogState::GetLogger("GameData")},
-        mZone{0}
+        mLocation{LoadLocation()},
+        mCharacters{LoadCharacters()}
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         //ReadEventWord(0xdac0);
         //ReadEventWord(0xc0da); // 0xb08
-        LoadLocation();
         //LoadCombatStats(0xdb, 6);
         //LoadCombatInventories(0x3a7f7, 6);
         //LoadInventoryOffsetsP();
-        LoadContainer();
+        //LoadContainer();
         //LoadCombatEntityLists();
         //LoadCombatInventories(0x46053, 1733);
         //LoadCombatStats(0x914b, 1698);
+        //
     }
 
     /*
@@ -113,6 +127,65 @@ public:
      * When click sumani we get a flag set at a8d
      * This flag tells the UI whether a choice has been clicked or not
      */
+
+    std::vector<Character> LoadCharacters()
+    {
+        unsigned characters = 6;
+        auto nameOffset = 0x9f;
+        auto nameLength = 10;
+        auto skillLength = 5 * 16 + 8 + 7;
+        auto skillOffset = 0x9f + nameLength * characters;
+
+        std::vector<Character> chars;
+
+        for (unsigned i = 0; i < characters; i++)
+        {
+            mBuffer.Seek(nameOffset + nameLength * i);
+            auto name = mBuffer.GetString(nameLength);
+            mLogger.Debug() << "Name: " << name << "\n";
+
+            mBuffer.Seek(skillOffset + skillLength * i);
+
+            auto unknown = mBuffer.GetArray<2>();
+            auto spells = mBuffer.GetArray<6>();
+
+            auto skills = Skills{};
+
+            for (unsigned i = 0; i < Skills::sSkills; i++)
+            {
+                skills.mSkills[i] = Skill{
+                    mBuffer.GetUint8(),
+                    mBuffer.GetUint8(),
+                    mBuffer.GetUint8(),
+                    mBuffer.GetUint8(),
+                    mBuffer.GetUint8()
+                };
+            }
+
+            auto unknown2 = mBuffer.GetArray<7>();
+
+            chars.emplace_back(
+                name,
+                skills,
+                spells,
+                unknown,
+                unknown2);
+        }
+        
+        for (const auto& c : chars)
+            mLogger.Info() << "Loaded char: " << c << "\n";
+
+        unsigned activeCharacters = mBuffer.GetUint8();
+        for (unsigned i = 0; i < activeCharacters; i++)
+        {
+            mLogger.Info() << "Char: " << chars[mBuffer.GetUint8()].mName << " is active\n";
+        }
+        mLogger.Info() << "Done loading characters; " << std::hex
+            << mBuffer.Tell() << std::dec << "\n";
+
+        return chars;
+    }
+
     unsigned ReadEvent(unsigned eventPtr) const
     {
         unsigned startOffset = 0x6e2;
@@ -140,18 +213,19 @@ public:
 
         return eventData;
     }
-    void LoadLocation()
+
+    Location LoadLocation()
     {
-        mBuffer.Seek(0x5a);
+        mBuffer.Seek(sLocationOffset);
         mBuffer.Skip(16);
 
         int xloc = mBuffer.GetUint32LE();
         int yloc = mBuffer.GetUint32LE();
         mBuffer.Skip(4);
 
-        mZone = mBuffer.GetUint8();
-        assert(mZone < 12);
-        mLogger.Info() << "Zone:" << mZone << std::endl;
+        unsigned zone = mBuffer.GetUint8();
+        assert(zone < 12);
+        mLogger.Info() << "Zone:" << zone << std::endl;
 
         int xtile = mBuffer.GetUint8();
         int ytile = mBuffer.GetUint8();
@@ -166,9 +240,12 @@ public:
         mLogger.Info() << "Pos: " << xpos << "," << ypos << std::endl;
         mLogger.Info() << "Heading: " << heading << std::endl;
         
-        mLocus.mHeading = heading;
-        mLocus.mPosition= {xpos, ypos};
-        mLocus.mTile = {xtile, ytile};
+        return Location{
+            zone,
+            heading,
+            {xpos, ypos},
+            {xtile, ytile}
+        };
     }
 
     std::vector<Container> LoadContainer()
@@ -455,18 +532,12 @@ public:
         }
     }
 
-    struct Locus
-    {
-        int mHeading;
-        glm::vec<2, int> mPosition;
-        glm::vec<2, int> mTile;
-    };
     
     mutable FileBuffer mBuffer;
     Logging::Logger mLogger;
 
-    Locus mLocus;
-    unsigned mZone;
+    Location mLocation;
+    std::vector<Character> mCharacters;
 };
 
 }

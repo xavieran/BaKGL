@@ -75,9 +75,9 @@ int main(int argc, char** argv)
             containers = gameData->LoadContainer();
 
             std::stringstream ss{};
-            ss << "Z" << std::setw(2) << std::setfill('0') << gameData->mZone;
+            ss << "Z" << std::setw(2) << std::setfill('0') << gameData->mLocation.mZone;
             zoneLabel = BAK::ZoneLabel{ss.str()};
-            startPosition = BAK::ToGlCoord<float>(gameData->mLocus.mPosition);
+            startPosition = BAK::ToGlCoord<float>(gameData->mLocation.mPosition);
         }
         else if (opt == 'z')
         {

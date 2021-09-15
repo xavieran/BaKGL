@@ -921,6 +921,9 @@ Num.  Variable name            OFFSET  VAR.TYPE    RANGE
 ---------------------------------------------------------------------------
       This section keeps track of the types and quantity of keys that the
       party is carrying.  Here is a list of the key types:
+       61 = Peasant's key
+       62 = Virtue key
+       63 = Key of Lineages
        64 = Cellar key
        65 = Nivek's key
        66 = Interdictor key

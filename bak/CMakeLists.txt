@@ -1,6 +1,7 @@
 add_library(bak
     camera.hpp
     constants.hpp
+    character.hpp character.cpp
     container.hpp container.cpp
     coordinates.hpp coordinates.cpp
     dialog.hpp dialog.cpp
@@ -19,6 +20,7 @@ add_library(bak
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
     screens.hpp
+    skills.hpp skills.cpp
     systems.hpp
     textureFactory.hpp textureFactory.cpp
     town.hpp
