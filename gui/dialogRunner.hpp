@@ -159,7 +159,7 @@ public:
                 {
                     return c.mTarget;
                 }
-                else if (choiceState == BAK::ChoiceState::Time
+                else if (choiceState == BAK::ChoiceState::NightTime
                     && mGameState.GetTime() == c.mChoice1)
                 {
                     return c.mTarget;
@@ -172,6 +172,11 @@ public:
                 else if (c.mState < 0x7000 
                     && mGameState.GetEventState(c.mState))
                 {
+                    return c.mTarget;
+                }
+                else if (c.mState > 0xda00)
+                {
+                    // get special state...
                     return c.mTarget;
                 }
                 else if (c.mState == 0x0)
