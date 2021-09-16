@@ -6,14 +6,14 @@
 #include "bak/character.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter.hpp"
+#include "bak/party.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/skills.hpp"
+#include "bak/worldClock.hpp"
 
 #include "com/logger.hpp"
 
-#include "xbak/DialogResource.h"
 #include "xbak/FileBuffer.h"
-#include "xbak/ObjectResource.h"
 
 #include <vector>
 #include <memory>
@@ -31,6 +31,7 @@ struct Location
 class GameData
 {   
 public:
+    using Chapter = unsigned;
 /*
  *
  * Locklear, Gorath, Owyn, Pug, James, Patrus
@@ -99,27 +100,72 @@ public:
   *
   */
 
-    static constexpr auto sLocationOffset = 0x5a;
+    static constexpr auto sCharacterCount = 6;
+    static constexpr auto sChapterOffset = 0x5a; // -> 5c
+    static constexpr auto sGoldOffset = 0x66; // -> 6a
+    static constexpr auto sTimeOffset = 0x6a; // -> 0x72
+    static constexpr auto sLocationOffset = 0x76; // -> 0x88
+    static constexpr auto sCharacterNameOffset = 0x9f; // -> 0xdb
+    static constexpr auto sCharacterSkillOffset = 0xdb; // -> 0x315
+    static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
+
+    // Single bit indicators for event state tracking
+    static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
+
+    // dac0 -> dc3c
+
+    // from 9fc -> 0xc0 ff ff will completely fill locklears "Unseen stats" 
+    // but also overflow into Gorath health. Not sure why these flags don't
+    // seem to be byte aligned.
+    static constexpr auto sSkillImprovementOffset = 0x9fc;
+
+    static constexpr auto sCombatEntityListCount  = 700;
+    static constexpr auto sCombatEntityListOffset = 0x1383;
+
+    static constexpr auto sCharacterInventoryOffset = 0x3a804; // -> 3aa4b
+
+    static constexpr auto sZone1ContainerOffset = 0x3b631;
+    static constexpr auto sZone2ContainerOffset = 0x3be55;
+    static constexpr auto sZone3ContainerOffset = 0x3c55f;
+    static constexpr auto sZone4ContainerOffset = 0x3d0b4;
+    static constexpr auto sZone5ContainerOffset = 0x3dc07;
+    static constexpr auto sZone6ContainerOffset = 0x3e708;
+    static constexpr auto sZone7ContainerOffset = 0x3f8b2;
+    static constexpr auto sZone8ContainerOffset = 0x40c97;
+    static constexpr auto sZone9ContainerOffset = 0x416b7;
+    static constexpr auto sZoneAContainerOffset = 0x42868;
+    static constexpr auto sZoneBContainerOffset = 0x43012;
+    static constexpr auto sZoneCContainerOffset = 0x4378f;
+
+    static constexpr auto sCombatInventoryCount  = 1734;
+    static constexpr auto sCombatInventoryOffset = 0x46053;
 
     GameData(const std::string& save)
     :
         mBuffer{FileBufferFactory::CreateFileBuffer(save)},
         mLogger{Logging::LogState::GetLogger("GameData")},
+        mObjects{},
+        mChapter{LoadChapter()},
         mLocation{LoadLocation()},
-        mCharacters{LoadCharacters()}
+        mTime{LoadWorldTime()},
+        mParty{LoadParty()}
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
+        mLogger.Info() << mParty << "\n";
+        mLogger.Info() << mTime << "\n";
         //ReadEventWord(0xdac0);
         //ReadEventWord(0xc0da); // 0xb08
-        //LoadCombatStats(0xdb, 6);
-        //LoadCombatInventories(0x3a7f7, 6);
-        //LoadInventoryOffsetsP();
-        //LoadContainer();
+        //LoadChapterOffsetP();
+        LoadContainer();
         //LoadCombatEntityLists();
-        //LoadCombatInventories(0x46053, 1733);
+        //LoadCombatInventories(
+        //    sCombatInventoryOffset,
+        //    sCombatInventoryCount);
         //LoadCombatStats(0x914b, 1698);
-        //
+        const auto event = 0xdc46;
+        mLogger.Info() << "Read event @" << std::hex << event << " got: " <<
+            ReadComplexEvent(event) << std::dec << "\n";
     }
 
     /*
@@ -128,13 +174,30 @@ public:
      * This flag tells the UI whether a choice has been clicked or not
      */
 
+    Party LoadParty()
+    {
+        constexpr auto keyOffset = 0x3aaa4;
+        auto characters = LoadCharacters();
+        auto active = LoadActiveCharacters();
+        auto gold = LoadGold();
+        auto keys = LoadInventory(keyOffset);
+        return Party{
+            gold,
+            keys,
+            characters,
+            active};
+    }
+
+        
     std::vector<Character> LoadCharacters()
     {
-        unsigned characters = 6;
-        auto nameOffset = 0x9f;
-        auto nameLength = 10;
-        auto skillLength = 5 * 16 + 8 + 7;
-        auto skillOffset = 0x9f + nameLength * characters;
+        unsigned characters = sCharacterCount;
+        const auto nameOffset = sCharacterNameOffset;
+        const auto nameLength = 10;
+        const auto skillLength = 5 * 16 + 8 + 7;
+        const auto skillOffset = sCharacterSkillOffset;
+        const auto inventoryOffset = sCharacterInventoryOffset;
+        const auto inventoryLength = 0x70;
 
         std::vector<Character> chars;
 
@@ -142,9 +205,10 @@ public:
         {
             mBuffer.Seek(nameOffset + nameLength * i);
             auto name = mBuffer.GetString(nameLength);
-            mLogger.Debug() << "Name: " << name << "\n";
 
             mBuffer.Seek(skillOffset + skillLength * i);
+            mLogger.Debug() << "Name: " << name << "@" 
+                << std::hex << mBuffer.Tell() << std::dec << "\n";
 
             auto unknown = mBuffer.GetArray<2>();
             auto spells = mBuffer.GetArray<6>();
@@ -158,37 +222,69 @@ public:
                     mBuffer.GetUint8(),
                     mBuffer.GetUint8(),
                     mBuffer.GetUint8(),
-                    mBuffer.GetUint8()
+                    mBuffer.GetSint8(), // modifier can be -ve
+                    false
                 };
             }
 
             auto unknown2 = mBuffer.GetArray<7>();
+            mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";
+            // Load inventory
+            auto inventory = LoadInventory(
+                inventoryOffset + inventoryLength * i);
 
             chars.emplace_back(
                 name,
                 skills,
                 spells,
                 unknown,
-                unknown2);
+                unknown2,
+                inventory);
         }
         
-        for (const auto& c : chars)
-            mLogger.Info() << "Loaded char: " << c << "\n";
+        return chars;
+    }
 
-        unsigned activeCharacters = mBuffer.GetUint8();
+    unsigned LoadChapter()
+    {
+        mBuffer.Seek(sChapterOffset);
+        return mBuffer.GetUint16LE();
+    }
+
+    int LoadGold()
+    {
+        mBuffer.Seek(sGoldOffset);
+        return mBuffer.GetSint32LE();
+    }
+
+    std::vector<std::uint8_t> LoadActiveCharacters()
+    {
+        mBuffer.Seek(sActiveCharactersOffset);
+        const auto activeCharacters = mBuffer.GetUint8();
+
+        auto active = std::vector<std::uint8_t>{};
         for (unsigned i = 0; i < activeCharacters; i++)
         {
-            mLogger.Info() << "Char: " << chars[mBuffer.GetUint8()].mName << " is active\n";
+            const auto c = mBuffer.GetUint8();
+            active.emplace_back(c);
         }
-        mLogger.Info() << "Done loading characters; " << std::hex
-            << mBuffer.Tell() << std::dec << "\n";
 
-        return chars;
+        return active;
+    }
+
+    unsigned ReadComplexEvent(unsigned eventPtr) const
+    {
+        // the left over of divisor maybe is nibble?
+        constexpr auto offset = -0xad7;
+        constexpr auto divider = 10;
+        const auto eventOffset = (eventPtr / divider) + offset;
+        mBuffer.Seek(eventOffset);
+        return mBuffer.GetUint8();
     }
 
     unsigned ReadEvent(unsigned eventPtr) const
     {
-        unsigned startOffset = 0x6e2;
+        unsigned startOffset = sGameEventRecordOffset;
         unsigned bitOffset = eventPtr & 0xf;
         unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
         mBuffer.Seek(eventLocation);
@@ -203,7 +299,7 @@ public:
 
     unsigned ReadEventWord(unsigned eventPtr) const
     {
-        unsigned startOffset = 0x6e2;
+        unsigned startOffset = sGameEventRecordOffset;
         unsigned bitOffset = eventPtr & 0xf;
         unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
         mBuffer.Seek(eventLocation);
@@ -217,11 +313,6 @@ public:
     Location LoadLocation()
     {
         mBuffer.Seek(sLocationOffset);
-        mBuffer.Skip(16);
-
-        int xloc = mBuffer.GetUint32LE();
-        int yloc = mBuffer.GetUint32LE();
-        mBuffer.Skip(4);
 
         unsigned zone = mBuffer.GetUint8();
         assert(zone < 12);
@@ -232,10 +323,9 @@ public:
         int xpos = mBuffer.GetUint32LE();
         int ypos = mBuffer.GetUint32LE();
 
-        mBuffer.Skip(5);
+        mBuffer.DumpAndSkip(5);
         int heading = mBuffer.GetUint16LE();
 
-        mLogger.Info() << "Loc: " << std::dec << xloc << "," << yloc << std::endl;
         mLogger.Info() << "Tile: " << xtile << "," << ytile << std::endl;
         mLogger.Info() << "Pos: " << xpos << "," << ypos << std::endl;
         mLogger.Info() << "Heading: " << heading << std::endl;
@@ -248,6 +338,45 @@ public:
         };
     }
 
+    WorldClock LoadWorldTime()
+    {
+        mBuffer.Seek(sTimeOffset);
+        return WorldClock{
+            Time{mBuffer.GetUint32LE()},
+            Time{mBuffer.GetUint32LE()}};
+    }
+
+
+    Inventory LoadInventory(unsigned offset)
+    {
+        mBuffer.Seek(offset);
+
+        std::vector<InventoryItem> items{};
+
+        const auto itemCount = mBuffer.GetUint8();
+        const auto capacity = mBuffer.GetUint16LE();
+        mLogger.Info() << " Items: " << +itemCount << " cap: " << capacity << "\n";
+        for (unsigned i = 0; i < itemCount; i++)
+        {
+            const auto item = mBuffer.GetUint8();
+            const auto& object = mObjects.GetObject(item);
+            const auto condition = mBuffer.GetUint8();
+            const auto status = mBuffer.GetUint8();
+            const auto modifiers = mBuffer.GetUint8();
+            mLogger.Info() << " Loaded: " << object.mName << "\n";
+
+            items.emplace_back(
+                object,
+                item,
+                condition,
+                status,
+                modifiers);
+        }
+
+        return Inventory{items};
+    }
+
+
     std::vector<Container> LoadContainer()
     {
         const auto& logger = Logging::LogState::GetLogger("GameData");
@@ -257,9 +386,10 @@ public:
 
         // TombStone
         mBuffer.Seek(0x3b621); // 36 items 1
+        const auto count = 36;
 
-        //mBuffer.Seek(0x3be55); // 25 2
         /*
+        mBuffer.Seek(0x3be55); // 25 2
         mBuffer.Seek(0x3c55f); // 54 3
         mBuffer.Seek(0x3d0b4); // 65 4
         mBuffer.Seek(0x3dc07); // 63 5
@@ -272,7 +402,7 @@ public:
         mBuffer.Seek(0x4378f); // 60 C
         */
 
-        for (int j = 0; j < 36; j++)
+        for (int j = 0; j < count; j++)
         {
             unsigned address = mBuffer.Tell();
             logger.Info() << " Container: " << j
@@ -398,18 +528,19 @@ public:
         return containers;
     }
 
-    void LoadInventoryOffsetsP()
+    void LoadChapterOffsetP()
     {
-        constexpr unsigned inventoryOffsetsStart = 0x11a3;
-        mBuffer.Seek(inventoryOffsetsStart);
+        // I have no idea what these mean
+        constexpr unsigned chapterOffsetsStart = 0x11a3;
+        mBuffer.Seek(chapterOffsetsStart);
 
-        mLogger.Info() << "Inventory Offsets Start @" 
-            << std::hex << inventoryOffsetsStart << std::dec << std::endl;
+        mLogger.Info() << "Chapter Offsets Start @" 
+            << std::hex << chapterOffsetsStart << std::dec << std::endl;
 
         for (unsigned i = 0; i < 10; i++)
         {
             std::stringstream ss{};
-            ss << "Inventory #" << i << " : " << mBuffer.GetUint16LE();
+            ss << "Chapter #" << i << " : " << mBuffer.GetUint16LE();
             for (unsigned i = 0; i < 5; i++)
             {
                 unsigned addr = mBuffer.GetUint32LE();
@@ -418,20 +549,19 @@ public:
             mLogger.Info() << ss.str() << std::endl;
         }
 
-        mLogger.Info() << "Inventory Offsets End @" 
+        mLogger.Info() << "Chapter Offsets End @" 
             << std::hex << mBuffer.Tell() << std::dec << std::endl;
 
     }
 
     void LoadCombatEntityLists()
     {
-        constexpr unsigned combatEntityListStart = 0x1383;
-        mBuffer.Seek(combatEntityListStart);
+        mBuffer.Seek(sCombatEntityListOffset);
 
         mLogger.Info() << "Combat Entity Lists Start @" 
-            << std::hex << combatEntityListStart << std::dec << std::endl;
+            << std::hex << sCombatEntityListOffset << std::dec << std::endl;
 
-        for (int i = 0; i < 700; i++)
+        for (int i = 0; i < sCombatEntityListCount; i++)
         {
             std::stringstream ss{};
             ss << " Combat #" << i;
@@ -474,7 +604,8 @@ public:
                 "Assess", "Armor", "Weapon", "Bard",
                 "Haggle", "Lockpick", "Scout", "Stealth"})
             {
-                ss << std::dec << stat << ": " << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " ";
+                ss << std::dec << stat << ": " << +mBuffer.GetUint8() << " " 
+                    << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " ";
                 mBuffer.Skip(2);
             }
             mBuffer.Dump(7);
@@ -532,12 +663,14 @@ public:
         }
     }
 
-    
     mutable FileBuffer mBuffer;
     Logging::Logger mLogger;
 
+    ObjectIndex mObjects;
+    Chapter mChapter;
     Location mLocation;
-    std::vector<Character> mCharacters;
+    WorldClock mTime;
+    Party mParty;
 };
 
 }

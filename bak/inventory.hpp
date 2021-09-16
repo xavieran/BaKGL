@@ -1,97 +1,39 @@
 #pragma once
 
+#include "bak/objectInfo.hpp"
+
 #include <string>
 #include <vector>
 
 namespace BAK {
 
-enum class TemporaryModifier
-{
-    Fire      = 0x1,
-    SteelFire = 0x2,
-    Frost     = 0x4,
-    Oil       = 0x8
-};
-
-enum class PermanentModifier
-{
-    BlueOil   = 0x1, // What is this?
-    Blessing1 = 0x2,
-    Blessing2 = 0x4,
-    Blessing3 = 0x8
-};
-
-enum class RacialModifier
-{
-    None,
-    Tsurani,
-    Elf,
-    Human,
-    Dwarf
-};
-
-enum class ItemType
-{
-    Unspecified,
-    Sword,
-    Crossbow,
-    Staff,
-    Armor,
-    Unknown5,
-    Unknown6,
-    Key,
-    Tool,
-    WeaponOil,
-    ArmorOil,
-    SpecialOil,
-    Bowstring,
-    Scroll,
-    Unknown14,
-    Unknown15,
-    Note,
-    Book,
-    Potion,
-    Restoratives,
-    Container,
-    Light,
-    Ingredient,
-    Ration,
-    Food,
-    Other
-};
-
-class Item
-{
-    std::string mName;
-    unsigned int mFlags;
-    int mLevel;
-    int mValue;
-    int mStrengthSwing;
-    int mAccuracySwing;
-    int mStrengthThrust;
-    int mAccuracyThrust;
-    // Amount of space item takes?
-    unsigned mImageSize;
-    RacialModifier mRace;
-    ItemType mType;
-    TemporaryModifier mEffect;
-    PermanentModifier mModifier;
-};
 
 using ItemIndex = unsigned;
 
 class InventoryItem
 {
+public:
+    InventoryItem(
+        const GameObject& object,
+        ItemIndex itemIndex,
+        std::uint8_t condition,
+        std::uint8_t status,
+        std::uint8_t modifiers);
+
+    const GameObject& mObject;
     ItemIndex mItemIndex;
     std::uint8_t mCondition;
-    unsigned mStatus;
-    TemporaryModifier mTemporaryMod;
-    PermanentModifier mPermanentMod;
+    std::uint8_t mStatus;
+    std::uint8_t mModifiers;
 };
+
+std::ostream& operator<<(std::ostream&, const InventoryItem&);
 
 class Inventory
 {
+public:
     std::vector<InventoryItem> mItems;
 };
 
+std::ostream& operator<<(std::ostream&, const Inventory&);
 }

@@ -9,11 +9,15 @@ namespace BAK {
 class Party
 {
 public:
-    std::vector<std::reference_wrapper<Character>> mActiveCharacters;
-    std::vector<Character> mCharacters;
+    using CharacterIndex = std::uint8_t;
 
-    // Party gold
-    // Keys
+    int mGold;
+    Inventory mKeys;
+
+    std::vector<Character> mCharacters;
+    std::vector<CharacterIndex> mActiveCharacters;
 };
+
+std::ostream& operator<<(std::ostream&, const Party&);
 
 }

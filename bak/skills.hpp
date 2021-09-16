@@ -34,7 +34,8 @@ struct Skill
     std::uint8_t mCurrent;
     std::uint8_t mLimit;
     std::uint8_t mExperience;
-    std::uint8_t mModifier;
+    std::int8_t mModifier;
+    bool mUnseenImprovement;
 };
 
 std::ostream& operator<<(std::ostream&, const Skill&);
@@ -43,7 +44,7 @@ struct Skills
 {
     static constexpr auto sSkills = 16;
     using SkillArray = std::array<Skill, sSkills>;
-     SkillArray mSkills;
+    SkillArray mSkills;
 };
 
 std::ostream& operator<<(std::ostream&, const Skills&);

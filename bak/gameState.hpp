@@ -39,13 +39,24 @@ public:
 
     auto GetMoney() const
     {
+        if (mGameData)
+            return mGameData->mParty.mGold;
+
         return 1000;
     }
 
     auto GetTime() const
     {
-        return 0; // daytime
-        //return 1; // nighttime
+        if (mGameData)
+        {
+            const auto hour = mGameData->mTime.mTime.GetHour();
+            return static_cast<int>(hour > 18);
+        }
+        else
+        {
+            return 0; // daytime
+            //return 1; // nighttime
+        }
     }
 
     auto GetShopType() const
@@ -62,6 +73,16 @@ public:
     const Character& GetPartyFollower()
     {
         return mPartyFollower;
+    }
+
+    bool GetComplexEventState(unsigned eventPtr) const
+    {
+        if (mEventState.contains(eventPtr))
+            return mEventState.at(eventPtr);
+        else if (mGameData != nullptr)
+            return mGameData->ReadComplexEvent(eventPtr);
+        else
+            return false;
     }
 
     bool GetEventState(unsigned eventPtr) const

@@ -1,0 +1,31 @@
+18:12:25.09 SPAM  [DialogStore] Offset { 19 @ 0x229e } @ [ ds: 0 act: 0 ds2: 10 ds3: 0 ]
+>> 7539 -> 1 | ffff Key [ 2f4eab ]
+>> daca -> 400 | c000 Key [ 2f4e90 ] 
+    -> No one home... generic message
+>> daca -> 200 | ff01 Offset { 19 @ 0x28b8 } 
+    -> sets flag daca to ff04
+      -- Choice on dacf -> 1 | ffff -> Party talked to jeremy before encountering the box
+      -- otherwise party did not talk to jeremy before encountering the box
+>> daca -> 1000 | ff01 Offset { 19 @ 0x2729 }
+    -> Party talked to Jeremy but haven't checked the box yet
+>> 0 -> 0 | 0 Offset { 19 @ 0x22d9 }
+    -> Encoutner jeremey for the first time
+       Sets flag daca to 0xff10 (not ff01!)
+
+Setting flag to 20 must be done somewhere else
+
+This is the trapped chest. 
+19:55:31.09 INFO  [GameData]  Container: 29 addr: 3ba32
+00000000: 01 0a a2 00 
+19:55:31.09 INFO  [GameData] DLog??: a20a01 882511,656147 #4 items: 2 capacity: 6 Tp: 25 Dunno
+19:55:31.09 INFO  [GameData] Items: 
+0x38 Emeralds  cond/qty: 15 mod: 0 y; 0
+0x75 Redweed Brew  cond/qty: 3 mod: 0 y; 0
+
+00000000: 04 
+19:55:31.09 INFO  [GameData] Picklock: 55 ContainerI: 6400
+00000000: 00 00 
+00000000: cc da 00 00 00 00 00 00 | 00 00 00 
+
+-- Looks like here it is setting the event @dacc (daca to 0x02)
+

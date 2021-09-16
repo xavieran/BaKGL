@@ -142,6 +142,18 @@ public:
 
     BAK::Target ProgressDialog()
     {
+        const auto CheckComplexState = [&](const auto choice)
+        {
+            const auto state = mGameState.GetComplexEventState(choice.mState);
+            const auto expectedValue = choice.mChoice1 >> 4;
+            const auto invert = choice.mChoice1 & 0x1;
+            if (invert && (state != expectedValue))
+                return true;
+            else if (!invert && (state == expectedValue))
+                return true;
+            return false;
+        };
+
         if (mCurrentDialog && mCurrentDialog->GetChoices().size() >= 1)
         {
             for (const auto& c : mCurrentDialog->GetChoices())
@@ -174,9 +186,9 @@ public:
                 {
                     return c.mTarget;
                 }
-                else if (c.mState > 0xda00)
+                else if ((c.mState & 0xd000) == 0xd000
+                    && CheckComplexState(c))
                 {
-                    // get special state...
                     return c.mTarget;
                 }
                 else if (c.mState == 0x0)

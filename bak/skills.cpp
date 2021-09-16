@@ -30,7 +30,10 @@ std::ostream& operator<<(std::ostream& os, const Skill& s)
 {
     os << "{ Max: " << +s.mMax << " Current: " << +s.mCurrent 
         << " Limit: " << +s.mLimit << " Experience: " << +s.mExperience
-        << " Modifier: " << +s.mModifier << " }";
+        << " Modifier: " << +s.mModifier << "[";
+    if (s.mUnseenImprovement) os << "*";
+    else os << " ";
+    os << "]}";
     return os;
 }
 

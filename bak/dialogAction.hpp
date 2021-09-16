@@ -49,6 +49,11 @@ struct SetTextVariable
     std::array<std::uint8_t, 4> mRest;
 };
 
+// single bit flags
+// 1 -> ab (these are for dialog choices)
+// and
+// 1a2d -> 1fd3
+// 104 (seems to be set to 0 when short of money?)
 struct SetFlag
 {
     std::uint16_t mEventPointer;

@@ -15,7 +15,9 @@ add_library(bak
     gameData.hpp
     gameState.hpp
     hotspot.hpp hotspot.cpp
-    inventory.hpp
+    inventory.hpp inventory.cpp
+    party.hpp party.cpp
+    objectInfo.hpp objectInfo.cpp
     resourceNames.hpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
@@ -24,6 +26,7 @@ add_library(bak
     systems.hpp
     textureFactory.hpp textureFactory.cpp
     town.hpp
+    worldClock.hpp worldClock.cpp
     worldFactory.hpp worldFactory.cpp
 )
 
