@@ -29,3 +29,17 @@ This is the trapped chest.
 
 -- Looks like here it is setting the event @dacc (daca to 0x02)
 
+Offset would be -2775 (-ad7)
+dac0:b09 set to 0x01
+daca:b0a set
+dacf:Nothing set, presumably this is only used for reading a particular offset
+dacf: Seems to shift right by 1...
+dad4:b0b set (this doesn't actually exist) 
+dade:b0c set
+dae8:b0d set
+daf2:b0e set
+db7e:b1c set
+dc32:b2e set
+dc3c:b2f set
+dc46:b30 set
+
