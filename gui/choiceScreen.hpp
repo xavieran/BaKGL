@@ -50,7 +50,8 @@ public:
     }
 
     void StartChoices(
-        std::vector<std::pair<ChoiceIndex, std::string>> choices)
+        std::vector<std::pair<ChoiceIndex, std::string>> choices,
+        glm::vec2 buttonSize)
     {
         ClearChildren();
         mButtons.clear();
@@ -58,7 +59,6 @@ public:
         assert(choices.size() <= mMaxChoices);
 
         auto pos = glm::vec2{0};
-        const auto buttonSize = glm::vec2{64, 14};
         const auto margin = 5;
         const auto limit = GetPositionInfo().mDimensions;
         for (const auto& [index, label] : choices)

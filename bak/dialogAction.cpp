@@ -32,6 +32,22 @@ std::ostream& operator<<(std::ostream& os, const SetTextVariable& action)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const LoseItem& action)
+{
+    os << "LoseItem { what: " << action.mItemIndex 
+        << " amount: " << action.mQuantity
+        << ", rest[" << action.mRest << "]}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const GiveItem& action)
+{
+    os << "GiveItem { what: " << action.mItemIndex << " to: "
+        << action.mCharacter << " amount: " << action.mQuantity
+        << ", rest[" << action.mRest << "]}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const SetFlag& action)
 {
     os << "SetFlag {" << action.mEventPointer << ", rest[" << action.mRest << "]}";

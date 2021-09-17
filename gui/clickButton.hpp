@@ -28,24 +28,29 @@ public:
             true
         },
         mNormal{
-            glm::vec2{0,0},
+            glm::vec2{0, 0},
             dims,
             Color::buttonBackground,
             Color::buttonHighlight,
             Color::buttonShadow},
         mPressed{
-            glm::vec2{0,0},
+            glm::vec2{0, 0},
             dims,
             Color::buttonPressed,
             Color::buttonShadow,
             Color::buttonHighlight},
         mText{
-            glm::vec2{3,3},
+            glm::vec2{3, 2},
             dims},
         mPressedCallback{std::move(onLeftMousePress)},
         mButton{}
     {
-        mText.AddText(fr, label);
+        const auto& [endPos, text] = mText.AddText(fr, label);
+        const auto& textPos = mText.GetPositionInfo().mPosition;
+        mText.SetPosition(
+            glm::vec2{
+                textPos.x + (dims.x - endPos.x) / 2,
+                textPos.y});
         mButton.emplace_back(&mNormal);
         mButton.emplace_back(&mText);
     }

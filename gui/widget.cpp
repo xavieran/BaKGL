@@ -131,6 +131,12 @@ void Widget::SetCenter(glm::vec2 pos)
         - (mPositionInfo.mDimensions / 2.0f);
 }
 
+glm::vec2 Widget::GetCenter()
+{
+    return mPositionInfo.mPosition 
+        + (mPositionInfo.mDimensions / 2.0f);
+}
+
 void Widget::SetPosition(glm::vec2 pos)
 {
     mPositionInfo.mPosition = pos;

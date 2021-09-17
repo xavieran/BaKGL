@@ -60,6 +60,21 @@ struct SetFlag
     std::array<std::uint8_t, 6> mRest;
 };
 
+struct LoseItem
+{
+    std::uint16_t mItemIndex;
+    std::uint16_t mQuantity;
+    std::array<std::uint8_t, 4> mRest;
+};
+
+struct GiveItem
+{
+    std::uint8_t mItemIndex;
+    std::uint8_t mCharacter;
+    std::uint16_t mQuantity;
+    std::array<std::uint8_t, 4> mRest;
+};
+
 struct SetPopupDimensions
 {
     glm::vec2 mPos;
@@ -71,7 +86,6 @@ struct PushNextDialog
     BAK::Target mTarget;
     std::array<std::uint8_t, 4> mRest;
 };
-
 
 struct UnknownAction
 {
@@ -90,6 +104,8 @@ struct UnknownAction
 
 using DialogAction = std::variant<
     SetTextVariable,
+    LoseItem,
+    GiveItem,
     SetFlag,
     SetPopupDimensions,
     PushNextDialog,

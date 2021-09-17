@@ -157,15 +157,12 @@ public:
         //ReadEventWord(0xdac0);
         //ReadEventWord(0xc0da); // 0xb08
         //LoadChapterOffsetP();
-        LoadContainer();
+        //LoadContainer();
         //LoadCombatEntityLists();
         //LoadCombatInventories(
         //    sCombatInventoryOffset,
         //    sCombatInventoryCount);
         //LoadCombatStats(0x914b, 1698);
-        const auto event = 0xdc46;
-        mLogger.Info() << "Read event @" << std::hex << event << " got: " <<
-            ReadComplexEvent(event) << std::dec << "\n";
     }
 
     /*

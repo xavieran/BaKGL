@@ -42,6 +42,13 @@ std::string_view Keywords::GetDialogChoice(unsigned i) const
     return mKeywords[i + mDialogChoiceOffset];
 }
 
+std::string_view Keywords::GetQueryChoice(unsigned i) const
+{
+    const auto k = (i & 0xff) + mQueryChoiceOffset;
+    assert(k < mKeywords.size());
+    return mKeywords[k];
+}
+
 std::string_view Keywords::GetNPCName(unsigned i) const
 {
     assert(i + mCharacterNameOffset < mKeywords.size());
@@ -98,6 +105,32 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             mActions.emplace_back(
                 PushNextDialog{
                     GetTarget(offset),
+                    rest});
+        }
+        else if (dr == DialogResult::LoseItem)
+        {
+            const auto item = fb.GetUint16LE();
+            auto quantity = fb.GetUint16LE();
+            if (quantity == 0)
+                quantity = 1;
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                LoseItem{
+                    item,
+                    quantity,
+                    rest});
+        }
+        else if (dr == DialogResult::GiveItem)
+        {
+            const auto item = fb.GetUint8();
+            const auto character = fb.GetUint8();
+            const auto quantity = fb.GetUint16LE();
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                GiveItem{
+                    item,
+                    character,
+                    quantity,
                     rest});
         }
         else if (dr == DialogResult::SetTextVariable)

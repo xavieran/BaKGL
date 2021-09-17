@@ -4,6 +4,7 @@
 #include "bak/gameState.hpp"
 
 #include "com/algorithm.hpp"
+#include "com/random.hpp"
 #include "com/visit.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -154,7 +155,12 @@ public:
             return false;
         };
 
-        if (mCurrentDialog && mCurrentDialog->GetChoices().size() >= 1)
+        if (mCurrentDialog && (mCurrentDialog->mDisplayStyle3 == 0x8))
+        {
+            const auto choice = GetRandomNumber(0, mCurrentDialog->GetChoices().size() - 1);
+            return mCurrentDialog->GetChoices()[choice].mTarget;
+        }
+        else if (mCurrentDialog && mCurrentDialog->GetChoices().size() >= 1)
         {
             for (const auto& c : mCurrentDialog->GetChoices())
             {
@@ -167,7 +173,7 @@ public:
                     return c.mTarget;
                 }
                 else if (choiceState == BAK::ChoiceState::Money
-                    && mGameState.GetMoney() > c.mChoice1)
+                    && mGameState.GetMoney() > c.mChoice1 * 10)
                 {
                     return c.mTarget;
                 }
@@ -271,7 +277,7 @@ public:
 
     void ShowDialogChoices()
     {
-        mLogger.Debug() << "Choices: " << mCurrentDialog << "\n";
+        mLogger.Debug() << "DialogChoices: " << mCurrentDialog << "\n";
         mChoices.SetPosition(glm::vec2{15, 125});
         mChoices.SetDimensions(glm::vec2{285, 66});
 
@@ -289,10 +295,35 @@ public:
             }
         }
         choices.emplace_back(std::make_pair(-1, "Goodbye"));
-        mChoices.StartChoices(choices);
+        constexpr auto buttonSize = glm::vec2{64, 14};
+        mChoices.StartChoices(choices, buttonSize);
 
         mDialogDisplay.Clear();
         mDialogDisplay.DisplayPlayer(mDialogScene);
+        mScreenStack.PushScreen(&mChoices);
+    }
+
+    void ShowQueryChoices()
+    {
+        mLogger.Debug() << "QueryChoices: " << mCurrentDialog << "\n";
+        mChoices.SetPosition(glm::vec2{15, 125});
+        mChoices.SetDimensions(glm::vec2{285, 66});
+
+        auto choices = std::vector<std::pair<unsigned, std::string>>{};
+        unsigned i = 0;
+        for (const auto& c : mCurrentDialog->GetChoices())
+        {
+            choices.emplace_back(
+                std::make_pair(
+                    c.mState,
+                    "#" + std::string{
+                        mKeywords.GetQueryChoice(c.mState)}));
+        }
+        constexpr auto buttonSize = glm::vec2{32, 14};
+        mChoices.StartChoices(choices, buttonSize);
+
+        //mDialogDisplay.Clear();
+        //mDialogDisplay.DisplayPlayer(mDialogScene);
         mScreenStack.PushScreen(&mChoices);
     }
 
@@ -345,8 +376,9 @@ public:
             if (text != empty)
             {
                 UpdateSnippet();
+                if (mCurrentDialog->mDisplayStyle3 == 0x2)
+                    ShowQueryChoices();
                 progressing = false;
-                return true;
             }
             else if (mCurrentDialog->mDisplayStyle3 == 0x4)
             {

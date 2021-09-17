@@ -43,6 +43,7 @@ public:
     void ClearChildren();
 
     void SetCenter(glm::vec2 pos);
+    glm::vec2 GetCenter();
     void SetPosition(glm::vec2 pos);
     void AdjustPosition(glm::vec2 adj);
     void SetDimensions(glm::vec2 dims);

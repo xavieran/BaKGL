@@ -298,17 +298,12 @@ public:
         for (auto& elem : mText)
             this->AddChildBack(&elem);
 
-        // charPos is now the final dims of the drawn text
-        //charPos.x += font.GetSpace();
-        //charPos.y += font.GetHeight();
-
         if (centerVertical)
         {
             const auto verticalAdjustment = limit.y > charPos.y
                 ? (limit.y - charPos.y ) / 2.0
                 : 0;
-            Logging::LogDebug("TEXT") << "Height: " << charPos.y << " limit: " 
-                    << limit << " vertAdj: " << verticalAdjustment << "\n";
+
             for (auto& w : mText)
             {
                 w.AdjustPosition(
@@ -323,8 +318,6 @@ public:
             {
                 const auto lineWidth = line.mDimensions.x;
                 const auto horizontalAdjustment = (limit.x - lineWidth) / 2.0;
-                Logging::LogDebug("TEXT") << "LW: " << lineWidth << " limit: " 
-                    << limit << " horzAdj: " << horizontalAdjustment << "\n";
                 for (auto* c : line.mChars)
                 {
                     assert(c);

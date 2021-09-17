@@ -23,8 +23,9 @@ unsigned GetInput()
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
+    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
+    //BAK::Keywords keywords{};
     BAK::DialogStore dialog{};
     
     //dialog.ShowAllDialogs();

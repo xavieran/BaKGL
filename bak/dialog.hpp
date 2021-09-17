@@ -24,10 +24,13 @@ public:
     Keywords();
 
     std::string_view GetDialogChoice(unsigned i) const;
+    std::string_view GetQueryChoice(unsigned i) const;
     std::string_view GetNPCName(unsigned i) const;
 private:
     static constexpr auto mCharacterNameOffset = 45;
     static constexpr auto mDialogChoiceOffset = 98;
+    static constexpr auto mQueryChoiceOffset = 1;
+
     std::vector<std::string> mPartyMembers;
     std::vector<std::string> mKeywords;
 };
