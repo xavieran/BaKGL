@@ -22,6 +22,7 @@ std::string_view ToString(SkillType s)
     case SkillType::Lockpick: return "Lockpick";
     case SkillType::Scouting: return "Scouting";
     case SkillType::Stealth: return "Stealth";
+    case SkillType::GainHealth: return "GainHealth";
     default: return "UnknownSkillType";
     }
 }

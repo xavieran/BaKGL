@@ -107,6 +107,15 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     GetTarget(offset),
                     rest});
         }
+        else if (dr == DialogResult::ElapseTime)
+        {
+            const auto time = Time{fb.GetUint32LE()};
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                ElapseTime{
+                    time,
+                    rest});
+        }
         else if (dr == DialogResult::LoseItem)
         {
             const auto item = fb.GetUint16LE();
@@ -120,6 +129,23 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     quantity,
                     rest});
         }
+        else if (dr == DialogResult::GainSkill)
+        {
+            const auto flag = fb.GetUint16LE();
+            const auto skill = static_cast<SkillType>(fb.GetUint16LE());
+            const auto val0 = fb.GetSint8();
+            const auto val1 = fb.GetSint8();
+            const auto val2 = fb.GetSint8();
+            const auto val3 = fb.GetSint8();
+            mActions.emplace_back(
+                GainSkill{
+                    flag,
+                    skill,
+                    val0,
+                    val1,
+                    val2,
+                    val3});
+        }
         else if (dr == DialogResult::GiveItem)
         {
             const auto item = fb.GetUint8();
@@ -132,6 +158,19 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     character,
                     quantity,
                     rest});
+        }
+        else if (dr == DialogResult::GainCondition)
+        {
+            const auto who = fb.GetUint16LE();
+            const auto condition = static_cast<Condition>(fb.GetUint16LE());
+            const auto val1 = fb.GetSint16LE();
+            const auto val2 = fb.GetSint16LE();
+            mActions.emplace_back(
+                GainCondition{
+                    who,
+                    condition,
+                    val1,
+                    val2});
         }
         else if (dr == DialogResult::SetTextVariable)
         {
@@ -191,7 +230,7 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
 {
     os << "[ ds: " << std::hex << +d.mDisplayStyle << " act: " << +d.mActor
         << " ds2: " << +d.mDisplayStyle2 << " ds3: " << +d.mDisplayStyle3
-        << " ]" << "\n";
+        << " ]" << std::dec << "\n";
     
     for (const auto& action : d.mActions)
         os << "++ " << action << "\n";
@@ -271,7 +310,7 @@ void DialogStore::ShowDialog(Target dialogKey)
 {
     auto snippet = std::visit(*this, dialogKey);
     bool noText = true;
-    mLogger.Info() << "Dialog for key: " << std::hex << dialogKey << "\n";
+    mLogger.Info() << "Dialog for key: " << std::hex << dialogKey << std::dec << "\n";
     mLogger.Debug() << "Text: " << GetFirstText(snippet) << "\n";
 }
 

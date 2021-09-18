@@ -1,5 +1,6 @@
 add_library(bak
     camera.hpp
+    condition.hpp condition.cpp
     constants.hpp
     character.hpp character.cpp
     container.hpp container.cpp

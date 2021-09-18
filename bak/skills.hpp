@@ -23,7 +23,9 @@ enum class SkillType
     Haggling,
     Lockpick,
     Scouting,
-    Stealth
+    Stealth,
+    // FIXME: Need a better way to handle this this is the "GainHealth" GainSkill dialog action
+    GainHealth
 };
 
 std::string_view ToString(SkillType);

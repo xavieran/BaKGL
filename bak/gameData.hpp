@@ -4,6 +4,7 @@
 
 #include "bak/constants.hpp"
 #include "bak/character.hpp"
+#include "bak/condition.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter.hpp"
 #include "bak/party.hpp"
@@ -105,9 +106,10 @@ public:
     static constexpr auto sGoldOffset = 0x66; // -> 6a
     static constexpr auto sTimeOffset = 0x6a; // -> 0x72
     static constexpr auto sLocationOffset = 0x76; // -> 0x88
-    static constexpr auto sCharacterNameOffset = 0x9f; // -> 0xdb
-    static constexpr auto sCharacterSkillOffset = 0xdb; // -> 0x315
+    static constexpr auto sCharacterNameOffset    = 0x9f; // -> 0xdb
+    static constexpr auto sCharacterSkillOffset   = 0xdb; // -> 0x315
     static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
+    static constexpr auto sCharacterStatusOffset  = 0x330; // -> 0x
 
     // Single bit indicators for event state tracking
     static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
@@ -230,16 +232,31 @@ public:
             auto inventory = LoadInventory(
                 inventoryOffset + inventoryLength * i);
 
+            auto conditions = LoadConditions(i);
+
             chars.emplace_back(
                 name,
                 skills,
                 spells,
                 unknown,
                 unknown2,
+                conditions,
                 inventory);
         }
         
         return chars;
+    }
+
+    Conditions LoadConditions(unsigned character)
+    {
+        assert(character < sCharacterCount);
+        mBuffer.Seek(sCharacterStatusOffset 
+            + character * Conditions::sNumConditions);
+
+        auto conditions = Conditions{};
+        for (unsigned i = 0; i < Conditions::sNumConditions; i++)
+            conditions.mConditions[i] = mBuffer.GetUint8();
+        return conditions;
     }
 
     unsigned LoadChapter()

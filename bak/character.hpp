@@ -1,6 +1,8 @@
 #pragma once
 
 #include "com/ostream.hpp"
+
+#include "bak/condition.hpp"
 #include "bak/skills.hpp"
 #include "bak/inventory.hpp"
 
@@ -18,6 +20,7 @@ public:
     std::array<std::uint8_t, 6> mSpells;
     std::array<std::uint8_t, 2> mUnknown;
     std::array<std::uint8_t, 7> mUnknown2;
+    Conditions mConditions;
     Inventory mInventory;
 };
 

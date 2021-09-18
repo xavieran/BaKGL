@@ -1,6 +1,9 @@
 #pragma once
 
+#include "bak/condition.hpp"
+#include "bak/skills.hpp"
 #include "bak/dialogTarget.hpp"
+#include "bak/worldClock.hpp"
 
 #include <glm/glm.hpp>
 
@@ -20,7 +23,7 @@ enum class DialogResult
     // For popup dialogs sets the dimensions of the dialog
     SetPopupDimensions = 0x06,
     // e.g. sickness when visiting orno (2f4e8c)
-    GiveCondition = 0x08,
+    GainCondition = 0x08,
     GainSkill  = 0x09,
     PlaySound  = 0x0c,
     ElapseTime = 0x0d,
@@ -29,6 +32,8 @@ enum class DialogResult
     PushNextDialog = 0x10,
     // Transition to another location? e.g. sewer dialog 231861
     Transition = 0x14,
+    // 18 - seems to remove/move mney at a chapter transition
+    // 17 - maybe moves party members around? e.g. at chapter transition
 };
 
 struct SetTextVariable
@@ -49,6 +54,22 @@ struct SetTextVariable
     std::array<std::uint8_t, 4> mRest;
 };
 
+struct LoseItem
+{
+    std::uint16_t mItemIndex;
+    std::uint16_t mQuantity;
+    std::array<std::uint8_t, 4> mRest;
+};
+
+struct GiveItem
+{
+    std::uint8_t mItemIndex;
+    // if 2 then give to text variable set character
+    std::uint8_t mCharacter; 
+    std::uint16_t mQuantity;
+    std::array<std::uint8_t, 4> mRest;
+};
+
 // single bit flags
 // 1 -> ab (these are for dialog choices)
 // and
@@ -60,25 +81,44 @@ struct SetFlag
     std::array<std::uint8_t, 6> mRest;
 };
 
-struct LoseItem
-{
-    std::uint16_t mItemIndex;
-    std::uint16_t mQuantity;
-    std::array<std::uint8_t, 4> mRest;
-};
-
-struct GiveItem
-{
-    std::uint8_t mItemIndex;
-    std::uint8_t mCharacter;
-    std::uint16_t mQuantity;
-    std::array<std::uint8_t, 4> mRest;
-};
-
 struct SetPopupDimensions
 {
     glm::vec2 mPos;
     glm::vec2 mDims;
+};
+
+struct GainCondition
+{
+    // if flag == 0 or 1 affects all
+    // 2 affects person who was set by "SetTextVariable"
+    // 8, 9 - locklear
+    // if flag == 7 gorath last person in party?
+    // if flag == 6 locklear party leader.. ?
+    // if flag == 5 owyn second party member?
+    //
+    std::uint16_t mFlag;
+    Condition mCondition;
+    // Value 1 seems to be the one that actually takes effect
+    // if value1 == 0xff9c then it reverses/heals the specific condition
+    std::int16_t mValue1;
+    std::int16_t mValue2;
+};
+
+struct GainSkill
+{
+    std::uint16_t mFlag;
+    SkillType mSkill;
+    // These may be different and I'm not sure on their meaning when different
+    std::int8_t mValue0;
+    std::int8_t mValue1;
+    std::int8_t mValue2;
+    std::int8_t mValue3;
+};
+
+struct ElapseTime
+{
+    Time mTime;
+    std::array<std::uint8_t, 4> mRest;
 };
 
 struct PushNextDialog
@@ -107,7 +147,10 @@ using DialogAction = std::variant<
     LoseItem,
     GiveItem,
     SetFlag,
+    ElapseTime,
     SetPopupDimensions,
+    GainCondition,
+    GainSkill,
     PushNextDialog,
     UnknownAction>;
 
