@@ -57,8 +57,10 @@ std::ostream& operator<<(std::ostream& os, const GiveItem& action)
 
 std::ostream& operator<<(std::ostream& os, const SetFlag& action)
 {
-    os << "SetFlag {" << std::hex << action.mEventPointer << std::dec 
-        << " rest[" << std::hex << action.mRest << std::dec << "]}";
+    os << "SetFlag {" << std::hex << action.mEventPointer
+        << " mask: " << +action.mEventMask << " data: " << +action.mEventData
+        << " z: " << action.mAlwaysZero << " val: " << action.mEventValue
+        << std::dec << "}";
     return os;
 }
 

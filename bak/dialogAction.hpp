@@ -78,7 +78,10 @@ struct GiveItem
 struct SetFlag
 {
     std::uint16_t mEventPointer;
-    std::array<std::uint8_t, 6> mRest;
+    std::uint8_t mEventMask;
+    std::uint8_t mEventData;
+    std::uint16_t mAlwaysZero;
+    std::uint16_t mEventValue;
 };
 
 struct SetPopupDimensions

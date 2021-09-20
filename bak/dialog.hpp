@@ -37,6 +37,8 @@ private:
 
 enum class ChoiceState
 {
+    // Not sure on ethis
+    ItemOrChest = 0x1900, 
     // This seems to be some sort of per scene temporary flag store.
     // e.g. for Krondor palace chapter 1 clicking on the gate sets the flag
     TemporaryFlag = 0x7530,
@@ -45,9 +47,20 @@ enum class ChoiceState
     CantAfford = 0x7533,
     Chapter    = 0x7537,
     NightTime  = 0x7539,
+    // Doesn't seem like anyone's about...
+    Unknown    = 0x753a,
     BeforeArvo = 0x753c,
+    Unknown2   = 0x753d,
+    Unknown3   = 0x753e,
+    Unknown4   = 0x753f,
     // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4
     ShopType   = 0x7542,
+    Unknown5   = 0x754d, // gambler has no money?
+    // Not sure on this one
+    StatusOrItemP = 0x9c00,
+    HaveItem      = 0xc300,
+    HaveNote      = 0xc700,
+    CastSpell     = 0xcb00,
 };
 
 enum class DisplayFlags
@@ -59,19 +72,25 @@ struct DialogChoice
 {
     DialogChoice(
         std::uint16_t state,
-        std::uint16_t choice1,
-        std::uint16_t choice2,
+        std::uint8_t choice0,
+        std::uint8_t choice1,
+        std::uint8_t choice2,
+        std::uint8_t choice3,
         Target target)
     :
         mState{state},
+        mChoice0{choice0},
         mChoice1{choice1},
         mChoice2{choice2},
+        mChoice3{choice3},
         mTarget{target}
     {}
 
     std::uint16_t mState;
-    std::uint16_t mChoice1;
-    std::uint16_t mChoice2;
+    std::uint8_t mChoice0;
+    std::uint8_t mChoice1;
+    std::uint8_t mChoice2;
+    std::uint8_t mChoice3;
     Target mTarget;
 };
 

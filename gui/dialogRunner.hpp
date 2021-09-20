@@ -117,8 +117,8 @@ public:
                 },
                 [&](const BAK::SetFlag& set)
                 {
-                    mLogger.Debug() << "Setting flag of event: " << set.mEventPointer << "\n";
-                    mGameState.SetEventState(set.mEventPointer);
+                    mLogger.Debug() << "Setting flag of event: " << BAK::DialogAction{set} << "\n";
+                    mGameState.SetEventState(set);
                 },
                 [&](const auto& a){
                     mLogger.Debug() << "Doing nothing for: " << a << "\n";
@@ -146,12 +146,12 @@ public:
         const auto CheckComplexState = [&](const auto choice)
         {
             const auto state = mGameState.GetComplexEventState(choice.mState);
-            const auto expectedValue = choice.mChoice1 >> 4;
-            const auto invert = choice.mChoice1 & 0x1;
-            if (invert && (state != expectedValue))
+            const auto expectedValue = choice.mChoice0;
+            if ((state ^ choice.mChoice1) == expectedValue)
                 return true;
-            else if (!invert && (state == expectedValue))
-                return true;
+            // mChoice3 seems to be a mask over the XOR mask
+            // mChoice4 seems to be a mask over the value that was read...
+            // Really not 100% sure on this...
             return false;
         };
 
@@ -168,22 +168,22 @@ public:
                     = static_cast<BAK::ChoiceState>(c.mState);
 
                 if (choiceState == BAK::ChoiceState::Chapter
-                    && mGameState.GetChapter() == c.mChoice1)
+                    && mGameState.GetChapter() == c.mChoice0)
                 {
                     return c.mTarget;
                 }
                 else if (choiceState == BAK::ChoiceState::Money
-                    && mGameState.GetMoney() > c.mChoice1 * 10)
+                    && mGameState.GetMoney() > (c.mChoice0 + (c.mChoice1 << 4))* 10)
                 {
                     return c.mTarget;
                 }
                 else if (choiceState == BAK::ChoiceState::NightTime
-                    && mGameState.GetTime() == c.mChoice1)
+                    && mGameState.GetTime() == c.mChoice0)
                 {
                     return c.mTarget;
                 }
                 else if (choiceState == BAK::ChoiceState::ShopType
-                    && mGameState.GetShopType() == c.mChoice1)
+                    && mGameState.GetShopType() == c.mChoice0)
                 {
                     return c.mTarget;
                 }

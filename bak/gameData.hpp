@@ -120,6 +120,18 @@ public:
     // but also overflow into Gorath health. Not sure why these flags don't
     // seem to be byte aligned.
     static constexpr auto sSkillImprovementOffset = 0x9fc;
+    // 9ed:0x4 == Locklear Defense Selected (START)
+    // 9ed:0x40 == Locklear Assessment selected
+    // 9ee:0x1  == Locklear Weaponcraft selected
+    // 9ee:0x20 == Locklear Stealth Selected (END)
+    // 9ee:0x40 == Nothing
+    // 9ef:0x08 == Gorath Defense (START)
+    // 9ef:0x80 == Gorath Assessment
+    // 9f0:0x01 == Gorath Armorcraft
+    // 9f0:0x40 == Gorath Stealth (END)
+    // 9f1:0x10 == Owyn Defense (START)
+    // 9f1:0x80 == Owyn Stealth (END)
+    static constexpr auto sSkillSelectedOffset    = 0x9ed;
 
     static constexpr auto sCombatEntityListCount  = 700;
     static constexpr auto sCombatEntityListOffset = 0x1383;

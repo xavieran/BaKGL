@@ -142,8 +142,8 @@ int main(int argc, char** argv)
             for (const auto& choice : snippet.GetChoices())
             {
                 std::stringstream ss{};
-                ss << std::hex << choice.mState << " " << choice.mChoice1 
-                    << " " << choice.mChoice2 << " " << choice.mTarget;
+                ss << std::hex << choice.mState << " " << +choice.mChoice0 << +choice.mChoice1 
+                    << " " << +choice.mChoice2 << +choice.mChoice3 << " " << choice.mTarget;
                 if (ImGui::Button(ss.str().c_str()))
                 {
                     history.push(current);

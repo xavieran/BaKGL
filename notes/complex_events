@@ -43,3 +43,26 @@ dc32:b2e set
 dc3c:b2f set
 dc46:b30 set
 
+
+SetFlag calls to trial:
+EventPointer   | Flag
+dac0           | ff 01  -> 01
+""             | ff 02  -> 02
+""             | ff 04  -> 04
+""             | ff 06  -> 06
+""             | ff 08  -> 08
+""             | ff 10  -> 10
+""             | ff 20  -> 20
+""             | ff 40  -> 40
+""             | ff 46  -> 46
+""             | ff 80  -> 80
+""             | ff 33  -> 33
+""             | 00 00 ...
+""             | 9f 00  -> 00
+""             | bf 00  -> 00
+""             | df 00  -> 00
+""             | df 10  -> 10
+""             | ef 00  -> 00
+already have ff (9f 00) -> 90
+already have ff (9f 01) -> 91
+first byte is a mask to preserve existing data?

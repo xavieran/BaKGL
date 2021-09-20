@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/dialog.hpp"
+#include "bak/dialogAction.hpp"
 #include "bak/gameData.hpp"
 #include "bak/types.hpp"
 
@@ -95,9 +96,24 @@ public:
             return false;
     }
 
-    void SetEventState(unsigned eventPtr)
+    void SetEventState(const SetFlag& setFlag)
     {
-        mEventState.emplace(eventPtr, true);
+        if ((setFlag.mEventPointer & 0xd000) == 0xd000)
+        {
+            SetComplexEvent(setFlag);
+        }
+        else
+        {
+            mEventState.emplace(setFlag.mEventPointer, true);
+        }
+    }
+
+    void SetComplexEvent(const SetFlag& setFlag)
+    {
+        const auto data = GetEventState(setFlag.mEventPointer);
+        const auto result = (data & setFlag.mEventMask) 
+            | setFlag.mEventData;
+        mEventState.emplace(setFlag.mEventPointer, result);
     }
 
     Character mPartyLeader;
