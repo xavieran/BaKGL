@@ -101,6 +101,7 @@ public:
         auto italic   = false;
         auto emphasis = false;
         auto bold     = false;
+        auto unbold     = false;
         auto inWord   = false;
 
         const auto NextLine = [&]{
@@ -116,7 +117,7 @@ public:
             charPos.y += font.GetHeight() + 1;
 
             italic = false;
-            bold = false;
+            unbold = false;
             emphasis = false;
             inWord = false;
         };
@@ -170,6 +171,20 @@ public:
                 c,
                 Color::fontHighlight);
         };
+
+        const auto DrawUnbold = [&](const auto& pos, auto c)
+        {
+            Draw(
+                charPos + glm::vec2{0, 1},
+                c,
+                Color::black);
+
+            Draw(
+                charPos,
+                c,
+                Color::fontUnbold);
+        };
+
         
         unsigned currentChar = 0;
         for (; currentChar < text.size(); currentChar++)
@@ -194,6 +209,10 @@ public:
             else if (c == '#')
             {
                 bold = !bold;
+            }
+            else if (c == static_cast<char>(0xf4))
+            {
+                unbold = !unbold;
             }
             else if (c == static_cast<char>(0xf0))
             {
@@ -221,6 +240,11 @@ public:
                         DrawNormal(charPos, c);
                     else
                         DrawBold(charPos, c);
+                }
+                else if (unbold)
+                {
+                    // Maybe "lowlight", inactive
+                    DrawUnbold(charPos, c);
                 }
                 else if (emphasis)
                 {

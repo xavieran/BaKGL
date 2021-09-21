@@ -117,6 +117,11 @@ int main(int argc, char** argv)
             {
                 std::stringstream ss{};
                 ss << "Previous: ";
+                if (ImGui::Button("Back") && (!history.empty()))
+                {
+                    current = history.top();
+                    history.pop();
+                }
                 if (!history.empty()) ss << history.top();
                 else ss << "[None]";
                 ss << " Current: " << current;
@@ -131,30 +136,24 @@ int main(int argc, char** argv)
                     ss << "Action :: " << action << std::endl;
                 ImGui::TextWrapped(ss.str().c_str());
             }
-            ImGui::TextWrapped("Text:\n %s", snippet.GetText().data());
 
-            if (ImGui::Button("Back") && (!history.empty()))
-            {
-                current = history.top();
-                history.pop();
-            }
+            ImGui::TextWrapped("Text:\n %s", snippet.GetText().data());
 
             for (const auto& choice : snippet.GetChoices())
             {
                 std::stringstream ss{};
-                ss << std::hex << choice.mState << " " << +choice.mChoice0 << +choice.mChoice1 
-                    << " " << +choice.mChoice2 << +choice.mChoice3 << " " << choice.mTarget;
+                ss << choice;
                 if (ImGui::Button(ss.str().c_str()))
                 {
                     history.push(current);
                     current = choice.mTarget;
                 }
-                if (gameData != nullptr)
-                {
-                    ss.str(""); ss << "Val: " << gameData->ReadEvent(choice.mState) << " Word: " << std::hex << gameData->ReadEventWord(choice.mState)
-                        << " @state: " << choice.mState;
-                    ImGui::SameLine(); ImGui::Text(ss.str().c_str());
-                }
+                //if (gameData != nullptr)
+                //{
+                //    ss.str(""); ss << "Val: " << gameData->ReadEvent(choice.mState) << " Word: " << std::hex << gameData->ReadEventWord(choice.mState)
+                //        << " @state: " << choice.mState;
+                //    ImGui::SameLine(); ImGui::Text(ss.str().c_str());
+                //}
                 ImGui::TextWrapped(dialogStore.GetFirstText(
                     dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());
             }

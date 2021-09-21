@@ -423,10 +423,9 @@ FileManager::ExtractAllResources()
         {
             do
             {
-                FileBuffer *buffer = new FileBuffer(resIdxData.size);
-                resArchive.LoadResource(*buffer, resIdxData.offset);
-                SaveResource(resName, buffer);
-                delete buffer;
+                auto buffer = FileBuffer(resIdxData.size);
+                resArchive.LoadResource(buffer, resIdxData.offset);
+                SaveResource(resName, &buffer);
             }
             while (resIndex.GetNext(resName, resIdxData));
         }

@@ -67,18 +67,17 @@ void ShowDialogGui(
     for (const auto& choice : snippet.GetChoices())
     {
         std::stringstream ss{};
-        ss << std::hex << choice.mState << " " << +choice.mChoice0 << +choice.mChoice1 
-            << " " << +choice.mChoice2 << +choice.mChoice3 << " " << choice.mTarget;
+        ss << choice;
         if (ImGui::Button(ss.str().c_str()))
         {
             history.push(current);
             current = choice.mTarget;
         }
-        if (saveData != nullptr)
-        {
-            ss.str(""); ss << "Val: " << saveData->ReadEvent(choice.mState);
-            ImGui::SameLine(); ImGui::Text(ss.str().c_str());
-        }
+        //if (saveData != nullptr)
+        //{
+        //    ss.str(""); ss << "Val: " << saveData->ReadEvent(choice.mState);
+        //    ImGui::SameLine(); ImGui::Text(ss.str().c_str());
+        //}
 
         ImGui::TextWrapped(dialogStore.GetFirstText(
             dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());

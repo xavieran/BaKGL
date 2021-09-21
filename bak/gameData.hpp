@@ -113,6 +113,8 @@ public:
 
     // Single bit indicators for event state tracking
     static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
+    static constexpr auto sConversationChoiceMarkedOffset = 0xa8c;
+    static constexpr auto sConversationOptionInhibitedOffset = 0x1a2c;
 
     // dac0 -> dc3c
 
@@ -178,12 +180,6 @@ public:
         //    sCombatInventoryCount);
         //LoadCombatStats(0x914b, 1698);
     }
-
-    /*
-     * Sumani dialog
-     * When click sumani we get a flag set at a8d
-     * This flag tells the UI whether a choice has been clicked or not
-     */
 
     Party LoadParty()
     {
@@ -306,6 +302,38 @@ public:
         const auto eventOffset = (eventPtr / divider) + offset;
         mBuffer.Seek(eventOffset);
         return mBuffer.GetUint8();
+    }
+
+    bool ReadConversationItemClicked(unsigned eventPtr) const
+    {
+        // Fix this for Phillip's early choices...
+        const auto offset = sConversationChoiceMarkedOffset;
+        eventPtr -= 0x4;
+        const auto byteOffset = eventPtr / 8;
+        const auto bitOffset = eventPtr % 8;
+        mBuffer.Seek(offset + byteOffset);
+        const auto word = mBuffer.GetUint8();
+        const bool result = (word & (1 << bitOffset)) == (1 << bitOffset);
+        mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " byteOffset: "
+            << byteOffset << " bitOffset: " << bitOffset << " word: " << word 
+            << " result: " << result << "\n";
+        return result;
+        
+        // Nearest Town  0xa8b -> 0x20 (0x1)
+        // 2 -> 0x40, 3 -> 0x80, 4 -> 0x01 0xa8c
+        // Rift Gate 0xa8d -> 0x02 (0xd)
+        // Sumani 0xa8d -> 0x04 (0xe)
+        // Comabt 0xa8d -> 0x08 (0xf) (0x1a3b to reset)
+        // Armor 0xa8d -> 0x20 (0x11)
+        // Theft 0xa8e -> 0x02 (0x15)
+        // Grey  0xa8e -> 0x04 (0x16)
+        // Swords 0xa8f (0x20) (0x1a4c to reset) -- so need to check this flag
+        // 0x1a4c will inhibit this dialog choice if set
+    }
+
+    bool CheckConversationOptionInhibited(unsigned eventPtr)
+    {
+        return ReadEvent(sConversationOptionInhibitedOffset + eventPtr);
     }
 
     unsigned ReadEvent(unsigned eventPtr) const

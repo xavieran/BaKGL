@@ -19,6 +19,7 @@
 #include "gui/widget.hpp"
 
 #include <regex>
+#include <variant>
 
 namespace Gui {
 
@@ -143,18 +144,6 @@ public:
 
     BAK::Target ProgressDialog()
     {
-        const auto CheckComplexState = [&](const auto choice)
-        {
-            const auto state = mGameState.GetComplexEventState(choice.mState);
-            const auto expectedValue = choice.mChoice0;
-            if ((state ^ choice.mChoice1) == expectedValue)
-                return true;
-            // mChoice3 seems to be a mask over the XOR mask
-            // mChoice4 seems to be a mask over the value that was read...
-            // Really not 100% sure on this...
-            return false;
-        };
-
         if (mCurrentDialog && (mCurrentDialog->mDisplayStyle3 == 0x8))
         {
             const auto choice = GetRandomNumber(0, mCurrentDialog->GetChoices().size() - 1);
@@ -164,43 +153,8 @@ public:
         {
             for (const auto& c : mCurrentDialog->GetChoices())
             {
-                const auto choiceState 
-                    = static_cast<BAK::ChoiceState>(c.mState);
-
-                if (choiceState == BAK::ChoiceState::Chapter
-                    && mGameState.GetChapter() == c.mChoice0)
-                {
+                if (mGameState.EvaluateDialogChoice(c.mChoice))
                     return c.mTarget;
-                }
-                else if (choiceState == BAK::ChoiceState::Money
-                    && mGameState.GetMoney() > (c.mChoice0 + (c.mChoice1 << 4))* 10)
-                {
-                    return c.mTarget;
-                }
-                else if (choiceState == BAK::ChoiceState::NightTime
-                    && mGameState.GetTime() == c.mChoice0)
-                {
-                    return c.mTarget;
-                }
-                else if (choiceState == BAK::ChoiceState::ShopType
-                    && mGameState.GetShopType() == c.mChoice0)
-                {
-                    return c.mTarget;
-                }
-                else if (c.mState < 0x7000 
-                    && mGameState.GetEventState(c.mState))
-                {
-                    return c.mTarget;
-                }
-                else if ((c.mState & 0xd000) == 0xd000
-                    && CheckComplexState(c))
-                {
-                    return c.mTarget;
-                }
-                else if (c.mState == 0x0)
-                {
-                    return c.mTarget;
-                }
             }
 
             return mCurrentDialog->GetChoices().back().mTarget;
@@ -238,7 +192,6 @@ public:
 
     void MouseMoved(glm::vec2 pos) override
     {
-
         mDialogState.MouseMoved(pos);
         mDialogState.DeactivateTooltip(
             [this](){
@@ -253,7 +206,12 @@ public:
         const auto& choices = mCurrentDialog->GetChoices();
         const auto it = std::find_if(choices.begin(), choices.end(),
             [choice](const auto& c){
-                return c.mState == choice;
+                if (std::holds_alternative<BAK::ConversationChoice>(c.mChoice))
+                    return std::get<BAK::ConversationChoice>(c.mChoice).mEventPointer == choice;
+                else if (std::holds_alternative<BAK::QueryChoice>(c.mChoice))
+                    return std::get<BAK::QueryChoice>(c.mChoice).mQueryIndex == choice;
+                else
+                    return false;
             });
         if (it == choices.end())
         {
@@ -266,6 +224,12 @@ public:
         }
         else
         {
+            evaluate_if<BAK::ConversationChoice>(
+                it->mChoice,
+                [&](const auto& c){
+                    mGameState.MarkDiscussed(c);
+                });
+
             mCurrentTarget = it->mTarget;
             mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
             // blergh this and the above are really unpleasant this
@@ -279,23 +243,32 @@ public:
     {
         mLogger.Debug() << "DialogChoices: " << mCurrentDialog << "\n";
         mChoices.SetPosition(glm::vec2{15, 125});
-        mChoices.SetDimensions(glm::vec2{285, 66});
+        mChoices.SetDimensions(glm::vec2{295, 66});
 
         auto choices = std::vector<std::pair<unsigned, std::string>>{};
         unsigned i = 0;
         for (const auto& c : mCurrentDialog->GetChoices())
         {
-            if (mGameState.GetEventState(c.mState))
+            if (std::holds_alternative<BAK::ConversationChoice>(c.mChoice))
             {
-                choices.emplace_back(
-                    std::make_pair(
-                        c.mState,
-                        "#" + std::string{
-                            mKeywords.GetDialogChoice(c.mState)}));
+                const auto choice = std::get<BAK::ConversationChoice>(c.mChoice);
+                if (mGameState.GetEventState(choice.mEventPointer)
+                    && !mGameState.CheckInhibited(choice))
+                {
+                    const auto fontStyle = mGameState.CheckDiscussed(choice)
+                        ? '\xf4' // unbold
+                        : '#';
+                    choices.emplace_back(
+                        std::make_pair(
+                            choice.mEventPointer,
+                            fontStyle + std::string{
+                                mKeywords.GetDialogChoice(choice.mEventPointer)}));
+
+                }
             }
         }
         choices.emplace_back(std::make_pair(-1, "Goodbye"));
-        constexpr auto buttonSize = glm::vec2{64, 14};
+        constexpr auto buttonSize = glm::vec2{68, 14};
         mChoices.StartChoices(choices, buttonSize);
 
         mDialogDisplay.Clear();
@@ -313,11 +286,20 @@ public:
         unsigned i = 0;
         for (const auto& c : mCurrentDialog->GetChoices())
         {
-            choices.emplace_back(
-                std::make_pair(
-                    c.mState,
-                    "#" + std::string{
-                        mKeywords.GetQueryChoice(c.mState)}));
+            if (std::holds_alternative<BAK::QueryChoice>(c.mChoice))
+            {
+                const auto index = std::get<BAK::QueryChoice>(c.mChoice).mQueryIndex;
+                mLogger.Debug() << " Choice Index: " << index << "\n";
+                choices.emplace_back(
+                    std::make_pair(
+                        index,
+                        "#" + std::string{
+                            mKeywords.GetQueryChoice(index)}));
+            }
+            else
+            {
+                throw std::runtime_error("Non-query choice in query choice display");
+            }
         }
         constexpr auto buttonSize = glm::vec2{32, 14};
         mChoices.StartChoices(choices, buttonSize);

@@ -66,3 +66,24 @@ dac0           | ff 01  -> 01
 already have ff (9f 00) -> 90
 already have ff (9f 01) -> 91
 first byte is a mask to preserve existing data?
+
+14e9 -> 1 0 | ff ff -> Something to do with madame haphra? just defeated the shade?
+
+1550 -> 1 0 | ff ff -> Madame haphra If true Owyn in party or James not in party?
+
+197d -> 0 0 | 0 0 -> Isunatus Note? Chest?
+1978 -> 1 0 | ff ff -> Note? Chest? Nalar's rib
+196c -> 1 0 | ff ff -> Note/Instructions in Stellan's house?
+1974 -> 1 0 | ff ff -> Note found in Chest? Delekhan's password
+196e -> 1 0 | ff ff -> Phillips note? Waani chest?
+
+9c41 -> 1 0 | ff ff -> Starving?
+9c49/9c5a -> 1 0 | ff ff -> Near death or plagued? Mist Devil
+9c43 ->  Have six suits of standard kingdom armor in good condition ..... ?
+9c4c -> Have okay food?
+9c4d -> Have posioined/expired food?
+9c45 -> Something for Duke Martin
+9c4b -> Have vapor mask?
+9c42 -> Plagued?
+
+

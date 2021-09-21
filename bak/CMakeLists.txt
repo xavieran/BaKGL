@@ -7,6 +7,7 @@ add_library(bak
     coordinates.hpp coordinates.cpp
     dialog.hpp dialog.cpp
     dialogAction.hpp dialogAction.cpp
+    dialogChoice.hpp dialogChoice.cpp
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
     encounter.hpp encounter.cpp

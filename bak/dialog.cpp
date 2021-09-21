@@ -85,14 +85,12 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
     for (i = 0; i < choices; i++)
     {
         const auto state   = fb.GetUint16LE();
-        const auto choice0 = fb.GetUint8();
-        const auto choice1 = fb.GetUint8();
-        const auto choice2 = fb.GetUint8();
-        const auto choice3 = fb.GetUint8();
+        const auto choice0 = fb.GetUint16LE();
+        const auto choice1 = fb.GetUint16LE();
         const auto offset  = fb.GetUint32LE();
         const auto target  = GetTarget(offset);
         if (offset != 0)
-            mChoices.emplace_back(state, choice0, choice1, choice2, choice3, target);
+            mChoices.emplace_back(state, choice0, choice1, target);
     }
 
     for (i = 0; i < actions; i++)
@@ -224,13 +222,6 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         mText = fb.GetString(length);
     else
         mText = "";
-}
-
-std::ostream& operator<<(std::ostream& os, const DialogChoice& d)
-{
-    os << std::hex << d.mState << " -> " << +d.mChoice0 << " " << +d.mChoice1
-        << " | " << +d.mChoice2 << " " << +d.mChoice3 << " " << d.mTarget << std::dec;
-    return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
