@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <iostream>
+#include <ostream>
 #include <vector>
 
 namespace BAK {
@@ -39,41 +40,57 @@ public:
     Encounter(
         EncounterType encounterType,
         unsigned encounterIndex,
-        glm::vec<2, int> offset,
+        glm::vec<2, unsigned> location,
         glm::vec<2, unsigned> tile,
-        unsigned saveAddress)
+        unsigned saveAddress,
+        unsigned saveAddress2,
+        std::uint32_t unknown0,
+        std::uint8_t unknown1,
+        std::uint16_t unknown2)
     :
         mEncounterType{encounterType},
         mEncounterIndex{encounterIndex},
-        mOffset{offset},
+        mLocation{location},
         mTile{tile},
-        mSaveAddress{saveAddress}
+        mSaveAddress{saveAddress},
+        mSaveAddress2{saveAddress2},
+        mUnknown0{unknown0},
+        mUnknown1{unknown1},
+        mUnknown2{unknown2}
     {}
 
-    auto GetOffset() const { return mOffset; }
     auto GetIndex() const { return mEncounterIndex; }
     auto GetSaveAddress() const { return mSaveAddress; }
     auto GetType() const { return mEncounterType; }
+    auto GetTile() const { return mTile; }
     auto GetLocation() const
     {
         return glm::vec3{
-            static_cast<float>(mTile[0]) * BAK::gTileSize + (static_cast<float>(GetOffset().x << 2)),
+            static_cast<float>(mLocation.x),
             0.0f,
-            -(static_cast<float>(mTile[1]) * BAK::gTileSize + (static_cast<float>(GetOffset().y << 2)))};
+            -(static_cast<float>(mLocation.y))};
 
     }
 
 private:
     EncounterType mEncounterType;
     unsigned mEncounterIndex;
-    glm::vec<2, int> mOffset;
+    glm::vec<2, int> mLocation;
     glm::vec<2, unsigned> mTile;
 
     // Place in the save file that is checked
     // by this encounter to see if it has
     // already been encountered
     unsigned mSaveAddress;
+    unsigned mSaveAddress2;
+public:
+    std::uint32_t mUnknown0;
+    std::uint8_t  mUnknown1;
+    std::uint16_t mUnknown2;
+    friend std::ostream& operator<<(std::ostream&, const Encounter&);
 };
+
+std::ostream& operator<<(std::ostream&, const Encounter&);
 
 std::vector<Encounter> LoadEncounters(
     FileBuffer& fb,

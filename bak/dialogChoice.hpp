@@ -26,6 +26,7 @@ enum class ActiveStateFlag : std::uint16_t
     Unknown4   = 0x753f,
     // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4
     Shop       = 0x7542,
+    Zone       = 0x7543,
     Gambler    = 0x754d // gambler has no money?
 };
 

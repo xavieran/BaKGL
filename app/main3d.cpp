@@ -468,11 +468,11 @@ int main(int argc, char** argv)
         }
 
         // { *** GUI START ***
-        glDisable(GL_DEPTH_TEST);
-        guiShader.UseProgramGL();
-        guiRenderer.RenderGui(&root);
-        spriteManager.DeactivateSpriteSheet();
-        glEnable(GL_DEPTH_TEST);
+        //glDisable(GL_DEPTH_TEST);
+        //guiShader.UseProgramGL();
+        //guiRenderer.RenderGui(&root);
+        //spriteManager.DeactivateSpriteSheet();
+        //glEnable(GL_DEPTH_TEST);
 
 
         // { *** IMGUI START ***
@@ -488,8 +488,10 @@ int main(int argc, char** argv)
             ImGui::Begin("Encounter");
             std::stringstream ss{};
             ss << "Encounter: " << activeEncounter->GetType() << " Index: "
-                << activeEncounter->GetIndex() << std::endl << "SA: "
-                << std::hex << activeEncounter->GetSaveAddress() << std::endl;
+                << activeEncounter->GetIndex() << std::endl
+                << "tile: " << activeEncounter->GetTile() << std::endl
+                << " Loc: " << activeEncounter->GetLocation() << std::endl
+                << "SA: " << std::hex << activeEncounter->GetSaveAddress() << std::endl;
             ImGui::Text(ss.str().c_str());
             ImGui::End();
             

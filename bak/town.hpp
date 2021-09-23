@@ -9,6 +9,8 @@
 
 #include <glm/glm.hpp>
 
+#include <iostream>
+
 /*
 DEF_TOWN.DAT
 0d00 0000 14

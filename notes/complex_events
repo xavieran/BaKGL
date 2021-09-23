@@ -86,4 +86,40 @@ first byte is a mask to preserve existing data?
 9c4b -> Have vapor mask?
 9c42 -> Plagued?
 
+# Read state
+IDA: getActiveStateValue_7530
+ mov     dx, word ptr [bp+arg_0]
+ovr130:027A mov     cx, word ptr [bp+arg_0+2]
+ovr130:027D cmp     dx, 2134h
+ovr130:0281 jnb     short loc_42113
 
+if >= dac0
+ovr130:02B9 mov     di, dx
+ovr130:02BB add     di, 2540h
+ovr130:02BF mov     ax, di
+ovr130:02C1 mov     bx, 0Ah
+ovr130:02C4 xor     dx, dx
+ovr130:02C6 div     bx
+ovr130:02C8 mov     si, ax
+ovr130:02CA mov     ax, di
+ovr130:02CC xor     dx, dx
+ovr130:02CE div     bx
+ovr130:02D0 dec     dx
+ovr130:02D1 mov     bx, dx
+ovr130:02D3 or      cx, cx
+ovr130:02D5 jz      short loc_42143A
+
+if cx == 0
+ovr130:02E3 loc_42143:
+ovr130:02E3 mov     al, 1
+ovr130:02E5 mov     cl, bl
+ovr130:02E7 shl     al, cl
+ovr130:02E9 not     al
+ovr130:02EB and     [si+4831h], al
+ovr130:02EF jmp     short loc_421AE
+else
+ovr130:02D7 mov     al, 1
+ovr130:02D9 mov     cl, bl
+ovr130:02DB shl     al, cl
+ovr130:02DD or      [si+4831h], al
+ovr130:02E1 jmp     short loc_421AE

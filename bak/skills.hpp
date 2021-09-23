@@ -8,22 +8,22 @@ namespace BAK {
 
 enum class SkillType
 {
-    Health = 0,
-    Stamina,
-    Speed,
-    Strength,
-    Defense,
-    Crossbow,
-    Melee,
-    Casting,
-    Assessment,
-    Armorcraft,
-    Weaponcraft,
-    Barding,
-    Haggling,
-    Lockpick,
-    Scouting,
-    Stealth,
+    Health      = 0,
+    Stamina     = 1,
+    Speed       = 2,
+    Strength    = 3,
+    Defense     = 4,
+    Crossbow    = 5,
+    Melee       = 6,
+    Casting     = 7,
+    Assessment  = 8,
+    Armorcraft  = 9,
+    Weaponcraft = 0xa,
+    Barding     = 0xb,
+    Haggling    = 0xc,
+    Lockpick    = 0xd,
+    Scouting    = 0xe,
+    Stealth     = 0xf,
     // FIXME: Need a better way to handle this this is the "GainHealth" GainSkill dialog action
     GainHealth
 };

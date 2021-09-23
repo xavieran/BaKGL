@@ -1,0 +1,134 @@
+0200
+0600 0e1b 0e0b 0000 0000 0000 0000 0000 0000 00
+0100 180a 2104 0000 0000 0000 0000 0000 0000 00
+2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f
+2f2f 2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f
+2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f
+2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f
+2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f
+2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f
+2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f
+2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f 2f2f
+
+T011016
+0300
+// And gorath wept...
+0    2    4    6    8    a    c    e    f    10
+0300 070d 120d 0300 0000 0100 000b 1d0b 1d00 00
+0300 1515 150d 4a00 0000 0100 000b 1d0b 1d00 00
+0300 0f1c 171c 4b00 0000 0100 000b 1d0b 1d00 00
+a094 91df df95 da95 daa8 dfdf dfdf dfdf dfdf df
+dfdf dfdf dfdf dfdf dfdf dfdf dfdf df93 9290
+daa1 95a1 a893 9293 9293 9495 bda1 a094
+95bd a1a0 bda1 a094 95bd a1a0 94bd a190
+94a1 9292 a8df dfdf dfdf dfdf 91df dfdf
+df91 dfdf 91df dfdf df91 dfdf dfdf dfdf
+95a1 9394 a893 9292 9293 9292 9392 9392
+9293 9293 9392 9392 9293 9293 9292 9390
+
+
+
+method.
+Disable all but one of the encounters.
+Walk north until it activates. Save.
+Move the "y" coordinate.
+Walk north until it activates. Save.
+
+Repeat ad inifitum
+Compare the trigger locations and attempt to deduce
+the "size" of a step in y.
+
+Stand before lamut, position is:
+664006, 929034
+a12c6,e2d0a
+
+bpint21
+T011014
+Encounter: town i: 0 off: ivec2(6926, 2830) tile: uvec2(10, 14) savePtr: (0 0) Unknown: 0  0
+
+Mayeb stores whether we recently encoutnered this in eventPtr A14?
+
+0200
+0    2    4    6    8    a    c    e f 
+0600 0e1b 0e0b 0000 0000 0000 0000 0000 0000 00
+     left  top  right  bottom
+0600 0e    1b   0e     0b 0000 0000 0000 0000 0000 0000 00
+01 0018 0a21 0400 0000 0000 0000 0000 0000 0000
+
+2f2f 2f2f 2f2f 2f2f  ........////////
+
+bpint 21 * 
+Left click on button to get tooltip. step through until you get to "RunDialog"
+bpdel bpint *
+add breakpoint for retf at end of rundialog (3b52:2774)
+
+Then you will pop out at mainView:0423 and will have the 
+CS for mainView (46e8, or 4622, can be a few other things...)
+3e0e, 46c5
+then set BP at 46e8:410 (just before left/right click forward is decided
+
+original location at 0x7e70
+
+664006 - 398
+New location stored @feb0
+new X = a2037 (663607) 
+new Y = e2d31 (929073)
+
+check encounter hit...
+tx = player current pos x offset
+ty = player current pos y offset
+for (encounter in encounters):
+    encounter_tx = encounter.x & 0xff (0x1b0e)
+    if (encounter_tx == tx):
+        encounter_ty = encounter.y & 0xff (0x0b0e)
+        if (encounter_ty == tx):
+            encounter_xx = encounter+0x3 (0e1b) rather than 0x1b0e
+            if (encounter_xx >= ty):
+                encounter_yy = encounter+0x5 (0xb rather 0xb0e)
+
+
+x = a32a6
+y = e281c
+calculate tile
+x = 0x11
+y = 0x13
+
+Trial #1
+encounter_lamut_1_step
+Small step size.
+1 Step away from lamut (dont trigger encounter)
+0x7e72 = 0a2351, 0e2cdf
+after move == a21c2, e2d06
+calculateXTileAndYTile -- so this isn't strictly the tile? Tile overlap?
+(x / 0x640) % 0x28 = 0xf
+(y / 0x640) % 0x28 = 0x14
+
+findMatchingEncounter
+enc_x = 0x1b0e
+13d6 cmp (0x1b0e & 0xff), 0xf -> no jump (e < f)
+enc_x = 0xb0e
+13de cmp (0xb0e & 0xff), 0xf -> finish (e < f) (we are too far to the right)
+
+Trial #2
+encounter_lamut_1_step
+0x7e72 = a21c2, e2d06
+after move == a2033, e2d2d
+tiles = 0xe, 0x14
+enc_x = 0x1
+
+We need the remainder to be left < tile x < right...
+Work backwards from 0xe...
+
+663,999
+=> TL 896'000, 1'728'000
+=> BR 896'000,   704'000
+
+multiplier => 664000 / 0xe => ~47428
+
+664000, 939400
+664000, 915000
+
+0xe2d2d
+bounds can be computed as
+tile * 64000 + encounterCoord * 1600
+e.g. 10 * 64000 + 0xe * 1600 = 662400

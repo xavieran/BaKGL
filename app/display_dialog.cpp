@@ -23,18 +23,36 @@ unsigned GetInput()
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
+    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
     //BAK::Keywords keywords{};
     BAK::DialogStore dialog{};
+    BAK::DialogIndex dialogIndex{};
     
     //dialog.ShowAllDialogs();
-    
+    std::uint32_t key;
     std::stringstream ss{};
     ss << std::hex << argv[1];
-    std::uint32_t key;
     ss >> key;
-    auto current = BAK::Target{BAK::KeyTarget{key}};
+
+    BAK::Target current;
+
+    if (std::string{argv[1]} == "index")
+    {
+        std::uint32_t key;
+        std::stringstream ss{};
+        ss << std::hex << argv[2];
+        ss >> key;
+
+        const auto target = dialogIndex.GetKeys().at(key);
+        logger.Debug() << "Key from Index " << key << " " << target << "\n";
+        current = target;
+    }
+    else
+    {
+        current = BAK::KeyTarget{key};
+    }
+    
     auto dialogSnippet = dialog.GetSnippet(current);
 
     bool good = true;

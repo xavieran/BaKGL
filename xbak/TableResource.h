@@ -73,7 +73,7 @@ const unsigned int ET_TRAP       = 35;
 const unsigned int ET_CATAPULT   = 36;
 const unsigned int ET_COLUMN     = 37;
 const unsigned int ET_LANDSCAPE  = 38;
-const unsigned int ET_MOUNTAIN   = 39;
+const unsigned int ET_MOUNTAIN   = 39; // with tunnel
 const unsigned int ET_BAG        = 41;
 const unsigned int ET_LADDER     = 42;
 
