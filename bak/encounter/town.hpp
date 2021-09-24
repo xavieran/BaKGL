@@ -88,21 +88,4 @@ std::vector<Town> LoadTowns()
     return towns;
 }
 
-/* DEF_BKGR.DAT
-
-03 00 00 00
-Unknown  | GDS   |       |  entry      | exit        | 
-01 27 00 | 28 0B | 00 00 | D0 5C 15 00 | D1 5C 15 00 | 0B 04 00 A0 01 00 00
-Waterfall
-01 27 00 | 28 09 | 00 00 | C6 5C 15 00 | C7 5C 15 00 | 05 16 00 40 01 00 00
-Rhuargh
-01 00 01 | 28 0D | 00 00 | 22 40 2C 00 | 00 00 00 00 | 23 0C 00 40 00 00 00
-*/
-
-class Background
-{
-public:
-};
-
-
 }

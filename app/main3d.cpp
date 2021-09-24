@@ -8,7 +8,9 @@
 #include "com/logger.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
-#include "bak/town.hpp"
+#include "bak/encounter/town.hpp"
+#include "bak/encounter/block.hpp"
+#include "bak/encounter/zone.hpp"
 #include "bak/worldFactory.hpp"
 #include "bak/zone.hpp"
 
@@ -124,7 +126,7 @@ int main(int argc, char** argv)
     objStore.AddObject("health", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
     objStore.AddObject("enable", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
     objStore.AddObject("disable", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject("block", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject("block", cube.ToMeshObject(glm::vec4{0,0,0, .7}));
 
     auto clickable = Sphere{1.0, 12, 6, true};
     objStore.AddObject(
@@ -242,6 +244,7 @@ int main(int argc, char** argv)
 
     const auto towns = BAK::LoadTowns();
     const auto zones = BAK::LoadZones();
+    const auto zones2 = BAK::Encounters::ZoneFactory{};
 
     auto guiScalar = 3.0f;
 

@@ -407,18 +407,12 @@ void DialogIndex::Load()
     for (unsigned i = 0; i < dialogs; i++)
     {
         assert(fb.GetUint16LE() == 0);
-        // Meaning of the below? Initial state of dialog?
         auto x = fb.GetUint8();
         auto y = fb.GetUint8();
         auto zero = fb.GetUint8();
 
         // Affects the dialog selected
         auto dialogKey = KeyTarget{fb.GetUint32LE()};
-        //logger << "#" << std::dec << i << std::hex << " " 
-        //    << +x << " " << +y << " " << " dialogKey: " 
-        //    << dialogKey << " target: " << dialogStore.GetTarget(dialogKey)
-        //    << "\n";
-
         const auto& emplaced = mKeys.emplace_back(dialogKey);
     }
 }

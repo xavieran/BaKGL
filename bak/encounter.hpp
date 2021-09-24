@@ -103,6 +103,8 @@ public:
 
 std::ostream& operator<<(std::ostream&, const Encounter&);
 
+unsigned TileOffsetToWorldLocation(unsigned tile, std::uint8_t offset);
+
 std::vector<Encounter> LoadEncounters(
     FileBuffer& fb,
     unsigned chapter,

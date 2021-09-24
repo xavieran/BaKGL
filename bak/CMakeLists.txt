@@ -1,4 +1,13 @@
 add_library(bak
+    encounter/background.hpp encounter/background.cpp
+    encounter/block.hpp encounter/block.cpp
+    encounter/combat.hpp encounter/combat.cpp
+    encounter/dialog.hpp encounter/dialog.cpp
+    encounter/disable.hpp
+    encounter/enable.hpp
+    encounter/town.hpp 
+    encounter/trap.hpp encounter/trap.cpp
+    encounter/zone.hpp encounter/zone.cpp
     camera.hpp
     condition.hpp condition.cpp
     constants.hpp
@@ -27,7 +36,6 @@ add_library(bak
     skills.hpp skills.cpp
     systems.hpp
     textureFactory.hpp textureFactory.cpp
-    town.hpp
     worldClock.hpp worldClock.cpp
     worldFactory.hpp worldFactory.cpp
 )
