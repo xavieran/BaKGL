@@ -33,7 +33,7 @@ GDSScene::GDSScene(
     mSceneHotspots{
         FileBufferFactory::CreateFileBuffer(
             mReference.ToFilename())},
-    mFlavourText{BAK::KeyTarget{0x10000}},
+    mFlavourText{BAK::KeyTarget{0x00000}},
     mSpriteSheet{GetDrawInfo().mSpriteSheet},
     mSpriteManager{spriteManager},
     // bitofa hack - all gds scenes have such a frame
@@ -120,7 +120,8 @@ GDSScene::GDSScene(
 
     DisplayNPCBackground();
 
-    mDialogDisplay.ShowFlavourText(mFlavourText);
+    if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
+        mDialogDisplay.ShowFlavourText(mFlavourText);
     AddChildBack(&mDialogDisplay);
 
     mScreenStack.PushScreen(this);

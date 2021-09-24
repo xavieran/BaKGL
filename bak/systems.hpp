@@ -1,5 +1,9 @@
 #pragma once
 
+#include "bak/constants.hpp"
+
+#include "com/visit.hpp"
+
 #include "graphics/glm.hpp"
 
 #include <glm/glm.hpp>
@@ -8,10 +12,73 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <optional>
+#include <variant>
+#include <vector>
+
+
 class Intersectable
 {
 public:
+    struct Rect
+    {
+        double mWidth;
+        double mHeight;
+    };
+
+    struct Circle
+    {
+        double mRadius;
+    };
+
+    using IntersectionType = std::variant<Circle, Rect>;
+
     Intersectable(
+        unsigned itemId,
+        IntersectionType intersection,
+        glm::vec3 location)
+    :
+        mItemId{itemId},
+        mIntersection{intersection},
+        mLocation{location}
+    {}
+
+    unsigned GetId() const { return mItemId; }
+    bool Intersects(glm::vec3 position) const
+    {
+        return std::visit(
+            overloaded{
+                [&](const Rect& rect) -> bool
+                {
+                    const auto x_d = rect.mWidth / 2;
+                    const auto z_d = rect.mHeight / 2;
+                    return ((mLocation.x - x_d) < position.x)
+                        && ((mLocation.x + x_d) > position.x)
+                        && ((mLocation.z - z_d) < position.z)
+                        && ((mLocation.z + z_d) > position.z);
+                },
+                [&](const Circle& circle)
+                {
+
+                    auto distance = glm::distance(mLocation, position);
+                    return distance < circle.mRadius;
+                }
+            },
+            mIntersection);
+    }
+
+    auto GetLocation() const { return mLocation; }
+
+private:
+    unsigned mItemId;
+    IntersectionType mIntersection;
+    glm::vec3 mLocation;
+};
+
+class Clickable
+{
+public:
+    Clickable(
         unsigned itemId,
         double radius,
         glm::vec3 location)
@@ -22,7 +89,8 @@ public:
     {}
 
     unsigned GetId() const { return mItemId; }
-    auto GetRadius() const { return mRadius; }
+    double GetRadius() const { return mRadius; }
+
     auto GetLocation() const { return mLocation; }
 
 private:
@@ -108,9 +176,7 @@ public:
         mIntersectables.emplace_back(item);
     }
 
-    // For now these are identical to intersectables in terms
-    // of mechanics (bounding spheres) but are only checked when clicked
-    void AddClickable(const Intersectable& item)
+    void AddClickable(const Clickable& item)
     {
         mClickables.emplace_back(item);
     }
@@ -129,8 +195,7 @@ public:
     {
         for (const auto& item : GetIntersectables())
         {
-            auto distance = glm::distance(item.GetLocation(), cameraPos);
-            if (distance < item.GetRadius())
+            if (item.Intersects(cameraPos))
                 return item.GetId();
         }
 
@@ -173,7 +238,7 @@ public:
     const std::vector<Intersectable>& GetIntersectables() const { return mIntersectables; }
     const std::vector<Renderable>& GetRenderables() const { return mRenderables; }
     const std::vector<Renderable>& GetSprites() const { return mSprites; }
-    const std::vector<Intersectable>& GetClickables() const { return mClickables; }
+    const std::vector<Clickable>& GetClickables() const { return mClickables; }
 
 private:
     unsigned mNextItemId;
@@ -181,5 +246,5 @@ private:
     std::vector<Intersectable> mIntersectables;
     std::vector<Renderable> mRenderables;
     std::vector<Renderable> mSprites;
-    std::vector<Intersectable> mClickables;
+    std::vector<Clickable> mClickables;
 };

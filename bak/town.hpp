@@ -14,7 +14,7 @@
 /*
 DEF_TOWN.DAT
 0d00 0000 14
-     town tag    entry dg  exit dg xo yo transition
+     town tag    entry dg  exit dg  xo yo transition
 0127 0001 0000 00 68e31600 69e31600 10 14 0040 01 0000 
 0127 0002 0000 00 74e31600 75e31600 0b 08 00a0 01 0000 
 0127 0005 0000 00 99e31600 9ae31600 0a 20 0000 01 0000 
@@ -87,5 +87,22 @@ std::vector<Town> LoadTowns()
 
     return towns;
 }
+
+/* DEF_BKGR.DAT
+
+03 00 00 00
+Unknown  | GDS   |       |  entry      | exit        | 
+01 27 00 | 28 0B | 00 00 | D0 5C 15 00 | D1 5C 15 00 | 0B 04 00 A0 01 00 00
+Waterfall
+01 27 00 | 28 09 | 00 00 | C6 5C 15 00 | C7 5C 15 00 | 05 16 00 40 01 00 00
+Rhuargh
+01 00 01 | 28 0D | 00 00 | 22 40 2C 00 | 00 00 00 00 | 23 0C 00 40 00 00 00
+*/
+
+class Background
+{
+public:
+};
+
 
 }

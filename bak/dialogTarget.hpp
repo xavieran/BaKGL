@@ -11,7 +11,10 @@ struct KeyTarget
 {
     std::uint32_t value;
 
-    bool operator==(const KeyTarget other) const { return value == other.value; }
+    bool operator==(const KeyTarget other) const
+    {
+        return value == other.value;
+    }
 };
 
 struct OffsetTarget

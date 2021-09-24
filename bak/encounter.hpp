@@ -14,6 +14,8 @@
 
 namespace BAK {
 
+static constexpr auto sOffsetScale = 0x640; // (1600)
+
 // These are enumerated in "LIST_TYP.DAT"
 enum class EncounterType : std::uint16_t
 {
@@ -41,6 +43,7 @@ public:
         EncounterType encounterType,
         unsigned encounterIndex,
         glm::vec<2, unsigned> location,
+        glm::vec<2, unsigned> dims,
         glm::vec<2, unsigned> tile,
         unsigned saveAddress,
         unsigned saveAddress2,
@@ -51,6 +54,7 @@ public:
         mEncounterType{encounterType},
         mEncounterIndex{encounterIndex},
         mLocation{location},
+        mDimensions{dims},
         mTile{tile},
         mSaveAddress{saveAddress},
         mSaveAddress2{saveAddress2},
@@ -63,6 +67,7 @@ public:
     auto GetSaveAddress() const { return mSaveAddress; }
     auto GetType() const { return mEncounterType; }
     auto GetTile() const { return mTile; }
+
     auto GetLocation() const
     {
         return glm::vec3{
@@ -72,10 +77,16 @@ public:
 
     }
 
+    auto GetDims() const
+    {
+        return mDimensions;
+    }
+
 private:
     EncounterType mEncounterType;
     unsigned mEncounterIndex;
-    glm::vec<2, int> mLocation;
+    glm::vec<2, unsigned> mLocation;
+    glm::vec<2, unsigned> mDimensions;
     glm::vec<2, unsigned> mTile;
 
     // Place in the save file that is checked

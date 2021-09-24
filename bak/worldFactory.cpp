@@ -283,6 +283,7 @@ Graphics::MeshObject ZoneItemToMeshObject(
                     / static_cast<float>(maxDim);
             }
 
+            // controls the size of the "pixel" effect of the ground
             if (item.GetName().substr(0, 6) == "ground")
             {
                 u *= 40;
