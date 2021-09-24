@@ -62,6 +62,32 @@ public:
     {
     }
 
+    Quad(
+        glm::vec3 va,
+        glm::vec3 vb,
+        glm::vec3 vc,
+        glm::vec3 vd)
+    {
+        const auto normal = glm::normalize(
+            glm::cross(
+                vd - va,
+                vb - va));
+        for (unsigned i = 0; i < 6; i++)
+        {
+            mNormals.emplace_back(normal);
+            mIndices.emplace_back(i);
+        }
+
+        // Triangle one
+        mVertices.emplace_back(vd);
+        mVertices.emplace_back(va);
+        mVertices.emplace_back(vb);
+
+        mVertices.emplace_back(vd);
+        mVertices.emplace_back(vb);
+        mVertices.emplace_back(vc);
+    }
+
     unsigned long GetNumVertices() const
     {
         return mVertices.size();
@@ -69,6 +95,7 @@ public:
 
 //private:
     std::vector<glm::vec3> mVertices;
+    std::vector<glm::vec3> mNormals;
     std::vector<glm::vec3> mTextureCoords;
     std::vector<unsigned> mIndices;
 };

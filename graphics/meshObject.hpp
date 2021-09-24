@@ -11,6 +11,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <algorithm>
+#include <vector>
 
 
 namespace Graphics {

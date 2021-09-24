@@ -13,6 +13,7 @@
 #include "bak/zone.hpp"
 
 #include "graphics/IGuiElement.hpp"
+#include "graphics/cube.hpp"
 #include "graphics/guiRenderer.hpp"
 #include "graphics/glfw.hpp"
 #include "graphics/line.hpp"
@@ -111,47 +112,64 @@ int main(int argc, char** argv)
             item.GetName(),
             BAK::ZoneItemToMeshObject(item, textureStore, pal));
 
-    auto sphere = Sphere{30.0, 12, 6, true};
-    objStore.AddObject(
-        "combat",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 0, .7}));
-    objStore.AddObject(
-        "dialog",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{0.0, 1, 0, .7}));
-    objStore.AddObject(
-        "sound",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, .5, .5, .7}));
-    objStore.AddObject(
-        "zone",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 1, 0, .7}));
-    objStore.AddObject(
-        "trap",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.5, 1, .5, .7}));
-    objStore.AddObject(
-        "town",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 1, .7}));
-    objStore.AddObject(
-        "background",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject(
-        "comment",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject(
-        "health",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject(
-        "enable",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject(
-        "disable",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject(
-        "block",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    const auto cube = Graphics::Cuboid{1, 1, 50};
+    objStore.AddObject("combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .7}));
+    objStore.AddObject("trap", cube.ToMeshObject(glm::vec4{.8, 0, 0, .7}));
+    objStore.AddObject("dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .7}));
+    objStore.AddObject("sound", cube.ToMeshObject(glm::vec4{1.0, .5, .5, .7}));
+    objStore.AddObject("zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .7}));
+    objStore.AddObject("town", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .7}));
+    objStore.AddObject("background", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject("comment", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject("health", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject("enable", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject("disable", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
+    objStore.AddObject("block", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
+
     auto clickable = Sphere{1.0, 12, 6, true};
     objStore.AddObject(
         "clickable",
-        Graphics::SphereToMeshObject(sphere, glm::vec4{.0, .0, 1.0, .7}));
+        Graphics::SphereToMeshObject(clickable, glm::vec4{.0, .0, 1.0, .7}));
+    //objStore.AddObject(
+    //    "combat",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 0, .7}));
+    //objStore.AddObject(
+    //    "dialog",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{0.0, 1, 0, .7}));
+    //objStore.AddObject(
+    //    "sound",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, .5, .5, .7}));
+    //objStore.AddObject(
+    //    "zone",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 1, 0, .7}));
+    //objStore.AddObject(
+    //    "trap",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.5, 1, .5, .7}));
+    //objStore.AddObject(
+    //    "town",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{1.0, 0, 1, .7}));
+    //objStore.AddObject(
+    //    "background",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    //objStore.AddObject(
+    //    "comment",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    //objStore.AddObject(
+    //    "health",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    //objStore.AddObject(
+    //    "enable",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    //objStore.AddObject(
+    //    "disable",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    //objStore.AddObject(
+    //    "block",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.7, .7, .7, .7}));
+    //auto clickable = Sphere{1.0, 12, 6, true};
+    //objStore.AddObject(
+    //    "clickable",
+    //    Graphics::SphereToMeshObject(sphere, glm::vec4{.0, .0, 1.0, .7}));
 
     auto systems = Systems{};
     std::unordered_map<unsigned, const BAK::Encounter*> encounters{};
@@ -179,7 +197,7 @@ int main(int argc, char** argv)
                 if (item.GetZoneItem().GetClickable())
                 {
                     systems.AddClickable(
-                        Intersectable{
+                        Clickable{
                             id,
                             500,
                             item.GetLocation()});
@@ -194,22 +212,28 @@ int main(int argc, char** argv)
                 }
             }
         }
+    }
 
+    for (const auto& world : worlds.GetTiles())
+    {
         for (const auto& enc : world.GetEncounters())
         {
             auto id = systems.GetNextItemId();
+            const auto dims = enc.GetDims();
             systems.AddRenderable(
                 Renderable{
                     id,
                     objStore.GetObject(BAK::EncounterTypeToString(enc.GetType())),
                     enc.GetLocation(),
                     glm::vec3{0.0},
-                    glm::vec3{1.0}});
+                    glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
 
             systems.AddIntersectable(
                 Intersectable{
                     id,
-                    3000,
+                    Intersectable::Rect{
+                        static_cast<double>(dims.x),
+                        static_cast<double>(dims.y)},
                     enc.GetLocation()});
 
             encounters.emplace(id, &enc);
@@ -468,11 +492,11 @@ int main(int argc, char** argv)
         }
 
         // { *** GUI START ***
-        //glDisable(GL_DEPTH_TEST);
-        //guiShader.UseProgramGL();
-        //guiRenderer.RenderGui(&root);
-        //spriteManager.DeactivateSpriteSheet();
-        //glEnable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
+        guiShader.UseProgramGL();
+        guiRenderer.RenderGui(&root);
+        spriteManager.DeactivateSpriteSheet();
+        glEnable(GL_DEPTH_TEST);
 
 
         // { *** IMGUI START ***
