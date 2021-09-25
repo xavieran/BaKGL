@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-namespace BAK {
+namespace BAK::Encounter {
 
 
 BlockFactory::BlockFactory()

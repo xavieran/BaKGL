@@ -1,9 +1,9 @@
 #include "bak/encounter/zone.hpp"
-#include "bak/encounter.hpp"
+#include "bak/encounter/encounter.hpp"
 
 #include "xbak/FileBuffer.h"
 
-namespace BAK::Encounters {
+namespace BAK::Encounter {
 
 ZoneFactory::ZoneFactory()
 :

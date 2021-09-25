@@ -6,7 +6,7 @@
 #include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/container.hpp"
-#include "bak/encounter.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "bak/party.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/skills.hpp"

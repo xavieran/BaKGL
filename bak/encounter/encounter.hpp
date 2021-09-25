@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "bak/constants.hpp"
 #include "graphics/glm.hpp"
 
@@ -12,7 +11,7 @@
 #include <ostream>
 #include <vector>
 
-namespace BAK {
+namespace BAK::Encounter {
 
 static constexpr auto sOffsetScale = 0x640; // (1600)
 

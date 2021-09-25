@@ -1,4 +1,4 @@
-#include "bak/encounter.hpp"
+#include "bak/encounter/encounter.hpp"
 
 #include "com/logger.hpp"
 
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <vector>
 
-namespace BAK {
+namespace BAK::Encounter {
 
 std::string EncounterTypeToString(EncounterType t)
 {
@@ -102,7 +102,7 @@ std::vector<Encounter> LoadEncounters(
     for (unsigned i = 0; i < numberOfEncounters; i++)
     {
         auto loc = fb.Tell();
-        auto encounterType = static_cast<BAK::EncounterType>(fb.GetUint16LE());
+        auto encounterType = static_cast<EncounterType>(fb.GetUint16LE());
 
         
         const unsigned left   = fb.GetUint8();

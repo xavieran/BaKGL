@@ -50,7 +50,7 @@
 0117 00 | 05 | 1610 | 111e     | 0080     | 0b33 2900 0000 0000 0000 
 */
 
-namespace BAK::Encounters {
+namespace BAK::Encounter {
 
 class Zone
 {

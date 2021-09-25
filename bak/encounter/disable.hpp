@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace BAK {
+namespace BAK::Encounter {
 
 /*
 1A 00 00 00

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace BAK {
+namespace BAK::Encounter {
 
 /*
 */

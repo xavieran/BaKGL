@@ -1,4 +1,5 @@
 add_library(bak
+    encounter/encounter.hpp encounter/encounter.cpp
     encounter/background.hpp encounter/background.cpp
     encounter/block.hpp encounter/block.cpp
     encounter/combat.hpp encounter/combat.cpp
@@ -19,7 +20,6 @@ add_library(bak
     dialogChoice.hpp dialogChoice.cpp
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
-    encounter.hpp encounter.cpp
     eventHandler.hpp
     fixedObject.hpp fixedObject.cpp
     font.hpp font.cpp

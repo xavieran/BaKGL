@@ -31,7 +31,7 @@ DEF_TOWN.DAT
 
 */
 
-namespace BAK {
+namespace BAK::Encounter {
 
 struct Town
 {

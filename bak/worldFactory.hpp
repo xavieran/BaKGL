@@ -2,7 +2,7 @@
 
 #include "bak/constants.hpp"
 #include "bak/coordinates.hpp"
-#include "bak/encounter.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "com/logger.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/textureFactory.hpp"
@@ -342,7 +342,7 @@ public:
             {
                 auto fb = FileBufferFactory::CreateFileBuffer(
                     zoneItems.GetZoneLabel().GetTileData(x, y));
-                mEncounters = BAK::LoadEncounters(fb, 1, mTile);
+                mEncounters = BAK::Encounter::LoadEncounters(fb, 1, mTile);
             }
             catch (const OpenError&)
             {
@@ -365,7 +365,7 @@ private:
     glm::vec<2, unsigned> mTile;
 
     std::vector<WorldItemInstance> mItemInsts;
-    std::vector<Encounter> mEncounters;
+    std::vector<Encounter::Encounter> mEncounters;
 };
 
 

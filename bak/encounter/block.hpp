@@ -2,7 +2,7 @@
 
 #include "bak/dialogTarget.hpp"
 
-namespace BAK {
+namespace BAK::Encounter {
 
 /*
 3F 00 00 00
