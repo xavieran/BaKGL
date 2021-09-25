@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace BAK::Encounters {
+namespace BAK::Encounter {
 
 /*
 B1 01 00
@@ -22,6 +22,8 @@ public:
 
     //bool mVisible;
 };
+
+std::ostream& operator<<(std::ostream&, const Combat&);
 
 class CombatFactory
 {

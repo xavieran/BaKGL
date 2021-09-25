@@ -4,15 +4,17 @@
 
 #include <vector>
 
-namespace BAK::Encounters {
+namespace BAK::Encounter {
 
 // Almost identical to combats but with 10 extra bytes...
 class Trap
 {
 public:
-    unsigned mTrapIndex;
+    unsigned mCombatIndex;
     KeyTarget mEntryDialog;
 };
+
+std::ostream& operator<<(std::ostream&, const Trap&);
 
 class TrapFactory
 {

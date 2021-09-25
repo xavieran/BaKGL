@@ -6,7 +6,16 @@
 
 #include <cassert>
 
-namespace BAK::Encounters {
+namespace BAK::Encounter {
+
+std::ostream& operator<<(std::ostream& os, const Combat& comb)
+{
+    os << "Combat { #" << comb.mCombatIndex
+        << " Entry: " << comb.mEntryDialog 
+        << " Scout: " << comb.mScoutDialog
+        << "}";
+    return os;
+}
 
 CombatFactory::CombatFactory()
 :
@@ -39,10 +48,10 @@ void CombatFactory::Load()
         fb.Skip(385);
 
 
-        logger.Debug() << "Index: " << i << " COMBAT #" << combatIndex << " ";
+        logger.Spam() << "Index: " << i << " COMBAT #" << combatIndex << " ";
         try
         {
-            logger.Debug() << store.GetFirstText(store.GetSnippet(KeyTarget{entryDialog})) << "\n";
+            logger.Spam() << store.GetFirstText(store.GetSnippet(KeyTarget{entryDialog})) << "\n";
         }
         catch (const std::runtime_error& e)
         {

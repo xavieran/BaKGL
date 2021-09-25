@@ -24,9 +24,8 @@ namespace BAK {
 struct Location
 {
     unsigned mZone;
-    int mHeading;
-    glm::vec<2, int> mPosition;
-    glm::vec<2, int> mTile;
+    glm::vec<2, unsigned> mTile;
+    GamePositionAndHeading mLocation;
 };
 
 class GameData
@@ -376,13 +375,13 @@ public:
         assert(zone < 12);
         mLogger.Info() << "Zone:" << zone << std::endl;
 
-        int xtile = mBuffer.GetUint8();
-        int ytile = mBuffer.GetUint8();
-        int xpos = mBuffer.GetUint32LE();
-        int ypos = mBuffer.GetUint32LE();
+        unsigned xtile = mBuffer.GetUint8();
+        unsigned ytile = mBuffer.GetUint8();
+        unsigned xpos = mBuffer.GetUint32LE();
+        unsigned ypos = mBuffer.GetUint32LE();
 
         mBuffer.DumpAndSkip(5);
-        int heading = mBuffer.GetUint16LE();
+        std::uint16_t heading = mBuffer.GetUint16LE();
 
         mLogger.Info() << "Tile: " << xtile << "," << ytile << std::endl;
         mLogger.Info() << "Pos: " << xpos << "," << ypos << std::endl;
@@ -390,9 +389,10 @@ public:
         
         return Location{
             zone,
-            heading,
-            {xpos, ypos},
-            {xtile, ytile}
+            {xtile, ytile},
+            GamePositionAndHeading{
+                GamePosition{xpos, ypos},
+                heading}
         };
     }
 

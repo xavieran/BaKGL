@@ -6,7 +6,16 @@
 
 #include <cassert>
 
-namespace BAK::Encounters {
+namespace BAK::Encounter {
+
+std::ostream& operator<<(std::ostream& os, const Trap& trap)
+{
+    os << "Trap { #" << trap.mCombatIndex
+        << " Entry: " << trap.mEntryDialog 
+        << "}";
+    return os;
+}
+
 
 TrapFactory::TrapFactory()
 :
@@ -41,14 +50,14 @@ void TrapFactory::Load()
         fb.Skip(395);
 
 
-        logger.Debug() << "Index: " << i << " Trap #" << trapIndex << " ";
+        logger.Spam() << "Index: " << i << " Trap #" << trapIndex << " ";
         try
         {
-            logger.Debug() << store.GetFirstText(store.GetSnippet(KeyTarget{entryDialog})) << "\n";
+            logger.Spam() << store.GetFirstText(store.GetSnippet(KeyTarget{entryDialog})) << "\n";
         }
         catch (const std::runtime_error& e)
         {
-            logger.Debug() << e.what() << "\n";
+            logger.Spam() << e.what() << "\n";
         }
 
         mTraps.emplace_back(

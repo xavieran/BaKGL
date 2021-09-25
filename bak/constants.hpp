@@ -5,7 +5,9 @@
 namespace BAK {
 
 static constexpr float gWorldScale = 100.;
+
 static constexpr float gTileSize = 64000.;
+static constexpr auto gOffsetScale = 0x640; // (1600)
 
 enum class Terrain 
 {

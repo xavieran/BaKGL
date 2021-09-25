@@ -2,13 +2,14 @@
 
 #include "bak/dialogTarget.hpp"
 
-namespace BAK::Encounters {
-
+namespace BAK::Encounter {
 
 class Dialog {
 public:
     KeyTarget mDialog;
 };
+
+std::ostream& operator<<(std::ostream& os, const Dialog&);
 
 class DialogFactory
 {

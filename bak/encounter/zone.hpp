@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
 #include "bak/dialogTarget.hpp"
 
 #include <glm/glm.hpp>
@@ -56,10 +57,11 @@ class Zone
 {
 public:
     unsigned mTargetZone;
-    glm::vec<2, unsigned> mWorldPosition;
-    std::uint16_t mTargetHeading;
+    GamePositionAndHeading mTargetLocation;
     KeyTarget mDialog;
 };
+
+std::ostream& operator<<(std::ostream& os, const Zone&);
 
 class ZoneFactory
 {

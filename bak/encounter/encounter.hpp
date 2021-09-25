@@ -1,6 +1,19 @@
 #pragma once
 
 #include "bak/constants.hpp"
+
+#include "bak/encounter/gdsEntry.hpp"
+#include "bak/encounter/background.hpp"
+#include "bak/encounter/block.hpp"
+#include "bak/encounter/combat.hpp"
+#include "bak/encounter/dialog.hpp"
+#include "bak/encounter/disable.hpp"
+#include "bak/encounter/enable.hpp"
+#include "bak/encounter/sound.hpp"
+#include "bak/encounter/town.hpp"
+#include "bak/encounter/trap.hpp"
+#include "bak/encounter/zone.hpp"
+
 #include "graphics/glm.hpp"
 
 #include "xbak/FileBuffer.h"
@@ -13,8 +26,7 @@
 
 namespace BAK::Encounter {
 
-static constexpr auto sOffsetScale = 0x640; // (1600)
-
+using EncounterIndex = unsigned;
 // These are enumerated in "LIST_TYP.DAT"
 enum class EncounterType : std::uint16_t
 {
@@ -35,12 +47,43 @@ enum class EncounterType : std::uint16_t
 std::string EncounterTypeToString(EncounterType t);
 std::ostream& operator<<(std::ostream& os, EncounterType e);
 
+using EncounterT = std::variant<
+    GDSEntry,
+    Block,
+    Combat,
+    Dialog,
+    EventFlag,
+    Trap,
+    Zone>;
+
+class EncounterFactory
+{
+public:
+    EncounterT MakeEncounter(
+        EncounterType,
+        EncounterIndex,
+        glm::vec<2, unsigned> tile) const;
+
+private:
+    BackgroundFactory mBackgrounds;
+    BlockFactory mBlocks;
+    CombatFactory mCombats;
+    DialogFactory mDialogs;
+    DisableFactory mDisables;
+    EnableFactory mEnables;
+    //SoundFactory mSounds;
+    TownFactory mTowns;
+    TrapFactory mTraps;
+    ZoneFactory mZones;
+};
+
+
 class Encounter
 {
 public:
     Encounter(
         EncounterType encounterType,
-        unsigned encounterIndex,
+        EncounterIndex encounterIndex,
         glm::vec<2, unsigned> location,
         glm::vec<2, unsigned> dims,
         glm::vec<2, unsigned> tile,
@@ -83,7 +126,7 @@ public:
 
 private:
     EncounterType mEncounterType;
-    unsigned mEncounterIndex;
+    EncounterIndex mEncounterIndex;
     glm::vec<2, unsigned> mLocation;
     glm::vec<2, unsigned> mDimensions;
     glm::vec<2, unsigned> mTile;
@@ -101,8 +144,6 @@ public:
 };
 
 std::ostream& operator<<(std::ostream&, const Encounter&);
-
-unsigned TileOffsetToWorldLocation(unsigned tile, std::uint8_t offset);
 
 std::vector<Encounter> LoadEncounters(
     FileBuffer& fb,

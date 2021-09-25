@@ -16,9 +16,8 @@ int main(int argc, char** argv)
 
     BAK::GameData gameData(saveFile);
     logger.Error() << "Tile: " << std::hex << gameData.mLocation.mTile << std::dec <<  " " << gameData.mLocation.mTile << "\n";
-    logger.Error() << "Location: " << std::hex << gameData.mLocation.mPosition << std::dec << "\n";
-    logger.Error() << "Location: " << gameData.mLocation.mPosition << "\n";
-    logger.Error() << "Heading: " << gameData.mLocation.mHeading << " " << std::hex << gameData.mLocation.mHeading << "\n";
+    logger.Error() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
+    logger.Error() << "Location: " << gameData.mLocation.mLocation << "\n";
 
     return 0;
 }

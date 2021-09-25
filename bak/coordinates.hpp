@@ -22,7 +22,24 @@
 
 #include "xbak/Geometry.h"
 
+#include <ostream>
+
 namespace BAK {
+
+using GamePosition = glm::vec<2, unsigned>;
+using GameHeading  = std::uint16_t;
+
+struct GamePositionAndHeading
+{
+    GamePosition mPosition;
+    GameHeading mHeading;
+};
+
+std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
+
+GamePosition MakeGamePositionFromTileAndOffset(
+    glm::vec<2, unsigned> tile,
+    glm::vec<2, std::uint8_t> offset);
 
 template <typename T>
 glm::vec<3, T> ToGlCoord(const Vector3D& coord)

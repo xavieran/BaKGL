@@ -2,6 +2,7 @@
 
 #include "graphics/glm.hpp"
 #include "bak/worldFactory.hpp"
+#include "bak/encounter/encounter.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"
@@ -47,6 +48,8 @@ int main(int argc, char** argv)
     {
         logger.Info() << "Encounter: " << encounter << "\n";
     }
+
+    const auto encounterFactory = BAK::Encounter::EncounterFactory{};
 
     return 0;
 }

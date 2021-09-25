@@ -1,3 +1,5 @@
+#pragma once
+
 #include "bak/encounter/gdsEntry.hpp"
 
 #include "xbak/FileBuffer.h"
@@ -15,10 +17,22 @@ GDSEntryFactory<S>::GDSEntryFactory()
 }
 
 template <typename S>
-const GDSEntry& GDSEntryFactory<S>::Get(unsigned i) const
+GDSEntry GDSEntryFactory<S>::Get(unsigned i, glm::vec<2, unsigned> tile) const
 {
     assert(i < mGDSEntrys.size());
-    return mGDSEntrys[i];
+    const auto& rawGds = mGDSEntrys[i];
+    return GDSEntry{
+        rawGds.mHotspot,
+        rawGds.mEntryDialog,
+        rawGds.mExitDialog,
+        GamePositionAndHeading{
+            MakeGamePositionFromTileAndOffset(
+                tile,
+                rawGds.mExitOffset),
+            rawGds.mExitHeading},
+        rawGds.mWalkToDest
+    };
+
 }
 
 template <typename S>

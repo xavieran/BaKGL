@@ -47,11 +47,6 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
     return os;
 }
 
-unsigned TileOffsetToWorldLocation(unsigned tile, std::uint8_t offset)
-{
-    return tile * BAK::gTileSize + sOffsetScale * offset;
-}
-
 std::pair<
     glm::vec<2, unsigned>,
     glm::vec<2, unsigned>>
@@ -64,22 +59,27 @@ CalculateLocationAndDims(
 {
     // Reminder - BAK coordinates origin is at bottom left
     // and x and y grow positive
-    const auto left   = TileOffsetToWorldLocation(tile.x, l);
-    const auto right  = TileOffsetToWorldLocation(tile.x, r);
-    const auto top    = TileOffsetToWorldLocation(tile.y, t);
-    const auto bottom = TileOffsetToWorldLocation(tile.y, b);
+    const auto topLeft = MakeGamePositionFromTileAndOffset(
+        tile, glm::vec<2, std::uint8_t>{l, t});
+    const auto bottomRight = MakeGamePositionFromTileAndOffset(
+        tile, glm::vec<2, std::uint8_t>{r, b});
     // Give them some thickness
+    const auto left = topLeft.x;
+    const auto top = topLeft.y;
+    const auto right = bottomRight.x;
+    const auto bottom = bottomRight.y;
     const auto width = right == left
-        ? sOffsetScale
+        ? gOffsetScale
         : right - left;
     const auto height = top == bottom
-        ? sOffsetScale
+        ? gOffsetScale
         : top - bottom;
 
-    const auto location = glm::vec<2, unsigned>{
+    const auto location = GamePosition{
         left + width / 2,
         bottom + height / 2};
-    const auto dimensions = glm::vec<2, unsigned>{width, height};
+    const auto dimensions = glm::vec<2, unsigned>{
+        width, height};
 
     return std::make_pair(location, dimensions);
 }
@@ -144,6 +144,42 @@ std::vector<Encounter> LoadEncounters(
     }
 
     return encounters;
+}
+
+EncounterT EncounterFactory::MakeEncounter(
+    EncounterType eType,
+    EncounterIndex eIndex,
+    glm::vec<2, unsigned> tile) const
+{
+    switch (eType)
+    {
+    case EncounterType::Background:
+        return mBackgrounds.Get(eIndex, tile);
+    case EncounterType::Combat:
+        return mCombats.Get(eIndex);
+    case EncounterType::Comment:
+        throw std::runtime_error("Can't make COMMENT encounters");
+    case EncounterType::Dialog:
+        return mDialogs.Get(eIndex);
+    case EncounterType::Health:
+        throw std::runtime_error("Can't make HEALTH encounters");
+    case EncounterType::Sound:
+        throw std::runtime_error("Can't make SOUND encounters");
+    case EncounterType::Town:
+        return mTowns.Get(eIndex, tile);
+    case EncounterType::Trap:
+        return mTraps.Get(eIndex);
+    case EncounterType::Zone:
+        return mZones.Get(eIndex);
+    case EncounterType::Disable:
+        return mDisables.Get(eIndex);
+    case EncounterType::Enable:
+        return mEnables.Get(eIndex);
+    case EncounterType::Block:
+        return mBlocks.Get(eIndex);
+    default:
+        throw std::runtime_error("Can't make UNKNOWN encounters");
+    }
 }
 
 }

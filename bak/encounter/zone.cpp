@@ -5,6 +5,14 @@
 
 namespace BAK::Encounter {
 
+std::ostream& operator<<(std::ostream& os, const Zone& zone)
+{
+    os << "Zone { " << zone.mTargetZone
+        << " worldPosition: " << zone.mTargetLocation
+        << " dialog: " << zone.mDialog << "}";
+    return os;
+}
+
 ZoneFactory::ZoneFactory()
 :
     mZones{}
@@ -28,21 +36,20 @@ void ZoneFactory::Load()
     {
         fb.Skip(3);
         const auto zone = fb.GetUint8();
-        const auto tileX = fb.GetUint8();
-        const auto tileY = fb.GetUint8();
-        const auto xOff = fb.GetUint8();
-        const auto yOff = fb.GetUint8();
+        const auto tile = glm::vec<2, unsigned>{
+            fb.GetUint8(), fb.GetUint8()};
+        const auto offset = glm::vec<2, std::uint8_t>{
+            fb.GetUint8(), fb.GetUint8()};
         const auto heading = fb.GetUint16LE();
         const auto dialog = fb.GetUint32LE();
         assert(fb.GetUint32LE() == 0);
         assert(fb.GetUint16LE() == 0);
 
-        const auto xLoc = TileOffsetToWorldLocation(tileX, xOff);
-        const auto yLoc = TileOffsetToWorldLocation(tileY, yOff);
+        const auto loc = MakeGamePositionFromTileAndOffset(tile, offset);
+
         mZones.emplace_back(
             zone,
-            glm::vec<2, unsigned>{xLoc, yLoc},
-            heading,
+            GamePositionAndHeading{loc, heading},
             KeyTarget{dialog});
     }
 }

@@ -4,7 +4,13 @@
 
 #include <cassert>
 
-namespace BAK::Encounters {
+namespace BAK::Encounter {
+
+std::ostream& operator<<(std::ostream& os, const Dialog& dialog)
+{
+    os << "Dialog { " << dialog.mDialog << "}";
+    return os;
+}
 
 DialogFactory::DialogFactory()
 :

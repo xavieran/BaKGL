@@ -43,29 +43,6 @@ std::ostream& operator<<(std::ostream& os, const Hotspot& hs)
     return os;
 }
 
-std::string HotspotRef::ToString() const
-{
-    std::stringstream ss{};
-    ss << std::dec << +mGdsNumber << mGdsChar;
-    return ss.str();
-}
-
-std::string HotspotRef::ToFilename() const
-{
-    return "GDS" + ToString() + ".DAT";
-}
-
-char MakeHotspotChar(std::uint8_t n)
-{
-    return static_cast<char>(65 + n - 1);
-}
-
-std::ostream& operator<<(std::ostream& os, const HotspotRef& hr)
-{
-    os << hr.ToString();
-    return os;
-}
-
 SceneHotspots::SceneHotspots(FileBuffer&& fb)
 {
     const auto& logger = Logging::LogState::GetLogger("BAK::SceneHotspots");

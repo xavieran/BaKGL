@@ -1,7 +1,10 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
-#include "bak/hotspot.hpp"
+#include "bak/hotspotRef.hpp"
+
+#include "graphics/glm.hpp"
 
 namespace BAK::Encounter {
 
@@ -14,7 +17,7 @@ namespace BAK::Encounter {
 */
 
 // This is a GDS scene ala towns
-class GDSEntry
+class RawGDSEntry
 {
 public:
     HotspotRef mHotspot;
@@ -26,6 +29,19 @@ public:
     bool mWalkToDest;
 };
 
+class GDSEntry
+{
+public:
+    HotspotRef mHotspot;
+    KeyTarget mEntryDialog;
+    KeyTarget mExitDialog;
+    GamePositionAndHeading mExitPosition;
+    // Whether to animate travelling into the town
+    bool mWalkToDest;
+};
+
+std::ostream& operator<<(std::ostream& os, const GDSEntry&);
+
 template <typename SourceFile>
 class GDSEntryFactory
 {
@@ -34,11 +50,12 @@ public:
 
     GDSEntryFactory();
 
-    const GDSEntry& Get(unsigned i) const;
+    GDSEntry Get(unsigned i, glm::vec<2, unsigned> tile) const;
 
 private:
     void Load();
-    std::vector<GDSEntry> mGDSEntrys;
+
+    std::vector<RawGDSEntry> mGDSEntrys;
 };
 
 }

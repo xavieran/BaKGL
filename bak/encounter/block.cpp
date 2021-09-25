@@ -6,6 +6,11 @@
 
 namespace BAK::Encounter {
 
+std::ostream& operator<<(std::ostream& os, const Block& block)
+{
+    os << "Block { " << block.mDialog << "}";
+    return os;
+}
 
 BlockFactory::BlockFactory()
 :

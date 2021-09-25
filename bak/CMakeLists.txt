@@ -3,6 +3,7 @@ add_library(bak
     encounter/background.hpp encounter/background.cpp
     encounter/block.hpp encounter/block.cpp
     encounter/combat.hpp encounter/combat.cpp
+    encounter/gdsEntry.hpp encounter/gdsEntry.cpp encounter/gdsEntry.ipp 
     encounter/dialog.hpp encounter/dialog.cpp
     encounter/disable.hpp
     encounter/enable.hpp
@@ -26,6 +27,7 @@ add_library(bak
     gameData.hpp
     gameState.hpp
     hotspot.hpp hotspot.cpp
+    hotspotRef.hpp hotspotRef.cpp
     inventory.hpp inventory.cpp
     party.hpp party.cpp
     objectInfo.hpp objectInfo.cpp
