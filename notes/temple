@@ -1,0 +1,60 @@
+Length: 185                                    
+Scene Ref: TEMPLE.TTM 
+Unknown data: 00 00 00 00 00 00 00 8f 00 00 00 
+                                   /\
+                                   ||
+                      8?? Location type? F - temple index this was 70 K
+70A
+Action: Temple
+A1: 0 A2: 0 A3: 13d668
+RightClick: 13d667
+Unknown2: 50560000
+LeftClick: 10000
+Unknown3: 7530
+Hotspot #2
+Unknown: 0
+Action: Teleport
+A1: 1 A2: 0 A3: 0
+RightClick: 13d664
+Unknown2: 75020000
+LeftClick: 10000
+Unknown3: 7530
+
+70B
+Hotspot #1
+Unknown: 0
+Action: Temple
+A1: 0 A2: 0 A3: 13d668
+RightClick: 13d667
+Unknown2: 50560000
+LeftClick: 10000
+Unknown3: 7530
+Hotspot #2
+Unknown: 0
+Action: Teleport
+A1: 2 A2: 0 A3: 0
+RightClick: 13d664
+Unknown2: 75020000
+LeftClick: 10000
+Unknown3: 7530
+
+70C
+Hotspot #1
+Unknown: 0
+Action: Temple
+A1: 0 A2: 0 A3: 13d668
+RightClick: 13d667
+Unknown2: 50560000
+LeftClick: 10000
+Unknown3: 7530
+Hotspot #2
+Unknown: 0
+Action: Teleport
+A1: 3 A2: 0 A3: 0
+RightClick: 13d664
+Unknown2: 75020000
+LeftClick: 10000
+Unknown3: 7530
+Hotspot #3
+Unknown: 0
+

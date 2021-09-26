@@ -174,11 +174,15 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
-        StartDialog(BAK::DialogSources::mTempleDialog, false);
+        StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
     {
         StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
+    }
+    else if (hotspot.mAction == BAK::HotspotAction::REPAIR)
+    {
+        StartDialog(BAK::DialogSources::mRepairShopDialog, false);
     }
     else if (hotspot.mAction == BAK::HotspotAction::INN)
     {

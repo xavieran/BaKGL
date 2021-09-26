@@ -53,9 +53,16 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
     mSceneADS = ToUpper(resource + ".ADS");
     logger.Spam() << "Scene Ref: " << mSceneTTM << std::endl;
 
-    const auto unknownData = fb.GetArray<11>();
+    const auto unknownData = fb.GetArray<7>();
     logger.Spam() << "Unknown data: " << std::hex 
         << unknownData << std::dec << "\n";
+    mTempleIndex = fb.GetUint8();
+    logger.Spam() << "TempleIndex: " << std::hex 
+        << +mTempleIndex << std::dec << "\n";
+    mTempleIndex = mTempleIndex & 0xf;
+    const auto unknownData2 = fb.GetArray<3>();
+    logger.Spam() << "Unknown data2: " << std::hex 
+        << unknownData2 << std::dec << "\n";
     const auto song = fb.GetUint16LE();
     logger.Spam() << "Song: " << song << "\n";
     const auto unknownIndex = fb.GetUint16LE();

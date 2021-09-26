@@ -68,6 +68,8 @@ public:
     AdsSceneIndex mSceneIndex2;
 
     std::uint32_t mFlavourText;
+    // This seems only to be used for temples??
+    std::uint8_t mTempleIndex;
 
     std::vector<Hotspot> mHotspots;
     std::unordered_map<unsigned, SceneIndex> mAdsIndices;

@@ -79,7 +79,14 @@ public:
         Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         assert(mButton.size() >= 1);
         if (Within(click))
+        {
             mButton[0] = &mPressed;
+            if (mPressedCallback)
+            {
+                std::invoke(mPressedCallback);
+                return true;
+            }
+        }
 
         return false;
     }
@@ -89,16 +96,6 @@ public:
         Logging::LogDebug("ClickButton") << "Got LMR: " << click << std::endl;
         assert(mButton.size() >= 1);
         mButton[0] = &mNormal;
-
-        if (Within(click))
-        {
-            if (mPressedCallback)
-            {
-                std::invoke(mPressedCallback);
-                return true;
-            }
-        }
-
         return false;
     }
 

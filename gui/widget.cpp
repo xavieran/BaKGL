@@ -164,23 +164,16 @@ bool Widget::Within(glm::vec2 click)
 
 MouseEvent Widget::TransformEvent(const MouseEvent& event)
 {
-    const auto& pos = std::visit(
-        [](const auto& e)
-        {
-            return e.mValue;
-        },
-        event);
-
-    const auto newPos = std::invoke([&]{
-        if (mPositionInfo.mChildrenRelative)
-            return pos - GetPositionInfo().mPosition;
-        else 
-            return pos;
-    });
-
     return std::visit(
-        [&]<typename T>(const T&) -> MouseEvent
+        [&]<typename T>(const T& e) -> MouseEvent
         {
+            const auto newPos = std::invoke([&]{
+                if (mPositionInfo.mChildrenRelative)
+                    return e.mValue - GetPositionInfo().mPosition;
+                else 
+                    return e.mValue;
+            });
+
             return MouseEvent{T{newPos}};
         },
         event);

@@ -78,7 +78,7 @@ public:
     static constexpr auto mShopWontBuyItem          = 0x1b7759;
     static constexpr auto mEmptyPopup               = 0x1b7768;
     static constexpr auto mScrollDescriptions       = 0x1b7761;
-    static constexpr auto mRepairShopDialog         = 0x1b7763;
+    static constexpr auto mRepairShopDialog         = KeyTarget{0x1b7763};
     static constexpr auto mRepairShopCantRepairItem = 0x1b7764;
     static constexpr auto mRepairShopItemDoesntNeedRepair = 0x1b7765;
     static constexpr auto mShopBeginRepairDialog = 0x1b7766;

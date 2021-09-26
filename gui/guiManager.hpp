@@ -74,8 +74,7 @@ public:
     {
         mScreens.PopChild();
         mCursor.PopCursor();
-        // ISSUE20: https://github.com/xavieran/BaKGL/issues/20
-        //mGdsScenes.pop_back();
+        mGdsScenes.pop_back();
     }
 
     void RunDialog(BAK::KeyTarget dialogTarget)
