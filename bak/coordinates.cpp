@@ -32,4 +32,13 @@ glm::vec3 ToGlAngle(const Vector3D& angle)
         * 2.0f * glm::pi<float>();
 }
 
+// Convert an 8 bit BAK angle to radians
+glm::vec2 ToGlAngle(GameHeading heading)
+{
+    constexpr auto divider = static_cast<float>(0xff);
+    const auto ratio = static_cast<float>(heading) / divider;
+    const auto angle = ratio * 2.0f * glm::pi<float>();
+    return glm::vec2{angle + glm::pi<float>(), 0};
+}
+
 }

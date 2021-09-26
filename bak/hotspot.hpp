@@ -21,18 +21,18 @@ namespace BAK {
 
 enum class HotspotAction
 {
-    DIALOG = 2,
-    EXIT = 3,
-    GOTO = 4,
-    BARMAID = 5,
-    SHOP = 6,
-    INN = 7,
+    DIALOG    = 2,
+    EXIT      = 3,
+    GOTO      = 4,
+    BARMAID   = 5,
+    SHOP      = 6,
+    INN       = 7,
     CONTAINER = 8,
-    LUTE = 9,
-    TELEPORT = 11,
-    TEMPLE = 13,
-    NOT_SURE = 15,
-    REPAIR = 16,
+    LUTE      = 9,
+    TELEPORT  = 11,
+    TEMPLE    = 13,
+    NOT_SURE  = 15,
+    REPAIR    = 16,
 };
 
 std::ostream& operator<<(std::ostream&, HotspotAction);

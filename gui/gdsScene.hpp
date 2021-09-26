@@ -47,13 +47,13 @@ public:
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
 
-    void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot);
-    void HandleHotspotRightClicked(const BAK::Hotspot& hotspot);
-
     GDSScene(const GDSScene&) = delete;
     GDSScene& operator=(const GDSScene&) = delete;
 
 public:
+    void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot);
+    void HandleHotspotRightClicked(const BAK::Hotspot& hotspot);
+
     void StartDialog(BAK::Target target, bool isTooltip);
     void FinishedDialog();
 

@@ -1,4 +1,5 @@
 #include "gui/gdsScene.hpp"
+#include "bak/dialogSources.hpp"
 
 #include <glm/glm.hpp>
 
@@ -170,6 +171,22 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     else if (hotspot.mAction == BAK::HotspotAction::EXIT)
     {
         mGuiManager.ExitGDSScene();
+    }
+    else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
+    {
+        StartDialog(BAK::DialogSources::mTempleDialog, false);
+    }
+    else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
+    {
+        StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
+    }
+    else if (hotspot.mAction == BAK::HotspotAction::INN)
+    {
+        StartDialog(BAK::DialogSources::mInnDialog, false);
+    }
+    else if (hotspot.mAction == BAK::HotspotAction::LUTE)
+    {
+        StartDialog(BAK::DialogSources::mBardingGood, false);
     }
     else if (hotspot.mAction == BAK::HotspotAction::GOTO)
     {

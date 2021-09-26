@@ -163,6 +163,7 @@ public:
     :
         mBuffer{FileBufferFactory::CreateFileBuffer(save)},
         mLogger{Logging::LogState::GetLogger("GameData")},
+        mName{LoadSaveName()},
         mObjects{},
         mChapter{LoadChapter()},
         mLocation{LoadLocation()},
@@ -721,9 +722,16 @@ public:
         }
     }
 
+    std::string LoadSaveName()
+    {
+        mBuffer.Seek(0);
+        return mBuffer.GetString(30);
+    }
+
     mutable FileBuffer mBuffer;
     Logging::Logger mLogger;
 
+    const std::string mName;
     ObjectIndex mObjects;
     Chapter mChapter;
     Location mLocation;

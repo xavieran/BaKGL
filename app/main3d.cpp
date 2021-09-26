@@ -63,6 +63,7 @@ int main(int argc, char** argv)
 
     BAK::ZoneLabel zoneLabel{};
     glm::vec<3, float> startPosition{0.0f, 0.0f, 0.0f};
+    glm::vec<2, float> startHeading{3.14f, 0.0f};
     auto containers = std::vector<BAK::Container>{};
     
     BAK::GameData* gameData{nullptr};
@@ -77,11 +78,14 @@ int main(int argc, char** argv)
             std::string saveFile = optarg;
             gameData = new BAK::GameData(saveFile);
             containers = gameData->LoadContainer();
+            logger.Info() << "Loaded save: " << gameData->mName << "\n";
 
             std::stringstream ss{};
             ss << "Z" << std::setw(2) << std::setfill('0') << gameData->mLocation.mZone;
             zoneLabel = BAK::ZoneLabel{ss.str()};
             startPosition = BAK::ToGlCoord<float>(gameData->mLocation.mLocation.mPosition);
+            startHeading = BAK::ToGlAngle(gameData->mLocation.mLocation.mHeading);
+            logger.Info() << "StartHeading: " << startHeading << "\n";
         }
         else if (opt == 'z')
         {
@@ -199,7 +203,7 @@ int main(int argc, char** argv)
         }
     }
 
-    auto guiScalar = 3.0f;
+    auto guiScalar = 5.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;
@@ -290,8 +294,13 @@ int main(int argc, char** argv)
 
     glm::vec3 lightPos = glm::vec3(0,220,0);
     
-    Camera camera{static_cast<unsigned int>(width), static_cast<unsigned int>(height), 400 * 30.0f, 2.0f};
+    Camera camera{
+        static_cast<unsigned>(width),
+        static_cast<unsigned>(height),
+        400 * 30.0f,
+        2.0f};
     camera.SetPosition(startPosition);
+    camera.SetAngle(startHeading);
 
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_W, [&]{ camera.MoveForward(); });
