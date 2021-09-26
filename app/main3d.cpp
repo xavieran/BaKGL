@@ -4,16 +4,17 @@
 #include "bak/coordinates.hpp"
 #include "bak/fixedObject.hpp"
 #include "bak/gameData.hpp"
-#include "graphics/inputHandler.hpp"
-#include "com/logger.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
-#include "bak/encounter/town.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "bak/encounter/block.hpp"
 #include "bak/encounter/zone.hpp"
 #include "bak/worldFactory.hpp"
-#include "bak/zone.hpp"
 
+#include "com/logger.hpp"
+#include "com/visit.hpp"
+
+#include "graphics/inputHandler.hpp"
 #include "graphics/IGuiElement.hpp"
 #include "graphics/cube.hpp"
 #include "graphics/guiRenderer.hpp"
@@ -93,7 +94,6 @@ int main(int argc, char** argv)
     auto fixedObjects = BAK::LoadFixedObjects(zoneLabel.GetZoneNumber());
 
     BAK::DialogStore dialogStore{};
-    BAK::DialogIndex dialogIndex{};
 
     auto palz = std::make_unique<PaletteResource>();
     FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
@@ -101,7 +101,9 @@ int main(int argc, char** argv)
 
     auto textureStore = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textureStore};
-    auto worlds      = BAK::WorldTileStore{zoneItems};
+    const auto encounterFactory = BAK::Encounter::EncounterFactory{};
+
+    auto worlds      = BAK::WorldTileStore{zoneItems, encounterFactory};
 
     if (startPosition == glm::vec<3, float>{0,0,0})
         startPosition = worlds.GetTiles().front().GetCenter();
@@ -115,18 +117,13 @@ int main(int argc, char** argv)
             BAK::ZoneItemToMeshObject(item, textureStore, pal));
 
     const auto cube = Graphics::Cuboid{1, 1, 50};
-    objStore.AddObject("combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .7}));
-    objStore.AddObject("trap", cube.ToMeshObject(glm::vec4{.8, 0, 0, .7}));
-    objStore.AddObject("dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .7}));
-    //objStore.AddObject("sound", cube.ToMeshObject(glm::vec4{1.0, .5, .5, .7}));
-    objStore.AddObject("zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .7}));
-    objStore.AddObject("town", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .7}));
-    objStore.AddObject("background", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
-    //objStore.AddObject("comment", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
-    //objStore.AddObject("health", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject("enable", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject("disable", cube.ToMeshObject(glm::vec4{.7, .7, .7, .7}));
-    objStore.AddObject("block", cube.ToMeshObject(glm::vec4{0,0,0, .7}));
+    objStore.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .7}));
+    objStore.AddObject("Trap", cube.ToMeshObject(glm::vec4{.8, 0, 0, .7}));
+    objStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .7}));
+    objStore.AddObject("Zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .7}));
+    objStore.AddObject("GDSEntry", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .7}));
+    objStore.AddObject("EventFlag", cube.ToMeshObject(glm::vec4{.0, .0, .7, .7}));
+    objStore.AddObject("Block", cube.ToMeshObject(glm::vec4{0,0,0, .7}));
 
     auto clickable = Sphere{1.0, 12, 6, true};
     objStore.AddObject(
@@ -185,7 +182,7 @@ int main(int argc, char** argv)
             systems.AddRenderable(
                 Renderable{
                     id,
-                    objStore.GetObject(BAK::Encounter::EncounterTypeToString(enc.GetType())),
+                    objStore.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
                     enc.GetLocation(),
                     glm::vec3{0.0},
                     glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
@@ -201,10 +198,6 @@ int main(int argc, char** argv)
             encounters.emplace(id, &enc);
         }
     }
-
-    const auto towns = BAK::Encounter::TownFactory{};
-    const auto zones = BAK::LoadZones();
-    const auto zones2 = BAK::Encounter::ZoneFactory{};
 
     auto guiScalar = 3.0f;
 
@@ -474,51 +467,60 @@ int main(int argc, char** argv)
             activeClickable = nullptr;
             ImGui::Begin("Encounter");
             std::stringstream ss{};
-            ss << "Encounter: " << activeEncounter->GetType() << " Index: "
-                << activeEncounter->GetIndex() << std::endl
+            ss << "Encounter: " << activeEncounter->GetEncounter()
                 << "tile: " << activeEncounter->GetTile() << std::endl
                 << " Loc: " << activeEncounter->GetLocation() << std::endl
                 << "SA: " << std::hex << activeEncounter->GetSaveAddress() << std::endl;
             ImGui::Text(ss.str().c_str());
             ImGui::End();
             
-            const auto encounterType = activeEncounter->GetType();
-            switch (encounterType)
-            {
-                case BAK::Encounter::EncounterType::Dialog:
-                {
-                    ShowDialogGuiIndex(
-                        activeEncounter->GetIndex(),
-                        dialogStore,
-                        dialogIndex,
-                        gameData);
-                } break;
-                case BAK::Encounter::EncounterType::Town:
-                {
-                    const auto& town = towns.Get(
-                        activeEncounter->GetIndex(),
-                        glm::vec<2, unsigned>{0});
-                    ShowDialogGui(
-                        town.mEntryDialog,
-                        dialogStore,
-                        dialogIndex,
-                        gameData);
+            const auto& encounter = activeEncounter->GetEncounter();
+            std::visit(
+                overloaded{
+                    [&](const BAK::Encounter::GDSEntry& gds){
+                        ShowDialogGui(
+                            gds.mEntryDialog,
+                            dialogStore,
+                            gameData);
 
-                    if (guiManager.mScreens.size() == 1)
-                        guiManager.EnterGDSScene(town.mHotspot);
-                } break;
-                case BAK::Encounter::EncounterType::Zone:
-                {
-                    ShowDialogGui(
-                        zones[activeEncounter->GetIndex()].mDialog,
-                        dialogStore,
-                        dialogIndex,
-                        gameData);
-                } break;
-                default:
-                {
-                } break;
-            }
+                        if (guiManager.mScreens.size() == 1)
+                            guiManager.EnterGDSScene(gds.mHotspot);
+
+                    },
+                    [&](const BAK::Encounter::Block& e){
+                        ShowDialogGui(
+                            e.mDialog,
+                            dialogStore,
+                            gameData);
+                    },
+                    [&](const BAK::Encounter::Combat& e){
+                        ShowDialogGui(
+                            e.mEntryDialog,
+                            dialogStore,
+                            gameData);
+                    },
+                    [&](const BAK::Encounter::Dialog& e){
+                        ShowDialogGui(
+                            e.mDialog,
+                            dialogStore,
+                            gameData);
+                    },
+                    [](const BAK::Encounter::EventFlag&){
+                    },
+                    [&](const BAK::Encounter::Trap& e){
+                        ShowDialogGui(
+                            e.mEntryDialog,
+                            dialogStore,
+                            gameData);
+                    },
+                    [&](const BAK::Encounter::Zone& e){
+                        ShowDialogGui(
+                            e.mDialog,
+                            dialogStore,
+                            gameData);
+                    },
+                },
+                encounter);
         }
 
         if (activeClickable != nullptr)
@@ -543,7 +545,7 @@ int main(int argc, char** argv)
             auto fit = std::find_if(fixedObjects.begin(), fixedObjects.end(),
                 [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
             if (fit != fixedObjects.end())
-                ShowDialogGui(fit->mDialogKey, dialogStore, dialogIndex, gameData);
+                ShowDialogGui(fit->mDialogKey, dialogStore, gameData);
         }
 
         ImguiWrapper::Draw(window.get());

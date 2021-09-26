@@ -6,11 +6,12 @@
 #include <glm/glm.hpp>
 
 #include <iostream>
+#include <string_view>
 #include <vector>
 
 namespace BAK::Encounter {
 
-std::string EncounterTypeToString(EncounterType t)
+std::string_view ToString(EncounterType t)
 {
     switch (t)
     {
@@ -30,16 +31,36 @@ std::string EncounterTypeToString(EncounterType t)
     }
 }
 
+std::string_view ToString(const EncounterT& encounter)
+{
+    return std::visit(
+        overloaded{
+            [](const GDSEntry&){ return "GDSEntry"; },
+            [](const Block&){ return "Block"; },
+            [](const Combat&){ return "Combat"; },
+            [](const Dialog&){ return "Dialog"; },
+            [](const EventFlag&){ return "EventFlag"; },
+            [](const Trap&){ return "Trap"; },
+            [](const Zone&){ return "Zone"; }
+        },
+        encounter);
+}
+ 
 std::ostream& operator<<(std::ostream& os, EncounterType e)
 {
-    return os << EncounterTypeToString(e);
+    return os << ToString(e);
+}
+
+std::ostream& operator<<(std::ostream& os, const EncounterT& encounter)
+{
+    std::visit([&os](const auto& e){ os << e; }, encounter);
+    return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const Encounter& e)
 {
-    os << e.mEncounterType 
-        << " i: " << e.mEncounterIndex << " loc: " << e.mLocation 
-        << " dims: " << e.mDimensions << " tile: " << e.mTile 
+    os << "{" << e.mEncounter << "} dims: " << e.mDimensions
+        << " tile: " << e.mTile 
         << std::hex << " savePtr: ("
         << e.mSaveAddress << " " << e.mSaveAddress2 
         << ") Unknown: " << e.mUnknown0 << " "
@@ -86,6 +107,7 @@ CalculateLocationAndDims(
 
 
 std::vector<Encounter> LoadEncounters(
+    const EncounterFactory& ef,
     FileBuffer& fb,
     unsigned chapter,
     glm::vec<2, unsigned> tile)
@@ -131,8 +153,10 @@ std::vector<Encounter> LoadEncounters(
             << " saveAddr: 0x" << std::hex << saveAddr << std::dec << std::endl;
 
         encounters.emplace_back(
-            encounterType,
-            encounterIndex,
+            ef.MakeEncounter(
+                encounterType,
+                encounterIndex,
+                tile),
             location,
             dimensions,
             tile,

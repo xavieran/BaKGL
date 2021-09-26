@@ -14,6 +14,8 @@
 #include "bak/encounter/trap.hpp"
 #include "bak/encounter/zone.hpp"
 
+#include "com/visit.hpp"
+
 #include "graphics/glm.hpp"
 
 #include "xbak/FileBuffer.h"
@@ -22,6 +24,8 @@
 
 #include <iostream>
 #include <ostream>
+#include <string_view>
+#include <variant>
 #include <vector>
 
 namespace BAK::Encounter {
@@ -44,7 +48,7 @@ enum class EncounterType : std::uint16_t
     Block = 0xb  // DEF_BLOC.DAT
 };
 
-std::string EncounterTypeToString(EncounterType t);
+std::string_view ToString(EncounterType t);
 std::ostream& operator<<(std::ostream& os, EncounterType e);
 
 using EncounterT = std::variant<
@@ -55,6 +59,9 @@ using EncounterT = std::variant<
     EventFlag,
     Trap,
     Zone>;
+
+std::ostream& operator<<(std::ostream& os, const EncounterT&);
+std::string_view ToString(const EncounterT&);
 
 class EncounterFactory
 {
@@ -71,19 +78,16 @@ private:
     DialogFactory mDialogs;
     DisableFactory mDisables;
     EnableFactory mEnables;
-    //SoundFactory mSounds;
     TownFactory mTowns;
     TrapFactory mTraps;
     ZoneFactory mZones;
 };
 
-
 class Encounter
 {
 public:
     Encounter(
-        EncounterType encounterType,
-        EncounterIndex encounterIndex,
+        EncounterT encounter,
         glm::vec<2, unsigned> location,
         glm::vec<2, unsigned> dims,
         glm::vec<2, unsigned> tile,
@@ -93,8 +97,7 @@ public:
         std::uint8_t unknown1,
         std::uint16_t unknown2)
     :
-        mEncounterType{encounterType},
-        mEncounterIndex{encounterIndex},
+        mEncounter{encounter},
         mLocation{location},
         mDimensions{dims},
         mTile{tile},
@@ -105,9 +108,8 @@ public:
         mUnknown2{unknown2}
     {}
 
-    auto GetIndex() const { return mEncounterIndex; }
+    const auto& GetEncounter() const { return mEncounter; }
     auto GetSaveAddress() const { return mSaveAddress; }
-    auto GetType() const { return mEncounterType; }
     auto GetTile() const { return mTile; }
 
     auto GetLocation() const
@@ -125,8 +127,7 @@ public:
     }
 
 private:
-    EncounterType mEncounterType;
-    EncounterIndex mEncounterIndex;
+    EncounterT mEncounter;
     glm::vec<2, unsigned> mLocation;
     glm::vec<2, unsigned> mDimensions;
     glm::vec<2, unsigned> mTile;
@@ -146,6 +147,7 @@ public:
 std::ostream& operator<<(std::ostream&, const Encounter&);
 
 std::vector<Encounter> LoadEncounters(
+    const EncounterFactory&,
     FileBuffer& fb,
     unsigned chapter,
     glm::vec<2, unsigned> tile);

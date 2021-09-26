@@ -21,7 +21,6 @@
 void ShowDialogGui(
     BAK::Target dialogKey,
     const auto& dialogStore,
-    const auto& dialogIndex,
     const BAK::GameData* saveData = nullptr)
 {
     static auto chosenKey = BAK::Target{BAK::KeyTarget{0x72}};
@@ -85,25 +84,6 @@ void ShowDialogGui(
 
     ImGui::End();
 }
-
-void ShowDialogGuiIndex(
-    unsigned index,
-    const auto& dialogStore,
-    const auto& dialogIndex,
-    const BAK::GameData* saveData = nullptr)
-{
-    static unsigned currentIndex = 0;
-    static BAK::Target current = dialogIndex.GetKeys()[currentIndex];
-
-    if (index != currentIndex)
-    {
-        currentIndex = index;
-        current = dialogIndex.GetKeys()[index];
-    }
-
-    ShowDialogGui(current, dialogStore, dialogIndex, saveData);
-}
-
 
 void ShowCameraGui(
     const Camera& camera)

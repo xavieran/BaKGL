@@ -35,7 +35,8 @@ int main(int argc, char** argv)
 
     logger.Info() << "Loading world tile:" << tileX << tileY << std::endl;
 
-    auto world = BAK::World{zoneItems, x, y};
+    const auto ef = BAK::Encounter::EncounterFactory{};
+    auto world = BAK::World{zoneItems, ef, x, y};
 
     for (const auto& item : world.GetItems())
     {

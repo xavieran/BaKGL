@@ -387,34 +387,4 @@ std::string DialogStore::GetDialogFile(std::uint8_t i)
     return ss.str();
 }
 
-DialogIndex::DialogIndex()
-:
-    mKeys{},
-    mLogger{Logging::LogState::GetLogger("DialogIndex")}
-{
-    Load();
-}
-
-void DialogIndex::Load()
-{
-    BAK::DialogStore dialogStore{};
-
-    auto fb = FileBufferFactory::CreateFileBuffer(DIALOG_POINTERS);
-
-    const unsigned dialogs = fb.GetUint16LE();
-    mLogger.Debug() << "Loading: " << dialogs << "\n";
-
-    for (unsigned i = 0; i < dialogs; i++)
-    {
-        assert(fb.GetUint16LE() == 0);
-        auto x = fb.GetUint8();
-        auto y = fb.GetUint8();
-        auto zero = fb.GetUint8();
-
-        // Affects the dialog selected
-        auto dialogKey = KeyTarget{fb.GetUint32LE()};
-        const auto& emplaced = mKeys.emplace_back(dialogKey);
-    }
-}
-
 }

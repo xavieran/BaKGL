@@ -140,19 +140,4 @@ private:
     const Logging::Logger& mLogger;
 };
 
-class DialogIndex
-{
-public:
-    DialogIndex();
-
-    const auto& GetKeys() const { return mKeys; }
-
-private:
-    void Load();
-
-    std::vector<Target> mKeys;
-
-    const Logging::Logger& mLogger;
-};
-
 }

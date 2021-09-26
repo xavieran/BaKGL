@@ -27,7 +27,6 @@ int main(int argc, char** argv)
     
     //BAK::Keywords keywords{};
     BAK::DialogStore dialog{};
-    BAK::DialogIndex dialogIndex{};
     
     //dialog.ShowAllDialogs();
     std::uint32_t key;
@@ -37,21 +36,7 @@ int main(int argc, char** argv)
 
     BAK::Target current;
 
-    if (std::string{argv[1]} == "index")
-    {
-        std::uint32_t key;
-        std::stringstream ss{};
-        ss << std::hex << argv[2];
-        ss >> key;
-
-        const auto target = dialogIndex.GetKeys().at(key);
-        logger.Debug() << "Key from Index " << key << " " << target << "\n";
-        current = target;
-    }
-    else
-    {
-        current = BAK::KeyTarget{key};
-    }
+    current = BAK::KeyTarget{key};
     
     auto dialogSnippet = dialog.GetSnippet(current);
 

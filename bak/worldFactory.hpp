@@ -304,6 +304,7 @@ public:
 
     World(
         const ZoneItemStore& zoneItems,
+        Encounter::EncounterFactory ef,
         unsigned x,
         unsigned y)
     :
@@ -312,10 +313,14 @@ public:
         mItemInsts{},
         mEncounters{}
     {
-        LoadWorld(zoneItems, x, y);
+        LoadWorld(zoneItems, ef, x, y);
     }
 
-    void LoadWorld(const ZoneItemStore& zoneItems, unsigned x, unsigned y)
+    void LoadWorld(
+        const ZoneItemStore& zoneItems,
+        const Encounter::EncounterFactory ef,
+        unsigned x,
+        unsigned y)
     {
         const auto& logger = Logging::LogState::GetLogger("World");
         const auto tile = zoneItems.GetZoneLabel().GetTileWorld(x, y);
@@ -342,7 +347,12 @@ public:
             {
                 auto fb = FileBufferFactory::CreateFileBuffer(
                     zoneItems.GetZoneLabel().GetTileData(x, y));
-                mEncounters = BAK::Encounter::LoadEncounters(fb, 1, mTile);
+                constexpr auto chapter = 1;
+                mEncounters = BAK::Encounter::LoadEncounters(
+                    ef,
+                    fb,
+                    chapter,
+                    mTile);
             }
             catch (const OpenError&)
             {
@@ -372,10 +382,12 @@ private:
 class WorldTileStore
 {
 public:
-    WorldTileStore(const ZoneItemStore& zoneItems)
+    WorldTileStore(
+        const ZoneItemStore& zoneItems,
+        const Encounter::EncounterFactory& ef)
     :
         mWorlds{
-            std::invoke([&zoneItems]()
+            std::invoke([&zoneItems, &ef]()
             {
                 std::vector<World> worlds{};
                 
@@ -392,7 +404,7 @@ public:
                     {
                         try
                         {
-                            auto it = worlds.emplace_back(zoneItems, x, y);
+                            auto it = worlds.emplace_back(zoneItems, ef, x, y);
                         }
                         catch (const OpenError&)
                         {
