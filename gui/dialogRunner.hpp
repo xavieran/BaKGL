@@ -177,32 +177,42 @@ public:
             mDialogState.ActivateDialog();
 
         mCurrentTarget = target;
-        mCurrentDialog = mDialogStore.GetSnippet(target);
-        EvaluateSnippetActions();
-        mRemainingText = mCurrentDialog->GetText();
         Logging::LogDebug("Gui::DialogRunner")
             << "BeginDialog" << target << " snip: " << mCurrentDialog << "\n";
         RunDialog(true);
     }
 
-    void LeftMousePress(glm::vec2) override
+    bool OnMouseEvent(const MouseEvent& event) override
     {
-        RunDialog();
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
     }
 
-    void MouseMoved(glm::vec2 pos) override
+    bool LeftMousePressed(glm::vec2)
+    {
+        RunDialog();
+        return true;
+    }
+
+    bool MouseMoved(glm::vec2 pos)
     {
         mDialogState.MouseMoved(pos);
         mDialogState.DeactivateTooltip(
             [this](){
                 std::invoke(mFinished);
             });
+        return false;
     }
 
     void MakeChoice(ChoiceScreen::ChoiceIndex choice)
     {
         mLogger.Debug() << "Made choice: " << choice << "\n";
         mScreenStack.PopScreen();
+
         const auto& choices = mCurrentDialog->GetChoices();
         const auto it = std::find_if(choices.begin(), choices.end(),
             [choice](const auto& c){
@@ -324,7 +334,16 @@ public:
         unsigned iters = 0;
         do
         {
-            auto current       = ProgressDialog();
+            BAK::Target current;
+            if (!mCurrentDialog && mCurrentTarget)
+            {
+                current = *mCurrentTarget;
+            }
+            else
+            {
+                current = ProgressDialog();
+            }
+
             auto currentDialog = mDialogStore.GetSnippet(current);
             mLogger.Debug() << "Progressed through: " << current 
                 << "(" << mCurrentTarget << ") " << currentDialog << std::endl;

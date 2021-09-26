@@ -34,36 +34,14 @@ public:
         mLogger.Debug() << "Constructed @" << std::hex << this << std::dec << "\n";
     }
 
-    void LeftMousePress(glm::vec2 click) override
-    {
-        if (mChildren.size() > 0)
-            mChildren.back()->LeftMousePress(click);
-    }
-
-    void LeftMouseRelease(glm::vec2 click) override
-    {
-        if (mChildren.size() > 0)
-            mChildren.back()->LeftMouseRelease(click);
-    }
-
-    void RightMousePress(glm::vec2 click) override
-    {
-        if (mChildren.size() > 0)
-            mChildren.back()->RightMousePress(click);
-    }
-
-    void RightMouseRelease(glm::vec2 click) override
-    {
-        if (mChildren.size() > 0)
-            mChildren.back()->RightMouseRelease(click);
-    }
-
-    void MouseMoved(glm::vec2 pos) override
+    bool OnMouseEvent(const MouseEvent& event) override
     {
         if (mChildren.size() > 0)
         {
-            mChildren.back()->MouseMoved(pos);
+            if (mChildren.back()->OnMouseEvent(event))
+                return true;
         }
+        return false;
     }
 
     void PushScreen(Widget* widget)

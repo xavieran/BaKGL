@@ -2,8 +2,11 @@
 
 #include "gui/button.hpp"
 #include "gui/colors.hpp"
+#include "gui/mouseEvent.hpp"
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
+
+#include "com/visit.hpp"
 
 namespace Gui {
 
@@ -60,24 +63,28 @@ public:
         return mButton;
     }
 
-    void LeftMousePress(glm::vec2 click) override
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
+            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
+    }
+
+    bool LeftMousePressed(glm::vec2 click)
     {
         Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         assert(mButton.size() >= 1);
         if (Within(click))
             mButton[0] = &mPressed;
+
+        return false;
     }
 
-    void MouseMoved(glm::vec2 pos) override
-    {
-        if (!Within(pos))
-        {
-            assert(mButton.size() >= 1);
-            mButton[0] = &mNormal;
-        }
-    }
-
-    void LeftMouseRelease(glm::vec2 click) override
+    bool LeftMouseReleased(glm::vec2 click)
     {
         Logging::LogDebug("ClickButton") << "Got LMR: " << click << std::endl;
         assert(mButton.size() >= 1);
@@ -86,8 +93,24 @@ public:
         if (Within(click))
         {
             if (mPressedCallback)
+            {
                 std::invoke(mPressedCallback);
+                return true;
+            }
         }
+
+        return false;
+    }
+
+    bool MouseMoved(glm::vec2 pos)
+    {
+        if (!Within(pos))
+        {
+            assert(mButton.size() >= 1);
+            mButton[0] = &mNormal;
+        }
+
+        return false;
     }
 
 private:
@@ -149,24 +172,28 @@ public:
         return mButton;
     }
 
-    void LeftMousePress(glm::vec2 click) override
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
+            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
+    }
+
+    bool LeftMousePressed(glm::vec2 click)
     {
         Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         assert(mButton.size() >= 1);
         if (Within(click))
             mButton[0] = &mPressed;
+
+        return false;
     }
 
-    void MouseMoved(glm::vec2 pos) override
-    {
-        if (!Within(pos))
-        {
-            assert(mButton.size() >= 1);
-            mButton[0] = &mNormal;
-        }
-    }
-
-    void LeftMouseRelease(glm::vec2 click) override
+    bool LeftMouseReleased(glm::vec2 click)
     {
         Logging::LogDebug("ClickButton") << "Got LMR: " << click << std::endl;
         assert(mButton.size() >= 1);
@@ -175,9 +202,26 @@ public:
         if (Within(click))
         {
             if (mPressedCallback)
+            {
                 std::invoke(mPressedCallback);
+                return true;
+            }
         }
+
+        return false;
     }
+
+    bool MouseMoved(glm::vec2 pos)
+    {
+        if (!Within(pos))
+        {
+            assert(mButton.size() >= 1);
+            mButton[0] = &mNormal;
+        }
+
+        return false;
+    }
+
 
 private:
     Widget mNormal;

@@ -210,7 +210,7 @@ int main(int argc, char** argv)
 
     auto width = nativeWidth * guiScalar;
     auto height = nativeHeight * guiScalar;
-    auto guiScaleInv = glm::vec3{1 / guiScalar, 1 / guiScalar, 0};
+    auto guiScaleInv = glm::vec2{1 / guiScalar, 1 / guiScalar};
 
     /* OPEN GL / GLFW SETUP  */
 
@@ -315,15 +315,18 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_L, [&]{ lightPos.y -= .5; });
 
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
+
     inputHandler.BindMouse(
         GLFW_MOUSE_BUTTON_LEFT,
-        [&](auto click)
+        [&](const auto click)
         {
-            root.LeftMousePress(guiScaleInv * click);
+            root.OnMouseEvent(
+                Gui::LeftMousePress{guiScaleInv * click});
         },
-        [&](auto click)
+        [&](const auto click)
         {
-            root.LeftMouseRelease(guiScaleInv * click);
+            root.OnMouseEvent(
+                Gui::LeftMouseRelease{guiScaleInv * click});
         }
     );
 
@@ -331,20 +334,24 @@ int main(int argc, char** argv)
         GLFW_MOUSE_BUTTON_RIGHT,
         [&](auto click)
         {
-            root.RightMousePress(guiScaleInv * click);
+            root.OnMouseEvent(
+                Gui::RightMousePress{guiScaleInv * click});
         },
         [&](auto click)
         {
-            root.RightMouseRelease(guiScaleInv * click);
+            root.OnMouseEvent(
+                Gui::RightMouseRelease{guiScaleInv * click});
         }
     );
 
     inputHandler.BindMouseMotion(
         [&](auto pos)
         {
-            root.MouseMoved(guiScaleInv * pos);
+            root.OnMouseEvent(
+                Gui::MouseMove{guiScaleInv * pos});
         }
     );
+
 
     double currentTime = 0;
     double lastTime = 0;

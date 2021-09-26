@@ -87,6 +87,7 @@ public:
     void Choose(ChoiceIndex index)
     {
         std::invoke(mFinished, index);
+        mButtons.clear();
     }
 
 private:

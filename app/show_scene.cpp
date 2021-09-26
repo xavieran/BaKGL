@@ -31,6 +31,7 @@
 #include "gui/hotspot.hpp"
 #include "gui/label.hpp"
 #include "gui/mainView.hpp"
+#include "gui/mouseEvent.hpp"
 #include "gui/scene.hpp"
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
@@ -82,7 +83,7 @@ int main(int argc, char** argv)
         "Show GUI");
 
     //auto guiScale = glm::vec3{guiScalar, guiScalar, 0};
-    auto guiScaleInv = glm::vec3{1 / guiScalar, 1 / guiScalar, 0};
+    auto guiScaleInv = glm::vec2{1 / guiScalar, 1 / guiScalar};
 
     glViewport(0, 0, width, height);
 
@@ -146,13 +147,15 @@ int main(int argc, char** argv)
 
     inputHandler.BindMouse(
         GLFW_MOUSE_BUTTON_LEFT,
-        [&](auto click)
+        [&](const auto click)
         {
-            rootWidget.LeftMousePress(guiScaleInv * click);
+            rootWidget.OnMouseEvent(
+                Gui::LeftMousePress{guiScaleInv * click});
         },
-        [&](auto click)
+        [&](const auto click)
         {
-            rootWidget.LeftMouseRelease(guiScaleInv * click);
+            rootWidget.OnMouseEvent(
+                Gui::LeftMouseRelease{guiScaleInv * click});
         }
     );
 
@@ -160,18 +163,21 @@ int main(int argc, char** argv)
         GLFW_MOUSE_BUTTON_RIGHT,
         [&](auto click)
         {
-            rootWidget.RightMousePress(guiScaleInv * click);
+            rootWidget.OnMouseEvent(
+                Gui::RightMousePress{guiScaleInv * click});
         },
         [&](auto click)
         {
-            rootWidget.RightMouseRelease(guiScaleInv * click);
+            rootWidget.OnMouseEvent(
+                Gui::RightMouseRelease{guiScaleInv * click});
         }
     );
 
     inputHandler.BindMouseMotion(
         [&](auto pos)
         {
-            rootWidget.MouseMoved(guiScaleInv * pos);
+            rootWidget.OnMouseEvent(
+                Gui::MouseMove{guiScaleInv * pos});
         }
     );
 

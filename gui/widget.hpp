@@ -2,6 +2,8 @@
 
 #include "com/logger.hpp"
 
+#include "gui/mouseEvent.hpp"
+
 #include "graphics/IGuiElement.hpp"
 #include "graphics/guiTypes.hpp"
 #include "graphics/glm.hpp"
@@ -27,11 +29,7 @@ public:
     virtual void SetInactive();
 
     // FIXME: Replace these with tags or event objects
-    virtual void LeftMousePress(glm::vec2 click);
-    virtual void LeftMouseRelease(glm::vec2 click);
-    virtual void RightMousePress(glm::vec2 click);
-    virtual void RightMouseRelease(glm::vec2 click);
-    virtual void MouseMoved(glm::vec2 pos);
+    [[nodiscard]] virtual bool OnMouseEvent(const MouseEvent& event);
 
     const Graphics::DrawInfo& GetDrawInfo() const override;
     const Graphics::PositionInfo& GetPositionInfo() const override;
@@ -56,7 +54,7 @@ public:
 
 protected:
     bool Within(glm::vec2 click);
-    glm::vec2 TransformEvent(glm::vec2 eventPos);
+    MouseEvent TransformEvent(const MouseEvent&);
 
     Graphics::DrawInfo mDrawInfo;
     Graphics::PositionInfo mPositionInfo;

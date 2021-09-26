@@ -1,6 +1,7 @@
 #pragma once
 
 #include "com/logger.hpp"
+#include "com/visit.hpp"
 
 #include "gui/widget.hpp"
 #include "gui/colors.hpp"
@@ -42,27 +43,46 @@ public:
     {
     }
 
-    void LeftMousePress(glm::vec2 click) override
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
+            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
+    }
+
+    bool LeftMousePressed(glm::vec2 click)
     {
         Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         if (Within(click))
         {
             if (mLeftPressed)
+            {
                 std::invoke(mLeftPressed);
+                return true;
+            }
         }
+        return false;
     }
 
-    void RightMousePress(glm::vec2 click) override
+    bool RightMousePressed(glm::vec2 click)
     {
         Logging::LogDebug("ClickButton") << "Got RMC: " << click << std::endl;
         if (Within(click))
         {
             if (mRightPressed)
+            {
                 std::invoke(mRightPressed);
+                return true;
+            }
         }
+        return false;
     }
 
-    void MouseMoved(glm::vec2 pos) override
+    bool MouseMoved(glm::vec2 pos)
     {
         if (!mWithinWidget)
         {
@@ -93,6 +113,8 @@ public:
                 mCursor.PopCursor();
             }
         }
+
+        return false;
     }
 
 private:

@@ -1,5 +1,7 @@
 #include "gui/widget.hpp"
 
+#include <variant>
+
 namespace Gui {
 
 Widget::Widget(
@@ -39,39 +41,19 @@ void Widget::SetInactive()
     mActive = false;
 }
 
-void Widget::LeftMousePress(glm::vec2 click)
+bool Widget::OnMouseEvent(const MouseEvent& event)
 {
     if (mActive)
+    {
         for (auto& c : mChildren)
-            c->LeftMousePress(TransformEvent(click));
-}
-
-void Widget::LeftMouseRelease(glm::vec2 click)
-{
-    if (mActive)
-        for (auto& c : mChildren)
-            c->LeftMouseRelease(TransformEvent(click));
-}
-
-void Widget::RightMousePress(glm::vec2 click)
-{
-    if (mActive)
-        for (auto& c : mChildren)
-            c->RightMousePress(TransformEvent(click));
-}
-
-void Widget::RightMouseRelease(glm::vec2 click)
-{
-    if (mActive)
-        for (auto& c : mChildren)
-            c->RightMouseRelease(TransformEvent(click));
-}
-
-void Widget::MouseMoved(glm::vec2 pos)
-{
-    if (mActive)
-        for (auto& c : mChildren)
-            c->MouseMoved(TransformEvent(pos));
+        {
+            const bool handled = c->OnMouseEvent(
+                TransformEvent(event));
+            if (handled)
+                return true;
+        }
+    }
+    return false;
 }
 
 const Graphics::DrawInfo& Widget::GetDrawInfo() const
@@ -180,12 +162,28 @@ bool Widget::Within(glm::vec2 click)
         glm::vec2{GetPositionInfo().mDimensions});
 }
 
-glm::vec2 Widget::TransformEvent(glm::vec2 eventPos)
+MouseEvent Widget::TransformEvent(const MouseEvent& event)
 {
-    if (mPositionInfo.mChildrenRelative)
-        return eventPos - GetPositionInfo().mPosition;
-    else 
-        return eventPos;
+    const auto& pos = std::visit(
+        [](const auto& e)
+        {
+            return e.mValue;
+        },
+        event);
+
+    const auto newPos = std::invoke([&]{
+        if (mPositionInfo.mChildrenRelative)
+            return pos - GetPositionInfo().mPosition;
+        else 
+            return pos;
+    });
+
+    return std::visit(
+        [&]<typename T>(const T&) -> MouseEvent
+        {
+            return MouseEvent{T{newPos}};
+        },
+        event);
 }
 
 }

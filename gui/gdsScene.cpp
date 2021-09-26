@@ -209,8 +209,8 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 {
     mDialogDisplay.Clear();
     mCursor.PushCursor(0);
-    mDialogRunner.BeginDialog(target, isTooltip);
     mScreenStack.PushScreen(&mDialogRunner);
+    mDialogRunner.BeginDialog(target, isTooltip);
 }
 
 void GDSScene::FinishedDialog()

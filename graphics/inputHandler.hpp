@@ -16,7 +16,7 @@ class InputHandler
 {
 public:
     using KeyCallback = std::function<void()>;
-    using MouseCallback = std::function<void(glm::vec3)>;
+    using MouseCallback = std::function<void(glm::vec2)>;
 
     static void BindMouseToWindow(GLFWwindow* window, InputHandler& handler);
     static void BindKeyboardToWindow(GLFWwindow* window, InputHandler& handler);

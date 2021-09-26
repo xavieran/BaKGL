@@ -4,6 +4,8 @@
 #include "gui/cursor.hpp"
 #include "gui/colors.hpp"
 
+#include "com/visit.hpp"
+
 namespace Gui {
 
 class Window : public Widget
@@ -28,11 +30,19 @@ public:
         AddChildBack(&mCursor);
     }
 
-    void MouseMoved(glm::vec2 pos) override
+    bool OnMouseEvent(const MouseEvent& event) override
     {
-        mCursor.SetPosition(pos);
-        Widget::MouseMoved(pos);
+        return std::visit(overloaded{
+            [this](const MouseMove& p){
+                mCursor.SetPosition(p.mValue);
+                return Widget::OnMouseEvent(p);
+            },
+            [this](const auto& p){
+                return Widget::OnMouseEvent(p);
+            }},
+            event);
     }
+
 
     Cursor& GetCursor()
     {
