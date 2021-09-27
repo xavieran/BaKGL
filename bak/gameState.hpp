@@ -53,7 +53,7 @@ public:
         if (mGameData)
         {
             const auto hour = mGameData->mTime.mTime.GetHour();
-            return static_cast<int>(hour > 18);
+            return static_cast<int>(hour < 18);
         }
         else
         {

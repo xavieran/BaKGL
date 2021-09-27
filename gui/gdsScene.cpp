@@ -59,16 +59,6 @@ GDSScene::GDSScene(
         backgrounds,
         font,
         gameState},
-    mDialogRunner{
-        glm::vec2{0, 0},
-        glm::vec2{320, 240},
-        actors,
-        backgrounds,
-        font,
-        gameState,
-        screenStack,
-        *this, // IDialogScene
-        [this](){ FinishedDialog(); }},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
     auto textures = Graphics::TextureStore{};
@@ -147,8 +137,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 { 
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
 
-    if (hotspot.mAction == BAK::HotspotAction::DIALOG
-        && !mDialogRunner.Active())
+    if (hotspot.mAction == BAK::HotspotAction::DIALOG)
     {
         if (hotspot.mActionArg2 != 0x0)
         {
@@ -203,30 +192,24 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
 {
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
-    if (!mDialogRunner.Active())
-    {
-        StartDialog(hotspot.mTooltip, true);
-    }
+    StartDialog(hotspot.mTooltip, true);
 }
 
 void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 {
     mDialogDisplay.Clear();
-    mCursor.PushCursor(0);
-    mScreenStack.PushScreen(&mDialogRunner);
-    mDialogRunner.BeginDialog(target, isTooltip);
+    mGuiManager.StartDialog(target, isTooltip, this);
 }
 
-void GDSScene::FinishedDialog()
+void GDSScene::DialogFinished()
 {
     mLogger.Debug() << "Dialog finished, back to flavour text\n";
 
-    mScreenStack.PopScreen();
-    mDialogDisplay.ShowFlavourText(mFlavourText);
+    if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
+        mDialogDisplay.ShowFlavourText(mFlavourText);
     if (mStaticTTMs.size() > 1)
         mStaticTTMs.pop_back();
     DisplayNPCBackground();
-    mCursor.PopCursor();
 }
 
 }

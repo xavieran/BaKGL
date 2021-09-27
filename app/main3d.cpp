@@ -26,6 +26,7 @@
 #include "graphics/sprites.hpp"
 #include "graphics/texture.hpp"
 
+#include "gui/IDialogScene.hpp"
 #include "gui/guiManager.hpp"
 #include "gui/window.hpp"
 
@@ -80,8 +81,9 @@ int main(int argc, char** argv)
             containers = gameData->LoadContainer();
             logger.Info() << "Loaded save: " << gameData->mName << "\n";
 
+            const auto zone = gameData->mLocation.mZone;
             std::stringstream ss{};
-            ss << "Z" << std::setw(2) << std::setfill('0') << gameData->mLocation.mZone;
+            ss << "Z" << std::setw(2) << std::setfill('0') << zone;
             zoneLabel = BAK::ZoneLabel{ss.str()};
             startPosition = BAK::ToGlCoord<float>(gameData->mLocation.mLocation.mPosition);
             startHeading = BAK::ToGlAngle(gameData->mLocation.mLocation.mHeading);
@@ -302,6 +304,12 @@ int main(int argc, char** argv)
     camera.SetPosition(startPosition);
     camera.SetAngle(startHeading);
 
+    auto dialogScene = Gui::DynamicDialogScene{
+        [&](){ camera.SetAngle(glm::vec2{0}); },
+        [&](){ camera.SetAngle(glm::vec2{3.14, 0}); },
+        [&](){ }
+    };
+
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_W, [&]{ camera.MoveForward(); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ camera.StrafeLeft(); });
@@ -496,7 +504,7 @@ int main(int argc, char** argv)
                             dialogStore,
                             gameData);
 
-                        if (guiManager.mScreens.size() == 1)
+                        if (guiManager.mScreenStack.size() == 1)
                             guiManager.EnterGDSScene(gds.mHotspot);
 
                     },
@@ -505,6 +513,11 @@ int main(int argc, char** argv)
                             e.mDialog,
                             dialogStore,
                             gameData);
+                        if (guiManager.mScreenStack.size() == 1)
+                            guiManager.StartDialog(
+                                e.mDialog,
+                                false,
+                                &dialogScene);
                     },
                     [&](const BAK::Encounter::Combat& e){
                         ShowDialogGui(
@@ -517,6 +530,11 @@ int main(int argc, char** argv)
                             e.mDialog,
                             dialogStore,
                             gameData);
+                        if (guiManager.mScreenStack.size() == 1)
+                            guiManager.StartDialog(
+                                e.mDialog,
+                                false,
+                                &dialogScene);
                     },
                     [](const BAK::Encounter::EventFlag&){
                     },
@@ -531,6 +549,12 @@ int main(int argc, char** argv)
                             e.mDialog,
                             dialogStore,
                             gameData);
+                        if (guiManager.mScreenStack.size() == 1)
+                            guiManager.StartDialog(
+                                e.mDialog,
+                                false,
+                                &dialogScene);
+
                     },
                 },
                 encounter);

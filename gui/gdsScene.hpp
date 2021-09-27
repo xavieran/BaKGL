@@ -55,7 +55,7 @@ public:
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot);
 
     void StartDialog(BAK::Target target, bool isTooltip);
-    void FinishedDialog();
+    void DialogFinished() override;
 
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;
@@ -75,7 +75,6 @@ public:
     ScreenStack& mScreenStack;
     IGuiManager& mGuiManager;
     DialogDisplay mDialogDisplay;
-    DialogRunner mDialogRunner;
 
     static constexpr auto mMaxSceneNesting = 4;
 

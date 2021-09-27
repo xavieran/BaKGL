@@ -5,6 +5,7 @@
 
 #include "gui/IGuiManager.hpp"
 
+#include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/mainView.hpp"
 #include "gui/widget.hpp"
@@ -39,19 +40,29 @@ public:
         mActors{spriteManager},
         mBackgrounds{spriteManager},
         mCursor{cursor},
+        mScreenStack{},
+        mDialogRunner{
+            glm::vec2{0, 0},
+            glm::vec2{320, 240},
+            mActors,
+            mBackgrounds,
+            mFont,
+            gameState,
+            mScreenStack,
+            [this]{ DialogFinished(); }
+        },
         mSpriteManager{spriteManager},
         mMainView{spriteManager},
         mGdsScenes{},
-        mScreens{},
         mGameState{gameState},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
     {
-        AddChildBack(&mScreens);
+        AddChildBack(&mScreenStack);
     }
 
     void EnterMainView()
     {
-        mScreens.PushScreen(&mMainView);
+        mScreenStack.PushScreen(&mMainView);
     }
 
     void EnterGDSScene(const BAK::HotspotRef& hotspot) override
@@ -66,19 +77,35 @@ public:
                 mBackgrounds,
                 mFont,
                 mGameState,
-                mScreens,
+                mScreenStack,
                 static_cast<IGuiManager&>(*this)));
     }
 
     void ExitGDSScene() override
     {
-        mScreens.PopChild();
+        mScreenStack.PopChild();
         mCursor.PopCursor();
         mGdsScenes.pop_back();
     }
 
-    void RunDialog(BAK::KeyTarget dialogTarget)
+    void StartDialog(
+        BAK::Target target,
+        bool isTooltip,
+        IDialogScene* scene) override
     {
+        mCursor.PushCursor(0);
+        mScreenStack.PushScreen(&mDialogRunner);
+        mDialogScene = scene;
+        mDialogRunner.SetDialogScene(scene);
+        mDialogRunner.BeginDialog(target, isTooltip);
+    }
+
+    void DialogFinished()
+    {
+        assert(mDialogScene);
+        mScreenStack.PopScreen();
+        mCursor.PopCursor();
+        mDialogScene->DialogFinished();
     }
 
     void RunContainer(BAK::KeyTarget dialogTarget)
@@ -91,13 +118,15 @@ public:
     Backgrounds mBackgrounds;
 
     Cursor& mCursor;
+    ScreenStack mScreenStack;
+    DialogRunner mDialogRunner;
+
     Graphics::SpriteManager& mSpriteManager;
 
     MainView mMainView;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
-    ScreenStack mScreens;
-
     BAK::GameState& mGameState;
+    IDialogScene* mDialogScene;
 
     const Logging::Logger& mLogger;
 };

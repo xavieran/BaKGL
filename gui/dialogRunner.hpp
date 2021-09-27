@@ -35,9 +35,8 @@ public:
         const Backgrounds& bgs,
         const Font& fr,
         BAK::GameState& gameState,
-        ScreenStack& screenStack,
-        IDialogScene& dialogScene)
-    :
+        ScreenStack& screenStack)
+   :
         DialogRunner{
             pos,
             dims,
@@ -46,7 +45,6 @@ public:
             fr,
             gameState,
             screenStack,
-            dialogScene,
             []{}}
     {}
 
@@ -58,7 +56,6 @@ public:
         const Font& fr,
         BAK::GameState& gameState,
         ScreenStack& screenStack,
-        IDialogScene& dialogScene,
         FinishCallback&& finished)
     :
         Widget{
@@ -73,7 +70,6 @@ public:
             true
         },
         mScreenStack{screenStack},
-        mDialogScene{dialogScene},
         mDialogState{false, false, glm::vec2{0}, glm::vec2{0}},
         mChoices{
             pos,
@@ -94,11 +90,22 @@ public:
         mCurrentDialog{},
         mRemainingText{""},
         mDialogDisplay{pos, dims, actors, bgs, fr, gameState},
-        mFinished{std::move(finished)},
+        mFinished{finished},
+        mDialogScene{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::DialogRunner")}
     {
         AddChildBack(&mDialogDisplay);
         assert(mFinished);
+    }
+
+    ~DialogRunner()
+    {
+        mLogger.Debug() << "Destroyed: " << this << "\n";
+    }
+
+    void SetDialogScene(IDialogScene* dialogScene)
+    {
+        mDialogScene = dialogScene;
     }
 
     bool Active()
@@ -133,9 +140,9 @@ public:
         std::optional<std::string_view>  remaining{};
         if (!mRemainingText.empty())
             remaining = std::string_view{mRemainingText};
-
+        auto nullDialog = NullDialogScene{};
         mRemainingText = mDialogDisplay.DisplaySnippet(
-            mDialogScene,
+            mDialogScene ? *mDialogScene : nullDialog,
             *mCurrentDialog,
             remaining);
 
@@ -171,6 +178,8 @@ public:
         BAK::Target target,
         bool isTooltip)
     {
+        assert(!mDialogState.mDialogActive);
+        assert(!mDialogState.mTooltipActive);
         if (isTooltip)
             mDialogState.ActivateTooltip();
         else
@@ -203,6 +212,7 @@ public:
         mDialogState.MouseMoved(pos);
         mDialogState.DeactivateTooltip(
             [this](){
+                mDialogScene = nullptr;
                 std::invoke(mFinished);
             });
         return false;
@@ -284,7 +294,8 @@ public:
         mChoices.StartChoices(choices, buttonSize);
 
         mDialogDisplay.Clear();
-        mDialogDisplay.DisplayPlayer(mDialogScene);
+        if (mDialogScene)
+            mDialogDisplay.DisplayPlayer(*mDialogScene);
         mScreenStack.PushScreen(&mChoices);
     }
 
@@ -316,8 +327,6 @@ public:
         constexpr auto buttonSize = glm::vec2{32, 14};
         mChoices.StartChoices(choices, buttonSize);
 
-        //mDialogDisplay.Clear();
-        //mDialogDisplay.DisplayPlayer(mDialogScene);
         mScreenStack.PushScreen(&mChoices);
     }
 
@@ -367,7 +376,7 @@ public:
                     mLogger.Debug() << "Finished dialog\n";
                     mDialogDisplay.Clear();
                     mDialogState.DeactivateDialog();
-
+                    mDialogScene = nullptr;
                     std::invoke(mFinished);
 
                     return false;
@@ -441,7 +450,6 @@ private:
     };
 
     ScreenStack& mScreenStack;
-    IDialogScene& mDialogScene;
     DialogState mDialogState;
     ChoiceScreen mChoices;
     BAK::DialogStore mDialogStore;
@@ -458,6 +466,7 @@ private:
     std::string mRemainingText;
     DialogDisplay mDialogDisplay;
     FinishCallback mFinished;
+    IDialogScene* mDialogScene;
 
     const Logging::Logger& mLogger;
 };
