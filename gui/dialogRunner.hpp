@@ -242,10 +242,12 @@ public:
 
             mCurrentTarget = it->mTarget;
             mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
+            EvaluateSnippetActions();
+            mCurrentDialog = std::optional<BAK::DialogSnippet>{};
+            mRemainingText= std::string{};
             // blergh this and the above are really unpleasant this
             // flow could be improved...
-            EvaluateSnippetActions();
-            RunDialog();
+            RunDialog(true);
         }
     }
 
@@ -323,6 +325,9 @@ public:
     bool RunDialog(bool first=false)
     {
         bool progressing = true;
+        mLogger.Debug() << "RunDialog first: [" << first << "] rem: "
+            << mRemainingText << " CurTarg: " << mCurrentTarget 
+            << " CurSnip: " << mCurrentDialog << "\n";
 
         if (!mRemainingText.empty())
         {
