@@ -45,12 +45,12 @@ int main(int argc, char** argv)
         logger.Info() << "Item: " << name << " loc: " << item.GetLocation() << std::endl;
     }
 
+    logger.Info() << "Encounters: " << world.GetEncounters().size() << "\n";
     for (const auto& encounter : world.GetEncounters())
     {
         logger.Info() << "Encounter: " << encounter << "\n";
     }
 
-    const auto encounterFactory = BAK::Encounter::EncounterFactory{};
 
     return 0;
 }

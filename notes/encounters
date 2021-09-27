@@ -64,7 +64,8 @@ add breakpoint for retf at end of rundialog (3b52:2774)
 
 Then you will pop out at mainView:0423 and will have the 
 CS for mainView (46e8, or 4622, can be a few other things...)
-3e0e, 46c5
+3e0e, 46c5, 4121, 4614
+    // Phillip Encounter index 0x96C == 0x01
 then set BP at 46e8:410 (just before left/right click forward is decided
 
 original location at 0x7e70

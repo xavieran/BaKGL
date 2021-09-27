@@ -308,6 +308,13 @@ public:
         return mBuffer.GetUint8();
     }
 
+    // if you walk far enough away for the tile to be unloaded it 
+    // will reset the encounter flag
+    // Phillip Encounter index 0x96C == 0x01 
+    // Isaac Encounter (tile 14,11 pos 943398, 738851)
+    // Finn Encounter (tile 15,18 pos 1000088, 1132631)
+    // Yabon Owyn Encounter (tile 11,16 (has 10000 flag set)
+    // Gorath Weeps (1st) Encounter (tile 10,16 (has 10000 flag set)
     bool ReadConversationItemClicked(unsigned eventPtr) const
     {
         // Fix this for Phillip's early choices...

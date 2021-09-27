@@ -483,11 +483,8 @@ int main(int argc, char** argv)
             activeClickable = nullptr;
             ImGui::Begin("Encounter");
             std::stringstream ss{};
-            ss << "Encounter: " << activeEncounter->GetEncounter()
-                << "tile: " << activeEncounter->GetTile() << std::endl
-                << " Loc: " << activeEncounter->GetLocation() << std::endl
-                << "SA: " << std::hex << activeEncounter->GetSaveAddress() << std::endl;
-            ImGui::Text(ss.str().c_str());
+            ss << "Encounter: " << *activeEncounter << std::endl;
+            ImGui::TextWrapped(ss.str().c_str());
             ImGui::End();
             
             const auto& encounter = activeEncounter->GetEncounter();

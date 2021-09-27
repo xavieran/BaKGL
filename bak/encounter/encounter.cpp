@@ -63,8 +63,8 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
         << " tile: " << e.mTile 
         << std::hex << " savePtr: ("
         << e.mSaveAddress << " " << e.mSaveAddress2 
-        << ") Unknown: " << e.mUnknown0 << " "
-        << e.mUnknown1 << " " << e.mUnknown2 << std::dec;
+        << ") Unknown [" << e.mUnknown0 << ","
+        << +e.mUnknown1 << "," << e.mUnknown2 << "]" << std::dec;
     return os;
 }
 
