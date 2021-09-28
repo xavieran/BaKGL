@@ -443,32 +443,70 @@ public:
     }
 
 
-    std::vector<Container> LoadContainer()
+    std::vector<Container> LoadContainers(unsigned zone)
     {
         const auto& logger = Logging::LogState::GetLogger("GameData");
         logger.Info() << "Loading containers" << std::endl;
         auto* objects = ObjectResource::GetInstance();
         std::vector<Container> containers{};
 
+        unsigned count = 0;
         // TombStone
-        mBuffer.Seek(0x3b621); // 36 items 1
-        const auto count = 36;
+        switch (zone)
+        {
+        case 1:
+            mBuffer.Seek(0x3b621); // 36 items 1
+            count = 36;
+            break;
+        case 2:
+            mBuffer.Seek(0x3be55); // 25 2
+            count = 25;
+            break;
+        case 3:
+            mBuffer.Seek(0x3c55f); // 54 3
+            count = 54;
+            break;
+        case 4:
+            mBuffer.Seek(0x3d0b4); // 65 4
+            count = 65;
+            break;
+        case 5:
+            mBuffer.Seek(0x3dc07); // 63 5
+            count = 63;
+            break;
+        case 6:
+            mBuffer.Seek(0x3e708); // 131 6
+            count = 131;
+            break;
+        case 7:
+            mBuffer.Seek(0x3f8b2); // 115 7
+            count = 115;
+            break;
+        case 8:
+            mBuffer.Seek(0x40c97); // 67 8
+            count = 67;
+            break;
+        case 9:
+            mBuffer.Seek(0x416b7); // 110 9
+            count = 110;
+            break;
+        case 10:
+            mBuffer.Seek(0x42868); // 25 A
+            count = 25;
+            break;
+        case 11:
+            mBuffer.Seek(0x43012); // 30 B
+            count = 30;
+            break;
+        case 12:
+            mBuffer.Seek(0x4378f); // 60 C
+            count = 60;
+            break;
+        default:
+            throw std::runtime_error("Zone not supported");
+        }
 
-        /*
-        mBuffer.Seek(0x3be55); // 25 2
-        mBuffer.Seek(0x3c55f); // 54 3
-        mBuffer.Seek(0x3d0b4); // 65 4
-        mBuffer.Seek(0x3dc07); // 63 5
-        mBuffer.Seek(0x3e708); // 131 6
-        mBuffer.Seek(0x3f8b2); // 115 7
-        mBuffer.Seek(0x40c97); // 67 8
-        mBuffer.Seek(0x416b7); // 110 9
-        mBuffer.Seek(0x42868); // 25 A
-        mBuffer.Seek(0x43012); // 30 B
-        mBuffer.Seek(0x4378f); // 60 C
-        */
-
-        for (int j = 0; j < count; j++)
+        for (unsigned j = 0; j < count; j++)
         {
             unsigned address = mBuffer.Tell();
             logger.Info() << " Container: " << j
@@ -617,7 +655,6 @@ public:
 
         mLogger.Info() << "Chapter Offsets End @" 
             << std::hex << mBuffer.Tell() << std::dec << std::endl;
-
     }
 
     void LoadCombatEntityLists()

@@ -78,10 +78,10 @@ int main(int argc, char** argv)
 
             std::string saveFile = optarg;
             gameData = new BAK::GameData(saveFile);
-            containers = gameData->LoadContainer();
+            const auto zone = gameData->mLocation.mZone;
+            containers = gameData->LoadContainers(zone);
             logger.Info() << "Loaded save: " << gameData->mName << "\n";
 
-            const auto zone = gameData->mLocation.mZone;
             std::stringstream ss{};
             ss << "Z" << std::setw(2) << std::setfill('0') << zone;
             zoneLabel = BAK::ZoneLabel{ss.str()};
@@ -125,7 +125,8 @@ int main(int argc, char** argv)
     const auto cube = Graphics::Cuboid{1, 1, 50};
     objStore.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .7}));
     objStore.AddObject("Trap", cube.ToMeshObject(glm::vec4{.8, 0, 0, .7}));
-    objStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .7}));
+    //objStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .7}));
+    objStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .0}));
     objStore.AddObject("Zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .7}));
     objStore.AddObject("GDSEntry", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .7}));
     objStore.AddObject("EventFlag", cube.ToMeshObject(glm::vec4{.0, .0, .7, .7}));
@@ -305,8 +306,8 @@ int main(int argc, char** argv)
     camera.SetAngle(startHeading);
 
     auto dialogScene = Gui::DynamicDialogScene{
-        [&](){ camera.SetAngle(glm::vec2{0}); },
         [&](){ camera.SetAngle(glm::vec2{3.14, 0}); },
+        [&](){ camera.SetAngle(glm::vec2{0}); },
         [&](){ }
     };
 
@@ -457,19 +458,19 @@ int main(int argc, char** argv)
         if (intersectable)
             activeEncounter = encounters[*intersectable];
 
-        if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-            activeClickable = nullptr;
+        //if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        //    activeClickable = nullptr;
 
-        if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-        {
-            auto bestId = systems.RunClickable(
-                std::make_pair(
-                    camera.GetPosition(), 
-                    camera.GetPosition() + (camera.GetDirection() * 3000.0f)));
+        //if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        //{
+        //    auto bestId = systems.RunClickable(
+        //        std::make_pair(
+        //            camera.GetPosition(), 
+        //            camera.GetPosition() + (camera.GetDirection() * 3000.0f)));
 
-            if (bestId)
-                activeClickable = clickables[*bestId];
-        }
+        //    if (bestId)
+        //        activeClickable = clickables[*bestId];
+        //}
 
         // { *** GUI START ***
         glDisable(GL_DEPTH_TEST);
@@ -488,7 +489,7 @@ int main(int argc, char** argv)
 
         if (activeEncounter != nullptr)
         {
-            activeClickable = nullptr;
+            //activeClickable = nullptr;
             ImGui::Begin("Encounter");
             std::stringstream ss{};
             ss << "Encounter: " << *activeEncounter << std::endl;
@@ -560,30 +561,30 @@ int main(int argc, char** argv)
                 encounter);
         }
 
-        if (activeClickable != nullptr)
-        {
-            auto bakLocation = activeClickable->GetBakLocation();
+        //if (activeClickable != nullptr)
+        //{
+        //    auto bakLocation = activeClickable->GetBakLocation();
 
-            ImGui::Begin("Clickable");
-            std::stringstream ss{};
-            ss << "Clickable: " << activeClickable->GetZoneItem().GetName() 
-                << " Location: " << bakLocation;
-            ImGui::Text(ss.str().c_str());
+        //    ImGui::Begin("Clickable");
+        //    std::stringstream ss{};
+        //    ss << "Clickable: " << activeClickable->GetZoneItem().GetName() 
+        //        << " Location: " << bakLocation;
+        //    ImGui::Text(ss.str().c_str());
 
-            ImGui::Separator();
+        //    ImGui::Separator();
 
-            auto cit = std::find_if(containers.begin(), containers.end(),
-                [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
-            if (cit != containers.end())
-                ShowContainerGui(*cit);
+        //    auto cit = std::find_if(containers.begin(), containers.end(),
+        //        [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+        //    if (cit != containers.end())
+        //        ShowContainerGui(*cit);
 
-            ImGui::End();
+        //    ImGui::End();
 
-            auto fit = std::find_if(fixedObjects.begin(), fixedObjects.end(),
-                [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
-            if (fit != fixedObjects.end())
-                ShowDialogGui(fit->mDialogKey, dialogStore, gameData);
-        }
+        //    auto fit = std::find_if(fixedObjects.begin(), fixedObjects.end(),
+        //        [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+        //    if (fit != fixedObjects.end())
+        //        ShowDialogGui(fit->mDialogKey, dialogStore, gameData);
+        //}
 
         ImguiWrapper::Draw(window.get());
 

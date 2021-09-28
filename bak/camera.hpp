@@ -1,6 +1,7 @@
 #pragma once
 
 #include "constants.hpp"
+#include "coordinates.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -119,6 +120,13 @@ public:
     glm::vec2 GetAngle() const
     {
         return mAngle;
+    }
+
+    BAK::GameHeading GetGameAngle() const
+    {
+        const auto multiplier = static_cast<float>(0xff);
+        return static_cast<BAK::GameHeading>(
+            multiplier * (mAngle.x / (2.0f * glm::pi<float>())));
     }
 
     glm::mat4 GetViewMatrix() const

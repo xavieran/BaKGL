@@ -145,8 +145,6 @@ public:
             mDialogScene ? *mDialogScene : nullDialog,
             *mCurrentDialog,
             remaining);
-
-        mLogger.Debug() << "Snippet: " << mCurrentDialog << "\n";
     }
 
     BAK::Target ProgressDialog()
