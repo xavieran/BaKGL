@@ -33,7 +33,6 @@ public:
 
     static void SetUniform(GLuint id, int value);
     static void SetUniform(GLuint id, const glm::vec4& value);
-
     
     GLuint GetUniformLocation(const std::string& name) const;
     GLuint GetHandle() const;

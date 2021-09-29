@@ -10,7 +10,7 @@
 #include "graphics/glfw.hpp"
 #include "graphics/quad.hpp"
 #include "graphics/meshObject.hpp"
-#include "graphics/renderer.hpp"
+#include "graphics/opengl.hpp"
 #include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 
