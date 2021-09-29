@@ -15,7 +15,7 @@ Palette::Palette(const std::string& filename)
     mColors.reserve(size);
 
     const auto F = [](auto x){
-        return static_cast<float>(x) / 256.; };
+        return static_cast<float>(x) / 255.; };
 
     for (unsigned i = 0; i < size; i++)
     {

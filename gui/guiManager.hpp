@@ -5,6 +5,7 @@
 
 #include "gui/IGuiManager.hpp"
 
+#include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/mainView.hpp"
@@ -51,6 +52,7 @@ public:
             mScreenStack,
             [this]{ DialogFinished(); }
         },
+        mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{spriteManager},
         mGdsScenes{},
@@ -94,6 +96,7 @@ public:
         IDialogScene* scene) override
     {
         mCursor.PushCursor(0);
+        mScreenStack.PushScreen(&mWorldDialogFrame);
         mScreenStack.PushScreen(&mDialogRunner);
         mDialogScene = scene;
         mDialogRunner.SetDialogScene(scene);
@@ -103,7 +106,8 @@ public:
     void DialogFinished()
     {
         assert(mDialogScene);
-        mScreenStack.PopScreen();
+        mScreenStack.PopScreen(); // Dialog frame
+        mScreenStack.PopScreen(); // Dialog runner
         mCursor.PopCursor();
         mDialogScene->DialogFinished();
     }
@@ -120,6 +124,7 @@ public:
     Cursor& mCursor;
     ScreenStack mScreenStack;
     DialogRunner mDialogRunner;
+    WorldDialogFrame mWorldDialogFrame;
 
     Graphics::SpriteManager& mSpriteManager;
 

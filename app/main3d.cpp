@@ -4,6 +4,7 @@
 #include "bak/coordinates.hpp"
 #include "bak/fixedObject.hpp"
 #include "bak/gameData.hpp"
+#include "bak/palette.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
 #include "bak/encounter/encounter.hpp"
@@ -35,7 +36,6 @@
 
 #include "xbak/FileManager.h"
 #include "xbak/FileBuffer.h"
-#include "xbak/PaletteResource.h"
 
 #include <GL/glew.h>
 
@@ -98,16 +98,13 @@ int main(int argc, char** argv)
 
     BAK::DialogStore dialogStore{};
 
-    auto palz = std::make_unique<PaletteResource>();
-    FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
-    auto& pal = *palz->GetPalette();
-
+    const auto pal = BAK::Palette{zoneLabel.GetPalette()};
     auto fixedObjects = BAK::LoadFixedObjects(zoneLabel.GetZoneNumber());
     auto textureStore = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textureStore};
     const auto encounterFactory = BAK::Encounter::EncounterFactory{};
 
-    auto worlds      = BAK::WorldTileStore{zoneItems, encounterFactory};
+    auto worlds = BAK::WorldTileStore{zoneItems, encounterFactory};
 
     if (startPosition == glm::vec<3, float>{0,0,0})
         startPosition = worlds.GetTiles().front().GetCenter();
@@ -121,14 +118,13 @@ int main(int argc, char** argv)
             BAK::ZoneItemToMeshObject(item, textureStore, pal));
 
     const auto cube = Graphics::Cuboid{1, 1, 50};
-    objectStore.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .7}));
-    objectStore.AddObject("Trap", cube.ToMeshObject(glm::vec4{.8, 0, 0, .7}));
-    //objectStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .7}));
-    objectStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .0}));
-    objectStore.AddObject("Zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .7}));
-    objectStore.AddObject("GDSEntry", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .7}));
-    objectStore.AddObject("EventFlag", cube.ToMeshObject(glm::vec4{.0, .0, .7, .7}));
-    objectStore.AddObject("Block", cube.ToMeshObject(glm::vec4{0,0,0, .7}));
+    objectStore.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));
+    objectStore.AddObject("Trap", cube.ToMeshObject(glm::vec4{.8, 0, 0, .3}));
+    objectStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .3}));
+    objectStore.AddObject("Zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .3}));
+    objectStore.AddObject("GDSEntry", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .3}));
+    objectStore.AddObject("EventFlag", cube.ToMeshObject(glm::vec4{.0, .0, .7, .3}));
+    objectStore.AddObject("Block", cube.ToMeshObject(glm::vec4{0,0,0, .3}));
 
     auto clickable = Sphere{1.0, 12, 6, true};
     objectStore.AddObject(

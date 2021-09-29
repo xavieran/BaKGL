@@ -1,14 +1,14 @@
 #include "com/logger.hpp"
 
-#include "graphics/glm.hpp"
-#include "bak/worldFactory.hpp"
 #include "bak/encounter/encounter.hpp"
+
+#include "bak/palette.hpp"
+#include "bak/worldFactory.hpp"
+
+#include "graphics/glm.hpp"
 
 #include "xbak/FileBuffer.h"
 #include "xbak/FileManager.h"
-#include "xbak/Palette.h"
-#include "xbak/PaletteResource.h"
-
 
 int main(int argc, char** argv)
 {
@@ -26,10 +26,7 @@ int main(int argc, char** argv)
     unsigned x = std::atoi(tileX.c_str());
     unsigned y = std::atoi(tileY.c_str());
     
-    auto palz = std::make_unique<PaletteResource>();
-    FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
-    auto& pal = *palz->GetPalette();
-
+    const auto pal = BAK::Palette{zoneLabel.GetPalette()};
     auto textures = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems = BAK::ZoneItemStore{zoneLabel, textures};
 
