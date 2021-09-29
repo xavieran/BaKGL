@@ -31,6 +31,15 @@ public:
             glm::vec2{0,0},
             glm::vec2{320, 200},
             true},
+        mFrame{
+            Graphics::DrawMode::Rect,
+            0,
+            Graphics::TextureIndex{0},
+            Graphics::ColorMode::SolidColor,
+            Color::frameMaroon,
+            glm::vec2{14, 10},
+            glm::vec2{291, 103},
+            false},
         mTop{
             Graphics::DrawMode::ClipRegion,
             0,
@@ -46,7 +55,7 @@ public:
             0,
             Graphics::ColorMode::Texture,
             Color::black,
-            glm::vec2{0, 110},
+            glm::vec2{0, 112},
             glm::vec2{320, 200},
             false},
         mLeft{
@@ -56,7 +65,7 @@ public:
             Graphics::ColorMode::Texture,
             Color::black,
             glm::vec2{0, 0},
-            glm::vec2{14, 200},
+            glm::vec2{15, 200},
             false},
         mRight{
             Graphics::DrawMode::ClipRegion,
@@ -64,7 +73,7 @@ public:
             0,
             Graphics::ColorMode::Texture,
             Color::black,
-            glm::vec2{290, 0},
+            glm::vec2{304, 0},
             glm::vec2{320, 200},
             false}
     {
@@ -73,13 +82,18 @@ public:
         AddChildBack(&mLeft);
         AddChildBack(&mRight);
         mTop.AddChildBack(&mBackground);
+        mTop.AddChildBack(&mFrame);
         mBottom.AddChildBack(&mBackground);
+        mBottom.AddChildBack(&mFrame);
         mLeft.AddChildBack(&mBackground);
+        mLeft.AddChildBack(&mFrame);
         mRight.AddChildBack(&mBackground);
+        mRight.AddChildBack(&mFrame);
     }
 
 private:
     Widget mBackground;
+    Widget mFrame;
     Widget mTop;
     Widget mBottom;
     Widget mLeft;

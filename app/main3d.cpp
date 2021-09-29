@@ -361,7 +361,6 @@ int main(int argc, char** argv)
         // { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);
 
-
         // { *** Check for intersection with encounter
         auto intersectable = systems.RunIntersection(camera.GetPosition());
         if (intersectable)
