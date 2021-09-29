@@ -31,6 +31,7 @@ add_library(bak
     hotspotRef.hpp hotspotRef.cpp
     inventory.hpp inventory.cpp
     party.hpp party.cpp
+    palette.hpp palette.cpp
     objectInfo.hpp objectInfo.cpp
     resourceNames.hpp
     scene.hpp scene.cpp

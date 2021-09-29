@@ -66,7 +66,7 @@ glm::vec3 ToGlAngle(const Vector3D& angle);
 glm::vec2 ToGlAngle(GameHeading);
 
 template <typename T, typename C>
-glm::vec<4, T> ToGlColor(const C& color, bool transparent)
+glm::vec<4, T> ToGlColor(const C& color)
 {
     const auto F = [](auto x){
         return static_cast<T>(x) / 256.; };
@@ -75,7 +75,7 @@ glm::vec<4, T> ToGlColor(const C& color, bool transparent)
         F(color.r),
         F(color.g),
         F(color.b),
-        transparent ? 0 : 1};
+        F(color.a)};
 }
 
 }

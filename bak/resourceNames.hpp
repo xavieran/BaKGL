@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <sstream>
 #include <iomanip>
 
@@ -11,9 +12,13 @@ constexpr auto TOWN_DEFINITIONS = "DEF_TOWN.DAT";
 class ZoneLabel
 {
 public:
-    ZoneLabel()
+    ZoneLabel(unsigned zoneNumber)
     :
-        mZoneLabel{"Z01"}
+        mZoneLabel{std::invoke([&]{
+            std::stringstream ss{};
+            ss << "Z" << std::setw(2) << std::setfill('0') << zoneNumber;
+            return ss.str();
+        })}
     {}
 
     ZoneLabel(const std::string& zoneLabel)

@@ -12,9 +12,8 @@ Graphics::Texture ImageToTexture(const Image& image, const Palette& palette)
     for (int i = 0; i < (image.GetWidth() * image.GetHeight()); i++)
     {
         auto color = palette.GetColor(pixels[i]);
-        // palette color 0 is transparency
         texture.push_back(
-            BAK::ToGlColor<float>(color, pixels[i] == 0));
+            BAK::ToGlColor<float>(color));
     }
 
     auto tex = Graphics::Texture{
@@ -154,8 +153,7 @@ void TextureFactory::AddTerrainToTextureStore(
         for (int i = startOff * width; i < (startOff + offset) * width; i++)
         {
             auto color = palette.GetColor(pixels[i]);
-            image.push_back(
-                BAK::ToGlColor<float>(color, pixels[i] == 0));
+            image.push_back(BAK::ToGlColor<float>(color));
         }
         if (offset == 70)
             std::random_shuffle(image.begin(), image.end());

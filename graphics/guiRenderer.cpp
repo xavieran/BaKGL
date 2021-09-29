@@ -105,12 +105,16 @@ GuiRenderer::GuiRenderer(
 void GuiRenderer::RenderGui(
     Graphics::IGuiElement* element)
 {
+    glDisable(GL_DEPTH_TEST);
+    mShader.UseProgramGL();
+
     mRenderCalls = 0;
     mLogger.Spam() << "Beginning Render\n";
     RenderGuiImpl(
         glm::vec3{0},
         element);
     mLogger.Spam() << "Rendered Gui, Calls: " << mRenderCalls << "\n";
+    glEnable(GL_DEPTH_TEST);
 }
 
 void GuiRenderer::RenderGuiImpl(
