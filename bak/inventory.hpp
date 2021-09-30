@@ -1,14 +1,13 @@
 #pragma once
 
 #include "bak/objectInfo.hpp"
+#include "bak/types.hpp"
 
 #include <string>
 #include <vector>
 
 namespace BAK {
 
-
-using ItemIndex = unsigned;
 
 class InventoryItem
 {

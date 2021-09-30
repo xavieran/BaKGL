@@ -39,6 +39,11 @@ public:
     void DisplayPlayerBackground() override { mDisplayPlayer(); }
     void DialogFinished() override { mDialogFinished(); }
 
+    void SetDialogFinished(std::function<void()>&& fn)
+    {
+        mDialogFinished = fn;
+    }
+
 private:
     std::function<void()> mDisplayNPC;
     std::function<void()> mDisplayPlayer;

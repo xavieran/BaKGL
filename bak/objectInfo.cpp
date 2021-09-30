@@ -122,10 +122,10 @@ ObjectIndex::ObjectIndex()
     }
 }
     
-const GameObject& ObjectIndex::GetObject(IndexType index) const
+const GameObject& ObjectIndex::GetObject(ItemIndex index) const
 {
-    assert(index < sObjectCount);
-    return mObjects[index];
+    assert(index.mValue < sObjectCount);
+    return mObjects[index.mValue];
 }
 
 std::ostream& ShowRow(std::ostream& os, const GameObject& go)
@@ -162,7 +162,7 @@ std::ostream& operator<<(std::ostream& os, const ObjectIndex& oi)
         ss << std::setw(2) << std::setfill('0');
         ss << i << std::dec << ")\t";
         os << ss.str();
-        ShowRow(os, oi.GetObject(i)) << "\n";
+        ShowRow(os, oi.GetObject(ItemIndex{i})) << "\n";
 
     }
     return os;

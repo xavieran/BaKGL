@@ -6,15 +6,18 @@
 #include "bak/gameData.hpp"
 #include "bak/palette.hpp"
 #include "bak/screens.hpp"
-#include "bak/systems.hpp"
 #include "bak/encounter/block.hpp"
 #include "bak/encounter/combat.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/zone.hpp"
 #include "bak/worldFactory.hpp"
+#include "bak/zone.hpp"
 
 #include "com/logger.hpp"
 #include "com/visit.hpp"
+
+#include "game/gameRunner.hpp"
+#include "game/systems.hpp"
 
 #include "graphics/inputHandler.hpp"
 #include "graphics/IGuiElement.hpp"
@@ -98,144 +101,81 @@ int main(int argc, char** argv)
     }
 
     BAK::DialogStore dialogStore{};
-
-    const auto pal = BAK::Palette{zoneLabel.GetPalette()};
-    auto fixedObjects = BAK::LoadFixedObjects(zoneLabel.GetZoneNumber());
-    auto textureStore = BAK::ZoneTextureStore{zoneLabel, pal};
-    auto zoneItems   = BAK::ZoneItemStore{zoneLabel, textureStore};
-    const auto encounterFactory = BAK::Encounter::EncounterFactory{};
-
-    auto worlds = BAK::WorldTileStore{zoneItems, encounterFactory};
+    BAK::Zone zoneData{zoneLabel.GetZoneNumber()};
 
     if (startPosition == glm::vec<3, float>{0,0,0})
-        startPosition = worlds.GetTiles().front().GetCenter();
+        startPosition = zoneData.mWorldTiles.GetTiles().front().GetCenter();
 
     startPosition.y = 100;
 
-    auto objectStore = Graphics::MeshObjectStorage{};
-    for (auto& item : zoneItems.GetItems())
-        objectStore.AddObject(
-            item.GetName(),
-            BAK::ZoneItemToMeshObject(item, textureStore, pal));
+    //auto systems = Systems{};
+    //std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> encounters{};
+    //std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> clickables{};
 
-    const auto cube = Graphics::Cuboid{1, 1, 50};
-    objectStore.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));
-    objectStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .3}));
-    objectStore.AddObject("Zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .3}));
-    objectStore.AddObject("GDSEntry", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .3}));
-    objectStore.AddObject("EventFlag", cube.ToMeshObject(glm::vec4{.0, .0, .7, .3}));
-    objectStore.AddObject("Block", cube.ToMeshObject(glm::vec4{0,0,0, .3}));
+    //for (const auto& world : zoneData.mWorldTiles.GetTiles())
+    //{
+    //    for (const auto& item : world.GetItems())
+    //    {
+    //        if (item.GetZoneItem().GetVertices().size() > 1)
+    //        {
+    //            auto id = systems.GetNextItemId();
+    //            auto renderable = Renderable{
+    //                id,
+    //                zoneData.mObjects.GetObject(item.GetZoneItem().GetName()),
+    //                item.GetLocation(),
+    //                item.GetRotation(),
+    //                glm::vec3{item.GetZoneItem().GetScale()}};
 
-    auto clickable = Sphere{1.0, 12, 6, true};
-    objectStore.AddObject(
-        "clickable",
-        Graphics::SphereToMeshObject(clickable, glm::vec4{.0, .0, 1.0, .7}));
+    //            if (item.GetZoneItem().IsSprite())
+    //                systems.AddSprite(renderable);
+    //            else
+    //                systems.AddRenderable(renderable);
 
-    const auto xxx = Graphics::Cuboid{1, 1, 5};
-    objectStore.AddObject("Exits", xxx.ToMeshObject(glm::vec4{1.0, 0, .3, .6}));
+    //            if (item.GetZoneItem().GetClickable())
+    //            {
+    //                systems.AddClickable(
+    //                    Clickable{
+    //                        id,
+    //                        500,
+    //                        item.GetLocation()});
+    //                clickables.emplace(id, &item);
+    //                /*systems.AddRenderable(
+    //                    Renderable{
+    //                        id,
+    //                        objectStore.GetObject("clickable"),
+    //                        item.GetLocation(),
+    //                        item.GetRotation(),
+    //                        glm::vec3{item.GetZoneItem().GetScale()}});*/
+    //            }
+    //        }
+    //    }
+    //}
 
-    auto systems = Systems{};
-    std::unordered_map<unsigned, const BAK::Encounter::Encounter*> encounters{};
-    std::unordered_map<unsigned, const BAK::WorldItemInstance*> clickables{};
+    //for (const auto& world : zoneData.mWorldTiles.GetTiles())
+    //{
+    //    for (const auto& enc : world.GetEncounters())
+    //    {
+    //        auto id = systems.GetNextItemId();
+    //        const auto dims = enc.GetDims();
+    //        systems.AddRenderable(
+    //            Renderable{
+    //                id,
+    //                zoneData.mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+    //                enc.GetLocation(),
+    //                glm::vec3{0.0},
+    //                glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
 
-    for (const auto& world : worlds.GetTiles())
-    {
-        for (const auto& item : world.GetItems())
-        {
-            if (item.GetZoneItem().GetVertices().size() > 1)
-            {
-                auto id = systems.GetNextItemId();
-                auto renderable = Renderable{
-                    id,
-                    objectStore.GetObject(item.GetZoneItem().GetName()),
-                    item.GetLocation(),
-                    item.GetRotation(),
-                    glm::vec3{item.GetZoneItem().GetScale()}};
+    //        systems.AddIntersectable(
+    //            Intersectable{
+    //                id,
+    //                Intersectable::Rect{
+    //                    static_cast<double>(dims.x),
+    //                    static_cast<double>(dims.y)},
+    //                enc.GetLocation()});
 
-                if (item.GetZoneItem().IsSprite())
-                    systems.AddSprite(renderable);
-                else
-                    systems.AddRenderable(renderable);
-
-                if (item.GetZoneItem().GetClickable())
-                {
-                    systems.AddClickable(
-                        Clickable{
-                            id,
-                            500,
-                            item.GetLocation()});
-                    clickables.emplace(id, &item);
-                    /*systems.AddRenderable(
-                        Renderable{
-                            id,
-                            objectStore.GetObject("clickable"),
-                            item.GetLocation(),
-                            item.GetRotation(),
-                            glm::vec3{item.GetZoneItem().GetScale()}});*/
-                }
-            }
-        }
-    }
-
-    for (const auto& world : worlds.GetTiles())
-    {
-        for (const auto& enc : world.GetEncounters())
-        {
-            auto id = systems.GetNextItemId();
-            const auto dims = enc.GetDims();
-            systems.AddRenderable(
-                Renderable{
-                    id,
-                    objectStore.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                    enc.GetLocation(),
-                    glm::vec3{0.0},
-                    glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-
-            evaluate_if<BAK::Encounter::Combat>(
-                enc.GetEncounter(),
-                [&](const auto& e){
-                    systems.AddRenderable(
-                        Renderable{
-                            id,
-                            objectStore.GetObject("Exits"),
-                            BAK::ToGlCoord<float>(e.mNorthRetreat.mPosition),
-                            glm::vec3{0.0},
-                            glm::vec3{3, 10, 3}});
-                    systems.AddRenderable(
-                        Renderable{
-                            id,
-                            objectStore.GetObject("Exits"),
-                            BAK::ToGlCoord<float>(e.mSouthRetreat.mPosition),
-                            glm::vec3{0.0},
-                            glm::vec3{3, 10, 3}});
-                    systems.AddRenderable(
-                        Renderable{
-                            id,
-                            objectStore.GetObject("Exits"),
-                            BAK::ToGlCoord<float>(e.mEastRetreat.mPosition),
-                            glm::vec3{0.0},
-                            glm::vec3{3, 10, 3}});
-                    systems.AddRenderable(
-                        Renderable{
-                            id,
-                            objectStore.GetObject("Exits"),
-                            BAK::ToGlCoord<float>(e.mWestRetreat.mPosition),
-                            glm::vec3{0.0},
-                            glm::vec3{3, 10, 3}});
-                    }
-                );
-            
-            systems.AddIntersectable(
-                Intersectable{
-                    id,
-                    Intersectable::Rect{
-                        static_cast<double>(dims.x),
-                        static_cast<double>(dims.y)},
-                    enc.GetLocation()});
-
-            encounters.emplace(id, &enc);
-        }
-    }
+    //        encounters.emplace(id, &enc);
+    //    }
+    //}
 
     auto guiScalar = 4.0f;
 
@@ -283,7 +223,7 @@ int main(int argc, char** argv)
 
     // OpenGL 3D Renderer
     auto renderer = Graphics::Renderer{};
-    renderer.LoadData(objectStore, textureStore);
+    renderer.LoadData(zoneData.mObjects, zoneData.mZoneTextures);
 
     glm::vec3 lightPos = glm::vec3{0, 220, 0};
     
@@ -295,11 +235,11 @@ int main(int argc, char** argv)
     camera.SetPosition(startPosition);
     camera.SetAngle(startHeading);
 
-    auto dialogScene = Gui::DynamicDialogScene{
-        [&](){ camera.SetAngle(glm::vec2{3.14, 0}); },
-        [&](){ camera.SetAngle(glm::vec2{0}); },
-        [&](){ }
-    };
+    Game::GameRunner gameRunner{
+        zoneLabel.GetZoneNumber(),
+        camera,
+        gameState,
+        guiManager};
 
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_W, [&]{ camera.MoveForward(); });
@@ -319,8 +259,12 @@ int main(int argc, char** argv)
         GLFW_MOUSE_BUTTON_LEFT,
         [&](const auto click)
         {
-            root.OnMouseEvent(
+            bool guiHandled = root.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
+            if (!guiHandled)
+            {
+                gameRunner.CheckClickable();
+            }
         },
         [&](const auto click)
         {
@@ -367,15 +311,10 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    const BAK::Encounter::Encounter* activeEncounter{nullptr};
-    const BAK::WorldItemInstance* activeClickable{nullptr};
-
     double pointerPosX, pointerPosY;
 
     do
     {
-        activeEncounter = nullptr;
-
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
@@ -392,31 +331,22 @@ int main(int argc, char** argv)
         lightPos.z = camera.GetNormalisedPosition().z;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderer.Draw<true>(systems.GetRenderables(), lightPos, camera);
-        renderer.Draw<false>(systems.GetSprites(), lightPos, camera);
+        renderer.Draw<true>(gameRunner.mSystems.GetRenderables(), lightPos, camera);
+        renderer.Draw<false>(gameRunner.mSystems.GetSprites(), lightPos, camera);
 
         // { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);
 
         // { *** Check for intersection with encounter
-        auto intersectable = systems.RunIntersection(camera.GetPosition());
-        if (intersectable)
-            activeEncounter = encounters[*intersectable];
 
         //if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-        //    activeClickable = nullptr;
+        //    gameRunner.mActiveClickable = nullptr;
 
         //if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         //{
-        //    auto bestId = systems.RunClickable(
-        //        std::make_pair(
-        //            camera.GetPosition(), 
-        //            camera.GetPosition() + (camera.GetDirection() * 3000.0f)));
-
-        //    if (bestId)
-        //        activeClickable = clickables[*bestId];
-        //}
-
+        //    if (guiManager.mScreenStack.size() == 1)
+        //        gameRunner.CheckClickable();
+        //};
 
         // { *** IMGUI START ***
         ImGui_ImplOpenGL3_NewFrame();
@@ -425,16 +355,30 @@ int main(int argc, char** argv)
 
         ShowCameraGui(camera);
 
-        if (activeEncounter != nullptr)
+        if (gameRunner.mActiveClickable)
         {
-            //activeClickable = nullptr;
+            ImGui::Begin("Clickable");
+            std::stringstream ss{};
+            ss << "Clickable: " << gameRunner.mActiveClickable->GetZoneItem().GetName();
+                //<< " Location: " << bakLocation;
+            ImGui::Text(ss.str().c_str());
+
+            ImGui::Separator();
+
+            ImGui::End();
+        }
+
+        gameRunner.RunGameUpdate();
+
+        if (gameRunner.mActiveEncounter)
+        {
             ImGui::Begin("Encounter");
             std::stringstream ss{};
-            ss << "Encounter: " << *activeEncounter << std::endl;
+            ss << "Encounter: " << *gameRunner.mActiveEncounter << std::endl;
             ImGui::TextWrapped(ss.str().c_str());
             ImGui::End();
             
-            const auto& encounter = activeEncounter->GetEncounter();
+            const auto& encounter = gameRunner.mActiveEncounter->GetEncounter();
             std::visit(
                 overloaded{
                     [&](const BAK::Encounter::GDSEntry& gds){
@@ -442,21 +386,12 @@ int main(int argc, char** argv)
                             gds.mEntryDialog,
                             dialogStore,
                             gameData);
-
-                        if (guiManager.mScreenStack.size() == 1)
-                            guiManager.EnterGDSScene(gds.mHotspot);
-
                     },
                     [&](const BAK::Encounter::Block& e){
                         ShowDialogGui(
                             e.mDialog,
                             dialogStore,
                             gameData);
-                        if (guiManager.mScreenStack.size() == 1)
-                            guiManager.StartDialog(
-                                e.mDialog,
-                                false,
-                                &dialogScene);
                     },
                     [&](const BAK::Encounter::Combat& e){
                         ShowDialogGui(
@@ -469,11 +404,6 @@ int main(int argc, char** argv)
                             e.mDialog,
                             dialogStore,
                             gameData);
-                        if (guiManager.mScreenStack.size() == 1)
-                            guiManager.StartDialog(
-                                e.mDialog,
-                                false,
-                                &dialogScene);
                     },
                     [](const BAK::Encounter::EventFlag&){
                     },
@@ -482,40 +412,10 @@ int main(int argc, char** argv)
                             e.mDialog,
                             dialogStore,
                             gameData);
-                        if (guiManager.mScreenStack.size() == 1)
-                            guiManager.StartDialog(
-                                e.mDialog,
-                                false,
-                                &dialogScene);
                     },
                 },
                 encounter);
         }
-
-        //if (activeClickable != nullptr)
-        //{
-        //    auto bakLocation = activeClickable->GetBakLocation();
-
-        //    ImGui::Begin("Clickable");
-        //    std::stringstream ss{};
-        //    ss << "Clickable: " << activeClickable->GetZoneItem().GetName() 
-        //        << " Location: " << bakLocation;
-        //    ImGui::Text(ss.str().c_str());
-
-        //    ImGui::Separator();
-
-        //    auto cit = std::find_if(containers.begin(), containers.end(),
-        //        [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
-        //    if (cit != containers.end())
-        //        ShowContainerGui(*cit);
-
-        //    ImGui::End();
-
-        //    auto fit = std::find_if(fixedObjects.begin(), fixedObjects.end(),
-        //        [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
-        //    if (fit != fixedObjects.end())
-        //        ShowDialogGui(fit->mDialogKey, dialogStore, gameData);
-        //}
 
         ImguiWrapper::Draw(window.get());
 

@@ -69,6 +69,7 @@ public:
 
     void EnterGDSScene(const BAK::HotspotRef& hotspot) override
     {
+        mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         mCursor.PushCursor(0);
         mGdsScenes.emplace_back(
             std::make_unique<GDSScene>(

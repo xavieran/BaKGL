@@ -93,15 +93,20 @@ std::ostream& operator<<(std::ostream& os, const UnknownChoice& c)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const DialogChoice& d)
+std::ostream& operator<<(std::ostream& os, const Choice& c)
 {
     std::visit(
         [&os](const auto& choice)
         {
             os << choice;
         },
-        d.mChoice);
-    os << " : " << std::hex << d.mTarget << std::dec;
+        c);
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const DialogChoice& d)
+{
+    os << d.mChoice << " : " << std::hex << d.mTarget << std::dec;
     return os;
 }
 

@@ -124,6 +124,7 @@ using Choice = std::variant<
     ComplexEventChoice,
     UnknownChoice>;
 
+std::ostream& operator<<(std::ostream&, const Choice&);
 
 struct DialogChoice
 {
