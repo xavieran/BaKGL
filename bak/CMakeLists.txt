@@ -3,13 +3,13 @@ add_library(bak
     encounter/eventFlag.hpp encounter/eventFlag.cpp encounter/eventFlag.ipp
     encounter/background.hpp encounter/background.cpp
     encounter/block.hpp encounter/block.cpp
-    encounter/combat.hpp encounter/combat.cpp
+    encounter/combat.hpp encounter/combat.cpp encounter/combat.ipp
     encounter/gdsEntry.hpp encounter/gdsEntry.cpp encounter/gdsEntry.ipp 
     encounter/dialog.hpp encounter/dialog.cpp
     encounter/disable.hpp
     encounter/enable.hpp
     encounter/town.hpp 
-    encounter/trap.hpp encounter/trap.cpp
+    encounter/trap.hpp
     encounter/zone.hpp encounter/zone.cpp
     camera.hpp
     condition.hpp condition.cpp

@@ -40,7 +40,6 @@ std::string_view ToString(const EncounterT& encounter)
             [](const Combat&){ return "Combat"; },
             [](const Dialog&){ return "Dialog"; },
             [](const EventFlag&){ return "EventFlag"; },
-            [](const Trap&){ return "Trap"; },
             [](const Zone&){ return "Zone"; }
         },
         encounter);
@@ -62,9 +61,10 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
     os << "{" << e.mEncounter << "} dims: " << e.mDimensions
         << " tile: " << e.mTile 
         << std::hex << " savePtr: ("
-        << e.mSaveAddress << " " << e.mSaveAddress2 
-        << ") Unknown [" << e.mUnknown0 << ","
-        << +e.mUnknown1 << "," << e.mUnknown2 << "]" << std::dec;
+        << e.mSaveAddress << ", " << e.mSaveAddress2 << ", "
+        << e.mSaveAddress3
+        << ") Unknown [" << +e.mUnknown0 << ","
+        << +e.mUnknown1 << "," << +e.mUnknown2 << "]" << std::dec;
     return os;
 }
 
@@ -125,7 +125,6 @@ std::vector<Encounter> LoadEncounters(
     {
         auto loc = fb.Tell();
         auto encounterType = static_cast<EncounterType>(fb.GetUint16LE());
-
         
         const unsigned left   = fb.GetUint8();
         const unsigned top    = fb.GetUint8();
@@ -141,16 +140,18 @@ std::vector<Encounter> LoadEncounters(
 
         const unsigned encounterIndex = fb.GetUint16LE();
         // Don't know
-        const auto unknown0 = fb.GetUint32LE();
-        const auto unknown1 = fb.GetUint8();
-        const unsigned saveAddr = fb.GetUint16LE();
+        const auto unknown0 = fb.GetUint8();
+        const auto unknown1 = fb.GetUint16LE();
+        const auto saveAddr = fb.GetUint16LE();
         const unsigned saveAddr2 = fb.GetUint16LE();
+        const unsigned saveAddr3 = fb.GetUint16LE();
         const auto unknown2 = fb.GetUint16LE();
 
         logger.Debug() << "Loaded encounter: " << tile << " loc: " << location
             << " dims: " << dimensions << " @ 0x" << std::hex << loc
             << std::dec << " type: " << encounterType << " index: " << encounterIndex
-            << " saveAddr: 0x" << std::hex << saveAddr << std::dec << std::endl;
+            << " saveAddr: 0x" << std::hex << saveAddr << ", " << saveAddr2 << ", "
+            << saveAddr3 << std::dec << "\n";
 
         encounters.emplace_back(
             ef.MakeEncounter(
@@ -162,6 +163,7 @@ std::vector<Encounter> LoadEncounters(
             tile,
             saveAddr,
             saveAddr2,
+            saveAddr3,
             unknown0,
             unknown1,
             unknown2);
@@ -180,7 +182,14 @@ EncounterT EncounterFactory::MakeEncounter(
     case EncounterType::Background:
         return mBackgrounds.Get(eIndex, tile);
     case EncounterType::Combat:
-        return mCombats.Get(eIndex);
+        {
+            auto combat = mCombats.Get(eIndex);
+            combat.mNorthRetreat.mPosition += (tile * static_cast<unsigned>(64000));
+            combat.mSouthRetreat.mPosition += (tile * static_cast<unsigned>(64000));
+            combat.mWestRetreat.mPosition += (tile * static_cast<unsigned>(64000));
+            combat.mEastRetreat.mPosition += (tile * static_cast<unsigned>(64000));
+            return combat;
+        }
     case EncounterType::Comment:
         throw std::runtime_error("Can't make COMMENT encounters");
     case EncounterType::Dialog:

@@ -7,8 +7,9 @@
 #include "bak/palette.hpp"
 #include "bak/screens.hpp"
 #include "bak/systems.hpp"
-#include "bak/encounter/encounter.hpp"
 #include "bak/encounter/block.hpp"
+#include "bak/encounter/combat.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "bak/encounter/zone.hpp"
 #include "bak/worldFactory.hpp"
 
@@ -119,7 +120,6 @@ int main(int argc, char** argv)
 
     const auto cube = Graphics::Cuboid{1, 1, 50};
     objectStore.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));
-    objectStore.AddObject("Trap", cube.ToMeshObject(glm::vec4{.8, 0, 0, .3}));
     objectStore.AddObject("Dialog", cube.ToMeshObject(glm::vec4{0.0, 1, 0, .3}));
     objectStore.AddObject("Zone", cube.ToMeshObject(glm::vec4{1.0, 1, 0, .3}));
     objectStore.AddObject("GDSEntry", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .3}));
@@ -130,6 +130,9 @@ int main(int argc, char** argv)
     objectStore.AddObject(
         "clickable",
         Graphics::SphereToMeshObject(clickable, glm::vec4{.0, .0, 1.0, .7}));
+
+    const auto xxx = Graphics::Cuboid{1, 1, 5};
+    objectStore.AddObject("Exits", xxx.ToMeshObject(glm::vec4{1.0, 0, .3, .6}));
 
     auto systems = Systems{};
     std::unordered_map<unsigned, const BAK::Encounter::Encounter*> encounters{};
@@ -188,6 +191,40 @@ int main(int argc, char** argv)
                     glm::vec3{0.0},
                     glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
 
+            evaluate_if<BAK::Encounter::Combat>(
+                enc.GetEncounter(),
+                [&](const auto& e){
+                    systems.AddRenderable(
+                        Renderable{
+                            id,
+                            objectStore.GetObject("Exits"),
+                            BAK::ToGlCoord<float>(e.mNorthRetreat.mPosition),
+                            glm::vec3{0.0},
+                            glm::vec3{3, 10, 3}});
+                    systems.AddRenderable(
+                        Renderable{
+                            id,
+                            objectStore.GetObject("Exits"),
+                            BAK::ToGlCoord<float>(e.mSouthRetreat.mPosition),
+                            glm::vec3{0.0},
+                            glm::vec3{3, 10, 3}});
+                    systems.AddRenderable(
+                        Renderable{
+                            id,
+                            objectStore.GetObject("Exits"),
+                            BAK::ToGlCoord<float>(e.mEastRetreat.mPosition),
+                            glm::vec3{0.0},
+                            glm::vec3{3, 10, 3}});
+                    systems.AddRenderable(
+                        Renderable{
+                            id,
+                            objectStore.GetObject("Exits"),
+                            BAK::ToGlCoord<float>(e.mWestRetreat.mPosition),
+                            glm::vec3{0.0},
+                            glm::vec3{3, 10, 3}});
+                    }
+                );
+            
             systems.AddIntersectable(
                 Intersectable{
                     id,
@@ -200,7 +237,7 @@ int main(int argc, char** argv)
         }
     }
 
-    auto guiScalar = 5.0f;
+    auto guiScalar = 4.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;
@@ -439,12 +476,6 @@ int main(int argc, char** argv)
                                 &dialogScene);
                     },
                     [](const BAK::Encounter::EventFlag&){
-                    },
-                    [&](const BAK::Encounter::Trap& e){
-                        ShowDialogGui(
-                            e.mEntryDialog,
-                            dialogStore,
-                            gameData);
                     },
                     [&](const BAK::Encounter::Zone& e){
                         ShowDialogGui(

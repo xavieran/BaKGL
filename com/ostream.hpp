@@ -23,7 +23,7 @@ template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& o)
 {
     if (o)
-        os << *o;
+        os << "[[" << *o << "]]";
     else
         os << "[[null]]";
     return os;

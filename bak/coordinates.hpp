@@ -51,7 +51,7 @@ glm::vec<3, T> ToGlCoord(const Vector3D& coord)
 }
 
 template <typename T>
-glm::vec<3, T> ToGlCoord(const glm::vec<2, int>& coord)
+glm::vec<3, T> ToGlCoord(const glm::vec<2, unsigned>& coord)
 {
     return glm::vec<3, T>{
         static_cast<T>(coord.x),

@@ -63,7 +63,7 @@ void GuiCamera::UpdateModelViewMatrix(const glm::mat4& modelMatrix)
 
 void GuiCamera::ScissorRegion(glm::vec2 topLeft, glm::vec2 dimensions)
 {
-    // So bottom in terms of glScissor is going to be:
+    // Bottom in terms of glScissor is going to be:
     // screenHeight - scaledBottom
     // Because we need to account for the bottom starting
     // at the height of the screen
