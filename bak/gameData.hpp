@@ -69,35 +69,6 @@ public:
   * Combat Zone 1 1
   * Inventory #3 Combat #1 Person #0 0x460b7
   * Combat Stats #3 0x9268 (bbe0)? 
-  * DEF_COMB.DAT
-  * --                Combat Number (This must index to somewhere else?)
-  * b1 01 00 01 07 00 01 00 00 00 14 
-  * 01b1 = 433 (Number of combats in file?)
-  * 14 = Dialog index for this combat
-  *
-  *  Number of Combats
-  * B1 01 00 00 
-  *
-  * 01 - visible or not? Chapter??
-  * 07 ??
-  * 01 combat index
-  * 01 07 00 01 
-  *
-  * 14 - Dialog index
-  * 00 00 00 14  00 00 00 00
-  * 00 00 00 00  00 00 00 DF  AC 00 00 BB  64 00 00 00
-  * 80 43 77 00  00 9B 3F 00  00 00 C0 5C  9C 00 00 87
-  * 03 00 00 00  00 86 C1 00  00 64 0C 00  
-  *
-  * 01 - number of combatants to display?
-  * 00 00 00 01
-  * 12 - combatant sprite index? 01 - sprite mobile or not
-  * 12 00 01 00 
-  * -- The rest seems to be coordinates for sprite movement?
-  * C8 A4 00 00  5A 2B 00 00  00 40 88 9E
-  * 00 00 08 AB  00 00 90 60  00 00 00 F0  20 40 5A 2B
-  * 00 00 5A 2B  00 00 40 80  40 40 40 40  20 00 80   
-  *
   */
 
     static constexpr auto sCharacterCount = 6;
@@ -121,7 +92,7 @@ public:
 
     // dac0 -> dc3c
 
-    // from 9fc -> 0xc0 ff ff will completely fill locklears "Unseen stats" 
+    // from 9fc -> 0xc0 ff ff will completely fill locklears "Unseen stat improvement" 
     // but also overflow into Gorath health. Not sure why these flags don't
     // seem to be byte aligned.
     static constexpr auto sSkillImprovementOffset = 0x9fc;
@@ -424,7 +395,7 @@ public:
         mLogger.Info() << " Items: " << +itemCount << " cap: " << capacity << "\n";
         for (unsigned i = 0; i < itemCount; i++)
         {
-            const auto item = mBuffer.GetUint8();
+            const auto item = ItemIndex{mBuffer.GetUint8()};
             const auto& object = mObjects.GetObject(item);
             const auto condition = mBuffer.GetUint8();
             const auto status = mBuffer.GetUint8();
@@ -443,32 +414,70 @@ public:
     }
 
 
-    std::vector<Container> LoadContainer()
+    std::vector<Container> LoadContainers(unsigned zone)
     {
         const auto& logger = Logging::LogState::GetLogger("GameData");
         logger.Info() << "Loading containers" << std::endl;
         auto* objects = ObjectResource::GetInstance();
         std::vector<Container> containers{};
 
+        unsigned count = 0;
         // TombStone
-        mBuffer.Seek(0x3b621); // 36 items 1
-        const auto count = 36;
+        switch (zone)
+        {
+        case 1:
+            mBuffer.Seek(0x3b621); // 36 items 1
+            count = 36;
+            break;
+        case 2:
+            mBuffer.Seek(0x3be55); // 25 2
+            count = 25;
+            break;
+        case 3:
+            mBuffer.Seek(0x3c55f); // 54 3
+            count = 54;
+            break;
+        case 4:
+            mBuffer.Seek(0x3d0b4); // 65 4
+            count = 65;
+            break;
+        case 5:
+            mBuffer.Seek(0x3dc07); // 63 5
+            count = 63;
+            break;
+        case 6:
+            mBuffer.Seek(0x3e708); // 131 6
+            count = 131;
+            break;
+        case 7:
+            mBuffer.Seek(0x3f8b2); // 115 7
+            count = 115;
+            break;
+        case 8:
+            mBuffer.Seek(0x40c97); // 67 8
+            count = 67;
+            break;
+        case 9:
+            mBuffer.Seek(0x416b7); // 110 9
+            count = 110;
+            break;
+        case 10:
+            mBuffer.Seek(0x42868); // 25 A
+            count = 25;
+            break;
+        case 11:
+            mBuffer.Seek(0x43012); // 30 B
+            count = 30;
+            break;
+        case 12:
+            mBuffer.Seek(0x4378f); // 60 C
+            count = 60;
+            break;
+        default:
+            throw std::runtime_error("Zone not supported");
+        }
 
-        /*
-        mBuffer.Seek(0x3be55); // 25 2
-        mBuffer.Seek(0x3c55f); // 54 3
-        mBuffer.Seek(0x3d0b4); // 65 4
-        mBuffer.Seek(0x3dc07); // 63 5
-        mBuffer.Seek(0x3e708); // 131 6
-        mBuffer.Seek(0x3f8b2); // 115 7
-        mBuffer.Seek(0x40c97); // 67 8
-        mBuffer.Seek(0x416b7); // 110 9
-        mBuffer.Seek(0x42868); // 25 A
-        mBuffer.Seek(0x43012); // 30 B
-        mBuffer.Seek(0x4378f); // 60 C
-        */
-
-        for (int j = 0; j < count; j++)
+        for (unsigned j = 0; j < count; j++)
         {
             unsigned address = mBuffer.Tell();
             logger.Info() << " Container: " << j
@@ -617,7 +626,6 @@ public:
 
         mLogger.Info() << "Chapter Offsets End @" 
             << std::hex << mBuffer.Tell() << std::dec << std::endl;
-
     }
 
     void LoadCombatEntityLists()

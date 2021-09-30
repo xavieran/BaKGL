@@ -2,6 +2,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
+#include "bak/dialogChoice.hpp"
 #include "bak/gameData.hpp"
 #include "bak/types.hpp"
 
@@ -53,7 +54,8 @@ public:
         if (mGameData)
         {
             const auto hour = mGameData->mTime.mTime.GetHour();
-            return static_cast<int>(hour > 18);
+            return 0;
+            //return static_cast<int>(hour < 18);
         }
         else
         {
@@ -80,8 +82,11 @@ public:
 
     bool EvaluateGameStateChoice(const GameStateChoice& choice) const
     {
+        Logging::LogDebug(__FUNCTION__) << "Choice: " 
+            << Choice{choice} << " time: " << GetTime() << "\n";
         if (choice.mState == BAK::ActiveStateFlag::Chapter
-            && GetChapter() == choice.mExpectedValue)
+            && (GetChapter() >= choice.mExpectedValue
+                && GetChapter() <= choice.mExpectedValue2))
         {
             return true;
         }
@@ -100,7 +105,8 @@ public:
         {
             return true;
         }
-        return true;
+
+        return false;
     }
 
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const

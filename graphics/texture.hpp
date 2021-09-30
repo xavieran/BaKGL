@@ -1,17 +1,10 @@
 #pragma once
 
-#include <string>
-#include <string_view>
-#include <vector>
-
-#include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
-#include "xbak/ImageResource.h"
-#include "xbak/PaletteResource.h"
-
 #include <glm/glm.hpp>
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace Graphics {
 

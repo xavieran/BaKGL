@@ -7,7 +7,8 @@ namespace BAK::Encounter {
 std::ostream& operator<<(std::ostream& os, const EventFlag& ef)
 {
     os << "EventFlag { " << std::hex << ef.mEventPointer << std::dec
-        << " Enable: [" << ef.mIsEnable<< "]}";
+        << " Chance: " << +ef.mPercentChance
+        << "% Enable: [" << ef.mIsEnable<< "]}";
     return os;
 }
 

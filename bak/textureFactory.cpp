@@ -4,17 +4,17 @@
 
 namespace BAK {
 
-Graphics::Texture ImageToTexture(const Image& image, const Palette& palette)
+Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette)
 {
     auto texture = Graphics::Texture::TextureType{};
+    const auto imageSize = image.GetWidth() * image.GetHeight();
+    texture.reserve(imageSize);
+
     auto* pixels = image.GetPixels();
 
-    for (int i = 0; i < (image.GetWidth() * image.GetHeight()); i++)
+    for (int i = 0; i < imageSize; i++)
     {
-        auto color = palette.GetColor(pixels[i]);
-        // palette color 0 is transparency
-        texture.push_back(
-            BAK::ToGlColor<float>(color, pixels[i] == 0));
+        texture.push_back(palette.GetColor(pixels[i]));
     }
 
     auto tex = Graphics::Texture{
@@ -30,7 +30,7 @@ Graphics::Texture ImageToTexture(const Image& image, const Palette& palette)
 
 Graphics::TextureStore TextureFactory::MakeTextureStore(
     const ImageResource& images,
-    const Palette& palette)
+    const BAK::Palette& palette)
 {
     auto store = Graphics::TextureStore{};
     for (unsigned i = 0; i < images.GetNumImages(); i++)
@@ -46,27 +46,21 @@ Graphics::TextureStore TextureFactory::MakeTextureStore(
     std::string_view bmx,
     std::string_view pal)
 {
-    PaletteResource palette{};
-    {
-        auto fb = FileBufferFactory::CreateFileBuffer(
-            std::string{pal});
-        palette.Load(&fb);
-    }
-    assert(palette.GetPalette());
-
+    const auto palette = BAK::Palette{std::string{pal}};
     ImageResource images;
     {
         auto fb = FileBufferFactory::CreateFileBuffer(
             std::string{bmx});
         images.Load(&fb);
     }
-    return MakeTextureStore(images, *palette.GetPalette());
+
+    return MakeTextureStore(images, palette);
 }
 
 void TextureFactory::AddToTextureStore(
     Graphics::TextureStore& store,
     const ImageResource& images,
-    const Palette& palette)
+    const BAK::Palette& palette)
 {
     for (unsigned i = 0; i < images.GetNumImages(); i++)
     {
@@ -80,14 +74,7 @@ void TextureFactory::AddToTextureStore(
     std::string_view bmx,
     std::string_view pal)
 {
-    PaletteResource palette{};
-    {
-        auto fb = FileBufferFactory::CreateFileBuffer(
-            std::string{pal});
-        palette.Load(&fb);
-    }
-
-    assert(palette.GetPalette());
+    const auto palette = BAK::Palette{std::string{pal}};
 
     ImageResource images;
     {
@@ -99,14 +86,14 @@ void TextureFactory::AddToTextureStore(
     AddToTextureStore(
         store,
         images,
-        *palette.GetPalette());
+        palette);
 }
 
 
 void TextureFactory::AddToTextureStore(
     Graphics::TextureStore& store,
     const ScreenResource& screen,
-    const Palette& palette)
+    const BAK::Palette& palette)
 {
     store.AddTexture(
         ImageToTexture(screen.GetImage(), palette));
@@ -117,14 +104,7 @@ void TextureFactory::AddScreenToTextureStore(
     std::string_view scx,
     std::string_view pal)
 {
-    PaletteResource palette{};
-    {
-        auto fb = FileBufferFactory::CreateFileBuffer(
-            std::string{pal});
-        palette.Load(&fb);
-    }
-    assert(palette.GetPalette());
-
+    const auto palette = BAK::Palette{std::string{pal}};
     ScreenResource screen;
     {
         auto fb = FileBufferFactory::CreateFileBuffer(
@@ -135,13 +115,13 @@ void TextureFactory::AddScreenToTextureStore(
     AddToTextureStore(
         store,
         screen,
-        *palette.GetPalette());
+        palette);
 }
 
 void TextureFactory::AddTerrainToTextureStore(
     Graphics::TextureStore& store,
     const ScreenResource& terrain,
-    const Palette& palette)
+    const BAK::Palette& palette)
 {
     auto* pixels = terrain.GetImage()->GetPixels();
     auto width = terrain.GetImage()->GetWidth();
@@ -151,11 +131,13 @@ void TextureFactory::AddTerrainToTextureStore(
     for (auto offset : {70, 20, 20, 32, 20, 27, 6, 5})
     {
         auto image = Graphics::Texture::TextureType{};
-        for (int i = startOff * width; i < (startOff + offset) * width; i++)
+        const auto imageStart = startOff * width;
+        const auto imageEnd = (startOff + offset) * width;
+        image.reserve(imageEnd - imageStart);
+        for (int i = imageStart; i < imageEnd; i++)
         {
-            auto color = palette.GetColor(pixels[i]);
-            image.push_back(
-                BAK::ToGlColor<float>(color, pixels[i] == 0));
+            const auto& color = palette.GetColor(pixels[i]);
+            image.push_back(color);
         }
         if (offset == 70)
             std::random_shuffle(image.begin(), image.end());

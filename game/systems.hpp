@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/constants.hpp"
+#include "bak/types.hpp"
 
 #include "com/visit.hpp"
 
@@ -34,7 +35,7 @@ public:
     using IntersectionType = std::variant<Circle, Rect>;
 
     Intersectable(
-        unsigned itemId,
+        BAK::EntityIndex itemId,
         IntersectionType intersection,
         glm::vec3 location)
     :
@@ -43,7 +44,7 @@ public:
         mLocation{location}
     {}
 
-    unsigned GetId() const { return mItemId; }
+    BAK::EntityIndex GetId() const { return mItemId; }
     bool Intersects(glm::vec3 position) const
     {
         return std::visit(
@@ -70,7 +71,7 @@ public:
     auto GetLocation() const { return mLocation; }
 
 private:
-    unsigned mItemId;
+    BAK::EntityIndex mItemId;
     IntersectionType mIntersection;
     glm::vec3 mLocation;
 };
@@ -79,7 +80,7 @@ class Clickable
 {
 public:
     Clickable(
-        unsigned itemId,
+        BAK::EntityIndex itemId,
         double radius,
         glm::vec3 location)
     :
@@ -88,13 +89,13 @@ public:
         mLocation{location}
     {}
 
-    unsigned GetId() const { return mItemId; }
+    BAK::EntityIndex GetId() const { return mItemId; }
     double GetRadius() const { return mRadius; }
 
     auto GetLocation() const { return mLocation; }
 
 private:
-    unsigned mItemId;
+    BAK::EntityIndex mItemId;
     double mRadius;
     glm::vec3 mLocation;
 };
@@ -103,7 +104,7 @@ class Renderable
 {
 public:
     Renderable(
-        unsigned itemId,
+        BAK::EntityIndex itemId,
         std::pair<unsigned, unsigned> object,
         glm::vec3 location,
         glm::vec3 rotation,
@@ -117,7 +118,7 @@ public:
         mModelMatrix{CalculateModelMatrix()}
     {}
 
-    unsigned GetId() const { return mItemId; }
+    BAK::EntityIndex GetId() const { return mItemId; }
 
     const glm::mat4& GetModelMatrix() const
     {
@@ -147,7 +148,7 @@ private:
         return modelMatrix;
     }
 
-    unsigned mItemId;
+    BAK::EntityIndex mItemId;
     std::pair<unsigned, unsigned> mObject;
 
     glm::vec3 mLocation;
@@ -166,9 +167,9 @@ public:
         mNextItemId{0}
     {}
 
-    unsigned GetNextItemId()
+    BAK::EntityIndex GetNextItemId()
     {
-        return mNextItemId++;
+        return BAK::EntityIndex{mNextItemId++};
     }
 
     void AddIntersectable(const Intersectable& item)
@@ -191,7 +192,7 @@ public:
         mSprites.emplace_back(item);
     }
 
-    std::optional<unsigned> RunIntersection(glm::vec3 cameraPos) const
+    std::optional<BAK::EntityIndex> RunIntersection(glm::vec3 cameraPos) const
     {
         for (const auto& item : GetIntersectables())
         {
@@ -199,13 +200,13 @@ public:
                 return item.GetId();
         }
 
-        return std::optional<unsigned>{};
+        return std::optional<BAK::EntityIndex>{};
     }
 
-    std::optional<unsigned> RunClickable(std::pair<glm::vec3, glm::vec3> line) const
+    std::optional<BAK::EntityIndex> RunClickable(std::pair<glm::vec3, glm::vec3> line) const
     {
         double bestDistance = 1e9;
-        auto bestId = std::optional<unsigned>{};
+        auto bestId = std::optional<BAK::EntityIndex>{};
         for (const auto& clickable : GetClickables())
         {
             glm::vec3 p;

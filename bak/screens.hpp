@@ -88,16 +88,17 @@ void ShowDialogGui(
 void ShowCameraGui(
     const Camera& camera)
 {
+    const auto& pos = camera.GetPosition();
     ImGui::Begin("Info");
     std::stringstream ss{};
-    ss << "Pos: " << camera.GetPosition() 
-        << "\nNPos: " << camera.GetNormalisedPosition()
+    ss << "Pos: " << pos
+        << "\nHPos: " << std::hex << static_cast<std::uint32_t>(pos.x) 
+        << ", " << static_cast<std::uint32_t>(-pos.z) << std::dec
         << "\nTile: " << glm::floor(camera.GetPosition() / glm::vec3{BAK::gTileSize});
-    ImGui::Text(ss.str().c_str());
+    ImGui::TextWrapped(ss.str().c_str());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 
         / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
-
 }
 
 void ShowContainerGui(

@@ -1,14 +1,14 @@
 #include "com/logger.hpp"
 
+#include "bak/palette.hpp"
 #include "bak/worldFactory.hpp"
 
 #include "graphics/meshObject.hpp"
-#include "graphics/renderer.hpp"
+#include "graphics/opengl.hpp"
 #include "graphics/shaderProgram.hpp"
 
 #include "xbak/FileManager.h"
 #include "xbak/FileBuffer.h"
-#include "xbak/PaletteResource.h"
 
 #include <GL/glew.h>
 
@@ -35,10 +35,7 @@ int main(int argc, char** argv)
     BAK::ZoneLabel zoneLabel{argv[1]};
     auto objectToDisplay = argv[2];
 
-    auto palz = std::make_unique<PaletteResource>();
-    FileManager::GetInstance()->Load(palz.get(), zoneLabel.GetPalette());
-    auto& pal = *palz->GetPalette();
-
+    const auto pal = BAK::Palette{zoneLabel.GetPalette()};
     auto textureStore  = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems = BAK::ZoneItemStore{zoneLabel, textureStore};
 

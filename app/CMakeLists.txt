@@ -1,6 +1,7 @@
 list(APPEND APP_BINARIES
     dialog_explorer
     display_dialog
+    display_encounters
     display_fo
     display_gds
     display_object

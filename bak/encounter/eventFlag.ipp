@@ -30,10 +30,11 @@ void EventFlagFactory<isEnable>::EventFlagFactory::Load()
     const auto count = fb.GetUint32LE();
     for (unsigned i = 0; i < count; i++)
     {
-        fb.Skip(4);
+        fb.Skip(3);
+        const auto chance = fb.GetUint8();
         const auto eventPointer = fb.GetUint16LE();
         assert(fb.GetUint16LE() == 0);
-        mEventFlags.emplace_back(eventPointer, isEnable);
+        mEventFlags.emplace_back(chance, eventPointer, isEnable);
     }
 }
 

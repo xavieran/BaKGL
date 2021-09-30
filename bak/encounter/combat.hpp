@@ -1,18 +1,24 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
 #include "bak/dialogTarget.hpp"
 
+#include <optional>
 #include <vector>
 
 namespace BAK::Encounter {
 
-/*
-B1 01 00
-00 01 07 00 01 00 00 00 14 00 00 00 00 00 00 00 00 00 00 00 DF AC 00 00 BB 64 00 00 00 80 43 77 00 00 9B 3F 00 00 00 C0 5C 9C 00 00 87 03 00 00 00 00 86 C1 00 00 64 0C 00 00 00 00 01 12 00 01 00 C8 A4 00 00 5A 2B 00 00 00 40 88 9E 00 00 08 AB 00 00 90 60 00 00 00 F0 20 40 5A 2B 00 00 5A 2B 00 00 40 80 40 40 40 40 20 00 80 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 01 07 00 02 00 00 00 1C 00 00 00 29 00 00 00 00 00 00 00 A0 73 00 00 A0 F0 00 00 00 80 85 38 00 00 5F B1 00 00 00 E0 5C 77 00 00 5B A2 00 00 00 00 B3 BC 00 00 98 E5 00 00 00 60 02 12 00 00 00 D5 6B 00 00 20 CB 00 00 00 20 33 ED 83 3E AC 02 FF 75 05 0E 1F E9 ED 20 78 03 FF FF 6A 1B 66 24 D9 35 D9 35 63 2B 63 2B 78 03 FF FF 12 00 00 00 16 7E 00 00 40 CA 00 00 00 C0 33 ED 83 3E AC 02 FF 75 05 0E 1F E9 ED 20 78 03 FF FF 6A 1B 66 24 D9 35 D9 35 63 2B 63 2B 78 03 FF FF
-*/
+// From REQ_TE12.DAT:
+// Combat Situation
+// Objects
+// Enter Dialogue
+// Scout Dialogue
+// Ambush
+// North Retreat
+// West Retreat
+// South Retreat
+// East Retreat
 
-// 
 class Combat
 {
 public:
@@ -20,17 +26,26 @@ public:
     KeyTarget mEntryDialog;
     KeyTarget mScoutDialog;
 
+    std::optional<GamePositionAndHeading> mTrap;
+    GamePositionAndHeading mNorthRetreat;
+    GamePositionAndHeading mWestRetreat;
+    GamePositionAndHeading mSouthRetreat;
+    GamePositionAndHeading mEastRetreat;
+
+    std::vector<unsigned> mCombatants;
     //bool mVisible;
 };
 
 std::ostream& operator<<(std::ostream&, const Combat&);
 
-class CombatFactory
+template <bool isTrap>
+class GenericCombatFactory
 {
 public:
-    static constexpr auto sFilename = "DEF_COMB.DAT";
+    static constexpr auto sCombatFilename = "DEF_COMB.DAT";
+    static constexpr auto sTrapFilename   = "DEF_TRAP.DAT";
 
-    CombatFactory();
+    GenericCombatFactory();
 
     const Combat& Get(unsigned i) const;
 
@@ -39,5 +54,6 @@ private:
     std::vector<Combat> mCombats;
 };
 
+using CombatFactory = GenericCombatFactory<false>;
 
 }

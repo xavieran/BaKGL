@@ -38,7 +38,7 @@ public:
 
     ZoneTextureStore(
         const ZoneLabel& zoneLabel,
-        const Palette& palette);
+        const BAK::Palette& palette);
 
     const Graphics::Texture& GetTexture(const unsigned i) const
     {

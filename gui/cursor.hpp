@@ -47,6 +47,12 @@ public:
         PushCursor(0);
     }
 
+    void Clear()
+    {
+        while (mCursors.size() > 1)
+            mCursors.pop();
+    }
+
     void PushCursor(unsigned cursor)
     {
         assert(cursor < mSprites.size());

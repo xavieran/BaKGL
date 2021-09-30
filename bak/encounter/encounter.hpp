@@ -57,7 +57,6 @@ using EncounterT = std::variant<
     Combat,
     Dialog,
     EventFlag,
-    Trap,
     Zone>;
 
 std::ostream& operator<<(std::ostream& os, const EncounterT&);
@@ -93,8 +92,9 @@ public:
         glm::vec<2, unsigned> tile,
         unsigned saveAddress,
         unsigned saveAddress2,
-        std::uint32_t unknown0,
-        std::uint8_t unknown1,
+        unsigned saveAddress3,
+        std::uint8_t unknown0,
+        std::uint16_t unknown1,
         std::uint16_t unknown2)
     :
         mEncounter{encounter},
@@ -103,6 +103,7 @@ public:
         mTile{tile},
         mSaveAddress{saveAddress},
         mSaveAddress2{saveAddress2},
+        mSaveAddress3{saveAddress3},
         mUnknown0{unknown0},
         mUnknown1{unknown1},
         mUnknown2{unknown2}
@@ -126,7 +127,6 @@ public:
         return mDimensions;
     }
 
-private:
     EncounterT mEncounter;
     glm::vec<2, unsigned> mLocation;
     glm::vec<2, unsigned> mDimensions;
@@ -137,9 +137,9 @@ private:
     // already been encountered
     unsigned mSaveAddress;
     unsigned mSaveAddress2;
-public:
-    std::uint32_t mUnknown0;
-    std::uint8_t  mUnknown1;
+    unsigned mSaveAddress3;
+    std::uint8_t mUnknown0;
+    std::uint16_t  mUnknown1;
     std::uint16_t mUnknown2;
     friend std::ostream& operator<<(std::ostream&, const Encounter&);
 };

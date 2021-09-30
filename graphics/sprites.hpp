@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphics/quad.hpp"
-#include "graphics/renderer.hpp"
+#include "graphics/opengl.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/types.hpp"
 

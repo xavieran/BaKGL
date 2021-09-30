@@ -6,7 +6,6 @@
 #include "bak/screens.hpp"
 #include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
-#include "bak/systems.hpp"
 #include "bak/textureFactory.hpp"
 
 #include "com/algorithm.hpp"
@@ -17,7 +16,7 @@
 #include "graphics/guiRenderer.hpp"
 #include "graphics/inputHandler.hpp"
 #include "graphics/meshObject.hpp"
-#include "graphics/renderer.hpp"
+#include "graphics/opengl.hpp"
 #include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 

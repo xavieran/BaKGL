@@ -6,7 +6,7 @@ namespace BAK {
 
 ZoneTextureStore::ZoneTextureStore(
     const ZoneLabel& zoneLabel,
-    const Palette& palette)
+    const BAK::Palette& palette)
 :
     mTextures{},
     mTerrainOffset{0},
@@ -63,7 +63,7 @@ std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 Graphics::MeshObject ZoneItemToMeshObject(
     const ZoneItem& item,
     const ZoneTextureStore& store,
-    const Palette& pal)
+    const BAK::Palette& pal)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
     std::vector<glm::vec3> vertices;
@@ -304,20 +304,14 @@ Graphics::MeshObject ZoneItemToMeshObject(
             }
 
             auto color = pal.GetColor(colorIndex);
-            auto glmCol = \
-                glm::vec4(
-                    static_cast<float>(color.r) / 256,
-                    static_cast<float>(color.g) / 256,
-                    static_cast<float>(color.b) / 256,
-                    1);
 
             // bitta fun
             if (item.GetName().substr(0, 5) == "cryst")
-                glmCol.a = 0.8;
+                color.a = 0.8;
 
-            colors.emplace_back(glmCol);
-            colors.emplace_back(glmCol);
-            colors.emplace_back(glmCol);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
         }
 
         index++;

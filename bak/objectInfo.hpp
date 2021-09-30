@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/types.hpp"
+
 #include <array>
 #include <cassert>
 #include <string>
@@ -95,11 +97,10 @@ class ObjectIndex
 {
 public:
     static constexpr auto sObjectCount = 0x89;
-    using IndexType = unsigned;
 
     ObjectIndex();
     
-    const GameObject& GetObject(IndexType) const;
+    const GameObject& GetObject(ItemIndex) const;
 
     std::array<GameObject, sObjectCount> mObjects;
 };

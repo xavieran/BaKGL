@@ -1,153 +1,116 @@
 #pragma once
 
-#include "graphics/texture.hpp"
-
-#include "com/logger.hpp"
-
-#include <GL/glew.h>
-
-#include <cmath>
+#include "graphics/meshObject.hpp"
+#include "graphics/opengl.hpp"
+#include "graphics/shaderProgram.hpp"
 
 namespace Graphics {
 
-enum class BindPoint
-{
-    ArrayBuffer,
-    ElementArrayBuffer
-};
-
-GLenum ToGlEnum(BindPoint p);
-
-class VertexArrayObject
+class Renderer
 {
 public:
-    VertexArrayObject();
+    Renderer()
+    :
+        mModelShader{std::invoke([]{
+            auto shader = ShaderProgram{
+                "normal.vert.glsl",
+                "normal.frag.glsl"};
+            return shader.Compile();
+        })},
+        mSpriteShader{std::invoke([]{
+            auto shader = ShaderProgram{
+                "sprite.vert.glsl",
+                "sprite.frag.glsl"};
+            return shader.Compile();
+        })},
+        mVertexArrayObject{},
+        mGLBuffers{},
+        mTextureBuffer{}
+    {}
 
-    VertexArrayObject(const VertexArrayObject&) = delete;
-    VertexArrayObject& operator=(const VertexArrayObject&) = delete;
+    template <typename TextureStoreT>
+    void LoadData(
+        const MeshObjectStorage& objectStore,
+        const TextureStoreT& textureStore)
+    {
+        mVertexArrayObject.BindGL();
 
-    VertexArrayObject(VertexArrayObject&& other);
-    VertexArrayObject& operator=(VertexArrayObject&& other);
+        mGLBuffers.AddBuffer("vertex", 0, 3);
+        mGLBuffers.AddBuffer("normal", 1, 3);
+        mGLBuffers.AddBuffer("color", 2, 4);
+        mGLBuffers.AddBuffer("textureCoord", 3, 3);
+        mGLBuffers.AddBuffer("textureBlend", 4, 1);
 
-    ~VertexArrayObject();
+        mGLBuffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, objectStore.mVertices);
+        mGLBuffers.LoadBufferDataGL("normal", GL_ARRAY_BUFFER, objectStore.mNormals);
+        mGLBuffers.LoadBufferDataGL("color", GL_ARRAY_BUFFER, objectStore.mColors);
+        mGLBuffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, objectStore.mTextureCoords);
+        mGLBuffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, objectStore.mTextureBlends);
+        mGLBuffers.LoadBufferDataGL(mGLBuffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, objectStore.mIndices);
 
-    void BindGL() const;
-    void UnbindGL() const;
+        mGLBuffers.BindArraysGL();
+
+        mTextureBuffer.LoadTexturesGL(
+            textureStore.GetTextures(),
+            textureStore.GetMaxDim());
+    }
+
+    template <bool isModelShader, typename Renderables, typename Camera>
+    void Draw(
+        const Renderables& renderables,
+        const glm::vec3& lightPosition,
+        const Camera& camera)
+    {
+        mVertexArrayObject.BindGL();
+        glActiveTexture(GL_TEXTURE0);
+        mTextureBuffer.BindGL();
+
+        auto& shader = isModelShader ? mModelShader : mSpriteShader;
+
+        shader.UseProgramGL();
+        const auto textureId = shader.GetUniformLocation("texture0");
+        shader.SetUniform(textureId, 0);
+        const auto lightId = shader.GetUniformLocation("lightPosition_worldspace");
+        shader.SetUniform(lightId, lightPosition);
+
+        const auto cameraPositionId = shader.GetUniformLocation("cameraPosition_worldspace");
+        shader.SetUniform(cameraPositionId, camera.GetNormalisedPosition());
+
+        const auto mvpMatrixId = shader.GetUniformLocation("MVP");
+        const auto modelMatrixId = shader.GetUniformLocation("M");
+        const auto viewMatrixId = shader.GetUniformLocation("V");
+
+        auto viewMatrix = camera.GetViewMatrix();
+        glm::mat4 MVP;
+
+        for (const auto& item : renderables)
+        {
+            if (glm::distance(camera.GetPosition(), item.GetLocation()) > 128000.0) continue;
+            const auto [offset, length] = item.GetObject();
+            auto modelMatrix = item.GetModelMatrix();
+
+            MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
+
+            shader.SetUniform(mvpMatrixId, MVP);
+            shader.SetUniform(modelMatrixId, modelMatrix);
+            shader.SetUniform(viewMatrixId, viewMatrix);
+
+            glDrawElementsBaseVertex(
+                GL_TRIANGLES,
+                length,
+                GL_UNSIGNED_INT,
+                (void*) (offset * sizeof(GLuint)),
+                offset
+            );
+        }
+    }
 
 private:
-    static GLuint GenVertexArrayGL();
-
-    GLuint mVertexArrayId;
-    bool mActive;
-};
-
-class GLBuffers
-{
-public:
-    GLBuffers();
-    GLBuffers(GLBuffers&& other);
-    GLBuffers& operator=(GLBuffers&& other);
-    GLBuffers(const GLBuffers&) = delete;
-    GLBuffers& operator=(const GLBuffers&) = delete;
-    ~GLBuffers();
-
-    void AddBuffer(
-        const std::string& name,
-        unsigned location,
-        unsigned elems);
-    
-    static GLuint GenBufferGL();
-
-    template <typename T>
-    void LoadBufferDataGL(
-        const std::string& buffer,
-        GLenum target,
-        const std::vector<T>& data)
-    {
-        LoadBufferDataGL(
-            mBuffers[buffer].mBuffer,
-            target,
-            data);
-    }
-
-    template <typename T>
-    void LoadBufferDataGL(
-        GLuint buffer,
-        GLenum target,
-        const std::vector<T>& data)
-    {
-        glBindBuffer(target, buffer);
-        glBufferData(
-            target,
-            data.size() * sizeof(T),
-            &data.front(),
-            // This will need to change...
-            GL_DYNAMIC_DRAW);
-            //GL_STATIC_DRAW);
-    }
-
-    template <typename T>
-    void ModifyBufferDataGL(
-        const std::string& name,
-        GLenum target,
-        unsigned offset,
-        const std::vector<T>& data)
-    {
-        glBindBuffer(target, mBuffers[name].mBuffer);
-        glBufferSubData(
-            target,
-            offset,
-            data.size() * sizeof(T),
-            &data.front());
-    }
-
-    void BindAttribArrayGL(
-        unsigned location,
-        unsigned elems,
-        GLuint buffer);
-    
-    void BindArraysGL();
-    
-//private:
-    struct GLBuffer
-    {
-        // Location in the shader
-        unsigned mLocation;
-        // Elements per object (e.g. color = 4 floats)
-        unsigned mElems;
-        // BindPoint (ARRAY, ELEMENT_ARRAY, etc)
-        BindPoint mBindPoint;
-        // GL assigned buffer id
-        GLuint mBuffer;
-    };
-
-    std::unordered_map<std::string, GLBuffer> mBuffers;
-
-    GLuint mElementBuffer;
-
-    // disable when moving from
-    bool mActive;
-};
-
-class TextureBuffer
-{
-public:
-
-    TextureBuffer();
-
-    ~TextureBuffer();
-    
-
-    void BindGL() const;
-    void UnbindGL() const;
-    
-    void LoadTexturesGL(
-        const std::vector<Texture>& textures,
-        unsigned maxDim);
-
-//private:
-    GLuint mTextureBuffer;
-    static constexpr GLuint mTextureType = GL_TEXTURE_2D_ARRAY;
+    ShaderProgramHandle mModelShader;
+    ShaderProgramHandle mSpriteShader;
+    VertexArrayObject mVertexArrayObject;
+    GLBuffers mGLBuffers;
+    TextureBuffer mTextureBuffer;
 };
 
 }

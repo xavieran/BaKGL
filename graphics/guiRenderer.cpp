@@ -63,7 +63,7 @@ void GuiCamera::UpdateModelViewMatrix(const glm::mat4& modelMatrix)
 
 void GuiCamera::ScissorRegion(glm::vec2 topLeft, glm::vec2 dimensions)
 {
-    // So bottom in terms of glScissor is going to be:
+    // Bottom in terms of glScissor is going to be:
     // screenHeight - scaledBottom
     // Because we need to account for the bottom starting
     // at the height of the screen
@@ -105,12 +105,16 @@ GuiRenderer::GuiRenderer(
 void GuiRenderer::RenderGui(
     Graphics::IGuiElement* element)
 {
+    glDisable(GL_DEPTH_TEST);
+    mShader.UseProgramGL();
+
     mRenderCalls = 0;
     mLogger.Spam() << "Beginning Render\n";
     RenderGuiImpl(
         glm::vec3{0},
         element);
     mLogger.Spam() << "Rendered Gui, Calls: " << mRenderCalls << "\n";
+    glEnable(GL_DEPTH_TEST);
 }
 
 void GuiRenderer::RenderGuiImpl(
