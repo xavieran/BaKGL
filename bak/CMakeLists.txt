@@ -38,7 +38,6 @@ add_library(bak
     sceneData.hpp sceneData.cpp
     screens.hpp
     skills.hpp skills.cpp
-    systems.hpp
     textureFactory.hpp textureFactory.cpp
     worldClock.hpp worldClock.cpp
     worldFactory.hpp worldFactory.cpp
