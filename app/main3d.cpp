@@ -108,75 +108,6 @@ int main(int argc, char** argv)
 
     startPosition.y = 100;
 
-    //auto systems = Systems{};
-    //std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> encounters{};
-    //std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> clickables{};
-
-    //for (const auto& world : zoneData.mWorldTiles.GetTiles())
-    //{
-    //    for (const auto& item : world.GetItems())
-    //    {
-    //        if (item.GetZoneItem().GetVertices().size() > 1)
-    //        {
-    //            auto id = systems.GetNextItemId();
-    //            auto renderable = Renderable{
-    //                id,
-    //                zoneData.mObjects.GetObject(item.GetZoneItem().GetName()),
-    //                item.GetLocation(),
-    //                item.GetRotation(),
-    //                glm::vec3{item.GetZoneItem().GetScale()}};
-
-    //            if (item.GetZoneItem().IsSprite())
-    //                systems.AddSprite(renderable);
-    //            else
-    //                systems.AddRenderable(renderable);
-
-    //            if (item.GetZoneItem().GetClickable())
-    //            {
-    //                systems.AddClickable(
-    //                    Clickable{
-    //                        id,
-    //                        500,
-    //                        item.GetLocation()});
-    //                clickables.emplace(id, &item);
-    //                /*systems.AddRenderable(
-    //                    Renderable{
-    //                        id,
-    //                        objectStore.GetObject("clickable"),
-    //                        item.GetLocation(),
-    //                        item.GetRotation(),
-    //                        glm::vec3{item.GetZoneItem().GetScale()}});*/
-    //            }
-    //        }
-    //    }
-    //}
-
-    //for (const auto& world : zoneData.mWorldTiles.GetTiles())
-    //{
-    //    for (const auto& enc : world.GetEncounters())
-    //    {
-    //        auto id = systems.GetNextItemId();
-    //        const auto dims = enc.GetDims();
-    //        systems.AddRenderable(
-    //            Renderable{
-    //                id,
-    //                zoneData.mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-    //                enc.GetLocation(),
-    //                glm::vec3{0.0},
-    //                glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-
-    //        systems.AddIntersectable(
-    //            Intersectable{
-    //                id,
-    //                Intersectable::Rect{
-    //                    static_cast<double>(dims.x),
-    //                    static_cast<double>(dims.y)},
-    //                enc.GetLocation()});
-
-    //        encounters.emplace(id, &enc);
-    //    }
-    //}
-
     auto guiScalar = 4.0f;
 
     auto nativeWidth = 320.0f;
@@ -336,17 +267,6 @@ int main(int argc, char** argv)
 
         // { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);
-
-        // { *** Check for intersection with encounter
-
-        //if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-        //    gameRunner.mActiveClickable = nullptr;
-
-        //if (glfwGetMouseButton(window.get(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-        //{
-        //    if (guiManager.mScreenStack.size() == 1)
-        //        gameRunner.CheckClickable();
-        //};
 
         // { *** IMGUI START ***
         ImGui_ImplOpenGL3_NewFrame();
