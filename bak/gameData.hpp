@@ -483,22 +483,18 @@ public:
             logger.Info() << " Container: " << j
                 << " addr: " << std::hex << address << std::dec << std::endl;
 
-            mBuffer.Dump(4);
-
-            //auto aLoc = mBuffer.GetUint16LE();
-            //auto bLoc = mBuffer.GetUint16LE();
-            auto dlogp = mBuffer.GetUint32LE();
+            auto dlogp = mBuffer.GetUint32LE(); // 0x4
             //auto pair = glm::vec<2, std::uint16_t>{aLoc, bLoc};
             // bLoc == C3 dbody
             // bLoc == C4 hole dirt
             // bLoc == C5 Bag
-            auto xLoc = mBuffer.GetUint32LE();
-            auto yLoc = mBuffer.GetUint32LE();
+            auto xLoc = mBuffer.GetUint32LE(); // 0x8
+            auto yLoc = mBuffer.GetUint32LE(); // 0xc (12)
             auto location = glm::vec<2, unsigned>{xLoc, yLoc};
-            auto chestNumber   = mBuffer.GetUint8();
-            auto chestItems    = mBuffer.GetUint8();
-            auto chestCapacity = mBuffer.GetUint8();
-            auto containerType = mBuffer.GetUint8();
+            auto chestNumber   = mBuffer.GetUint8(); // 0xd
+            auto chestItems    = mBuffer.GetUint8(); // 0xe
+            auto chestCapacity = mBuffer.GetUint8(); // 0xf
+            auto containerType = mBuffer.GetUint8(); // 0x10
 
             assert(chestNumber == 6 || chestNumber == 9 || chestCapacity > 0);
 

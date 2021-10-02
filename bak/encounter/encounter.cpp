@@ -58,13 +58,15 @@ std::ostream& operator<<(std::ostream& os, const EncounterT& encounter)
 
 std::ostream& operator<<(std::ostream& os, const Encounter& e)
 {
-    os << "{" << e.mEncounter << "} dims: " << e.mDimensions
+    os << "Encounter { dims: " << e.mDimensions
         << " tile: " << e.mTile 
         << std::hex << " savePtr: ("
         << e.mSaveAddress << ", " << e.mSaveAddress2 << ", "
         << e.mSaveAddress3
         << ") Unknown [" << +e.mUnknown0 << ","
-        << +e.mUnknown1 << "," << +e.mUnknown2 << "]" << std::dec;
+        << +e.mUnknown1 << "," << +e.mUnknown2 << "," 
+        << +e.mUnknown3 << "]" << std::dec
+        << "{" << e.mEncounter << "}}";
     return os;
 }
 
@@ -141,11 +143,12 @@ std::vector<Encounter> LoadEncounters(
         const unsigned encounterIndex = fb.GetUint16LE();
         // Don't know
         const auto unknown0 = fb.GetUint8();
-        const auto unknown1 = fb.GetUint16LE();
+        const auto unknown1 = fb.GetUint8();
+        const auto unknown2 = fb.GetUint8();
         const auto saveAddr = fb.GetUint16LE();
         const unsigned saveAddr2 = fb.GetUint16LE();
         const unsigned saveAddr3 = fb.GetUint16LE();
-        const auto unknown2 = fb.GetUint16LE();
+        const auto unknown3 = fb.GetUint16LE();
 
         logger.Debug() << "Loaded encounter: " << tile << " loc: " << location
             << " dims: " << dimensions << " @ 0x" << std::hex << loc
@@ -166,7 +169,8 @@ std::vector<Encounter> LoadEncounters(
             saveAddr3,
             unknown0,
             unknown1,
-            unknown2);
+            unknown2,
+            unknown3);
     }
 
     return encounters;

@@ -94,8 +94,9 @@ public:
         unsigned saveAddress2,
         unsigned saveAddress3,
         std::uint8_t unknown0,
-        std::uint16_t unknown1,
-        std::uint16_t unknown2)
+        std::uint8_t unknown1,
+        std::uint8_t unknown2,
+        std::uint16_t unknown3)
     :
         mEncounter{encounter},
         mLocation{location},
@@ -106,7 +107,8 @@ public:
         mSaveAddress3{saveAddress3},
         mUnknown0{unknown0},
         mUnknown1{unknown1},
-        mUnknown2{unknown2}
+        mUnknown2{unknown2},
+        mUnknown3{unknown3}
     {}
 
     const auto& GetEncounter() const { return mEncounter; }
@@ -139,8 +141,9 @@ public:
     unsigned mSaveAddress2;
     unsigned mSaveAddress3;
     std::uint8_t mUnknown0;
-    std::uint16_t  mUnknown1;
-    std::uint16_t mUnknown2;
+    std::uint8_t  mUnknown1;
+    std::uint8_t  mUnknown2;
+    std::uint16_t mUnknown3;
     friend std::ostream& operator<<(std::ostream&, const Encounter&);
 };
 

@@ -29,10 +29,10 @@ enum class HotspotAction
     INN       = 7,
     CONTAINER = 8,
     LUTE      = 9,
-    TELEPORT  = 11,
-    TEMPLE    = 13,
-    NOT_SURE  = 15,
-    REPAIR    = 16,
+    TELEPORT  = 0xb,
+    TEMPLE    = 0xd,
+    NOT_SURE  = 0xf,
+    REPAIR    = 0x10
 };
 
 std::ostream& operator<<(std::ostream&, HotspotAction);
