@@ -9,7 +9,7 @@ std::ostream& operator<<(std::ostream& os, const Zone& zone)
 {
     os << "Zone { " << zone.mTargetZone
         << " worldPosition: " << zone.mTargetLocation
-        << " dialog: " << zone.mDialog << "}";
+        << " dialog: " << std::hex << zone.mDialog << std::dec << "}";
     return os;
 }
 

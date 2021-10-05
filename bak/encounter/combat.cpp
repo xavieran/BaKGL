@@ -7,8 +7,8 @@ namespace BAK::Encounter {
 std::ostream& operator<<(std::ostream& os, const Combat& comb)
 {
     os << "Combat { #" << comb.mCombatIndex
-        << " Entry: " << comb.mEntryDialog 
-        << " Scout: " << comb.mScoutDialog
+        << " Entry: " << std::hex << comb.mEntryDialog 
+        << " Scout: " << comb.mScoutDialog << std::dec
         << " \nTrap: " << comb.mTrap
         << " \nNorth: " << comb.mNorthRetreat
         << " \nWest: " << comb.mWestRetreat

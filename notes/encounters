@@ -64,7 +64,7 @@ add breakpoint for retf at end of rundialog (3b52:2774)
 
 Then you will pop out at mainView:0423 and will have the 
 CS for mainView (46e8, or 4622, can be a few other things...)
-3e0e, 46c5, 4121, 4614
+3e0e, 46c5, 4121, 4614, 4121
     // Phillip Encounter index 0x96C == 0x01
 then set BP at 46e8:410 (just before left/right click forward is decided
 
@@ -133,3 +133,34 @@ multiplier => 664000 / 0xe => ~47428
 bounds can be computed as
 tile * 64000 + encounterCoord * 1600
 e.g. 10 * 64000 + 0xe * 1600 = 662400
+
+
+DoDialogEncounter
+{
+    checkWhetehrAlreadyEncounteredRecently:
+        if ReadEncoutnerAlreadyEncountered
+            or ReadEncounterFlag1450
+            or encounter.SaveAddress2 != 0 and ReadEvent(encounter.SaveAddress2)
+            or encounter.SaveAddress1 != 0 and ReadEvent(encounter.SaveAddress1)
+        then
+            alreadyEncountered
+        else
+            canEncounter<F10>
+    if alreadyEncountered - return
+
+    RunDialog
+
+    // Post dialog set states
+    if (encounter.SaveAddress3 != 0)
+        Set(SaveAddress3, 1);
+
+    if (encounter.unknown3 == 0)
+    {
+        if (encounter.unknown2 != 0)
+        {
+            setEncounterState(0x190, 1)
+        }
+        setEncounterState(1450, 1)
+    }
+
+}

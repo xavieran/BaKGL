@@ -8,7 +8,7 @@ namespace BAK::Encounter {
 
 std::ostream& operator<<(std::ostream& os, const Block& block)
 {
-    os << "Block { " << block.mDialog << "}";
+    os << "Block { " << std::hex << block.mDialog << std::dec << "}";
     return os;
 }
 

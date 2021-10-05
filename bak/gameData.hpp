@@ -279,6 +279,117 @@ public:
         return mBuffer.GetUint8();
     }
 
+    // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
+    // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
+    bool CheckActive(
+        const Encounter::Encounter& encounter,
+        ZoneNumber zone,
+        std::uint8_t currentTilePosByte,
+        std::uint8_t encounterIndexInTXXYYDAT)
+    {
+        const bool alreadyEncountered = ReadEvent(
+            CalculateEventEncounter190Offset(
+                zone,
+                currentTilePosByte,
+                encounterIndexInTXXYYDAT));
+        const bool encounterFlag1450 = ReadEvent(
+            CalculateEncounter1450Offset(encounterIndexInTXXYYDAT));
+        // event flag 1 - this flag must be set to encounter the event
+        const bool eventFlag1 = encounter.mSaveAddress != 0
+            ? (ReadEvent(encounter.mSaveAddress) == 1)
+            : false;
+        // event flag 2 - this flag must _not_ be set to encounter this event
+        const bool eventFlag2 = encounter.mSaveAddress2 != 0
+            ? ReadEvent(encounter.mSaveAddress2)
+            : false;
+        return !(alreadyEncountered
+            || encounterFlag1450
+            || eventFlag1
+            || eventFlag2);
+    }
+
+    void SetPostDialogEventFlags(const Encounter::Encounter& encounter)
+    {
+        constexpr auto zone = ZoneNumber{1};
+        constexpr auto currentTilePosByte = 0;
+        constexpr auto encounterIndexInTXXYYDAT = 0;
+
+        if (encounter.mSaveAddress3 != 0)
+        {
+            SetEventFlag(true, encounter.mSaveAddress3);
+        }
+
+        // Unknown 3 flag is associated with events like the sleeping glade and 
+        // timirianya danger zone (effectively, always encounter this encounter)
+        if (encounter.mUnknown3 == 0)
+        {
+            // FIXME use actual values
+            if (encounter.mUnknown2 != 0) // Inhibit for this chapter
+            {
+                SetEventFlag(true, CalculateEventEncounter190Offset(
+                    zone, currentTilePosByte, encounterIndexInTXXYYDAT));
+            }
+
+            // Inhibit for this tile
+            SetEventFlag(true, CalculateEncounter1450Offset(encounterIndexInTXXYYDAT));
+        }
+
+    }
+    
+    // Background and Town
+    void SetPostGDSEventFlags(const Encounter::Encounter& encounter)
+    {
+        if (encounter.mSaveAddress3 != 0)
+            SetEventFlag(true, encounter.mSaveAddress3);
+    }
+
+    // Used by Block, Disable, Enable, Sound, Zone
+    void SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter)
+    {
+        if (encounter.mSaveAddress3 != 0)
+        {
+            SetEventFlag(true, encounter.mSaveAddress3);
+        }
+        // FIXME use actual values
+        if (encounter.mUnknown2 != 0)
+        {
+            SetEventFlag(true, CalculateEventEncounter190Offset(ZoneNumber{1}, 0, 0));
+        }
+    }
+
+
+    void SetEventFlag(bool, unsigned)
+    {
+    }
+
+    // There is also a function to set this value which follows the same process
+    // to calculate the encounter event flag offset
+    unsigned CalculateEventEncounter190Offset(
+        ZoneNumber zone, 
+        std::uint8_t currentTilePosByte,
+        std::uint8_t encounterIndexInTXXYYDAT)
+    {
+        constexpr auto encounterStateOffset = 0x190;
+        // Refer to checkAlreadyEncounteredThisEncounter in IDA
+        const auto zoneOffset = (zone.mValue - 1) * 0x190;
+        // this is zero when encountering new game encounter
+        const auto currentTilePosOffset = currentTilePosByte * 0xa;
+        const auto offset = zoneOffset + currentTilePosOffset + encounterIndexInTXXYYDAT;
+        return offset + encounterStateOffset;
+    }
+
+    // 1450 is "recently encountered this encounter"
+    // should be cleared when we move to a new tile
+    // (or it will inhibit the events of the new tile)
+    unsigned CalculateEncounter1450Offset(
+        std::uint8_t encounterIndexInTXXYYDAT)
+    {
+        // Refer readEncounterEventState1450 in IDA
+        // These get cleared when we load a new tile
+        constexpr auto offset = 0x1450;
+        return offset + encounterIndexInTXXYYDAT;
+    }
+
     // if you walk far enough away for the tile to be unloaded it 
     // will reset the encounter flag
     // Phillip Encounter index 0x96C == 0x01 
@@ -320,12 +431,12 @@ public:
 
     unsigned ReadEvent(unsigned eventPtr) const
     {
-        unsigned startOffset = sGameEventRecordOffset;
-        unsigned bitOffset = eventPtr & 0xf;
-        unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
+        const unsigned startOffset = sGameEventRecordOffset;
+        const unsigned bitOffset = eventPtr & 0xf;
+        const unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
         mBuffer.Seek(eventLocation);
-        unsigned eventData = mBuffer.GetUint16LE();
-        unsigned bitValue = (eventData >> bitOffset) & 0x1;
+        const unsigned eventData = mBuffer.GetUint16LE();
+        const unsigned bitValue = (eventData >> bitOffset) & 0x1;
         mLogger.Spam() << "Ptr: " << std::hex << eventPtr << " loc: "
             << eventLocation << " val: " << eventData << " bitVal: "
             << bitValue << std::dec << std::endl;
