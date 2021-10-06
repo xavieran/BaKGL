@@ -165,8 +165,7 @@ public:
                         if (mGuiManager.mScreenStack.size() == 1
                             && mGameState.mGameData->CheckActive(
                                 *mActiveEncounter,
-                                mGameState.GetZone(),
-                                0))
+                                mGameState.GetZone()))
                         {
                             mGuiManager.StartDialog(
                                 e.mDialog,

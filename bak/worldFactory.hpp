@@ -6,6 +6,7 @@
 #include "com/logger.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/textureFactory.hpp"
+#include "bak/zoneReference.hpp"
 
 #include "graphics/meshObject.hpp"
 
@@ -306,21 +307,24 @@ public:
         const ZoneItemStore& zoneItems,
         Encounter::EncounterFactory ef,
         unsigned x,
-        unsigned y)
+        unsigned y,
+        unsigned tileIndex)
     :
         mCenter{},
         mTile{x, y},
+        mTileIndex{tileIndex},
         mItemInsts{},
         mEncounters{}
     {
-        LoadWorld(zoneItems, ef, x, y);
+        LoadWorld(zoneItems, ef, x, y, tileIndex);
     }
 
     void LoadWorld(
         const ZoneItemStore& zoneItems,
         const Encounter::EncounterFactory ef,
         unsigned x,
-        unsigned y)
+        unsigned y,
+        unsigned tileIndex)
     {
         const auto& logger = Logging::LogState::GetLogger("World");
         const auto tile = zoneItems.GetZoneLabel().GetTileWorld(x, y);
@@ -352,7 +356,8 @@ public:
                     ef,
                     fb,
                     chapter,
-                    mTile);
+                    mTile,
+                    mTileIndex);
             }
             catch (const OpenError&)
             {
@@ -373,6 +378,7 @@ public:
 private:
     std::optional<glm::vec3> mCenter;
     glm::vec<2, unsigned> mTile;
+    unsigned mTileIndex;
 
     std::vector<WorldItemInstance> mItemInsts;
     std::vector<Encounter::Encounter> mEncounters;
@@ -389,30 +395,21 @@ public:
         mWorlds{
             std::invoke([&zoneItems, &ef]()
             {
+                const auto tiles = LoadZoneRef(
+                    zoneItems.GetZoneLabel().GetZoneReference());
+
                 std::vector<World> worlds{};
-                
-                // Min and max tile world indices
-                static constexpr unsigned xMin = 9;
-                static constexpr unsigned xMax = 24;
+                worlds.reserve(tiles.size());
 
-                static constexpr unsigned yMin = 9;
-                static constexpr unsigned yMax = 24;
-
-                for (unsigned x = xMin; x < xMax; x++)
+                for (unsigned tileIndex = 0; tileIndex < tiles.size(); tileIndex++)
                 {
-                    for (unsigned y = yMin; y < yMax; y++)
-                    {
-                        try
-                        {
-                            auto it = worlds.emplace_back(zoneItems, ef, x, y);
-                        }
-                        catch (const OpenError&)
-                        {
-                            Logging::LogSpam("WorldTileStore")
-                                << "World: " << x << " , " << y 
-                                << " does not exist" << std::endl;
-                        }
-                    }
+                    const auto& tile = tiles[tileIndex];
+                    auto it = worlds.emplace_back(
+                        zoneItems,
+                        ef,
+                        tile.x,
+                        tile.y,
+                        tileIndex);
                 }
 
                 return worlds;

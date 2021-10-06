@@ -2,6 +2,7 @@
 
 #include "bak/encounter/encounter.hpp"
 
+#include "bak/zoneReference.hpp"
 #include "bak/palette.hpp"
 #include "bak/worldFactory.hpp"
 
@@ -29,11 +30,16 @@ int main(int argc, char** argv)
     const auto pal = BAK::Palette{zoneLabel.GetPalette()};
     auto textures = BAK::ZoneTextureStore{zoneLabel, pal};
     auto zoneItems = BAK::ZoneItemStore{zoneLabel, textures};
+    const auto tiles = BAK::LoadZoneRef(zoneLabel.GetZoneReference());
+    unsigned i;
+    for (i = 0; i < tiles.size(); i++)
+        if (tiles[i].x == x && tiles[i].y == y)
+            break;
 
     logger.Info() << "Loading world tile:" << tileX << tileY << std::endl;
 
     const auto ef = BAK::Encounter::EncounterFactory{};
-    auto world = BAK::World{zoneItems, ef, x, y};
+    auto world = BAK::World{zoneItems, ef, x, y, i};
 
     for (const auto& item : world.GetItems())
     {
@@ -47,7 +53,6 @@ int main(int argc, char** argv)
     {
         logger.Info() << "Encounter: " << encounter << "\n";
     }
-
 
     return 0;
 }

@@ -60,13 +60,15 @@ Mayeb stores whether we recently encoutnered this in eventPtr A14?
 bpint 21 * 
 Left click on button to get tooltip. step through until you get to "RunDialog"
 bpdel bpint *
-add breakpoint for retf at end of rundialog (3b52:2774)
+add breakpoint for retf at end of rundialog (3b52:2774) (4041:2774)
 
 Then you will pop out at mainView:0423 and will have the 
 CS for mainView (46e8, or 4622, can be a few other things...)
-3e0e, 46c5, 4121, 4614, 4121
+3e0e, 46c5, 4121, 4614, 4121, 3dbb
     // Phillip Encounter index 0x96C == 0x01
 then set BP at 46e8:410 (just before left/right click forward is decided
+
+BP at :0290: Just before checking the currently selected encounter
 
 original location at 0x7e70
 
@@ -162,5 +164,19 @@ DoDialogEncounter
         }
         setEncounterState(1450, 1)
     }
-
 }
+
+
+LOAD NEXT TILE::
+
+5224: Seems to be a bunch of pointers to tile info
+  Zone  X  Y  Encounter??
+A318 01 0A 0E 02 9E 00 00 00 8C 78 // 0x19c8 (size ? constant diff between these)
+A322 01 0A 10 00 52 00 C8 19 8C 7
+A32C 01 0B 10 18 A4 00 90 33 8C 78
+A336 00 00 00 00 00 00 58 4D 8C 78
+A340 01 0A 0D 03 9B 00 20 67 8C 78
+A34A 01 09 0D 1B 16 00 E8 80 8C 78
+A354 01 09 0E 19 4C 00 B0 9A 8C 78
+A35E 01 0A 0F 01 87 00 78 B4 8C 78
+A368 01 09 0F 1A 0C 00 40 CE 8C 78

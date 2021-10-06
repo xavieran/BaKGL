@@ -113,13 +113,17 @@ std::vector<Encounter> LoadEncounters(
     const EncounterFactory& ef,
     FileBuffer& fb,
     unsigned chapter,
-    glm::vec<2, unsigned> tile)
+    glm::vec<2, unsigned> tile,
+    unsigned tileIndex)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadEncounter");
     std::vector<Encounter> encounters{};
     // Ideally load all encounters... each chapter can be part of the
     // encounter type and they can be filtered later
-    fb.Seek((chapter - 1) * 192);
+    constexpr auto encounterEntrySize = 0x13;
+    constexpr auto maxEncounters = 0xa;
+    // + 2 for the count of encounters
+    fb.Seek((chapter - 1) * (encounterEntrySize * maxEncounters + 2));
     unsigned numberOfEncounters = fb.GetUint16LE();
 
     encounters.reserve(numberOfEncounters);
@@ -166,6 +170,7 @@ std::vector<Encounter> LoadEncounters(
             location,
             dimensions,
             tile,
+            tileIndex,
             saveAddr,
             saveAddr2,
             saveAddr3,

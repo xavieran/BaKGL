@@ -283,17 +283,16 @@ public:
     // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
     bool CheckActive(
         const Encounter::Encounter& encounter,
-        ZoneNumber zone,
-        std::uint8_t currentTilePosByte)
+        ZoneNumber zone)
     {
-        const auto encounterIndexInTXXYYDAT = encounter.GetIndex().mValue;
+        const auto encounterIndex = encounter.GetIndex().mValue;
         const bool alreadyEncountered = ReadEvent(
-            CalculateEventEncounter190Offset(
+            CalculateUniqueEncounterStateFlagOffset(
                 zone,
-                currentTilePosByte,
-                encounterIndexInTXXYYDAT));
+                encounter.GetTileIndex(),
+                encounterIndex));
         const bool encounterFlag1450 = ReadEvent(
-            CalculateEncounter1450Offset(encounterIndexInTXXYYDAT));
+            CalculateRecentEncounterStateFlag(encounterIndex));
         // event flag 1 - this flag must be set to encounter the event
         const bool eventFlag1 = encounter.mSaveAddress != 0
             ? (ReadEvent(encounter.mSaveAddress) == 1)
@@ -311,8 +310,8 @@ public:
     void SetPostDialogEventFlags(const Encounter::Encounter& encounter)
     {
         constexpr auto zone = ZoneNumber{1};
-        constexpr auto currentTilePosByte = 0;
-        constexpr auto encounterIndexInTXXYYDAT = 0;
+        const auto tileIndex = encounter.GetTileIndex();
+        const auto encounterIndex = encounter.GetIndex().mValue;
 
         if (encounter.mSaveAddress3 != 0)
         {
@@ -326,12 +325,12 @@ public:
             // FIXME use actual values
             if (encounter.mUnknown2 != 0) // Inhibit for this chapter
             {
-                SetEventFlag(true, CalculateEventEncounter190Offset(
-                    zone, currentTilePosByte, encounterIndexInTXXYYDAT));
+                SetEventFlag(true, CalculateUniqueEncounterStateFlagOffset(
+                    zone, tileIndex, encounterIndex));
             }
 
             // Inhibit for this tile
-            SetEventFlag(true, CalculateEncounter1450Offset(encounterIndexInTXXYYDAT));
+            SetEventFlag(true, CalculateRecentEncounterStateFlag(encounterIndex));
         }
 
     }
@@ -353,37 +352,36 @@ public:
         // FIXME use actual values
         if (encounter.mUnknown2 != 0)
         {
-            SetEventFlag(true, CalculateEventEncounter190Offset(ZoneNumber{1}, 0, 0));
+            SetEventFlag(true, CalculateUniqueEncounterStateFlagOffset(ZoneNumber{1}, 0, 0));
         }
     }
 
 
-    // There is also a function to set this value which follows the same process
-    // to calculate the encounter event flag offset
-    unsigned CalculateEventEncounter190Offset(
+    // For each encounter in every zone there is a unique enabled/disabled flag.
+    // This is reset every time a new chapter is loaded (I think);
+    unsigned CalculateUniqueEncounterStateFlagOffset(
         ZoneNumber zone, 
-        std::uint8_t currentTilePosByte,
-        std::uint8_t encounterIndexInTXXYYDAT)
+        std::uint8_t tileIndex,
+        std::uint8_t encounterIndex)
     {
         constexpr auto encounterStateOffset = 0x190;
-        // Refer to checkAlreadyEncounteredThisEncounter in IDA
-        const auto zoneOffset = (zone.mValue - 1) * 0x190;
-        // this is zero when encountering new game encounter
-        const auto currentTilePosOffset = currentTilePosByte * 0xa;
-        const auto offset = zoneOffset + currentTilePosOffset + encounterIndexInTXXYYDAT;
+        constexpr auto maxEncountersPerTile = 0xa;
+        const auto zoneOffset = (zone.mValue - 1) * encounterStateOffset;
+        const auto currentTilePosOffset = tileIndex * maxEncountersPerTile;
+        const auto offset = zoneOffset + currentTilePosOffset + encounterIndex;
         return offset + encounterStateOffset;
     }
 
     // 1450 is "recently encountered this encounter"
     // should be cleared when we move to a new tile
     // (or it will inhibit the events of the new tile)
-    unsigned CalculateEncounter1450Offset(
-        std::uint8_t encounterIndexInTXXYYDAT)
+    unsigned CalculateRecentEncounterStateFlag(
+        std::uint8_t encounterIndex)
     {
         // Refer readEncounterEventState1450 in IDA
         // These get cleared when we load a new tile
         constexpr auto offset = 0x1450;
-        return offset + encounterIndexInTXXYYDAT;
+        return offset + encounterIndex;
     }
 
     // if you walk far enough away for the tile to be unloaded it 
@@ -437,7 +435,7 @@ public:
     {
         for (unsigned i = 0; i < 10; i++)
         {
-            SetEventFlag(false, CalculateEncounter1450Offset(i));
+            SetEventFlag(false, CalculateRecentEncounterStateFlag(i));
         }
     }
 
@@ -454,7 +452,9 @@ public:
         else
             newData = newData & (~(1 << bitOffset));
 
-        mLogger.Debug() << "Set " << std::hex << eventPtr << " to: " << value << " " << byteOffset << "," << bitOffset << " orig: " << originalData << " new: " << newData << "\n";
+        mLogger.Debug() << "Set " << std::hex << eventPtr << " to: " << value 
+            << " " << byteOffset << "," << bitOffset << " orig: " << originalData 
+            << " new: " << newData << "\n";
         mBuffer.PutUint16LE(newData);
     }
 

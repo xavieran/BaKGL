@@ -95,6 +95,13 @@ public:
         return std::atoi(mZoneLabel.substr(1,2).c_str());
     }
 
+    std::string GetZoneReference() const
+    {
+        std::stringstream ss{""};
+        ss << GetZoneLabel() << "REF.DAT";
+        return ss.str();
+    };
+
 private:
     std::string mZoneLabel;
 };

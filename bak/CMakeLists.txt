@@ -41,6 +41,8 @@ add_library(bak
     textureFactory.hpp textureFactory.cpp
     worldClock.hpp worldClock.cpp
     worldFactory.hpp worldFactory.cpp
+    zoneReference.hpp zoneReference.cpp
+    zone.hpp
 )
 
 target_link_libraries(bak graphics xbak)

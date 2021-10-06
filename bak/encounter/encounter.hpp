@@ -93,6 +93,7 @@ public:
         glm::vec<2, unsigned> location,
         glm::vec<2, unsigned> dims,
         glm::vec<2, unsigned> tile,
+        unsigned tileIndex,
         unsigned saveAddress,
         unsigned saveAddress2,
         unsigned saveAddress3,
@@ -106,6 +107,7 @@ public:
         mLocation{location},
         mDimensions{dims},
         mTile{tile},
+        mTileIndex{tileIndex},
         mSaveAddress{saveAddress},
         mSaveAddress2{saveAddress2},
         mSaveAddress3{saveAddress3},
@@ -121,6 +123,7 @@ public:
     auto GetIndex() const { return mIndex; }
     auto GetSaveAddress() const { return mSaveAddress; }
     auto GetTile() const { return mTile; }
+    auto GetTileIndex() const { return mTileIndex; }
 
     auto GetLocation() const
     {
@@ -141,6 +144,7 @@ public:
     glm::vec<2, unsigned> mLocation;
     glm::vec<2, unsigned> mDimensions;
     glm::vec<2, unsigned> mTile;
+    unsigned mTileIndex;
 
     // Place in the save file that is checked
     // by this encounter to see if it has
@@ -161,6 +165,7 @@ std::vector<Encounter> LoadEncounters(
     const EncounterFactory&,
     FileBuffer& fb,
     unsigned chapter,
-    glm::vec<2, unsigned> tile);
+    glm::vec<2, unsigned> tile,
+    unsigned tileIndex);
 
 }
