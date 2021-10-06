@@ -25,6 +25,9 @@ enum class DialogResult
     // e.g. sickness when visiting orno (2f4e8c)
     GainCondition = 0x08,
     GainSkill  = 0x09,
+    // Load skill value for a skill check
+    // e.g. isaac 2dc6e5 sharpen his sword
+    LoadSkillValue = 0x0a,
     PlaySound  = 0x0c,
     ElapseTime = 0x0d,
     // Push this Key/Offset to the dialog queue
@@ -118,6 +121,12 @@ struct GainSkill
     std::int8_t mValue3;
 };
 
+struct LoadSkillValue
+{
+    std::uint16_t mTarget;
+    SkillType mSkill;
+};
+
 struct ElapseTime
 {
     Time mTime;
@@ -154,6 +163,7 @@ using DialogAction = std::variant<
     SetPopupDimensions,
     GainCondition,
     GainSkill,
+    LoadSkillValue,
     PushNextDialog,
     UnknownAction>;
 

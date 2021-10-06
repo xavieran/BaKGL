@@ -17,6 +17,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::Unknown5: return os << "Unknown[5]";
         case DialogResult::GainCondition: return os << "GainCondition";
         case DialogResult::GainSkill: return os << "GainSkill";
+        case DialogResult::LoadSkillValue: return os << "LoadSkillValue";
         case DialogResult::PlaySound: return os << "PlaySound";
         case DialogResult::ElapseTime: return os << "ElapseTime";
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
@@ -81,6 +82,13 @@ std::ostream& operator<<(std::ostream& os, const GainSkill& cond)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const LoadSkillValue& action)
+{
+    os << "LoadSkillValue{ target: " << action.mTarget 
+        << " " << ToString(action.mSkill) << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const SetPopupDimensions& action)
 {
     os << "SetPopupDimensions { pos: " << action.mPos << ", dims: " << action.mDims << "}";
@@ -93,8 +101,6 @@ std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
         << " rest[" << std::hex << action.mRest << std::dec << "]}";
     return os;
 }
-
-
 
 std::ostream& operator<<(std::ostream& os, const UnknownAction& action)
 {
@@ -113,6 +119,5 @@ std::ostream& operator<<(std::ostream& os, const DialogAction& action)
 
     return os;
 }
-
 
 }

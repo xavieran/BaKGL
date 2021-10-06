@@ -145,6 +145,14 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     val2,
                     val3});
         }
+        else if (dr == DialogResult::LoadSkillValue)
+        {
+            const auto target = fb.GetUint16LE();
+            const auto skill = static_cast<SkillType>(fb.GetUint16LE());
+            fb.Skip(4);
+            mActions.emplace_back(
+                LoadSkillValue{target, skill});
+        }
         else if (dr == DialogResult::GiveItem)
         {
             const auto item = fb.GetUint8();

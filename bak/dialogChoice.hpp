@@ -21,7 +21,7 @@ enum class ActiveStateFlag : std::uint16_t
     // Doesn't seem like anyone's about...
     Unknown1   = 0x753a,
     BeforeArvo = 0x753c,
-    Unknown2   = 0x753d,
+    SkillCheck = 0x753d,
     Unknown3   = 0x753e,
     Unknown4   = 0x753f,
     // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4

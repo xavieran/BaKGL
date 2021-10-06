@@ -13,7 +13,7 @@ std::string_view ToString(ActiveStateFlag f)
     case ActiveStateFlag::NightTime: return "NightTime";
     case ActiveStateFlag::Unknown1: return "Unknown[753a]";
     case ActiveStateFlag::BeforeArvo: return "BeforeArvo";
-    case ActiveStateFlag::Unknown2: return "Unknown[753d]";
+    case ActiveStateFlag::SkillCheck: return "SkillCheck";
     case ActiveStateFlag::Unknown3: return "Unknown[753e]";
     case ActiveStateFlag::Unknown4: return "Unknown[753f]";
     case ActiveStateFlag::Shop: return "Shop";
