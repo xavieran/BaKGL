@@ -284,9 +284,9 @@ public:
     bool CheckActive(
         const Encounter::Encounter& encounter,
         ZoneNumber zone,
-        std::uint8_t currentTilePosByte,
-        std::uint8_t encounterIndexInTXXYYDAT)
+        std::uint8_t currentTilePosByte)
     {
+        const auto encounterIndexInTXXYYDAT = encounter.GetIndex().mValue;
         const bool alreadyEncountered = ReadEvent(
             CalculateEventEncounter190Offset(
                 zone,
@@ -358,10 +358,6 @@ public:
     }
 
 
-    void SetEventFlag(bool, unsigned)
-    {
-    }
-
     // There is also a function to set this value which follows the same process
     // to calculate the encounter event flag offset
     unsigned CalculateEventEncounter190Offset(
@@ -429,16 +425,47 @@ public:
         return ReadEvent(sConversationOptionInhibitedOffset + eventPtr);
     }
 
-    unsigned ReadEvent(unsigned eventPtr) const
+    std::pair<unsigned, unsigned> CalculateEventOffset(unsigned eventPtr) const
     {
         const unsigned startOffset = sGameEventRecordOffset;
         const unsigned bitOffset = eventPtr & 0xf;
-        const unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
-        mBuffer.Seek(eventLocation);
+        const unsigned byteOffset = (0xfffe & (eventPtr >> 3)) + startOffset;
+        return std::make_pair(byteOffset, bitOffset);
+    }
+
+    void ClearTileRecentEncounters()
+    {
+        for (unsigned i = 0; i < 10; i++)
+        {
+            SetEventFlag(false, CalculateEncounter1450Offset(i));
+        }
+    }
+
+    void SetEventFlag(bool value, unsigned eventPtr)
+    {
+        const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
+        mBuffer.Seek(byteOffset);
+        const unsigned originalData = mBuffer.GetUint16LE();
+        mBuffer.Seek(byteOffset);
+
+        unsigned newData = originalData;
+        if (value)
+            newData = newData | (1 << bitOffset);
+        else
+            newData = newData & (~(1 << bitOffset));
+
+        mLogger.Debug() << "Set " << std::hex << eventPtr << " to: " << value << " " << byteOffset << "," << bitOffset << " orig: " << originalData << " new: " << newData << "\n";
+        mBuffer.PutUint16LE(newData);
+    }
+
+    unsigned ReadEvent(unsigned eventPtr) const
+    {
+        const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
+        mBuffer.Seek(byteOffset);
         const unsigned eventData = mBuffer.GetUint16LE();
         const unsigned bitValue = (eventData >> bitOffset) & 0x1;
         mLogger.Spam() << "Ptr: " << std::hex << eventPtr << " loc: "
-            << eventLocation << " val: " << eventData << " bitVal: "
+            << byteOffset << " val: " << eventData << " bitVal: "
             << bitValue << std::dec << std::endl;
 
         return bitValue;
@@ -446,13 +473,11 @@ public:
 
     unsigned ReadEventWord(unsigned eventPtr) const
     {
-        unsigned startOffset = sGameEventRecordOffset;
-        unsigned bitOffset = eventPtr & 0xf;
-        unsigned eventLocation = (0xfffe & (eventPtr >> 3)) + startOffset;
-        mBuffer.Seek(eventLocation);
+        const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
+        mBuffer.Seek(byteOffset);
         unsigned eventData = mBuffer.GetUint32LE();
         mLogger.Spam() << "Ptr: " << std::hex << eventPtr << " loc: "
-            << eventLocation << " val: " << eventData << std::dec << "\n";
+            << byteOffset << " val: " << eventData << std::dec << "\n";
 
         return eventData;
     }

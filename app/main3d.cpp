@@ -183,6 +183,7 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_Y, [&]{ camera.RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_P, [&]{ lightPos.y += .5; });
     inputHandler.Bind(GLFW_KEY_L, [&]{ lightPos.y -= .5; });
+    inputHandler.Bind(GLFW_KEY_C, [&]{ gameRunner.mGameState.mGameData->ClearTileRecentEncounters(); });
 
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
 

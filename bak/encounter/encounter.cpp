@@ -58,7 +58,8 @@ std::ostream& operator<<(std::ostream& os, const EncounterT& encounter)
 
 std::ostream& operator<<(std::ostream& os, const Encounter& e)
 {
-    os << "Encounter { dims: " << e.mDimensions
+    os << "Encounter { index: " << e.mIndex
+        << " dims: " << e.mDimensions
         << " tile: " << e.mTile 
         << std::hex << " savePtr: ("
         << e.mSaveAddress << ", " << e.mSaveAddress2 << ", "
@@ -140,7 +141,7 @@ std::vector<Encounter> LoadEncounters(
             right,
             bottom);
 
-        const unsigned encounterIndex = fb.GetUint16LE();
+        const unsigned encounterTableIndex = fb.GetUint16LE();
         // Don't know
         const auto unknown0 = fb.GetUint8();
         const auto unknown1 = fb.GetUint8();
@@ -152,15 +153,16 @@ std::vector<Encounter> LoadEncounters(
 
         logger.Debug() << "Loaded encounter: " << tile << " loc: " << location
             << " dims: " << dimensions << " @ 0x" << std::hex << loc
-            << std::dec << " type: " << encounterType << " index: " << encounterIndex
+            << std::dec << " type: " << encounterType << " index: " << encounterTableIndex
             << " saveAddr: 0x" << std::hex << saveAddr << ", " << saveAddr2 << ", "
             << saveAddr3 << std::dec << "\n";
 
         encounters.emplace_back(
             ef.MakeEncounter(
                 encounterType,
-                encounterIndex,
+                encounterTableIndex,
                 tile),
+            EncounterIndex{i},
             location,
             dimensions,
             tile,
@@ -178,16 +180,16 @@ std::vector<Encounter> LoadEncounters(
 
 EncounterT EncounterFactory::MakeEncounter(
     EncounterType eType,
-    EncounterIndex eIndex,
+    unsigned encounterIndex,
     glm::vec<2, unsigned> tile) const
 {
     switch (eType)
     {
     case EncounterType::Background:
-        return mBackgrounds.Get(eIndex, tile);
+        return mBackgrounds.Get(encounterIndex, tile);
     case EncounterType::Combat:
         {
-            auto combat = mCombats.Get(eIndex);
+            auto combat = mCombats.Get(encounterIndex);
             combat.mNorthRetreat.mPosition += (tile * static_cast<unsigned>(64000));
             combat.mSouthRetreat.mPosition += (tile * static_cast<unsigned>(64000));
             combat.mWestRetreat.mPosition += (tile * static_cast<unsigned>(64000));
@@ -197,23 +199,23 @@ EncounterT EncounterFactory::MakeEncounter(
     case EncounterType::Comment:
         throw std::runtime_error("Can't make COMMENT encounters");
     case EncounterType::Dialog:
-        return mDialogs.Get(eIndex);
+        return mDialogs.Get(encounterIndex);
     case EncounterType::Health:
         throw std::runtime_error("Can't make HEALTH encounters");
     case EncounterType::Sound:
         throw std::runtime_error("Can't make SOUND encounters");
     case EncounterType::Town:
-        return mTowns.Get(eIndex, tile);
+        return mTowns.Get(encounterIndex, tile);
     case EncounterType::Trap:
-        return mTraps.Get(eIndex);
+        return mTraps.Get(encounterIndex);
     case EncounterType::Zone:
-        return mZones.Get(eIndex);
+        return mZones.Get(encounterIndex);
     case EncounterType::Disable:
-        return mDisables.Get(eIndex);
+        return mDisables.Get(encounterIndex);
     case EncounterType::Enable:
-        return mEnables.Get(eIndex);
+        return mEnables.Get(encounterIndex);
     case EncounterType::Block:
-        return mBlocks.Get(eIndex);
+        return mBlocks.Get(encounterIndex);
     default:
         throw std::runtime_error("Can't make UNKNOWN encounters");
     }

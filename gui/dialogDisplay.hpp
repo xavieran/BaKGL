@@ -187,7 +187,7 @@ public:
             // FIXME This is not quite correct, there's something special
             // about actor indices above 0xf0 
             if (act >= 0xf0)
-                actor = mGameState.GetPartyLeader().mIndex;
+                actor = (act & 0x0f);
         }
 
         const auto [charPos, undisplayedText] = AddText(

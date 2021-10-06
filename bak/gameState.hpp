@@ -49,6 +49,13 @@ public:
         return 1000;
     }
 
+    auto GetZone() const
+    {
+        if (mGameData)
+            return ZoneNumber{mGameData->mLocation.mZone};
+        return ZoneNumber{1};
+    }
+
     auto GetTime() const
     {
         if (mGameData)

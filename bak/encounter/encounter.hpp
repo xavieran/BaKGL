@@ -14,6 +14,7 @@
 #include "bak/encounter/trap.hpp"
 #include "bak/encounter/zone.hpp"
 
+#include "com/strongType.hpp"
 #include "com/visit.hpp"
 
 #include "graphics/glm.hpp"
@@ -30,7 +31,8 @@
 
 namespace BAK::Encounter {
 
-using EncounterIndex = unsigned;
+using EncounterIndex = StrongType<unsigned, struct EncounterIndexTag>;
+
 // These are enumerated in "LIST_TYP.DAT"
 enum class EncounterType : std::uint16_t
 {
@@ -67,7 +69,7 @@ class EncounterFactory
 public:
     EncounterT MakeEncounter(
         EncounterType,
-        EncounterIndex,
+        unsigned,
         glm::vec<2, unsigned> tile) const;
 
 private:
@@ -87,6 +89,7 @@ class Encounter
 public:
     Encounter(
         EncounterT encounter,
+        EncounterIndex index,
         glm::vec<2, unsigned> location,
         glm::vec<2, unsigned> dims,
         glm::vec<2, unsigned> tile,
@@ -99,6 +102,7 @@ public:
         std::uint16_t unknown3)
     :
         mEncounter{encounter},
+        mIndex{index},
         mLocation{location},
         mDimensions{dims},
         mTile{tile},
@@ -112,6 +116,9 @@ public:
     {}
 
     const auto& GetEncounter() const { return mEncounter; }
+    // This is specifically the index of the encounter in the DAT file
+    // NOT the index of the encounter type in its table (DEF_BLOC etc.)
+    auto GetIndex() const { return mIndex; }
     auto GetSaveAddress() const { return mSaveAddress; }
     auto GetTile() const { return mTile; }
 
@@ -130,6 +137,7 @@ public:
     }
 
     EncounterT mEncounter;
+    EncounterIndex mIndex;
     glm::vec<2, unsigned> mLocation;
     glm::vec<2, unsigned> mDimensions;
     glm::vec<2, unsigned> mTile;

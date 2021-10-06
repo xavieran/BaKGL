@@ -117,7 +117,10 @@ public:
         {
             auto it = mEncounters.find(*intersectable);
             if (it != mEncounters.end())
-                mActiveEncounter = it->second;
+            {
+                const auto* encounter = it->second;
+                mActiveEncounter = encounter;
+            }
         }
 
         if (mActiveEncounter)
@@ -159,11 +162,22 @@ public:
                     [&](const BAK::Encounter::Combat& e){
                     },
                     [&](const BAK::Encounter::Dialog& e){
-                        if (mGuiManager.mScreenStack.size() == 1)
+                        if (mGuiManager.mScreenStack.size() == 1
+                            && mGameState.mGameData->CheckActive(
+                                *mActiveEncounter,
+                                mGameState.GetZone(),
+                                0))
+                        {
                             mGuiManager.StartDialog(
                                 e.mDialog,
                                 false,
                                 &mDynamicDialogScene);
+
+                            if (mGameState.mGameData)
+                                mGameState.mGameData->SetPostDialogEventFlags(
+                                    *mActiveEncounter);
+                        }
+
                     },
                     [](const BAK::Encounter::EventFlag&){
                     },

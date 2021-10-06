@@ -6,8 +6,8 @@ Keywords::Keywords()
 :
     mPartyMembers{
         "Locklear",
-        "Owyn",
         "Gorath",
+        "Owyn",
         "Pug",
         "James",
         "Patrus"},
