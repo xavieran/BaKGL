@@ -84,9 +84,9 @@ public:
     // Single bit indicators for event state tracking 
     // In the code this offset is 0x440a in the game -> diff of 0x3d28
     static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
-    static constexpr auto sConversationChoiceMarkedOffset = 0xa8c;
-    static constexpr auto sConversationOptionInhibitedOffset = 0x1a2c;
 
+    static constexpr auto sConversationChoiceMarkedOffset = 0x1d4c;
+    static constexpr auto sConversationOptionInhibitedOffset = 0x1a2c;
     // Based on disassembly this may be the state of doors (open/closed)
     static constexpr auto sDoorFlag = 0x1b58;
 
@@ -384,38 +384,10 @@ public:
         return offset + encounterIndex;
     }
 
-    // if you walk far enough away for the tile to be unloaded it 
-    // will reset the encounter flag
-    // Phillip Encounter index 0x96C == 0x01 
-    // Isaac Encounter (tile 14,11 pos 943398, 738851)
-    // Finn Encounter (tile 15,18 pos 1000088, 1132631)
-    // Yabon Owyn Encounter (tile 11,16 (has 10000 flag set)
-    // Gorath Weeps (1st) Encounter (tile 10,16 (has 10000 flag set)
     bool ReadConversationItemClicked(unsigned eventPtr) const
     {
-        // Fix this for Phillip's early choices...
         const auto offset = sConversationChoiceMarkedOffset;
-        eventPtr -= 0x4;
-        const auto byteOffset = eventPtr / 8;
-        const auto bitOffset = eventPtr % 8;
-        mBuffer.Seek(offset + byteOffset);
-        const auto word = mBuffer.GetUint8();
-        const bool result = (word & (1 << bitOffset)) == (1 << bitOffset);
-        mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " byteOffset: "
-            << byteOffset << " bitOffset: " << bitOffset << " word: " << word 
-            << " result: " << result << "\n";
-        return result;
-        
-        // Nearest Town  0xa8b -> 0x20 (0x1)
-        // 2 -> 0x40, 3 -> 0x80, 4 -> 0x01 0xa8c
-        // Rift Gate 0xa8d -> 0x02 (0xd)
-        // Sumani 0xa8d -> 0x04 (0xe)
-        // Comabt 0xa8d -> 0x08 (0xf) (0x1a3b to reset)
-        // Armor 0xa8d -> 0x20 (0x11)
-        // Theft 0xa8e -> 0x02 (0x15)
-        // Grey  0xa8e -> 0x04 (0x16)
-        // Swords 0xa8f (0x20) (0x1a4c to reset) -- so need to check this flag
-        // 0x1a4c will inhibit this dialog choice if set
+        return ReadEvent(sConversationChoiceMarkedOffset + eventPtr);
     }
 
     bool CheckConversationOptionInhibited(unsigned eventPtr)
