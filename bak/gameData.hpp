@@ -84,6 +84,7 @@ public:
     // Single bit indicators for event state tracking 
     // In the code this offset is 0x440a in the game -> diff of 0x3d28
     static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
+    static constexpr auto sGameComplexEventRecordOffset = 0xb09; // -> 0xadc
 
     static constexpr auto sConversationChoiceMarkedOffset = 0x1d4c;
     static constexpr auto sConversationOptionInhibitedOffset = 0x1a2c;
@@ -113,6 +114,7 @@ public:
     static constexpr auto sCombatEntityListOffset = 0x1383;
 
     static constexpr auto sCharacterInventoryOffset = 0x3a804; // -> 3aa4b
+    static constexpr auto sPartyKeyInventoryOffset = 0x3aaa4;
 
     static constexpr auto sZone1ContainerOffset = 0x3b631;
     static constexpr auto sZone2ContainerOffset = 0x3be55;
@@ -143,11 +145,12 @@ public:
     {
 
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
-        mLogger.Info() << mParty << "\n";
+        //mLogger.Info() << mParty << "\n";
         mLogger.Info() << mTime << "\n";
-        //ReadEventWord(0xdac0);
-        //ReadEventWord(0xc0da); // 0xb08
-        //LoadChapterOffsetP();
+        const auto val1 = ReadComplexEvent(0xdac0);
+        mLogger.Info() << "dac0: " << std::hex << val1 << "\n";
+        const auto val2 = ReadComplexEvent(0xdaca);
+        mLogger.Info() << "daca: " << std::hex << val2 << "\n";
         //LoadContainer();
         //LoadCombatEntityLists();
         //LoadCombatInventories(
@@ -158,11 +161,10 @@ public:
 
     Party LoadParty()
     {
-        constexpr auto keyOffset = 0x3aaa4;
         auto characters = LoadCharacters();
         auto active = LoadActiveCharacters();
         auto gold = LoadGold();
-        auto keys = LoadInventory(keyOffset);
+        auto keys = LoadInventory(sPartyKeyInventoryOffset);
         return Party{
             gold,
             keys,
@@ -275,6 +277,7 @@ public:
         constexpr auto offset = -0xad7;
         constexpr auto divider = 10;
         const auto eventOffset = (eventPtr / divider) + offset;
+        mLogger.Error() << __FUNCTION__ << ": " << std::hex << eventPtr << " off: " << eventOffset << "\n";
         mBuffer.Seek(eventOffset);
         return mBuffer.GetUint8();
     }
@@ -367,8 +370,8 @@ public:
         constexpr auto encounterStateOffset = 0x190;
         constexpr auto maxEncountersPerTile = 0xa;
         const auto zoneOffset = (zone.mValue - 1) * encounterStateOffset;
-        const auto currentTilePosOffset = tileIndex * maxEncountersPerTile;
-        const auto offset = zoneOffset + currentTilePosOffset + encounterIndex;
+        const auto tileOffset = tileIndex * maxEncountersPerTile;
+        const auto offset = zoneOffset + tileOffset + encounterIndex;
         return offset + encounterStateOffset;
     }
 
@@ -386,7 +389,6 @@ public:
 
     bool ReadConversationItemClicked(unsigned eventPtr) const
     {
-        const auto offset = sConversationChoiceMarkedOffset;
         return ReadEvent(sConversationChoiceMarkedOffset + eventPtr);
     }
 

@@ -8,7 +8,7 @@
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Error);
+    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
     std::string saveFile{argv[1]};
 

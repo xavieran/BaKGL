@@ -134,7 +134,11 @@ public:
                 },
                 [&](const ComplexEventChoice& c){
                     const auto state = GetComplexEventState(c.mEventPointer);
-                    return (state ^ c.mXorWith) == c.mExpectedValue;
+                    if (c.mUnknown1 == 1)
+                        return state != c.mExpectedValue;
+                    else
+                        return state == c.mExpectedValue;
+                    //return (state ^ c.mXorWith) == c.mExpectedValue;
                 },
                 [&](const InventoryChoice& c){
                     // FIXME: Fill this in...
@@ -212,7 +216,10 @@ public:
         }
         else
         {
-            mEventState.emplace(setFlag.mEventPointer, true);
+            if (mGameData)
+                mGameData->SetEventFlag(true, setFlag.mEventPointer);
+            else
+                mEventState.emplace(setFlag.mEventPointer, true);
         }
     }
 

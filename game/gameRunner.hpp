@@ -60,7 +60,7 @@ public:
                         mSystems.AddClickable(
                             Clickable{
                                 id,
-                                500,
+                                250,
                                 item.GetLocation()});
                         mClickables.emplace(id, &item);
                         /*mSystems.AddRenderable(
