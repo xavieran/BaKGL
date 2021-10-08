@@ -89,6 +89,13 @@ public:
         mScreenStack.PopChild();
         mCursor.PopCursor();
         mGdsScenes.pop_back();
+        if (mGdsSceneFinished)
+            mGdsSceneFinished();
+    }
+
+    void SetGDSSceneFinished(std::function<void()>&& gdsSceneFinished)
+    {
+        mGdsSceneFinished = gdsSceneFinished;
     }
 
     void StartDialog(
@@ -133,6 +140,7 @@ public:
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
     BAK::GameState& mGameState;
     IDialogScene* mDialogScene;
+    std::function<void()> mGdsSceneFinished;
 
     const Logging::Logger& mLogger;
 };

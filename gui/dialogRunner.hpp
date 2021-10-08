@@ -231,6 +231,7 @@ public:
                 else
                     return false;
             });
+
         if (it == choices.end())
         {
             // Break out of the question loop
@@ -322,6 +323,7 @@ public:
                 throw std::runtime_error("Non-query choice in query choice display");
             }
         }
+
         constexpr auto buttonSize = glm::vec2{32, 14};
         mChoices.StartChoices(choices, buttonSize);
 
@@ -389,7 +391,8 @@ public:
             if (text != empty)
             {
                 UpdateSnippet();
-                if (mCurrentDialog->mDisplayStyle3 == 0x2)
+                if (mCurrentDialog->mDisplayStyle3 == 0x2 
+                    && mCurrentDialog->GetChoices().size() > 0)
                     ShowQueryChoices();
                 progressing = false;
             }

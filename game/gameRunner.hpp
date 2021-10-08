@@ -131,26 +131,33 @@ public:
                     [&](const BAK::Encounter::GDSEntry& gds){
                         if (mGuiManager.mScreenStack.size() == 1)
                         {
-                            // mGuiManager.MakeChoice()
+                            // mGuiManager.MakeChoice(
+                            // 
                             // if (yes)
                             //  EnterGDSScene()
                             //  DialogRunner.PushExitDialog
-                            //mGuiManager.StartDialog(
-                            //    gds.mEntryDialog,
-                            //    false,
-                            //    &mDynamicDialogScene);
-                            //mDynamicDialogScene.SetDialogFinished(
-                            //    [&](){
-                            //        mDynamicDialogScene.SetDialogFinished([]{});
-                            //        mGuiManager.StartDialog(
-                            //            gds.mEntryDialog,
-                            //            false,
-                            //            &mDynamicDialogScene);
-                            //    });
+                            mDynamicDialogScene.SetDialogFinished(
+                                [&, gds=gds](){
+                                    mGuiManager.SetGDSSceneFinished(
+                                        [&, dialog=gds.mExitDialog](){
+                                            mGuiManager.StartDialog(
+                                                dialog,
+                                                false,
+                                                &mDynamicDialogScene);
+                                            mDynamicDialogScene.SetDialogFinished(
+                                                []{});
+                                            });
+                                    mGuiManager.EnterGDSScene(gds.mHotspot);
+                                });
+
+                            mGuiManager.StartDialog(
+                                gds.mEntryDialog,
+                                false,
+                                &mDynamicDialogScene);
                         }
 
-                        if (mGuiManager.mScreenStack.size() == 1)
-                            mGuiManager.EnterGDSScene(gds.mHotspot);
+                        //if (mGuiManager.mScreenStack.size() == 1)
+                        //    mGuiManager.EnterGDSScene(gds.mHotspot);
                     },
                     [&](const BAK::Encounter::Block& e){
                         if (mGuiManager.mScreenStack.size() == 1)
