@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 
     rootWidget.AddChildFront(&guiManager);
 
-    guiManager.EnterGDSScene(currentSceneRef);
+    guiManager.EnterGDSScene(currentSceneRef, []{});
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};

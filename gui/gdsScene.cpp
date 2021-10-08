@@ -16,7 +16,6 @@ GDSScene::GDSScene(
     const Backgrounds& backgrounds,
     const Font& font,
     BAK::GameState& gameState,
-    ScreenStack& screenStack,
     IGuiManager& guiManager)
 :
     Widget{
@@ -50,7 +49,6 @@ GDSScene::GDSScene(
     mStaticTTMs{},
     mHotspots{},
     mCursor{cursor},
-    mScreenStack{screenStack},
     mGuiManager{guiManager},
     mDialogDisplay{
         glm::vec2{0, 0},
@@ -115,7 +113,6 @@ GDSScene::GDSScene(
         mDialogDisplay.ShowFlavourText(mFlavourText);
     AddChildBack(&mDialogDisplay);
 
-    mScreenStack.PushScreen(this);
     mLogger.Debug() << "Constructed @" << std::hex << this << std::dec << "\n";
 }
 
@@ -185,7 +182,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     {
         auto hotspotRef = mReference;
         hotspotRef.mGdsChar = BAK::MakeHotspotChar(hotspot.mActionArg1);
-        mGuiManager.EnterGDSScene(hotspotRef);
+        mGuiManager.EnterGDSScene(hotspotRef, []{});
     }
 }
 

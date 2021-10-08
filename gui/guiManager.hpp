@@ -18,6 +18,17 @@
 
 namespace Gui {
 
+class GuiScreen
+{
+public:
+    GuiScreen(std::function<void()> finished)
+    :
+        mFinished{finished}
+    {}
+
+    std::function<void()> mFinished;
+};
+
 class GuiManager : public Widget, public IGuiManager
 {
 public:
@@ -67,7 +78,9 @@ public:
         mScreenStack.PushScreen(&mMainView);
     }
 
-    void EnterGDSScene(const BAK::HotspotRef& hotspot) override
+    void EnterGDSScene(
+        const BAK::HotspotRef& hotspot,
+        std::function<void()>&& finished) override
     {
         mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         mCursor.PushCursor(0);
@@ -80,8 +93,9 @@ public:
                 mBackgrounds,
                 mFont,
                 mGameState,
-                mScreenStack,
                 static_cast<IGuiManager&>(*this)));
+        mGuiScreens.push(std::move(finished));
+        mScreenStack.PushScreen(mGdsScenes.back().get());
     }
 
     void ExitGDSScene() override
@@ -89,13 +103,16 @@ public:
         mScreenStack.PopChild();
         mCursor.PopCursor();
         mGdsScenes.pop_back();
-        if (mGdsSceneFinished)
-            mGdsSceneFinished();
+        mGuiScreens.top().mFinished();
+        mGuiScreens.pop();
     }
 
-    void SetGDSSceneFinished(std::function<void()>&& gdsSceneFinished)
+    void MakeChoice(
+        BAK::Target dialog,
+        IDialogScene* scene,
+        std::vector<std::string>,
+        std::function<void()>&&)
     {
-        mGdsSceneFinished = gdsSceneFinished;
     }
 
     void StartDialog(
@@ -140,7 +157,7 @@ public:
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
     BAK::GameState& mGameState;
     IDialogScene* mDialogScene;
-    std::function<void()> mGdsSceneFinished;
+    std::stack<GuiScreen> mGuiScreens;
 
     const Logging::Logger& mLogger;
 };

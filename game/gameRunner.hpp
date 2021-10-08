@@ -135,19 +135,17 @@ public:
                             // 
                             // if (yes)
                             //  EnterGDSScene()
-                            //  DialogRunner.PushExitDialog
                             mDynamicDialogScene.SetDialogFinished(
                                 [&, gds=gds](){
-                                    mGuiManager.SetGDSSceneFinished(
+                                    mGuiManager.EnterGDSScene(
+                                        gds.mHotspot, 
                                         [&, dialog=gds.mExitDialog](){
                                             mGuiManager.StartDialog(
                                                 dialog,
                                                 false,
                                                 &mDynamicDialogScene);
-                                            mDynamicDialogScene.SetDialogFinished(
-                                                []{});
+                                            mDynamicDialogScene.SetDialogFinished([]{});
                                             });
-                                    mGuiManager.EnterGDSScene(gds.mHotspot);
                                 });
 
                             mGuiManager.StartDialog(
@@ -220,7 +218,7 @@ public:
                             Logging::LogDebug(__FUNCTION__) << "DialogFinished: " << obj->mHotspotRef << "\n";
                             if (obj->mHotspotRef)
                             {
-                                mGuiManager.EnterGDSScene(*obj->mHotspotRef);
+                                mGuiManager.EnterGDSScene(*obj->mHotspotRef, []{});
                             }
                             mDynamicDialogScene.SetDialogFinished([]{});
                         });

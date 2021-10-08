@@ -41,7 +41,6 @@ public:
         const Backgrounds& backgrounds,
         const Font& font,
         BAK::GameState& gameState,
-        ScreenStack& screenStack,
         IGuiManager& guiManager);
     
     void DisplayNPCBackground() override;
@@ -72,7 +71,6 @@ public:
     std::vector<Hotspot> mHotspots;
 
     Cursor& mCursor;
-    ScreenStack& mScreenStack;
     IGuiManager& mGuiManager;
     DialogDisplay mDialogDisplay;
 
