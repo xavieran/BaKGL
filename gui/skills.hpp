@@ -37,18 +37,26 @@ public:
             ClipRegionTag{},
             pos,
             dims,
-            true
+            false 
         },
         mImage{
             ImageTag{},
             spriteSheet,
             image,
-            glm::vec2{0},
+            glm::vec2{pos},
             glm::vec2{101, 4},
-            true
+            false 
         }
     {
         AddChildBack(&mImage);
+    }
+
+    void UpdateValue(unsigned value)
+    {
+        const auto& pos = mImage.GetPositionInfo().mPosition;
+        const auto& dims = GetPositionInfo().mDimensions;
+        SetPosition(glm::vec2{pos.x + 101 - value, pos.y});
+        SetDimensions(glm::vec2{value, dims.y});
     }
 
     Widget mImage;
@@ -60,13 +68,10 @@ public:
     Skill(
         glm::vec2 pos,
         glm::vec2 dims,
-        const Font& mFont,
         Graphics::SpriteSheetIndex spriteSheet,
         Graphics::TextureIndex swordImage,
         Graphics::TextureIndex bloodImage,
-        Graphics::TextureIndex selectedImage,
-        BAK::SkillType skill,
-        unsigned skillValue)
+        Graphics::TextureIndex selectedImage)
     :
         Widget{
             ImageTag{},
@@ -76,16 +81,45 @@ public:
             dims,
             true
         },
+        mText{
+            glm::vec2{34, -6},
+            glm::vec2{100, 16}
+        },
         mBlood{
             glm::vec2{31, 5},
             glm::vec2{101, 4},
             spriteSheet,
-            bloodImage}
+            bloodImage},
+        mSelected{}
     {
+        AddChildBack(&mText);
         AddChildBack(&mBlood);
+        //mSelected.emplace(
+        //    ImageTag{},
+        //    spriteSheet,
+        //    selectedImage,
+        //    glm::vec2{-2, 4},
+        //    glm::vec2{6,7},
+        //    false);
+        //AddChildBack(&(*mSelected));
     }
 
+    void UpdateValue(
+        const Font& font,
+        BAK::SkillType skill,
+        unsigned value)
+    {
+        const auto skillStr = BAK::ToString(skill);
+        std::stringstream ss;
+        ss << skillStr << std::setw(18 - skillStr.size()) 
+            << std::setfill(' ') << value << "%";
+        mText.AddText(font, ss.str());
+        mBlood.UpdateValue(value);
+    }
+
+    TextBox mText;
     Blood mBlood;
+    std::optional<Widget> mSelected;
 };
 
 class Skills : public Widget
@@ -95,7 +129,6 @@ public:
     Skills(
         Graphics::SpriteSheetIndex spriteSheet,
         unsigned spriteOffset,
-        const Font& font,
         const RequestResource& request)
     :
         Widget{
@@ -118,20 +151,30 @@ public:
             int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
             int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
 
-            mSkills.emplace_back(
+            auto& s = mSkills.emplace_back(
                 glm::vec2{x, y},
                 glm::vec2{data.width, data.height},
-                font,
                 spriteSheet,
                 spriteOffset + 21,
                 spriteOffset + 22,
-                spriteOffset + 23,
-                BAK::SkillType::Armorcraft,
-                100);
-        }
+                spriteOffset + 23);
+                    }
 
         for (auto& skill : mSkills)
             AddChildBack(&skill);
+    }
+
+    void UpdateSkills(
+        const Font& font,
+        const BAK::Skills& skills)
+    {
+        for (unsigned i = 4; i < BAK::Skills::sSkills; i++)
+        {
+            mSkills[i - 4].UpdateValue(
+                font,
+                static_cast<BAK::SkillType>(i),
+                skills.mSkills[i].mCurrent);
+        }
     }
 
 private:

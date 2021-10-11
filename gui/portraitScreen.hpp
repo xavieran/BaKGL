@@ -35,7 +35,7 @@ public:
     PortraitScreen(
         Graphics::SpriteManager& spriteManager,
         IGuiManager& guiManager,
-        const Font& mFont)
+        const Font& font)
     :
         Widget{
             Graphics::DrawMode::Sprite,
@@ -44,8 +44,7 @@ public:
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec2{0},
-            glm::vec2{320, 200},
-            true
+            glm::vec2{320, 200}, true
         },
         mGuiManager{guiManager},
         mSpriteSheet{GetDrawInfo().mSpriteSheet},
@@ -83,7 +82,7 @@ public:
             mButtons.emplace_back(
                 glm::vec2{x, y},
                 glm::vec2{data.width, data.height},
-                mFont,
+                font,
                 "Exit",
                 [this]{ mGuiManager.ExitCharacterPortrait(); });
         }
@@ -117,11 +116,18 @@ public:
         mSkills.emplace(
             mSpriteSheet,
             pressedOffset,
-            mFont,
             request);
 
         AddChildren();
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
+    }
+
+    void UpdateCharacter(
+        const Font& font,
+        const BAK::Character& character)
+    {
+        assert(mSkills);
+        mSkills->UpdateSkills(font, character.mSkills);
     }
 
     void AddChildren()

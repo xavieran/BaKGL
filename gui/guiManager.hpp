@@ -134,6 +134,9 @@ public:
 
     void ShowCharacterPortrait(unsigned character) override
     {
+        mPortraitScreen.UpdateCharacter(
+            mFont,
+            mGameState.GetParty().mCharacters[character]);
         mScreenStack.PushScreen(&mPortraitScreen);
     }
 
