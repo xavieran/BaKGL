@@ -10,6 +10,7 @@
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/IGuiManager.hpp"
 #include "gui/colors.hpp"
 #include "gui/compass.hpp"
 #include "gui/clickButton.hpp"
@@ -21,6 +22,7 @@
 #include <glm/glm.hpp>
 
 #include <iostream>
+#include <utility>
 #include <variant>
 
 namespace Gui {
@@ -30,7 +32,8 @@ class MainView : public Widget
 public:
 
     MainView(
-        Graphics::SpriteManager& spriteManager)
+        Graphics::SpriteManager& spriteManager,
+        IGuiManager& guiManager)
     :
         Widget{
             Graphics::DrawMode::Sprite,
@@ -42,11 +45,12 @@ public:
             glm::vec2{320, 200},
             true
         },
+        mGuiManager{guiManager},
         mSpriteSheet{GetDrawInfo().mSpriteSheet},
         mHeadOffset{0},
         mCompass{},
         mButtons{},
-        mSceneElements{},
+        mCharacters{},
         mLogger{Logging::LogState::GetLogger("Gui::MainView")}
     {
         auto textures = Graphics::TextureStore{};
@@ -87,7 +91,7 @@ public:
         }
 
         mButtons.reserve(request.GetSize());
-        mSceneElements.reserve(request.GetSize());
+        mCharacters.reserve(request.GetSize());
 
         for (unsigned i = 0; i < request.GetSize(); i++)
         {
@@ -102,15 +106,9 @@ public:
                 int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
                 int w = request.GetRectangle().GetWidth();
                 int h = request.GetRectangle().GetHeight();
-                mSceneElements.emplace_back(
-                    Graphics::DrawMode::Sprite,
-                    mSpriteSheet,
-                    mHeadOffset + 6,
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1},
+                mCharacterLocations.emplace_back(
                     glm::vec2{x, y},
-                    glm::vec2{data.width, data.height},
-                    true);
+                    glm::vec2{data.width, data.height});
             }
                 break;
             case REQ_IMAGEBUTTON:
@@ -122,7 +120,7 @@ public:
                     glm::vec2{x, y},
                     glm::vec2{data.width, data.height},
                     mSpriteSheet,
-                    Graphics::TextureIndex{static_cast<unsigned>(data.image + normalOffset)},
+                   Graphics::TextureIndex{static_cast<unsigned>(data.image + normalOffset)},
                     Graphics::TextureIndex{static_cast<unsigned>(data.image + pressedOffset)},
                     []{},
                     []{});
@@ -134,15 +132,7 @@ public:
             }
         }
 
-        for (auto& action : mSceneElements)
-            AddChildBack(&action);
-
-        for (auto& button : mButtons)
-            AddChildBack(&button);
-
-        assert(mCompass);
-        AddChildBack(&(*mCompass));
-
+        AddChildren();
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
@@ -152,22 +142,60 @@ public:
         mCompass->SetHeading(heading);
     }
 
+    void AddChildren()
+    {
+        for (auto& button : mButtons)
+            AddChildBack(&button);
+
+        assert(mCompass);
+        AddChildBack(&(*mCompass));
+
+        for (auto& action : mCharacters)
+            AddChildBack(&action);
+    }
+
     void UpdatePartyMembers(const BAK::GameState& gameState)
     {
+        ClearChildren();
+
+        mCharacters.clear();
+        mCharacters.reserve(mCharacterLocations.size());
+
         const auto& party = gameState.GetParty();
         mLogger.Info() << "Updating Party: " << party<< "\n";
         for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
         {
-            mSceneElements[person].SetTexture(mHeadOffset + party.mActiveCharacters[person]);
+            assert(person < mCharacterLocations.size());
+            const auto& [pos, dims] = mCharacterLocations[person];
+            const auto image = mHeadOffset + party.mActiveCharacters[person];
+            mCharacters.emplace_back(
+                pos,
+                dims,
+                mSpriteSheet,
+                image,
+                image,
+                []{},
+                [this, character=party.mActiveCharacters[person]]{
+                    ShowPortrait(character);
+                });
         }
+
+        AddChildren();
+    }
+
+    void ShowPortrait(unsigned character)
+    {
+        mGuiManager.ShowCharacterPortrait(character);
     }
 
 private:
+    IGuiManager& mGuiManager;
     Graphics::SpriteSheetIndex mSpriteSheet;
     unsigned mHeadOffset;
     std::optional<Compass> mCompass;
     std::vector<ClickButtonImage> mButtons;
-    std::vector<Widget> mSceneElements;
+    std::vector<std::pair<glm::vec2, glm::vec2>> mCharacterLocations;
+    std::vector<ClickButtonImage> mCharacters;
 
     const Logging::Logger& mLogger;
 };

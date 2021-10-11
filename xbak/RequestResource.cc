@@ -66,6 +66,11 @@ RequestResource::GetRectangle()
     return rect;
 }
 
+const Rectangle &
+RequestResource::GetRectangle() const
+{
+    return rect;
+}
 int
 RequestResource::GetXOff() const
 {

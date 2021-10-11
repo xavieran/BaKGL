@@ -208,6 +208,7 @@ DialogFactory::CreateInfoDialog()
         panel->AddWidget(widgetFactory.CreateBadge(Rectangle(23, 71, 42, 12), pc->GetName(), font.GetFont()));
         panel->AddWidget(widgetFactory.CreateRatings(Rectangle(84, 9, 222, 71), pc, images.GetImage(26), images.GetImage(25), font.GetFont()));
         panel->AddWidget(widgetFactory.CreateSkills(Rectangle(16, 86, 276, 105), pc, images.GetImage(21), images.GetImage(22), font.GetFont()));
+
         for (unsigned int i = 0; i < request.GetSize(); i++)
         {
             RequestData data = request.GetRequestData(i);

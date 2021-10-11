@@ -10,6 +10,9 @@
 
 namespace Gui {
 
+struct ClipRegionTag {};
+struct ImageTag {};
+
 class Widget : public Graphics::IGuiElement
 {
 public:
@@ -23,13 +26,27 @@ public:
         glm::vec2 dims,
         bool childrenRelative);
 
+    Widget(
+        ImageTag,
+        Graphics::SpriteSheetIndex spriteSheet,
+        Graphics::TextureIndex texture,
+        glm::vec2 pos,
+        glm::vec2 dims,
+        bool childrenRelative);
+
+    Widget(
+        ClipRegionTag,
+        glm::vec2 pos,
+        glm::vec2 dims,
+        bool childrenRelative);
+
     virtual ~Widget();
 
     virtual void SetActive();
     virtual void SetInactive();
 
-    // FIXME: Replace these with tags or event objects
-    [[nodiscard]] virtual bool OnMouseEvent(const MouseEvent& event);
+    [[nodiscard]] virtual bool OnMouseEvent(
+        const MouseEvent& event);
 
     const Graphics::DrawInfo& GetDrawInfo() const override;
     const Graphics::PositionInfo& GetPositionInfo() const override;

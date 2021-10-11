@@ -15,6 +15,8 @@ public:
         std::function<void()>&& finished) = 0;
     virtual void ExitGDSScene() = 0;
     virtual void StartDialog(BAK::Target, bool tooltip, IDialogScene*) = 0;
+    virtual void ShowCharacterPortrait(unsigned character) = 0;
+    virtual void ExitCharacterPortrait() = 0;
 };
 
 class NullGuiManager : public IGuiManager
@@ -24,6 +26,8 @@ class NullGuiManager : public IGuiManager
         std::function<void()>&&) override {}
     void ExitGDSScene() override {}
     void StartDialog(BAK::Target, bool, IDialogScene*) override {}
+    void ShowCharacterPortrait(unsigned character) override {}
+    void ExitCharacterPortrait() override {}
 };
 
 }

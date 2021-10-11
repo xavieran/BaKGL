@@ -27,6 +27,46 @@ Widget::Widget(
     mActive{true}
 {}
 
+Widget::Widget(
+    ImageTag,
+    Graphics::SpriteSheetIndex spriteSheet,
+    Graphics::TextureIndex texture,
+    glm::vec2 pos,
+    glm::vec2 dims,
+    bool childrenRelative)
+:
+    Widget{
+        Graphics::DrawMode::Sprite,
+        spriteSheet,
+        texture,
+        Graphics::ColorMode::Texture,
+        glm::vec4{1},
+        pos,
+        dims,
+        childrenRelative
+    }
+{
+}
+
+Widget::Widget(
+    ClipRegionTag,
+    glm::vec2 pos,
+    glm::vec2 dims,
+    bool childrenRelative)
+:
+    Widget{
+        Graphics::DrawMode::ClipRegion,
+        Graphics::SpriteSheetIndex{0},
+        Graphics::TextureIndex{0},
+        Graphics::ColorMode::SolidColor,
+        glm::vec4{1},
+        pos,
+        dims,
+        childrenRelative
+    }
+{
+}
+
 Widget::~Widget()
 {
 }

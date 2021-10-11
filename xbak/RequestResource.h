@@ -173,6 +173,7 @@ public:
     virtual ~RequestResource();
     bool IsPopup() const;
     Rectangle& GetRectangle();
+    const Rectangle& GetRectangle() const;
     int GetXOff() const;
     int GetYOff() const;
     unsigned int GetSize() const;

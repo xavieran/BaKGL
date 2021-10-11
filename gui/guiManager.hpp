@@ -9,6 +9,7 @@
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/mainView.hpp"
+#include "gui/portraitScreen.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -65,7 +66,8 @@ public:
         },
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
-        mMainView{spriteManager},
+        mMainView{spriteManager, *this},
+        mPortraitScreen{spriteManager, *this, mFont},
         mGdsScenes{},
         mGameState{gameState},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
@@ -130,6 +132,16 @@ public:
         mDialogScene->DialogFinished(choice);
     }
 
+    void ShowCharacterPortrait(unsigned character) override
+    {
+        mScreenStack.PushScreen(&mPortraitScreen);
+    }
+
+    void ExitCharacterPortrait() override
+    {
+        mScreenStack.PopScreen();
+    }
+
     void RunContainer(BAK::KeyTarget dialogTarget)
     {
     }
@@ -147,6 +159,7 @@ public:
     Graphics::SpriteManager& mSpriteManager;
 
     MainView mMainView;
+    PortraitScreen mPortraitScreen;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
     BAK::GameState& mGameState;
     IDialogScene* mDialogScene;

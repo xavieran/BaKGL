@@ -50,7 +50,7 @@ public:
     {
         if (Within(click))
         {
-            Logging::LogDebug("ClickButtonBase") << "Got LMC: " << click << std::endl;
+            Logging::LogDebug("ClickButtonBase") << "Got LMC: " << this << " " << click << std::endl;
             std::invoke(mLeftPressedCallback);
             return true;
         }
@@ -62,7 +62,7 @@ public:
     {
         if (Within(click))
         {
-            Logging::LogDebug("ClickButtonBase") << "Got RMC: " << click << std::endl;
+            Logging::LogDebug("ClickButtonBase") << "Got RMC: " << this << " " << click << std::endl;
             std::invoke(mRightPressedCallback);
             return true;
         }
