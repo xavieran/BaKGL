@@ -76,6 +76,16 @@ public:
         mPosition -= GetDirection() * (mMoveSpeed * mDeltaTime);
     }
 
+    void StrafeForward()
+    {
+        mPosition += GetForward() * (mMoveSpeed * mDeltaTime);
+    }
+
+    void StrafeBackward()
+    {
+        mPosition -= GetForward() * (mMoveSpeed * mDeltaTime);
+    }
+
     void StrafeRight()
     {
         mPosition += GetRight() * (mMoveSpeed * mDeltaTime);
@@ -126,6 +136,15 @@ public:
             cos(mAngle.y) * sin(mAngle.x),
             sin(mAngle.y),
             cos(mAngle.y) * cos(mAngle.x)
+        };
+    }
+
+    glm::vec3 GetForward() const
+    {
+        return {
+            cos(mAngle.x - 3.14f/2.0f),
+            0,
+            -sin(mAngle.x - 3.14f/2.0f)
         };
     }
 

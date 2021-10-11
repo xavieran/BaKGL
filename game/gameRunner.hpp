@@ -24,8 +24,8 @@ public:
         mGameState{gameState},
         mGuiManager{guiManager},
         mDynamicDialogScene{
-            [&](){ mCamera.SetAngle(glm::vec2{3.14, 0}); },
-            [&](){ mCamera.SetAngle(glm::vec2{0}); },
+            [&](){ mCamera.SetAngle(mSavedAngle); },
+            [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
             [&](const auto&){ }
         },
         mZoneLabel{zone},
@@ -34,7 +34,8 @@ public:
         mActiveClickable{nullptr},
         mEncounters{},
         mClickables{},
-        mSystems{}
+        mSystems{},
+        mSavedAngle{0}
     {
         for (const auto& world : mZoneData.mWorldTiles.GetTiles())
         {
@@ -177,6 +178,13 @@ public:
                                 *mActiveEncounter,
                                 mGameState.GetZone()))
                         {
+                            mSavedAngle = mCamera.GetAngle();
+                            mDynamicDialogScene.SetDialogFinished(
+                                [&](const auto&){
+                                    mCamera.SetAngle(mSavedAngle);
+                                    mDynamicDialogScene.ResetDialogFinished();
+                                });
+
                             mGuiManager.StartDialog(
                                 e.mDialog,
                                 false,
@@ -265,6 +273,7 @@ public:
     std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> mEncounters;
     std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> mClickables{};
     Systems mSystems;
+    glm::vec2 mSavedAngle;
 
 };
 

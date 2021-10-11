@@ -43,6 +43,7 @@ public:
             true
         },
         mSpriteSheet{GetDrawInfo().mSpriteSheet},
+        mHeadOffset{0},
         mCompass{},
         mButtons{},
         mSceneElements{},
@@ -62,7 +63,7 @@ public:
         BAK::TextureFactory::AddToTextureStore(
             textures, "BICONS2.BMX", "OPTIONS.PAL");
 
-        const auto headsOffset = textures.size();
+        mHeadOffset = textures.size();
 
         BAK::TextureFactory::AddToTextureStore(
             textures, "HEADS.BMX", "OPTIONS.PAL");
@@ -104,7 +105,7 @@ public:
                 mSceneElements.emplace_back(
                     Graphics::DrawMode::Sprite,
                     mSpriteSheet,
-                    data.image + headsOffset,
+                    data.image + mHeadOffset,
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec2{x, y},
@@ -150,8 +151,19 @@ public:
         mCompass->SetHeading(heading);
     }
 
+    void UpdatePartyMembers(const BAK::GameState& gameState)
+    {
+        const auto& party = gameState.GetParty();
+        mLogger.Info() << "Updating Party: " << party<< "\n";
+        for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
+        {
+            mSceneElements[person].SetTexture(mHeadOffset + party.mActiveCharacters[person]);
+        }
+    }
+
 private:
     Graphics::SpriteSheetIndex mSpriteSheet;
+    unsigned mHeadOffset;
     std::optional<Compass> mCompass;
     std::vector<ClickButtonImage> mButtons;
     std::vector<Widget> mSceneElements;

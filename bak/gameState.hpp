@@ -27,8 +27,20 @@ public:
         mPartyFollower{
             "Owyn",
             2},
-        mGameData{gameData}
+        mGameData{gameData},
+        mParty{
+            0,
+            Inventory{},
+            {},
+            {}}
     {}
+
+    const Party& GetParty() const
+    {
+        if (mGameData)
+            return mGameData->mParty;
+        return mParty;
+    }
 
     struct Character
     {
@@ -234,6 +246,7 @@ public:
     Character mPartyLeader;
     Character mPartyFollower;
     GameData* mGameData;
+    Party mParty;
     std::unordered_map<unsigned, bool> mEventState;
 };
 

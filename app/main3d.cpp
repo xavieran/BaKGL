@@ -166,6 +166,7 @@ int main(int argc, char** argv)
     camera.SetPosition(startPosition);
     camera.SetAngle(startHeading);
     guiManager.mMainView.SetHeading(camera.GetHeading());
+    guiManager.mMainView.UpdatePartyMembers(gameState);
 
     Game::GameRunner gameRunner{
         zoneData.mZoneLabel.GetZoneNumber(),
@@ -174,6 +175,11 @@ int main(int argc, char** argv)
         guiManager};
 
     Graphics::InputHandler inputHandler{};
+    inputHandler.Bind(GLFW_KEY_UP, [&]{ camera.StrafeForward(); });
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ camera.StrafeBackward(); });
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ camera.StrafeLeft(); });
+    inputHandler.Bind(GLFW_KEY_RIGHT, [&]{ camera.StrafeRight(); });
+
     inputHandler.Bind(GLFW_KEY_W, [&]{ camera.MoveForward(); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ camera.StrafeLeft(); });
     inputHandler.Bind(GLFW_KEY_D, [&]{ camera.StrafeRight(); });
