@@ -105,7 +105,7 @@ public:
                 mSceneElements.emplace_back(
                     Graphics::DrawMode::Sprite,
                     mSpriteSheet,
-                    data.image + mHeadOffset,
+                    mHeadOffset + 6,
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec2{x, y},
@@ -124,6 +124,7 @@ public:
                     mSpriteSheet,
                     Graphics::TextureIndex{static_cast<unsigned>(data.image + normalOffset)},
                     Graphics::TextureIndex{static_cast<unsigned>(data.image + pressedOffset)},
+                    []{},
                     []{});
             }
                 break;

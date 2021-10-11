@@ -10,7 +10,73 @@
 
 namespace Gui {
 
-class ClickButton : public Widget
+class ClickButtonBase : public Widget
+{
+public:
+    ClickButtonBase(
+        glm::vec2 pos,
+        glm::vec2 dims,
+        std::function<void()>&& onLeftMousePress,
+        std::function<void()>&& onRightMousePress)
+    :
+        Widget{
+            Graphics::DrawMode::Rect,
+            0,
+            0,
+            Graphics::ColorMode::SolidColor,
+            glm::vec4{0},
+            pos,
+            dims,
+            true
+        },
+        mLeftPressedCallback{std::move(onLeftMousePress)},
+        mRightPressedCallback{std::move(onRightMousePress)}
+    {
+        assert(mLeftPressedCallback);
+        assert(mRightPressedCallback);
+    }
+
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
+    }
+
+    bool LeftMousePressed(glm::vec2 click)
+    {
+        if (Within(click))
+        {
+            Logging::LogDebug("ClickButtonBase") << "Got LMC: " << click << std::endl;
+            std::invoke(mLeftPressedCallback);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool RightMousePressed(glm::vec2 click)
+    {
+        if (Within(click))
+        {
+            Logging::LogDebug("ClickButtonBase") << "Got RMC: " << click << std::endl;
+            std::invoke(mRightPressedCallback);
+            return true;
+        }
+
+        return false;
+    }
+
+private:
+    std::function<void()> mLeftPressedCallback;
+    std::function<void()> mRightPressedCallback;
+};
+
+
+class ClickButton : public ClickButtonBase
 {
 public:
     ClickButton(
@@ -20,15 +86,11 @@ public:
         const std::string& label,
         std::function<void()>&& onLeftMousePress)
     :
-        Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            Color::black,
+        ClickButtonBase{
             pos,
             dims,
-            true
+            std::move(onLeftMousePress),
+            [](){}
         },
         mNormal{
             glm::vec2{0, 0},
@@ -45,7 +107,6 @@ public:
         mText{
             glm::vec2{3, 2},
             dims},
-        mPressedCallback{std::move(onLeftMousePress)},
         mButton{}
     {
         const auto& [endPos, text] = mText.AddText(fr, label);
@@ -65,27 +126,23 @@ public:
 
     bool OnMouseEvent(const MouseEvent& event) override
     {
-        return std::visit(overloaded{
+        std::visit(overloaded{
             [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
             [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
             [this](const MouseMove& p){ return MouseMoved(p.mValue); },
             [](const auto& p){ return false; }
             },
             event);
+
+        return ClickButtonBase::OnMouseEvent(event);
     }
 
     bool LeftMousePressed(glm::vec2 click)
     {
-        Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         assert(mButton.size() >= 1);
         if (Within(click))
         {
             mButton[0] = &mPressed;
-            if (mPressedCallback)
-            {
-                std::invoke(mPressedCallback);
-                return true;
-            }
         }
 
         return false;
@@ -93,7 +150,6 @@ public:
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        Logging::LogDebug("ClickButton") << "Got LMR: " << click << std::endl;
         assert(mButton.size() >= 1);
         mButton[0] = &mNormal;
         return false;
@@ -115,11 +171,10 @@ private:
     Button mPressed;
     TextBox mText;
     
-    std::function<void()> mPressedCallback;
     std::vector<Graphics::IGuiElement*> mButton;
 };
 
-class ClickButtonImage : public Widget
+class ClickButtonImage : public ClickButtonBase
 {
 public:
     ClickButtonImage(
@@ -128,17 +183,14 @@ public:
         Graphics::SpriteSheetIndex spriteSheet,
         Graphics::TextureIndex normal,
         Graphics::TextureIndex pressed,
-        std::function<void()>&& onLeftMousePress)
+        std::function<void()>&& onLeftMousePress,
+        std::function<void()>&& onRightMousePress)
     :
-        Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            glm::vec4{0},
+        ClickButtonBase{
             pos,
             dims,
-            true
+            std::move(onLeftMousePress),
+            std::move(onRightMousePress)
         },
         mNormal{
             Graphics::DrawMode::Sprite,
@@ -158,7 +210,6 @@ public:
             glm::vec2{0},
             dims,
             true},
-        mPressedCallback{std::move(onLeftMousePress)},
         mButton{}
     {
         mButton.emplace_back(&mNormal);
@@ -171,18 +222,19 @@ public:
 
     bool OnMouseEvent(const MouseEvent& event) override
     {
-        return std::visit(overloaded{
+        std::visit(overloaded{
             [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
             [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
             [this](const MouseMove& p){ return MouseMoved(p.mValue); },
             [](const auto& p){ return false; }
             },
             event);
+
+        return ClickButtonBase::OnMouseEvent(event);
     }
 
     bool LeftMousePressed(glm::vec2 click)
     {
-        Logging::LogDebug("ClickButton") << "Got LMC: " << click << std::endl;
         assert(mButton.size() >= 1);
         if (Within(click))
             mButton[0] = &mPressed;
@@ -192,19 +244,8 @@ public:
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        Logging::LogDebug("ClickButton") << "Got LMR: " << click << std::endl;
         assert(mButton.size() >= 1);
         mButton[0] = &mNormal;
-
-        if (Within(click))
-        {
-            if (mPressedCallback)
-            {
-                std::invoke(mPressedCallback);
-                return true;
-            }
-        }
-
         return false;
     }
 
@@ -224,7 +265,6 @@ private:
     Widget mNormal;
     Widget mPressed;
     
-    std::function<void()> mPressedCallback;
     std::vector<Graphics::IGuiElement*> mButton;
 };
 

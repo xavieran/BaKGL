@@ -85,6 +85,7 @@ public:
                     mSpriteSheet,
                     Graphics::TextureIndex{static_cast<unsigned>(data.image + normalOffset)},
                     Graphics::TextureIndex{static_cast<unsigned>(data.image + pressedOffset)},
+                    []{},
                     []{});
             }
                 break;
