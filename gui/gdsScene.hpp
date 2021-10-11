@@ -54,7 +54,7 @@ public:
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot);
 
     void StartDialog(BAK::Target target, bool isTooltip);
-    void DialogFinished() override;
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>&) override;
 
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;

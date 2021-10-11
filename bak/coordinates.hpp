@@ -78,4 +78,6 @@ glm::vec<4, T> ToGlColor(const C& color)
         F(color.a)};
 }
 
+double NormaliseRadians(double angle);
+
 }

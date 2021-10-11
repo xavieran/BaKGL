@@ -27,6 +27,9 @@ public:
     std::string_view GetDialogChoice(unsigned i) const;
     std::string_view GetQueryChoice(unsigned i) const;
     std::string_view GetNPCName(unsigned i) const;
+
+    static constexpr auto sYesIndex = 0x100;
+    static constexpr auto sNoIndex  = 0x101;
 private:
     static constexpr auto mCharacterNameOffset = 45;
     static constexpr auto mDialogChoiceOffset = 98;

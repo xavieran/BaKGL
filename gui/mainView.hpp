@@ -144,6 +144,12 @@ public:
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
+    void SetHeading(BAK::GameHeading heading)
+    {
+        assert(mCompass);
+        mCompass->SetHeading(heading);
+    }
+
 private:
     Graphics::SpriteSheetIndex mSpriteSheet;
     std::optional<Compass> mCompass;

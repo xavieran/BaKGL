@@ -26,7 +26,7 @@ public:
         mDynamicDialogScene{
             [&](){ mCamera.SetAngle(glm::vec2{3.14, 0}); },
             [&](){ mCamera.SetAngle(glm::vec2{0}); },
-            [&](){ }
+            [&](const auto&){ }
         },
         mZoneLabel{zone},
         mZoneData{zone},
@@ -131,21 +131,29 @@ public:
                     [&](const BAK::Encounter::GDSEntry& gds){
                         if (mGuiManager.mScreenStack.size() == 1)
                         {
-                            // mGuiManager.MakeChoice(
-                            // 
-                            // if (yes)
-                            //  EnterGDSScene()
                             mDynamicDialogScene.SetDialogFinished(
-                                [&, gds=gds](){
-                                    mGuiManager.EnterGDSScene(
-                                        gds.mHotspot, 
-                                        [&, dialog=gds.mExitDialog](){
-                                            mGuiManager.StartDialog(
-                                                dialog,
-                                                false,
-                                                &mDynamicDialogScene);
-                                            mDynamicDialogScene.SetDialogFinished([]{});
-                                            });
+                                [&, gds=gds](const auto& choice){
+                                    // These dialogs should always result in a choice
+                                    assert(choice);
+                                    if (choice->mValue == BAK::Keywords::sYesIndex)
+                                    {
+                                        mGuiManager.EnterGDSScene(
+                                            gds.mHotspot, 
+                                            [&, exitDialog=gds.mExitDialog](){
+                                                mGuiManager.StartDialog(
+                                                    exitDialog,
+                                                    false,
+                                                    &mDynamicDialogScene);
+                                                });
+                                    }
+
+                                    // FIXME: Move this into the if block so we only
+                                    // modify the players position if they entered the town.
+                                    // Will need a "TryMoveCamera" step that checks encounter 
+                                    // bounds and doesn't move if its a no. 
+                                    // Will need the same for block and Zone transitions too.
+                                    mCamera.SetGameLocation(gds.mExitPosition);
+                                    mDynamicDialogScene.ResetDialogFinished();
                                 });
 
                             mGuiManager.StartDialog(
@@ -153,9 +161,6 @@ public:
                                 false,
                                 &mDynamicDialogScene);
                         }
-
-                        //if (mGuiManager.mScreenStack.size() == 1)
-                        //    mGuiManager.EnterGDSScene(gds.mHotspot);
                     },
                     [&](const BAK::Encounter::Block& e){
                         if (mGuiManager.mScreenStack.size() == 1)
@@ -183,7 +188,8 @@ public:
                         }
 
                     },
-                    [](const BAK::Encounter::EventFlag&){
+                    [](const BAK::Encounter::EventFlag& flag){
+                        //mGameState.SetEventState(flag.mEventPointer, flag.mIsEnable);
                     },
                     [&](const BAK::Encounter::Zone& e){
                         if (mGuiManager.mScreenStack.size() == 1)
@@ -214,13 +220,13 @@ public:
                 if (mGuiManager.mScreenStack.size() == 1)
                 {
                     mDynamicDialogScene.SetDialogFinished(
-                        [&, obj=fit](){
-                            Logging::LogDebug(__FUNCTION__) << "DialogFinished: " << obj->mHotspotRef << "\n";
+                        [&, obj=fit](const auto&){
+                            Logging::LogDebug(__FUNCTION__) << "DialogFinished: HS: " << obj->mHotspotRef << "\n";
                             if (obj->mHotspotRef)
                             {
                                 mGuiManager.EnterGDSScene(*obj->mHotspotRef, []{});
                             }
-                            mDynamicDialogScene.SetDialogFinished([]{});
+                            mDynamicDialogScene.ResetDialogFinished();
                         });
 
                     mGuiManager.StartDialog(

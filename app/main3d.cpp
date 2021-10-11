@@ -165,9 +165,10 @@ int main(int argc, char** argv)
         2.0f};
     camera.SetPosition(startPosition);
     camera.SetAngle(startHeading);
+    guiManager.mMainView.SetHeading(camera.GetHeading());
 
     Game::GameRunner gameRunner{
-        zoneLabel.GetZoneNumber(),
+        zoneData.mZoneLabel.GetZoneNumber(),
         camera,
         gameState,
         guiManager};
@@ -177,8 +178,14 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_A, [&]{ camera.StrafeLeft(); });
     inputHandler.Bind(GLFW_KEY_D, [&]{ camera.StrafeRight(); });
     inputHandler.Bind(GLFW_KEY_S, [&]{ camera.MoveBackward(); });
-    inputHandler.Bind(GLFW_KEY_Q, [&]{ camera.RotateLeft(); });
-    inputHandler.Bind(GLFW_KEY_E, [&]{ camera.RotateRight(); });
+    inputHandler.Bind(GLFW_KEY_Q, [&]{
+        camera.RotateLeft();
+        guiManager.mMainView.SetHeading(camera.GetHeading());
+        });
+    inputHandler.Bind(GLFW_KEY_E, [&]{ 
+        camera.RotateRight();
+        guiManager.mMainView.SetHeading(camera.GetHeading());
+        });
     inputHandler.Bind(GLFW_KEY_X, [&]{ camera.RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ camera.RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_P, [&]{ lightPos.y += .5; });

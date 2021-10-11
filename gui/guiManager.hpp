@@ -61,7 +61,7 @@ public:
             mFont,
             gameState,
             mScreenStack,
-            [this]{ DialogFinished(); }
+            [this](const auto& choice){ DialogFinished(choice); }
         },
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
@@ -103,20 +103,13 @@ public:
         mScreenStack.PopChild();
         mCursor.PopCursor();
         mGdsScenes.pop_back();
+        // Run the GDS scene exit fn
         mGuiScreens.top().mFinished();
         mGuiScreens.pop();
     }
 
-    void MakeChoice(
-        BAK::Target dialog,
-        IDialogScene* scene,
-        std::vector<std::string>,
-        std::function<void()>&&)
-    {
-    }
-
     void StartDialog(
-        BAK::Target target,
+        BAK::Target dialog,
         bool isTooltip,
         IDialogScene* scene) override
     {
@@ -125,16 +118,16 @@ public:
         mScreenStack.PushScreen(&mDialogRunner);
         mDialogScene = scene;
         mDialogRunner.SetDialogScene(scene);
-        mDialogRunner.BeginDialog(target, isTooltip);
+        mDialogRunner.BeginDialog(dialog, isTooltip);
     }
 
-    void DialogFinished()
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
         assert(mDialogScene);
         mScreenStack.PopScreen(); // Dialog frame
         mScreenStack.PopScreen(); // Dialog runner
         mCursor.PopCursor();
-        mDialogScene->DialogFinished();
+        mDialogScene->DialogFinished(choice);
     }
 
     void RunContainer(BAK::KeyTarget dialogTarget)

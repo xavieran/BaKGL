@@ -1,7 +1,9 @@
 #pragma once
 
-#include "constants.hpp"
-#include "coordinates.hpp"
+#include "bak/constants.hpp"
+#include "bak/coordinates.hpp"
+
+#include "com/logger.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,6 +31,14 @@ public:
         mAngle{3.14, 0}
     {}
 
+    void SetGameLocation(const BAK::GamePositionAndHeading& location)
+    {
+        auto pos = BAK::ToGlCoord<float>(location.mPosition);
+        pos.y = mPosition.y;
+        SetPosition(pos);
+        SetAngle(BAK::ToGlAngle(location.mHeading));
+    }
+
     void SetPosition(const glm::vec3& position)
     {
         mPosition = position;
@@ -37,6 +47,18 @@ public:
     void SetAngle(glm::vec2 angle)
     {
         mAngle = angle;
+        mAngle.x = BAK::NormaliseRadians(mAngle.x);
+        mAngle.y = BAK::NormaliseRadians(mAngle.y);
+    }
+
+    BAK::GameHeading GetHeading()
+    {
+        // Make sure to normalise this between 0 and 1
+        auto bakAngle = 0xff * ((mAngle.x - glm::pi<float>()) / (2.0f * glm::pi<float>()));
+        if (bakAngle < 0)
+            bakAngle += 0xff;
+        Logging::LogDebug("Camera") << "angle: " << mAngle.x << " bak: " << bakAngle << "\n";
+        return static_cast<std::uint16_t>(bakAngle);
     }
 
     void SetDeltaTime(double dt)
@@ -77,21 +99,25 @@ public:
     void RotateLeft()
     {
         mAngle.x += mTurnSpeed * mDeltaTime;
+        mAngle.x = BAK::NormaliseRadians(mAngle.x);
     }
 
     void RotateRight()
     {
         mAngle.x -= mTurnSpeed * mDeltaTime;
+        mAngle.x = BAK::NormaliseRadians(mAngle.x);
     }
 
     void RotateVerticalUp()
     {
         mAngle.y += mTurnSpeed * mDeltaTime;
+        mAngle.y = BAK::NormaliseRadians(mAngle.y);
     }
 
     void RotateVerticalDown()
     {
         mAngle.y -= mTurnSpeed * mDeltaTime;
+        mAngle.y = BAK::NormaliseRadians(mAngle.y);
     }
 
     glm::vec3 GetDirection() const

@@ -2,6 +2,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
+#include "bak/types.hpp"
 
 #include "com/algorithm.hpp"
 #include "com/random.hpp"
@@ -26,27 +27,7 @@ namespace Gui {
 class DialogRunner : public Widget
 {
 public:
-    using FinishCallback = std::function<void()>;
-
-    DialogRunner(
-        glm::vec2 pos,
-        glm::vec2 dims,
-        const Actors& actors,
-        const Backgrounds& bgs,
-        const Font& fr,
-        BAK::GameState& gameState,
-        ScreenStack& screenStack)
-   :
-        DialogRunner{
-            pos,
-            dims,
-            actors,
-            bgs,
-            fr,
-            gameState,
-            screenStack,
-            []{}}
-    {}
+    using FinishCallback = std::function<void(std::optional<BAK::ChoiceIndex>)>;
 
     DialogRunner(
         glm::vec2 pos,
@@ -88,6 +69,7 @@ public:
         mActors{actors},
         mCurrentTarget{},
         mCurrentDialog{},
+        mLastChoice{},
         mRemainingText{""},
         mDialogDisplay{pos, dims, actors, bgs, fr, gameState},
         mFinished{finished},
@@ -103,6 +85,9 @@ public:
         mLogger.Debug() << "Destroyed: " << this << "\n";
     }
 
+    const std::optional<BAK::ChoiceIndex>& GetLastChoice() const { return mLastChoice; }
+
+
     void SetDialogScene(IDialogScene* dialogScene)
     {
         mDialogScene = dialogScene;
@@ -113,6 +98,53 @@ public:
         return mDialogState.mDialogActive 
             || mDialogState.mTooltipActive;
     }
+
+    // if pos is set then exit the dialog as soon as the 
+    // mouse moves away from pos (as in tooltips)
+    void BeginDialog(
+        BAK::Target target,
+        bool isTooltip)
+    {
+        assert(!mDialogState.mDialogActive);
+        assert(!mDialogState.mTooltipActive);
+        if (isTooltip)
+            mDialogState.ActivateTooltip();
+        else
+            mDialogState.ActivateDialog();
+
+        mCurrentTarget = target;
+        Logging::LogDebug("Gui::DialogRunner")
+            << "BeginDialog" << target << " snip: " << mCurrentDialog << "\n";
+        RunDialog(true);
+    }
+
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
+    }
+
+    bool LeftMousePressed(glm::vec2)
+    {
+        RunDialog();
+        return true;
+    }
+
+    bool MouseMoved(glm::vec2 pos)
+    {
+        mDialogState.MouseMoved(pos);
+        mDialogState.DeactivateTooltip(
+            [this](){
+                mDialogScene = nullptr;
+                std::invoke(mFinished, GetLastChoice());
+            });
+        return false;
+    }
+
 
     void EvaluateSnippetActions()
     {
@@ -170,53 +202,7 @@ public:
         }
     }
 
-    // if pos is set then exit the dialog as soon as the 
-    // mouse moves away from pos (as in tooltips)
-    void BeginDialog(
-        BAK::Target target,
-        bool isTooltip)
-    {
-        assert(!mDialogState.mDialogActive);
-        assert(!mDialogState.mTooltipActive);
-        if (isTooltip)
-            mDialogState.ActivateTooltip();
-        else
-            mDialogState.ActivateDialog();
-
-        mCurrentTarget = target;
-        Logging::LogDebug("Gui::DialogRunner")
-            << "BeginDialog" << target << " snip: " << mCurrentDialog << "\n";
-        RunDialog(true);
-    }
-
-    bool OnMouseEvent(const MouseEvent& event) override
-    {
-        return std::visit(overloaded{
-            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
-            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
-            [](const auto& p){ return false; }
-            },
-            event);
-    }
-
-    bool LeftMousePressed(glm::vec2)
-    {
-        RunDialog();
-        return true;
-    }
-
-    bool MouseMoved(glm::vec2 pos)
-    {
-        mDialogState.MouseMoved(pos);
-        mDialogState.DeactivateTooltip(
-            [this](){
-                mDialogScene = nullptr;
-                std::invoke(mFinished);
-            });
-        return false;
-    }
-
-    void MakeChoice(ChoiceScreen::ChoiceIndex choice)
+    void MakeChoice(BAK::ChoiceIndex choice)
     {
         mLogger.Debug() << "Made choice: " << choice << "\n";
         mScreenStack.PopScreen();
@@ -225,21 +211,34 @@ public:
         const auto it = std::find_if(choices.begin(), choices.end(),
             [choice](const auto& c){
                 if (std::holds_alternative<BAK::ConversationChoice>(c.mChoice))
-                    return std::get<BAK::ConversationChoice>(c.mChoice).mEventPointer == choice;
+                    return std::get<BAK::ConversationChoice>(c.mChoice).mEventPointer == choice.mValue;
                 else if (std::holds_alternative<BAK::QueryChoice>(c.mChoice))
-                    return std::get<BAK::QueryChoice>(c.mChoice).mQueryIndex == choice;
+                    return std::get<BAK::QueryChoice>(c.mChoice).mQueryIndex == choice.mValue;
                 else
                     return false;
             });
 
         if (it == choices.end())
         {
-            // Break out of the question loop
-            mTargetStack.pop();
-            mCurrentTarget = mTargetStack.top();
-            mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
-            mTargetStack.pop();
-            UpdateSnippet();
+            // usual "Yes/No" dialogs
+            if (choices.size() == 0 || choices.size() == 1)
+            {
+                mLastChoice = choice;
+                mLogger.Info() << "Yes|No dialog choice. Player chose: " << mLastChoice << "\n";
+
+                mCurrentDialog = std::optional<BAK::DialogSnippet>{};
+                mRemainingText = std::string{};
+                RunDialog();
+            }
+            else
+            {
+                // Break out of the question loop
+                mTargetStack.pop();
+                mCurrentTarget = mTargetStack.top();
+                mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
+                mTargetStack.pop();
+                UpdateSnippet();
+            }
         }
         else
         {
@@ -253,7 +252,7 @@ public:
             mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
             EvaluateSnippetActions();
             mCurrentDialog = std::optional<BAK::DialogSnippet>{};
-            mRemainingText= std::string{};
+            mRemainingText = std::string{};
             // blergh this and the above are really unpleasant this
             // flow could be improved...
             RunDialog(true);
@@ -266,7 +265,7 @@ public:
         mChoices.SetPosition(glm::vec2{15, 125});
         mChoices.SetDimensions(glm::vec2{295, 66});
 
-        auto choices = std::vector<std::pair<unsigned, std::string>>{};
+        auto choices = std::vector<std::pair<BAK::ChoiceIndex, std::string>>{};
         unsigned i = 0;
         for (const auto& c : mCurrentDialog->GetChoices())
         {
@@ -281,7 +280,7 @@ public:
                         : '#';
                     choices.emplace_back(
                         std::make_pair(
-                            choice.mEventPointer,
+                            BAK::ChoiceIndex{choice.mEventPointer},
                             fontStyle + std::string{
                                 mKeywords.GetDialogChoice(choice.mEventPointer)}));
 
@@ -304,7 +303,7 @@ public:
         mChoices.SetPosition(glm::vec2{15, 125});
         mChoices.SetDimensions(glm::vec2{285, 66});
 
-        auto choices = std::vector<std::pair<unsigned, std::string>>{};
+        auto choices = std::vector<std::pair<BAK::ChoiceIndex, std::string>>{};
         unsigned i = 0;
         for (const auto& c : mCurrentDialog->GetChoices())
         {
@@ -314,7 +313,7 @@ public:
                 mLogger.Debug() << " Choice Index: " << index << "\n";
                 choices.emplace_back(
                     std::make_pair(
-                        index,
+                        BAK::ChoiceIndex{index},
                         "#" + std::string{
                             mKeywords.GetQueryChoice(index)}));
             }
@@ -324,13 +323,31 @@ public:
             }
         }
 
+        if (choices.size() == 0)
+        {
+            const auto index = BAK::Keywords::sYesIndex; // Yes
+            choices.emplace_back(
+                std::make_pair(
+                    BAK::ChoiceIndex{index},
+                    "#" + std::string{mKeywords.GetQueryChoice(index)}));
+        }
+
+        if (choices.size() == 1)
+        {
+            const auto index = BAK::Keywords::sNoIndex; // No
+            choices.emplace_back(
+                std::make_pair(
+                    BAK::ChoiceIndex{index},
+                    "#" + std::string{mKeywords.GetQueryChoice(index)}));
+        }
+        
+
         constexpr auto buttonSize = glm::vec2{32, 14};
         mChoices.StartChoices(choices, buttonSize);
 
         mScreenStack.PushScreen(&mChoices);
     }
 
-    // Call this when the player moves the dialog forward
     bool RunDialog(bool first=false)
     {
         bool progressing = true;
@@ -377,7 +394,7 @@ public:
                     mDialogDisplay.Clear();
                     mDialogState.DeactivateDialog();
                     mDialogScene = nullptr;
-                    std::invoke(mFinished);
+                    std::invoke(mFinished, GetLastChoice());
 
                     return false;
                 }
@@ -391,8 +408,8 @@ public:
             if (text != empty)
             {
                 UpdateSnippet();
-                if (mCurrentDialog->mDisplayStyle3 == 0x2 
-                    && mCurrentDialog->GetChoices().size() > 0)
+                if (mCurrentDialog->mDisplayStyle3 == 0x2)
+                    //&& mCurrentDialog->GetChoices().size() > 0)
                     ShowQueryChoices();
                 progressing = false;
             }
@@ -463,7 +480,9 @@ private:
 
     std::optional<BAK::Target> mCurrentTarget;
     std::optional<BAK::DialogSnippet> mCurrentDialog;
+    std::optional<BAK::ChoiceIndex> mLastChoice;
     std::stack<BAK::Target> mTargetStack;
+
     std::string mRemainingText;
     DialogDisplay mDialogDisplay;
     FinishCallback mFinished;

@@ -198,7 +198,7 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
     mGuiManager.StartDialog(target, isTooltip, this);
 }
 
-void GDSScene::DialogFinished()
+void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
 {
     mLogger.Debug() << "Dialog finished, back to flavour text\n";
 

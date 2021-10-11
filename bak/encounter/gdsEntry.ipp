@@ -52,7 +52,8 @@ void GDSEntryFactory<S>::Load()
         const auto exit  = KeyTarget{fb.GetUint32LE()};
         const auto xoff  = fb.GetUint8();
         const auto yoff  = fb.GetUint8();
-        const auto heading = fb.GetUint16LE();
+        // ... ???
+        const auto heading = fb.GetUint16LE() >> 8;
         const auto walkToDest = fb.GetUint8();
         assert(fb.GetUint16LE() == 0);
 

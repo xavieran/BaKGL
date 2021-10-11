@@ -1,5 +1,9 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
+
+#include "com/logger.hpp"
+
 #include "gui/button.hpp"
 #include "gui/colors.hpp"
 #include "gui/textBox.hpp"
@@ -27,7 +31,16 @@ public:
             dims,
             true
         },
-        mCompass{
+        mCompassLeft{
+            Graphics::DrawMode::Sprite,
+            spriteSheet,
+            texture,
+            Graphics::ColorMode::Texture,
+            Color::debug,
+            glm::vec2{-compassSheetDims.x, 0},
+            compassSheetDims,
+            true},
+        mCompassCenter{
             Graphics::DrawMode::Sprite,
             spriteSheet,
             texture,
@@ -36,24 +49,36 @@ public:
             glm::vec2{0},
             compassSheetDims,
             true},
+        mCompassDims{compassSheetDims},
         mHeading{0}
     {
-        AddChildBack(&mCompass);
+        AddChildBack(&mCompassLeft);
+        AddChildBack(&mCompassCenter);
     }
 
-    void SetHeading(double heading)
+    void SetHeading(BAK::GameHeading gameHeading)
     {
-        assert(0.0 <= heading && heading <= 1.0);
+        const double heading = static_cast<double>(gameHeading) / static_cast<double>(0xff);
         mHeading = heading;
-        UpdateCompassHeading();
+        UpdateCompassHeading(mCompassLeft, -mCompassDims.x);
+        UpdateCompassHeading(mCompassCenter, 0);
     }
 
-    void UpdateCompassHeading()
+    void UpdateCompassHeading(Widget& compass, double zeroedXPos)
     {
+        const auto newX = mHeading * compass.GetPositionInfo().mDimensions.x;
+        Logging::LogDebug("Compass") << "Heading: " << mHeading << " pos: " << newX << "\n";
+        compass.SetPosition(
+            glm::vec2{
+                newX + zeroedXPos,
+                0});
     }
 
 private:
-    Widget mCompass;
+    Widget mCompassLeft;
+    Widget mCompassCenter;
+
+    glm::vec2 mCompassDims;
 
     double mHeading;
 };

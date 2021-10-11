@@ -2,6 +2,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
+#include "bak/types.hpp"
 
 #include "com/algorithm.hpp"
 #include "com/visit.hpp"
@@ -17,8 +18,7 @@ namespace Gui {
 class ChoiceScreen : public Widget
 {
 public:
-    using ChoiceIndex = unsigned;
-    using FinishedCallback = std::function<void(ChoiceIndex)>;
+    using FinishedCallback = std::function<void(BAK::ChoiceIndex)>;
 
     static constexpr auto mMaxChoices = 16;
     ChoiceScreen(
@@ -50,7 +50,7 @@ public:
     }
 
     void StartChoices(
-        std::vector<std::pair<ChoiceIndex, std::string>> choices,
+        std::vector<std::pair<BAK::ChoiceIndex, std::string>> choices,
         glm::vec2 buttonSize)
     {
         ClearChildren();
@@ -84,7 +84,7 @@ public:
             AddChildBack(&button);
     }
 
-    void Choose(ChoiceIndex index)
+    void Choose(BAK::ChoiceIndex index)
     {
         std::invoke(mFinished, index);
         mButtons.clear();
