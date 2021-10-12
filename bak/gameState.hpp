@@ -32,10 +32,18 @@ public:
             0,
             Inventory{},
             {},
-            {}}
+            {}},
+        mContextValue{0}
     {}
 
     const Party& GetParty() const
+    {
+        if (mGameData)
+            return mGameData->mParty;
+        return mParty;
+    }
+
+    Party& GetParty()
     {
         if (mGameData)
             return mGameData->mParty;
@@ -50,6 +58,9 @@ public:
 
     Chapter GetChapter() const
     {
+        if (mGameData)
+            return mGameData->mChapter;
+
         return 1;
     }
 
@@ -106,6 +117,11 @@ public:
         if (choice.mState == BAK::ActiveStateFlag::Chapter
             && (GetChapter() >= choice.mExpectedValue
                 && GetChapter() <= choice.mExpectedValue2))
+        {
+            return true;
+        }
+        else if (choice.mState == BAK::ActiveStateFlag::Context
+            && mContextValue == choice.mExpectedValue)
         {
             return true;
         }
@@ -243,10 +259,16 @@ public:
         mEventState.emplace(setFlag.mEventPointer, result);
     }
 
+    void SetDialogContext(unsigned contextValue)
+    {
+        mContextValue = contextValue;
+    }
+
     Character mPartyLeader;
     Character mPartyFollower;
     GameData* mGameData;
     Party mParty;
+    unsigned mContextValue;
     std::unordered_map<unsigned, bool> mEventState;
 };
 

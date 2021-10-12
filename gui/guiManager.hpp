@@ -8,8 +8,8 @@
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
+#include "gui/infoScreen.hpp"
 #include "gui/mainView.hpp"
-#include "gui/portraitScreen.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -53,6 +53,7 @@ public:
         mActors{spriteManager},
         mBackgrounds{spriteManager},
         mCursor{cursor},
+        mGameState{gameState},
         mScreenStack{},
         mDialogRunner{
             glm::vec2{0, 0},
@@ -67,9 +68,8 @@ public:
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{spriteManager, *this},
-        mPortraitScreen{spriteManager, *this, mFont},
+        mInfoScreen{spriteManager, *this, mActors, mFont, mGameState},
         mGdsScenes{},
-        mGameState{gameState},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
     {
         AddChildBack(&mScreenStack);
@@ -134,10 +134,9 @@ public:
 
     void ShowCharacterPortrait(unsigned character) override
     {
-        mPortraitScreen.UpdateCharacter(
-            mFont,
-            mGameState.GetParty().mCharacters[character]);
-        mScreenStack.PushScreen(&mPortraitScreen);
+        mInfoScreen.SetSelectedCharacter(character);
+        mInfoScreen.UpdateCharacter();
+        mScreenStack.PushScreen(&mInfoScreen);
     }
 
     void ExitCharacterPortrait() override
@@ -155,6 +154,7 @@ public:
     Backgrounds mBackgrounds;
 
     Cursor& mCursor;
+    BAK::GameState& mGameState;
     ScreenStack mScreenStack;
     DialogRunner mDialogRunner;
     WorldDialogFrame mWorldDialogFrame;
@@ -162,9 +162,8 @@ public:
     Graphics::SpriteManager& mSpriteManager;
 
     MainView mMainView;
-    PortraitScreen mPortraitScreen;
+    InfoScreen mInfoScreen;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
-    BAK::GameState& mGameState;
     IDialogScene* mDialogScene;
     std::stack<GuiScreen> mGuiScreens;
 

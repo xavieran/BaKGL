@@ -71,7 +71,8 @@ public:
         Graphics::SpriteSheetIndex spriteSheet,
         Graphics::TextureIndex swordImage,
         Graphics::TextureIndex bloodImage,
-        Graphics::TextureIndex selectedImage)
+        Graphics::TextureIndex selectedImage,
+        std::function<void()>&& toggleSkillSelected)
     :
         Widget{
             ImageTag{},
@@ -90,58 +91,105 @@ public:
             glm::vec2{101, 4},
             spriteSheet,
             bloodImage},
-        mSelected{}
+        mSelected{
+            ImageTag{},
+            spriteSheet,
+            selectedImage,
+            glm::vec2{-1, 5},
+            glm::vec2{5,5},
+            false
+        },
+        mSkillSelected{false},
+        mToggleSkillSelected{std::move(toggleSkillSelected)}
     {
-        AddChildBack(&mText);
-        AddChildBack(&mBlood);
-        //mSelected.emplace(
-        //    ImageTag{},
-        //    spriteSheet,
-        //    selectedImage,
-        //    glm::vec2{-2, 4},
-        //    glm::vec2{6,7},
-        //    false);
-        //AddChildBack(&(*mSelected));
+        AddChildren();
     }
 
     void UpdateValue(
         const Font& font,
         BAK::SkillType skill,
-        unsigned value)
+        unsigned value,
+        bool skillSelected,
+        bool unseenIprovement)
     {
         const auto skillStr = BAK::ToString(skill);
         std::stringstream ss;
+        if (unseenIprovement)
+            ss << "\xf4";
+        else
+            ss << "#";
+
         ss << skillStr << std::setw(18 - skillStr.size()) 
             << std::setfill(' ') << value << "%";
         mText.AddText(font, ss.str());
         mBlood.UpdateValue(value);
+
+        if (skillSelected)
+            mSkillSelected = true;
+        else
+            mSkillSelected = false;
+            
+        AddChildren();
+    }
+
+    void AddChildren()
+    {
+        ClearChildren();
+
+        AddChildBack(&mText);
+        AddChildBack(&mBlood);
+        if (mSkillSelected)
+            AddChildBack(&mSelected);
+    }
+
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
+    }
+
+    bool LeftMousePressed(glm::vec2 click)
+    {
+        if (Within(click))
+        {
+            std::invoke(mToggleSkillSelected);
+            return true;
+        }
+
+        return false;
     }
 
     TextBox mText;
     Blood mBlood;
-    std::optional<Widget> mSelected;
+    Widget mSelected;
+    bool mSkillSelected;
+    std::function<void()> mToggleSkillSelected;
 };
 
-class Skills : public Widget
+class Skills : public ClickButtonBase
 {
 public:
 
     Skills(
+        glm::vec2 pos,
+        glm::vec2 dims,
         Graphics::SpriteSheetIndex spriteSheet,
         unsigned spriteOffset,
-        const RequestResource& request)
+        const RequestResource& request,
+        std::function<void(BAK::SkillType)>&& toggleSkill,
+        std::function<void()>&& onRightMousePress)
     :
-        Widget{
-            Graphics::DrawMode::Rect,
-            Graphics::SpriteSheetIndex{0},
-            Graphics::TextureIndex{0},
-            Graphics::ColorMode::SolidColor,
-            Color::debug,
-            glm::vec2{0},
-            glm::vec2{320, 200},
-            true
+        ClickButtonBase{
+            pos,
+            dims,
+            []{},
+            std::move(onRightMousePress)
         },
         mSkills{},
+        mToggleSkillSelected{std::move(toggleSkill)},
         mLogger{Logging::LogState::GetLogger("Gui::Skills")}
     {
         mSkills.reserve(request.GetSize());
@@ -149,19 +197,29 @@ public:
         {
             const auto& data = request.GetRequestData(i);
             int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff() + 8;
 
             auto& s = mSkills.emplace_back(
-                glm::vec2{x, y},
+                glm::vec2{x, y} - pos,
                 glm::vec2{data.width, data.height},
                 spriteSheet,
                 spriteOffset + 21,
                 spriteOffset + 22,
-                spriteOffset + 23);
-                    }
+                spriteOffset + 23,
+                [this, skill=static_cast<BAK::SkillType>(i +1)](){
+                    mToggleSkillSelected(skill);
+                });
+        }
 
         for (auto& skill : mSkills)
             AddChildBack(&skill);
+    }
+
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        const auto result = Widget::OnMouseEvent(event);
+        ClickButtonBase::OnMouseEvent(event);
+        return result;
     }
 
     void UpdateSkills(
@@ -173,12 +231,16 @@ public:
             mSkills[i - 4].UpdateValue(
                 font,
                 static_cast<BAK::SkillType>(i),
-                skills.mSkills[i].mCurrent);
+                skills.mSkills[i].mCurrent,
+                skills.mSkills[i].mSelected,
+                skills.mSkills[i].mUnseenImprovement);
         }
     }
 
 private:
     std::vector<Skill> mSkills;
+
+    std::function<void(BAK::SkillType)> mToggleSkillSelected;
 
     const Logging::Logger& mLogger;
 };

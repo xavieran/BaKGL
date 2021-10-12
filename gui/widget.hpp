@@ -12,6 +12,7 @@ namespace Gui {
 
 struct ClipRegionTag {};
 struct ImageTag {};
+struct RectTag {};
 
 class Widget : public Graphics::IGuiElement
 {
@@ -38,6 +39,13 @@ public:
         ClipRegionTag,
         glm::vec2 pos,
         glm::vec2 dims,
+        bool childrenRelative);
+
+    Widget(
+        RectTag,
+        glm::vec2 pos,
+        glm::vec2 dims,
+        glm::vec4 color,
         bool childrenRelative);
 
     virtual ~Widget();

@@ -1,21 +1,14 @@
 #pragma once
 
-#include "bak/coordinates.hpp"
-#include "bak/hotspot.hpp"
-#include "bak/scene.hpp"
-#include "bak/sceneData.hpp"
 #include "bak/textureFactory.hpp"
 
-#include "graphics/IGuiElement.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/sprites.hpp"
-
+#include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
+#include "gui/actors.hpp"
 #include "gui/colors.hpp"
-#include "gui/compass.hpp"
 #include "gui/clickButton.hpp"
+#include "gui/portrait.hpp"
 #include "gui/widget.hpp"
-#include "gui/scene.hpp"
 #include "gui/skills.hpp"
 
 #include "xbak/RequestResource.h"
@@ -28,14 +21,18 @@
 
 namespace Gui {
 
-class PortraitScreen : public Widget
+class InfoScreen : public Widget
 {
 public:
+    static constexpr auto sSkillRightClickDialog = BAK::KeyTarget{0x143};
+    static constexpr auto sCharacterFlavourDialog = BAK::KeyTarget{0x69};
 
-    PortraitScreen(
+    InfoScreen(
         Graphics::SpriteManager& spriteManager,
         IGuiManager& guiManager,
-        const Font& font)
+        const Actors& actors,
+        const Font& font,
+        BAK::GameState& gameState)
     :
         Widget{
             Graphics::DrawMode::Sprite,
@@ -47,10 +44,16 @@ public:
             glm::vec2{320, 200}, true
         },
         mGuiManager{guiManager},
+        mFont{font},
+        mGameState{gameState},
+        mDialogScene{},
+        mSelectedCharacter{0},
         mSpriteSheet{GetDrawInfo().mSpriteSheet},
         mElements{},
+        mButtons{},
+        mPortrait{},
         mSkills{},
-        mLogger{Logging::LogState::GetLogger("Gui::PortraitScreen")}
+        mLogger{Logging::LogState::GetLogger("Gui::InfoScreen")}
     {
         auto textures = Graphics::TextureStore{};
         BAK::TextureFactory::AddScreenToTextureStore(
@@ -82,8 +85,8 @@ public:
             mButtons.emplace_back(
                 glm::vec2{x, y},
                 glm::vec2{data.width, data.height},
-                font,
-                "Exit",
+                mFont,
+                "#Exit",
                 [this]{ mGuiManager.ExitCharacterPortrait(); });
         }
 
@@ -92,42 +95,70 @@ public:
             const auto& data = request.GetRequestData(i);
             int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
             int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-            mElements.emplace_back(
-                Graphics::DrawMode::Sprite,
+            mPortrait.emplace(
+                glm::vec2{x, y},
+                glm::vec2{data.width, data.height},
+                actors,
+                mFont,
                 mSpriteSheet,
                 pressedOffset + 25,
-                Graphics::ColorMode::Texture,
-                Color::black,
-                glm::vec2{x, y},
-                glm::vec2{4, data.height},
-                true);
-        mElements.emplace_back(
-                Graphics::DrawMode::Sprite,
-                mSpriteSheet,
                 pressedOffset + 26,
-                Graphics::ColorMode::Texture,
-                Color::black,
-                glm::vec2{x, y},
-                glm::vec2{222, 4},
-                true);
-
+                [this](){
+                    AdvanceCharacter(); },
+                [this](){
+                    mGameState.SetDialogContext(mSelectedCharacter);
+                    mGuiManager.StartDialog(
+                        sCharacterFlavourDialog, false, &mDialogScene);
+                }
+            );
         }
 
         mSkills.emplace(
+            glm::vec2{15, 100},
+            glm::vec2{200,200},
             mSpriteSheet,
             pressedOffset,
-            request);
+            request,
+            [this](auto skill){
+                ToggleSkill(skill);
+            },
+            [this](){
+                mGuiManager.StartDialog(
+                    sSkillRightClickDialog, false, &mDialogScene);
+            });
 
         AddChildren();
         spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
-    void UpdateCharacter(
-        const Font& font,
-        const BAK::Character& character)
+    void SetSelectedCharacter(unsigned character)
+    {
+        mSelectedCharacter = character;
+    }
+
+    void AdvanceCharacter()
+    {
+        SetSelectedCharacter(
+            mGameState.GetParty().NextActiveCharacter(mSelectedCharacter));
+        UpdateCharacter();
+    }
+
+    void UpdateCharacter()
     {
         assert(mSkills);
-        mSkills->UpdateSkills(font, character.mSkills);
+        const auto& character = mGameState.GetParty().mCharacters[mSelectedCharacter];
+        mSkills->UpdateSkills(mFont, character.mSkills);
+        mPortrait->SetCharacter(mSelectedCharacter, character.mName);
+    }
+
+    void ToggleSkill(BAK::SkillType skill)
+    {
+        mLogger.Debug() << "Toggle Skill: " << BAK::ToString(skill) << "\n";
+        mGameState
+            .GetParty()
+            .mCharacters[mSelectedCharacter]
+            .mSkills.ToggleSkill(skill);
+        UpdateCharacter();
     }
 
     void AddChildren()
@@ -140,13 +171,20 @@ public:
 
         assert(mSkills);
         AddChildBack(&(*mSkills));
+        assert(mPortrait);
+        AddChildBack(&(*mPortrait));
     }
 
 private:
     IGuiManager& mGuiManager;
+    const Font& mFont;
+    BAK::GameState& mGameState;
+    NullDialogScene mDialogScene;
+    unsigned mSelectedCharacter;
     Graphics::SpriteSheetIndex mSpriteSheet;
     std::vector<Widget> mElements;
     std::vector<ClickButton> mButtons;
+    std::optional<Portrait> mPortrait;
     std::optional<Skills> mSkills;
 
     const Logging::Logger& mLogger;

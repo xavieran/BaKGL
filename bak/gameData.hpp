@@ -91,24 +91,8 @@ public:
     // Based on disassembly this may be the state of doors (open/closed)
     static constexpr auto sDoorFlag = 0x1b58;
 
-    // dac0 -> dc3c
-
-    // from 9fc -> 0xc0 ff ff will completely fill locklears "Unseen stat improvement" 
-    // but also overflow into Gorath health. Not sure why these flags don't
-    // seem to be byte aligned.
-    static constexpr auto sSkillImprovementOffset = 0x9fc;
-    // 9ed:0x4 == Locklear Defense Selected (START)
-    // 9ed:0x40 == Locklear Assessment selected
-    // 9ee:0x1  == Locklear Weaponcraft selected
-    // 9ee:0x20 == Locklear Stealth Selected (END)
-    // 9ee:0x40 == Nothing
-    // 9ef:0x08 == Gorath Defense (START)
-    // 9ef:0x80 == Gorath Assessment
-    // 9f0:0x01 == Gorath Armorcraft
-    // 9f0:0x40 == Gorath Stealth (END)
-    // 9f1:0x10 == Owyn Defense (START)
-    // 9f1:0x80 == Owyn Stealth (END)
-    static constexpr auto sSkillSelectedOffset    = 0x9ed;
+    static constexpr auto sSkillSelectedEventFlag = 0x1856;
+    static constexpr auto sSkillImprovementEventFlag= 0x18ce;
 
     static constexpr auto sCombatEntityListCount  = 700;
     static constexpr auto sCombatEntityListOffset = 0x1383;
@@ -185,12 +169,12 @@ public:
 
         std::vector<Character> chars;
 
-        for (unsigned i = 0; i < characters; i++)
+        for (unsigned character = 0; character < characters; character++)
         {
-            mBuffer.Seek(nameOffset + nameLength * i);
+            mBuffer.Seek(nameOffset + nameLength * character);
             auto name = mBuffer.GetString(nameLength);
 
-            mBuffer.Seek(skillOffset + skillLength * i);
+            mBuffer.Seek(skillOffset + skillLength * character);
             mLogger.Debug() << "Name: " << name << "@" 
                 << std::hex << mBuffer.Tell() << std::dec << "\n";
 
@@ -201,23 +185,37 @@ public:
 
             for (unsigned i = 0; i < Skills::sSkills; i++)
             {
+                const auto max        = mBuffer.GetUint8();
+                const auto current    = mBuffer.GetUint8();
+                const auto limit      = mBuffer.GetUint8();
+                const auto experience = mBuffer.GetUint8();
+                const auto modifier   = mBuffer.GetSint8();
+
+                const auto pos = mBuffer.Tell();
+
+                const auto selected = ReadSkillSelected(character, i);
+                const auto unseenIprovement = ReadSkillUnseenImprovement(character, i);
+
                 skills.mSkills[i] = Skill{
-                    mBuffer.GetUint8(),
-                    mBuffer.GetUint8(),
-                    mBuffer.GetUint8(),
-                    mBuffer.GetUint8(),
-                    mBuffer.GetSint8(), // modifier can be -ve
-                    false
+                    max,
+                    current,
+                    limit,
+                    experience,
+                    modifier,
+                    selected,
+                    unseenIprovement
                 };
+
+                mBuffer.Seek(pos);
             }
 
             auto unknown2 = mBuffer.GetArray<7>();
             mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";
             // Load inventory
             auto inventory = LoadInventory(
-                inventoryOffset + inventoryLength * i);
+                inventoryOffset + inventoryLength * character);
 
-            auto conditions = LoadConditions(i);
+            auto conditions = LoadConditions(character);
 
             chars.emplace_back(
                 name,
@@ -269,6 +267,24 @@ public:
         }
 
         return active;
+    }
+
+    bool ReadSkillSelected(unsigned character, unsigned skill) const
+    {
+        constexpr auto maxSkills = 0x11;
+        return ReadEvent(
+            sSkillSelectedEventFlag
+            + (character * maxSkills)
+            + skill);
+    }
+
+    bool ReadSkillUnseenImprovement(unsigned character, unsigned skill) const
+    {
+        constexpr auto maxSkills = 0x11;
+        return ReadEvent(
+            sSkillImprovementEventFlag
+            + (character * maxSkills)
+            + skill);
     }
 
     unsigned ReadComplexEvent(unsigned eventPtr) const

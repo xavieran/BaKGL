@@ -1,5 +1,7 @@
 #pragma once
 
+#include "com/assert.hpp"
+
 #include <array>
 #include <ostream>
 #include <string_view>
@@ -37,6 +39,7 @@ struct Skill
     std::uint8_t mLimit;
     std::uint8_t mExperience;
     std::int8_t mModifier;
+    bool mSelected;
     bool mUnseenImprovement;
 };
 
@@ -47,6 +50,19 @@ struct Skills
     static constexpr auto sSkills = 16;
     using SkillArray = std::array<Skill, sSkills>;
     SkillArray mSkills;
+
+    Skill& GetSkill(BAK::SkillType skill)
+    {
+        const auto i = static_cast<unsigned>(skill);
+        ASSERT(i < sSkills);
+        return mSkills[i];
+    }
+    
+    void ToggleSkill(BAK::SkillType skillType)
+    {
+        auto& skill = GetSkill(skillType);
+        skill.mSelected = !skill.mSelected;
+    }
 };
 
 std::ostream& operator<<(std::ostream&, const Skills&);

@@ -67,6 +67,25 @@ Widget::Widget(
 {
 }
 
+Widget::Widget(
+    RectTag,
+    glm::vec2 pos,
+    glm::vec2 dims,
+    glm::vec4 color,
+    bool childrenRelative)
+:
+    Widget{
+        Graphics::DrawMode::Rect,
+        Graphics::SpriteSheetIndex{0},
+        Graphics::TextureIndex{0},
+        Graphics::ColorMode::SolidColor,
+        color,
+        pos,
+        dims,
+        childrenRelative
+    }
+{
+}
 Widget::~Widget()
 {
 }
