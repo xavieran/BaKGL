@@ -83,7 +83,7 @@ public:
             true
         },
         mText{
-            glm::vec2{34, -6},
+            glm::vec2{34, -5},
             glm::vec2{100, 16}
         },
         mBlood{
@@ -115,7 +115,7 @@ public:
         const auto skillStr = BAK::ToString(skill);
         std::stringstream ss;
         if (unseenIprovement)
-            ss << "\xf4";
+            ss << "\xf5";
         else
             ss << "#";
 

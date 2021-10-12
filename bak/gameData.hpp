@@ -287,6 +287,20 @@ public:
             + skill);
     }
 
+    void ClearUnseenImprovements(unsigned character)
+    {
+        constexpr auto maxSkills = 0x11;
+        for (unsigned i = 0; i < maxSkills; i++)
+        {
+            const auto flag = 
+                sSkillImprovementEventFlag
+                + (character * maxSkills)
+                + i;
+
+            SetEventFlag(false, flag);
+        }
+    }
+
     unsigned ReadComplexEvent(unsigned eventPtr) const
     {
         // the left over of divisor maybe is nibble?

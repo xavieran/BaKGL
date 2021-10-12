@@ -8,6 +8,7 @@
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/portrait.hpp"
+#include "gui/ratings.hpp"
 #include "gui/widget.hpp"
 #include "gui/skills.hpp"
 
@@ -57,7 +58,7 @@ public:
     {
         auto textures = Graphics::TextureStore{};
         BAK::TextureFactory::AddScreenToTextureStore(
-            textures, "DIALOG.SCX", "INVENTOR.PAL");
+            textures, "OPTIONS1.SCX", "INVENTOR.PAL");
 
         const auto normalOffset = textures.size();
 
@@ -111,6 +112,15 @@ public:
                         sCharacterFlavourDialog, false, &mDialogScene);
                 }
             );
+
+            mRatings.emplace(
+                glm::vec2{x + data.width + 4, y},
+                glm::vec2{222, data.height},
+                mFont,
+                mSpriteSheet,
+                pressedOffset + 25,
+                pressedOffset + 26
+            );
         }
 
         mSkills.emplace(
@@ -146,9 +156,11 @@ public:
     void UpdateCharacter()
     {
         assert(mSkills);
-        const auto& character = mGameState.GetParty().mCharacters[mSelectedCharacter];
+        auto& character = mGameState.GetParty().mCharacters[mSelectedCharacter];
         mSkills->UpdateSkills(mFont, character.mSkills);
         mPortrait->SetCharacter(mSelectedCharacter, character.mName);
+        mRatings->SetCharacter(character.mSkills, character.mConditions);
+        character.mSkills.ClearUnseenImprovements();
     }
 
     void ToggleSkill(BAK::SkillType skill)
@@ -173,6 +185,8 @@ public:
         AddChildBack(&(*mSkills));
         assert(mPortrait);
         AddChildBack(&(*mPortrait));
+        assert(mRatings);
+        AddChildBack(&(*mRatings));
     }
 
 private:
@@ -185,6 +199,7 @@ private:
     std::vector<Widget> mElements;
     std::vector<ClickButton> mButtons;
     std::optional<Portrait> mPortrait;
+    std::optional<Ratings> mRatings;
     std::optional<Skills> mSkills;
 
     const Logging::Logger& mLogger;

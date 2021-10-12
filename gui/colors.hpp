@@ -16,6 +16,10 @@ constexpr auto fontLowlight     = glm::vec4{.302, .110, .094, 1};
 constexpr auto fontUnbold       = glm::vec4{.333, .271, .173, 1};
 constexpr auto fontEmphasis     = glm::vec4{.094, .125, .204, 1};
 
+constexpr auto fontWhiteHighlight = glm::vec4{.969, .780, .651, 1};
+constexpr auto fontRedHighlight   = glm::vec4{.620, .188, .188, 1};
+constexpr auto fontRedLowlight    = glm::vec4{.255, .016, .031, 1};
+
 constexpr auto infoBackground   = glm::vec4{.125, .110, .094, 1};
 
 constexpr auto buttonBackground = glm::vec4{.604, .427, .220, 1};

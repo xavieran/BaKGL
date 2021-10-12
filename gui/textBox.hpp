@@ -101,7 +101,9 @@ public:
         auto italic   = false;
         auto emphasis = false;
         auto bold     = false;
-        auto unbold     = false;
+        auto unbold   = false;
+        auto red      = false;
+        auto white    = false;
         auto inWord   = false;
 
         const auto NextLine = [&]{
@@ -118,6 +120,8 @@ public:
 
             italic = false;
             unbold = false;
+            red = false;
+            white = false;
             emphasis = false;
             inWord = false;
         };
@@ -185,6 +189,31 @@ public:
                 Color::fontUnbold);
         };
 
+        const auto DrawRed = [&](const auto& pos, auto c)
+        {
+            Draw(
+                charPos + glm::vec2{1, 1},
+                c,
+                Color::fontRedLowlight);
+
+            Draw(
+                charPos,
+                c,
+                Color::fontRedHighlight);
+        };
+
+        const auto DrawWhite= [&](const auto& pos, auto c)
+        {
+            Draw(
+                charPos + glm::vec2{1, 1},
+                c,
+                Color::black);
+
+            Draw(
+                charPos,
+                c,
+                Color::fontWhiteHighlight);
+        };
         
         unsigned currentChar = 0;
         for (; currentChar < text.size(); currentChar++)
@@ -213,6 +242,14 @@ public:
             else if (c == static_cast<char>(0xf4))
             {
                 unbold = !unbold;
+            }
+            else if (c == static_cast<char>(0xf5))
+            {
+                red = !red;
+            }
+            else if (c == static_cast<char>(0xf6))
+            {
+                white = !white;
             }
             else if (c == static_cast<char>(0xf0))
             {
@@ -245,6 +282,14 @@ public:
                 {
                     // Maybe "lowlight", inactive
                     DrawUnbold(charPos, c);
+                }
+                else if (red)
+                {
+                    DrawRed(charPos, c);
+                }
+                else if (white)
+                {
+                    DrawWhite(charPos, c);
                 }
                 else if (emphasis)
                 {

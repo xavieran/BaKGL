@@ -1,17 +1,5 @@
 #pragma once
 
-#include "bak/coordinates.hpp"
-#include "bak/hotspot.hpp"
-#include "bak/scene.hpp"
-#include "bak/sceneData.hpp"
-#include "bak/textureFactory.hpp"
-
-#include "graphics/IGuiElement.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/sprites.hpp"
-
-#include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
 #include "gui/actors.hpp"
 #include "gui/colors.hpp"
 #include "gui/label.hpp"
@@ -115,13 +103,14 @@ public:
         mClipRegion.AddChildBack(&mBottomBorder);
 
         AddChildBack(&mLabel);
-        mLabel.SetCenter(glm::vec2{35, 72});
     }
 
     void SetCharacter(unsigned character, std::string_view name)
     {
         mLogger.Debug() << "Setting char: " << character << " " << name <<"\n";
-        mLabel.SetText(name);
+        const auto s = "#" + std::string{name};
+        mLabel.SetText(s);
+        mLabel.SetCenter(glm::vec2{35, 72});
         const auto& [texture, dims] = mActors.GetActorA(character + 1);
         mPortrait.SetTexture(texture);
     }

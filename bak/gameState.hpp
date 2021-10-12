@@ -264,6 +264,15 @@ public:
         mContextValue = contextValue;
     }
 
+    void ClearUnseenImprovements(unsigned character)
+    {
+        if (mGameData)
+        {
+            mGameData->ClearUnseenImprovements(character);
+        }
+
+    }
+
     Character mPartyLeader;
     Character mPartyFollower;
     GameData* mGameData;

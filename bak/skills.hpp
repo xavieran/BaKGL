@@ -51,6 +51,13 @@ struct Skills
     using SkillArray = std::array<Skill, sSkills>;
     SkillArray mSkills;
 
+    const Skill& GetSkill(BAK::SkillType skill) const
+    {
+        const auto i = static_cast<unsigned>(skill);
+        ASSERT(i < sSkills);
+        return mSkills[i];
+    }
+
     Skill& GetSkill(BAK::SkillType skill)
     {
         const auto i = static_cast<unsigned>(skill);
@@ -62,6 +69,12 @@ struct Skills
     {
         auto& skill = GetSkill(skillType);
         skill.mSelected = !skill.mSelected;
+    }
+
+    void ClearUnseenImprovements()
+    {
+        for (auto& skill : mSkills)
+            skill.mUnseenImprovement = false;
     }
 };
 

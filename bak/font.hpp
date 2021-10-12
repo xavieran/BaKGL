@@ -36,7 +36,7 @@ public:
     {
         if (!(mFirstChar <= c))
         {
-            std::cout << "BAD:{" << +c << "}\n";
+            std::cout << "BAD:{" << std::dec << +c << "}\n";
         }
         assert(mFirstChar <= c);
         return c - mFirstChar;
