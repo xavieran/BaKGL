@@ -24,11 +24,13 @@ enum class Condition
 
 std::string_view ToString(Condition);
 
+using ConditionValue = SaturatingNum<std::uint8_t, 0, 100>;
+
 class Conditions
 {
 public:
     static constexpr auto sNumConditions = 7;
-    std::array<std::uint8_t, sNumConditions> mConditions;
+    std::array<ConditionValue, sNumConditions> mConditions;
 
     bool NoConditions() const
     {
@@ -37,7 +39,7 @@ public:
         return true;
     }
 
-    unsigned GetCondition(BAK::Condition cond) const
+    const ConditionValue& GetCondition(BAK::Condition cond) const
     {
         const auto i = static_cast<unsigned>(cond);
         ASSERT(i < sNumConditions);
@@ -48,19 +50,7 @@ public:
     {
         const auto i = static_cast<unsigned>(cond);
         ASSERT(i < sNumConditions);
-        const int newVal = mConditions[i] + value;
-        if (newVal > std::numeric_limits<std::uint8_t>::max())
-        {
-            mConditions[i] = 100;
-        }
-        else if (newVal < 0)
-        {
-            mConditions[i] = 0;
-        }
-        else
-        {
-            mConditions[i] = newVal;
-        }
+        mConditions[i] += value;
     }
 };
 

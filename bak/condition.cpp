@@ -24,7 +24,7 @@ std::ostream& operator<<(std::ostream& os, const Conditions& s)
     for (unsigned i = 0; i < Conditions::sNumConditions; i++)
     {
         os << sep << ToString(static_cast<Condition>(i)) 
-            << ": " << +s.mConditions[i] << "%";
+            << ": " << s.mConditions[i] << "%";
         sep = ',';
     }
     os << "}";
