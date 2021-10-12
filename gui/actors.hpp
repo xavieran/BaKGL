@@ -24,10 +24,12 @@ public:
     :
         mSpriteSheet{spriteManager.AddSpriteSheet()},
         mActorDimensions{},
+        mActorADimensions{},
         mLogger{Logging::LogState::GetLogger("Gui::Actors")}
     {
         auto textures = Graphics::TextureStore{};
 
+        unsigned textureIndex = 0;
         for (unsigned i = 1; i < 54; i++)
         {
             std::stringstream actN{};
@@ -35,27 +37,43 @@ public:
 
             std::stringstream pal{};
             pal << actN.str() << ".PAL";
-            
-            // Add all alternates ... "A"
-            if (   i ==  9 
-                || i == 12 
-                || i == 18
-                || i == 30)
-                actN << "A";
 
-            std::stringstream bmx{};
-            bmx << actN.str() << ".BMX";
-            mLogger.Debug() << "Loading: " << bmx.str() << " " << pal.str() << std::endl;
-            BAK::TextureFactory::AddToTextureStore(
-                textures, bmx.str(), pal.str());
+            {
+                if (   i ==  9 
+                    || i == 12 
+                    || i == 18
+                    || i == 30)
+                    actN << "A";
+
+                std::stringstream bmx{};
+                bmx << actN.str() << ".BMX";
+                mLogger.Debug() << "Loading: " << bmx.str() << " " << pal.str() << std::endl;
+                BAK::TextureFactory::AddToTextureStore(
+                    textures, bmx.str(), pal.str());
+                const auto [x, y] = textures.GetTexture(textureIndex).GetDims();
+                mActorDimensions.emplace_back(std::make_pair(textureIndex, glm::vec2{x, y}));
+                textureIndex++;
+            }
+
+            // Add all alternates ... "A"
+            if (i  < 7)
+            {
+                actN << "A";
+                std::stringstream bmx{};
+                bmx << actN.str() << ".BMX";
+                mLogger.Debug() << "Loading alternate: " << bmx.str() << " " << pal.str() << std::endl;
+                BAK::TextureFactory::AddToTextureStore(
+                    textures, bmx.str(), pal.str());
+                const auto [x, y] = textures.GetTexture(textureIndex).GetDims();
+                mActorADimensions.emplace(
+                    i,
+                    std::make_pair(textureIndex, glm::vec2{x, y}));
+                textureIndex++;
+            }
         }
 
         auto& spriteSheet = spriteManager.GetSpriteSheet(mSpriteSheet);
         spriteSheet.LoadTexturesGL(textures);
-
-        for (unsigned i = 1; i < 54; i++)
-            mActorDimensions.emplace_back(
-                spriteSheet.GetDimensions(i - 1));
     }
 
     Graphics::SpriteSheetIndex GetSpriteSheet() const
@@ -70,14 +88,24 @@ public:
     {
         unsigned index = actor - 1;
         assert(index < mActorDimensions.size());
-        return std::make_pair(
-            index,
-            mActorDimensions[index]);
+        return mActorDimensions[index];
+    }
+
+    std::pair<
+        Graphics::TextureIndex,
+        glm::vec2>
+    GetActorA(unsigned actor) const
+    {
+        assert(mActorADimensions.contains(actor));
+        return mActorADimensions.find(actor)->second;
     }
 
 private:
     Graphics::SpriteSheetIndex mSpriteSheet;
-    std::vector<glm::vec2> mActorDimensions;
+    std::vector<std::pair<Graphics::TextureIndex, glm::vec2>> mActorDimensions;
+    std::unordered_map<
+        unsigned,
+        std::pair<Graphics::TextureIndex, glm::vec2>> mActorADimensions;
 
     const Logging::Logger& mLogger;
 };

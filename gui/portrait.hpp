@@ -122,7 +122,7 @@ public:
     {
         mLogger.Debug() << "Setting char: " << character << " " << name <<"\n";
         mLabel.SetText(name);
-        const auto& [texture, dims] = mActors.GetActor(character + 1);
+        const auto& [texture, dims] = mActors.GetActorA(character + 1);
         mPortrait.SetTexture(texture);
     }
 
