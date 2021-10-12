@@ -76,6 +76,17 @@ struct Skills
         for (auto& skill : mSkills)
             skill.mUnseenImprovement = false;
     }
+
+    void ImproveSkill(BAK::SkillType skill, unsigned value)
+    {
+        auto& s = GetSkill(skill);
+        // FIXME: Check for overflow...
+        // FIXME: Account for whether this skill is selected or not...
+        s.mMax += value; 
+        s.mCurrent += value;
+        s.mLimit += value;
+        s.mUnseenImprovement = true;
+    }
 };
 
 std::ostream& operator<<(std::ostream&, const Skills&);

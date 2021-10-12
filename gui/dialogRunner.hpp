@@ -155,13 +155,8 @@ public:
                     mLogger.Debug() << "Pushing: " << push.mTarget << "\n";
                     mTargetStack.push(push.mTarget);
                 },
-                [&](const BAK::SetFlag& set)
-                {
-                    mLogger.Debug() << "Setting flag of event: " << BAK::DialogAction{set} << "\n";
-                    mGameState.SetEventState(set);
-                },
                 [&](const auto& a){
-                    mLogger.Debug() << "Doing nothing for: " << a << "\n";
+                    mGameState.EvaluateAction(BAK::DialogAction{action});
                 }},
                 action);
         }

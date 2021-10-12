@@ -33,7 +33,8 @@ public:
             Inventory{},
             {},
             {}},
-        mContextValue{0}
+        mContextValue{0},
+        mLogger{Logging::LogState::GetLogger("BAK::GameState")}
     {}
 
     const Party& GetParty() const
@@ -108,6 +109,42 @@ public:
     const Character& GetPartyFollower()
     {
         return mPartyFollower;
+    }
+
+    void EvaluateAction(const DialogAction& action)
+    {
+        std::visit(overloaded{
+            [&](const BAK::SetFlag& set)
+            {
+                mLogger.Debug() << "Setting flag of event: " << BAK::DialogAction{set} << "\n";
+                SetEventState(set);
+            },
+            [&](const BAK::GainSkill& skill)
+            {
+                // FIXME: Implement if this skill only improves for one character
+                //        Figure out what to do with mValue0,2,3 
+                auto& party = GetParty();
+                for (const auto c : party.mActiveCharacters)
+                {
+                    party.mCharacters[c].mSkills.ImproveSkill(
+                        skill.mSkill,
+                        skill.mValue1);
+                }
+            },
+            [&](const BAK::GainCondition& cond)
+            {
+                // FIXME: Implement if this condition only changes for one character
+                auto& party = GetParty();
+                for (const auto c : party.mActiveCharacters)
+                {
+                    party.mCharacters[c].mConditions.IncreaseCondition(
+                        cond.mCondition, cond.mValue1);
+                }
+            },
+            [&](const auto& a){
+                mLogger.Debug() << "Doing nothing for: " << a << "\n";
+            }},
+            action);
     }
 
     bool EvaluateGameStateChoice(const GameStateChoice& choice) const
@@ -279,6 +316,7 @@ public:
     Party mParty;
     unsigned mContextValue;
     std::unordered_map<unsigned, bool> mEventState;
+    const Logging::Logger& mLogger;
 };
 
 }

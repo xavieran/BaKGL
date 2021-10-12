@@ -1,9 +1,11 @@
 #pragma once
 
 #include "com/assert.hpp"
+#include "com/saturatingNum.hpp"
 
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <ostream>
 #include <string_view>
 
@@ -40,6 +42,25 @@ public:
         const auto i = static_cast<unsigned>(cond);
         ASSERT(i < sNumConditions);
         return mConditions[i];
+    }
+
+    void IncreaseCondition(BAK::Condition cond, signed value)
+    {
+        const auto i = static_cast<unsigned>(cond);
+        ASSERT(i < sNumConditions);
+        const int newVal = mConditions[i] + value;
+        if (newVal > std::numeric_limits<std::uint8_t>::max())
+        {
+            mConditions[i] = 100;
+        }
+        else if (newVal < 0)
+        {
+            mConditions[i] = 0;
+        }
+        else
+        {
+            mConditions[i] = newVal;
+        }
     }
 };
 
