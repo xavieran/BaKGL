@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <limits>
 #include <ostream>
 
@@ -31,18 +32,12 @@ public:
 
     SelfType& operator=(int rhs)
     {
-        if (rhs > max)
-        {
-            mValue = max;
-        }
-        else if (rhs < min)
-        {
-            mValue = min;
-        }
-        else
-        {
-            mValue = rhs;
-        }
+        mValue = static_cast<T>(
+            std::clamp(
+                rhs,
+                static_cast<int>(min), 
+                static_cast<int>(max)));
+
         return *this;
     }
 
