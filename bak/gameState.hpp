@@ -34,6 +34,7 @@ public:
             {},
             {}},
         mContextValue{0},
+        mSkillValue{0},
         mLogger{Logging::LogState::GetLogger("BAK::GameState")}
     {}
 
@@ -141,6 +142,11 @@ public:
                         cond.mCondition, cond.mValue1);
                 }
             },
+            [&](const BAK::LoadSkillValue& load)
+            {
+                const auto [character, value] = GetParty().GetSkill(load.mSkill, load.mTarget == 1);
+                mSkillValue = value;
+            },
             [&](const auto& a){
                 mLogger.Debug() << "Doing nothing for: " << a << "\n";
             }},
@@ -150,7 +156,7 @@ public:
     bool EvaluateGameStateChoice(const GameStateChoice& choice) const
     {
         Logging::LogDebug(__FUNCTION__) << "Choice: " 
-            << Choice{choice} << " time: " << GetTime() << "\n";
+            << Choice{choice} << " contextVar: " << mContextValue << " time: " << GetTime() << "\n";
         if (choice.mState == BAK::ActiveStateFlag::Chapter
             && (GetChapter() >= choice.mExpectedValue
                 && GetChapter() <= choice.mExpectedValue2))
@@ -159,6 +165,11 @@ public:
         }
         else if (choice.mState == BAK::ActiveStateFlag::Context
             && mContextValue == choice.mExpectedValue)
+        {
+            return true;
+        }
+        else if (choice.mState == BAK::ActiveStateFlag::SkillCheck
+            && mSkillValue >= choice.mExpectedValue)
         {
             return true;
         }
@@ -315,6 +326,7 @@ public:
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue;
+    unsigned mSkillValue;
     std::unordered_map<unsigned, bool> mEventState;
     const Logging::Logger& mLogger;
 };

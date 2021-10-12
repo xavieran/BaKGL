@@ -71,6 +71,8 @@ std::vector<FixedObject> LoadFixedObjects(
                     fb.GetUint8(),
                     static_cast<char>(
                         fb.GetUint8() + 0x40)};
+                if (hotspotRef == HotspotRef{0, 0x40})
+                    hotspotRef.reset();
                 fb.DumpAndSkip(3);
             }
 

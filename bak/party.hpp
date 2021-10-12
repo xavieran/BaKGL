@@ -2,6 +2,8 @@
 
 #include "bak/character.hpp"
 
+#include "com/assert.hpp"
+
 #include <vector>
 
 namespace BAK {
@@ -27,6 +29,26 @@ public:
         if (++i == mActiveCharacters.size())
             i = 0;
         return mActiveCharacters[i];
+    }
+
+    std::pair<CharacterIndex, unsigned> GetSkill(BAK::SkillType skill, bool best)
+    {
+        std::optional<unsigned> skillValue{};
+        CharacterIndex character = 0;
+        for (unsigned i = 0; i < mActiveCharacters.size(); i++)
+        {
+            const auto charSkill = mCharacters[i].mSkills.GetSkill(skill).mCurrent;
+            if (!skillValue
+                || best
+                    ? charSkill > skillValue
+                    : charSkill < skillValue)
+            {
+                skillValue = charSkill;
+                character = i;
+            }
+        }
+        ASSERT(skillValue);
+        return std::make_pair(character, *skillValue);
     }
 };
 
