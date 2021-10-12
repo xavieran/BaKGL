@@ -18,7 +18,7 @@ public:
     constexpr StrongType(ConcreteType&&) noexcept = default;
     constexpr ConcreteType& operator=(ConcreteType&&) noexcept = default;
 
-    auto operator<=>(const ConcreteType&) const = default;
+    constexpr auto operator<=>(const ConcreteType&) const = default;
 
     UnderlyingType mValue;
 };
@@ -26,7 +26,7 @@ public:
 template <typename UnderlyingType, typename Tag>
 std::ostream& operator<<(std::ostream& os, const StrongType<UnderlyingType, Tag>& s)
 {
-    return os << s.mValue;
+    return os << +s.mValue;
 }
 
 namespace std {

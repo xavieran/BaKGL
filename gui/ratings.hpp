@@ -137,7 +137,7 @@ public:
                     const auto value = conditions.GetCondition(type);
                     if (value != 0)
                     {
-                        ss << "\xf5  " << BAK::ToString(type) << " (" << +value << "%)\n";
+                        ss << "\xf5  " << BAK::ToString(type) << " (" << value << "%)\n";
                     }
                 }
             }
