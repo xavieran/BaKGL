@@ -314,7 +314,8 @@ public:
         mTile{x, y},
         mTileIndex{tileIndex},
         mItemInsts{},
-        mEncounters{}
+        mEncounters{},
+        mEmpty{}
     {
         LoadWorld(zoneItems, ef, x, y, tileIndex);
     }
@@ -351,11 +352,9 @@ public:
             {
                 auto fb = FileBufferFactory::CreateFileBuffer(
                     zoneItems.GetZoneLabel().GetTileData(x, y));
-                constexpr auto chapter = 1;
-                mEncounters = BAK::Encounter::LoadEncounters(
+                mEncounters = Encounter::EncounterStore(
                     ef,
                     fb,
-                    chapter,
                     mTile,
                     mTileIndex);
             }
@@ -368,7 +367,13 @@ public:
 
     const auto& GetTile() const { return mTile; }
     const auto& GetItems() const { return mItemInsts; }
-    const auto& GetEncounters() const { return mEncounters; }
+    const auto& GetEncounters(unsigned chapter) const
+    {
+        if (mEncounters)
+            return mEncounters->GetEncounters(chapter);
+        else
+            return mEmpty;
+    }
     auto GetCenter() const
     {
         return mCenter.value_or(
@@ -381,7 +386,8 @@ private:
     unsigned mTileIndex;
 
     std::vector<WorldItemInstance> mItemInsts;
-    std::vector<Encounter::Encounter> mEncounters;
+    std::optional<Encounter::EncounterStore> mEncounters;
+    std::vector<Encounter::Encounter> mEmpty;
 };
 
 

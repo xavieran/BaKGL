@@ -48,8 +48,9 @@ int main(int argc, char** argv)
         logger.Info() << "Item: " << name << " loc: " << item.GetLocation() << std::endl;
     }
 
-    logger.Info() << "Encounters: " << world.GetEncounters().size() << "\n";
-    for (const auto& encounter : world.GetEncounters())
+    constexpr auto chapter = 1;
+    logger.Info() << "Encounters: " << world.GetEncounters(chapter).size() << "\n";
+    for (const auto& encounter : world.GetEncounters(chapter))
     {
         logger.Info() << "Encounter: " << encounter << "\n";
     }

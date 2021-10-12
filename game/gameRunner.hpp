@@ -78,7 +78,7 @@ public:
 
         for (const auto& world : mZoneData.mWorldTiles.GetTiles())
         {
-            for (const auto& enc : world.GetEncounters())
+            for (const auto& enc : world.GetEncounters(mGameState.GetChapter()))
             {
                 auto id = mSystems.GetNextItemId();
                 const auto dims = enc.GetDims();

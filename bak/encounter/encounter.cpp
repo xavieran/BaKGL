@@ -226,4 +226,31 @@ EncounterT EncounterFactory::MakeEncounter(
     }
 }
 
+EncounterStore::EncounterStore(
+    const EncounterFactory& ef,
+    FileBuffer& fb,
+    glm::vec<2, unsigned> tile,
+    unsigned tileIndex)
+:
+    mChapters{}
+{
+    mChapters.reserve(10);
+    for (unsigned chapter = 1; chapter <= 10; chapter++)
+    {
+        mChapters.emplace_back(
+            LoadEncounters(
+                ef,
+                fb,
+                chapter,
+                tile,
+                tileIndex));
+    }
+}
+
+const std::vector<Encounter>& EncounterStore::GetEncounters(unsigned chapter) const
+{
+    assert(chapter > 0 && chapter < 10);
+    return mChapters[chapter - 1];
+}
+
 }

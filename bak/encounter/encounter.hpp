@@ -161,6 +161,23 @@ public:
 
 std::ostream& operator<<(std::ostream&, const Encounter&);
 
+class EncounterStore
+{
+public:
+    EncounterStore(
+        const EncounterFactory&,
+        FileBuffer& fb,
+        glm::vec<2, unsigned> tile,
+        unsigned tileIndex);
+    
+    const std::vector<Encounter>& GetEncounters(
+        unsigned chapter) const;
+    
+private:
+    std::vector<
+        std::vector<Encounter>> mChapters;
+};
+
 std::vector<Encounter> LoadEncounters(
     const EncounterFactory&,
     FileBuffer& fb,

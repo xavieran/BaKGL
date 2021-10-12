@@ -160,6 +160,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
+        mGameState.SetDialogContext(mSceneHotspots.mTempleIndex);
         StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
