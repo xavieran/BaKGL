@@ -4,14 +4,7 @@
 #include "bak/coordinates.hpp"
 #include "bak/fixedObject.hpp"
 #include "bak/gameData.hpp"
-#include "bak/palette.hpp"
 #include "bak/screens.hpp"
-#include "bak/encounter/block.hpp"
-#include "bak/encounter/combat.hpp"
-#include "bak/encounter/encounter.hpp"
-#include "bak/encounter/zone.hpp"
-#include "bak/worldFactory.hpp"
-#include "bak/zone.hpp"
 
 #include "com/logger.hpp"
 #include "com/visit.hpp"
@@ -137,11 +130,13 @@ int main(int argc, char** argv)
         height / guiScalar};
         
     auto gameState = BAK::GameState{gameData};
+
     auto guiManager = Gui::GuiManager{
         root.GetCursor(),
         spriteManager,
         gameState
     };
+
     guiManager.EnterMainView();
 
     root.AddChildFront(&guiManager);
@@ -168,6 +163,10 @@ int main(int argc, char** argv)
             renderer.LoadData(zoneData.mObjects, zoneData.mZoneTextures);
         }};
 
+    // Wire up the zone loader to the GUI manager
+    guiManager.SetZoneLoader(&gameRunner);
+    gameRunner.LoadZoneData(zoneLabel.GetZoneNumber());
+
     if (startPosition == glm::vec<3, float>{0,0,0})
         startPosition = gameRunner.mZoneData->mWorldTiles.GetTiles().front().GetCenter();
 
@@ -176,9 +175,9 @@ int main(int argc, char** argv)
     camera.SetPosition(startPosition);
     camera.SetAngle(startHeading);
 
-    gameRunner.LoadZone(zoneLabel.GetZoneNumber());
 
     Graphics::InputHandler inputHandler{};
+
     inputHandler.Bind(GLFW_KEY_UP, [&]{ camera.StrafeForward(); });
     inputHandler.Bind(GLFW_KEY_DOWN, [&]{ camera.StrafeBackward(); });
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{ camera.StrafeLeft(); });
@@ -233,6 +232,7 @@ int main(int argc, char** argv)
         {
             root.OnMouseEvent(
                 Gui::RightMouseRelease{guiScaleInv * click});
+            gameRunner.DoTeleport(BAK::TeleportIndex{26});
         }
     );
 

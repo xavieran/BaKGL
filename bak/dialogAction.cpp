@@ -21,7 +21,8 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::PlaySound: return os << "PlaySound";
         case DialogResult::ElapseTime: return os << "ElapseTime";
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
-        case DialogResult::Transition: return os << "Transition";
+        case DialogResult::Teleport: return os << "Teleport";
+        case DialogResult::LearnSpell: return os << "LearnSpell";
         default: return os << "(" << static_cast<unsigned>(d) << ")";
     }
 }
@@ -40,9 +41,9 @@ std::ostream& operator<<(std::ostream& os, const ElapseTime& action)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Transition& action)
+std::ostream& operator<<(std::ostream& os, const Teleport& action)
 {
-    os << "Transition{ Index: " << action.mIndex << " }";
+    os << "Teleport{ Index: " << action.mIndex << " }";
     return os;
 }
 

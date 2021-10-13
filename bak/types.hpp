@@ -14,5 +14,6 @@ using AdsSceneIndex = std::uint16_t;
 using ItemIndex = StrongType<unsigned, struct ItemIndexTag>;
 using ZoneNumber = StrongType<unsigned, struct ZoneNumberTag>;
 using ZoneTransitionIndex = StrongType<unsigned, struct ZoneTransitionIndexTag>;
+using TeleportIndex = StrongType<unsigned, struct TeleportIndexTag>;
 
 }

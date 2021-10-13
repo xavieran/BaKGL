@@ -1,5 +1,6 @@
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
+#include "bak/encounter/teleport.hpp"
 #include "bak/font.hpp"
 #include "bak/gameState.hpp"
 #include "bak/hotspot.hpp"
@@ -57,6 +58,18 @@
 #include <sstream>
 
 #include <getopt.h>
+
+struct DummyZoneLoader : public BAK::IZoneLoader
+{
+public:
+
+    void DoTeleport(BAK::TeleportIndex i) override
+    {
+        Logging::LogDebug("DummyZoneLoader") << "Teleporting to: " << mTeleportFactory.Get(i.mValue) << "\n";
+    }
+
+    BAK::Encounter::TeleportFactory mTeleportFactory;
+};
 
 int main(int argc, char** argv)
 {
@@ -133,6 +146,9 @@ int main(int argc, char** argv)
         spriteManager,
         gameState
     };
+
+    DummyZoneLoader zoneLoader{};
+    guiManager.SetZoneLoader(&zoneLoader);
 
     rootWidget.AddChildFront(&guiManager);
 

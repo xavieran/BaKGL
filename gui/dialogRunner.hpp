@@ -70,6 +70,7 @@ public:
         mCurrentTarget{},
         mCurrentDialog{},
         mLastChoice{},
+        mPendingZoneTeleport{},
         mRemainingText{""},
         mDialogDisplay{pos, dims, actors, bgs, fr, gameState},
         mFinished{finished},
@@ -86,6 +87,13 @@ public:
     }
 
     const std::optional<BAK::ChoiceIndex>& GetLastChoice() const { return mLastChoice; }
+
+    std::optional<BAK::TeleportIndex> GetAndResetPendingTeleport()
+    {
+        auto tmp = mPendingZoneTeleport;
+        mPendingZoneTeleport.reset();
+        return tmp;
+    }
 
 
     void SetDialogScene(IDialogScene* dialogScene)
@@ -154,6 +162,10 @@ public:
                 [&](const BAK::PushNextDialog& push){
                     mLogger.Debug() << "Pushing: " << push.mTarget << "\n";
                     mTargetStack.push(push.mTarget);
+                },
+                [&](const BAK::Teleport& teleport){
+                    mLogger.Debug() << "Teleporting to zoneIndex: " << teleport.mIndex << "\n";
+                    mPendingZoneTeleport = teleport.mIndex;
                 },
                 [&](const auto& a){
                     mGameState.EvaluateAction(BAK::DialogAction{action});
@@ -476,6 +488,7 @@ private:
     std::optional<BAK::Target> mCurrentTarget;
     std::optional<BAK::DialogSnippet> mCurrentDialog;
     std::optional<BAK::ChoiceIndex> mLastChoice;
+    std::optional<BAK::TeleportIndex> mPendingZoneTeleport;
     std::stack<BAK::Target> mTargetStack;
 
     std::string mRemainingText;

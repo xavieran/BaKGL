@@ -34,8 +34,9 @@ enum class DialogResult
     // Push this Key/Offset to the dialog queue
     // i.e. when the current dialog is finished, we enter this dialog
     PushNextDialog = 0x10,
-    // Transition to another location? e.g. sewer dialog 231861
-    Transition = 0x14,
+    LearnSpell = 0x13,
+    // Teleport to another location? e.g. sewer dialog 231861
+    Teleport = 0x14,
     // 18 - seems to remove/move mney at a chapter transition
     // 17 - maybe moves party members around? e.g. at chapter transition
 };
@@ -140,11 +141,10 @@ struct PushNextDialog
     std::array<std::uint8_t, 4> mRest;
 };
 
-struct Transition
+struct Teleport
 {
-    ZoneTransitionIndex mIndex;
+    TeleportIndex mIndex;
 };
-
 
 struct UnknownAction
 {
@@ -158,7 +158,6 @@ struct UnknownAction
 
     DialogResult mType;
     std::array<std::uint8_t, 8> mRest;
-
 };
 
 using DialogAction = std::variant<
@@ -172,7 +171,7 @@ using DialogAction = std::variant<
     GainSkill,
     LoadSkillValue,
     PushNextDialog,
-    Transition,
+    Teleport,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);

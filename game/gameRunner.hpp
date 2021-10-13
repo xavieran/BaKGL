@@ -2,8 +2,10 @@
 
 #include "game/systems.hpp"
 
+#include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
 #include "bak/encounter/encounter.hpp"
+#include "bak/encounter/teleport.hpp"
 #include "bak/zone.hpp"
 
 #include "gui/guiManager.hpp"
@@ -11,7 +13,7 @@
 
 namespace Game {
 
-class GameRunner
+class GameRunner : public BAK::IZoneLoader
 {
 public:
     GameRunner(
@@ -35,15 +37,36 @@ public:
         mClickables{},
         mSystems{nullptr},
         mSavedAngle{0},
-        mLoadRenderer{std::move(loadRenderer)}
+        mLoadRenderer{std::move(loadRenderer)},
+        mTeleportFactory{}
     {
     }
 
-    void LoadZone(unsigned zone)
+    void DoTeleport(BAK::TeleportIndex teleIndex) override
+    {
+        const auto& teleport = mTeleportFactory.Get(teleIndex.mValue);
+        if (teleport.mTargetZone)
+            DoTransition(
+                teleport.mTargetZone->mValue,
+                teleport.mTargetLocation);
+
+        if (teleport.mTargetGDSScene)
+            mGuiManager.TeleportToGDS(*teleport.mTargetGDSScene);
+    }
+
+    void LoadZoneData(unsigned zone)
     {
         mZoneData = std::make_unique<BAK::Zone>(zone);
         LoadSystems();
         mLoadRenderer(*mZoneData);
+    }
+
+    void DoTransition(
+        unsigned targetZone,
+        BAK::GamePositionAndHeading targetLocation)
+    {
+        LoadZoneData(targetZone);
+        mCamera.SetGameLocation(targetLocation);
     }
 
     void LoadSystems()
@@ -226,8 +249,9 @@ public:
                                     Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
                                     if (choice->mValue == BAK::Keywords::sYesIndex)
                                     {
-                                        LoadZone(zone.mTargetZone);
-                                        mCamera.SetGameLocation(zone.mTargetLocation);
+                                        DoTransition(
+                                            zone.mTargetZone,
+                                            zone.mTargetLocation);
                                     }
                                     mDynamicDialogScene.ResetDialogFinished();
                                 });
@@ -305,6 +329,7 @@ public:
     std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;
     std::function<void(const BAK::Zone&)>&& mLoadRenderer;
+    BAK::Encounter::TeleportFactory mTeleportFactory;
 
 };
 

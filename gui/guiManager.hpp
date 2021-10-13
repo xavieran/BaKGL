@@ -1,7 +1,10 @@
 #pragma once
 
+#include "bak/IZoneLoader.hpp"
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
+
+#include "com/assert.hpp"
 
 #include "gui/IGuiManager.hpp"
 
@@ -75,9 +78,28 @@ public:
         AddChildBack(&mScreenStack);
     }
 
+    void SetZoneLoader(BAK::IZoneLoader* zoneLoader)
+    {
+        ASSERT(zoneLoader);
+        mZoneLoader = zoneLoader;
+    }
+
     void EnterMainView()
     {
         mScreenStack.PushScreen(&mMainView);
+    }
+
+    void TeleportToGDS(
+        const BAK::HotspotRef& hotspot)
+    {
+        mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
+        // When teleporting we need to add the "root" GDS scene to the stack
+        // because it won't have been there
+        if (hotspot.mGdsNumber < 12 && hotspot.mGdsChar != 'A')
+            EnterGDSScene(
+                BAK::HotspotRef{hotspot.mGdsNumber, 'A'},
+                []{});
+        EnterGDSScene(hotspot, []{});
     }
 
     void EnterGDSScene(
@@ -102,11 +124,16 @@ public:
 
     void ExitGDSScene() override
     {
+        // Run the GDS scene exit fn
+        mGuiScreens.top().mFinished();
+        RemoveGDSScene();
+    }
+
+    void RemoveGDSScene()
+    {
         mScreenStack.PopChild();
         mCursor.PopCursor();
         mGdsScenes.pop_back();
-        // Run the GDS scene exit fn
-        mGuiScreens.top().mFinished();
         mGuiScreens.pop();
     }
 
@@ -131,6 +158,17 @@ public:
         mCursor.PopCursor();
         mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
         mDialogScene->DialogFinished(choice);
+        const auto teleport = mDialogRunner.GetAndResetPendingTeleport();
+        if (teleport)
+        {
+            mLogger.Info() << "Teleporting to teleport index: " << *teleport << "\n";
+            // Clear all stacked GDS scenes
+            while (!mGdsScenes.empty())
+                RemoveGDSScene();
+
+            if (mZoneLoader)
+                mZoneLoader->DoTeleport(*teleport);
+        }
     }
 
     void ShowCharacterPortrait(unsigned character) override
@@ -167,6 +205,8 @@ public:
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
     IDialogScene* mDialogScene;
     std::stack<GuiScreen> mGuiScreens;
+
+    BAK::IZoneLoader* mZoneLoader;
 
     const Logging::Logger& mLogger;
 };

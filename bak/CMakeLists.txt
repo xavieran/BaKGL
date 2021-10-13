@@ -8,6 +8,7 @@ add_library(bak
     encounter/dialog.hpp encounter/dialog.cpp
     encounter/disable.hpp
     encounter/enable.hpp
+    encounter/teleport.hpp encounter/teleport.cpp 
     encounter/town.hpp 
     encounter/trap.hpp
     encounter/zone.hpp encounter/zone.cpp
