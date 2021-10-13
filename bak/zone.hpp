@@ -40,6 +40,9 @@ public:
         mObjects.AddObject("GDSEntry", cube.ToMeshObject(glm::vec4{1.0, 0, 1, .3}));
         mObjects.AddObject("EventFlag", cube.ToMeshObject(glm::vec4{.0, .0, .7, .3}));
         mObjects.AddObject("Block", cube.ToMeshObject(glm::vec4{0,0,0, .3}));
+
+        const auto click = Graphics::Cuboid{1, 1, 50};
+        mObjects.AddObject("clickable", click.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));
     }
 
     

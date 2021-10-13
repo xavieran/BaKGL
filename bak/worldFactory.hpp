@@ -178,7 +178,15 @@ public:
             "spring",
             "fall",
             "landscp",
-            "m_"})
+            // Mine stuff
+            "m_r",
+            "m_1",
+            "m_2",
+            "m_3",
+            "m_4",
+            "m_b",
+            "m_c",
+            "m_h"})
         {
             if (mName.substr(0, s.length()) == s)
                 return false;

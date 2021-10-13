@@ -232,7 +232,7 @@ int main(int argc, char** argv)
         {
             root.OnMouseEvent(
                 Gui::RightMouseRelease{guiScaleInv * click});
-            gameRunner.DoTeleport(BAK::TeleportIndex{26});
+            gameRunner.ResetClickable();
         }
     );
 

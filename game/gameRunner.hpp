@@ -33,12 +33,14 @@ public:
         mZoneData{nullptr},
         mActiveEncounter{nullptr},
         mActiveClickable{nullptr},
+        mActiveClickable2{nullptr},
         mEncounters{},
         mClickables{},
         mSystems{nullptr},
         mSavedAngle{0},
         mLoadRenderer{std::move(loadRenderer)},
-        mTeleportFactory{}
+        mTeleportFactory{},
+        mClickablesEnabled{false}
     {
     }
 
@@ -76,6 +78,7 @@ public:
         mClickables.clear();
         mActiveEncounter = nullptr;
         mActiveClickable = nullptr;
+        mActiveClickable2 = nullptr;
 
         for (const auto& world : mZoneData->mWorldTiles.GetTiles())
         {
@@ -104,13 +107,14 @@ public:
                                 250,
                                 item.GetLocation()});
                         mClickables.emplace(id, &item);
-                        /*mSystems.AddRenderable(
+                        mSystems->AddRenderable(
                             Renderable{
                                 id,
-                                objectStore.GetObject("clickable"),
+                                mZoneData->mObjects.GetObject("clickable"),
                                 item.GetLocation(),
-                                item.GetRotation(),
-                                glm::vec3{item.GetZoneItem().GetScale()}});*/
+                                glm::vec3{1.0},
+                                glm::vec3{1.0}});
+
                     }
                 }
             }
@@ -266,9 +270,9 @@ public:
                 encounter);
         }
 
-        if (mActiveClickable)
+        if (mActiveClickable2)
         {
-            const auto bakLocation = mActiveClickable->GetBakLocation();
+            const auto bakLocation = mActiveClickable2->GetBakLocation();
 
             //const auto containers = 
             //auto cit = std::find_if(containers.begin(), containers.end(),
@@ -292,16 +296,23 @@ public:
                             }
                             mDynamicDialogScene.ResetDialogFinished();
                         });
+                    if (fit->mDialogKey != BAK::Target{BAK::KeyTarget{0}})
+                        mGuiManager.StartDialog(
+                            fit->mDialogKey,
+                            false,
+                            &mDynamicDialogScene);
+                    Logging::LogDebug(__FUNCTION__) << "ClickableFixedObject: " << *fit << "\n";
 
-                    mGuiManager.StartDialog(
-                        fit->mDialogKey,
-                        false,
-                        &mDynamicDialogScene);
                 }
             }
 
-            mActiveClickable = nullptr;
+            mActiveClickable2 = nullptr;
         }
+    }
+
+    void ResetClickable()
+    {
+        mActiveClickable = nullptr;
     }
 
     void CheckClickable()
@@ -312,7 +323,10 @@ public:
                 mCamera.GetPosition() + (mCamera.GetDirection() * 300.0f)));
 
         if (bestId)
+        {
             mActiveClickable = mClickables[*bestId];
+            mActiveClickable2 = mClickables[*bestId];
+        }
     }
 
     Camera& mCamera;
@@ -324,12 +338,15 @@ public:
 
     const BAK::Encounter::Encounter* mActiveEncounter;
     const BAK::WorldItemInstance* mActiveClickable;
+    const BAK::WorldItemInstance* mActiveClickable2;
     std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> mEncounters;
     std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> mClickables{};
     std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;
     std::function<void(const BAK::Zone&)>&& mLoadRenderer;
     BAK::Encounter::TeleportFactory mTeleportFactory;
+
+    bool mClickablesEnabled;
 
 };
 

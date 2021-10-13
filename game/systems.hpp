@@ -187,6 +187,15 @@ public:
         mRenderables.emplace_back(item);
     }
 
+    void RemoveRenderable(BAK::EntityIndex i)
+    {
+        auto it = std::find_if(
+            mRenderables.begin(), mRenderables.end(),
+            [i=i](const auto& r){ return r.GetId() == i; });
+        if (it != mRenderables.end())
+            mRenderables.erase(it);
+    }
+
     void AddSprite(const Renderable& item)
     {
         mSprites.emplace_back(item);
