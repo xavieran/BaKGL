@@ -129,6 +129,7 @@ public:
         mScreenStack.PopScreen(); // Dialog frame
         mScreenStack.PopScreen(); // Dialog runner
         mCursor.PopCursor();
+        mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
         mDialogScene->DialogFinished(choice);
     }
 

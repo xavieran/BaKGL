@@ -153,6 +153,13 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             mActions.emplace_back(
                 LoadSkillValue{target, skill});
         }
+        else if (dr == DialogResult::Transition)
+        {
+            const auto transitionIndex = fb.GetUint16LE();
+            fb.Skip(6);
+            mActions.emplace_back(
+                Transition{ZoneTransitionIndex{transitionIndex}});
+        }
         else if (dr == DialogResult::GiveItem)
         {
             const auto item = fb.GetUint8();

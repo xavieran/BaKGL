@@ -40,6 +40,13 @@ std::ostream& operator<<(std::ostream& os, const ElapseTime& action)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const Transition& action)
+{
+    os << "Transition{ Index: " << action.mIndex << " }";
+    return os;
+}
+
+
 std::ostream& operator<<(std::ostream& os, const LoseItem& action)
 {
     os << "LoseItem { what: " << action.mItemIndex 

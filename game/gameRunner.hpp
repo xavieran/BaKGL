@@ -15,10 +15,10 @@ class GameRunner
 {
 public:
     GameRunner(
-        unsigned zone,
         Camera& camera,
         BAK::GameState& gameState,
-        Gui::GuiManager& guiManager)
+        Gui::GuiManager& guiManager,
+        std::function<void(const BAK::Zone&)>&& loadRenderer)
     :
         mCamera{camera},
         mGameState{gameState},
@@ -28,37 +28,54 @@ public:
             [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
             [&](const auto&){ }
         },
-        mZoneLabel{zone},
-        mZoneData{zone},
+        mZoneData{nullptr},
         mActiveEncounter{nullptr},
         mActiveClickable{nullptr},
         mEncounters{},
         mClickables{},
-        mSystems{},
-        mSavedAngle{0}
+        mSystems{nullptr},
+        mSavedAngle{0},
+        mLoadRenderer{std::move(loadRenderer)}
     {
-        for (const auto& world : mZoneData.mWorldTiles.GetTiles())
+    }
+
+    void LoadZone(unsigned zone)
+    {
+        mZoneData = std::make_unique<BAK::Zone>(zone);
+        LoadSystems();
+        mLoadRenderer(*mZoneData);
+    }
+
+    void LoadSystems()
+    {
+        mSystems = std::make_unique<Systems>();
+        mEncounters.clear();
+        mClickables.clear();
+        mActiveEncounter = nullptr;
+        mActiveClickable = nullptr;
+
+        for (const auto& world : mZoneData->mWorldTiles.GetTiles())
         {
             for (const auto& item : world.GetItems())
             {
                 if (item.GetZoneItem().GetVertices().size() > 1)
                 {
-                    auto id = mSystems.GetNextItemId();
+                    auto id = mSystems->GetNextItemId();
                     auto renderable = Renderable{
                         id,
-                        mZoneData.mObjects.GetObject(item.GetZoneItem().GetName()),
+                        mZoneData->mObjects.GetObject(item.GetZoneItem().GetName()),
                         item.GetLocation(),
                         item.GetRotation(),
                         glm::vec3{item.GetZoneItem().GetScale()}};
 
                     if (item.GetZoneItem().IsSprite())
-                        mSystems.AddSprite(renderable);
+                        mSystems->AddSprite(renderable);
                     else
-                        mSystems.AddRenderable(renderable);
+                        mSystems->AddRenderable(renderable);
 
                     if (item.GetZoneItem().GetClickable())
                     {
-                        mSystems.AddClickable(
+                        mSystems->AddClickable(
                             Clickable{
                                 id,
                                 250,
@@ -76,21 +93,21 @@ public:
             }
         }
 
-        for (const auto& world : mZoneData.mWorldTiles.GetTiles())
+        for (const auto& world : mZoneData->mWorldTiles.GetTiles())
         {
             for (const auto& enc : world.GetEncounters(mGameState.GetChapter()))
             {
-                auto id = mSystems.GetNextItemId();
+                auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                mSystems.AddRenderable(
+                mSystems->AddRenderable(
                     Renderable{
                         id,
-                        mZoneData.mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
                         enc.GetLocation(),
                         glm::vec3{0.0},
                         glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
 
-                mSystems.AddIntersectable(
+                mSystems->AddIntersectable(
                     Intersectable{
                         id,
                         Intersectable::Rect{
@@ -113,7 +130,7 @@ public:
         mActiveEncounter = nullptr;
         //mActiveClickable = nullptr;
 
-        auto intersectable = mSystems.RunIntersection(mCamera.GetPosition());
+        auto intersectable = mSystems->RunIntersection(mCamera.GetPosition());
         if (intersectable)
         {
             auto it = mEncounters.find(*intersectable);
@@ -199,12 +216,27 @@ public:
                     [](const BAK::Encounter::EventFlag& flag){
                         //mGameState.SetEventState(flag.mEventPointer, flag.mIsEnable);
                     },
-                    [&](const BAK::Encounter::Zone& e){
+                    [&](const BAK::Encounter::Zone& zone){
                         if (mGuiManager.mScreenStack.size() == 1)
+                        {
+                            mDynamicDialogScene.SetDialogFinished(
+                                [&, zone=zone](const auto& choice){
+                                    // These dialogs should always result in a choice
+                                    assert(choice);
+                                    Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
+                                    if (choice->mValue == BAK::Keywords::sYesIndex)
+                                    {
+                                        LoadZone(zone.mTargetZone);
+                                        mCamera.SetGameLocation(zone.mTargetLocation);
+                                    }
+                                    mDynamicDialogScene.ResetDialogFinished();
+                                });
+
                             mGuiManager.StartDialog(
-                                e.mDialog,
+                                zone.mDialog,
                                 false,
                                 &mDynamicDialogScene);
+                        }
                     },
                 },
                 encounter);
@@ -221,9 +253,9 @@ public:
             //    ShowContainerGui(*cit);
             //ShowDialogGui(fit->mDialogKey, dialogStore, gameData);
 
-            auto fit = std::find_if(mZoneData.mFixedObjects.begin(), mZoneData.mFixedObjects.end(),
+            auto fit = std::find_if(mZoneData->mFixedObjects.begin(), mZoneData->mFixedObjects.end(),
                 [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
-            if (fit != mZoneData.mFixedObjects.end())
+            if (fit != mZoneData->mFixedObjects.end())
             {
                 if (mGuiManager.mScreenStack.size() == 1)
                 {
@@ -250,7 +282,7 @@ public:
 
     void CheckClickable()
     {
-        const auto bestId = mSystems.RunClickable(
+        const auto bestId = mSystems->RunClickable(
             std::make_pair(
                 mCamera.GetPosition(), 
                 mCamera.GetPosition() + (mCamera.GetDirection() * 300.0f)));
@@ -264,16 +296,15 @@ public:
     Gui::GuiManager& mGuiManager;
     Gui::DynamicDialogScene mDynamicDialogScene;
 
-
-    BAK::ZoneLabel mZoneLabel;
-    BAK::Zone mZoneData;
+    std::unique_ptr<BAK::Zone> mZoneData;
 
     const BAK::Encounter::Encounter* mActiveEncounter;
     const BAK::WorldItemInstance* mActiveClickable;
     std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> mEncounters;
     std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> mClickables{};
-    Systems mSystems;
+    std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;
+    std::function<void(const BAK::Zone&)>&& mLoadRenderer;
 
 };
 

@@ -101,12 +101,6 @@ int main(int argc, char** argv)
     }
 
     BAK::DialogStore dialogStore{};
-    BAK::Zone zoneData{zoneLabel.GetZoneNumber()};
-
-    if (startPosition == glm::vec<3, float>{0,0,0})
-        startPosition = zoneData.mWorldTiles.GetTiles().front().GetCenter();
-
-    startPosition.y = 100;
 
     auto guiScalar = 4.0f;
 
@@ -152,10 +146,6 @@ int main(int argc, char** argv)
 
     root.AddChildFront(&guiManager);
 
-    // OpenGL 3D Renderer
-    auto renderer = Graphics::Renderer{};
-    renderer.LoadData(zoneData.mObjects, zoneData.mZoneTextures);
-
     glm::vec3 lightPos = glm::vec3{0, 220, 0};
     
     Camera camera{
@@ -163,16 +153,30 @@ int main(int argc, char** argv)
         static_cast<unsigned>(height),
         400 * 30.0f,
         2.0f};
-    camera.SetPosition(startPosition);
-    camera.SetAngle(startHeading);
+
     guiManager.mMainView.SetHeading(camera.GetHeading());
     guiManager.mMainView.UpdatePartyMembers(gameState);
 
+    // OpenGL 3D Renderer
+    auto renderer = Graphics::Renderer{};
+
     Game::GameRunner gameRunner{
-        zoneData.mZoneLabel.GetZoneNumber(),
         camera,
         gameState,
-        guiManager};
+        guiManager,
+        [&](auto& zoneData){
+            renderer.LoadData(zoneData.mObjects, zoneData.mZoneTextures);
+        }};
+
+    if (startPosition == glm::vec<3, float>{0,0,0})
+        startPosition = gameRunner.mZoneData->mWorldTiles.GetTiles().front().GetCenter();
+
+    startPosition.y = 100;
+
+    camera.SetPosition(startPosition);
+    camera.SetAngle(startHeading);
+
+    gameRunner.LoadZone(zoneLabel.GetZoneNumber());
 
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_UP, [&]{ camera.StrafeForward(); });
@@ -270,14 +274,13 @@ int main(int argc, char** argv)
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
         inputHandler.HandleInput(window.get());
 
-
         // { *** Draw 3D World ***
         lightPos.x = camera.GetNormalisedPosition().x;
         lightPos.z = camera.GetNormalisedPosition().z;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderer.Draw<true>(gameRunner.mSystems.GetRenderables(), lightPos, camera);
-        renderer.Draw<false>(gameRunner.mSystems.GetSprites(), lightPos, camera);
+        renderer.Draw<true>(gameRunner.mSystems->GetRenderables(), lightPos, camera);
+        renderer.Draw<false>(gameRunner.mSystems->GetSprites(), lightPos, camera);
 
         // { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);

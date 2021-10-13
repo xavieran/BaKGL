@@ -213,12 +213,12 @@ public:
                     return false;
             });
 
+        mLastChoice = choice;
         if (it == choices.end())
         {
             // usual "Yes/No" dialogs
             if (choices.size() == 0 || choices.size() == 1)
             {
-                mLastChoice = choice;
                 mLogger.Info() << "Yes|No dialog choice. Player chose: " << mLastChoice << "\n";
 
                 mCurrentDialog = std::optional<BAK::DialogSnippet>{};

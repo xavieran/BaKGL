@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/condition.hpp"
+#include "bak/types.hpp"
 #include "bak/skills.hpp"
 #include "bak/dialogTarget.hpp"
 #include "bak/worldClock.hpp"
@@ -139,6 +140,12 @@ struct PushNextDialog
     std::array<std::uint8_t, 4> mRest;
 };
 
+struct Transition
+{
+    ZoneTransitionIndex mIndex;
+};
+
+
 struct UnknownAction
 {
     UnknownAction(
@@ -165,6 +172,7 @@ using DialogAction = std::variant<
     GainSkill,
     LoadSkillValue,
     PushNextDialog,
+    Transition,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);
