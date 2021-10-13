@@ -9,6 +9,7 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
+#include "game/console.hpp"
 #include "game/gameRunner.hpp"
 #include "game/systems.hpp"
 
@@ -181,7 +182,6 @@ int main(int argc, char** argv)
 
 
     Graphics::InputHandler inputHandler{};
-
     inputHandler.Bind(GLFW_KEY_UP, [&]{ camera.StrafeForward(); });
     inputHandler.Bind(GLFW_KEY_DOWN, [&]{ camera.StrafeBackward(); });
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{ camera.StrafeLeft(); });
@@ -266,6 +266,12 @@ int main(int argc, char** argv)
     
     double pointerPosX, pointerPosY;
 
+    bool consoleOpen = true;
+    auto console = Console{};
+    console.mCamera = &camera;
+    console.mGameRunner = &gameRunner;
+    console.mGameState = &gameState;
+
     do
     {
         currentTime = glfwGetTime();
@@ -295,6 +301,7 @@ int main(int argc, char** argv)
         ImGui::NewFrame();
 
         ShowCameraGui(camera);
+        console.Draw("Console", &consoleOpen);
 
         if (gameRunner.mActiveClickable)
         {
@@ -359,6 +366,15 @@ int main(int argc, char** argv)
         }
 
         ImguiWrapper::Draw(window.get());
+        auto& io = ImGui::GetIO();
+        if (io.WantCaptureKeyboard || io.WantCaptureMouse)
+        {
+            inputHandler.SetHandleInput(false);
+        }
+        else
+        {
+            inputHandler.SetHandleInput(true);
+        }
 
         // *** IMGUI END *** }
         

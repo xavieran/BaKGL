@@ -79,6 +79,10 @@ struct Skills
 
     void ImproveSkill(BAK::SkillType skill, unsigned value)
     {
+        // not quite right...
+        if (skill == SkillType::GainHealth)
+            skill = SkillType::Health;
+
         auto& s = GetSkill(skill);
         // FIXME: Check for overflow...
         // FIXME: Account for whether this skill is selected or not...

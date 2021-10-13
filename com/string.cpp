@@ -15,3 +15,22 @@ std::string ToUpper(std::string_view str)
 
     return uppered;
 }
+
+std::vector<std::string> SplitString(
+    const std::string delim,
+    std::string input)
+{
+    std::vector<std::string> words{};
+
+    size_t pos = 0;
+    while ((pos = input.find(delim)) != std::string::npos) 
+    {
+        words.push_back(input.substr(0, pos));
+        input.erase(0, pos + delim.length());
+    }
+
+    if (!input.empty())
+        words.emplace_back(input);
+
+    return words;
+}

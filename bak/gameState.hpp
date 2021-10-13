@@ -35,6 +35,8 @@ public:
             {}},
         mContextValue{0},
         mSkillValue{0},
+        mChapter{1},
+        mZone{1},
         mLogger{Logging::LogState::GetLogger("BAK::GameState")}
     {}
 
@@ -58,12 +60,19 @@ public:
         unsigned mIndex;
     };
 
+    void SetChapter(Chapter chapter)
+    {
+        if (mGameData)
+            mGameData->mChapter = chapter;
+        else mChapter = chapter;
+    }
+
     Chapter GetChapter() const
     {
         if (mGameData)
             return mGameData->mChapter;
 
-        return 1;
+        return mChapter;
     }
 
     auto GetMoney() const
@@ -74,11 +83,19 @@ public:
         return 1000;
     }
 
+    void SetLocation(BAK::Location loc)
+    {
+        if (mGameData)
+            mGameData->mLocation = loc;
+        else
+            mZone = ZoneNumber{loc.mZone};
+    }
+
     auto GetZone() const
     {
         if (mGameData)
             return ZoneNumber{mGameData->mLocation.mZone};
-        return ZoneNumber{1};
+        return mZone;
     }
 
     auto GetTime() const
@@ -327,6 +344,8 @@ public:
     Party mParty;
     unsigned mContextValue;
     unsigned mSkillValue;
+    unsigned mChapter;
+    ZoneNumber mZone;
     std::unordered_map<unsigned, bool> mEventState;
     const Logging::Logger& mLogger;
 };

@@ -18,8 +18,15 @@ public:
     using KeyCallback = std::function<void()>;
     using MouseCallback = std::function<void(glm::vec2)>;
 
+    InputHandler() noexcept;
+
     static void BindMouseToWindow(GLFWwindow* window, InputHandler& handler);
     static void BindKeyboardToWindow(GLFWwindow* window, InputHandler& handler);
+
+    void SetHandleInput(bool value)
+    {
+        mHandleInput = value;
+    }
 
     void Bind(int key, KeyCallback&& callback);
     void BindMouse(
@@ -40,6 +47,8 @@ private:
     static void KeyboardAction(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     static InputHandler* sHandler;
+
+    bool mHandleInput;
 
     std::unordered_map<int, KeyCallback> mKeyBindings;
     std::unordered_map<int, std::pair<MouseCallback, MouseCallback>> mMouseBindings;
