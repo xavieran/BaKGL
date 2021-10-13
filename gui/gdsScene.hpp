@@ -74,6 +74,8 @@ public:
     IGuiManager& mGuiManager;
     DialogDisplay mDialogDisplay;
 
+    std::optional<BAK::HotspotRef> mPendingGoto;
+
     static constexpr auto mMaxSceneNesting = 4;
 
     const Logging::Logger& mLogger;

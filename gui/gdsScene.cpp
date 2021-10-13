@@ -57,6 +57,7 @@ GDSScene::GDSScene(
         backgrounds,
         font,
         gameState},
+    mPendingGoto{},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
     auto textures = Graphics::TextureStore{};
@@ -181,9 +182,18 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::GOTO)
     {
+        const auto dialog = BAK::KeyTarget{hotspot.mActionArg3};
         auto hotspotRef = mReference;
         hotspotRef.mGdsChar = BAK::MakeHotspotChar(hotspot.mActionArg1);
-        mGuiManager.EnterGDSScene(hotspotRef, []{});
+        if (dialog != BAK::KeyTarget{0} && dialog != BAK::KeyTarget{0x10000})
+        {
+            mPendingGoto = hotspotRef;
+            StartDialog(dialog, false);
+        }
+        else
+        {
+            mGuiManager.EnterGDSScene(hotspotRef, []{});
+        }
     }
 }
 
@@ -201,6 +211,11 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 
 void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
 {
+    if (mPendingGoto)
+    {
+        mGuiManager.EnterGDSScene(*mPendingGoto, []{});
+        mPendingGoto.reset();
+    }
     mLogger.Debug() << "Dialog finished, back to flavour text\n";
 
     if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})

@@ -186,8 +186,10 @@ public:
             actor = act;
             // FIXME This is not quite correct, there's something special
             // about actor indices above 0xf0 
-            if (act >= 0xf0)
+            if (act >= 0xf1)
                 actor = (act & 0x0f);
+            else if (act == 0xf0)
+                actor = 1;
         }
 
         const auto [charPos, undisplayedText] = AddText(

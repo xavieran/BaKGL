@@ -302,7 +302,6 @@ public:
                             false,
                             &mDynamicDialogScene);
                     Logging::LogDebug(__FUNCTION__) << "ClickableFixedObject: " << *fit << "\n";
-
                 }
             }
 

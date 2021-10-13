@@ -124,15 +124,15 @@ public:
 
     void ExitGDSScene() override
     {
-        // Run the GDS scene exit fn
-        mGuiScreens.top().mFinished();
-        RemoveGDSScene();
+        RemoveGDSScene(true);
     }
 
-    void RemoveGDSScene()
+    void RemoveGDSScene(bool runFinished=false)
     {
         mScreenStack.PopChild();
         mCursor.PopCursor();
+        if (runFinished)
+            mGuiScreens.top().mFinished();
         mGdsScenes.pop_back();
         mGuiScreens.pop();
     }
