@@ -159,7 +159,7 @@ struct Console : public std::streambuf
             == mCommandActions.size());
         mAutoScroll = true;
         mScrollToBottom = false;
-        AddLog("Welcome to Dear ImGui!");
+        AddLog("Enter HELP for a list of commands");
 
         mStreamLog = false;
     }

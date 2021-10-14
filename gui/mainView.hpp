@@ -174,10 +174,13 @@ public:
                 mSpriteSheet,
                 image,
                 image,
-                []{},
+                [this, character=party.mActiveCharacters[person]]{
+                    ShowInventory(character);
+                },
                 [this, character=party.mActiveCharacters[person]]{
                     ShowPortrait(character);
-                });
+                }
+            );
         }
 
         AddChildren();
@@ -186,6 +189,11 @@ public:
     void ShowPortrait(unsigned character)
     {
         mGuiManager.ShowCharacterPortrait(character);
+    }
+
+    void ShowInventory(unsigned character)
+    {
+        mGuiManager.ShowInventory(character);
     }
 
 private:
