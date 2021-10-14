@@ -12,6 +12,7 @@
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/infoScreen.hpp"
+#include "gui/inventoryScreen.hpp"
 #include "gui/mainView.hpp"
 #include "gui/widget.hpp"
 
@@ -71,7 +72,17 @@ public:
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{spriteManager, *this},
-        mInfoScreen{spriteManager, *this, mActors, mFont, mGameState},
+        mInfoScreen{
+            spriteManager,
+            *this,
+            mActors,
+            mFont,
+            mGameState},
+        mInventoryScreen{
+            spriteManager,
+            *this,
+            mFont,
+            mGameState},
         mGdsScenes{},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
     {
@@ -183,6 +194,17 @@ public:
         mScreenStack.PopScreen();
     }
 
+    void ShowInventory(unsigned character) override
+    {
+        mInventoryScreen.SetSelectedCharacter(character);
+        mScreenStack.PushScreen(&mInventoryScreen);
+    }
+
+    void ExitInventory() override
+    {
+        mScreenStack.PopScreen();
+    }
+
     void RunContainer(BAK::KeyTarget dialogTarget)
     {
     }
@@ -202,7 +224,9 @@ public:
 
     MainView mMainView;
     InfoScreen mInfoScreen;
+    InventoryScreen mInventoryScreen;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
+
     IDialogScene* mDialogScene;
     std::stack<GuiScreen> mGuiScreens;
 
