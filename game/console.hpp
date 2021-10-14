@@ -11,23 +11,28 @@
 
 #include <iomanip>
 
-struct Console
+struct Console : public std::streambuf
 {
     using ConsoleCommand = std::function<void(const std::vector<std::string>&)>;
 
-    char                  mInputBuf[256];
-    ImVector<char*>       mItems;
-    ImVector<const char*> mCommands;
-    std::vector<ConsoleCommand> mCommandActions;
-    ImVector<char*>       mHistory;
-    int                   mHistoryPos;    // -1: new line, 0..mHistory.Size-1 browsing history.
-    ImGuiTextFilter       mFilter;
-    bool                  mAutoScroll;
-    bool                  mScrollToBottom;
+    // This is the streambuf implementation.
+    // FIXME: This doesn't quite work because it adds a new log line
+    // for every << operator. Obviously that looks terrible.
+    std::streamsize xsputn(const char_type* s, std::streamsize n)
+    {
+        const auto str = std::string{s, static_cast<unsigned>(n)};
+        AddLog(str.c_str());
+        return n;
+    }
 
-    Camera*  mCamera;
-    Game::GameRunner*  mGameRunner;
-    BAK::GameState*  mGameState;
+    int_type overflow(int_type c)
+    {
+        const auto str = std::string{1, static_cast<char_type>(c)};
+        AddLog("%s", str.c_str());
+        return c;
+    }
+
+    // Console commands
 
     void DoTeleport(const std::vector<std::string>& words)
     {
@@ -36,7 +41,7 @@ struct Console
             std::stringstream ss{};
             for (const auto& w : words)
                 ss << w << "|";
-            AddLog("Usage: DO_TELEPORT INDEX (%s)", ss.str().c_str());
+            AddLog("[error] Usage: DO_TELEPORT INDEX (%s)", ss.str().c_str());
             return;
         }
 
@@ -47,7 +52,7 @@ struct Console
 
         if (!mGameRunner)
         {
-            AddLog("DoTeleport FAILED No GameRunner Connected");
+            AddLog("[error] DoTeleport FAILED No GameRunner Connected");
             return;
         }
 
@@ -61,7 +66,7 @@ struct Console
             std::stringstream ss{};
             for (const auto& w : words)
                 ss << w << "|";
-            AddLog("Usage: SET_POSITION X Y (%s)", ss.str().c_str());
+            AddLog("[error] Usage: SET_POSITION X Y (%s)", ss.str().c_str());
             return;
         }
 
@@ -76,7 +81,7 @@ struct Console
 
         if (!mCamera)
         {
-            AddLog("SetPosition FAILED No Camera Connected");
+            AddLog("[error] SetPosition FAILED No Camera Connected");
             return;
         }
 
@@ -94,7 +99,7 @@ struct Console
             std::stringstream ss{};
             for (const auto& w : words)
                 ss << w << "|";
-            AddLog("Usage: SET_CHAPTER CHAPTER(%s)", ss.str().c_str());
+            AddLog("[error] Usage: SET_CHAPTER CHAPTER (%s)", ss.str().c_str());
             return;
         }
 
@@ -105,7 +110,7 @@ struct Console
 
         if (!mGameState)
         {
-            AddLog("SetChapter FAILED No GameState Connected");
+            AddLog("[error] SetChapter FAILED No GameState Connected");
             return;
         }
 
@@ -113,6 +118,8 @@ struct Console
     }
 
     Console()
+    :
+        mStream{this}
     {
         ClearLog();
         memset(mInputBuf, 0, sizeof(mInputBuf));
@@ -125,6 +132,7 @@ struct Console
             for (int i = 0; i < mCommands.Size; i++)
                 AddLog("- %s", mCommands[i]);
         });
+
         mCommands.push_back("DO_TELEPORT");
         mCommandActions.emplace_back([this](const auto& cmd){ DoTeleport(cmd); });
 
@@ -152,6 +160,8 @@ struct Console
         mAutoScroll = true;
         mScrollToBottom = false;
         AddLog("Welcome to Dear ImGui!");
+
+        mStreamLog = false;
     }
 
     ~Console()
@@ -167,26 +177,36 @@ struct Console
     static char* Strdup(const char* s)                           { IM_ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); IM_ASSERT(buf); return (char*)memcpy(buf, (const void*)s, len); }
     static void  Strtrim(char* s)                                { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0; }
 
-    void    ClearLog()
+    void ToggleLog()
+    {
+        mStreamLog = !mStreamLog;
+        if (mStreamLog)
+            Logging::LogState::AddStream(&mStream);
+        else
+            Logging::LogState::RemoveStream(&mStream);
+    }
+
+
+    void ClearLog()
     {
         for (int i = 0; i < mItems.Size; i++)
             free(mItems[i]);
         mItems.clear();
     }
 
-    void    AddLog(const char* fmt, ...) IM_FMTARGS(2)
+    void AddLog(const char* fmt, ...) IM_FMTARGS(2)
     {
         // FIXME-OPT
         char buf[1024];
         va_list args;
         va_start(args, fmt);
         vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-        buf[IM_ARRAYSIZE(buf)-1] = 0;
+        buf[IM_ARRAYSIZE(buf) - 1] = 0;
         va_end(args);
         mItems.push_back(Strdup(buf));
     }
 
-    void    Draw(const char* title, bool* p_open)
+    void Draw(const char* title, bool* p_open)
     {
         ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
         if (!ImGui::Begin(title, p_open))
@@ -207,16 +227,11 @@ struct Console
 
         ImGui::TextWrapped("Enter 'HELP' for help.");
 
-        // TODO: display items starting from the bottom
-
-        if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", mItems.Size); AddLog("some more text"); AddLog("display very important message here!"); }
+        if (ImGui::SmallButton(mStreamLog ? "Logging On" : "Logging Off")) { ToggleLog(); }
         ImGui::SameLine();
-        if (ImGui::SmallButton("Add Debug Error")) { AddLog("[error] something went wrong"); }
-        ImGui::SameLine();
-        if (ImGui::SmallButton("Clear"))           { ClearLog(); }
+        if (ImGui::SmallButton("Clear")) { ClearLog(); }
         ImGui::SameLine();
         bool copy_to_clipboard = ImGui::SmallButton("Copy");
-        //static float t = 0.0f; if (ImGui::GetTime() - t > 0.02f) { t = ImGui::GetTime(); AddLog("Spam %f", t); }
 
         ImGui::Separator();
 
@@ -271,23 +286,25 @@ struct Console
         if (copy_to_clipboard)
             ImGui::LogToClipboard();
         for (int i = 0; i < mItems.Size; i++)
-        {
-            const char* item = mItems[i];
-            if (!mFilter.PassFilter(item))
-                continue;
+            ImGui::TextUnformatted(mItems[i]);
+        //for (int i = 0; i < mItems.Size; i++)
+        //{
+        //    const char* item = mItems[i];
+        //    if (!mFilter.PassFilter(item))
+        //        continue;
 
-            // Normally you would store more information in your item than just a string.
-            // (e.g. make mItems[] an array of structure, store color/type etc.)
-            ImVec4 color;
-            bool has_color = false;
-            if (strstr(item, "[error]"))          { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); has_color = true; }
-            else if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f); has_color = true; }
-            if (has_color)
-                ImGui::PushStyleColor(ImGuiCol_Text, color);
-            ImGui::TextUnformatted(item);
-            if (has_color)
-                ImGui::PopStyleColor();
-        }
+        //    // Normally you would store more information in your item than just a string.
+        //    // (e.g. make mItems[] an array of structure, store color/type etc.)
+        //    ImVec4 color;
+        //    bool has_color = false;
+        //    if (strstr(item, "[error]"))          { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); has_color = true; }
+        //    else if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f); has_color = true; }
+        //    if (has_color)
+        //        ImGui::PushStyleColor(ImGuiCol_Text, color);
+        //    ImGui::TextUnformatted(item);
+        //    if (has_color)
+        //        ImGui::PopStyleColor();
+        //}
         if (copy_to_clipboard)
             ImGui::LogFinish();
 
@@ -301,8 +318,20 @@ struct Console
 
         // Command-line
         bool reclaim_focus = false;
-        ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-        if (ImGui::InputText("Input", mInputBuf, IM_ARRAYSIZE(mInputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
+        ImGuiInputTextFlags input_text_flags 
+            = ImGuiInputTextFlags_EnterReturnsTrue 
+            | ImGuiInputTextFlags_CallbackCompletion 
+            | ImGuiInputTextFlags_CallbackHistory;
+
+        const auto inputText = ImGui::InputText(
+            "Input",
+            mInputBuf,
+            IM_ARRAYSIZE(mInputBuf),
+            input_text_flags,
+            &TextEditCallbackStub,
+            (void*)this);
+
+        if (inputText)
         {
             char* s = mInputBuf;
             Strtrim(s);
@@ -320,7 +349,7 @@ struct Console
         ImGui::End();
     }
 
-    void    ExecCommand(const char* command_line)
+    void ExecCommand(const char* command_line)
     {
         AddLog("# %s\n", command_line);
 
@@ -366,15 +395,12 @@ struct Console
         return console->TextEditCallback(data);
     }
 
-    int     TextEditCallback(ImGuiInputTextCallbackData* data)
+    int TextEditCallback(ImGuiInputTextCallbackData* data)
     {
-        //AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
         switch (data->EventFlag)
         {
         case ImGuiInputTextFlags_CallbackCompletion:
             {
-                // Example of TEXT COMPLETION
-
                 // Locate beginning of current word
                 const char* word_end = data->Buf + data->CursorPos;
                 const char* word_start = word_end;
@@ -466,6 +492,25 @@ struct Console
         }
         return 0;
     }
+
+//private:
+    char                  mInputBuf[256];
+    ImVector<char*>       mItems;
+    ImVector<const char*> mCommands;
+    std::vector<ConsoleCommand> mCommandActions;
+    ImVector<char*>       mHistory;
+    int                   mHistoryPos;    // -1: new line, 0..mHistory.Size-1 browsing history.
+    ImGuiTextFilter       mFilter;
+    bool                  mAutoScroll;
+    bool                  mScrollToBottom;
+    bool                  mStreamLog;
+    std::ostream          mStream;
+
+    Camera*  mCamera;
+    Game::GameRunner*  mGameRunner;
+    BAK::GameState*  mGameState;
+
+
 };
 
 static void ShowConsole(bool* p_open)

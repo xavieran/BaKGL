@@ -24,6 +24,8 @@ std::string LogState::sTimeFormat{"%H:%M:%S.%m"};
 std::vector<std::string> LogState::sEnabledLoggers{};
 std::vector<std::string> LogState::sDisabledLoggers{};
 std::vector<std::unique_ptr<Logger>> LogState::sLoggers{};
+OStreamMux LogState::sMux{};
+std::ostream LogState::sOutput{&LogState::sMux};
 
 std::ostream LogState::nullStream{nullptr};
 

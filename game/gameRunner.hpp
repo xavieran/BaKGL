@@ -147,11 +147,6 @@ public:
         }
     }
 
-    void StartDialog(BAK::Target dialog, bool isTooltip)
-    {
-
-    }
-
     void RunGameUpdate()
     {
         mActiveEncounter = nullptr;
@@ -241,6 +236,7 @@ public:
 
                     },
                     [](const BAK::Encounter::EventFlag& flag){
+                        //if (EncoutnerActive)
                         //mGameState.SetEventState(flag.mEventPointer, flag.mIsEnable);
                     },
                     [&](const BAK::Encounter::Zone& zone){
