@@ -1,5 +1,7 @@
 #pragma once
 
+#include "com/ostreamMux.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
@@ -22,49 +24,6 @@ enum class LogLevel
 std::string_view LevelToString(LogLevel level);
 
 class Logger;
-
-class OStreamMux : public std::streambuf
-{
-public:
-    OStreamMux()
-    :
-        mOutputs{&std::cout}
-    {}
-
-    std::streamsize xsputn(const char_type* s, std::streamsize n)
-    {
-        const auto str = std::string{
-            s,
-            static_cast<unsigned>(n)};
-
-        for (auto* stream : mOutputs)
-            (*stream) << str;
-
-        return n;
-    }
-
-    int_type overflow(int_type c)
-    {
-        for (auto* stream : mOutputs)
-            (*stream) << c;
-        return c;
-    }
-
-    void AddStream(std::ostream* stream)
-    {
-        mOutputs.emplace_back(stream);
-    }
-
-    void RemoveStream(std::ostream* stream)
-    {
-        auto it = std::find(mOutputs.begin(), mOutputs.end(), stream);
-        if (it != mOutputs.end())
-            mOutputs.erase(it);
-    }
-
-private:
-    std::vector<std::ostream*> mOutputs;
-};
 
 class LogState
 {

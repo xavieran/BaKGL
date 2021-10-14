@@ -5,5 +5,6 @@ add_library(com
     string.hpp string.cpp
     visit.hpp
     ostream.hpp
+    ostreamMux.hpp ostreamMux.cpp
 )
 

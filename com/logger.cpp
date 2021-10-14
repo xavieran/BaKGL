@@ -1,6 +1,5 @@
 #include "com/logger.hpp"
 
-
 namespace Logging {
 
 std::string_view LevelToString(LogLevel level)
@@ -16,7 +15,6 @@ std::string_view LevelToString(LogLevel level)
     default: return "UNDEF";
     }
 }
-
 
 LogLevel LogState::sGlobalLogLevel{LogLevel::Info};
 std::string LogState::sTimeFormat{"%H:%M:%S.%m"};
