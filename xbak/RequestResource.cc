@@ -42,12 +42,22 @@ std::ostream& operator<<(std::ostream& os, const RequestResource& d)
 }
 
 RequestResource::RequestResource()
-        : popup(false)
-        , rect(0, 0, 0, 0)
-        , xoff(0)
-        , yoff(0)
-        , data()
+    : popup(false)
+    , rect(0, 0, 0, 0)
+    , xoff(0)
+    , yoff(0)
+    , data()
 {}
+
+RequestResource::RequestResource(const std::string& file)
+:
+    RequestResource{}
+{
+    auto fb = FileBufferFactory::CreateFileBuffer(file);
+    Load(&fb);
+}
+
+
 
 RequestResource::~RequestResource()
 {
@@ -173,8 +183,6 @@ RequestResource::Save(FileBuffer *buffer)
 {
     try
     {
-        // TODO
-        buffer = buffer;
         return 0;
     }
     catch (Exception &e)

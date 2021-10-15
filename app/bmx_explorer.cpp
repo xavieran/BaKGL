@@ -177,6 +177,9 @@ int main(int argc, char** argv)
         GLuint textureID = glGetUniformLocation(programId, "texture0");
         glUniform1i(textureID, 0);
 
+        GLuint colorModeId = glGetUniformLocation(programId, "colorMode");
+        glUniform1i(colorModeId, 0);
+
         GLuint mvpMatrixID   = glGetUniformLocation(programId, "MVP");
         GLuint modelMatrixID = glGetUniformLocation(programId, "M");
         GLuint viewMatrixID  = glGetUniformLocation(programId, "V");

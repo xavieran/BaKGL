@@ -20,13 +20,10 @@ public:
         std::function<void()>&& onRightMousePress)
     :
         Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            glm::vec4{0},
+            RectTag{},
             pos,
             dims,
+            glm::vec4{0},
             true
         },
         mLeftPressedCallback{std::move(onLeftMousePress)},

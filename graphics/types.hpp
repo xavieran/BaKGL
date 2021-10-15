@@ -1,9 +1,11 @@
 #pragma once
 
+#include "com/strongType.hpp"
+
 namespace Graphics {
 
-using SpriteSheetIndex = unsigned;
-using TextureIndex = unsigned;
+using SpriteSheetIndex = StrongType<unsigned, struct SpriteSheetIndexTag>;
+using TextureIndex = StrongType<unsigned, struct TextureIndexTag>;
 using MeshOffset = unsigned;
 using MeshLength = unsigned;
 

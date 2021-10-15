@@ -99,7 +99,7 @@ private:
     {
         assert(mCursors.size() >= 1);
         const auto & [dimensions, texture] = GetCursor();
-        mDrawInfo.mTexture = texture;
+        mDrawInfo.mTexture = Graphics::TextureIndex{texture};
         mPositionInfo.mDimensions = dimensions;
     }
 

@@ -73,7 +73,7 @@ StaticTTM::StaticTTM(
         mDialogBackground.emplace(
             Graphics::DrawMode::Sprite,
             mSpriteSheet,
-            texture,
+            Graphics::TextureIndex{texture},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec2{0},
@@ -98,7 +98,7 @@ StaticTTM::StaticTTM(
                         auto& elem = mSceneElements.emplace_back(
                             Graphics::DrawMode::Sprite,
                             mSpriteSheet,
-                            sceneSprite.mImage,
+                            Graphics::TextureIndex{sceneSprite.mImage},
                             Graphics::ColorMode::Texture,
                             glm::vec4{1},
                             sceneSprite.mPosition,
@@ -139,11 +139,7 @@ StaticTTM::StaticTTM(
                     [&](const BAK::ClipRegion& a){
                         const auto clip = ConvertSceneAction(a);
                         mClipRegion.emplace(
-                            Graphics::DrawMode::ClipRegion,
-                            mSpriteSheet,
-                            0, // no image index
-                            Graphics::ColorMode::SolidColor,
-                            glm::vec4{1},
+                            ClipRegionTag{},
                             clip.mTopLeft,
                             clip.mDims,
                             false);

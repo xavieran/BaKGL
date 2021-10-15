@@ -11,6 +11,7 @@
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
+#include "gui/icons.hpp"
 #include "gui/infoScreen.hpp"
 #include "gui/inventoryScreen.hpp"
 #include "gui/mainView.hpp"
@@ -56,6 +57,7 @@ public:
         mFont{"GAME.FNT", spriteManager},
         mActors{spriteManager},
         mBackgrounds{spriteManager},
+        mIcons{spriteManager},
         mCursor{cursor},
         mGameState{gameState},
         mScreenStack{},
@@ -71,16 +73,18 @@ public:
         },
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
-        mMainView{spriteManager, *this},
+        mMainView{*this, mBackgrounds, mIcons},
         mInfoScreen{
-            spriteManager,
             *this,
             mActors,
+            mBackgrounds,
+            mIcons,
             mFont,
             mGameState},
         mInventoryScreen{
-            spriteManager,
             *this,
+            mBackgrounds,
+            mIcons,
             mFont,
             mGameState},
         mGdsScenes{},
@@ -213,6 +217,7 @@ public:
     Font mFont;
     Actors mActors;
     Backgrounds mBackgrounds;
+    Icons mIcons;
 
     Cursor& mCursor;
     BAK::GameState& mGameState;

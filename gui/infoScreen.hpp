@@ -5,6 +5,8 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/actors.hpp"
+#include "gui/backgrounds.hpp"
+#include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/portrait.hpp"
@@ -29,16 +31,17 @@ public:
     static constexpr auto sCharacterFlavourDialog = BAK::KeyTarget{0x69};
 
     InfoScreen(
-        Graphics::SpriteManager& spriteManager,
         IGuiManager& guiManager,
         const Actors& actors,
+        const Backgrounds& backgrounds,
+        const Icons& icons,
         const Font& font,
         BAK::GameState& gameState)
     :
         Widget{
             Graphics::DrawMode::Sprite,
-            spriteManager.AddSpriteSheet(),
-            Graphics::TextureIndex{0},
+            backgrounds.GetSpriteSheet(),
+            backgrounds.GetScreen("OPTIONS1.SCX"),
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec2{0},
@@ -49,32 +52,13 @@ public:
         mGameState{gameState},
         mDialogScene{},
         mSelectedCharacter{0},
-        mSpriteSheet{GetDrawInfo().mSpriteSheet},
         mElements{},
         mButtons{},
         mPortrait{},
         mSkills{},
         mLogger{Logging::LogState::GetLogger("Gui::InfoScreen")}
     {
-        auto textures = Graphics::TextureStore{};
-        BAK::TextureFactory::AddScreenToTextureStore(
-            textures, "OPTIONS1.SCX", "INVENTOR.PAL");
-
-        const auto normalOffset = textures.size();
-
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "INVSHP1.BMX", "INVENTOR.PAL");
-
-        const auto pressedOffset = textures.size();
-
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "INVSHP2.BMX", "INVENTOR.PAL");
-
-        RequestResource request{};
-        {
-            auto fb = FileBufferFactory::CreateFileBuffer("REQ_INFO.DAT");
-            request.Load(&fb);
-        }
+        RequestResource request{"REQ_INFO.DAT"};
 
         mElements.reserve(request.GetSize());
 
@@ -96,14 +80,15 @@ public:
             const auto& data = request.GetRequestData(i);
             int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
             int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
+
             mPortrait.emplace(
                 glm::vec2{x, y},
                 glm::vec2{data.width, data.height},
                 actors,
                 mFont,
-                mSpriteSheet,
-                pressedOffset + 25,
-                pressedOffset + 26,
+                std::get<Graphics::SpriteSheetIndex>(icons.GetStippledBorderVertical()),
+                std::get<Graphics::TextureIndex>(icons.GetStippledBorderHorizontal()),
+                std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical()),
                 [this](){
                     AdvanceCharacter(); },
                 [this](){
@@ -117,17 +102,17 @@ public:
                 glm::vec2{x + data.width + 4, y},
                 glm::vec2{222, data.height},
                 mFont,
-                mSpriteSheet,
-                pressedOffset + 25,
-                pressedOffset + 26
+                std::get<Graphics::SpriteSheetIndex>(icons.GetStippledBorderVertical()),
+                std::get<Graphics::TextureIndex>(icons.GetStippledBorderHorizontal()),
+                std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical())
             );
         }
 
         mSkills.emplace(
             glm::vec2{15, 100},
             glm::vec2{200,200},
-            mSpriteSheet,
-            pressedOffset,
+            std::get<Graphics::SpriteSheetIndex>(icons.GetInventoryIcon(120)),
+            std::get<Graphics::TextureIndex>(icons.GetInventoryIcon(120)),
             request,
             [this](auto skill){
                 ToggleSkill(skill);
@@ -138,7 +123,6 @@ public:
             });
 
         AddChildren();
-        spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
     void SetSelectedCharacter(unsigned character)
@@ -195,7 +179,6 @@ private:
     BAK::GameState& mGameState;
     NullDialogScene mDialogScene;
     unsigned mSelectedCharacter;
-    Graphics::SpriteSheetIndex mSpriteSheet;
     std::vector<Widget> mElements;
     std::vector<ClickButton> mButtons;
     std::optional<Portrait> mPortrait;

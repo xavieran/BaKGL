@@ -40,14 +40,10 @@ public:
         FinishCallback&& finished)
     :
         Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            //Color::debug,
-            glm::vec4{0},
+            RectTag{},
             pos,
             dims,
+            glm::vec4{0},
             true
         },
         mScreenStack{screenStack},
