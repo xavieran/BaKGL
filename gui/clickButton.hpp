@@ -257,6 +257,15 @@ public:
         return false;
     }
 
+    void CenterImage(glm::vec2 dims)
+    {
+        // Set the image to its normal size and center it
+        mNormal.SetDimensions(dims);
+        mNormal.SetCenter(GetCenter() - GetTopLeft());
+        mPressed.SetDimensions(dims);
+        mPressed.SetCenter(GetCenter() - GetTopLeft());
+    }
+
 
 private:
     Widget mNormal;

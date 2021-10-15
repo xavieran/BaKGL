@@ -4,6 +4,7 @@
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
 #include "bak/gameData.hpp"
+#include "bak/money.hpp"
 #include "bak/types.hpp"
 
 #include "com/visit.hpp"
@@ -29,7 +30,7 @@ public:
             2},
         mGameData{gameData},
         mParty{
-            0,
+            Royals{1000},
             Inventory{},
             {},
             {}},
@@ -75,12 +76,12 @@ public:
         return mChapter;
     }
 
-    auto GetMoney() const
+    Royals GetMoney() const
     {
         if (mGameData)
-            return mGameData->mParty.mGold;
+            return mGameData->mParty.GetGold();
 
-        return 1000;
+        return Royals{1000};
     }
 
     void SetLocation(BAK::Location loc)
@@ -137,6 +138,20 @@ public:
                 mLogger.Debug() << "Setting flag of event: " << BAK::DialogAction{set} << "\n";
                 SetEventState(set);
             },
+            [&](const BAK::LoseItem& lose)
+            {
+                // FIXME: Implement if this skill only improves for one character
+                //        Figure out what to do with mValue0,2,3 
+                auto& party = GetParty();
+                party.RemoveItem(lose.mItemIndex, lose.mQuantity);
+            },
+            [&](const BAK::GiveItem& give)
+            {
+                // FIXME: Implement if this skill only improves for one character
+                //        Figure out what to do with mValue0,2,3 
+                auto& party = GetParty();
+                party.GainItem(give.mCharacter, give.mItemIndex, give.mQuantity);
+            },
             [&](const BAK::GainSkill& skill)
             {
                 // FIXME: Implement if this skill only improves for one character
@@ -191,7 +206,7 @@ public:
             return true;
         }
         else if (choice.mState == BAK::ActiveStateFlag::Money
-            && GetMoney() > (choice.mExpectedValue * 10))
+            && (GetMoney().mValue > GetRoyals(Sovereigns{static_cast<unsigned>(choice.mExpectedValue)}).mValue))
         {
             return true;
         }

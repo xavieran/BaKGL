@@ -29,6 +29,13 @@ public:
     static constexpr auto sLayoutFile = "REQ_INV.DAT";
     static constexpr auto sBackground = "INVENTOR.SCX";
 
+    // Request offsets
+    static constexpr auto mContainerTypeRequest = 3;
+    static constexpr auto mUseItemRequest = 4;
+    static constexpr auto mExitRequest = 5;
+    static constexpr auto mExitButton = 13;
+    static constexpr auto mGoldRequest = 6;
+
     InventoryScreen(
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
@@ -58,28 +65,32 @@ public:
             GetPositionInfo().mDimensions,
             true
         },
-        mCharacterLocations{},
         mCharacters{},
         mExit{
-            GetRequestLocation(5),
-            GetRequestDims(5),
-            std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(13)),
-            std::get<Graphics::TextureIndex>(mIcons.GetButton(13)),
-            std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(13)),
+            GetRequestLocation(mExitRequest),
+            GetRequestDims(mExitRequest),
+            std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
+            std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
+            std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
             [this]{ mGuiManager.ExitInventory(); },
+            []{}
+        },
+        mGoldDisplay{
+            GetRequestLocation(mGoldRequest),
+            GetRequestDims(mGoldRequest)
+        },
+        mContainerTypeDisplay{
+            GetRequestLocation(mContainerTypeRequest),
+            GetRequestDims(mContainerTypeRequest),
+            std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
+            std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
+            std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
+            []{}, // Goto Keys, or goto Shop, or Goto Bag, or Goto Container...
             []{}
         },
         mSelectedCharacter{0},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
-        // Character heads
-        for (unsigned i = 0; i < 3; i++)
-        {
-            mCharacterLocations.emplace_back(
-                GetRequestLocation(i),
-                GetRequestDims(i));
-        }
-
         AddChildren();
     }
 
@@ -97,24 +108,21 @@ public:
         return glm::vec2{data.width, data.height};
     }
 
-
     void UpdatePartyMembers()
     {
         ClearChildren();
 
         mCharacters.clear();
-        mCharacters.reserve(mCharacterLocations.size());
+        mCharacters.reserve(3);
 
         const auto& party = mGameState.GetParty();
         mLogger.Info() << "Updating Party: " << party<< "\n";
         for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
         {
-            assert(person < mCharacterLocations.size());
-            const auto& [pos, dims] = mCharacterLocations[person];
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(party.mActiveCharacters[person]);
             mCharacters.emplace_back(
-                pos,
-                dims,
+                GetRequestLocation(person),
+                GetRequestDims(person),
                 spriteSheet,
                 image,
                 image,
@@ -134,6 +142,32 @@ public:
     {
         mSelectedCharacter = character;
         UpdatePartyMembers();
+        UpdateGold();
+    }
+
+    void UpdateGold()
+    {
+        const auto gold = mGameState.GetParty().GetGold();
+        const auto sovereigns = BAK::GetSovereigns(gold);
+        const auto royals = BAK::GetRemainingRoyals(gold);
+        std::stringstream ss{};
+        ss << "#" << sovereigns << "s " << royals << "r";
+        const auto [dims, _] = mGoldDisplay.AddText(mFont, ss.str());
+
+        // Justify text to the right
+        const auto basePos = GetRequestLocation(mGoldRequest);
+        const auto newPos = basePos 
+            + glm::vec2{
+                3 + GetRequestDims(mGoldRequest).x - dims.x,
+                4};
+
+        mGoldDisplay.SetPosition(newPos);
+    }
+
+    void SetContainerTypeImage()
+    {
+        const auto [ss, ti, dims] = mIcons.GetInventoryMiscIcon(11);
+        mContainerTypeDisplay.CenterImage(dims);
     }
 
     void AddChildren()
@@ -142,10 +176,13 @@ public:
 
         AddChildBack(&mFrame);
         AddChildBack(&mExit);
+        AddChildBack(&mGoldDisplay);
+
+        SetContainerTypeImage();
+        AddChildBack(&mContainerTypeDisplay);
 
         for (auto& character : mCharacters)
             AddChildBack(&character);
-
     }
 
 private:
@@ -159,11 +196,12 @@ private:
 
     Widget mFrame;
 
-    std::vector<std::pair<glm::vec2, glm::vec2>> mCharacterLocations;
     std::vector<ClickButtonImage> mCharacters;
     ClickButtonImage mExit;
+    TextBox mGoldDisplay;
+    // click into shop or keys, etc.
+    ClickButtonImage mContainerTypeDisplay;
 
-    //Widget mOtherInventory; // e.g. keys/shop/bag/corpse, etc...
 
     unsigned mSelectedCharacter;
     const Logging::Logger& mLogger;

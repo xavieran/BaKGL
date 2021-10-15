@@ -172,10 +172,15 @@ void Widget::SetCenter(glm::vec2 pos)
         - (mPositionInfo.mDimensions / 2.0f);
 }
 
-glm::vec2 Widget::GetCenter()
+glm::vec2 Widget::GetCenter() const
 {
     return mPositionInfo.mPosition 
         + (mPositionInfo.mDimensions / 2.0f);
+}
+
+glm::vec2 Widget::GetTopLeft() const
+{
+    return mPositionInfo.mPosition;
 }
 
 void Widget::SetPosition(glm::vec2 pos)
