@@ -51,14 +51,10 @@ public:
         glm::vec2 dim)
     :
         Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            //Color::debug,
-            glm::vec4{0},
+            RectTag{},
             pos,
             dim,
+            glm::vec4{0},
             true
         },
         mText{}

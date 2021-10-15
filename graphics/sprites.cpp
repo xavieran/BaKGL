@@ -110,7 +110,7 @@ SpriteSheetIndex SpriteManager::AddSpriteSheet()
     const auto& logger = Logging::LogState::GetLogger("SpriteManager");
     const auto spriteSheetIndex = NextSpriteSheet();
     logger.Debug() << "Adding sprite sheet index: " << spriteSheetIndex << "\n";
-    assert(mSprites.size() == spriteSheetIndex);
+    assert(mSprites.size() == spriteSheetIndex.mValue);
     mSprites.emplace_back();
     return spriteSheetIndex;
 }
@@ -135,13 +135,13 @@ void SpriteManager::ActivateSpriteSheet(SpriteSheetIndex spriteSheet)
 
 Sprites& SpriteManager::GetSpriteSheet(SpriteSheetIndex spriteSheet)
 {
-    assert(mSprites.size() > spriteSheet);
-    return mSprites[spriteSheet];
+    assert(mSprites.size() > spriteSheet.mValue);
+    return mSprites[spriteSheet.mValue];
 }
 
 SpriteSheetIndex SpriteManager::NextSpriteSheet()
 {
-    return mNextSpriteSheet++;
+    return Graphics::SpriteSheetIndex{mNextSpriteSheet++};
 }
 
 }

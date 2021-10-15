@@ -19,33 +19,24 @@ public:
     :
         // Bottom left edge
         Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            shadow,
+            RectTag{},
             pos,
             dim,
+            shadow,
             true
         },
         mTopRightEdge{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            highlight,
+            RectTag{},
             glm::vec2{1, 0},
             dim - glm::vec2{1, 1},
+            highlight,
             true
         },
         mCenter{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            mainColor,
+            RectTag{},
             glm::vec2{1, 1},
             dim - glm::vec2{2, 2},
+            mainColor,
             true
         }
     {

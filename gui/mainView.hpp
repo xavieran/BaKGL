@@ -11,11 +11,13 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/IGuiManager.hpp"
+#include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
 #include "gui/compass.hpp"
 #include "gui/clickButton.hpp"
-#include "gui/widget.hpp"
+#include "gui/icons.hpp"
 #include "gui/scene.hpp"
+#include "gui/widget.hpp"
 
 #include "xbak/RequestResource.h"
 
@@ -32,13 +34,14 @@ class MainView : public Widget
 public:
 
     MainView(
-        Graphics::SpriteManager& spriteManager,
-        IGuiManager& guiManager)
+        IGuiManager& guiManager,
+        const Backgrounds& backgrounds,
+        const Icons& icons)
     :
         Widget{
             Graphics::DrawMode::Sprite,
-            spriteManager.AddSpriteSheet(),
-            Graphics::TextureIndex{0},
+            backgrounds.GetSpriteSheet(),
+            backgrounds.GetScreen("FRAME.SCX"),
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec2{0},
@@ -46,49 +49,21 @@ public:
             true
         },
         mGuiManager{guiManager},
-        mSpriteSheet{GetDrawInfo().mSpriteSheet},
-        mHeadOffset{0},
+        mIcons{icons},
         mCompass{},
         mButtons{},
         mCharacters{},
         mLogger{Logging::LogState::GetLogger("Gui::MainView")}
     {
-        auto textures = Graphics::TextureStore{};
-        BAK::TextureFactory::AddScreenToTextureStore(
-            textures, "FRAME.SCX", "Z01.PAL");
-
-        const auto normalOffset = textures.size();
-
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "BICONS1.BMX", "OPTIONS.PAL");
-
-        const auto pressedOffset = textures.size();
-
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "BICONS2.BMX", "OPTIONS.PAL");
-
-        mHeadOffset = textures.size();
-
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "HEADS.BMX", "OPTIONS.PAL");
-
-        const auto compassOffset = textures.size();
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "COMPASS.BMX", "OPTIONS.PAL");
-
-        auto [w, h] = textures.GetTexture(compassOffset).GetDims();
+        auto [ss, ti, dims] = icons.GetCompass();
         mCompass.emplace(
             glm::vec2{144,121},
             glm::vec2{32,12},
-            glm::vec2{w, h + 1},
-            mSpriteSheet,
-            static_cast<Graphics::TextureIndex>(compassOffset));
-
-        RequestResource request{};
-        {
-            auto fb = FileBufferFactory::CreateFileBuffer("REQ_MAIN.DAT");
-            request.Load(&fb);
-        }
+            glm::vec2{dims.x, dims.y + 1},
+            ss,
+            ti);
+            
+        RequestResource request{"REQ_MAIN.DAT"};
 
         mButtons.reserve(request.GetSize());
         mCharacters.reserve(request.GetSize());
@@ -104,8 +79,6 @@ public:
                 if (data.action == 192) break;
                 int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
                 int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-                int w = request.GetRectangle().GetWidth();
-                int h = request.GetRectangle().GetHeight();
                 mCharacterLocations.emplace_back(
                     glm::vec2{x, y},
                     glm::vec2{data.width, data.height});
@@ -116,12 +89,14 @@ public:
                 int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
                 int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
 
+                assert(std::get<0>(icons.GetButton(data.image))
+                    == std::get<0>(icons.GetPressedButton(data.image)));
                 mButtons.emplace_back(
                     glm::vec2{x, y},
                     glm::vec2{data.width, data.height},
-                    mSpriteSheet,
-                   Graphics::TextureIndex{static_cast<unsigned>(data.image + normalOffset)},
-                    Graphics::TextureIndex{static_cast<unsigned>(data.image + pressedOffset)},
+                    std::get<0>(icons.GetButton(data.image)),
+                    std::get<1>(icons.GetButton(data.image)),
+                    std::get<1>(icons.GetPressedButton(data.image)),
                     []{},
                     []{});
             }
@@ -133,7 +108,6 @@ public:
         }
 
         AddChildren();
-        spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
     }
 
     void SetHeading(BAK::GameHeading heading)
@@ -150,8 +124,8 @@ public:
         assert(mCompass);
         AddChildBack(&(*mCompass));
 
-        for (auto& action : mCharacters)
-            AddChildBack(&action);
+        for (auto& character : mCharacters)
+            AddChildBack(&character);
     }
 
     void UpdatePartyMembers(const BAK::GameState& gameState)
@@ -167,11 +141,12 @@ public:
         {
             assert(person < mCharacterLocations.size());
             const auto& [pos, dims] = mCharacterLocations[person];
-            const auto image = mHeadOffset + party.mActiveCharacters[person];
+            const auto [spriteSheet, image, dimss] = mIcons.GetCharacterHead(
+                party.mActiveCharacters[person]);
             mCharacters.emplace_back(
                 pos,
                 dims,
-                mSpriteSheet,
+                spriteSheet,
                 image,
                 image,
                 [this, character=party.mActiveCharacters[person]]{
@@ -198,8 +173,7 @@ public:
 
 private:
     IGuiManager& mGuiManager;
-    Graphics::SpriteSheetIndex mSpriteSheet;
-    unsigned mHeadOffset;
+    const Icons& mIcons;
     std::optional<Compass> mCompass;
     std::vector<ClickButtonImage> mButtons;
     std::vector<std::pair<glm::vec2, glm::vec2>> mCharacterLocations;

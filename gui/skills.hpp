@@ -177,7 +177,7 @@ public:
         glm::vec2 pos,
         glm::vec2 dims,
         Graphics::SpriteSheetIndex spriteSheet,
-        unsigned spriteOffset,
+        Graphics::TextureIndex spriteOffset,
         const RequestResource& request,
         std::function<void(BAK::SkillType)>&& toggleSkill,
         std::function<void()>&& onRightMousePress)
@@ -203,9 +203,9 @@ public:
                 glm::vec2{x, y} - pos,
                 glm::vec2{data.width, data.height},
                 spriteSheet,
-                spriteOffset + 21,
-                spriteOffset + 22,
-                spriteOffset + 23,
+                Graphics::TextureIndex{spriteOffset.mValue + 21},
+                Graphics::TextureIndex{spriteOffset.mValue + 22},
+                Graphics::TextureIndex{spriteOffset.mValue + 23},
                 [this, skill=static_cast<BAK::SkillType>(i +1)](){
                     mToggleSkillSelected(skill);
                 });

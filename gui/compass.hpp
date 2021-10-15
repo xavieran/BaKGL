@@ -22,11 +22,7 @@ public:
         Graphics::TextureIndex texture)
     :
         Widget{
-            Graphics::DrawMode::ClipRegion,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            Color::black,
+            ClipRegionTag{},
             pos,
             dims,
             true

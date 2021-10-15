@@ -17,8 +17,8 @@ public:
             clip
                 ? Graphics::DrawMode::ClipRegion
                 : Graphics::DrawMode::Rect,
-            0,
-            0,
+            Graphics::SpriteSheetIndex{},
+            Graphics::TextureIndex{},
             Graphics::ColorMode::SolidColor,
             //Color::debug,
             glm::vec4{0},

@@ -17,13 +17,10 @@ public:
         float height)
     :
         Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            glm::vec4{0},
+            RectTag{},
             glm::vec2{0},
             glm::vec2{width, height},
+            glm::vec4{0},
             true},
         mCursor{spriteManager}
     {

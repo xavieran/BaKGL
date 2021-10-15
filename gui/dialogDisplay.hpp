@@ -40,14 +40,10 @@ public:
         BAK::GameState& gameState)
     :
         Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            0,
-            Graphics::ColorMode::SolidColor,
-            //Color::debug,
-            glm::vec4{0},
+            RectTag{},
             pos,
             dims,
+            glm::vec4{0},
             true
         },
         mDialogStore{},
@@ -64,7 +60,7 @@ public:
         mActor{
             Graphics::DrawMode::Sprite,
             mActors.GetSpriteSheet(),
-            0,
+            Graphics::TextureIndex{},
             Graphics::ColorMode::Texture,
             glm::vec4{0},
             glm::vec2{100, 19},

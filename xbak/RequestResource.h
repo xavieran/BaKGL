@@ -170,6 +170,7 @@ private:
     std::vector<RequestData> data;
 public:
     RequestResource();
+    RequestResource(const std::string&);
     virtual ~RequestResource();
     bool IsPopup() const;
     Rectangle& GetRectangle();

@@ -147,7 +147,7 @@ void GuiRenderer::RenderGuiImpl(
 
         const auto& sprites = mSpriteManager.GetSpriteSheet(di.mSpriteSheet);
         const auto object = di.mDrawMode == DrawMode::Sprite
-            ? sprites.Get(di.mTexture)
+            ? sprites.Get(di.mTexture.mValue)
             : sprites.GetRect();
             
         Draw(

@@ -22,23 +22,17 @@ public:
         const std::string& text)
     :
         Widget{
-            Graphics::DrawMode::Rect,
-            0,
-            Graphics::TextureIndex{0},
-            Graphics::ColorMode::SolidColor,
-            Color::frameMaroon,
+            RectTag{},
             pos,
             dims,
+            Color::frameMaroon,
             true
         },
         mForeground{
-            Graphics::DrawMode::Rect,
-            0,
-            Graphics::TextureIndex{0},
-            Graphics::ColorMode::SolidColor,
-            Color::buttonBackground,
+            RectTag{},
             glm::vec2{1,1},
             dims,
+            Color::buttonBackground,
             true
         },
         mTextBox{

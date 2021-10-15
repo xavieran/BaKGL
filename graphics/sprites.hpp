@@ -77,7 +77,7 @@ private:
 
     std::vector<Sprites> mSprites;
 
-    SpriteSheetIndex mNextSpriteSheet;
+    unsigned mNextSpriteSheet;
     std::optional<SpriteSheetIndex> mActiveSpriteSheet;
 };
 
