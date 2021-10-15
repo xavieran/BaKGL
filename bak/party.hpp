@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/character.hpp"
+#include "bak/money.hpp"
 
 #include "com/assert.hpp"
 
@@ -13,11 +14,49 @@ class Party
 public:
     using CharacterIndex = std::uint8_t;
 
-    int mGold;
+    Royals mGold;
     Inventory mKeys;
 
     std::vector<Character> mCharacters;
     std::vector<CharacterIndex> mActiveCharacters;
+
+    Royals GetGold() const
+    {
+        return mGold;
+    }
+
+    void RemoveItem(unsigned item, unsigned quantity)
+    {
+        if (item == 0x35)
+        {
+            mGold.mValue -= GetRoyals(Sovereigns{quantity}).mValue;
+        }
+        else if (item == 0x36)
+        {
+            mGold.mValue -= quantity;
+        }
+        else
+        {
+            // for (auto& inventory : mActiveCharacters inventory...
+            // if (try remove item) break
+        }
+    }
+
+    void GainItem(unsigned character, unsigned item, unsigned quantity)
+    {
+        if (item == 0x35)
+        {
+            mGold.mValue += GetRoyals(Sovereigns{quantity}).mValue;
+        }
+        else if (item == 0x36)
+        {
+            mGold.mValue += quantity;
+        }
+        else
+        {
+            // mCharacters[character].GiveITems()...
+        }
+    }
 
     unsigned NextActiveCharacter(unsigned currentCharacter)
     {

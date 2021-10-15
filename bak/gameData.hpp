@@ -7,6 +7,7 @@
 #include "bak/condition.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter/encounter.hpp"
+#include "bak/money.hpp"
 #include "bak/party.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/skills.hpp"
@@ -248,10 +249,10 @@ public:
         return mBuffer.GetUint16LE();
     }
 
-    int LoadGold()
+    Royals LoadGold()
     {
         mBuffer.Seek(sGoldOffset);
-        return mBuffer.GetSint32LE();
+        return Royals{mBuffer.GetUint32LE()};
     }
 
     std::vector<std::uint8_t> LoadActiveCharacters()

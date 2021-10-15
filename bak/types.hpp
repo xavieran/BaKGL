@@ -16,4 +16,5 @@ using ZoneNumber = StrongType<unsigned, struct ZoneNumberTag>;
 using ZoneTransitionIndex = StrongType<unsigned, struct ZoneTransitionIndexTag>;
 using TeleportIndex = StrongType<unsigned, struct TeleportIndexTag>;
 
+
 }
