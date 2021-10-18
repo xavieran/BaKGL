@@ -31,6 +31,7 @@ public:
 
     bool IsEquipped() const
     {
+        // FIXME: Not correct
         return mStatus && (1 << 6) == (1 << 6);
     }
 };
