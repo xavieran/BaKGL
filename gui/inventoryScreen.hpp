@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -12,8 +13,6 @@
 #include "gui/ratings.hpp"
 #include "gui/widget.hpp"
 #include "gui/skills.hpp"
-
-#include "xbak/RequestResource.h"
 
 #include <glm/glm.hpp>
 
@@ -67,8 +66,8 @@ public:
         },
         mCharacters{},
         mExit{
-            GetRequestLocation(mExitRequest),
-            GetRequestDims(mExitRequest),
+            mLayout.GetWidgetLocation(mExitRequest),
+            mLayout.GetWidgetDimensions(mExitRequest),
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
             std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
             std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
@@ -76,12 +75,12 @@ public:
             []{}
         },
         mGoldDisplay{
-            GetRequestLocation(mGoldRequest),
-            GetRequestDims(mGoldRequest)
+            mLayout.GetWidgetLocation(mGoldRequest),
+            mLayout.GetWidgetDimensions(mGoldRequest),
         },
         mContainerTypeDisplay{
-            GetRequestLocation(mContainerTypeRequest),
-            GetRequestDims(mContainerTypeRequest),
+            mLayout.GetWidgetLocation(mContainerTypeRequest),
+            mLayout.GetWidgetDimensions(mContainerTypeRequest),
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
             std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
             std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
@@ -92,20 +91,6 @@ public:
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
         AddChildren();
-    }
-
-    glm::vec2 GetRequestLocation(unsigned i)
-    {
-        const auto data = mLayout.GetRequestData(i);
-        int x = data.xpos + mLayout.GetRectangle().GetXPos() + mLayout.GetXOff();
-        int y = data.ypos + mLayout.GetRectangle().GetYPos() + mLayout.GetYOff();
-        return glm::vec2{x, y};
-    }
-
-    glm::vec2 GetRequestDims(unsigned i)
-    {
-        const auto data = mLayout.GetRequestData(i);
-        return glm::vec2{data.width, data.height};
     }
 
     void UpdatePartyMembers()
@@ -121,8 +106,8 @@ public:
         {
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(party.mActiveCharacters[person]);
             mCharacters.emplace_back(
-                GetRequestLocation(person),
-                GetRequestDims(person),
+                mLayout.GetWidgetLocation(person),
+                mLayout.GetWidgetDimensions(person),
                 spriteSheet,
                 image,
                 image,
@@ -152,13 +137,13 @@ public:
         const auto royals = BAK::GetRemainingRoyals(gold);
         std::stringstream ss{};
         ss << "#" << sovereigns << "s " << royals << "r";
-        const auto [dims, _] = mGoldDisplay.AddText(mFont, ss.str());
+        const auto [textDims, _] = mGoldDisplay.AddText(mFont, ss.str());
 
         // Justify text to the right
-        const auto basePos = GetRequestLocation(mGoldRequest);
+        const auto basePos = mLayout.GetWidgetLocation(mGoldRequest);
         const auto newPos = basePos 
             + glm::vec2{
-                3 + GetRequestDims(mGoldRequest).x - dims.x,
+                3 + mLayout.GetWidgetDimensions(mGoldRequest).x - textDims.x,
                 4};
 
         mGoldDisplay.SetPosition(newPos);
@@ -192,7 +177,7 @@ private:
     BAK::GameState& mGameState;
     NullDialogScene mDialogScene;
 
-    RequestResource mLayout;
+    BAK::Layout mLayout;
 
     Widget mFrame;
 
