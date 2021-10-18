@@ -27,4 +27,6 @@ constexpr auto buttonPressed    = glm::vec4{.573, .380, .204, 1};
 constexpr auto buttonShadow     = glm::vec4{.333, .271, .173, 1};
 constexpr auto buttonHighlight  = glm::vec4{.651, .573, .255, 1};
 
+constexpr auto itemHighlighted  = glm::vec4{.490, .063, .031, 1};
+
 }

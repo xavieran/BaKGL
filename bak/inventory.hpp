@@ -31,6 +31,7 @@ std::ostream& operator<<(std::ostream&, const InventoryItem&);
 class Inventory
 {
 public:
+    const auto& GetItems() const { return mItems; }
     std::vector<InventoryItem> mItems;
 };
 
