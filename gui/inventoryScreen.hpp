@@ -26,29 +26,6 @@
 
 namespace Gui {
 
-class ArmorSlot : public Widget
-{
-public:
-
-};
-
-//class EqippedItemsDisplay : public Widget
-//{
-//public:
-//    EqippedItemsDisplay(
-//        glm::vec2 pos,
-//        glm::vec2 dims)
-//    :
-//        Widget{
-//            RectTag{},
-//            pos,
-//            dims,
-//            Color::debug,
-//            true}
-//    {}
-//
-//    ArmorSlot mArmorSlot;
-//};
 
 
 class InventorySlot : public Widget
@@ -123,7 +100,6 @@ public:
         else
             SetColor(glm::vec4{});
         
-
         return false;
     }
 
@@ -151,7 +127,11 @@ public:
     {
         std::stringstream ss{};
         ss << "#" << +item.mCondition << "%";
-        mQuantity.AddText(font, ss.str());
+        const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
+        const auto& dims = GetPositionInfo().mDimensions;
+        mQuantity.SetPosition(dims 
+            - textDims 
+            + glm::vec2{4, 2});
     }
 
 private:
@@ -168,6 +148,55 @@ private:
 
     TextBox mQuantity;
     Widget mItem;
+};
+
+class EquipmentSlot : public Widget
+{
+public:
+    EquipmentSlot(
+        glm::vec2 pos,
+        glm::vec2 dims,
+        const Icons& mIcons,
+        unsigned icon)
+    :
+        Widget{
+            RectTag{},
+            pos,
+            dims,
+            glm::vec4{},
+            true
+        },
+        mBlank{
+            ImageTag{},
+            std::get<Graphics::SpriteSheetIndex>(
+                mIcons.GetInventoryIcon(icon)),
+            std::get<Graphics::TextureIndex>(
+                mIcons.GetInventoryIcon(icon)),
+            glm::vec2{0},
+            dims,
+            true
+        }
+    {
+        ClearItem();
+    }
+
+    template <typename ...Args>
+    void AddItem(Args&&... args)
+    {
+        ClearChildren();
+        mItem.emplace(std::forward<Args>(args)...);
+        AddChildBack(&(*mItem));
+    }
+
+    void ClearItem()
+    {
+        ClearChildren();
+        AddChildBack(&mBlank);
+    }
+
+private:
+    std::optional<InventorySlot> mItem;
+    Widget mBlank;
 };
 
 class InventoryScreen : public Widget
@@ -234,6 +263,12 @@ public:
             std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
             []{}, // Goto Keys, or goto Shop, or Goto Bag, or Goto Container...
             []{}
+        },
+        mArmor{
+            glm::vec2{13, 15 + 29 * 2},
+            glm::vec2{80, 58},
+            mIcons,
+            131
         },
         mInventoryItems{},
         mSelectedCharacter{0},
@@ -336,7 +371,7 @@ private:
         unsigned minorRow = 0;
 
         auto pos  = glm::vec2{105, 11};
-        auto slotDims = glm::vec2{40, 29};
+        const auto slotDims = glm::vec2{40, 29};
 
         for (const auto& itemPtr : items)
         {
@@ -348,6 +383,26 @@ private:
                     (majorRow * 2 + minorRow) * slotDims.y};
 
             auto dims = slotDims;
+
+            if (item.mObject.mType == BAK::ItemType::Armor
+                && item.IsEquipped())
+            {
+                mArmor.AddItem(
+                    glm::vec2{0},
+                    slotDims * glm::vec2{2},
+                    mFont,
+                    mIcons,
+                    item,
+                    [&, itemIndex=item.mItemIndex](){
+                        mGameState.SetDialogContext(itemIndex.mValue);
+                        mGuiManager.StartDialog(
+                            BAK::DialogSources::GetItemDescription(),
+                            false,
+                            &mDialogScene);
+                    });
+
+                continue;
+            }
 
             if (item.mObject.mImageSize == 1)
             {
@@ -413,6 +468,8 @@ private:
         for (auto& character : mCharacters)
             AddChildBack(&character);
 
+        AddChildBack(&mArmor);
+
         for (auto& item : mInventoryItems)
             AddChildBack(&item);
     }
@@ -434,6 +491,7 @@ private:
     // click into shop or keys, etc.
     ClickButtonImage mContainerTypeDisplay;
 
+    EquipmentSlot mArmor;
     std::vector<InventorySlot> mInventoryItems;
 
     unsigned mSelectedCharacter;
