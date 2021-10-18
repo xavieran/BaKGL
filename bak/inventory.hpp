@@ -1,5 +1,4 @@
 #pragma once
-
 #include "bak/objectInfo.hpp"
 #include "bak/types.hpp"
 
@@ -8,6 +7,11 @@
 
 namespace BAK {
 
+enum class ItemStatus
+{
+    Equipped   = 6,
+    Repairable = 7,
+};
 
 class InventoryItem
 {
@@ -24,6 +28,11 @@ public:
     std::uint8_t mCondition;
     std::uint8_t mStatus;
     std::uint8_t mModifiers;
+
+    bool IsEquipped() const
+    {
+        return mStatus && (1 << 6) == (1 << 6);
+    }
 };
 
 std::ostream& operator<<(std::ostream&, const InventoryItem&);

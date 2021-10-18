@@ -34,6 +34,33 @@ struct Console : public std::streambuf
 
     // Console commands
 
+    void GiveMoney(const std::vector<std::string>& words)
+    {
+        if (words.size() < 2)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: GIVE_MONEY INDEX (%s)", ss.str().c_str());
+            return;
+        }
+
+        std::stringstream ss{};
+        ss << words[1];
+        unsigned amount;
+        ss >> std::setbase(0) >> amount;
+
+        if (!mGameState)
+        {
+            AddLog("[error] GiveMoney FAILED No GameState Connected");
+            return;
+        }
+
+        mGameState->GetParty().GainItem(
+            1,
+            0x35, // gold sovereigns
+            amount);
+    }
     void DoTeleport(const std::vector<std::string>& words)
     {
         if (words.size() < 2)
@@ -128,10 +155,13 @@ struct Console : public std::streambuf
         mCommands.push_back("HELP");
         mCommandActions.emplace_back([this](const auto&)
         {
-            AddLog("mCommands:");
+            AddLog("Commands:");
             for (int i = 0; i < mCommands.Size; i++)
                 AddLog("- %s", mCommands[i]);
         });
+
+        mCommands.push_back("GIVE_MONEY");
+        mCommandActions.emplace_back([this](const auto& cmd){ GiveMoney(cmd); });
 
         mCommands.push_back("DO_TELEPORT");
         mCommandActions.emplace_back([this](const auto& cmd){ DoTeleport(cmd); });
