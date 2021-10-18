@@ -79,8 +79,10 @@ public:
     int mAccuracySwing;
     int mStrengthThrust;
     int mAccuracyThrust;
-    // Amount of space item takes?
+    unsigned mImageIndex;
     unsigned mImageSize;
+    unsigned mStackSize;
+    unsigned mDefaultStackSize;
     RacialModifier mRace;
     ItemType mType;
     std::uint16_t mEffectMask;

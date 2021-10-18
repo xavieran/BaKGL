@@ -219,6 +219,7 @@ public:
             auto conditions = LoadConditions(character);
 
             chars.emplace_back(
+                character,
                 name,
                 skills,
                 spells,

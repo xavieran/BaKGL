@@ -60,13 +60,16 @@ std::string_view ToString(ItemType i)
 
 std::ostream& operator<<(std::ostream& os, const GameObject& go)
 {
-    os << go.mName << std::hex << " fl: " << go.mFlags << std::dec
+    os << "Object: { " << go.mName << std::hex << " fl: " << go.mFlags << std::dec
+        << " itm: " << go.mImageIndex
         << " lvl: " << go.mLevel << " val: " << go.mValue
         << " swing (" << go.mStrengthSwing << ", " << go.mAccuracySwing << ")"
         << " thrust (" << go.mStrengthThrust << ", " << go.mAccuracyThrust << ")"
         << " size: " << go.mImageSize << " " << ToString(go.mRace) << " " << ToString(go.mType)
+        << " stackSize: " << go.mStackSize << " defaultStackSize: " << go.mDefaultStackSize
         << " eff (" << std::hex << go.mEffectMask << ", " << std::dec << go.mEffect
-        << " mod (" << std::hex << go.mModifierMask << ", " << std::dec << go.mModifier;
+        << " ) mod (" << std::hex << go.mModifierMask << ", " << std::dec << go.mModifier
+        << ")}";
     return os;
 }
 
@@ -77,6 +80,7 @@ ObjectIndex::ObjectIndex()
     for (unsigned i = 0; i < sObjectCount; i++)
     {
         const auto name = fb.GetString(30);
+        logger.Debug() << "ItemOff: " << std::hex << fb.Tell() << std::dec << "\n";
         const auto unknown = fb.GetArray<2>();
         const auto flags = fb.GetUint16LE();
         const auto unknown2 = fb.GetArray<2>();
@@ -86,22 +90,24 @@ ObjectIndex::ObjectIndex()
         const auto strengthThrust = fb.GetSint16LE();
         const auto accuracySwing = fb.GetSint16LE();
         const auto accuracyThrust = fb.GetSint16LE();
-        const auto unknown3 = fb.GetArray<2>();
+        const auto optionalImageIndex = fb.GetUint16LE();
         const auto imageSize = fb.GetUint16LE();
-        const auto unknown4 = fb.GetArray<4>();
+        const auto unknown3 = fb.GetArray<2>();
+        const auto stackSize = fb.GetUint8();
+        const auto defaultStackSize = fb.GetUint8();
         const auto race = fb.GetUint16LE();
-        const auto unknown5 = fb.GetArray<2>();
+        const auto unknown4 = fb.GetArray<2>();
         const auto type = fb.GetUint16LE();
         const auto effectMask = fb.GetUint16LE();
         const auto effect = fb.GetSint16LE();
-        const auto unknown6 = fb.GetArray<4>();
+        const auto unknown5 = fb.GetArray<4>();
         const auto modifierMask = fb.GetUint16LE();
         const auto modifier = fb.GetSint16LE();
-        const auto unknown7 = fb.GetArray<6>();
+        const auto unknown6 = fb.GetArray<6>();
 
-        logger.Debug() << "Item: " << i << " Unknown: " << unknown << " "
-            << unknown2 << " " << unknown3 << " " << unknown4 << " "
-            << unknown5 << " " << unknown6 << " " << unknown7 << "\n";
+        logger.Debug() << i << " Unknown: " << unknown << "|"
+            << unknown2 << "|" << unknown3 << "|" << unknown4 << "|"
+            << unknown5 << "|" << unknown6 << " " << name << "\n";
 
         mObjects[i] = GameObject{
             name,
@@ -112,13 +118,17 @@ ObjectIndex::ObjectIndex()
             accuracySwing,
             strengthThrust,
             accuracyThrust,
+            optionalImageIndex != 0 ? optionalImageIndex : i,
             imageSize,
+            stackSize,
+            defaultStackSize,
             static_cast<RacialModifier>(race),
             static_cast<ItemType>(type),
             effectMask,
             effect,
             modifierMask,
             modifier};
+        logger.Debug() << mObjects[i] << "\n";
     }
 }
     

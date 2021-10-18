@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/dialogSources.hpp"
+#include "bak/inventory.hpp"
 #include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 
@@ -11,16 +13,162 @@
 #include "gui/clickButton.hpp"
 #include "gui/portrait.hpp"
 #include "gui/ratings.hpp"
-#include "gui/widget.hpp"
 #include "gui/skills.hpp"
+#include "gui/textBox.hpp"
+#include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <utility>
 #include <variant>
 
 namespace Gui {
+
+class ArmorSlot : public Widget
+{
+public:
+
+};
+
+//class EqippedItemsDisplay : public Widget
+//{
+//public:
+//    EqippedItemsDisplay(
+//        glm::vec2 pos,
+//        glm::vec2 dims)
+//    :
+//        Widget{
+//            RectTag{},
+//            pos,
+//            dims,
+//            Color::debug,
+//            true}
+//    {}
+//
+//    ArmorSlot mArmorSlot;
+//};
+
+
+class InventorySlot : public Widget
+{
+public:
+    InventorySlot(
+        glm::vec2 pos,
+        glm::vec2 dims,
+        const Font& font,
+        const Icons& icons,
+        const BAK::InventoryItem& item,
+        std::function<void()>&& showItemDescription)
+    :
+        Widget{
+            RectTag{},
+            pos,
+            dims,
+            glm::vec4{},
+            true
+        },
+        mItemRef{item},
+        mShowItemDescription{std::move(showItemDescription)},
+        mIsSelected{false},
+        mQuantity{
+            glm::vec2{0, 0},
+            glm::vec2{40, 30}
+        },
+        mItem{
+            ImageTag{},
+
+            std::get<Graphics::SpriteSheetIndex>(
+                icons.GetInventoryIcon(item.mObject.mImageIndex)),
+            std::get<Graphics::TextureIndex>(
+                icons.GetInventoryIcon(item.mObject.mImageIndex)),
+            pos,
+            std::get<glm::vec2>(
+                icons.GetInventoryIcon(item.mObject.mImageIndex)),
+            true
+        }
+    {
+        assert(mShowItemDescription);
+        mItem.SetCenter(GetCenter() - GetTopLeft());
+
+        UpdateQuantity(font, item);
+
+        AddChildren();
+    }
+
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
+            [](const auto& p){ return false; }
+            },
+            event);
+    }
+
+    bool LeftMousePressed(glm::vec2 click)
+    {
+        if (Within(click))
+        {
+            mIsSelected = true;
+            Logging::LogDebug("InventoryItem") << "Clicked: " << mItemRef << "\n"
+                << mItemRef.mObject << "\n";
+        }
+        else
+            mIsSelected = false;
+
+        if (mIsSelected)
+            SetColor(Color::itemHighlighted);
+        else
+            SetColor(glm::vec4{});
+        
+
+        return false;
+    }
+
+    bool RightMousePressed(glm::vec2 click)
+    {
+        if (Within(click))
+        {
+            mIsSelected = true;
+            mShowItemDescription();
+        }
+        else
+            mIsSelected = false;
+
+        if (mIsSelected)
+            SetColor(Color::itemHighlighted);
+        else
+            SetColor(glm::vec4{});
+
+        return false;
+    }
+
+    void UpdateQuantity(
+        const Font& font,
+        const BAK::InventoryItem& item)
+    {
+        std::stringstream ss{};
+        ss << "#" << +item.mCondition << "%";
+        mQuantity.AddText(font, ss.str());
+    }
+
+private:
+    void AddChildren()
+    {
+        ClearChildren();
+        AddChildBack(&mItem);
+        AddChildBack(&mQuantity);
+    }
+
+    const BAK::InventoryItem& mItemRef;
+    std::function<void()> mShowItemDescription;
+    bool mIsSelected;
+
+    TextBox mQuantity;
+    Widget mItem;
+};
 
 class InventoryScreen : public Widget
 {
@@ -87,21 +235,30 @@ public:
             []{}, // Goto Keys, or goto Shop, or Goto Bag, or Goto Container...
             []{}
         },
+        mInventoryItems{},
         mSelectedCharacter{0},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
         AddChildren();
     }
 
+    void SetSelectedCharacter(unsigned character)
+    {
+        mSelectedCharacter = character;
+        UpdatePartyMembers();
+        UpdateGold();
+        UpdateInventoryContents();
+
+        AddChildren();
+    }
+
+private:
     void UpdatePartyMembers()
     {
-        ClearChildren();
-
         mCharacters.clear();
         mCharacters.reserve(3);
 
         const auto& party = mGameState.GetParty();
-        mLogger.Info() << "Updating Party: " << party<< "\n";
         for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
         {
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(party.mActiveCharacters[person]);
@@ -111,23 +268,15 @@ public:
                 spriteSheet,
                 image,
                 image,
-                [character=party.mActiveCharacters[person]]{
+                [this, character=person]{
                     // Switch character
+                    SetSelectedCharacter(character);
                 },
-                [this, character=party.mActiveCharacters[person]]{
+                [this, character=person]{
                     mGuiManager.ShowCharacterPortrait(character);
                 }
             );
         }
-
-        AddChildren();
-    }
-
-    void SetSelectedCharacter(unsigned character)
-    {
-        mSelectedCharacter = character;
-        UpdatePartyMembers();
-        UpdateGold();
     }
 
     void UpdateGold()
@@ -155,6 +304,101 @@ public:
         mContainerTypeDisplay.CenterImage(dims);
     }
 
+    void UpdateInventoryContents()
+    {
+        mInventoryItems.clear();
+
+        const auto& character = mGameState.GetParty().GetActiveCharacter(mSelectedCharacter);
+        mLogger.Info() << "Updating Character: " << character << "\n";
+        const auto& inventory = character.GetInventory();
+
+        std::vector<const BAK::InventoryItem*> items{};
+
+        const auto numItems = inventory.GetItems().size();
+        mInventoryItems.reserve(numItems);
+        items.reserve(numItems);
+
+        std::transform(
+            inventory.GetItems().begin(), inventory.GetItems().end(),
+            std::back_inserter(items),
+            [](const auto& i) -> const BAK::InventoryItem* {
+                return &i;
+            });
+
+        std::sort(items.begin(), items.end(), [](const auto& l, const auto& r) 
+        {
+            return l->mObject.mImageSize > r->mObject.mImageSize;
+        });
+
+        unsigned majorColumn = 0;
+        unsigned minorColumn = 0;
+        unsigned majorRow = 0;
+        unsigned minorRow = 0;
+
+        auto pos  = glm::vec2{105, 11};
+        auto slotDims = glm::vec2{40, 29};
+
+        for (const auto& itemPtr : items)
+        {
+            assert(itemPtr);
+            const auto& item = *itemPtr;
+            const auto& [ss, ti, _] = mIcons.GetInventoryIcon(item.mItemIndex.mValue);
+            const auto itemPos = pos + glm::vec2{
+                    (majorColumn * 2 + minorColumn) * slotDims.x,
+                    (majorRow * 2 + minorRow) * slotDims.y};
+
+            auto dims = slotDims;
+
+            if (item.mObject.mImageSize == 1)
+            {
+                minorColumn += 1;
+            }
+            else if (item.mObject.mImageSize == 2)
+            {
+                minorRow += 1;
+                dims.x *= 2;
+            }
+            else if (item.mObject.mImageSize == 4)
+            {
+                dims.x *= 2;
+                dims.y *= 2;
+                majorRow += 1;
+            }
+
+            mInventoryItems.emplace_back(
+                itemPos,
+                dims,
+                mFont,
+                mIcons,
+                item,
+                [&, itemIndex=item.mItemIndex](){
+                    mGameState.SetDialogContext(itemIndex.mValue);
+                    mGuiManager.StartDialog(
+                        BAK::DialogSources::GetItemDescription(),
+                        false,
+                        &mDialogScene);
+                });
+
+            if (minorColumn == 2)
+            {
+                minorColumn = 0;
+                minorRow += 1;
+            }
+
+            if (minorRow == 2)
+            {
+                minorRow = 0;
+                majorRow += 1;
+            }
+
+            if (majorRow == 2)
+            {
+                majorColumn += 1;
+                majorRow = 0;
+            }
+        }
+    }
+
     void AddChildren()
     {
         ClearChildren();
@@ -168,6 +412,9 @@ public:
 
         for (auto& character : mCharacters)
             AddChildBack(&character);
+
+        for (auto& item : mInventoryItems)
+            AddChildBack(&item);
     }
 
 private:
@@ -187,6 +434,7 @@ private:
     // click into shop or keys, etc.
     ClickButtonImage mContainerTypeDisplay;
 
+    std::vector<InventorySlot> mInventoryItems;
 
     unsigned mSelectedCharacter;
     const Logging::Logger& mLogger;

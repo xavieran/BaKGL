@@ -17,7 +17,7 @@ public:
         return KeyTarget{mFairyChestKey + chest};
     }
 
-    static KeyTarget GetItemDescription(unsigned itemIndex)
+    static KeyTarget GetItemDescription()
     {
         // Item description takes a "context variable" which is
         // the item number.

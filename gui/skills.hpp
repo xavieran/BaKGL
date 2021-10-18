@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/layout.hpp"
 #include "bak/skills.hpp"
 
 #include "graphics/IGuiElement.hpp"
@@ -12,8 +13,6 @@
 #include "gui/clickButton.hpp"
 #include "gui/widget.hpp"
 #include "gui/scene.hpp"
-
-#include "xbak/RequestResource.h"
 
 #include <glm/glm.hpp>
 
@@ -172,13 +171,15 @@ public:
 class Skills : public ClickButtonBase
 {
 public:
+    static constexpr auto sSkillWidgetStart = 3;
+    static constexpr auto sSelectableSkillsOffset = 4;
 
     Skills(
         glm::vec2 pos,
         glm::vec2 dims,
         Graphics::SpriteSheetIndex spriteSheet,
         Graphics::TextureIndex spriteOffset,
-        const RequestResource& request,
+        const BAK::Layout& layout,
         std::function<void(BAK::SkillType)>&& toggleSkill,
         std::function<void()>&& onRightMousePress)
     :
@@ -192,16 +193,12 @@ public:
         mToggleSkillSelected{std::move(toggleSkill)},
         mLogger{Logging::LogState::GetLogger("Gui::Skills")}
     {
-        mSkills.reserve(request.GetSize());
-        for (unsigned i = 3; i < request.GetSize(); i++)
+        mSkills.reserve(layout.GetSize());
+        for (unsigned i = sSkillWidgetStart; i < layout.GetSize(); i++)
         {
-            const auto& data = request.GetRequestData(i);
-            int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff() + 8;
-
             auto& s = mSkills.emplace_back(
-                glm::vec2{x, y} - pos,
-                glm::vec2{data.width, data.height},
+                layout.GetWidgetLocation(i) - pos + glm::vec2{0, 8},
+                layout.GetWidgetDimensions(i),
                 spriteSheet,
                 Graphics::TextureIndex{spriteOffset.mValue + 21},
                 Graphics::TextureIndex{spriteOffset.mValue + 22},
@@ -226,9 +223,9 @@ public:
         const Font& font,
         const BAK::Skills& skills)
     {
-        for (unsigned i = 4; i < BAK::Skills::sSkills; i++)
+        for (unsigned i = sSelectableSkillsOffset; i < BAK::Skills::sSkills; i++)
         {
-            mSkills[i - 4].UpdateValue(
+            mSkills[i - sSelectableSkillsOffset].UpdateValue(
                 font,
                 static_cast<BAK::SkillType>(i),
                 skills.mSkills[i].mCurrent,

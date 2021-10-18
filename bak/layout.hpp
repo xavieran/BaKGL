@@ -30,6 +30,8 @@ public:
     glm::vec2 GetWidgetLocation(unsigned index) const;
     glm::vec2 GetWidgetDimensions(unsigned index) const;
 
+    std::size_t GetSize() const { return mWidgets.size(); }
+
 private:
     bool mIsPopup;
     glm::vec2 mPosition;

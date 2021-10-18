@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -27,8 +28,12 @@ namespace Gui {
 class InfoScreen : public Widget
 {
 public:
+    static constexpr auto sLayoutFile = "REQ_INFO.DAT";
     static constexpr auto sSkillRightClickDialog = BAK::KeyTarget{0x143};
     static constexpr auto sCharacterFlavourDialog = BAK::KeyTarget{0x69};
+
+    static constexpr auto sPortraitWidget = 0;
+    static constexpr auto sExitWidget = 1;
 
     InfoScreen(
         IGuiManager& guiManager,
@@ -52,76 +57,55 @@ public:
         mGameState{gameState},
         mDialogScene{},
         mSelectedCharacter{0},
-        mElements{},
-        mButtons{},
-        mPortrait{},
-        mSkills{},
-        mLogger{Logging::LogState::GetLogger("Gui::InfoScreen")}
-    {
-        RequestResource request{"REQ_INFO.DAT"};
-
-        mElements.reserve(request.GetSize());
-
-        {
-            unsigned i = 1; // exit
-            const auto& data = request.GetRequestData(i);
-            int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-            mButtons.emplace_back(
-                glm::vec2{x, y},
-                glm::vec2{data.width, data.height},
-                mFont,
-                "#Exit",
-                [this]{ mGuiManager.ExitCharacterPortrait(); });
-        }
-
-        {
-            unsigned i = 0; // portrait
-            const auto& data = request.GetRequestData(i);
-            int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-            int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-
-            mPortrait.emplace(
-                glm::vec2{x, y},
-                glm::vec2{data.width, data.height},
-                actors,
-                mFont,
-                std::get<Graphics::SpriteSheetIndex>(icons.GetStippledBorderVertical()),
-                std::get<Graphics::TextureIndex>(icons.GetStippledBorderHorizontal()),
-                std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical()),
-                [this](){
-                    AdvanceCharacter(); },
-                [this](){
-                    mGameState.SetDialogContext(mSelectedCharacter);
-                    mGuiManager.StartDialog(
-                        sCharacterFlavourDialog, false, &mDialogScene);
-                }
-            );
-
-            mRatings.emplace(
-                glm::vec2{x + data.width + 4, y},
-                glm::vec2{222, data.height},
-                mFont,
-                std::get<Graphics::SpriteSheetIndex>(icons.GetStippledBorderVertical()),
-                std::get<Graphics::TextureIndex>(icons.GetStippledBorderHorizontal()),
-                std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical())
-            );
-        }
-
-        mSkills.emplace(
+        mLayout{sLayoutFile},
+        mExitButton{
+            mLayout.GetWidgetLocation(sExitWidget),
+            mLayout.GetWidgetDimensions(sExitWidget),
+            mFont,
+            "#Exit",
+            [this]{ mGuiManager.ExitCharacterPortrait(); }
+        },
+        mPortrait{
+            mLayout.GetWidgetLocation(sPortraitWidget),
+            mLayout.GetWidgetDimensions(sPortraitWidget),
+            actors,
+            mFont,
+            std::get<Graphics::SpriteSheetIndex>(icons.GetStippledBorderVertical()),
+            std::get<Graphics::TextureIndex>(icons.GetStippledBorderHorizontal()),
+            std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical()),
+            [this](){
+                AdvanceCharacter(); },
+            [this](){
+                mGameState.SetDialogContext(mSelectedCharacter);
+                mGuiManager.StartDialog(
+                    sCharacterFlavourDialog, false, &mDialogScene);
+            }
+        },
+        mRatings{
+            mPortrait.GetPositionInfo().mPosition 
+                + glm::vec2{mPortrait.GetPositionInfo().mDimensions.x + 4, 0},
+            glm::vec2{222, mPortrait.GetPositionInfo().mDimensions.y},
+            mFont,
+            std::get<Graphics::SpriteSheetIndex>(icons.GetStippledBorderVertical()),
+            std::get<Graphics::TextureIndex>(icons.GetStippledBorderHorizontal()),
+            std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical())
+        },
+        mSkills{
             glm::vec2{15, 100},
             glm::vec2{200,200},
             std::get<Graphics::SpriteSheetIndex>(icons.GetInventoryIcon(120)),
             std::get<Graphics::TextureIndex>(icons.GetInventoryIcon(120)),
-            request,
+            mLayout,
             [this](auto skill){
                 ToggleSkill(skill);
             },
             [this](){
                 mGuiManager.StartDialog(
                     sSkillRightClickDialog, false, &mDialogScene);
-            });
-
+            }
+        },
+        mLogger{Logging::LogState::GetLogger("Gui::InfoScreen")}
+    {
         AddChildren();
     }
 
@@ -139,11 +123,10 @@ public:
 
     void UpdateCharacter()
     {
-        assert(mSkills);
-        auto& character = mGameState.GetParty().mCharacters[mSelectedCharacter];
-        mSkills->UpdateSkills(mFont, character.mSkills);
-        mPortrait->SetCharacter(mSelectedCharacter, character.mName);
-        mRatings->SetCharacter(character.mSkills, character.mConditions);
+        auto& character = mGameState.GetParty().GetActiveCharacter(mSelectedCharacter);
+        mSkills.UpdateSkills(mFont, character.mSkills);
+        mPortrait.SetCharacter(character.mCharacterIndex, character.mName);
+        mRatings.SetCharacter(character.mSkills, character.mConditions);
         character.mSkills.ClearUnseenImprovements();
     }
 
@@ -159,18 +142,10 @@ public:
 
     void AddChildren()
     {
-        for (auto& elem : mElements)
-            AddChildBack(&elem);
-
-        for (auto& but : mButtons)
-            AddChildBack(&but);
-
-        assert(mSkills);
-        AddChildBack(&(*mSkills));
-        assert(mPortrait);
-        AddChildBack(&(*mPortrait));
-        assert(mRatings);
-        AddChildBack(&(*mRatings));
+        AddChildBack(&mExitButton);
+        AddChildBack(&mSkills);
+        AddChildBack(&mPortrait);
+        AddChildBack(&mRatings);
     }
 
 private:
@@ -179,11 +154,13 @@ private:
     BAK::GameState& mGameState;
     NullDialogScene mDialogScene;
     unsigned mSelectedCharacter;
-    std::vector<Widget> mElements;
-    std::vector<ClickButton> mButtons;
-    std::optional<Portrait> mPortrait;
-    std::optional<Ratings> mRatings;
-    std::optional<Skills> mSkills;
+
+    BAK::Layout mLayout;
+
+    ClickButton mExitButton;
+    Portrait mPortrait;
+    Ratings mRatings;
+    Skills mSkills;
 
     const Logging::Logger& mLogger;
 };

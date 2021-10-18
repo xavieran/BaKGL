@@ -2,6 +2,7 @@
 
 #include "bak/coordinates.hpp"
 #include "bak/hotspot.hpp"
+#include "bak/layout.hpp"
 #include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
 #include "bak/textureFactory.hpp"
@@ -32,6 +33,9 @@ namespace Gui {
 class MainView : public Widget
 {
 public:
+    static constexpr auto sLayoutFile = "REQ_MAIN.DAT";
+
+    static constexpr auto sCharacterWidgetBegin = 10;
 
     MainView(
         IGuiManager& guiManager,
@@ -50,55 +54,40 @@ public:
         },
         mGuiManager{guiManager},
         mIcons{icons},
-        mCompass{},
+        mLayout{sLayoutFile},
+        mCompass{
+            glm::vec2{144,121},
+            glm::vec2{32,12},
+            std::get<glm::vec2>(icons.GetCompass())
+                + glm::vec2{0, 1},
+            std::get<Graphics::SpriteSheetIndex>(icons.GetCompass()),
+            std::get<Graphics::TextureIndex>(icons.GetCompass())
+        },
         mButtons{},
         mCharacters{},
         mLogger{Logging::LogState::GetLogger("Gui::MainView")}
     {
-        auto [ss, ti, dims] = icons.GetCompass();
-        mCompass.emplace(
-            glm::vec2{144,121},
-            glm::vec2{32,12},
-            glm::vec2{dims.x, dims.y + 1},
-            ss,
-            ti);
-            
-        RequestResource request{"REQ_MAIN.DAT"};
+        mButtons.reserve(mLayout.GetSize());
 
-        mButtons.reserve(request.GetSize());
-        mCharacters.reserve(request.GetSize());
-
-        for (unsigned i = 0; i < request.GetSize(); i++)
+        for (unsigned i = 0; i < mLayout.GetSize(); i++)
         {
-            auto data = request.GetRequestData(i);
-            mLogger.Debug() << data << "\n";
-            switch (data.widget)
+            const auto& widget = mLayout.GetWidget(i);
+            switch (widget.mWidget)
             {
-            case REQ_USERDEFINED:
-            {
-                if (data.action == 192) break;
-                int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-                int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-                mCharacterLocations.emplace_back(
-                    glm::vec2{x, y},
-                    glm::vec2{data.width, data.height});
-            }
-                break;
             case REQ_IMAGEBUTTON:
             {
-                int x = data.xpos + request.GetRectangle().GetXPos() + request.GetXOff();
-                int y = data.ypos + request.GetRectangle().GetYPos() + request.GetYOff();
-
-                assert(std::get<0>(icons.GetButton(data.image))
-                    == std::get<0>(icons.GetPressedButton(data.image)));
+                const auto& button = icons.GetButton(widget.mImage);
+                assert(std::get<Graphics::SpriteSheetIndex>(button)
+                    == std::get<Graphics::SpriteSheetIndex>(icons.GetPressedButton(widget.mImage)));
                 mButtons.emplace_back(
-                    glm::vec2{x, y},
-                    glm::vec2{data.width, data.height},
-                    std::get<0>(icons.GetButton(data.image)),
-                    std::get<1>(icons.GetButton(data.image)),
-                    std::get<1>(icons.GetPressedButton(data.image)),
+                    mLayout.GetWidgetLocation(i),
+                    mLayout.GetWidgetDimensions(i),
+                    std::get<Graphics::SpriteSheetIndex>(button),
+                    std::get<Graphics::TextureIndex>(button),
+                    std::get<Graphics::TextureIndex>(icons.GetPressedButton(widget.mImage)),
                     []{},
                     []{});
+                mButtons.back().CenterImage(std::get<glm::vec2>(button));
             }
                 break;
             default:
@@ -112,8 +101,7 @@ public:
 
     void SetHeading(BAK::GameHeading heading)
     {
-        assert(mCompass);
-        mCompass->SetHeading(heading);
+        mCompass.SetHeading(heading);
     }
 
     void AddChildren()
@@ -121,8 +109,7 @@ public:
         for (auto& button : mButtons)
             AddChildBack(&button);
 
-        assert(mCompass);
-        AddChildBack(&(*mCompass));
+        AddChildBack(&mCompass);
 
         for (auto& character : mCharacters)
             AddChildBack(&character);
@@ -133,26 +120,24 @@ public:
         ClearChildren();
 
         mCharacters.clear();
-        mCharacters.reserve(mCharacterLocations.size());
+        mCharacters.reserve(3);
 
         const auto& party = gameState.GetParty();
         mLogger.Info() << "Updating Party: " << party<< "\n";
         for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
         {
-            assert(person < mCharacterLocations.size());
-            const auto& [pos, dims] = mCharacterLocations[person];
             const auto [spriteSheet, image, dimss] = mIcons.GetCharacterHead(
                 party.mActiveCharacters[person]);
             mCharacters.emplace_back(
-                pos,
-                dims,
+                mLayout.GetWidgetLocation(person + sCharacterWidgetBegin),
+                mLayout.GetWidgetDimensions(person + sCharacterWidgetBegin),
                 spriteSheet,
                 image,
                 image,
-                [this, character=party.mActiveCharacters[person]]{
+                [this, character=person]{
                     ShowInventory(character);
                 },
-                [this, character=party.mActiveCharacters[person]]{
+                [this, character=person]{
                     ShowPortrait(character);
                 }
             );
@@ -174,9 +159,11 @@ public:
 private:
     IGuiManager& mGuiManager;
     const Icons& mIcons;
-    std::optional<Compass> mCompass;
+
+    BAK::Layout mLayout;
+
+    Compass mCompass;
     std::vector<ClickButtonImage> mButtons;
-    std::vector<std::pair<glm::vec2, glm::vec2>> mCharacterLocations;
     std::vector<ClickButtonImage> mCharacters;
 
     const Logging::Logger& mLogger;

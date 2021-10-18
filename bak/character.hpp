@@ -15,6 +15,9 @@ namespace BAK {
 class Character
 {
 public:
+    const auto& GetInventory() const { return mInventory; }
+
+    unsigned mCharacterIndex;
     std::string mName;
     Skills mSkills;
     std::array<std::uint8_t, 6> mSpells;

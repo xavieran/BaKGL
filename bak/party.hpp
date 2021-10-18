@@ -20,6 +20,22 @@ public:
     std::vector<Character> mCharacters;
     std::vector<CharacterIndex> mActiveCharacters;
 
+    const Character& GetActiveCharacter(unsigned i) const
+    {
+        ASSERT(i < mActiveCharacters.size());
+        const auto activeIndex = mActiveCharacters[i];
+        ASSERT(activeIndex < mCharacters.size());
+        return mCharacters[activeIndex];
+    }
+
+    Character& GetActiveCharacter(unsigned i)
+    {
+        ASSERT(i < mActiveCharacters.size());
+        const auto activeIndex = mActiveCharacters[i];
+        ASSERT(activeIndex < mCharacters.size());
+        return mCharacters[activeIndex];
+    }
+
     Royals GetGold() const
     {
         return mGold;
@@ -60,14 +76,10 @@ public:
 
     unsigned NextActiveCharacter(unsigned currentCharacter)
     {
-        const auto current = std::find(
-            mActiveCharacters.begin(), mActiveCharacters.end(),
-            currentCharacter);
-        assert(current != mActiveCharacters.end());
-        unsigned i = std::distance(mActiveCharacters.begin(), current);
+        unsigned i = currentCharacter;
         if (++i == mActiveCharacters.size())
             i = 0;
-        return mActiveCharacters[i];
+        return i;
     }
 
     std::pair<CharacterIndex, unsigned> GetSkill(BAK::SkillType skill, bool best)
