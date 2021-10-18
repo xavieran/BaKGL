@@ -373,6 +373,8 @@ private:
         auto pos  = glm::vec2{105, 11};
         const auto slotDims = glm::vec2{40, 29};
 
+        mArmor.ClearItem();
+
         for (const auto& itemPtr : items)
         {
             assert(itemPtr);
