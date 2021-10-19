@@ -76,7 +76,12 @@ public:
             [this](){
                 AdvanceCharacter(); },
             [this](){
-                mGameState.SetDialogContext(mSelectedCharacter);
+                const auto character = mGameState
+                    .GetParty()
+                    .GetActiveCharacter(mSelectedCharacter)
+                    .mCharacterIndex;
+
+                mGameState.SetDialogContext(character);
                 mGuiManager.StartDialog(
                     sCharacterFlavourDialog, false, &mDialogScene);
             }

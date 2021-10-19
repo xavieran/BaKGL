@@ -27,7 +27,6 @@
 namespace Gui {
 
 
-
 class InventorySlot : public Widget
 {
 public:
@@ -264,6 +263,18 @@ public:
             []{}, // Goto Keys, or goto Shop, or Goto Bag, or Goto Container...
             []{}
         },
+        mWeapon{
+            glm::vec2{13, 15},
+            glm::vec2{80, 29},
+            mIcons,
+            130
+        },
+        mCrossbow{
+            glm::vec2{13, 15 + 29},
+            glm::vec2{80, 29},
+            mIcons,
+            130
+        },
         mArmor{
             glm::vec2{13, 15 + 29 * 2},
             glm::vec2{80, 58},
@@ -288,6 +299,15 @@ public:
     }
 
 private:
+    void ShowItemDescription(const BAK::InventoryItem& item)
+    {
+        mGameState.SetDialogContext(item.mItemIndex.mValue);
+        mGuiManager.StartDialog(
+            BAK::DialogSources::GetItemDescription(),
+            false,
+            &mDialogScene);
+    }
+
     void UpdatePartyMembers()
     {
         mCharacters.clear();
@@ -373,6 +393,7 @@ private:
         auto pos  = glm::vec2{105, 11};
         const auto slotDims = glm::vec2{40, 29};
 
+        mCrossbow.ClearItem();
         mArmor.ClearItem();
 
         for (const auto& itemPtr : items)
@@ -386,6 +407,49 @@ private:
 
             auto dims = slotDims;
 
+            if ((item.mObject.mType == BAK::ItemType::Sword
+                || item.mObject.mType == BAK::ItemType::Staff)
+                && item.IsEquipped())
+            {
+                auto scale = slotDims * glm::vec2{2, 1};
+                if (item.mObject.mType == BAK::ItemType::Staff)
+                {
+                    scale = scale * glm::vec2{1, 2};
+                    mWeapon.SetDimensions({80, 58});
+                }
+                else
+                {
+                    mWeapon.SetDimensions({80, 29});
+                }
+
+                mWeapon.AddItem(
+                    glm::vec2{0},
+                    scale,
+                    mFont,
+                    mIcons,
+                    item,
+                    [&]{
+                        ShowItemDescription(item);
+                    });
+
+                continue;
+            }
+            if (item.mObject.mType == BAK::ItemType::Crossbow
+                && item.IsEquipped())
+            {
+                mCrossbow.AddItem(
+                    glm::vec2{0},
+                    slotDims * glm::vec2{2, 1},
+                    mFont,
+                    mIcons,
+                    item,
+                    [&]{
+                        ShowItemDescription(item);
+                    });
+
+                continue;
+            }
+
             if (item.mObject.mType == BAK::ItemType::Armor
                 && item.IsEquipped())
             {
@@ -395,12 +459,8 @@ private:
                     mFont,
                     mIcons,
                     item,
-                    [&, itemIndex=item.mItemIndex](){
-                        mGameState.SetDialogContext(itemIndex.mValue);
-                        mGuiManager.StartDialog(
-                            BAK::DialogSources::GetItemDescription(),
-                            false,
-                            &mDialogScene);
+                    [&]{
+                        ShowItemDescription(item);
                     });
 
                 continue;
@@ -428,12 +488,8 @@ private:
                 mFont,
                 mIcons,
                 item,
-                [&, itemIndex=item.mItemIndex](){
-                    mGameState.SetDialogContext(itemIndex.mValue);
-                    mGuiManager.StartDialog(
-                        BAK::DialogSources::GetItemDescription(),
-                        false,
-                        &mDialogScene);
+                [&]{
+                    ShowItemDescription(item);
                 });
 
             if (minorColumn == 2)
@@ -470,6 +526,12 @@ private:
         for (auto& character : mCharacters)
             AddChildBack(&character);
 
+        AddChildBack(&mWeapon);
+
+        if (mGameState.GetParty()
+            .GetActiveCharacter(mSelectedCharacter).IsSwordsman())
+            AddChildBack(&mCrossbow);
+
         AddChildBack(&mArmor);
 
         for (auto& item : mInventoryItems)
@@ -493,6 +555,8 @@ private:
     // click into shop or keys, etc.
     ClickButtonImage mContainerTypeDisplay;
 
+    EquipmentSlot mWeapon;
+    EquipmentSlot mCrossbow;
     EquipmentSlot mArmor;
     std::vector<InventorySlot> mInventoryItems;
 
