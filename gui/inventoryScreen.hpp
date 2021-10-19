@@ -85,6 +85,11 @@ public:
         AddChildren();
     }
 
+    const BAK::InventoryItem& GetItem() const
+    {
+        return mItemRef;
+    }
+
     bool OnMouseEvent(const MouseEvent& event) override
     {
         const auto result = std::visit(overloaded{
@@ -152,7 +157,8 @@ public:
         {
             mDragging = false;
             SetPosition(mOriginalPosition);
-            mDragTarget.WidgetDropped(*this, click);
+            if (mDragTarget.WidgetDropped(*this, click))
+                return true;
         }
 
         return false;
@@ -200,7 +206,8 @@ public:
         const BAK::InventoryItem& item)
     {
         std::stringstream ss{};
-        ss << "#" << +item.mCondition << "%";
+        ss << "#" << +item.mCondition << 
+            (item.IsStackable() ? "" : "%");
         const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
         const auto& dims = GetPositionInfo().mDimensions;
         mQuantity.SetPosition(
@@ -276,6 +283,50 @@ public:
 private:
     std::optional<InventorySlot> mItem;
     Widget mBlank;
+};
+
+class CharacterPortrait : 
+    public ClickButtonImage,
+    public IDragTarget
+{
+public:
+    template <typename ...Args>
+    CharacterPortrait(
+        unsigned activeCharacter,
+        unsigned selectedCharacter,
+        BAK::GameState& gameState,
+        Args&&... args)
+    :
+        ClickButtonImage{std::forward<Args>(args)...},
+        mActiveCharacter{activeCharacter},
+        mSelectedCharacter{selectedCharacter},
+        mGameState{gameState}
+    {}
+
+    bool WidgetDropped(InventorySlot& slot, const glm::vec2& pos) override
+    {
+        if (Within(pos))
+        {
+            if (mActiveCharacter != mSelectedCharacter)
+            {
+                // FIXME: Check if full
+                auto item = slot.GetItem();
+                mGameState.GetParty()
+                    .GetActiveCharacter(mActiveCharacter)
+                    .GiveItem(item);
+                mGameState.GetParty()
+                    .GetActiveCharacter(mSelectedCharacter)
+                    .RemoveItem(item);
+                return true;
+            }
+        }
+        return false;
+    }
+
+//private:
+    unsigned mActiveCharacter;
+    unsigned mSelectedCharacter;
+    BAK::GameState& mGameState;
 };
 
 class InventoryScreen :
@@ -367,6 +418,7 @@ public:
         mSelectedCharacter{0},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
+        mCharacters.reserve(4);
         AddChildren();
     }
 
@@ -382,10 +434,15 @@ public:
 
     bool WidgetDropped(InventorySlot& item, const glm::vec2& pos) override
     {
-        for (auto& slot : mInventoryItems)
+        for (auto* slot : mDragTargets)
         {
-            if (slot.WidgetDropped(item, pos))
+            ASSERT(slot);
+            if (slot->WidgetDropped(item, pos))
+            {
+                // force refresh of inventory display
+                SetSelectedCharacter(mSelectedCharacter);
                 return true;
+            }
         }
         return false;
     }
@@ -403,13 +460,15 @@ private:
     void UpdatePartyMembers()
     {
         mCharacters.clear();
-        mCharacters.reserve(3);
 
         const auto& party = mGameState.GetParty();
         for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
         {
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(party.mActiveCharacters[person]);
             mCharacters.emplace_back(
+                person,
+                mSelectedCharacter,
+                mGameState,
                 mLayout.GetWidgetLocation(person),
                 mLayout.GetWidgetDimensions(person),
                 spriteSheet,
@@ -628,6 +687,7 @@ private:
     void AddChildren()
     {
         ClearChildren();
+        mDragTargets.clear();
 
         AddChildBack(&mFrame);
         AddChildBack(&mExit);
@@ -637,7 +697,10 @@ private:
         AddChildBack(&mContainerTypeDisplay);
 
         for (auto& character : mCharacters)
+        {
             AddChildBack(&character);
+            mDragTargets.emplace_back(&character);
+        }
 
         AddChildBack(&mWeapon);
 
@@ -648,7 +711,11 @@ private:
         AddChildBack(&mArmor);
 
         for (auto& item : mInventoryItems)
+        {
             AddChildBack(&item);
+            mDragTargets.emplace_back(&item);
+        }
+
     }
 
 private:
@@ -662,7 +729,7 @@ private:
 
     Widget mFrame;
 
-    std::vector<ClickButtonImage> mCharacters;
+    std::vector<CharacterPortrait> mCharacters;
     ClickButtonImage mExit;
     TextBox mGoldDisplay;
     // click into shop or keys, etc.
