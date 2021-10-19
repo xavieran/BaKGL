@@ -4,7 +4,9 @@
 #include "bak/types.hpp"
 
 #include "com/assert.hpp"
+#include "com/logger.hpp"
 
+#include <iostream>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -53,13 +55,16 @@ public:
         std::uint8_t status,
         std::uint8_t modifiers)
     {
+        static ObjectIndex objects{};
+
         return InventoryItem{
-            &mObjects.GetObject(itemIndex),
+            &objects.GetObject(itemIndex),
             itemIndex,
             quantity,
             status,
             modifiers};
     }
+
     static InventoryItem MakeItem(
         ItemIndex itemIndex,
         std::uint8_t quantity)
@@ -70,9 +75,6 @@ public:
             0,
             0);
     }
-
-private:
-    static ObjectIndex mObjects;
 };
 
 
