@@ -16,6 +16,8 @@ class Character
 {
 public:
     const auto& GetInventory() const { return mInventory; }
+    bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mCurrent != 0; }
+    bool IsSwordsman() const { return !IsSpellcaster(); }
 
     unsigned mCharacterIndex;
     std::string mName;
