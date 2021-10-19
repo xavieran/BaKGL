@@ -28,6 +28,12 @@ public:
         return mCharacters[activeIndex];
     }
 
+    Character& GetCharacter(unsigned i)
+    {
+        ASSERT(i < mCharacters.size());
+        return mCharacters[i];
+    }
+
     Character& GetActiveCharacter(unsigned i)
     {
         ASSERT(i < mActiveCharacters.size());
@@ -41,20 +47,26 @@ public:
         return mGold;
     }
 
-    void RemoveItem(unsigned item, unsigned quantity)
+    void RemoveItem(unsigned itemIndex, unsigned quantity)
     {
-        if (item == 0x35)
+        if (itemIndex == 0x35)
         {
             mGold.mValue -= GetRoyals(Sovereigns{quantity}).mValue;
         }
-        else if (item == 0x36)
+        else if (itemIndex == 0x36)
         {
             mGold.mValue -= quantity;
         }
         else
         {
-            // for (auto& inventory : mActiveCharacters inventory...
-            // if (try remove item) break
+            auto item = InventoryItemFactory::MakeItem(
+                ItemIndex{itemIndex},
+                static_cast<std::uint8_t>(quantity));
+            for (const auto& character : mActiveCharacters)
+            {
+                if (GetCharacter(character).RemoveItem(item))
+                    return;
+            }
         }
     }
 
@@ -70,14 +82,12 @@ public:
         }
         else
         {
-            bool given = false;
-            unsigned character = 0;
             auto item = InventoryItemFactory::MakeItem(
                 ItemIndex{itemIndex},
                 static_cast<std::uint8_t>(quantity));
             for (const auto& character : mActiveCharacters)
             {
-                if (GetActiveCharacter(character).GiveItem(std::move(item)))
+                if (GetCharacter(character).GiveItem(item))
                     return;
             }
         }
