@@ -1,5 +1,7 @@
 #include "com/logger.hpp"
 
+#include <iostream>
+
 namespace Logging {
 
 std::string_view LevelToString(LogLevel level)

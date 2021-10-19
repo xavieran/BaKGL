@@ -1,5 +1,7 @@
 #include "bak/inventory.hpp"
 
+#include <iostream>
+
 namespace BAK {
 
 

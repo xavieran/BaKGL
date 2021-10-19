@@ -56,12 +56,12 @@ public:
             ImageTag{},
 
             std::get<Graphics::SpriteSheetIndex>(
-                icons.GetInventoryIcon(item.mObject.mImageIndex)),
+                icons.GetInventoryIcon(item.GetObject().mImageIndex)),
             std::get<Graphics::TextureIndex>(
-                icons.GetInventoryIcon(item.mObject.mImageIndex)),
+                icons.GetInventoryIcon(item.GetObject().mImageIndex)),
             pos,
             std::get<glm::vec2>(
-                icons.GetInventoryIcon(item.mObject.mImageIndex)),
+                icons.GetInventoryIcon(item.GetObject().mImageIndex)),
             true
         }
     {
@@ -89,7 +89,7 @@ public:
         {
             mIsSelected = true;
             Logging::LogDebug("InventoryItem") << "Clicked: " << mItemRef << "\n"
-                << mItemRef.mObject << "\n";
+                << mItemRef.GetObject() << "\n";
         }
         else
             mIsSelected = false;
@@ -407,12 +407,12 @@ private:
 
             auto dims = slotDims;
 
-            if ((item.mObject.mType == BAK::ItemType::Sword
-                || item.mObject.mType == BAK::ItemType::Staff)
+            if ((item.GetObject().mType == BAK::ItemType::Sword
+                || item.GetObject().mType == BAK::ItemType::Staff)
                 && item.IsEquipped())
             {
                 auto scale = slotDims * glm::vec2{2, 1};
-                if (item.mObject.mType == BAK::ItemType::Staff)
+                if (item.GetObject().mType == BAK::ItemType::Staff)
                 {
                     scale = scale * glm::vec2{1, 2};
                     mWeapon.SetDimensions({80, 58});
@@ -434,7 +434,7 @@ private:
 
                 continue;
             }
-            if (item.mObject.mType == BAK::ItemType::Crossbow
+            if (item.GetObject().mType == BAK::ItemType::Crossbow
                 && item.IsEquipped())
             {
                 mCrossbow.AddItem(
@@ -450,7 +450,7 @@ private:
                 continue;
             }
 
-            if (item.mObject.mType == BAK::ItemType::Armor
+            if (item.GetObject().mType == BAK::ItemType::Armor
                 && item.IsEquipped())
             {
                 mArmor.AddItem(
@@ -466,16 +466,16 @@ private:
                 continue;
             }
 
-            if (item.mObject.mImageSize == 1)
+            if (item.GetObject().mImageSize == 1)
             {
                 minorColumn += 1;
             }
-            else if (item.mObject.mImageSize == 2)
+            else if (item.GetObject().mImageSize == 2)
             {
                 minorRow += 1;
                 dims.x *= 2;
             }
-            else if (item.mObject.mImageSize == 4)
+            else if (item.GetObject().mImageSize == 4)
             {
                 dims.x *= 2;
                 dims.y *= 2;
