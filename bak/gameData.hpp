@@ -545,11 +545,11 @@ public:
             mLogger.Info() << " Loaded: " << object.mName << "\n";
 
             items.emplace_back(
-                object,
-                item,
-                condition,
-                status,
-                modifiers);
+                InventoryItemFactory::MakeItem(
+                    item,
+                    condition,
+                    status,
+                    modifiers));
         }
 
         return Inventory{items};
