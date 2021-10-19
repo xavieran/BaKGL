@@ -6,6 +6,7 @@
 #include "com/assert.hpp"
 #include "com/logger.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <numeric>
 #include <string>
@@ -31,17 +32,24 @@ public:
 
     const GameObject& GetObject() const { ASSERT(mObject); return *mObject; }
 
+    bool IsEquipped() const
+    {
+        // FIXME: Not correct
+        return mStatus && (1 << 6) == (1 << 6);
+    }
+
+    bool IsStackable() const
+    {
+        return (0x0800 & GetObject().mFlags) == 0x0800;
+    }
+
     GameObject const* mObject;
     ItemIndex mItemIndex;
     std::uint8_t mCondition;
     std::uint8_t mStatus;
     std::uint8_t mModifiers;
 
-    bool IsEquipped() const
-    {
-        // FIXME: Not correct
-        return mStatus && (1 << 6) == (1 << 6);
-    }
+
 };
 
 std::ostream& operator<<(std::ostream&, const InventoryItem&);
@@ -83,38 +91,55 @@ class Inventory
 public:
     static constexpr auto sMaxInventorySize = 20;
 
-    bool CanAdd(const GameObject& object) const
-    {
-        const auto currentQuantity = std::accumulate(
-            mItems.begin(), mItems.end(),
-            0,
-            [](const auto sum, const auto& elem) -> unsigned {
-                if (!elem.IsEquipped())
-                    return sum + elem.GetObject().mImageSize;
-                return sum;
-            });
-        return (currentQuantity + object.mImageSize) < sMaxInventorySize;
-    }
+    Inventory()
+    :
+        mItems{}
+    {}
 
-    bool HaveWeaponEquipped() const
-    {
-        for (const auto& item : mItems)
-        {
-            const auto itemType = item.GetObject().mType;
-            if ((itemType == BAK::ItemType::Sword
-                || itemType == BAK::ItemType::Staff)
-                && item.IsEquipped())
-                return true;
-        }
-        return false;
-    }
+    Inventory(Inventory&&) = default;
+    Inventory& operator=(Inventory&&) = default;
+    Inventory(const Inventory&) = default;
+    Inventory& operator=(const Inventory&) = default;
 
-    void AddItem(InventoryItem&& item)
-    {
-        mItems.emplace_back(std::move(item));
-    }
+    Inventory(std::vector<InventoryItem>&& items)
+    :
+        mItems{std::move(items)}
+    {}
 
     const auto& GetItems() const { return mItems; }
+
+    auto FindIncompleteStack(const InventoryItem& item)
+    {
+        return std::find_if(
+            mItems.begin(), mItems.end(),
+            [&item](const auto& elem){
+                const auto stackSize = elem.GetObject().mStackSize;
+                return (elem.mItemIndex == item.mItemIndex)
+                    && (elem.mCondition != elem.GetObject().mStackSize);
+            });
+    }
+
+    auto FindItem(const InventoryItem& item)
+    {
+        return std::find_if(
+            mItems.begin(), mItems.end(),
+            [&item](const auto& elem){
+                return elem.mItemIndex == item.mItemIndex;
+            });
+    }
+    
+    bool HasIncompleteStack(const InventoryItem& item) const;
+    // FIXME: probably want this to return 0 if cant add and the amount
+    // it can add if stackable and have an empty stack
+    bool CanAdd(const InventoryItem& item) const;
+    bool HaveWeaponEquipped() const;
+    bool HaveItem(const InventoryItem& item) const;
+
+    // Adds the given item with no checks
+    void AddItem(const InventoryItem& item);
+    bool RemoveItem(const InventoryItem& item);
+    
+private:
     std::vector<InventoryItem> mItems;
 };
 

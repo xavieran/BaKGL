@@ -33,34 +33,69 @@ struct Console : public std::streambuf
     }
 
     // Console commands
-
-    void GiveMoney(const std::vector<std::string>& words)
+    //
+    void RemoveItem(const std::vector<std::string>& words)
     {
-        if (words.size() < 2)
+        if (words.size() < 3)
         {
             std::stringstream ss{};
             for (const auto& w : words)
                 ss << w << "|";
-            AddLog("[error] Usage: GIVE_MONEY INDEX (%s)", ss.str().c_str());
+            AddLog("[error] Usage: REMOVE_ITEM INDEX AMOUNT (%s)", ss.str().c_str());
             return;
         }
 
         std::stringstream ss{};
         ss << words[1];
+        unsigned itemIndex;
+        ss >> std::setbase(0) >> itemIndex;
+        ss = std::stringstream{};
+        ss << words[2];
         unsigned amount;
         ss >> std::setbase(0) >> amount;
 
         if (!mGameState)
         {
-            AddLog("[error] GiveMoney FAILED No GameState Connected");
+            AddLog("[error] REMOVE_ITEM FAILED No GameState Connected");
+            return;
+        }
+
+        mGameState->GetParty().RemoveItem(
+            itemIndex,
+            amount);
+    }
+    void GiveItem(const std::vector<std::string>& words)
+    {
+        if (words.size() < 3)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: GIVE_ITEM INDEX AMOUNT (%s)", ss.str().c_str());
+            return;
+        }
+
+        std::stringstream ss{};
+        ss << words[1];
+        unsigned itemIndex;
+        ss >> std::setbase(0) >> itemIndex;
+        ss = std::stringstream{};
+        ss << words[2];
+        unsigned amount;
+        ss >> std::setbase(0) >> amount;
+
+        if (!mGameState)
+        {
+            AddLog("[error] GiveItem FAILED No GameState Connected");
             return;
         }
 
         mGameState->GetParty().GainItem(
             1,
-            0x35, // gold sovereigns
+            itemIndex,
             amount);
     }
+
     void DoTeleport(const std::vector<std::string>& words)
     {
         if (words.size() < 2)
@@ -160,9 +195,10 @@ struct Console : public std::streambuf
                 AddLog("- %s", mCommands[i]);
         });
 
-        mCommands.push_back("GIVE_MONEY");
-        mCommandActions.emplace_back([this](const auto& cmd){ GiveMoney(cmd); });
-
+        mCommands.push_back("REMOVE_ITEM");
+        mCommandActions.emplace_back([this](const auto& cmd){ RemoveItem(cmd); });
+        mCommands.push_back("GIVE_ITEM");
+        mCommandActions.emplace_back([this](const auto& cmd){ GiveItem(cmd); });
         mCommands.push_back("DO_TELEPORT");
         mCommandActions.emplace_back([this](const auto& cmd){ DoTeleport(cmd); });
 

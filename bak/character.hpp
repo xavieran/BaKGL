@@ -15,11 +15,22 @@ namespace BAK {
 class Character
 {
 public:
-    bool GiveItem(InventoryItem&& item)
+    bool GiveItem(const InventoryItem& item)
     {
-        if (mInventory.CanAdd(item.GetObject()))
+        if (mInventory.CanAdd(item))
         {
-            mInventory.AddItem(std::move(item));
+            mInventory.AddItem(item);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool RemoveItem(const InventoryItem& item)
+    {
+        if (mInventory.HaveItem(item))
+        {
+            mInventory.RemoveItem(item);
             return true;
         }
 

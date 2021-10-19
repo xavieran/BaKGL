@@ -466,6 +466,9 @@ private:
                 continue;
             }
 
+            mLogger.Debug() << "Item: " << item 
+                << " mc: " << minorColumn << " MC: " << majorColumn 
+                << " mr: " << minorRow << " MR: " << majorRow << "\n";
             if (item.GetObject().mImageSize == 1)
             {
                 minorColumn += 1;
@@ -482,6 +485,9 @@ private:
                 majorRow += 1;
             }
 
+            mLogger.Debug() << "AfterPlace: " << item 
+                << " mc: " << minorColumn << " MC: " << majorColumn 
+                << " mr: " << minorRow << " MR: " << majorRow << "\n";
             mInventoryItems.emplace_back(
                 itemPos,
                 dims,
@@ -492,23 +498,34 @@ private:
                     ShowItemDescription(item);
                 });
 
-            if (minorColumn == 2)
+            if (minorColumn != 0 && minorColumn % 2 == 0)
             {
                 minorColumn = 0;
                 minorRow += 1;
             }
 
-            if (minorRow == 2)
+            if (minorRow != 0 && minorRow % 2 == 0)
             {
                 minorRow = 0;
                 majorRow += 1;
             }
 
-            if (majorRow == 2)
+            if (majorRow != 0 && majorRow % 2 == 0)
             {
                 majorColumn += 1;
                 majorRow = 0;
             }
+
+            // Handle the final column
+            if (majorColumn == 2 && minorColumn > 0)
+            {
+                minorRow += 1;
+                minorColumn = 0;
+            }
+
+            mLogger.Debug() << "CorrectRows: " << item 
+                << " mc: " << minorColumn << " MC: " << majorColumn 
+                << " mr: " << minorRow << " MR: " << majorRow << "\n";
         }
     }
 

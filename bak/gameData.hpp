@@ -552,7 +552,7 @@ public:
                     modifiers));
         }
 
-        return Inventory{items};
+        return Inventory{std::move(items)};
     }
 
 
