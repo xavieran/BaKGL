@@ -26,8 +26,15 @@
 
 namespace Gui {
 
+class InventorySlot;
 
-class InventorySlot : public Widget
+class IDragTarget
+{
+public:
+    virtual bool WidgetDropped(InventorySlot&, const glm::vec2& pos) = 0;
+};
+
+class InventorySlot : public Widget, public IDragTarget
 {
 public:
     InventorySlot(
@@ -35,6 +42,7 @@ public:
         glm::vec2 dims,
         const Font& font,
         const Icons& icons,
+        IDragTarget& dragTarget,
         const BAK::InventoryItem& item,
         std::function<void()>&& showItemDescription)
     :
@@ -45,9 +53,13 @@ public:
             glm::vec4{},
             true
         },
+        mDragTarget{dragTarget},
         mItemRef{item},
         mShowItemDescription{std::move(showItemDescription)},
         mIsSelected{false},
+        mOriginalPosition{pos},
+        mDragStart{},
+        mDragging{false},
         mQuantity{
             glm::vec2{0, 0},
             glm::vec2{40, 30}
@@ -75,35 +87,82 @@ public:
 
     bool OnMouseEvent(const MouseEvent& event) override
     {
-        return std::visit(overloaded{
+        const auto result = std::visit(overloaded{
             [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
+            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
             [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
             [](const auto& p){ return false; }
             },
             event);
+
+        UpdateSelected();
+
+        return result;
     }
 
     bool LeftMousePressed(glm::vec2 click)
     {
         if (Within(click))
         {
+
+            Logging::LogDebug("Item") << __FUNCTION__ << " " << click <<
+                " " << mDragStart << " drg: " << mDragging << " " << mOriginalPosition << "\n";
             mIsSelected = true;
             Logging::LogDebug("InventoryItem") << "Clicked: " << mItemRef << "\n"
                 << mItemRef.GetObject() << "\n";
+            mDragStart = click;
         }
         else
+        {
             mIsSelected = false;
+        }
 
-        if (mIsSelected)
-            SetColor(Color::itemHighlighted);
-        else
-            SetColor(glm::vec4{});
+        return false;
+    }
+
+    bool MouseMoved(glm::vec2 pos)
+    {
         
+        if (mDragStart && glm::distance(*mDragStart, pos) > 4)
+        {
+            mDragging = true;
+            mIsSelected = false;
+        }
+
+        if (mDragging)
+        {
+
+            Logging::LogDebug("Item") << __FUNCTION__ << " " << pos <<
+            " " << mDragStart << " drg: " << mDragging << " " << mOriginalPosition << "\n";
+            SetCenter(pos);
+        }
+        
+        return false;
+    }
+
+    bool LeftMouseReleased(glm::vec2 click)
+    {
+        Logging::LogDebug("Item") << __FUNCTION__ << " " << click <<
+                " " << mDragStart << " drg: " << mDragging << " " << mOriginalPosition << "\n";
+
+        mDragStart.reset();
+
+        if (mDragging)
+        {
+            mDragging = false;
+            SetPosition(mOriginalPosition);
+            mDragTarget.WidgetDropped(*this, click);
+        }
+
         return false;
     }
 
     bool RightMousePressed(glm::vec2 click)
     {
+        if (mDragging)
+            return false;
+
         if (Within(click))
         {
             mIsSelected = true;
@@ -112,12 +171,28 @@ public:
         else
             mIsSelected = false;
 
+        return false;
+    }
+
+    bool WidgetDropped(InventorySlot& item, const glm::vec2& pos) override
+    {
+        if (Within(pos))
+        {
+            Logging::LogDebug("InventorySlot") << __FUNCTION__
+                << " " << pos << " item : " << item 
+                << " this: " << (*this) << "\n";
+            return true;
+        }
+
+        return false;
+    }
+
+    void UpdateSelected()
+    {
         if (mIsSelected)
             SetColor(Color::itemHighlighted);
         else
             SetColor(glm::vec4{});
-
-        return false;
     }
 
     void UpdateQuantity(
@@ -128,8 +203,8 @@ public:
         ss << "#" << +item.mCondition << "%";
         const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
         const auto& dims = GetPositionInfo().mDimensions;
-        mQuantity.SetPosition(dims 
-            - textDims 
+        mQuantity.SetPosition(
+            dims - textDims 
             + glm::vec2{4, 2});
     }
 
@@ -140,10 +215,15 @@ private:
         AddChildBack(&mItem);
         AddChildBack(&mQuantity);
     }
-
+    
+    IDragTarget& mDragTarget;
     const BAK::InventoryItem& mItemRef;
     std::function<void()> mShowItemDescription;
     bool mIsSelected;
+
+    glm::vec2 mOriginalPosition;
+    std::optional<glm::vec2> mDragStart;
+    bool mDragging;
 
     TextBox mQuantity;
     Widget mItem;
@@ -198,7 +278,9 @@ private:
     Widget mBlank;
 };
 
-class InventoryScreen : public Widget
+class InventoryScreen :
+    public Widget,
+    public IDragTarget
 {
 public:
     static constexpr auto sLayoutFile = "REQ_INV.DAT";
@@ -296,6 +378,16 @@ public:
         UpdateInventoryContents();
 
         AddChildren();
+    }
+
+    bool WidgetDropped(InventorySlot& item, const glm::vec2& pos) override
+    {
+        for (auto& slot : mInventoryItems)
+        {
+            if (slot.WidgetDropped(item, pos))
+                return true;
+        }
+        return false;
     }
 
 private:
@@ -427,6 +519,7 @@ private:
                     scale,
                     mFont,
                     mIcons,
+                    *this,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -442,6 +535,7 @@ private:
                     slotDims * glm::vec2{2, 1},
                     mFont,
                     mIcons,
+                    *this,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -458,6 +552,7 @@ private:
                     slotDims * glm::vec2{2},
                     mFont,
                     mIcons,
+                    *this,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -493,6 +588,7 @@ private:
                 dims,
                 mFont,
                 mIcons,
+                *this,
                 item,
                 [&]{
                     ShowItemDescription(item);
@@ -576,6 +672,7 @@ private:
     EquipmentSlot mCrossbow;
     EquipmentSlot mArmor;
     std::vector<InventorySlot> mInventoryItems;
+    std::vector<IDragTarget*> mDragTargets;
 
     unsigned mSelectedCharacter;
     const Logging::Logger& mLogger;

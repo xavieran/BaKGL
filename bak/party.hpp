@@ -28,12 +28,6 @@ public:
         return mCharacters[activeIndex];
     }
 
-    Character& GetCharacter(unsigned i)
-    {
-        ASSERT(i < mCharacters.size());
-        return mCharacters[i];
-    }
-
     Character& GetActiveCharacter(unsigned i)
     {
         ASSERT(i < mActiveCharacters.size());
@@ -42,9 +36,34 @@ public:
         return mCharacters[activeIndex];
     }
 
+    const Character& GetCharacter(unsigned i) const
+    {
+        ASSERT(i < mCharacters.size());
+        return mCharacters[i];
+    }
+
+    Character& GetCharacter(unsigned i)
+    {
+        ASSERT(i < mCharacters.size());
+        return mCharacters[i];
+    }
+
     Royals GetGold() const
     {
         return mGold;
+    }
+
+    bool HaveItem(ItemIndex itemIndex) const
+    {
+        const auto item = InventoryItemFactory::MakeItem(
+            itemIndex,
+            1);
+
+        for (const auto& character : mActiveCharacters)
+            if (GetCharacter(character).GetInventory().HaveItem(item))
+                return true;
+
+        return false;
     }
 
     void RemoveItem(unsigned itemIndex, unsigned quantity)

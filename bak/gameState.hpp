@@ -249,8 +249,7 @@ public:
                     //return (state ^ c.mXorWith) == c.mExpectedValue;
                 },
                 [&](const InventoryChoice& c){
-                    // FIXME: Fill this in...
-                    return false;
+                    return GetParty().HaveItem(c.mRequiredItem) == c.mItemPresent;
                 },
                 [&](const GameStateChoice& c){
                     return EvaluateGameStateChoice(c);
