@@ -15,6 +15,17 @@ namespace BAK {
 class Character
 {
 public:
+    bool GiveItem(InventoryItem&& item)
+    {
+        if (mInventory.CanAdd(item.GetObject()))
+        {
+            mInventory.AddItem(std::move(item));
+            return true;
+        }
+
+        return false;
+    }
+
     const auto& GetInventory() const { return mInventory; }
     bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mCurrent != 0; }
     bool IsSwordsman() const { return !IsSpellcaster(); }

@@ -382,7 +382,7 @@ private:
 
         std::sort(items.begin(), items.end(), [](const auto& l, const auto& r) 
         {
-            return l->mObject.mImageSize > r->mObject.mImageSize;
+            return l->GetObject().mImageSize > r->GetObject().mImageSize;
         });
 
         unsigned majorColumn = 0;

@@ -4,7 +4,7 @@ namespace BAK {
 
 
 InventoryItem::InventoryItem(
-    const GameObject& object,
+    GameObject const* object,
     ItemIndex itemIndex,
     std::uint8_t condition,
     std::uint8_t status,
@@ -19,7 +19,7 @@ InventoryItem::InventoryItem(
 
 std::ostream& operator<<(std::ostream& os, const InventoryItem& i)
 {
-    os << i.mObject.mName << " #" << i.mItemIndex << " pct/qty: " << 
+    os << i.GetObject().mName << " #" << i.mItemIndex << " pct/qty: " << 
         +i.mCondition << " status: " << +i.mStatus << " mods: " << +i.mModifiers;
     return os;
 }

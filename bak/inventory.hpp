@@ -1,7 +1,11 @@
 #pragma once
+
 #include "bak/objectInfo.hpp"
 #include "bak/types.hpp"
 
+#include "com/assert.hpp"
+
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -17,13 +21,15 @@ class InventoryItem
 {
 public:
     InventoryItem(
-        const GameObject& object,
+        GameObject const* object,
         ItemIndex itemIndex,
         std::uint8_t condition,
         std::uint8_t status,
         std::uint8_t modifiers);
 
-    const GameObject& mObject;
+    const GameObject& GetObject() const { ASSERT(mObject); return *mObject; }
+
+    GameObject const* mObject;
     ItemIndex mItemIndex;
     std::uint8_t mCondition;
     std::uint8_t mStatus;
@@ -38,9 +44,74 @@ public:
 
 std::ostream& operator<<(std::ostream&, const InventoryItem&);
 
+class InventoryItemFactory
+{
+public:
+    static InventoryItem MakeItem(
+        ItemIndex itemIndex,
+        std::uint8_t quantity,
+        std::uint8_t status,
+        std::uint8_t modifiers)
+    {
+        return InventoryItem{
+            &mObjects.GetObject(itemIndex),
+            itemIndex,
+            quantity,
+            status,
+            modifiers};
+    }
+    static InventoryItem MakeItem(
+        ItemIndex itemIndex,
+        std::uint8_t quantity)
+    {
+        return MakeItem(
+            itemIndex,
+            quantity,
+            0,
+            0);
+    }
+
+private:
+    static ObjectIndex mObjects;
+};
+
+
 class Inventory
 {
 public:
+    static constexpr auto sMaxInventorySize = 20;
+
+    bool CanAdd(const GameObject& object) const
+    {
+        const auto currentQuantity = std::accumulate(
+            mItems.begin(), mItems.end(),
+            0,
+            [](const auto sum, const auto& elem) -> unsigned {
+                if (!elem.IsEquipped())
+                    return sum + elem.GetObject().mImageSize;
+                return sum;
+            });
+        return (currentQuantity + object.mImageSize) < sMaxInventorySize;
+    }
+
+    bool HaveWeaponEquipped() const
+    {
+        for (const auto& item : mItems)
+        {
+            const auto itemType = item.GetObject().mType;
+            if ((itemType == BAK::ItemType::Sword
+                || itemType == BAK::ItemType::Staff)
+                && item.IsEquipped())
+                return true;
+        }
+        return false;
+    }
+
+    void AddItem(InventoryItem&& item)
+    {
+        mItems.emplace_back(std::move(item));
+    }
+
     const auto& GetItems() const { return mItems; }
     std::vector<InventoryItem> mItems;
 };

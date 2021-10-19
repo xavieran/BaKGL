@@ -58,19 +58,28 @@ public:
         }
     }
 
-    void GainItem(unsigned character, unsigned item, unsigned quantity)
+    void GainItem(unsigned character, unsigned itemIndex, unsigned quantity)
     {
-        if (item == 0x35)
+        if (itemIndex == 0x35)
         {
             mGold.mValue += GetRoyals(Sovereigns{quantity}).mValue;
         }
-        else if (item == 0x36)
+        else if (itemIndex == 0x36)
         {
             mGold.mValue += quantity;
         }
         else
         {
-            // mCharacters[character].GiveITems()...
+            bool given = false;
+            unsigned character = 0;
+            auto item = InventoryItemFactory::MakeItem(
+                ItemIndex{itemIndex},
+                static_cast<std::uint8_t>(quantity));
+            for (const auto& character : mActiveCharacters)
+            {
+                if (GetActiveCharacter(character).GiveItem(std::move(item)))
+                    return;
+            }
         }
     }
 
