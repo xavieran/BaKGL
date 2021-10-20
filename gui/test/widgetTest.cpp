@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "com/logger.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -61,7 +62,7 @@ struct WidgetTestFixture : public ::testing::Test
         },
         mChild2{
             RectTag{},
-            glm::vec2{10, 10},
+            glm::vec2{5, 5},
             glm::vec2{10, 10},
             glm::vec4{},
             true
@@ -71,6 +72,7 @@ struct WidgetTestFixture : public ::testing::Test
 protected:
     void SetUp() override
     {
+        Logging::LogState::SetLevel(Logging::LogLevel::Debug);
         mRoot.AddChildBack(&mChild1);
         mChild1.AddChildBack(&mChild2);
     }
@@ -93,17 +95,19 @@ TEST_F(WidgetTestFixture, RelativeMouseEventPropagation)
     ASSERT_EQ(mChild1.mMouseEvents.size(), 1);
     EXPECT_EQ(
         GetValue(mChild1.mMouseEvents.back()),
-        (GetValue(event) - glm::vec2{10, 10}));
+        (GetValue(event) - mRoot.GetPositionInfo().mPosition));
 
     ASSERT_EQ(mChild2.mMouseEvents.size(), 1);
     EXPECT_EQ(
         GetValue(mChild2.mMouseEvents.back()),
-        (GetValue(event) - glm::vec2{10, 10} - glm::vec2{2, 2}));
+        (GetValue(event) 
+             - mRoot.GetPositionInfo().mPosition
+             - mChild1.GetPositionInfo().mPosition));
 }
 
 TEST_F(WidgetTestFixture, DragEventPropagationUp)
 {
-    const auto event = DragEvent{DragStarted{&mChild2, glm::vec2{8, 8}}};
+    const auto event    = DragEvent{DragStarted{&mChild2, glm::vec2{8, 8}}};
     const auto expected = DragEvent{DragStarted{&mChild2, glm::vec2{20, 20}}};
     mChild2.PropagateUp(event);
 

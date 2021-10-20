@@ -139,8 +139,10 @@ void Widget::PropagateUp(const DragEvent& event)
 {
     if (mActive && mParent != nullptr)
     {
+        // When the event arrives at the parent it should be in the same
+        // space as the parent
         mParent->PropagateUp(
-            InverseTransformEvent(event));
+            mParent->InverseTransformEvent(event));
     }
 }
 

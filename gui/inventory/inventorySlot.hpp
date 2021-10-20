@@ -25,15 +25,8 @@ namespace Gui {
 
 class InventorySlot;
 
-class IDragTarget
-{
-public:
-    virtual bool WidgetDropped(InventorySlot&, const glm::vec2& pos) = 0;
-};
-
 class InventorySlot :
-    public Widget,
-    public IDragTarget
+    public Widget
 {
 public:
     InventorySlot(
@@ -41,7 +34,6 @@ public:
         glm::vec2 dims,
         const Font& font,
         const Icons& icons,
-        IDragTarget& dragTarget,
         unsigned itemIndex,
         const BAK::InventoryItem& item,
         std::function<void()>&& showItemDescription)
@@ -53,7 +45,6 @@ public:
             glm::vec4{},
             true
         },
-        mDragTarget{dragTarget},
         mItemIndex{itemIndex},
         mItemRef{item},
         mShowItemDescription{std::move(showItemDescription)},
@@ -161,8 +152,7 @@ public:
         {
             mDragging = false;
             SetPosition(mOriginalPosition);
-            if (mDragTarget.WidgetDropped(*this, click))
-                return true;
+            Widget::PropagateUp(DragEvent{DragEnded{this, click}});
         }
 
         return false;
@@ -180,19 +170,6 @@ public:
         }
         else
             mIsSelected = false;
-
-        return false;
-    }
-
-    bool WidgetDropped(InventorySlot& item, const glm::vec2& pos) override
-    {
-        if (Within(pos))
-        {
-            Logging::LogDebug("InventorySlot") << __FUNCTION__
-                << " " << pos << " item : " << item 
-                << " this: " << (*this) << "\n";
-            return true;
-        }
 
         return false;
     }
@@ -227,7 +204,6 @@ private:
         AddChildBack(&mQuantity);
     }
     
-    IDragTarget& mDragTarget;
     const unsigned mItemIndex;
     const BAK::InventoryItem& mItemRef;
     std::function<void()> mShowItemDescription;
