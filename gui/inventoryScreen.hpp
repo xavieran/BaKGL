@@ -34,7 +34,9 @@ public:
     virtual bool WidgetDropped(InventorySlot&, const glm::vec2& pos) = 0;
 };
 
-class InventorySlot : public Widget, public IDragTarget
+class InventorySlot :
+    public Widget,
+    public IDragTarget
 {
 public:
     InventorySlot(
@@ -128,7 +130,6 @@ public:
 
     bool MouseMoved(glm::vec2 pos)
     {
-        
         if (mDragStart && glm::distance(*mDragStart, pos) > 4)
         {
             mDragging = true;
@@ -137,7 +138,6 @@ public:
 
         if (mDragging)
         {
-
             Logging::LogDebug("Item") << __FUNCTION__ << " " << pos <<
             " " << mDragStart << " drg: " << mDragging << " " << mOriginalPosition << "\n";
             SetCenter(pos);
@@ -290,43 +290,30 @@ class CharacterPortrait :
     public IDragTarget
 {
 public:
+    // Transfer item between inventory slot and this character
+    using TransferItemFunction = std::function<void(InventorySlot&)>;
+
     template <typename ...Args>
     CharacterPortrait(
-        unsigned activeCharacter,
-        unsigned selectedCharacter,
-        BAK::GameState& gameState,
+        TransferItemFunction&& transferItem,
         Args&&... args)
     :
         ClickButtonImage{std::forward<Args>(args)...},
-        mActiveCharacter{activeCharacter},
-        mSelectedCharacter{selectedCharacter},
-        mGameState{gameState}
+        mTransferItem{std::move(transferItem)}
     {}
 
     bool WidgetDropped(InventorySlot& slot, const glm::vec2& pos) override
     {
         if (Within(pos))
         {
-            if (mActiveCharacter != mSelectedCharacter)
-            {
-                // FIXME: Check if full
-                auto item = slot.GetItem();
-                mGameState.GetParty()
-                    .GetActiveCharacter(mActiveCharacter)
-                    .GiveItem(item);
-                mGameState.GetParty()
-                    .GetActiveCharacter(mSelectedCharacter)
-                    .RemoveItem(item);
-                return true;
-            }
+            mTransferItem(slot);
+            return true;
         }
         return false;
     }
 
-//private:
-    unsigned mActiveCharacter;
-    unsigned mSelectedCharacter;
-    BAK::GameState& mGameState;
+private:
+    TransferItemFunction mTransferItem;
 };
 
 class InventoryScreen :
@@ -448,6 +435,21 @@ public:
     }
 
 private:
+    void TransferItem(InventorySlot& slot, unsigned character)
+    {
+        if (character != mSelectedCharacter)
+        {
+            // FIXME: Check if full
+            auto item = slot.GetItem();
+            mGameState.GetParty()
+                .GetActiveCharacter(character)
+                .GiveItem(item);
+            mGameState.GetParty()
+                .GetActiveCharacter(mSelectedCharacter)
+                .RemoveItem(item);
+        }
+    }
+
     void ShowItemDescription(const BAK::InventoryItem& item)
     {
         mGameState.SetDialogContext(item.mItemIndex.mValue);
@@ -466,9 +468,9 @@ private:
         {
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(party.mActiveCharacters[person]);
             mCharacters.emplace_back(
-                person,
-                mSelectedCharacter,
-                mGameState,
+                [this, character=person](InventorySlot& slot){
+                    TransferItem(slot, character);
+                },
                 mLayout.GetWidgetLocation(person),
                 mLayout.GetWidgetDimensions(person),
                 spriteSheet,
