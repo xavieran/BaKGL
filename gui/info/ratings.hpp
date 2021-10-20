@@ -2,13 +2,7 @@
 
 #include "gui/actors.hpp"
 #include "gui/colors.hpp"
-#include "gui/label.hpp"
-#include "gui/clickButton.hpp"
 #include "gui/widget.hpp"
-#include "gui/scene.hpp"
-#include "gui/skills.hpp"
-
-#include "xbak/RequestResource.h"
 
 #include <glm/glm.hpp>
 

@@ -11,9 +11,6 @@
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
-#include "gui/portrait.hpp"
-#include "gui/ratings.hpp"
-#include "gui/skills.hpp"
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
 
@@ -45,6 +42,7 @@ public:
         const Font& font,
         const Icons& icons,
         IDragTarget& dragTarget,
+        unsigned itemIndex,
         const BAK::InventoryItem& item,
         std::function<void()>&& showItemDescription)
     :
@@ -56,6 +54,7 @@ public:
             true
         },
         mDragTarget{dragTarget},
+        mItemIndex{itemIndex},
         mItemRef{item},
         mShowItemDescription{std::move(showItemDescription)},
         mIsSelected{false},
@@ -85,6 +84,11 @@ public:
         UpdateQuantity(font, item);
 
         AddChildren();
+    }
+
+    unsigned GetItemIndex() const
+    {
+        return mItemIndex;
     }
 
     const BAK::InventoryItem& GetItem() const
@@ -224,6 +228,7 @@ private:
     }
     
     IDragTarget& mDragTarget;
+    const unsigned mItemIndex;
     const BAK::InventoryItem& mItemRef;
     std::function<void()> mShowItemDescription;
     bool mIsSelected;
@@ -446,7 +451,8 @@ private:
                 .GiveItem(item);
             mGameState.GetParty()
                 .GetActiveCharacter(mSelectedCharacter)
-                .RemoveItem(item);
+                .GetInventory()
+                .RemoveItem(slot.GetItemIndex());
         }
     }
 
@@ -549,10 +555,10 @@ private:
         mCrossbow.ClearItem();
         mArmor.ClearItem();
 
-        for (const auto& itemPtr : items)
+        for (unsigned itemIndex = 0; itemIndex < items.size(); itemIndex++)
         {
-            assert(itemPtr);
-            const auto& item = *itemPtr;
+            ASSERT(items[itemIndex]);
+            const auto& item = *items[itemIndex];
             const auto& [ss, ti, _] = mIcons.GetInventoryIcon(item.mItemIndex.mValue);
             const auto itemPos = pos + glm::vec2{
                     (majorColumn * 2 + minorColumn) * slotDims.x,
@@ -581,6 +587,7 @@ private:
                     mFont,
                     mIcons,
                     *this,
+                    itemIndex,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -597,6 +604,7 @@ private:
                     mFont,
                     mIcons,
                     *this,
+                    itemIndex,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -614,6 +622,7 @@ private:
                     mFont,
                     mIcons,
                     *this,
+                    itemIndex,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -650,6 +659,7 @@ private:
                 mFont,
                 mIcons,
                 *this,
+                itemIndex,
                 item,
                 [&]{
                     ShowItemDescription(item);
