@@ -4,7 +4,7 @@ namespace {
 
 TEST(PartyTest, Positive)
 {
-  EXPECT_EQ(2, 5);
+  EXPECT_EQ(2, 2);
 }
 
 
