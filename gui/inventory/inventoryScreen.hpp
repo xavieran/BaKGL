@@ -3,6 +3,7 @@
 #include "bak/dialogSources.hpp"
 #include "bak/inventory.hpp"
 #include "bak/layout.hpp"
+#include "bak/objectInfo.hpp"
 #include "bak/textureFactory.hpp"
 
 #include "gui/inventory/inventorySlot.hpp"
@@ -237,6 +238,7 @@ private:
         {
             // FIXME: Check if full
             auto item = slot.GetItem();
+
             GetActiveCharacter(character).GiveItem(item);
             GetActiveCharacter(mSelectedCharacter)
                 .GetInventory()
@@ -246,10 +248,18 @@ private:
         mNeedRefresh = true;
     }
 
-    void MoveItemToEquipmentSlot(InventorySlot& item, unsigned itemIndex)
+    void MoveItemToEquipmentSlot(
+        InventorySlot& item,
+        BAK::ItemType slot)
     {
-        auto& moveTo = GetActiveCharacter(mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
-        mLogger.Debug() << "Move item to equipment slot: " << item.GetItem() << " " << moveTo << "\n";
+        mLogger.Debug() << "Move item to equipment slot: " 
+            << item.GetItem() 
+            << " " << BAK::ToString(slot) << "\n";
+
+        GetActiveCharacter(mSelectedCharacter)
+            .ApplyItemToSlot(item.GetItemIndex(), slot);
+
+        mNeedRefresh = true;
     }
 
     void MoveItemToContainer(InventorySlot& item)
@@ -257,7 +267,7 @@ private:
         mLogger.Debug() << "Move item to container: " << item.GetItem() << "\n";
     }
 
-    void UseItem(InventorySlot& item, unsigned itemIndex)
+    void UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
     {
         auto& applyTo = GetActiveCharacter(mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
         mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
@@ -332,22 +342,24 @@ private:
         const auto& character = GetActiveCharacter(mSelectedCharacter);
         const auto& inventory = character.GetInventory();
 
-        std::vector<const BAK::InventoryItem*> items{};
+        std::vector<std::pair<BAK::InventoryIndex, const BAK::InventoryItem*>> items{};
 
         const auto numItems = inventory.GetItems().size();
         mInventoryItems.reserve(numItems);
         items.reserve(numItems);
 
+        unsigned index{0};
         std::transform(
             inventory.GetItems().begin(), inventory.GetItems().end(),
             std::back_inserter(items),
-            [](const auto& i) -> const BAK::InventoryItem* {
-                return &i;
+            [&index](const auto& i) -> std::pair<BAK::InventoryIndex, const BAK::InventoryItem*> {
+                return std::make_pair(BAK::InventoryIndex{index++}, &i);
             });
 
         std::sort(items.begin(), items.end(), [](const auto& l, const auto& r) 
         {
-            return l->GetObject().mImageSize > r->GetObject().mImageSize;
+            return (std::get<1>(l)->GetObject().mImageSize > std::get<1>(r)->GetObject().mImageSize)
+                || (std::get<0>(l) < std::get<0>(r));
         });
 
         unsigned majorColumn = 0;
@@ -361,10 +373,10 @@ private:
         mCrossbow.ClearItem();
         mArmor.ClearItem();
 
-        for (unsigned itemIndex = 0; itemIndex < items.size(); itemIndex++)
+        for (const auto& [invIndex, itemPtr] : items)
         {
-            ASSERT(items[itemIndex]);
-            const auto& item = *items[itemIndex];
+            ASSERT(itemPtr);
+            const auto& item = *itemPtr;
             const auto& [ss, ti, _] = mIcons.GetInventoryIcon(item.mItemIndex.mValue);
             const auto itemPos = pos + glm::vec2{
                     (majorColumn * 2 + minorColumn) * slotDims.x,
@@ -388,13 +400,13 @@ private:
                 }
 
                 mWeapon.AddItem(
-                    [this, itemIndex=itemIndex](auto& item){
-                        MoveItemToEquipmentSlot(item, itemIndex); },
+                    [this](auto& item){
+                        MoveItemToEquipmentSlot(item, BAK::ItemType::Sword); },
                     glm::vec2{0},
                     scale,
                     mFont,
                     mIcons,
-                    itemIndex,
+                    invIndex,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -406,13 +418,13 @@ private:
                 && item.IsEquipped())
             {
                 mCrossbow.AddItem(
-                    [this, itemIndex=itemIndex](auto& item){
-                        MoveItemToEquipmentSlot(item, itemIndex); },
+                    [this](auto& item){
+                        MoveItemToEquipmentSlot(item, BAK::ItemType::Crossbow); },
                     glm::vec2{0},
                     slotDims * glm::vec2{2, 1},
                     mFont,
                     mIcons,
-                    itemIndex,
+                    invIndex,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -425,13 +437,13 @@ private:
                 && item.IsEquipped())
             {
                 mArmor.AddItem(
-                    [this, itemIndex=itemIndex](auto& item){
-                        MoveItemToEquipmentSlot(item, itemIndex); },
+                    [this](auto& item){
+                        MoveItemToEquipmentSlot(item, BAK::ItemType::Armor); },
                     glm::vec2{0},
                     slotDims * glm::vec2{2},
                     mFont,
                     mIcons,
-                    itemIndex,
+                    invIndex,
                     item,
                     [&]{
                         ShowItemDescription(item);
@@ -463,13 +475,13 @@ private:
                 << " mc: " << minorColumn << " MC: " << majorColumn 
                 << " mr: " << minorRow << " MR: " << majorRow << "\n";
             mInventoryItems.emplace_back(
-                [this, itemIndex=itemIndex](auto& item){
-                    UseItem(item, itemIndex); },
+                [this, index=invIndex](auto& item){
+                    UseItem(item, BAK::InventoryIndex{index}); },
                 itemPos,
                 dims,
                 mFont,
                 mIcons,
-                itemIndex,
+                invIndex,
                 item,
                 [&]{
                     ShowItemDescription(item);

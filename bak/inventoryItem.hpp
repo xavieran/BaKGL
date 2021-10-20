@@ -21,6 +21,7 @@ enum class ItemStatus : std::uint8_t
 };
 
 bool CheckItemStatus(std::uint8_t status, ItemStatus flag);
+std::uint8_t SetItemStatus(std::uint8_t status, ItemStatus flag, bool state);
 
 class InventoryItem
 {
@@ -37,6 +38,11 @@ public:
     bool IsEquipped() const
     {
         return CheckItemStatus(mStatus, ItemStatus::Equipped);
+    }
+
+    void SetEquipped(bool state)
+    {
+        mStatus = SetItemStatus(mStatus, ItemStatus::Equipped, state);
     }
 
     bool IsStackable() const
