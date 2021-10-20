@@ -237,8 +237,7 @@ private:
         {
             // FIXME: Check if full
             auto item = slot.GetItem();
-            GetActiveCharacter(character)
-                .GiveItem(item);
+            GetActiveCharacter(character).GiveItem(item);
             GetActiveCharacter(mSelectedCharacter)
                 .GetInventory()
                 .RemoveItem(slot.GetItemIndex());
@@ -330,8 +329,7 @@ private:
     {
         mInventoryItems.clear();
 
-        const auto& character = mGameState.GetParty().GetActiveCharacter(mSelectedCharacter);
-        mLogger.Info() << "Updating Character: " << character << "\n";
+        const auto& character = GetActiveCharacter(mSelectedCharacter);
         const auto& inventory = character.GetInventory();
 
         std::vector<const BAK::InventoryItem*> items{};
@@ -524,8 +522,7 @@ private:
 
         AddChildBack(&mWeapon);
 
-        if (mGameState.GetParty()
-            .GetActiveCharacter(mSelectedCharacter).IsSwordsman())
+        if (GetActiveCharacter(mSelectedCharacter).IsSwordsman())
             AddChildBack(&mCrossbow);
 
         AddChildBack(&mArmor);
