@@ -91,6 +91,7 @@ void Inventory::AddItem(const InventoryItem& item)
 
 bool Inventory::RemoveItem(unsigned item)
 {
+    ASSERT(item < mItems.size());
     if (item < mItems.size())
     {
         mItems.erase(mItems.begin() + item);
