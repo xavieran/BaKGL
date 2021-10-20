@@ -23,8 +23,6 @@
 
 namespace Gui {
 
-class InventorySlot;
-
 class InventorySlot :
     public Widget
 {
@@ -108,8 +106,6 @@ public:
         if (Within(click))
         {
 
-            Logging::LogDebug("Item") << __FUNCTION__ << " " << click <<
-                " " << mDragStart << " drg: " << mDragging << " " << mOriginalPosition << "\n";
             mIsSelected = true;
             Logging::LogDebug("InventoryItem") << "Clicked: " << mItemRef << "\n"
                 << mItemRef.GetObject() << "\n";
@@ -125,16 +121,17 @@ public:
 
     bool MouseMoved(glm::vec2 pos)
     {
-        if (mDragStart && glm::distance(*mDragStart, pos) > 4)
+        if (!mDragging 
+            && mDragStart 
+            && glm::distance(*mDragStart, pos) > 4)
         {
             mDragging = true;
             mIsSelected = false;
+            Widget::PropagateUp(DragEvent{DragStarted{this, pos}});
         }
 
         if (mDragging)
         {
-            Logging::LogDebug("Item") << __FUNCTION__ << " " << pos <<
-            " " << mDragStart << " drg: " << mDragging << " " << mOriginalPosition << "\n";
             SetCenter(pos);
         }
         
@@ -143,9 +140,6 @@ public:
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        Logging::LogDebug("Item") << __FUNCTION__ << " " << click <<
-                " " << mDragStart << " drg: " << mDragging << " " << mOriginalPosition << "\n";
-
         mDragStart.reset();
 
         if (mDragging)

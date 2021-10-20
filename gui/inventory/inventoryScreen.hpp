@@ -10,6 +10,7 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
+#include "gui/dragEndpoint.hpp"
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
@@ -24,6 +25,11 @@
 #include <variant>
 
 namespace Gui {
+
+template <typename Base>
+    using Endpoint = DragEndpoint<
+        Base,
+        InventorySlot>;
 
 class EquipmentSlot : public Widget
 {
@@ -55,6 +61,20 @@ public:
         ClearItem();
     }
 
+    void PropagateUp(const DragEvent& event)
+    {
+        // Display the "blank" when you lift the equipment off the slot
+        evaluate_if<DragStarted>(event, [&](const auto&){
+                AddChildFront(&mBlank);
+            });
+
+        evaluate_if<DragEnded>(event, [&](const auto&){
+                RemoveChild(&mBlank);
+            });
+
+        Widget::PropagateUp(event);
+    }
+
     template <typename ...Args>
     void AddItem(Args&&... args)
     {
@@ -70,41 +90,8 @@ public:
     }
 
 private:
-    std::optional<InventorySlot> mItem;
+    std::optional<Endpoint<InventorySlot>> mItem;
     Widget mBlank;
-};
-
-class CharacterPortrait : 
-    public ClickButtonImage
-{
-public:
-    // Transfer item between inventory slot and this character
-    using TransferItemFunction = std::function<void(InventorySlot&)>;
-
-    template <typename ...Args>
-    CharacterPortrait(
-        TransferItemFunction&& transferItem,
-        Args&&... args)
-    :
-        ClickButtonImage{std::forward<Args>(args)...},
-        mTransferItem{std::move(transferItem)}
-    {}
-
-    bool OnDragEvent(const DragEvent& event) override
-    {
-        Logging::LogDebug("CharacterPortrait") << __FUNCTION__ << " " << event << "\n";
-        if (Within(GetValue(event)))
-            Logging::LogDebug("CharacterPortrait") << "WITHIN\n";
-
-        evaluate_if<DragEnded>(event, [&](const auto& e){
-            if (Within(e.mValue))
-                mTransferItem(static_cast<InventorySlot&>(*e.mWidget));
-        });
-        return false;
-    }
-
-private:
-    TransferItemFunction mTransferItem;
 };
 
 class InventoryScreen :
@@ -131,7 +118,7 @@ public:
         // Black background
         Widget{
             RectTag{},
-            glm::vec2{0},
+            glm::vec2{0, 0},
             glm::vec2{320, 200},
             Color::black,
             true
@@ -146,7 +133,7 @@ public:
             ImageTag{},
             backgrounds.GetSpriteSheet(),
             backgrounds.GetScreen(sBackground),
-            GetPositionInfo().mPosition,
+            glm::vec2{0},
             GetPositionInfo().mDimensions,
             true
         },
@@ -165,6 +152,7 @@ public:
             mLayout.GetWidgetDimensions(mGoldRequest),
         },
         mContainerTypeDisplay{
+            [this](auto& item){ MoveItemToContainer(item); },
             mLayout.GetWidgetLocation(mContainerTypeRequest),
             mLayout.GetWidgetDimensions(mContainerTypeRequest),
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
@@ -230,28 +218,50 @@ public:
     void PropagateUp(const DragEvent& event) override
     {
         mLogger.Debug() << __FUNCTION__ << " ev: " << event << "\n";
-        bool handled = Widget::OnDragEvent(InverseTransformEvent(event));
+        bool handled = Widget::OnDragEvent(event);
         if (handled)
             return;
     }
 
 private:
+
+    auto& GetActiveCharacter(unsigned i)
+    {
+        return mGameState.GetParty()
+            .GetActiveCharacter(i);
+    }
+
     void TransferItem(InventorySlot& slot, unsigned character)
     {
         if (character != mSelectedCharacter)
         {
             // FIXME: Check if full
             auto item = slot.GetItem();
-            mGameState.GetParty()
-                .GetActiveCharacter(character)
+            GetActiveCharacter(character)
                 .GiveItem(item);
-            mGameState.GetParty()
-                .GetActiveCharacter(mSelectedCharacter)
+            GetActiveCharacter(mSelectedCharacter)
                 .GetInventory()
                 .RemoveItem(slot.GetItemIndex());
         }
 
         mNeedRefresh = true;
+    }
+
+    void MoveItemToEquipmentSlot(InventorySlot& item, unsigned itemIndex)
+    {
+        auto& moveTo = GetActiveCharacter(mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
+        mLogger.Debug() << "Move item to equipment slot: " << item.GetItem() << " " << moveTo << "\n";
+    }
+
+    void MoveItemToContainer(InventorySlot& item)
+    {
+        mLogger.Debug() << "Move item to container: " << item.GetItem() << "\n";
+    }
+
+    void UseItem(InventorySlot& item, unsigned itemIndex)
+    {
+        auto& applyTo = GetActiveCharacter(mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
+        mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
     }
 
     void ShowItemDescription(const BAK::InventoryItem& item)
@@ -380,6 +390,8 @@ private:
                 }
 
                 mWeapon.AddItem(
+                    [this, itemIndex=itemIndex](auto& item){
+                        MoveItemToEquipmentSlot(item, itemIndex); },
                     glm::vec2{0},
                     scale,
                     mFont,
@@ -396,6 +408,8 @@ private:
                 && item.IsEquipped())
             {
                 mCrossbow.AddItem(
+                    [this, itemIndex=itemIndex](auto& item){
+                        MoveItemToEquipmentSlot(item, itemIndex); },
                     glm::vec2{0},
                     slotDims * glm::vec2{2, 1},
                     mFont,
@@ -413,6 +427,8 @@ private:
                 && item.IsEquipped())
             {
                 mArmor.AddItem(
+                    [this, itemIndex=itemIndex](auto& item){
+                        MoveItemToEquipmentSlot(item, itemIndex); },
                     glm::vec2{0},
                     slotDims * glm::vec2{2},
                     mFont,
@@ -426,7 +442,7 @@ private:
                 continue;
             }
 
-            mLogger.Debug() << "Item: " << item 
+            mLogger.Spam() << "Item: " << item 
                 << " mc: " << minorColumn << " MC: " << majorColumn 
                 << " mr: " << minorRow << " MR: " << majorRow << "\n";
             if (item.GetObject().mImageSize == 1)
@@ -445,10 +461,12 @@ private:
                 majorRow += 1;
             }
 
-            mLogger.Debug() << "AfterPlace: " << item 
+            mLogger.Spam() << "AfterPlace: " << item 
                 << " mc: " << minorColumn << " MC: " << majorColumn 
                 << " mr: " << minorRow << " MR: " << majorRow << "\n";
             mInventoryItems.emplace_back(
+                [this, itemIndex=itemIndex](auto& item){
+                    UseItem(item, itemIndex); },
                 itemPos,
                 dims,
                 mFont,
@@ -484,7 +502,7 @@ private:
                 minorColumn = 0;
             }
 
-            mLogger.Debug() << "CorrectRows: " << item 
+            mLogger.Spam() << "CorrectRows: " << item 
                 << " mc: " << minorColumn << " MC: " << majorColumn 
                 << " mr: " << minorRow << " MR: " << majorRow << "\n";
         }
@@ -529,16 +547,16 @@ private:
 
     Widget mFrame;
 
-    std::vector<CharacterPortrait> mCharacters;
+    std::vector<Endpoint<ClickButtonImage>> mCharacters;
     ClickButtonImage mExit;
     TextBox mGoldDisplay;
     // click into shop or keys, etc.
-    ClickButtonImage mContainerTypeDisplay;
+    Endpoint<ClickButtonImage> mContainerTypeDisplay;
 
     EquipmentSlot mWeapon;
     EquipmentSlot mCrossbow;
     EquipmentSlot mArmor;
-    std::vector<InventorySlot> mInventoryItems;
+    std::vector<Endpoint<InventorySlot>> mInventoryItems;
 
     unsigned mSelectedCharacter;
     bool mNeedRefresh;
