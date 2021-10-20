@@ -7,28 +7,6 @@
 namespace BAK {
 
 
-InventoryItem::InventoryItem(
-    GameObject const* object,
-    ItemIndex itemIndex,
-    std::uint8_t condition,
-    std::uint8_t status,
-    std::uint8_t modifiers)
-:
-    mObject{object},
-    mItemIndex{itemIndex},
-    mCondition{condition},
-    mStatus{status},
-    mModifiers{modifiers}
-{}
-
-std::ostream& operator<<(std::ostream& os, const InventoryItem& i)
-{
-    os << i.GetObject().mName << " #" << i.mItemIndex << " pct/qty: " << 
-        +i.mCondition << " status: " << +i.mStatus << " mods: " << +i.mModifiers;
-    return os;
-}
-
-
 bool Inventory::HasIncompleteStack(const InventoryItem& item) const
 {
     const auto it = std::find_if(

@@ -18,6 +18,7 @@ add_library(bak
     hotspot.hpp hotspot.cpp
     hotspotRef.hpp hotspotRef.cpp
     inventory.hpp inventory.cpp
+    inventoryItem.hpp inventoryItem.cpp
     layout.hpp layout.cpp
     money.hpp money.cpp
     party.hpp party.cpp
@@ -35,7 +36,10 @@ add_library(bak
     zone.hpp
 )
 
-target_link_libraries(bak bakEncounter graphics xbak)
+target_link_libraries(bak
+    bakEncounter
+    graphics
+    xbak)
 
 add_subdirectory(encounter)
 add_subdirectory(test)
