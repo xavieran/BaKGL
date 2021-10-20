@@ -2,6 +2,7 @@
 
 #include "com/logger.hpp"
 
+#include "gui/dragEvent.hpp"
 #include "gui/mouseEvent.hpp"
 
 #include "graphics/IGuiElement.hpp"
@@ -56,6 +57,12 @@ public:
     [[nodiscard]] virtual bool OnMouseEvent(
         const MouseEvent& event);
 
+    [[nodiscard]] virtual bool OnDragEvent(
+        const DragEvent& event);
+
+    virtual void PropagateUp(
+        const DragEvent& event);
+
     const Graphics::DrawInfo& GetDrawInfo() const override;
     const Graphics::PositionInfo& GetPositionInfo() const override;
 
@@ -64,6 +71,7 @@ public:
     void RemoveChild(Widget* elem);
     void PopChild();
     void ClearChildren();
+    void SetParent(Widget*);
 
     void SetCenter(glm::vec2 pos);
     glm::vec2 GetCenter() const;
@@ -78,12 +86,18 @@ public:
 
     std::size_t size() const;
 
+
 protected:
     bool Within(glm::vec2 click);
+    glm::vec2 TransformPosition(const glm::vec2&);
+    glm::vec2 InverseTransformPosition(const glm::vec2&);
     MouseEvent TransformEvent(const MouseEvent&);
+    DragEvent TransformEvent(const DragEvent&);
+    DragEvent InverseTransformEvent(const DragEvent&);
 
     Graphics::DrawInfo mDrawInfo;
     Graphics::PositionInfo mPositionInfo;
+    Widget* mParent;
     std::vector<Widget*> mChildren;
     bool mActive;
 };

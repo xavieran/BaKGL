@@ -1,5 +1,3 @@
-# Orderbook Tests
-
 add_executable(bakTest
     inventoryTest.cpp
     partyTest.cpp
