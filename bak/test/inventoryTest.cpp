@@ -4,7 +4,7 @@ namespace {
 
 TEST(InventoryTest, Positive)
 {
-  EXPECT_EQ(2, 2);
+  EXPECT_EQ(1, 2);
 }
 
 
