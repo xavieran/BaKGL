@@ -49,3 +49,5 @@ add_library(bak
 )
 
 target_link_libraries(bak graphics xbak)
+
+add_subdirectory(test)
