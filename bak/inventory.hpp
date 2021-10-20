@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/inventoryItem.hpp"
 #include "bak/objectInfo.hpp"
 #include "bak/types.hpp"
 
@@ -13,78 +14,6 @@
 #include <vector>
 
 namespace BAK {
-
-enum class ItemStatus
-{
-    Equipped   = 6,
-    Repairable = 7,
-};
-
-class InventoryItem
-{
-public:
-    InventoryItem(
-        GameObject const* object,
-        ItemIndex itemIndex,
-        std::uint8_t condition,
-        std::uint8_t status,
-        std::uint8_t modifiers);
-
-    const GameObject& GetObject() const { ASSERT(mObject); return *mObject; }
-
-    bool IsEquipped() const
-    {
-        // FIXME: Not correct
-        return mStatus && (1 << 6) == (1 << 6);
-    }
-
-    bool IsStackable() const
-    {
-        return (0x0800 & GetObject().mFlags) == 0x0800;
-    }
-
-    GameObject const* mObject;
-    ItemIndex mItemIndex;
-    std::uint8_t mCondition;
-    std::uint8_t mStatus;
-    std::uint8_t mModifiers;
-
-
-};
-
-std::ostream& operator<<(std::ostream&, const InventoryItem&);
-
-class InventoryItemFactory
-{
-public:
-    static InventoryItem MakeItem(
-        ItemIndex itemIndex,
-        std::uint8_t quantity,
-        std::uint8_t status,
-        std::uint8_t modifiers)
-    {
-        static ObjectIndex objects{};
-
-        return InventoryItem{
-            &objects.GetObject(itemIndex),
-            itemIndex,
-            quantity,
-            status,
-            modifiers};
-    }
-
-    static InventoryItem MakeItem(
-        ItemIndex itemIndex,
-        std::uint8_t quantity)
-    {
-        return MakeItem(
-            itemIndex,
-            quantity,
-            0,
-            0);
-    }
-};
-
 
 class Inventory
 {
