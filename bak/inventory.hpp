@@ -138,6 +138,7 @@ public:
     // Adds the given item with no checks
     void AddItem(const InventoryItem& item);
     bool RemoveItem(const InventoryItem& item);
+    bool RemoveItem(unsigned item);
     
 private:
     std::vector<InventoryItem> mItems;

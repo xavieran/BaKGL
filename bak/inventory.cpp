@@ -111,6 +111,16 @@ void Inventory::AddItem(const InventoryItem& item)
     }
 }
 
+bool Inventory::RemoveItem(unsigned item)
+{
+    if (item < mItems.size())
+    {
+        mItems.erase(mItems.begin() + item);
+        return true;
+    }
+    return false;
+}
+
 bool Inventory::RemoveItem(const InventoryItem& item)
 {
     if (item.IsStackable() && HaveItem(item))

@@ -15,4 +15,13 @@ add_library(gui
     window.hpp
 )
 
-target_link_libraries(gui graphics bak com xbak)
+target_link_libraries(gui
+    bak
+    com
+    graphics
+    guiInfo
+    guiInventory
+    xbak)
+
+add_subdirectory(info)
+add_subdirectory(inventory)

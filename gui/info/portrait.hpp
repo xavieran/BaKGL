@@ -5,8 +5,6 @@
 #include "gui/label.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/widget.hpp"
-#include "gui/scene.hpp"
-#include "gui/skills.hpp"
 
 #include "xbak/RequestResource.h"
 

@@ -12,8 +12,8 @@
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/icons.hpp"
-#include "gui/infoScreen.hpp"
-#include "gui/inventoryScreen.hpp"
+#include "gui/info/infoScreen.hpp"
+#include "gui/inventory/inventoryScreen.hpp"
 #include "gui/mainView.hpp"
 #include "gui/widget.hpp"
 

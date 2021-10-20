@@ -3,6 +3,10 @@
 #include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "gui/info/portrait.hpp"
+#include "gui/info/ratings.hpp"
+#include "gui/info/skills.hpp"
+
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/actors.hpp"
@@ -10,10 +14,7 @@
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
-#include "gui/portrait.hpp"
-#include "gui/ratings.hpp"
 #include "gui/widget.hpp"
-#include "gui/skills.hpp"
 
 #include "xbak/RequestResource.h"
 
