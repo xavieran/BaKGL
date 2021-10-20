@@ -75,8 +75,7 @@ private:
 };
 
 class CharacterPortrait : 
-    public ClickButtonImage,
-    public IDragTarget
+    public ClickButtonImage
 {
 public:
     // Transfer item between inventory slot and this character
@@ -91,13 +90,16 @@ public:
         mTransferItem{std::move(transferItem)}
     {}
 
-    bool WidgetDropped(InventorySlot& slot, const glm::vec2& pos) override
+    bool OnDragEvent(const DragEvent& event) override
     {
-        if (Within(pos))
-        {
-            mTransferItem(slot);
-            return true;
-        }
+        Logging::LogDebug("CharacterPortrait") << __FUNCTION__ << " " << event << "\n";
+        if (Within(GetValue(event)))
+            Logging::LogDebug("CharacterPortrait") << "WITHIN\n";
+
+        evaluate_if<DragEnded>(event, [&](const auto& e){
+            if (Within(e.mValue))
+                mTransferItem(static_cast<InventorySlot&>(*e.mWidget));
+        });
         return false;
     }
 
@@ -106,8 +108,7 @@ private:
 };
 
 class InventoryScreen :
-    public Widget,
-    public IDragTarget
+    public Widget
 {
 public:
     static constexpr auto sLayoutFile = "REQ_INV.DAT";
@@ -198,8 +199,26 @@ public:
         AddChildren();
     }
 
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        const bool handled = Widget::OnMouseEvent(event);
+
+        // Don't refresh things until we have finished
+        // processing this event. This prevents deleting
+        // children that are about to handle it.
+        if (mNeedRefresh)
+        {
+            SetSelectedCharacter(mSelectedCharacter);
+            mNeedRefresh = false;
+        }
+
+        return handled;
+    }
+
     void SetSelectedCharacter(unsigned character)
     {
+        ClearChildren();
+
         mSelectedCharacter = character;
         UpdatePartyMembers();
         UpdateGold();
@@ -208,19 +227,12 @@ public:
         AddChildren();
     }
 
-    bool WidgetDropped(InventorySlot& item, const glm::vec2& pos) override
+    void PropagateUp(const DragEvent& event) override
     {
-        for (auto* slot : mDragTargets)
-        {
-            ASSERT(slot);
-            if (slot->WidgetDropped(item, pos))
-            {
-                // force refresh of inventory display
-                SetSelectedCharacter(mSelectedCharacter);
-                return true;
-            }
-        }
-        return false;
+        mLogger.Debug() << __FUNCTION__ << " ev: " << event << "\n";
+        bool handled = Widget::OnDragEvent(InverseTransformEvent(event));
+        if (handled)
+            return;
     }
 
 private:
@@ -238,6 +250,8 @@ private:
                 .GetInventory()
                 .RemoveItem(slot.GetItemIndex());
         }
+
+        mNeedRefresh = true;
     }
 
     void ShowItemDescription(const BAK::InventoryItem& item)
@@ -370,7 +384,6 @@ private:
                     scale,
                     mFont,
                     mIcons,
-                    *this,
                     itemIndex,
                     item,
                     [&]{
@@ -387,7 +400,6 @@ private:
                     slotDims * glm::vec2{2, 1},
                     mFont,
                     mIcons,
-                    *this,
                     itemIndex,
                     item,
                     [&]{
@@ -405,7 +417,6 @@ private:
                     slotDims * glm::vec2{2},
                     mFont,
                     mIcons,
-                    *this,
                     itemIndex,
                     item,
                     [&]{
@@ -442,7 +453,6 @@ private:
                 dims,
                 mFont,
                 mIcons,
-                *this,
                 itemIndex,
                 item,
                 [&]{
@@ -482,9 +492,6 @@ private:
 
     void AddChildren()
     {
-        ClearChildren();
-        mDragTargets.clear();
-
         AddChildBack(&mFrame);
         AddChildBack(&mExit);
         AddChildBack(&mGoldDisplay);
@@ -495,7 +502,6 @@ private:
         for (auto& character : mCharacters)
         {
             AddChildBack(&character);
-            mDragTargets.emplace_back(&character);
         }
 
         AddChildBack(&mWeapon);
@@ -509,9 +515,7 @@ private:
         for (auto& item : mInventoryItems)
         {
             AddChildBack(&item);
-            mDragTargets.emplace_back(&item);
         }
-
     }
 
 private:
@@ -535,9 +539,10 @@ private:
     EquipmentSlot mCrossbow;
     EquipmentSlot mArmor;
     std::vector<InventorySlot> mInventoryItems;
-    std::vector<IDragTarget*> mDragTargets;
 
     unsigned mSelectedCharacter;
+    bool mNeedRefresh;
+
     const Logging::Logger& mLogger;
 };
 
