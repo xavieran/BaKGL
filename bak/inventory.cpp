@@ -89,12 +89,12 @@ void Inventory::AddItem(const InventoryItem& item)
     }
 }
 
-bool Inventory::RemoveItem(unsigned item)
+bool Inventory::RemoveItem(BAK::InventoryIndex item)
 {
-    ASSERT(item < mItems.size());
-    if (item < mItems.size())
+    ASSERT(item.mValue < mItems.size());
+    if (item.mValue < mItems.size())
     {
-        mItems.erase(mItems.begin() + item);
+        mItems.erase(mItems.begin() + item.mValue);
         return true;
     }
     return false;

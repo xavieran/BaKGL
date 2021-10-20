@@ -32,7 +32,7 @@ public:
         glm::vec2 dims,
         const Font& font,
         const Icons& icons,
-        unsigned itemIndex,
+        BAK::InventoryIndex itemIndex,
         const BAK::InventoryItem& item,
         std::function<void()>&& showItemDescription)
     :
@@ -75,7 +75,7 @@ public:
         AddChildren();
     }
 
-    unsigned GetItemIndex() const
+    BAK::InventoryIndex GetItemIndex() const
     {
         return mItemIndex;
     }
@@ -198,7 +198,7 @@ private:
         AddChildBack(&mQuantity);
     }
     
-    const unsigned mItemIndex;
+    const BAK::InventoryIndex mItemIndex;
     const BAK::InventoryItem& mItemRef;
     std::function<void()> mShowItemDescription;
     bool mIsSelected;

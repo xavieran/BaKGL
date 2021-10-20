@@ -12,6 +12,14 @@ bool CheckItemStatus(std::uint8_t status, ItemStatus flag)
     return (status & shifted) == shifted;
 }
 
+std::uint8_t SetItemStatus(std::uint8_t status, ItemStatus flag, bool state)
+{
+    if (state)
+        return status | (1 << static_cast<std::uint8_t>(flag));
+    else
+        return status & (~(1 << static_cast<std::uint8_t>(flag)));
+}
+
 InventoryItem::InventoryItem(
     GameObject const* object,
     ItemIndex itemIndex,

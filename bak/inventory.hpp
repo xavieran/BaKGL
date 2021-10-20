@@ -5,6 +5,7 @@
 #include "bak/types.hpp"
 
 #include "com/assert.hpp"
+#include "com/strongType.hpp"
 #include "com/logger.hpp"
 
 #include <algorithm>
@@ -14,6 +15,8 @@
 #include <vector>
 
 namespace BAK {
+
+using InventoryIndex = StrongType<unsigned, struct InventoryIndexTag>;
 
 class Inventory
 {
@@ -36,15 +39,17 @@ public:
     {}
 
     const auto& GetItems() const { return mItems; }
-    const auto& GetAtIndex(unsigned i) const
+
+    const auto& GetAtIndex(InventoryIndex i) const
     {
-        ASSERT(i < mItems.size());
-        return mItems[i];
+        ASSERT(i.mValue < mItems.size());
+        return mItems[i.mValue];
     }
-    auto& GetAtIndex(unsigned i)
+
+    auto& GetAtIndex(InventoryIndex i)
     {
-        ASSERT(i < mItems.size());
-        return mItems[i];
+        ASSERT(i.mValue < mItems.size());
+        return mItems[i.mValue];
     }
 
     auto FindIncompleteStack(const InventoryItem& item)
@@ -66,6 +71,16 @@ public:
                 return elem.mItemIndex == item.mItemIndex;
             });
     }
+
+    auto FindEquipped(BAK::ItemType slot)
+    {
+        return std::find_if(
+            mItems.begin(), mItems.end(),
+            [&slot](const auto& elem){
+                return elem.GetObject().mType == slot
+                    && elem.IsEquipped();
+            });
+    }
     
     bool HasIncompleteStack(const InventoryItem& item) const;
     // FIXME: probably want this to return 0 if cant add and the amount
@@ -77,7 +92,7 @@ public:
     // Adds the given item with no checks
     void AddItem(const InventoryItem& item);
     bool RemoveItem(const InventoryItem& item);
-    bool RemoveItem(unsigned item);
+    bool RemoveItem(BAK::InventoryIndex item);
     
 private:
     std::vector<InventoryItem> mItems;

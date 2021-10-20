@@ -3,6 +3,11 @@ add_executable(bakTest
     partyTest.cpp
     )
 
-target_link_libraries(bakTest bak gtest_main)
+target_link_libraries(bakTest
+    stdc++
+    m
+    bak
+    com
+    gtest_main)
 
 add_custom_target(testBak ALL COMMAND bakTest)
