@@ -1,5 +1,7 @@
 #include "gui/widget.hpp"
 
+#include "com/assert.hpp"
+
 #include <variant>
 
 namespace Gui {
@@ -24,6 +26,8 @@ Widget::Widget(
         pos,
         dims,
         childrenRelative},
+    mParent{nullptr},
+    mChildren{},
     mActive{true}
 {}
 
@@ -115,6 +119,31 @@ bool Widget::OnMouseEvent(const MouseEvent& event)
     return false;
 }
 
+bool Widget::OnDragEvent(const DragEvent& event)
+{
+    if (mActive)
+    {
+        for (auto& c : mChildren)
+        {
+            const bool handled = c->OnDragEvent(
+                TransformEvent(event));
+            if (handled)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+void Widget::PropagateUp(const DragEvent& event)
+{
+    if (mActive && mParent != nullptr)
+    {
+        mParent->PropagateUp(
+            InverseTransformEvent(event));
+    }
+}
+
 const Graphics::DrawInfo& Widget::GetDrawInfo() const
 {
     return mDrawInfo;
@@ -127,20 +156,34 @@ const Graphics::PositionInfo& Widget::GetPositionInfo() const
 
 void Widget::AddChildFront(Widget* widget)
 {
-    assert(std::find(mChildren.begin(), mChildren.end(), widget) 
+    ASSERT(std::find(mChildren.begin(), mChildren.end(), widget) 
         == mChildren.end());
     mChildren.insert(mChildren.begin(), widget);
+    widget->SetParent(this);
+
     Graphics::IGuiElement::AddChildFront(
         static_cast<Graphics::IGuiElement*>(widget));
 }
 
 void Widget::AddChildBack(Widget* widget)
 {
-    assert(std::find(mChildren.begin(), mChildren.end(), widget) 
+    ASSERT(std::find(mChildren.begin(), mChildren.end(), widget) 
         == mChildren.end());
     mChildren.emplace_back(widget);
+    widget->SetParent(this);
+
     Graphics::IGuiElement::AddChildBack(
         static_cast<Graphics::IGuiElement*>(widget));
+}
+
+void Widget::RemoveChild(Widget* elem)
+{
+    elem->SetParent(nullptr);
+
+    Graphics::IGuiElement::RemoveChild(elem);
+    const auto it = std::find(mChildren.begin(), mChildren.end(), elem);
+    ASSERT(it != mChildren.end());
+    mChildren.erase(it);
 }
 
 void Widget::PopChild()
@@ -152,18 +195,19 @@ void Widget::PopChild()
     }
 }
 
-void Widget::RemoveChild(Widget* elem)
-{
-    Graphics::IGuiElement::RemoveChild(elem);
-    const auto it = std::find(mChildren.begin(), mChildren.end(), elem);
-    assert(it != mChildren.end());
-    mChildren.erase(it);
-}
-
 void Widget::ClearChildren()
 {
     Graphics::IGuiElement::ClearChildren();
+
+    for (auto* child : mChildren)
+        child->SetParent(nullptr);
+
     mChildren.clear();
+}
+
+void Widget::SetParent(Widget* widget)
+{
+    mParent = widget;
 }
 
 void Widget::SetCenter(glm::vec2 pos)
@@ -226,19 +270,52 @@ bool Widget::Within(glm::vec2 click)
         glm::vec2{GetPositionInfo().mDimensions});
 }
 
+glm::vec2 Widget::TransformPosition(const glm::vec2& pos)
+{
+    if (mPositionInfo.mChildrenRelative)
+        return pos - GetPositionInfo().mPosition;
+    else 
+        return pos;
+}
+
+glm::vec2 Widget::InverseTransformPosition(const glm::vec2& pos)
+{
+    if (mPositionInfo.mChildrenRelative)
+        return pos + GetPositionInfo().mPosition;
+    else 
+        return pos;
+}
+
+// When propagating event from parent to child
 MouseEvent Widget::TransformEvent(const MouseEvent& event)
 {
     return std::visit(
         [&]<typename T>(const T& e) -> MouseEvent
         {
-            const auto newPos = std::invoke([&]{
-                if (mPositionInfo.mChildrenRelative)
-                    return e.mValue - GetPositionInfo().mPosition;
-                else 
-                    return e.mValue;
-            });
-
+            const auto newPos = TransformPosition(e.mValue);
             return MouseEvent{T{newPos}};
+        },
+        event);
+}
+
+DragEvent Widget::TransformEvent(const DragEvent& event)
+{
+    return std::visit(
+        [&]<typename T>(const T& e) -> DragEvent
+        {
+            const auto newPos = TransformPosition(e.mValue);
+            return DragEvent{T{e.mWidget, newPos}};
+        },
+        event);
+}
+
+DragEvent Widget::InverseTransformEvent(const DragEvent& event)
+{
+    return std::visit(
+        [&]<typename T>(const T& e) -> DragEvent
+        {
+            const auto newPos = InverseTransformPosition(e.mValue);
+            return DragEvent{T{e.mWidget, newPos}};
         },
         event);
 }

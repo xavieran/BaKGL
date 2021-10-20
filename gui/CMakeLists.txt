@@ -3,11 +3,13 @@ add_library(gui
     clickButton.hpp
     colors.hpp
     cursor.hpp
+    dragEvent.hpp dragEvent.cpp
     dialogRunner.hpp
     gdsScene.hpp gdsScene.cpp
     hotspot.hpp
     label.hpp
     mainView.hpp
+    mouseEvent.hpp mouseEvent.cpp
     scene.hpp scene.cpp
     staticTTM.hpp staticTTM.cpp
     textBox.hpp
@@ -25,3 +27,4 @@ target_link_libraries(gui
 
 add_subdirectory(info)
 add_subdirectory(inventory)
+add_subdirectory(test)
