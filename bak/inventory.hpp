@@ -36,6 +36,16 @@ public:
     {}
 
     const auto& GetItems() const { return mItems; }
+    const auto& GetAtIndex(unsigned i) const
+    {
+        ASSERT(i < mItems.size());
+        return mItems[i];
+    }
+    auto& GetAtIndex(unsigned i)
+    {
+        ASSERT(i < mItems.size());
+        return mItems[i];
+    }
 
     auto FindIncompleteStack(const InventoryItem& item)
     {

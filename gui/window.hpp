@@ -29,7 +29,7 @@ public:
 
     bool OnMouseEvent(const MouseEvent& event) override
     {
-        Logging::LogDebug("Window") << __FUNCTION__ << " " << event << "\n";
+        Logging::LogSpam("Window") << __FUNCTION__ << " " << event << "\n";
         return std::visit(overloaded{
             [this](const MouseMove& p){
                 mCursor.SetPosition(p.mValue);
