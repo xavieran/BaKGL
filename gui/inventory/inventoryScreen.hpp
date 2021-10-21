@@ -28,9 +28,9 @@
 namespace Gui {
 
 template <typename Base>
-    using Endpoint = DragEndpoint<
-        Base,
-        InventorySlot>;
+using ItemEndpoint = DragEndpoint<
+    Base,
+    InventorySlot>;
 
 class EquipmentSlot : public Widget
 {
@@ -39,7 +39,7 @@ public:
         glm::vec2 pos,
         glm::vec2 dims,
         const Icons& mIcons,
-        unsigned icon)
+        int icon)
     :
         Widget{
             RectTag{},
@@ -91,9 +91,10 @@ public:
     }
 
 private:
-    std::optional<Endpoint<InventorySlot>> mItem;
+    std::optional<InventorySlot> mItem;
     Widget mBlank;
 };
+
 
 class InventoryScreen :
     public Widget
@@ -163,18 +164,24 @@ public:
             []{}
         },
         mWeapon{
+            [this](auto& item){
+                MoveItemToEquipmentSlot(item, BAK::ItemType::Sword); },
             glm::vec2{13, 15},
             glm::vec2{80, 29},
             mIcons,
             130
         },
         mCrossbow{
+            [this](auto& item){
+                MoveItemToEquipmentSlot(item, BAK::ItemType::Crossbow); },
             glm::vec2{13, 15 + 29},
             glm::vec2{80, 29},
             mIcons,
             130
         },
         mArmor{
+            [this](auto& item){
+                MoveItemToEquipmentSlot(item, BAK::ItemType::Armor); },
             glm::vec2{13, 15 + 29 * 2},
             glm::vec2{80, 58},
             mIcons,
@@ -236,14 +243,17 @@ private:
     {
         if (character != mSelectedCharacter)
         {
-            // FIXME: Check if full
             auto item = slot.GetItem();
 
-            GetActiveCharacter(character).GiveItem(item);
-            GetActiveCharacter(mSelectedCharacter)
-                .GetInventory()
-                .RemoveItem(slot.GetItemIndex());
+            if (GetActiveCharacter(character).GiveItem(item))
+            {
+                GetActiveCharacter(mSelectedCharacter)
+                    .GetInventory()
+                    .RemoveItem(slot.GetItemIndex());
+            }
         }
+
+        mLogger.Debug() << __FUNCTION__ << "Source: " << GetActiveCharacter(mSelectedCharacter).GetInventory() << "\n" << "Dest: " << GetActiveCharacter(character).GetInventory() << "\n";
 
         mNeedRefresh = true;
     }
@@ -342,7 +352,10 @@ private:
         const auto& character = GetActiveCharacter(mSelectedCharacter);
         const auto& inventory = character.GetInventory();
 
-        std::vector<std::pair<BAK::InventoryIndex, const BAK::InventoryItem*>> items{};
+        std::vector<
+            std::pair<
+                BAK::InventoryIndex,
+            const BAK::InventoryItem*>> items{};
 
         const auto numItems = inventory.GetItems().size();
         mInventoryItems.reserve(numItems);
@@ -358,8 +371,11 @@ private:
 
         std::sort(items.begin(), items.end(), [](const auto& l, const auto& r) 
         {
-            return (std::get<1>(l)->GetObject().mImageSize > std::get<1>(r)->GetObject().mImageSize)
-                || (std::get<0>(l) < std::get<0>(r));
+            return (std::get<1>(l)->GetObject().mImageSize 
+                > std::get<1>(r)->GetObject().mImageSize);
+            // FIXME: std::sort requires a strict weak ordering
+            //        otherwise it fails.
+                //|| (std::get<0>(l) < std::get<0>(r));
         });
 
         unsigned majorColumn = 0;
@@ -400,8 +416,6 @@ private:
                 }
 
                 mWeapon.AddItem(
-                    [this](auto& item){
-                        MoveItemToEquipmentSlot(item, BAK::ItemType::Sword); },
                     glm::vec2{0},
                     scale,
                     mFont,
@@ -418,8 +432,6 @@ private:
                 && item.IsEquipped())
             {
                 mCrossbow.AddItem(
-                    [this](auto& item){
-                        MoveItemToEquipmentSlot(item, BAK::ItemType::Crossbow); },
                     glm::vec2{0},
                     slotDims * glm::vec2{2, 1},
                     mFont,
@@ -437,8 +449,6 @@ private:
                 && item.IsEquipped())
             {
                 mArmor.AddItem(
-                    [this](auto& item){
-                        MoveItemToEquipmentSlot(item, BAK::ItemType::Armor); },
                     glm::vec2{0},
                     slotDims * glm::vec2{2},
                     mFont,
@@ -556,16 +566,18 @@ private:
 
     Widget mFrame;
 
-    std::vector<Endpoint<ClickButtonImage>> mCharacters;
+    std::vector<ItemEndpoint<ClickButtonImage>> mCharacters;
     ClickButtonImage mExit;
     TextBox mGoldDisplay;
     // click into shop or keys, etc.
-    Endpoint<ClickButtonImage> mContainerTypeDisplay;
+    ItemEndpoint<ClickButtonImage> mContainerTypeDisplay;
 
-    EquipmentSlot mWeapon;
-    EquipmentSlot mCrossbow;
-    EquipmentSlot mArmor;
-    std::vector<Endpoint<InventorySlot>> mInventoryItems;
+    using ItemEndpointEquipmentSlot = ItemEndpoint<EquipmentSlot>;
+
+    ItemEndpointEquipmentSlot mWeapon;
+    ItemEndpointEquipmentSlot mCrossbow;
+    ItemEndpointEquipmentSlot mArmor;
+    std::vector<ItemEndpoint<InventorySlot>> mInventoryItems;
 
     unsigned mSelectedCharacter;
     bool mNeedRefresh;

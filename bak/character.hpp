@@ -7,8 +7,9 @@
 #include "bak/skills.hpp"
 #include "bak/inventory.hpp"
 
-#include <ostream>
 #include <ios>
+#include <iterator>
+#include <ostream>
 #include <string>
 
 namespace BAK {
@@ -79,6 +80,12 @@ public:
         auto& item = mInventory.GetAtIndex(index);
         Logging::LogDebug("CharacterB4Move") << __FUNCTION__ << " " << item << " " << item.IsEquipped() << " " << BAK::ToString(slot) << "\n";
         auto equipped = mInventory.FindEquipped(slot);
+        // We are trying to move this item onto itself
+        if (std::distance(mInventory.GetItems().begin(), equipped) == index.mValue)
+        {
+            return;
+        }
+
         if (equipped != mInventory.GetItems().end())
             Logging::LogDebug("CharacterB4Eqip") << __FUNCTION__ << " " << *equipped << " " << equipped->IsEquipped() << " " << BAK::ToString(slot) << "\n";
         if (item.GetObject().mType == slot)
