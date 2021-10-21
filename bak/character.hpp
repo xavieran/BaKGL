@@ -3,10 +3,13 @@
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
+#include "bak/IContainer.hpp"
+
 #include "bak/condition.hpp"
 #include "bak/skills.hpp"
 #include "bak/inventory.hpp"
 
+#include <cstdint>
 #include <ios>
 #include <iterator>
 #include <ostream>
@@ -14,9 +17,34 @@
 
 namespace BAK {
 
-class Character
+class Character : public IContainer
 {
 public:
+    Character(
+        unsigned index,
+        const std::string& name,
+        const Skills& skills,
+        const std::array<std::uint8_t, 6>& spells,
+        const std::array<std::uint8_t, 2>& unknown,
+        const std::array<std::uint8_t, 7>& unknown2,
+        const Conditions& conditions,
+        const Inventory& inventory
+        )
+    :
+        mCharacterIndex{index},
+        mName{name},
+        mSkills{skills},
+        mSpells{spells},
+        mUnknown{unknown},
+        mUnknown2{unknown2},
+        mConditions{conditions},
+        mInventory{inventory}
+    {}
+
+    /* IContainer */
+    Inventory& GetInventory() override { return mInventory; }
+    const Inventory& GetInventory() const override { return mInventory; }
+
     bool GiveItem(InventoryItem item)
     {
         // FIXME: Check character class...
@@ -51,8 +79,6 @@ public:
         return false;
     }
 
-    auto& GetInventory() { return mInventory; }
-    const auto& GetInventory() const { return mInventory; }
     bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mCurrent != 0; }
     bool IsSwordsman() const { return !IsSpellcaster(); }
     ItemType GetWeaponType() const

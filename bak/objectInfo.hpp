@@ -99,7 +99,7 @@ std::ostream& operator<<(std::ostream&, const GameObject&);
 class ObjectIndex
 {
 public:
-    static constexpr auto sObjectCount = 0x89;
+    static constexpr auto sObjectCount = 0x8a;
 
     ObjectIndex();
     

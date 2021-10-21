@@ -193,6 +193,19 @@ public:
     {
     }
 
+    void SetSelectedCharacter(unsigned character)
+    {
+        ClearChildren();
+
+        mSelectedCharacter = character;
+        UpdatePartyMembers();
+        UpdateGold();
+        //UpdateInventoryContents();
+
+        AddChildren();
+    }
+
+    /* Widget */
     bool OnMouseEvent(const MouseEvent& event) override
     {
         const bool handled = Widget::OnMouseEvent(event);
@@ -207,18 +220,6 @@ public:
         }
 
         return handled;
-    }
-
-    void SetSelectedCharacter(unsigned character)
-    {
-        ClearChildren();
-
-        mSelectedCharacter = character;
-        UpdatePartyMembers();
-        UpdateGold();
-        UpdateInventoryContents();
-
-        AddChildren();
     }
 
     void PropagateUp(const DragEvent& event) override
@@ -360,7 +361,7 @@ private:
         mInventoryItems.clear();
 
         const auto& character = GetActiveCharacter(mSelectedCharacter);
-        const auto& inventory = mGameState.GetParty().GetKeys();//character.GetInventory();
+        const auto& inventory = character.GetInventory();
 
         std::vector<
             std::pair<
