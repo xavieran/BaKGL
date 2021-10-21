@@ -191,6 +191,7 @@ public:
         mSelectedCharacter{0},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
+        mCharacters.reserve(3);
     }
 
     void SetSelectedCharacter(unsigned character)
@@ -200,7 +201,7 @@ public:
         mSelectedCharacter = character;
         UpdatePartyMembers();
         UpdateGold();
-        //UpdateInventoryContents();
+        UpdateInventoryContents();
 
         AddChildren();
     }
