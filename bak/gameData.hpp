@@ -136,7 +136,18 @@ public:
         mLogger.Info() << "dac0: " << std::hex << val1 << "\n";
         const auto val2 = ReadComplexEvent(0xdaca);
         mLogger.Info() << "daca: " << std::hex << val2 << "\n";
-        //LoadContainer();
+        LoadContainers(0x1);
+        LoadContainers(0x2);
+        LoadContainers(0x3);
+        LoadContainers(0x4);
+        LoadContainers(0x5);
+        LoadContainers(0x6);
+        LoadContainers(0x7);
+        LoadContainers(0x8);
+        LoadContainers(0x9);
+        LoadContainers(0xa);
+        LoadContainers(0xb);
+        LoadContainers(0xc);
         //LoadCombatEntityLists();
         //LoadCombatInventories(
         //    sCombatInventoryOffset,
@@ -535,7 +546,8 @@ public:
         const auto itemCount = mBuffer.GetUint8();
         const auto capacity = mBuffer.GetUint16LE();
         mLogger.Info() << " Items: " << +itemCount << " cap: " << capacity << "\n";
-        for (unsigned i = 0; i < itemCount; i++)
+        unsigned i;
+        for (i = 0; i < itemCount; i++)
         {
             const auto item = ItemIndex{mBuffer.GetUint8()};
             const auto& object = mObjects.GetObject(item);
@@ -552,6 +564,9 @@ public:
                     modifiers));
         }
 
+        for (; i < capacity; i++)
+            mBuffer.Skip(4);
+
         return Inventory{std::move(items)};
     }
 
@@ -559,8 +574,7 @@ public:
     std::vector<Container> LoadContainers(unsigned zone)
     {
         const auto& logger = Logging::LogState::GetLogger("GameData");
-        logger.Info() << "Loading containers" << std::endl;
-        auto* objects = ObjectResource::GetInstance();
+        logger.Info() << "Loading containers for Z: " << zone << "\n";
         std::vector<Container> containers{};
 
         unsigned count = 0;
@@ -654,46 +668,41 @@ public:
                 << " Tp: " << +containerType << " " 
                 << Container(containerType) << std::endl;
             
-            std::vector<Item> items{};
+            std::vector<InventoryItem> items{};
             items.reserve(7);
             std::stringstream ss{""};
             int i = 0;
             for (; i < chestItems; i++)
             {
-                auto item = mBuffer.GetUint8();
-                auto object = objects->GetObjectInfo(item);
+                auto itemIndex = mBuffer.GetUint8();
                 auto condition = mBuffer.GetUint8();
+                auto status    = mBuffer.GetUint8();
                 auto modifiers = mBuffer.GetUint8();
-                auto yy = mBuffer.GetUint8();
-                ss << std::hex << "0x" << +item << " " << object.name 
-                    << std::dec << " " << " cond/qty: "  << +condition 
-                    <<" mod: " <<  +modifiers << " y; " << + yy << std::endl;
-                items.emplace_back(item, object.name, condition, modifiers);
+                auto item = InventoryItemFactory::MakeItem(
+                    ItemIndex{itemIndex},
+                    condition, 
+                    status,
+                    modifiers);
+
+                items.emplace_back(item);
             }
 
-            
             for (; i < chestCapacity; i++)
             {
                 mBuffer.Skip(4);
             }
 
-            logger.Info() << "Items: \n" << ss.str() << std::endl;
             mBuffer.DumpAndSkip(1);
             auto picklockSkill  = mBuffer.GetUint8();
-            auto containerIndex = mBuffer.GetUint16LE();
-            logger.Info() << "Picklock: " << std::dec << +picklockSkill 
-                << " ContainerI: " << containerIndex << std::endl;
-            mBuffer.DumpAndSkip(2);
+            auto dialog = KeyTarget{mBuffer.GetUint32LE()};
 
-            containers.emplace_back(
-                address,
-                chestNumber,
-                chestItems,
-                chestCapacity,
-                containerType,
-                containerIndex,
-                location,
-                items);
+            logger.Info() << "Picklock: " << std::hex << +picklockSkill
+                << " dialog: " << dialog << std::dec << "\n";
+
+            if (containerType != 2
+                && containerType != 6
+                && containerType != 10)
+                dialog = KeyTarget{0};
 
             if (Container(containerType) == "Shop")
             {
@@ -709,7 +718,8 @@ public:
             }
             else if (containerType == 3)
             {
-                mBuffer.DumpAndSkip(4);
+                const auto postDialog = Target{KeyTarget{mBuffer.GetUint32LE()}};
+                mLogger.Debug() << "PostLockDialog:  " << postDialog << "\n";
             }
             else if (containerType == 8)
             {
@@ -735,6 +745,19 @@ public:
             {
                 mBuffer.DumpAndSkip(11);
             }
+
+            containers.emplace_back(
+                address,
+                chestNumber,
+                chestItems,
+                chestCapacity,
+                containerType,
+                dialog,
+                location,
+                std::move(items));
+            logger.Info() << "Items: \n" << containers.back().mItems << "\n";
+
+
             std::cout << std::endl;
         }
 
@@ -831,8 +854,6 @@ public:
     void LoadCombatInventories(unsigned offset, unsigned number)
     {
         mLogger.Info() << "Loading Combat Inventories" << std::endl;
-        auto* objects = ObjectResource::GetInstance();
-
         //auto combatInventoryLocation = 0x46053;
         auto combatInventoryLocation = offset;
         //auto combatInventoryLocation = 0x45fe5;
@@ -851,27 +872,34 @@ public:
             auto combatNo = mBuffer.GetUint16LE();
             mBuffer.Skip(2);
 
-            int capacity = mBuffer.GetUint8();
-            int items = mBuffer.GetUint8();
-            int items2 = mBuffer.GetUint8();
+            int unknown = mBuffer.GetUint8();
+            //unsigned items = mBuffer.GetUint8();
+            //unsigned capacity = mBuffer.GetUint16LE();
 
-            mLogger.Info() << "Inventory #" << i << " "
+            mLogger.Info() << "CombatInventory #" << i << " "
                 << std::hex << x << std::dec << " CBT: " << +combatNo 
-                << " PER: " << +combatantNo << " Cap: " << capacity 
-                << " items: " << items << std::endl;
-            std::stringstream ss{""};
-            for (int i = 0; i < items; i++)
-            {
-                auto xx = mBuffer.GetUint8();
-                auto item = mBuffer.GetUint8();
-                auto object = objects->GetObjectInfo(item);
-                auto condition = mBuffer.GetUint8();
-                auto modifiers = mBuffer.GetUint8();
-                ss << object.name << " " << +xx << " cond: " 
-                    << +condition <<" mod: " <<  +modifiers << std::endl;
-            }
-            mLogger.Info() << ss.str() << std::endl;
-            mBuffer.Skip(1);
+                << " PER: " << +combatantNo << " Unk: " << unknown << std::endl;
+            const auto inventory = LoadInventory(mBuffer.Tell());
+            mLogger.Info() << inventory << "\n";
+
+            //std::vector<InventoryItem> combatItems{};
+            //unsigned j;
+            //for (j = 0; j < items; j++)
+            //{
+            //    auto itemIndex = ItemIndex{mBuffer.GetUint8()};
+            //    auto condition = mBuffer.GetUint8();
+            //    auto status = mBuffer.GetUint8();
+            //    auto modifiers = mBuffer.GetUint8();
+            //    combatItems.emplace_back(
+            //        InventoryItemFactory::MakeItem(
+            //            itemIndex,
+            //            condition,
+            //            status,
+            //            modifiers));
+            //}
+            //for (; j < capacity; j++)
+            //    mBuffer.Skip(4);
+            //mLogger.Info() << Inventory{std::move(combatItems)} << "\n";
         }
     }
 
