@@ -112,21 +112,22 @@ void ShowContainerGui(
     ImGui::Text(ss.str().c_str());
 
     ImGui::BeginTable("Items", 4, ImGuiTableFlags_Resizable);
-    ImGui::TableNextColumn(); ImGui::Text("Number");
     ImGui::TableNextColumn(); ImGui::Text("Name");
     ImGui::TableNextColumn(); ImGui::Text("Cond/Qty");
+    ImGui::TableNextColumn(); ImGui::Text("Status");
     ImGui::TableNextColumn(); ImGui::Text("Mods");
     ImGui::TableNextRow();
 
-    for (const auto& item : container.mItems)
+    for (const auto& item : container.mItems.GetItems())
     {
         ImGui::TableNextColumn();
-        ss.str(""); ss << item.mItemNumber; ImGui::Text(ss.str().c_str());
         ImGui::TableNextColumn();
-        ss.str(""); ss << item.mName; ImGui::Text(ss.str().c_str());
+        ss.str(""); ss << item.GetObject().mName; ImGui::Text(ss.str().c_str());
         ImGui::TableNextColumn();
         ss.str(""); ss << +item.mCondition; ImGui::Text(ss.str().c_str());
         ImGui::TableNextColumn();
+        ss.str(""); ss << +item.mStatus; ImGui::Text(ss.str().c_str());
+        ImGui::TableNextRow();
         ss.str(""); ss << +item.mModifiers; ImGui::Text(ss.str().c_str());
         ImGui::TableNextRow();
     }

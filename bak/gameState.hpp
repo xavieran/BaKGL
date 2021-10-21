@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/container.hpp"
 #include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
@@ -38,8 +39,15 @@ public:
         mSkillValue{0},
         mChapter{1},
         mZone{1},
+        mContainers{},
         mLogger{Logging::LogState::GetLogger("BAK::GameState")}
-    {}
+    {
+        if (mGameData != nullptr)
+        {
+            mZone = ZoneNumber{mGameData->mLocation.mZone};
+            mContainers = mGameData->LoadContainers(mZone.mValue);
+        }
+    }
 
     const Party& GetParty() const
     {
@@ -360,6 +368,7 @@ public:
     unsigned mSkillValue;
     unsigned mChapter;
     ZoneNumber mZone;
+    std::vector<Container> mContainers;
     std::unordered_map<unsigned, bool> mEventState;
     const Logging::Logger& mLogger;
 };

@@ -40,7 +40,8 @@ public:
         mSavedAngle{0},
         mLoadRenderer{std::move(loadRenderer)},
         mTeleportFactory{},
-        mClickablesEnabled{false}
+        mClickablesEnabled{false},
+        mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
     {
     }
 
@@ -270,12 +271,27 @@ public:
         {
             const auto bakLocation = mActiveClickable2->GetBakLocation();
 
-            //const auto containers = 
-            //auto cit = std::find_if(containers.begin(), containers.end(),
-            //    [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
-            //if (cit != containers.end())
-            //    ShowContainerGui(*cit);
-            //ShowDialogGui(fit->mDialogKey, dialogStore, gameData);
+            const auto& containers = mGameState.mContainers;
+            auto cit = std::find_if(containers.begin(), containers.end(),
+            [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+            if (cit != containers.end())
+            {
+                mLogger.Debug() << "Container: " << *cit << "\n";
+                if (mGuiManager.mScreenStack.size() == 1)
+                {
+                    mDynamicDialogScene.SetDialogFinished(
+                        [&, obj=cit](const auto&){
+                            Logging::LogDebug(__FUNCTION__) << "DialogFinished" << "\n";
+                            mDynamicDialogScene.ResetDialogFinished();
+                        });
+                    if (cit->mDialog != BAK::Target{BAK::KeyTarget{0}})
+                        mGuiManager.StartDialog(
+                            cit->mDialog,
+                            false,
+                            &mDynamicDialogScene);
+                }
+            }
+            //ShowContainerGui(*cit);
 
             auto fit = std::find_if(mZoneData->mFixedObjects.begin(), mZoneData->mFixedObjects.end(),
                 [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
@@ -342,6 +358,8 @@ public:
     BAK::Encounter::TeleportFactory mTeleportFactory;
 
     bool mClickablesEnabled;
+
+    const Logging::Logger& mLogger;
 
 };
 

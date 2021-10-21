@@ -104,6 +104,56 @@ public:
             Logging::LogDebug("CharacterAFEquip") << __FUNCTION__ << " " << *equipped << " " << equipped->IsEquipped() << " " << BAK::ToString(slot) << "\n";
     }
 
+    void CheckPostConditions()
+    {
+        if (IsSpellcaster())
+        {
+            ASSERT(GetInventory().FindEquipped(ItemType::Sword) 
+                == GetInventory().GetItems().end());
+            ASSERT(GetInventory().FindEquipped(ItemType::Crossbow) 
+                == GetInventory().GetItems().end());
+
+            unsigned staffCount = 0;
+            for (const auto& item : GetInventory().GetItems())
+            {
+                if (item.GetObject().mType == ItemType::Staff
+                    && item.IsEquipped())
+                {
+                    staffCount++;
+                }
+            }
+            ASSERT(staffCount == 1);
+        }
+        else
+        {
+            ASSERT(GetInventory().FindEquipped(ItemType::Staff) 
+                == GetInventory().GetItems().end());
+
+            unsigned swordCount = 0;
+            for (const auto& item : GetInventory().GetItems())
+            {
+                if (item.GetObject().mType == ItemType::Sword
+                    && item.IsEquipped())
+                {
+                    swordCount++;
+                }
+            }
+            ASSERT(swordCount == 1);
+
+            unsigned crossbowCount = 0;
+            for (const auto& item : GetInventory().GetItems())
+            {
+                if (item.GetObject().mType == ItemType::Crossbow
+                    && item.IsEquipped())
+                {
+                    crossbowCount++;
+                }
+            }
+
+            ASSERT(crossbowCount <= 1);
+        }
+    }
+
     unsigned mCharacterIndex;
     std::string mName;
     Skills mSkills;

@@ -191,8 +191,6 @@ public:
         mSelectedCharacter{0},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
-        mCharacters.reserve(4);
-        AddChildren();
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
@@ -255,6 +253,8 @@ private:
 
         mLogger.Debug() << __FUNCTION__ << "Source: " << GetActiveCharacter(mSelectedCharacter).GetInventory() << "\n" << "Dest: " << GetActiveCharacter(character).GetInventory() << "\n";
 
+        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
+        GetActiveCharacter(character).CheckPostConditions();
         mNeedRefresh = true;
     }
 
@@ -263,11 +263,19 @@ private:
         BAK::ItemType slot)
     {
         mLogger.Debug() << "Move item to equipment slot: " 
-            << item.GetItem() 
-            << " " << BAK::ToString(slot) << "\n";
+            << item.GetItem() << " " << BAK::ToString(slot) << "\n";
 
-        GetActiveCharacter(mSelectedCharacter)
-            .ApplyItemToSlot(item.GetItemIndex(), slot);
+        if (slot == BAK::ItemType::Sword)
+        {
+            if (GetActiveCharacter(mSelectedCharacter).IsSwordsman())
+                GetActiveCharacter(mSelectedCharacter)
+                    .ApplyItemToSlot(item.GetItemIndex(), slot);
+            else
+                GetActiveCharacter(mSelectedCharacter)
+                    .ApplyItemToSlot(item.GetItemIndex(), BAK::ItemType::Staff);
+        }
+
+        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
 
         mNeedRefresh = true;
     }
@@ -275,12 +283,14 @@ private:
     void MoveItemToContainer(InventorySlot& item)
     {
         mLogger.Debug() << "Move item to container: " << item.GetItem() << "\n";
+        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
     }
 
     void UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
     {
         auto& applyTo = GetActiveCharacter(mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
         mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
+        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
     }
 
     void ShowItemDescription(const BAK::InventoryItem& item)
@@ -350,7 +360,7 @@ private:
         mInventoryItems.clear();
 
         const auto& character = GetActiveCharacter(mSelectedCharacter);
-        const auto& inventory = character.GetInventory();
+        const auto& inventory = mGameState.GetParty().GetKeys();//character.GetInventory();
 
         std::vector<
             std::pair<

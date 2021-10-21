@@ -42,6 +42,15 @@ public:
         return mCharacters[i];
     }
 
+    const auto& GetKeys() const
+    {
+        return mKeys;
+    }
+
+    auto& GetKeys()
+    {
+        return mKeys;
+    }
     Character& GetCharacter(unsigned i)
     {
         ASSERT(i < mCharacters.size());
