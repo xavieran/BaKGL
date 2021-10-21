@@ -61,6 +61,8 @@ public:
  *
  * 0x3b621 - Start of Containers
  * 0x44c37 - End of Containers ???
+ * 0x44cc9 - Start of Shops
+ * 0x46043 End of shops
  * 0x46053 - Combat Inventory Start
  * 0x51720 - Combat Inventory End (1773)
  */
@@ -147,12 +149,16 @@ public:
         //LoadContainers(0x9);
         //LoadContainers(0xa);
         //LoadContainers(0xb);
-        //LoadContainers(0xc);
+        LoadContainers(0xc);
+        mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
+            << mBuffer.Tell() << std::dec << "\n";
+        LoadShop();
         //LoadCombatEntityLists();
         //LoadCombatInventories(
         //    sCombatInventoryOffset,
         //    sCombatInventoryCount);
         //LoadCombatStats(0x914b, 1698);
+        //auto fletchers = LoadInventory(0x
     }
 
     Party LoadParty()
@@ -541,11 +547,15 @@ public:
     {
         mBuffer.Seek(offset);
 
-        std::vector<InventoryItem> items{};
-
         const auto itemCount = mBuffer.GetUint8();
         const auto capacity = mBuffer.GetUint16LE();
         mLogger.Info() << " Items: " << +itemCount << " cap: " << capacity << "\n";
+        return Inventory{LoadItems(itemCount, capacity)};
+    }
+
+    std::vector<InventoryItem> LoadItems(unsigned itemCount, unsigned capacity)
+    {
+        std::vector<InventoryItem> items{};
         unsigned i;
         for (i = 0; i < itemCount; i++)
         {
@@ -554,7 +564,6 @@ public:
             const auto condition = mBuffer.GetUint8();
             const auto status = mBuffer.GetUint8();
             const auto modifiers = mBuffer.GetUint8();
-            mLogger.Info() << " Loaded: " << object.mName << "\n";
 
             items.emplace_back(
                 InventoryItemFactory::MakeItem(
@@ -567,9 +576,42 @@ public:
         for (; i < capacity; i++)
             mBuffer.Skip(4);
 
-        return Inventory{std::move(items)};
+        return items;
     }
 
+    Inventory LoadShop()
+    {
+        // Z12 Cont finish @ 44393
+        static constexpr auto sShopsOffset = 0x443c9;
+        //static constexpr auto sShopsOffset = 0x443ea;
+        //fletcher
+        //static constexpr auto sShopsOffset = 0x4441a;
+        mBuffer.Seek(sShopsOffset);
+        for (unsigned i = 0; i < 98; i++)
+        {
+            auto tileX = mBuffer.GetUint8();
+            auto tileY = mBuffer.GetUint8();
+            ASSERT(mBuffer.GetUint16LE() == 0);
+
+            unsigned gdsPart1 = mBuffer.GetUint32LE();
+            unsigned gdsPart2 = mBuffer.GetUint32LE();
+            unsigned shopType = mBuffer.GetUint8();
+            unsigned itemCount = mBuffer.GetUint8();
+            unsigned capacity = mBuffer.GetUint8();
+            unsigned displayType = mBuffer.GetUint8();
+            mLogger.Debug() << "Shop #: " << i << "\n";
+            mLogger.Debug() << "Tile?: (" << +tileX << ", " << +tileY 
+                << ") Gds (" << gdsPart1 << ", " << gdsPart2 << ")\n Tp: " << +shopType 
+                << " items: " << +itemCount << " cap: " << +capacity << " displayTp?: " << +displayType<< "\n";
+            auto inventory = Inventory{LoadItems(itemCount, capacity)};
+            if (displayType == 0x4)
+                mBuffer.DumpAndSkip(16);
+            mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
+            mLogger.Debug() << " Shop has: " << inventory << "END\n";
+        }
+
+        return Inventory{{}};
+    }
 
     std::vector<Container> LoadContainers(unsigned zone)
     {
