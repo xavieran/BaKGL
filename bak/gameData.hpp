@@ -136,18 +136,18 @@ public:
         mLogger.Info() << "dac0: " << std::hex << val1 << "\n";
         const auto val2 = ReadComplexEvent(0xdaca);
         mLogger.Info() << "daca: " << std::hex << val2 << "\n";
-        LoadContainers(0x1);
-        LoadContainers(0x2);
-        LoadContainers(0x3);
-        LoadContainers(0x4);
-        LoadContainers(0x5);
-        LoadContainers(0x6);
-        LoadContainers(0x7);
-        LoadContainers(0x8);
-        LoadContainers(0x9);
-        LoadContainers(0xa);
-        LoadContainers(0xb);
-        LoadContainers(0xc);
+        //LoadContainers(0x1);
+        //LoadContainers(0x2);
+        //LoadContainers(0x3);
+        //LoadContainers(0x4);
+        //LoadContainers(0x5);
+        //LoadContainers(0x6);
+        //LoadContainers(0x7);
+        //LoadContainers(0x8);
+        //LoadContainers(0x9);
+        //LoadContainers(0xa);
+        //LoadContainers(0xb);
+        //LoadContainers(0xc);
         //LoadCombatEntityLists();
         //LoadCombatInventories(
         //    sCombatInventoryOffset,
