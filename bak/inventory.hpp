@@ -39,6 +39,7 @@ public:
     {}
 
     const auto& GetItems() const { return mItems; }
+    auto& GetItems() { return mItems; }
 
     const auto& GetAtIndex(InventoryIndex i) const
     {
