@@ -15,10 +15,10 @@ int main(int argc, char** argv)
     logger.Info() << "Loading save:" << saveFile << std::endl;
 
     BAK::GameData gameData(saveFile);
-    logger.Error() << "SaveName: " << gameData.mName << "\n";
-    logger.Error() << "Tile: " << std::hex << gameData.mLocation.mTile << std::dec <<  " " << gameData.mLocation.mTile << "\n";
-    logger.Error() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
-    logger.Error() << "Location: " << gameData.mLocation.mLocation << "\n";
+    logger.Info() << "SaveName: " << gameData.mName << "\n";
+    logger.Info() << "Tile: " << std::hex << gameData.mLocation.mTile << std::dec <<  " " << gameData.mLocation.mTile << "\n";
+    logger.Info() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
+    logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
 
     return 0;
 }
