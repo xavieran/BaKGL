@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/IContainer.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/inventory.hpp"
 #include "bak/layout.hpp"
@@ -160,7 +161,10 @@ public:
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
             std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
             std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
-            []{}, // Goto Keys, or goto Shop, or Goto Bag, or Goto Container...
+            [&]{
+                mDisplayContainer = true;
+                RefreshGui();
+            },
             []{}
         },
         mWeapon{
@@ -189,6 +193,8 @@ public:
         },
         mInventoryItems{},
         mSelectedCharacter{0},
+        mDisplayContainer{false},
+        mContainer{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
         mCharacters.reserve(3);
@@ -196,14 +202,32 @@ public:
 
     void SetSelectedCharacter(unsigned character)
     {
-        ClearChildren();
-
         mSelectedCharacter = character;
-        UpdatePartyMembers();
-        UpdateGold();
-        UpdateInventoryContents();
+        mDisplayContainer = false;
+        RefreshGui();
+    }
 
-        AddChildren();
+    void ClearContainer()
+    {
+        mContainerTypeDisplay.SetTexture(
+            std::get<Graphics::TextureIndex>(
+                mIcons.GetInventoryMiscIcon(11)));
+
+        mContainer = nullptr;
+        mDisplayContainer = false;
+        RefreshGui();
+    }
+
+    void SetContainer(BAK::IContainer* container)
+    {
+        mContainerTypeDisplay.SetTexture(
+            std::get<Graphics::TextureIndex>(
+                mIcons.GetInventoryMiscIcon(0)));
+
+        ASSERT(container);
+        mContainer = container;
+        mDisplayContainer = true;
+        RefreshGui();
     }
 
     /* Widget */
@@ -216,7 +240,7 @@ public:
         // children that are about to handle it.
         if (mNeedRefresh)
         {
-            SetSelectedCharacter(mSelectedCharacter);
+            RefreshGui();
             mNeedRefresh = false;
         }
 
@@ -232,6 +256,17 @@ public:
     }
 
 private:
+    void RefreshGui()
+    {
+        ClearChildren();
+
+        UpdatePartyMembers();
+        UpdateGold();
+        UpdateInventoryContents();
+
+        AddChildren();
+    }
+
 
     auto& GetActiveCharacter(unsigned i)
     {
@@ -361,8 +396,23 @@ private:
     {
         mInventoryItems.clear();
 
-        const auto& character = GetActiveCharacter(mSelectedCharacter);
-        const auto& inventory = character.GetInventory();
+        const auto& inventory = std::invoke([&]() -> const BAK::Inventory& {
+            if (mDisplayContainer)
+            {
+                if (mContainer != nullptr)
+                {
+                    return mContainer->GetInventory();
+                }
+                else
+                {
+                    return mGameState.GetParty().GetKeys().GetInventory();
+                }
+            }
+            else
+            {
+                return GetActiveCharacter(mSelectedCharacter).GetInventory();
+            }
+        });
 
         std::vector<
             std::pair<
@@ -592,6 +642,8 @@ private:
     std::vector<ItemEndpoint<InventorySlot>> mInventoryItems;
 
     unsigned mSelectedCharacter;
+    bool mDisplayContainer;
+    BAK::IContainer* mContainer;
     bool mNeedRefresh;
 
     const Logging::Logger& mLogger;

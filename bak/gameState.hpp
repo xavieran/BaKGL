@@ -44,8 +44,11 @@ public:
     {
         if (mGameData != nullptr)
         {
-            mZone = ZoneNumber{mGameData->mLocation.mZone};
-            mContainers = mGameData->LoadContainers(mZone.mValue);
+            for (unsigned i = 0; i < 12; i++)
+            {
+                mContainers.emplace_back(
+                    mGameData->LoadContainers(i + 1));
+            }
         }
     }
 
@@ -360,6 +363,12 @@ public:
 
     }
 
+    std::vector<Container>& GetContainers(ZoneNumber zone)
+    {
+        assert(zone.mValue < 13);
+        return mContainers[zone.mValue - 1];
+    }
+
     Character mPartyLeader;
     Character mPartyFollower;
     GameData* mGameData;
@@ -368,7 +377,8 @@ public:
     unsigned mSkillValue;
     unsigned mChapter;
     ZoneNumber mZone;
-    std::vector<Container> mContainers;
+    std::vector<
+        std::vector<Container>> mContainers;
     std::unordered_map<unsigned, bool> mEventState;
     const Logging::Logger& mLogger;
 };

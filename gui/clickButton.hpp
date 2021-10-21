@@ -266,6 +266,12 @@ public:
         mPressed.SetCenter(GetCenter() - GetTopLeft());
     }
 
+    // FIXME
+    void SetTexture(Graphics::TextureIndex ti)
+    {
+        mNormal.SetTexture(ti);
+        mPressed.SetTexture(ti);
+    }
 
 private:
     Widget mNormal;
