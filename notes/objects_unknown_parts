@@ -1,411 +1,411 @@
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 0 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: {  fl: 0 itm: 0 lvl: 0 val: 0 swing (0, 0) thrust (0, 0) size: 0 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 6e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 1 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Crystal Staff
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Crystal Staff fl: 1000 itm: 1 lvl: 1 val: 0 swing (5, -5) thrust (12, 10) size: 4 Human Staff stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: be
-20:06:38.10 DEBUG [BAK::ObjectIndex] 2 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Lightning Staff
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Lightning Staff fl: 2080 itm: 2 lvl: 1 val: 10000 swing (7, 10) thrust (0, 20) size: 4 Human Staff stackSize: 40 defaultStackSize: 40 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 10e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 3 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Wooden Staff
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Wooden Staff fl: 0 itm: 3 lvl: 1 val: 50 swing (3, 0) thrust (-7, 15) size: 4 Human Staff stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 15e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 4 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Staff of Macros
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Staff of Macros fl: 2080 itm: 4 lvl: 8 val: 20000 swing (25, 15) thrust (10, 25) size: 4 Human Staff stackSize: 50 defaultStackSize: 50 eff (0, 0 ) mod (80, 20)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1ae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 5 Unknown: 00 00|13 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Amulet of the Upright Man
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Amulet of the Upright Man fl: 0 itm: 5 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (2000, 15)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1fe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 6 Unknown: 00 00|00 00|58 00|00 04|00 00 00 00|00 00 00 00 00 00 Ring of Prandur
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Ring of Prandur fl: 2080 itm: 6 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Light stackSize: 10 defaultStackSize: 10 eff (18, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 24e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 7 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Brass Spyglass
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Brass Spyglass fl: 102 itm: 7 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 29e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 8 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Cup of Rlnn Skr
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Cup of Rlnn Skr fl: 180 itm: 8 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 2ee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 9 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Eliaem's Heart
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Eliaem's Heart fl: 20c0 itm: 9 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 6 defaultStackSize: 6 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 33e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 10 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Glory Hand
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Glory Hand fl: 40 itm: 10 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 38e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 11 Unknown: 00 00|07 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Horn of Algon Kokoon
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Horn of Algon Kokoon fl: 20c0 itm: 11 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 12 defaultStackSize: 6 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 3de
-20:06:38.10 DEBUG [BAK::ObjectIndex] 12 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Idol of Lassur
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Idol of Lassur fl: 2040 itm: 12 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 8 defaultStackSize: 8 eff (0, 0 ) mod (fff0, -20)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 42e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 13 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Infinity Pool
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Infinity Pool fl: 20c0 itm: 13 lvl: 1 val: 6000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 10 defaultStackSize: 10 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 47e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 14 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Raw Manna
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Raw Manna fl: 8880 itm: 14 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 100 defaultStackSize: 20 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 4ce
-20:06:38.10 DEBUG [BAK::ObjectIndex] 15 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Roric's Seal
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Roric's Seal fl: 20c0 itm: 15 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 10 defaultStackSize: 10 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 51e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 16 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Shell
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Shell fl: 0 itm: 16 lvl: 2 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 56e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 17 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Wyvern's Egg
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Wyvern's Egg fl: 0 itm: 17 lvl: 1 val: 300 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 5be
-20:06:38.10 DEBUG [BAK::ObjectIndex] 18 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|100 00 06 00 10 00 Broadsword
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Broadsword fl: 1008 itm: 18 lvl: 1 val: 120 swing (7, -5) thrust (0, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 60e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 19 Unknown: 128 31|05 00|00 00|128 00|00 00 00 00|50 00 03 00 50 00 Galon 'Griefmaker'
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Galon 'Griefmaker' fl: 1008 itm: 19 lvl: 1 val: 3500 swing (42, 5) thrust (29, 15) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 65e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 20 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|60 00 03 00 40 00 Goblin Sticker
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Goblin Sticker fl: 1008 itm: 20 lvl: 1 val: 3000 swing (29, 0) thrust (15, 10) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 6ae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 21 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|40 00 03 00 60 00 Greatsword
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Greatsword fl: 1008 itm: 21 lvl: 1 val: 6000 swing (52, 0) thrust (36, 10) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 6fe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 22 Unknown: 128 31|06 00|00 00|128 00|00 00 00 00|00 00 01 00 100 00 Guarda Revanche
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Guarda Revanche fl: 1008 itm: 22 lvl: 1 val: 20000 swing (140, 30) thrust (90, 45) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 74e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 23 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Exotic sword
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Exotic sword fl: 0 itm: 23 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 2 Elf Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 79e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 24 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|60 00 02 00 30 00 Keshian Tapir
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Keshian Tapir fl: 1008 itm: 24 lvl: 1 val: 3750 swing (45, -5) thrust (20, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 7ee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 25 Unknown: 128 31|08 00|00 00|128 00|00 00 00 00|80 00 05 00 20 00 Moredhel Lamprey
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Moredhel Lamprey fl: 1008 itm: 25 lvl: 1 val: 500 swing (15, -5) thrust (3, 5) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 83e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 26 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|90 00 06 00 10 00 Rapier
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Rapier fl: 1008 itm: 26 lvl: 1 val: 2500 swing (10, -5) thrust (25, 20) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 88e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 27 Unknown: 128 31|08 00|00 00|128 00|00 00 00 00|50 00 05 00 30 00 Sword of Kinnur
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Sword of Kinnur fl: 1008 itm: 27 lvl: 1 val: 3500 swing (33, 0) thrust (25, 15) size: 2 Dwarf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 8de
-20:06:38.10 DEBUG [BAK::ObjectIndex] 28 Unknown: 128 31|08 00|00 00|128 00|00 00 00 00|30 00 03 00 50 00 Sword of Lims-Kragma
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Sword of Lims-Kragma fl: 1008 itm: 28 lvl: 1 val: 10000 swing (71, 0) thrust (49, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 92e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 29 Unknown: 128 31|10 00|00 00|128 00|00 00 00 00|70 00 05 00 25 00 Two-Handed Broadsword
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Two-Handed Broadsword fl: 1008 itm: 29 lvl: 1 val: 1500 swing (21, 0) thrust (8, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 97e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 30 Unknown: 00 00|05 00|00 00|00 01|00 00 00 00|100 00 09 00 00 00 Light Crossbow
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Light Crossbow fl: 1008 itm: 30 lvl: 1 val: 500 swing (7, 0) thrust (0, 0) size: 2 Human Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 9ce
-20:06:38.10 DEBUG [BAK::ObjectIndex] 31 Unknown: 00 00|06 00|00 00|00 01|00 00 00 00|70 00 06 00 00 00 Medium Crossbow
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Medium Crossbow fl: 1008 itm: 31 lvl: 3 val: 1250 swing (15, 5) thrust (0, 0) size: 2 Human Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: a1e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 32 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|30 00 04 00 00 00 Bessy Mauler
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Bessy Mauler fl: 1008 itm: 32 lvl: 5 val: 10000 swing (75, -10) thrust (0, 0) size: 2 Human Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: a6e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 33 Unknown: 00 00|13 00|00 00|00 01|00 00 00 00|80 00 07 00 00 00 Tsurani Light Crossbow
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Tsurani Light Crossbow fl: 1008 itm: 33 lvl: 1 val: 3000 swing (20, -5) thrust (0, 0) size: 2 Tsurani Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: abe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 34 Unknown: 00 00|13 00|00 00|00 01|00 00 00 00|50 00 07 00 00 00 Tsurani Heavy Crossbow
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Tsurani Heavy Crossbow fl: 1008 itm: 34 lvl: 1 val: 5000 swing (40, 0) thrust (0, 0) size: 2 Tsurani Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: b0e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 35 Unknown: 00 00|05 00|00 00|00 01|00 00 00 00|45 00 06 00 00 00 Elven Crossbow
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Elven Crossbow fl: 1008 itm: 35 lvl: 1 val: 7250 swing (25, 25) thrust (0, 0) size: 2 Elf Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: b5e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 36 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Quarrels fl: 8800 itm: 36 lvl: 1 val: 120 swing (3, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: bae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 37 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Elven Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Elven Quarrels fl: 8800 itm: 37 lvl: 1 val: 1750 swing (9, 15) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: bfe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 38 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Tsurani Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Tsurani Quarrels fl: 8800 itm: 38 lvl: 1 val: 500 swing (7, -5) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: c4e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 39 Unknown: 00 00|08 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Poisoned Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Poisoned Quarrels fl: 8800 itm: 39 lvl: 1 val: 650 swing (7, -5) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: c9e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 40 Unknown: 00 00|08 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Poisoned Elven Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Poisoned Elven Quarrels fl: 8800 itm: 40 lvl: 1 val: 2250 swing (15, 10) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: cee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 41 Unknown: 00 00|08 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Poisoned Tsurani Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Poisoned Tsurani Quarrels fl: 8800 itm: 41 lvl: 1 val: 1000 swing (14, -10) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: d3e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 42 Unknown: 00 00|07 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Flaming Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Flaming Quarrels fl: 8800 itm: 42 lvl: 1 val: 3000 swing (25, -10) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: d8e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 43 Unknown: 00 00|09 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Enchanted Quarrels
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Enchanted Quarrels fl: 8800 itm: 43 lvl: 1 val: 4000 swing (30, 20) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: dde
-20:06:38.10 DEBUG [BAK::ObjectIndex] 44 Unknown: 128 31|12 00|00 00|00 02|00 00 00 00|40 00 02 00 50 00 Dragon Plate Armor
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Dragon Plate Armor fl: 1008 itm: 44 lvl: 1 val: 12500 swing (0, 55) thrust (0, 0) size: 4 Human Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: e2e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 45 Unknown: 128 31|08 00|00 00|00 02|00 00 00 00|60 00 04 00 30 00 Euliliko Armor
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Euliliko Armor fl: 1008 itm: 45 lvl: 1 val: 4750 swing (0, 30) thrust (0, 0) size: 4 Tsurani Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: e7e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 46 Unknown: 128 31|05 00|00 00|00 02|00 00 00 00|70 00 05 00 20 00 Elven Armor
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Elven Armor fl: 1008 itm: 46 lvl: 1 val: 2250 swing (0, 25) thrust (0, 0) size: 4 Elf Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: ece
-20:06:38.10 DEBUG [BAK::ObjectIndex] 47 Unknown: 128 31|10 00|00 00|00 02|00 00 00 00|50 00 03 00 40 00 Grey Tower Plate
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Grey Tower Plate fl: 100a itm: 47 lvl: 1 val: 6250 swing (0, 40) thrust (0, 0) size: 4 Dwarf Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: f1e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 48 Unknown: 128 31|16 00|00 00|00 02|00 00 00 00|95 00 06 00 10 00 Standard Kingdom Armor
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Standard Kingdom Armor fl: 1008 itm: 48 lvl: 1 val: 450 swing (0, 15) thrust (0, 0) size: 4 Human Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: f6e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 49 Unknown: 128 31|07 00|00 00|00 02|00 00 00 00|10 00 01 00 60 00 Valheru Armor
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Valheru Armor fl: 1008 itm: 49 lvl: 1 val: 0 swing (0, 70) thrust (0, 0) size: 4 Elf Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: fbe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 50 Unknown: 00 00|00 00|00 00|64 00|00 00 00 00|00 00 00 00 00 00 Potio Noxum
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Potio Noxum fl: 2850 itm: 50 lvl: 1 val: 550 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 8 defaultStackSize: 2 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 100e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 51 Unknown: 00 00|00 00|00 00|64 00|00 00 00 00|00 00 00 00 00 00 Powder Bag
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Powder Bag fl: 2850 itm: 51 lvl: 1 val: 700 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 12 defaultStackSize: 6 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 105e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 52 Unknown: 00 00|00 00|00 00|64 00|00 00 00 00|00 00 00 00 00 00 Tuning Fork
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Tuning Fork fl: 2040 itm: 52 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 60 defaultStackSize: 60 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 10ae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 53 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Gold Sovereigns
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Gold Sovereigns fl: 8000 itm: 53 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 255 defaultStackSize: 255 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 10fe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 54 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Silver Royals
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Silver Royals fl: 8000 itm: 54 lvl: 1 val: 1 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 255 defaultStackSize: 255 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 114e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 55 Unknown: 00 00|00 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Diamonds
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Diamonds fl: 1000 itm: 55 lvl: 1 val: 30000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 119e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 56 Unknown: 00 00|00 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Emeralds
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Emeralds fl: 1000 itm: 56 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 11ee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 57 Unknown: 00 00|00 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Rubies
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Rubies fl: 1000 itm: 57 lvl: 1 val: 7500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 123e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 58 Unknown: 00 00|00 00|00 00|07 00|00 00 00 00|00 00 00 00 00 00 Shell
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Shell fl: 1000 itm: 58 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 128e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 59 Unknown: 00 00|08 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Moredhel Brooch
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Moredhel Brooch fl: 1000 itm: 59 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 12de
-20:06:38.10 DEBUG [BAK::ObjectIndex] 60 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Bag of Grain
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Bag of Grain fl: 1000 itm: 60 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 4 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 132e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 61 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Peasant's Key
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Peasant's Key fl: 0 itm: 61 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 137e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 62 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Virtue Key
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Virtue Key fl: 0 itm: 62 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 13ce
-20:06:38.10 DEBUG [BAK::ObjectIndex] 63 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Key of Lineages
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Key of Lineages fl: 0 itm: 63 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 141e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 64 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Cellar Key
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Cellar Key fl: 0 itm: 64 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 146e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 65 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Nivek's Key
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Nivek's Key fl: 0 itm: 65 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 14be
-20:06:38.10 DEBUG [BAK::ObjectIndex] 66 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Interdictor Key
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Interdictor Key fl: 0 itm: 66 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 150e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 67 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Noble's Passkey
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Noble's Passkey fl: 0 itm: 67 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 155e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 68 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Guilder's Passkey
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Guilder's Passkey fl: 0 itm: 68 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 15ae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 69 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Guildis Thorn
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Guildis Thorn fl: 0 itm: 69 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 15fe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 70 Unknown: 00 00|07 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Ward of Ralen-Sheb
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Ward of Ralen-Sheb fl: 0 itm: 70 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 164e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 71 Unknown: 00 00|09 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Royal Key of Krondor
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Royal Key of Krondor fl: 0 itm: 71 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 169e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 72 Unknown: 00 00|00 00|00 00|02 00|00 00 00 00|00 00 00 00 00 00 Rations
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Rations fl: 8800 itm: 72 lvl: 1 val: 70 swing (0, 0) thrust (0, 0) size: 1 None Ration stackSize: 14 defaultStackSize: 14 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 16ee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 73 Unknown: 00 00|07 00|00 00|02 00|00 00 00 00|00 00 00 00 00 00 Rations (Poisoned)
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Rations (Poisoned) fl: 8800 itm: 73 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Ration stackSize: 14 defaultStackSize: 7 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 173e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 74 Unknown: 00 00|07 00|00 00|02 00|00 00 00 00|00 00 00 00 00 00 Rations (Spoiled)
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Rations (Spoiled) fl: 8800 itm: 74 lvl: 1 val: 7 swing (0, 0) thrust (0, 0) size: 1 None Ration stackSize: 14 defaultStackSize: 7 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 178e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 75 Unknown: 00 00|09 00|65 02|01 00|00 00 00 00|00 00 00 00 00 00 Armorer's Hammer
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Armorer's Hammer fl: 2110 itm: 75 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Tool stackSize: 30 defaultStackSize: 30 eff (4, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 17de
-20:06:38.10 DEBUG [BAK::ObjectIndex] 76 Unknown: 00 00|00 00|22 00|01 01|00 00 00 00|00 00 00 00 00 00 Heavy Bowstring
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Heavy Bowstring fl: 20 itm: 76 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Bowstring stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 182e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 77 Unknown: 00 00|00 00|22 00|01 01|00 00 00 00|00 00 00 00 00 00 Light Bowstring
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Light Bowstring fl: 20 itm: 77 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Bowstring stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 187e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 78 Unknown: 00 00|00 00|18 00|00 64|00 00 00 00|00 00 00 00 00 00 Herbal Pack
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Herbal Pack fl: 2810 itm: 78 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Container stackSize: 20 defaultStackSize: 8 eff (4, 100 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 18ce
-20:06:38.10 DEBUG [BAK::ObjectIndex] 79 Unknown: 00 00|00 00|64 00|01 00|00 00 00 00|00 00 00 00 00 00 Ale Cask
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Ale Cask fl: 2002 itm: 79 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Container stackSize: 8 defaultStackSize: 8 eff (3, 25 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 191e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 80 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Picklocks
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Picklocks fl: 8800 itm: 80 lvl: 1 val: 350 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 36 defaultStackSize: 4 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 196e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 81 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Practice Lute
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Practice Lute fl: 2110 itm: 81 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 2 None Other stackSize: 40 defaultStackSize: 40 eff (0, 0 ) mod (800, 1)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 19be
-20:06:38.10 DEBUG [BAK::ObjectIndex] 82 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Rope
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Rope fl: 2810 itm: 82 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 20 defaultStackSize: 4 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1a0e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 83 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Shovel
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Shovel fl: 2010 itm: 83 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 100 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1a5e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 84 Unknown: 00 00|00 00|56 00|01 00|00 00 00 00|00 00 00 00 00 00 Torch
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Torch fl: 2810 itm: 84 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Light stackSize: 25 defaultStackSize: 3 eff (8, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1aae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 85 Unknown: 00 00|00 00|19 01|01 00|00 00 00 00|00 00 00 00 00 00 Whetstone
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Whetstone fl: 2110 itm: 85 lvl: 1 val: 20 swing (0, 0) thrust (0, 0) size: 1 None Tool stackSize: 20 defaultStackSize: 20 eff (1, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1afe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 86 Unknown: 00 00|00 00|19 00|01 00|00 00 00 00|00 00 00 00 00 00 Aventurine
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Aventurine fl: 2910 itm: 86 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Tool stackSize: 12 defaultStackSize: 6 eff (2, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1b4e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 87 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Burial Cloth
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Burial Cloth fl: 0 itm: 87 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1b9e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 88 Unknown: 00 00|11 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Ring of the Golden Way
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Ring of the Golden Way fl: 0 itm: 88 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (4000, 15)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1bee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 89 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Vapor Mask
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Vapor Mask fl: 0 itm: 89 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1c3e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 90 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Weedwalkers
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Weedwalkers fl: 0 itm: 90 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (8000, 30)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1c8e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 91 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Catapult gear
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Catapult gear fl: 2 itm: 91 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1cde
-20:06:38.10 DEBUG [BAK::ObjectIndex] 92 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Geomancy Stones
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Geomancy Stones fl: 2 itm: 92 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 2 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1d2e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 93 Unknown: 00 00|08 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Glazer's Guild Seal
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Glazer's Guild Seal fl: 2 itm: 93 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1d7e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 94 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Hellfire Trap
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Hellfire Trap fl: 2 itm: 94 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1dce
-20:06:38.10 DEBUG [BAK::ObjectIndex] 95 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 IronJaw Trap
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { IronJaw Trap fl: 2 itm: 95 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1e1e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 96 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 River Trap
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { River Trap fl: 2 itm: 96 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1e6e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 97 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Knights Piece
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Knights Piece fl: 2 itm: 97 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1ebe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 98 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Lecture Ticket
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Lecture Ticket fl: 2 itm: 98 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1f0e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 99 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Leather Leggings
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Leather Leggings fl: 2 itm: 99 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1f5e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 100 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Skeletal Hand
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Skeletal Hand fl: 2 itm: 100 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1fae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 101 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Waani
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Waani fl: 2 itm: 101 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 1ffe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 102 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Wooden Chest
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Wooden Chest fl: 2100 itm: 102 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 24 defaultStackSize: 24 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 204e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 103 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Althafain's Icer
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Althafain's Icer fl: 2010 itm: 103 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 20 defaultStackSize: 8 eff (400, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 209e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 104 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Clerical Oilcloth
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Clerical Oilcloth fl: 2010 itm: 104 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil stackSize: 12 defaultStackSize: 4 eff (800, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 20ee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 105 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Coltari Poison
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Coltari Poison fl: 2810 itm: 105 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 20 defaultStackSize: 6 eff (80, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 213e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 106 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Dragon Stone
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Dragon Stone fl: 2010 itm: 106 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 12 defaultStackSize: 6 eff (200, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 218e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 107 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Flame Root Oil
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Flame Root Oil fl: 2810 itm: 107 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 12 defaultStackSize: 6 eff (400, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 21de
-20:06:38.10 DEBUG [BAK::ObjectIndex] 108 Unknown: 00 00|09 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Killian's Root Oil
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Killian's Root Oil fl: 2810 itm: 108 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil stackSize: 12 defaultStackSize: 6 eff (1000, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 222e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 109 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Naphtha
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Naphtha fl: 2810 itm: 109 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 18 defaultStackSize: 6 eff (200, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 227e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 110 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Sarigsbane
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Sarigsbane fl: 2010 itm: 110 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 20 defaultStackSize: 8 eff (1800, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 22ce
-20:06:38.10 DEBUG [BAK::ObjectIndex] 111 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Silver Spider
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Silver Spider fl: 2 itm: 111 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 0 defaultStackSize: 0 eff (80, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 231e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 112 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Silverthorn
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Silverthorn fl: 2810 itm: 112 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 20 defaultStackSize: 8 eff (80, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 236e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 113 Unknown: 00 00|11 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Silverthorn Anti-Venom
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Silverthorn Anti-Venom fl: 2810 itm: 113 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 12 defaultStackSize: 8 eff (80, -8065 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 23be
-20:06:38.10 DEBUG [BAK::ObjectIndex] 114 Unknown: 00 00|00 00|64 00|00 64|25 00 08 00|00 00 00 00 00 00 Dalatail Milk
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Dalatail Milk fl: 2810 itm: 114 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 20 defaultStackSize: 8 eff (200, 16 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 240e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 115 Unknown: 00 00|09 00|64 00|00 64|10 00 08 00|00 00 00 00 00 00 Fadamor's Formula
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Fadamor's Formula fl: 2810 itm: 115 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 8 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 245e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 116 Unknown: 00 00|08 00|64 00|00 64|30 00 08 00|00 00 00 00 00 00 Lewton's Concentrate
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Lewton's Concentrate fl: 2890 itm: 116 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 128 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 24ae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 117 Unknown: 00 00|00 00|64 00|00 64|20 00 08 00|00 00 00 00 00 00 Redweed Brew
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Redweed Brew fl: 2810 itm: 117 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 64 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 24fe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 118 Unknown: 00 00|00 00|64 00|00 64|25 00 08 00|00 00 00 00 00 00 Truesight Tea
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Truesight Tea fl: 2a10 itm: 118 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 32 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 254e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 119 Unknown: 00 00|00 00|64 00|00 64|00 00 00 00|00 00 00 00 00 00 Restoratives
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Restoratives fl: 2810 itm: 119 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Restoratives stackSize: 24 defaultStackSize: 12 eff (6, 2 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 259e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 120 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Note
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Note fl: 4102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 25ee
-20:06:38.10 DEBUG [BAK::ObjectIndex] 121 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Great One's Note
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Great One's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 263e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 122 Unknown: 00 00|19 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Mitchel Waylander's Note
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Mitchel Waylander's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 268e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 123 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Navon's Note
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Navon's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 26de
-20:06:38.10 DEBUG [BAK::ObjectIndex] 124 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Abbot's Journal
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Abbot's Journal fl: 102 itm: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 272e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 125 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Lorgan's Journal
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Lorgan's Journal fl: 102 itm: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 277e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 126 Unknown: 00 00|16 00|00 00|00 32|20 00 01 00|00 00 00 00 00 00 Accts of Shamata Garrison
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Accts of Shamata Garrison fl: 2100 itm: 122 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (100, 5 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 27ce
-20:06:38.10 DEBUG [BAK::ObjectIndex] 127 Unknown: 00 00|13 00|00 00|00 32|15 00 01 00|00 00 00 00 00 00 Chapel's Rmur n Whepuns
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Chapel's Rmur n Whepuns fl: 2100 itm: 122 lvl: 1 val: 3500 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (600, 3 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 281e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 128 Unknown: 00 00|07 00|00 00|00 32|18 00 01 00|00 00 00 00 00 00 Dorcas' Treatise
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Dorcas' Treatise fl: 2100 itm: 122 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (80, 5 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 286e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 129 Unknown: 00 00|07 00|00 00|00 32|20 00 01 00|00 00 00 00 00 00 Kalem's Dialectic
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Kalem's Dialectic fl: 2100 itm: 122 lvl: 1 val: 2250 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (20, 5 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 28be
-20:06:38.10 DEBUG [BAK::ObjectIndex] 130 Unknown: 00 00|09 00|00 00|00 32|20 00 01 00|00 00 00 00 00 00 Psalms of Dala
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Psalms of Dala fl: 2100 itm: 122 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (10, 4 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 290e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 131 Unknown: 00 00|13 00|00 00|00 32|25 00 01 00|00 00 00 00 00 00 Strategies of Trading
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Strategies of Trading fl: 2100 itm: 122 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (1000, 10 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 295e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 132 Unknown: 00 00|13 00|00 00|00 32|08 00 01 00|00 00 00 00 00 00 Thiful's Bird Migrations
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Thiful's Bird Migrations fl: 2100 itm: 122 lvl: 1 val: 4000 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (fff0, 5 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 29ae
-20:06:38.10 DEBUG [BAK::ObjectIndex] 133 Unknown: 00 00|00 00|56 00|00 16|00 00 00 00|00 00 00 00 00 00 Magical Scroll
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Magical Scroll fl: 41a0 itm: 124 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Scroll stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 29fe
-20:06:38.10 DEBUG [BAK::ObjectIndex] 134 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Days Rations
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Days Rations fl: 0 itm: 125 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food stackSize: 0 defaultStackSize: 0 eff (48, 1 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 2a4e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 135 Unknown: 00 00|00 00|64 02|00 00|00 00 00 00|00 00 00 00 00 00 Quegian Brandy
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Quegian Brandy fl: 0 itm: 126 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 Human Food stackSize: 0 defaultStackSize: 0 eff (3, 18 ) mod (0, 0)}
-20:06:38.10 DEBUG [BAK::ObjectIndex] ItemOff: 2a9e
-20:06:38.10 DEBUG [BAK::ObjectIndex] 136 Unknown: 00 00|00 00|64 02|00 00|00 00 00 00|00 00 00 00 00 00 Ale
-20:06:38.10 DEBUG [BAK::ObjectIndex] Object: { Ale fl: 0 itm: 127 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food stackSize: 0 defaultStackSize: 0 eff (3, 12 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 0 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: {  fl: 0 itm: 0 lvl: 0 val: 0 swing (0, 0) thrust (0, 0) size: 0 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 6e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 1 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Crystal Staff
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Crystal Staff fl: 1000 itm: 1 lvl: 1 val: 0 swing (5, -5) thrust (12, 10) size: 4 Human Staff stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: be
+09:44:24.10 DEBUG [BAK::ObjectIndex] 2 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Lightning Staff
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Lightning Staff fl: 2080 itm: 2 lvl: 1 val: 10000 swing (7, 10) thrust (0, 20) size: 4 Human Staff stackSize: 40 defaultStackSize: 40 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 10e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 3 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Wooden Staff
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Wooden Staff fl: 0 itm: 3 lvl: 1 val: 50 swing (3, 0) thrust (-7, 15) size: 4 Human Staff stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 15e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 4 Unknown: 00 00|00 00|00 00|00 08|00 00 00 00|00 00 00 00 00 00 Staff of Macros
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Staff of Macros fl: 2080 itm: 4 lvl: 8 val: 20000 swing (25, 15) thrust (10, 25) size: 4 Human Staff stackSize: 50 defaultStackSize: 50 eff (0, 0 ) mod (80, 20)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1ae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 5 Unknown: 00 00|13 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Amulet of the Upright Man
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Amulet of the Upright Man fl: 0 itm: 5 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (2000, 15)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1fe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 6 Unknown: 00 00|00 00|58 00|00 04|00 00 00 00|00 00 00 00 00 00 Ring of Prandur
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Ring of Prandur fl: 2080 itm: 6 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Light stackSize: 10 defaultStackSize: 10 eff (18, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 24e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 7 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Brass Spyglass
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Brass Spyglass fl: 102 itm: 7 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 29e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 8 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Cup of Rlnn Skr
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Cup of Rlnn Skr fl: 180 itm: 8 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 2ee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 9 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Eliaem's Heart
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Eliaem's Heart fl: 20c0 itm: 9 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 6 defaultStackSize: 6 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 33e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 10 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Glory Hand
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Glory Hand fl: 40 itm: 10 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 38e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 11 Unknown: 00 00|07 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Horn of Algon Kokoon
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Horn of Algon Kokoon fl: 20c0 itm: 11 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 12 defaultStackSize: 6 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 3de
+09:44:24.10 DEBUG [BAK::ObjectIndex] 12 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Idol of Lassur
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Idol of Lassur fl: 2040 itm: 12 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 8 defaultStackSize: 8 eff (0, 0 ) mod (fff0, -20)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 42e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 13 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Infinity Pool
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Infinity Pool fl: 20c0 itm: 13 lvl: 1 val: 6000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 10 defaultStackSize: 10 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 47e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 14 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Raw Manna
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Raw Manna fl: 8880 itm: 14 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 100 defaultStackSize: 20 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 4ce
+09:44:24.10 DEBUG [BAK::ObjectIndex] 15 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Roric's Seal
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Roric's Seal fl: 20c0 itm: 15 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 10 defaultStackSize: 10 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 51e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 16 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Shell
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Shell fl: 0 itm: 16 lvl: 2 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 56e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 17 Unknown: 00 00|00 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Wyvern's Egg
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Wyvern's Egg fl: 0 itm: 17 lvl: 1 val: 300 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 5be
+09:44:24.10 DEBUG [BAK::ObjectIndex] 18 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|100 00 06 00 10 00 Broadsword
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Broadsword fl: 1008 itm: 18 lvl: 1 val: 120 swing (7, -5) thrust (0, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 60e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 19 Unknown: 128 31|05 00|00 00|128 00|00 00 00 00|50 00 03 00 50 00 Galon 'Griefmaker'
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Galon 'Griefmaker' fl: 1008 itm: 19 lvl: 1 val: 3500 swing (42, 5) thrust (29, 15) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 65e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 20 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|60 00 03 00 40 00 Goblin Sticker
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Goblin Sticker fl: 1008 itm: 20 lvl: 1 val: 3000 swing (29, 0) thrust (15, 10) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 6ae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 21 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|40 00 03 00 60 00 Greatsword
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Greatsword fl: 1008 itm: 21 lvl: 1 val: 6000 swing (52, 0) thrust (36, 10) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 6fe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 22 Unknown: 128 31|06 00|00 00|128 00|00 00 00 00|00 00 01 00 100 00 Guarda Revanche
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Guarda Revanche fl: 1008 itm: 22 lvl: 1 val: 20000 swing (140, 30) thrust (90, 45) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 74e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 23 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Exotic sword
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Exotic sword fl: 0 itm: 23 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 2 Elf Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 79e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 24 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|60 00 02 00 30 00 Keshian Tapir
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Keshian Tapir fl: 1008 itm: 24 lvl: 1 val: 3750 swing (45, -5) thrust (20, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 7ee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 25 Unknown: 128 31|08 00|00 00|128 00|00 00 00 00|80 00 05 00 20 00 Moredhel Lamprey
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Moredhel Lamprey fl: 1008 itm: 25 lvl: 1 val: 500 swing (15, -5) thrust (3, 5) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 83e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 26 Unknown: 128 31|00 00|00 00|128 00|00 00 00 00|90 00 06 00 10 00 Rapier
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Rapier fl: 1008 itm: 26 lvl: 1 val: 2500 swing (10, -5) thrust (25, 20) size: 2 Elf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 88e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 27 Unknown: 128 31|08 00|00 00|128 00|00 00 00 00|50 00 05 00 30 00 Sword of Kinnur
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Sword of Kinnur fl: 1008 itm: 27 lvl: 1 val: 3500 swing (33, 0) thrust (25, 15) size: 2 Dwarf Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 8de
+09:44:24.10 DEBUG [BAK::ObjectIndex] 28 Unknown: 128 31|08 00|00 00|128 00|00 00 00 00|30 00 03 00 50 00 Sword of Lims-Kragma
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Sword of Lims-Kragma fl: 1008 itm: 28 lvl: 1 val: 10000 swing (71, 0) thrust (49, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 92e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 29 Unknown: 128 31|10 00|00 00|128 00|00 00 00 00|70 00 05 00 25 00 Two-Handed Broadsword
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Two-Handed Broadsword fl: 1008 itm: 29 lvl: 1 val: 1500 swing (21, 0) thrust (8, 10) size: 2 Human Sword stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 97e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 30 Unknown: 00 00|05 00|00 00|00 01|00 00 00 00|100 00 09 00 00 00 Light Crossbow
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Light Crossbow fl: 1008 itm: 30 lvl: 1 val: 500 swing (7, 0) thrust (0, 0) size: 2 Human Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 9ce
+09:44:24.10 DEBUG [BAK::ObjectIndex] 31 Unknown: 00 00|06 00|00 00|00 01|00 00 00 00|70 00 06 00 00 00 Medium Crossbow
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Medium Crossbow fl: 1008 itm: 31 lvl: 3 val: 1250 swing (15, 5) thrust (0, 0) size: 2 Human Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: a1e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 32 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|30 00 04 00 00 00 Bessy Mauler
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Bessy Mauler fl: 1008 itm: 32 lvl: 5 val: 10000 swing (75, -10) thrust (0, 0) size: 2 Human Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: a6e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 33 Unknown: 00 00|13 00|00 00|00 01|00 00 00 00|80 00 07 00 00 00 Tsurani Light Crossbow
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Tsurani Light Crossbow fl: 1008 itm: 33 lvl: 1 val: 3000 swing (20, -5) thrust (0, 0) size: 2 Tsurani Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: abe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 34 Unknown: 00 00|13 00|00 00|00 01|00 00 00 00|50 00 07 00 00 00 Tsurani Heavy Crossbow
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Tsurani Heavy Crossbow fl: 1008 itm: 34 lvl: 1 val: 5000 swing (40, 0) thrust (0, 0) size: 2 Tsurani Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: b0e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 35 Unknown: 00 00|05 00|00 00|00 01|00 00 00 00|45 00 06 00 00 00 Elven Crossbow
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Elven Crossbow fl: 1008 itm: 35 lvl: 1 val: 7250 swing (25, 25) thrust (0, 0) size: 2 Elf Crossbow stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: b5e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 36 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Quarrels fl: 8800 itm: 36 lvl: 1 val: 120 swing (3, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: bae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 37 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Elven Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Elven Quarrels fl: 8800 itm: 37 lvl: 1 val: 1750 swing (9, 15) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: bfe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 38 Unknown: 00 00|00 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Tsurani Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Tsurani Quarrels fl: 8800 itm: 38 lvl: 1 val: 500 swing (7, -5) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: c4e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 39 Unknown: 00 00|08 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Poisoned Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Poisoned Quarrels fl: 8800 itm: 39 lvl: 1 val: 650 swing (7, -5) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: c9e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 40 Unknown: 00 00|08 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Poisoned Elven Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Poisoned Elven Quarrels fl: 8800 itm: 40 lvl: 1 val: 2250 swing (15, 10) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: cee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 41 Unknown: 00 00|08 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Poisoned Tsurani Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Poisoned Tsurani Quarrels fl: 8800 itm: 41 lvl: 1 val: 1000 swing (14, -10) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: d3e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 42 Unknown: 00 00|07 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Flaming Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Flaming Quarrels fl: 8800 itm: 42 lvl: 1 val: 3000 swing (25, -10) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: d8e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 43 Unknown: 00 00|09 00|00 00|00 01|00 00 00 00|00 00 00 00 00 00 Enchanted Quarrels
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Enchanted Quarrels fl: 8800 itm: 43 lvl: 1 val: 4000 swing (30, 20) thrust (0, 0) size: 1 None Unspecified stackSize: 25 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: dde
+09:44:24.10 DEBUG [BAK::ObjectIndex] 44 Unknown: 128 31|12 00|00 00|00 02|00 00 00 00|40 00 02 00 50 00 Dragon Plate Armor
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Dragon Plate Armor fl: 1008 itm: 44 lvl: 1 val: 12500 swing (0, 55) thrust (0, 0) size: 4 Human Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: e2e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 45 Unknown: 128 31|08 00|00 00|00 02|00 00 00 00|60 00 04 00 30 00 Euliliko Armor
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Euliliko Armor fl: 1008 itm: 45 lvl: 1 val: 4750 swing (0, 30) thrust (0, 0) size: 4 Tsurani Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: e7e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 46 Unknown: 128 31|05 00|00 00|00 02|00 00 00 00|70 00 05 00 20 00 Elven Armor
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Elven Armor fl: 1008 itm: 46 lvl: 1 val: 2250 swing (0, 25) thrust (0, 0) size: 4 Elf Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: ece
+09:44:24.10 DEBUG [BAK::ObjectIndex] 47 Unknown: 128 31|10 00|00 00|00 02|00 00 00 00|50 00 03 00 40 00 Grey Tower Plate
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Grey Tower Plate fl: 100a itm: 47 lvl: 1 val: 6250 swing (0, 40) thrust (0, 0) size: 4 Dwarf Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: f1e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 48 Unknown: 128 31|16 00|00 00|00 02|00 00 00 00|95 00 06 00 10 00 Standard Kingdom Armor
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Standard Kingdom Armor fl: 1008 itm: 48 lvl: 1 val: 450 swing (0, 15) thrust (0, 0) size: 4 Human Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: f6e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 49 Unknown: 128 31|07 00|00 00|00 02|00 00 00 00|10 00 01 00 60 00 Valheru Armor
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Valheru Armor fl: 1008 itm: 49 lvl: 1 val: 0 swing (0, 70) thrust (0, 0) size: 4 Elf Armor stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: fbe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 50 Unknown: 00 00|00 00|00 00|64 00|00 00 00 00|00 00 00 00 00 00 Potio Noxum
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Potio Noxum fl: 2850 itm: 50 lvl: 1 val: 550 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 8 defaultStackSize: 2 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 100e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 51 Unknown: 00 00|00 00|00 00|64 00|00 00 00 00|00 00 00 00 00 00 Powder Bag
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Powder Bag fl: 2850 itm: 51 lvl: 1 val: 700 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 12 defaultStackSize: 6 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 105e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 52 Unknown: 00 00|00 00|00 00|64 00|00 00 00 00|00 00 00 00 00 00 Tuning Fork
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Tuning Fork fl: 2040 itm: 52 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Ingredient stackSize: 60 defaultStackSize: 60 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 10ae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 53 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Gold Sovereigns
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Gold Sovereigns fl: 8000 itm: 53 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 255 defaultStackSize: 255 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 10fe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 54 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Silver Royals
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Silver Royals fl: 8000 itm: 54 lvl: 1 val: 1 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 255 defaultStackSize: 255 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 114e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 55 Unknown: 00 00|00 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Diamonds
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Diamonds fl: 1000 itm: 55 lvl: 1 val: 30000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 119e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 56 Unknown: 00 00|00 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Emeralds
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Emeralds fl: 1000 itm: 56 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 11ee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 57 Unknown: 00 00|00 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Rubies
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Rubies fl: 1000 itm: 57 lvl: 1 val: 7500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 123e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 58 Unknown: 00 00|00 00|00 00|07 00|00 00 00 00|00 00 00 00 00 00 Shell
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Shell fl: 1000 itm: 58 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 128e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 59 Unknown: 00 00|08 00|00 00|04 00|00 00 00 00|00 00 00 00 00 00 Moredhel Brooch
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Moredhel Brooch fl: 1000 itm: 59 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 250 defaultStackSize: 100 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 12de
+09:44:24.10 DEBUG [BAK::ObjectIndex] 60 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Bag of Grain
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Bag of Grain fl: 1000 itm: 60 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 4 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 132e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 61 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Peasant's Key
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Peasant's Key fl: 0 itm: 61 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 137e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 62 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Virtue Key
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Virtue Key fl: 0 itm: 62 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 13ce
+09:44:24.10 DEBUG [BAK::ObjectIndex] 63 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Key of Lineages
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Key of Lineages fl: 0 itm: 63 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 141e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 64 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Cellar Key
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Cellar Key fl: 0 itm: 64 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 146e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 65 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Nivek's Key
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Nivek's Key fl: 0 itm: 65 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 14be
+09:44:24.10 DEBUG [BAK::ObjectIndex] 66 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Interdictor Key
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Interdictor Key fl: 0 itm: 66 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 150e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 67 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Noble's Passkey
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Noble's Passkey fl: 0 itm: 67 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 155e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 68 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Guilder's Passkey
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Guilder's Passkey fl: 0 itm: 68 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 15ae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 69 Unknown: 00 00|00 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Guildis Thorn
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Guildis Thorn fl: 0 itm: 69 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 15fe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 70 Unknown: 00 00|07 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Ward of Ralen-Sheb
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Ward of Ralen-Sheb fl: 0 itm: 70 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 164e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 71 Unknown: 00 00|09 00|00 00|08 00|00 00 00 00|00 00 00 00 00 00 Royal Key of Krondor
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Royal Key of Krondor fl: 0 itm: 71 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 169e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 72 Unknown: 00 00|00 00|00 00|02 00|00 00 00 00|00 00 00 00 00 00 Rations
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Rations fl: 8800 itm: 72 lvl: 1 val: 70 swing (0, 0) thrust (0, 0) size: 1 None Ration stackSize: 14 defaultStackSize: 14 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 16ee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 73 Unknown: 00 00|07 00|00 00|02 00|00 00 00 00|00 00 00 00 00 00 Rations (Poisoned)
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Rations (Poisoned) fl: 8800 itm: 73 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Ration stackSize: 14 defaultStackSize: 7 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 173e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 74 Unknown: 00 00|07 00|00 00|02 00|00 00 00 00|00 00 00 00 00 00 Rations (Spoiled)
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Rations (Spoiled) fl: 8800 itm: 74 lvl: 1 val: 7 swing (0, 0) thrust (0, 0) size: 1 None Ration stackSize: 14 defaultStackSize: 7 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 178e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 75 Unknown: 00 00|09 00|65 02|01 00|00 00 00 00|00 00 00 00 00 00 Armorer's Hammer
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Armorer's Hammer fl: 2110 itm: 75 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Tool stackSize: 30 defaultStackSize: 30 eff (4, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 17de
+09:44:24.10 DEBUG [BAK::ObjectIndex] 76 Unknown: 00 00|00 00|22 00|01 01|00 00 00 00|00 00 00 00 00 00 Heavy Bowstring
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Heavy Bowstring fl: 20 itm: 76 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Bowstring stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 182e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 77 Unknown: 00 00|00 00|22 00|01 01|00 00 00 00|00 00 00 00 00 00 Light Bowstring
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Light Bowstring fl: 20 itm: 77 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Bowstring stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 187e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 78 Unknown: 00 00|00 00|18 00|00 64|00 00 00 00|00 00 00 00 00 00 Herbal Pack
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Herbal Pack fl: 2810 itm: 78 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Container stackSize: 20 defaultStackSize: 8 eff (4, 100 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 18ce
+09:44:24.10 DEBUG [BAK::ObjectIndex] 79 Unknown: 00 00|00 00|64 00|01 00|00 00 00 00|00 00 00 00 00 00 Ale Cask
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Ale Cask fl: 2002 itm: 79 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Container stackSize: 8 defaultStackSize: 8 eff (3, 25 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 191e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 80 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Picklocks
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Picklocks fl: 8800 itm: 80 lvl: 1 val: 350 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 36 defaultStackSize: 4 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 196e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 81 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Practice Lute
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Practice Lute fl: 2110 itm: 81 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 2 None Other stackSize: 40 defaultStackSize: 40 eff (0, 0 ) mod (800, 1)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 19be
+09:44:24.10 DEBUG [BAK::ObjectIndex] 82 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Rope
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Rope fl: 2810 itm: 82 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 20 defaultStackSize: 4 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1a0e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 83 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Shovel
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Shovel fl: 2010 itm: 83 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 100 defaultStackSize: 25 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1a5e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 84 Unknown: 00 00|00 00|56 00|01 00|00 00 00 00|00 00 00 00 00 00 Torch
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Torch fl: 2810 itm: 84 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Light stackSize: 25 defaultStackSize: 3 eff (8, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1aae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 85 Unknown: 00 00|00 00|19 01|01 00|00 00 00 00|00 00 00 00 00 00 Whetstone
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Whetstone fl: 2110 itm: 85 lvl: 1 val: 20 swing (0, 0) thrust (0, 0) size: 1 None Tool stackSize: 20 defaultStackSize: 20 eff (1, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1afe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 86 Unknown: 00 00|00 00|19 00|01 00|00 00 00 00|00 00 00 00 00 00 Aventurine
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Aventurine fl: 2910 itm: 86 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Tool stackSize: 12 defaultStackSize: 6 eff (2, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1b4e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 87 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Burial Cloth
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Burial Cloth fl: 0 itm: 87 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1b9e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 88 Unknown: 00 00|11 00|00 00|00 04|00 00 00 00|00 00 00 00 00 00 Ring of the Golden Way
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Ring of the Golden Way fl: 0 itm: 88 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (4000, 15)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1bee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 89 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Vapor Mask
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Vapor Mask fl: 0 itm: 89 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1c3e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 90 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Weedwalkers
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Weedwalkers fl: 0 itm: 90 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (8000, 30)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1c8e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 91 Unknown: 00 00|00 00|00 00|01 00|00 00 00 00|00 00 00 00 00 00 Catapult gear
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Catapult gear fl: 2 itm: 91 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1cde
+09:44:24.10 DEBUG [BAK::ObjectIndex] 92 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Geomancy Stones
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Geomancy Stones fl: 2 itm: 92 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 2 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1d2e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 93 Unknown: 00 00|08 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Glazer's Guild Seal
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Glazer's Guild Seal fl: 2 itm: 93 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1d7e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 94 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Hellfire Trap
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Hellfire Trap fl: 2 itm: 94 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1dce
+09:44:24.10 DEBUG [BAK::ObjectIndex] 95 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 IronJaw Trap
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { IronJaw Trap fl: 2 itm: 95 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1e1e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 96 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 River Trap
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { River Trap fl: 2 itm: 96 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1e6e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 97 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Knights Piece
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Knights Piece fl: 2 itm: 97 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1ebe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 98 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Lecture Ticket
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Lecture Ticket fl: 2 itm: 98 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1f0e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 99 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Leather Leggings
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Leather Leggings fl: 2 itm: 99 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1f5e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 100 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Skeletal Hand
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Skeletal Hand fl: 2 itm: 100 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1fae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 101 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Waani
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Waani fl: 2 itm: 101 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 1ffe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 102 Unknown: 00 00|00 00|00 00|32 00|00 00 00 00|00 00 00 00 00 00 Wooden Chest
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Wooden Chest fl: 2100 itm: 102 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other stackSize: 24 defaultStackSize: 24 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 204e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 103 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Althafain's Icer
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Althafain's Icer fl: 2010 itm: 103 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 20 defaultStackSize: 8 eff (400, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 209e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 104 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Clerical Oilcloth
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Clerical Oilcloth fl: 2010 itm: 104 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil stackSize: 12 defaultStackSize: 4 eff (800, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 20ee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 105 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Coltari Poison
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Coltari Poison fl: 2810 itm: 105 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 20 defaultStackSize: 6 eff (80, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 213e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 106 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Dragon Stone
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Dragon Stone fl: 2010 itm: 106 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 12 defaultStackSize: 6 eff (200, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 218e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 107 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Flame Root Oil
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Flame Root Oil fl: 2810 itm: 107 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 12 defaultStackSize: 6 eff (400, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 21de
+09:44:24.10 DEBUG [BAK::ObjectIndex] 108 Unknown: 00 00|09 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Killian's Root Oil
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Killian's Root Oil fl: 2810 itm: 108 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil stackSize: 12 defaultStackSize: 6 eff (1000, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 222e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 109 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Naphtha
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Naphtha fl: 2810 itm: 109 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 18 defaultStackSize: 6 eff (200, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 227e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 110 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Sarigsbane
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Sarigsbane fl: 2010 itm: 110 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 20 defaultStackSize: 8 eff (1800, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 22ce
+09:44:24.10 DEBUG [BAK::ObjectIndex] 111 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Silver Spider
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Silver Spider fl: 2 itm: 111 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 0 defaultStackSize: 0 eff (80, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 231e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 112 Unknown: 00 00|00 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Silverthorn
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Silverthorn fl: 2810 itm: 112 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil stackSize: 20 defaultStackSize: 8 eff (80, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 236e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 113 Unknown: 00 00|11 00|03 00|00 128|00 00 00 00|00 00 00 00 00 00 Silverthorn Anti-Venom
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Silverthorn Anti-Venom fl: 2810 itm: 113 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil stackSize: 12 defaultStackSize: 8 eff (80, -8065 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 23be
+09:44:24.10 DEBUG [BAK::ObjectIndex] 114 Unknown: 00 00|00 00|64 00|00 64|25 00 08 00|00 00 00 00 00 00 Dalatail Milk
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Dalatail Milk fl: 2810 itm: 114 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 20 defaultStackSize: 8 eff (200, 16 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 240e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 115 Unknown: 00 00|09 00|64 00|00 64|10 00 08 00|00 00 00 00 00 00 Fadamor's Formula
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Fadamor's Formula fl: 2810 itm: 115 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 8 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 245e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 116 Unknown: 00 00|08 00|64 00|00 64|30 00 08 00|00 00 00 00 00 00 Lewton's Concentrate
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Lewton's Concentrate fl: 2890 itm: 116 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 128 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 24ae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 117 Unknown: 00 00|00 00|64 00|00 64|20 00 08 00|00 00 00 00 00 00 Redweed Brew
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Redweed Brew fl: 2810 itm: 117 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 64 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 24fe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 118 Unknown: 00 00|00 00|64 00|00 64|25 00 08 00|00 00 00 00 00 00 Truesight Tea
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Truesight Tea fl: 2a10 itm: 118 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion stackSize: 12 defaultStackSize: 6 eff (200, 32 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 254e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 119 Unknown: 00 00|00 00|64 00|00 64|00 00 00 00|00 00 00 00 00 00 Restoratives
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Restoratives fl: 2810 itm: 119 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Restoratives stackSize: 24 defaultStackSize: 12 eff (6, 2 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 259e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 120 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Note
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Note fl: 4102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 25ee
+09:44:24.10 DEBUG [BAK::ObjectIndex] 121 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Great One's Note
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Great One's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 263e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 122 Unknown: 00 00|19 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Mitchel Waylander's Note
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Mitchel Waylander's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 268e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 123 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Navon's Note
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Navon's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 26de
+09:44:24.10 DEBUG [BAK::ObjectIndex] 124 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Abbot's Journal
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Abbot's Journal fl: 102 itm: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 272e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 125 Unknown: 00 00|00 00|00 00|00 32|00 00 00 00|00 00 00 00 00 00 Lorgan's Journal
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Lorgan's Journal fl: 102 itm: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 277e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 126 Unknown: 00 00|16 00|00 00|00 32|20 00 01 00|00 00 00 00 00 00 Accts of Shamata Garrison
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Accts of Shamata Garrison fl: 2100 itm: 122 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (100, 5 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 27ce
+09:44:24.10 DEBUG [BAK::ObjectIndex] 127 Unknown: 00 00|13 00|00 00|00 32|15 00 01 00|00 00 00 00 00 00 Chapel's Rmur n Whepuns
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Chapel's Rmur n Whepuns fl: 2100 itm: 122 lvl: 1 val: 3500 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (600, 3 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 281e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 128 Unknown: 00 00|07 00|00 00|00 32|18 00 01 00|00 00 00 00 00 00 Dorcas' Treatise
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Dorcas' Treatise fl: 2100 itm: 122 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (80, 5 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 286e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 129 Unknown: 00 00|07 00|00 00|00 32|20 00 01 00|00 00 00 00 00 00 Kalem's Dialectic
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Kalem's Dialectic fl: 2100 itm: 122 lvl: 1 val: 2250 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (20, 5 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 28be
+09:44:24.10 DEBUG [BAK::ObjectIndex] 130 Unknown: 00 00|09 00|00 00|00 32|20 00 01 00|00 00 00 00 00 00 Psalms of Dala
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Psalms of Dala fl: 2100 itm: 122 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (10, 4 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 290e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 131 Unknown: 00 00|13 00|00 00|00 32|25 00 01 00|00 00 00 00 00 00 Strategies of Trading
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Strategies of Trading fl: 2100 itm: 122 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (1000, 10 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 295e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 132 Unknown: 00 00|13 00|00 00|00 32|08 00 01 00|00 00 00 00 00 00 Thiful's Bird Migrations
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Thiful's Bird Migrations fl: 2100 itm: 122 lvl: 1 val: 4000 swing (0, 0) thrust (0, 0) size: 1 None Book stackSize: 100 defaultStackSize: 100 eff (fff0, 5 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 29ae
+09:44:24.10 DEBUG [BAK::ObjectIndex] 133 Unknown: 00 00|00 00|56 00|00 16|00 00 00 00|00 00 00 00 00 00 Magical Scroll
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Magical Scroll fl: 41a0 itm: 124 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Scroll stackSize: 0 defaultStackSize: 0 eff (0, 0 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 29fe
+09:44:24.10 DEBUG [BAK::ObjectIndex] 134 Unknown: 00 00|00 00|00 00|00 00|00 00 00 00|00 00 00 00 00 00 Days Rations
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Days Rations fl: 0 itm: 125 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food stackSize: 0 defaultStackSize: 0 eff (48, 1 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 2a4e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 135 Unknown: 00 00|00 00|64 02|00 00|00 00 00 00|00 00 00 00 00 00 Quegian Brandy
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Quegian Brandy fl: 0 itm: 126 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 Human Food stackSize: 0 defaultStackSize: 0 eff (3, 18 ) mod (0, 0)}
+09:44:24.10 DEBUG [BAK::ObjectIndex] ItemOff: 2a9e
+09:44:24.10 DEBUG [BAK::ObjectIndex] 136 Unknown: 00 00|00 00|64 02|00 00|00 00 00 00|00 00 00 00 00 00 Ale
+09:44:24.10 DEBUG [BAK::ObjectIndex] Object: { Ale fl: 0 itm: 127 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food stackSize: 0 defaultStackSize: 0 eff (3, 12 ) mod (0, 0)}

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/IContainer.hpp"
+
 #include "bak/dialog.hpp"
 #include "bak/inventory.hpp"
 #include "bak/inventoryItem.hpp"
@@ -12,7 +14,7 @@
 
 namespace BAK {
 
-class Container
+class Container : public IContainer
 {
 public:
     Container(
@@ -25,6 +27,9 @@ public:
         glm::vec<2, unsigned> location,
         std::vector<InventoryItem>&& items);
  
+    Inventory& GetInventory() override { return mInventory; }
+    const Inventory& GetInventory() const override { return mInventory; }
+
     unsigned mAddress;
     unsigned mNumber;
     unsigned mNumberItems;
@@ -32,7 +37,7 @@ public:
     unsigned mType;
     Target mDialog;
     glm::vec<2, unsigned> mLocation;
-    Inventory mItems;
+    Inventory mInventory;
 };
 
 std::ostream& operator<<(std::ostream& os, const Container& i);

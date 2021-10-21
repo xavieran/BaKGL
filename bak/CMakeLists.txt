@@ -19,6 +19,7 @@ add_library(bak
     hotspotRef.hpp hotspotRef.cpp
     inventory.hpp inventory.cpp
     inventoryItem.hpp inventoryItem.cpp
+    keyContainer.hpp keyContainer.cpp
     layout.hpp layout.cpp
     money.hpp money.cpp
     party.hpp party.cpp

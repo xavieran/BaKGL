@@ -163,7 +163,7 @@ public:
         auto keys = LoadInventory(sPartyKeyInventoryOffset);
         return Party{
             gold,
-            keys,
+            std::move(keys),
             characters,
             active};
     }
@@ -694,7 +694,7 @@ public:
 
             mBuffer.DumpAndSkip(1);
             auto picklockSkill  = mBuffer.GetUint8();
-            auto dialog = KeyTarget{mBuffer.GetUint32LE()};
+            auto dialog = Target{KeyTarget{mBuffer.GetUint32LE()}};
 
             logger.Info() << "Picklock: " << std::hex << +picklockSkill
                 << " dialog: " << dialog << std::dec << "\n";
@@ -720,6 +720,7 @@ public:
             {
                 const auto postDialog = Target{KeyTarget{mBuffer.GetUint32LE()}};
                 mLogger.Debug() << "PostLockDialog:  " << postDialog << "\n";
+                dialog = postDialog;
             }
             else if (containerType == 8)
             {
@@ -755,7 +756,7 @@ public:
                 dialog,
                 location,
                 std::move(items));
-            logger.Info() << "Items: \n" << containers.back().mItems << "\n";
+            logger.Info() << "Items: \n" << containers.back().GetInventory() << "\n";
 
 
             std::cout << std::endl;

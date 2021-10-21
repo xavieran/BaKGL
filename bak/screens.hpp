@@ -118,7 +118,7 @@ void ShowContainerGui(
     ImGui::TableNextColumn(); ImGui::Text("Mods");
     ImGui::TableNextRow();
 
-    for (const auto& item : container.mItems.GetItems())
+    for (const auto& item : container.GetInventory().GetItems())
     {
         ImGui::TableNextColumn();
         ImGui::TableNextColumn();

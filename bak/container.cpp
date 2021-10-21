@@ -19,7 +19,7 @@ Container::Container(
     mType{type},
     mDialog{dialog},
     mLocation{location},
-    mItems{std::move(items)}
+    mInventory{std::move(items)}
 {}
 
 std::ostream& operator<<(std::ostream& os, const Container& i)
@@ -28,7 +28,8 @@ std::ostream& operator<<(std::ostream& os, const Container& i)
         << ", num: " << i.mNumber << ", numItems: " << i.mNumberItems << ", capacity: " 
         << i.mCapacity << ", type: " << std::hex << i.mType << std::dec
         << ", dialog:" << i.mDialog << ", loc: " << i.mLocation
-        << ", inventory: [" << i.mItems << "]}";
+        << ", inventory: [" << i.mInventory << "]}";
     return os;
 }
+
 }

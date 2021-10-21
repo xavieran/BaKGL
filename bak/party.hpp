@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/character.hpp"
+#include "bak/keyContainer.hpp"
 #include "bak/money.hpp"
 
 #include "com/assert.hpp"
@@ -13,12 +14,6 @@ class Party
 {
 public:
     using CharacterIndex = std::uint8_t;
-
-    Royals mGold;
-    Inventory mKeys;
-
-    std::vector<Character> mCharacters;
-    std::vector<CharacterIndex> mActiveCharacters;
 
     const Character& GetActiveCharacter(unsigned i) const
     {
@@ -148,6 +143,14 @@ public:
         ASSERT(skillValue);
         return std::make_pair(character, *skillValue);
     }
+
+    Royals mGold;
+    KeyContainer mKeys;
+
+    std::vector<Character> mCharacters;
+    std::vector<CharacterIndex> mActiveCharacters;
+
+
 };
 
 std::ostream& operator<<(std::ostream&, const Party&);
