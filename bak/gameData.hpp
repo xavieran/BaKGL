@@ -11,6 +11,7 @@
 #include "bak/party.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/skills.hpp"
+#include "bak/types.hpp"
 #include "bak/worldClock.hpp"
 
 #include "com/logger.hpp"
@@ -32,7 +33,6 @@ struct Location
 class GameData
 {   
 public:
-    using Chapter = unsigned;
 /*
  *
  * Locklear, Gorath, Owyn, Pug, James, Patrus
@@ -115,6 +115,9 @@ public:
     static constexpr auto sZoneAContainerOffset = 0x42868;
     static constexpr auto sZoneBContainerOffset = 0x43012;
     static constexpr auto sZoneCContainerOffset = 0x4378f;
+    
+    static constexpr auto sShopsCount  = 98;
+    static constexpr auto sShopsOffset = 0x443c9;
 
     static constexpr auto sCombatInventoryCount  = 1734;
     static constexpr auto sCombatInventoryOffset = 0x46053;
@@ -578,15 +581,12 @@ public:
         return items;
     }
 
-    Inventory LoadShop()
+    std::vector<Container> LoadShop()
     {
-        // Z12 Cont finish @ 44393
-        static constexpr auto sShopsOffset = 0x443c9;
-        //static constexpr auto sShopsOffset = 0x443ea;
-        //fletcher
-        //static constexpr auto sShopsOffset = 0x4441a;
         mBuffer.Seek(sShopsOffset);
-        for (unsigned i = 0; i < 98; i++)
+        auto shops = std::vector<Container>{};
+
+        for (unsigned i = 0; i < sShopsCount; i++)
         {
             auto tileX = mBuffer.GetUint8();
             auto tileY = mBuffer.GetUint8();
@@ -609,7 +609,7 @@ public:
             mLogger.Debug() << " Shop has: " << inventory << "END\n";
         }
 
-        return Inventory{{}};
+        return shops;
     }
 
     std::vector<Container> LoadContainers(unsigned zone)

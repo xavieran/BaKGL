@@ -271,27 +271,34 @@ public:
         {
             const auto bakLocation = mActiveClickable2->GetBakLocation();
 
-            const auto& containers = mGameState.mContainers;
+            auto& containers = mGameState.GetContainers(
+                BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
             auto cit = std::find_if(containers.begin(), containers.end(),
-            [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+                [&bakLocation](const auto& x){
+                    return x.mLocation == bakLocation;
+                });
+
             if (cit != containers.end())
             {
                 mLogger.Debug() << "Container: " << *cit << "\n";
                 if (mGuiManager.mScreenStack.size() == 1)
                 {
                     mDynamicDialogScene.SetDialogFinished(
-                        [&, obj=cit](const auto&){
+                        [&](const auto&){
                             Logging::LogDebug(__FUNCTION__) << "DialogFinished" << "\n";
                             mDynamicDialogScene.ResetDialogFinished();
                         });
+
+                    mGuiManager.ShowContainer(&(*cit));
                     if (cit->mDialog != BAK::Target{BAK::KeyTarget{0}})
+                    {
                         mGuiManager.StartDialog(
                             cit->mDialog,
                             false,
                             &mDynamicDialogScene);
+                    }
                 }
             }
-            //ShowContainerGui(*cit);
 
             auto fit = std::find_if(mZoneData->mFixedObjects.begin(), mZoneData->mFixedObjects.end(),
                 [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });

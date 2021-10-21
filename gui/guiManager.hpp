@@ -200,12 +200,26 @@ public:
 
     void ShowInventory(unsigned character) override
     {
+        mGuiScreens.push(GuiScreen{[](){}});
+
         mInventoryScreen.SetSelectedCharacter(character);
+        mScreenStack.PushScreen(&mInventoryScreen);
+    }
+
+    void ShowContainer(BAK::IContainer* container) override
+    {
+        mGuiScreens.push(GuiScreen{[&](){
+            mInventoryScreen.ClearContainer();
+        }});
+
+        mInventoryScreen.SetContainer(container);
         mScreenStack.PushScreen(&mInventoryScreen);
     }
 
     void ExitInventory() override
     {
+        mGuiScreens.top().mFinished();
+        mGuiScreens.pop();
         mScreenStack.PopScreen();
     }
 
