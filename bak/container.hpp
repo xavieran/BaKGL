@@ -3,6 +3,7 @@
 #include "bak/IContainer.hpp"
 
 #include "bak/dialog.hpp"
+#include "bak/hotspotRef.hpp"
 #include "bak/inventory.hpp"
 #include "bak/inventoryItem.hpp"
 
@@ -41,5 +42,31 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const Container& i);
+
+class GDSContainer : public IContainer
+{
+public:
+    GDSContainer(
+        BAK::HotspotRef gdsScene,
+        unsigned number,
+        unsigned numberItems,
+        unsigned capacity,
+        unsigned type,
+        Inventory&& items);
+ 
+    Inventory& GetInventory() override { return mInventory; }
+    const Inventory& GetInventory() const override { return mInventory; }
+
+    BAK::HotspotRef mGdsScene;
+    unsigned mNumber;
+    unsigned mNumberItems;
+    unsigned mCapacity;
+    unsigned mType;
+    Inventory mInventory;
+};
+
+std::ostream& operator<<(std::ostream& os, const GDSContainer& i);
+
+
 
 }

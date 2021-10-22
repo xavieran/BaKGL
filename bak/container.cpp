@@ -32,4 +32,30 @@ std::ostream& operator<<(std::ostream& os, const Container& i)
     return os;
 }
 
+GDSContainer::GDSContainer(
+    BAK::HotspotRef gdsScene,
+    unsigned number,
+    unsigned numberItems,
+    unsigned capacity,
+    unsigned type,
+    Inventory&& items)
+:
+    mGdsScene{gdsScene},
+    mNumber{number},
+    mNumberItems{numberItems},
+    mCapacity{capacity},
+    mType{type},
+    mInventory{std::move(items)}
+{}
+
+std::ostream& operator<<(std::ostream& os, const GDSContainer& i)
+{
+    os << "Container { addr: " << std::hex << i.mGdsScene << std::dec 
+        << ", num: " << i.mNumber << ", numItems: " << i.mNumberItems << ", capacity: " 
+        << i.mCapacity << ", type: " << std::hex << i.mType << std::dec
+        << ", inventory: [" << i.mInventory << "]}";
+    return os;
+}
+
+
 }

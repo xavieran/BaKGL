@@ -40,6 +40,7 @@ public:
         mChapter{1},
         mZone{1},
         mContainers{},
+        mGDSContainers{},
         mLogger{Logging::LogState::GetLogger("BAK::GameState")}
     {
         if (mGameData != nullptr)
@@ -49,6 +50,7 @@ public:
                 mContainers.emplace_back(
                     mGameData->LoadContainers(i + 1));
             }
+            mGDSContainers = mGameData->LoadShops();
         }
     }
 
@@ -128,6 +130,16 @@ public:
     auto GetShopType() const
     {
         return 4;
+    }
+
+    IContainer* GetContainerForGDSScene(BAK::HotspotRef ref)
+    {
+        for (auto& shop : mGDSContainers)
+        {
+            if (shop.mGdsScene == ref)
+                return &shop;
+        }
+        return nullptr;
     }
 
     const Character& GetPartyLeader()
@@ -379,6 +391,7 @@ public:
     ZoneNumber mZone;
     std::vector<
         std::vector<Container>> mContainers;
+    std::vector<GDSContainer> mGDSContainers;
     std::unordered_map<unsigned, bool> mEventState;
     const Logging::Logger& mLogger;
 };

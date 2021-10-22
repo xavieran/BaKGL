@@ -168,6 +168,12 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     {
         StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
     }
+    else if (hotspot.mAction == BAK::HotspotAction::SHOP
+        || hotspot.mAction == BAK::HotspotAction::BARMAID
+        || hotspot.mAction == BAK::HotspotAction::CONTAINER)
+    {
+        EnterContainer();
+    }
     else if (hotspot.mAction == BAK::HotspotAction::REPAIR)
     {
         StartDialog(BAK::DialogSources::mRepairShopDialog, false);
@@ -209,6 +215,7 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
     mGuiManager.StartDialog(target, isTooltip, this);
 }
 
+
 void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
 {
     if (mPendingGoto)
@@ -223,6 +230,13 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
     if (mStaticTTMs.size() > 1)
         mStaticTTMs.pop_back();
     DisplayNPCBackground();
+}
+
+void GDSScene::EnterContainer()
+{
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    if (container != nullptr)
+        mGuiManager.ShowContainer(container);
 }
 
 }

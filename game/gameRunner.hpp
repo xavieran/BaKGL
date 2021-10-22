@@ -283,44 +283,55 @@ public:
                 mLogger.Debug() << "Container: " << *cit << "\n";
                 if (mGuiManager.mScreenStack.size() == 1)
                 {
-                    mDynamicDialogScene.SetDialogFinished(
-                        [&](const auto&){
-                            Logging::LogDebug(__FUNCTION__) << "DialogFinished" << "\n";
-                            mDynamicDialogScene.ResetDialogFinished();
-                        });
-
-                    mGuiManager.ShowContainer(&(*cit));
                     if (cit->mDialog != BAK::Target{BAK::KeyTarget{0}})
                     {
+                        mDynamicDialogScene.SetDialogFinished(
+                            [&, cit=cit](const auto& choice){
+                                // These dialogs should always result in a choice
+                                assert(choice);
+                                if (choice->mValue == BAK::Keywords::sYesIndex)
+                                {
+                                    mGuiManager.ShowContainer(&(*cit));
+                                }
+                                mDynamicDialogScene.ResetDialogFinished();
+                            });
+
                         mGuiManager.StartDialog(
                             cit->mDialog,
                             false,
                             &mDynamicDialogScene);
                     }
+                    else
+                    {
+                        mGuiManager.ShowContainer(&(*cit));
+                    }
                 }
             }
-
-            auto fit = std::find_if(mZoneData->mFixedObjects.begin(), mZoneData->mFixedObjects.end(),
-                [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
-            if (fit != mZoneData->mFixedObjects.end())
+            else
             {
-                if (mGuiManager.mScreenStack.size() == 1)
+
+                auto fit = std::find_if(mZoneData->mFixedObjects.begin(), mZoneData->mFixedObjects.end(),
+                    [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+                if (fit != mZoneData->mFixedObjects.end())
                 {
-                    mDynamicDialogScene.SetDialogFinished(
-                        [&, obj=fit](const auto&){
-                            Logging::LogDebug(__FUNCTION__) << "DialogFinished: HS: " << obj->mHotspotRef << "\n";
-                            if (obj->mHotspotRef)
-                            {
-                                mGuiManager.EnterGDSScene(*obj->mHotspotRef, []{});
-                            }
-                            mDynamicDialogScene.ResetDialogFinished();
-                        });
-                    if (fit->mDialogKey != BAK::Target{BAK::KeyTarget{0}})
-                        mGuiManager.StartDialog(
-                            fit->mDialogKey,
-                            false,
-                            &mDynamicDialogScene);
-                    Logging::LogDebug(__FUNCTION__) << "ClickableFixedObject: " << *fit << "\n";
+                    if (mGuiManager.mScreenStack.size() == 1)
+                    {
+                        mDynamicDialogScene.SetDialogFinished(
+                            [&, obj=fit](const auto&){
+                                Logging::LogDebug(__FUNCTION__) << "DialogFinished: HS: " << obj->mHotspotRef << "\n";
+                                if (obj->mHotspotRef)
+                                {
+                                    mGuiManager.EnterGDSScene(*obj->mHotspotRef, []{});
+                                }
+                                mDynamicDialogScene.ResetDialogFinished();
+                            });
+                        if (fit->mDialogKey != BAK::Target{BAK::KeyTarget{0}})
+                            mGuiManager.StartDialog(
+                                fit->mDialogKey,
+                                false,
+                                &mDynamicDialogScene);
+                        Logging::LogDebug(__FUNCTION__) << "ClickableFixedObject: " << *fit << "\n";
+                    }
                 }
             }
 

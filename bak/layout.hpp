@@ -23,8 +23,7 @@ public:
         std::string mLabel;
     };
 
-    Layout(
-        const std::string& path);
+    Layout(const std::string& path);
 
     const LayoutWidget& GetWidget(unsigned index) const;
     glm::vec2 GetWidgetLocation(unsigned index) const;

@@ -155,7 +155,7 @@ public:
         LoadContainers(0xc);
         mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
             << mBuffer.Tell() << std::dec << "\n";
-        LoadShop();
+        LoadShops();
         //LoadCombatEntityLists();
         //LoadCombatInventories(
         //    sCombatInventoryOffset,
@@ -581,10 +581,10 @@ public:
         return items;
     }
 
-    std::vector<Container> LoadShop()
+    std::vector<GDSContainer> LoadShops()
     {
         mBuffer.Seek(sShopsOffset);
-        auto shops = std::vector<Container>{};
+        auto shops = std::vector<GDSContainer>{};
 
         for (unsigned i = 0; i < sShopsCount; i++)
         {
@@ -603,10 +603,19 @@ public:
                 << ") Gds (" << gdsPart1 << ", " << gdsPart2 << ")\n Tp: " << +shopType 
                 << " items: " << +itemCount << " cap: " << +capacity << " displayTp?: " << +displayType<< "\n";
             auto inventory = Inventory{LoadItems(itemCount, capacity)};
+            // Shop data...
             if (displayType == 0x4)
                 mBuffer.DumpAndSkip(16);
             mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
-            mLogger.Debug() << " Shop has: " << inventory << "END\n";
+            shops.emplace_back(
+                HotspotRef{
+                    static_cast<std::uint8_t>(gdsPart1),
+                    MakeHotspotChar(static_cast<char>(gdsPart2))},
+                shopType,
+                itemCount,
+                capacity,
+                displayType,
+                std::move(inventory));
         }
 
         return shops;
