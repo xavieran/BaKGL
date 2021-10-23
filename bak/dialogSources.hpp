@@ -19,9 +19,12 @@ public:
 
     static KeyTarget GetItemDescription()
     {
-        // Item description takes a "context variable" which is
-        // the item number.
         return KeyTarget{mItemDescription};
+    }
+
+    static KeyTarget GetScrollDescription()
+    {
+        return KeyTarget{mScrollDescriptions};
     }
 
     static KeyTarget GetItemUseText(unsigned itemIndex)
@@ -29,6 +32,11 @@ public:
         // Item use text takes a "context variable" which is
         // the item number.
         return KeyTarget{mItemDescription};
+    }
+
+    static KeyTarget GetSpynote()
+    {
+        return KeyTarget{mSpyNoteContents};
     }
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;
@@ -113,6 +121,7 @@ public:
     static constexpr auto mBardingPoor = KeyTarget{0x58};
     static constexpr auto mBardingOkay = KeyTarget{0x59};
     static constexpr auto mBardingGood = KeyTarget{0x5a};
+
 };
 
 }

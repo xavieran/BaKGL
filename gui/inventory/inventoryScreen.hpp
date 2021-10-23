@@ -13,6 +13,7 @@
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/dragEndpoint.hpp"
+#include "gui/draggable.hpp"
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
@@ -28,10 +29,12 @@
 
 namespace Gui {
 
+using DraggableItem = Draggable<InventorySlot>;
+
 template <typename Base>
 using ItemEndpoint = DragEndpoint<
     Base,
-    InventorySlot>;
+    DraggableItem>;
 
 class EquipmentSlot : public Widget
 {
@@ -92,7 +95,7 @@ public:
     }
 
 private:
-    std::optional<InventorySlot> mItem;
+    std::optional<DraggableItem> mItem;
     Widget mBlank;
 };
 
@@ -274,7 +277,7 @@ private:
             .GetActiveCharacter(i);
     }
 
-    void TransferItem(InventorySlot& slot, unsigned character)
+    void TransferItem(DraggableItem& slot, unsigned character)
     {
         if (character != mSelectedCharacter)
         {
@@ -296,7 +299,7 @@ private:
     }
 
     void MoveItemToEquipmentSlot(
-        InventorySlot& item,
+        DraggableItem& item,
         BAK::ItemType slot)
     {
         mLogger.Debug() << "Move item to equipment slot: " 
@@ -317,13 +320,13 @@ private:
         mNeedRefresh = true;
     }
 
-    void MoveItemToContainer(InventorySlot& item)
+    void MoveItemToContainer(DraggableItem& item)
     {
         mLogger.Debug() << "Move item to container: " << item.GetItem() << "\n";
         GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
     }
 
-    void UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
+    void UseItem(DraggableItem& item, BAK::InventoryIndex itemIndex)
     {
         auto& applyTo = GetActiveCharacter(mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
         mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
@@ -332,9 +335,23 @@ private:
 
     void ShowItemDescription(const BAK::InventoryItem& item)
     {
-        mGameState.SetDialogContext(item.mItemIndex.mValue);
+        unsigned context = 0;
+        auto dialog = BAK::KeyTarget{0};
+        // FIXME: Probably want to put this logic elsewhere...
+        if (item.GetObject().mType == BAK::ItemType::Scroll)
+        {
+            context = item.mCondition;
+            dialog = BAK::DialogSources::GetScrollDescription();
+        }
+        else
+        {
+            context = item.mItemIndex.mValue;
+            dialog = BAK::DialogSources::GetItemDescription();
+        }
+
+        mGameState.SetDialogContext(context);
         mGuiManager.StartDialog(
-            BAK::DialogSources::GetItemDescription(),
+            dialog,
             false,
             &mDialogScene);
     }
@@ -348,7 +365,7 @@ private:
         {
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(party.mActiveCharacters[person]);
             mCharacters.emplace_back(
-                [this, character=person](InventorySlot& slot){
+                [this, character=person](DraggableItem& slot){
                     TransferItem(slot, character);
                 },
                 mLayout.GetWidgetLocation(person),
@@ -639,7 +656,7 @@ private:
     ItemEndpointEquipmentSlot mWeapon;
     ItemEndpointEquipmentSlot mCrossbow;
     ItemEndpointEquipmentSlot mArmor;
-    std::vector<ItemEndpoint<InventorySlot>> mInventoryItems;
+    std::vector<ItemEndpoint<DraggableItem>> mInventoryItems;
 
     unsigned mSelectedCharacter;
     bool mDisplayContainer;

@@ -47,9 +47,6 @@ public:
         mItemRef{item},
         mShowItemDescription{std::move(showItemDescription)},
         mIsSelected{false},
-        mOriginalPosition{pos},
-        mDragStart{},
-        mDragging{false},
         mQuantity{
             glm::vec2{0, 0},
             glm::vec2{40, 30}
@@ -89,8 +86,6 @@ public:
     {
         const auto result = std::visit(overloaded{
             [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
-            [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
-            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
             [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
             [](const auto& p){ return false; }
             },
@@ -109,7 +104,6 @@ public:
             mIsSelected = true;
             Logging::LogDebug("InventoryItem") << "Clicked: " << mItemRef << "\n"
                 << mItemRef.GetObject() << "\n";
-            mDragStart = click;
         }
         else
         {
@@ -119,44 +113,8 @@ public:
         return false;
     }
 
-    bool MouseMoved(glm::vec2 pos)
-    {
-        if (!mDragging 
-            && mDragStart 
-            && glm::distance(*mDragStart, pos) > 4)
-        {
-            mDragging = true;
-            mIsSelected = false;
-            Widget::PropagateUp(DragEvent{DragStarted{this, pos}});
-        }
-
-        if (mDragging)
-        {
-            SetCenter(pos);
-        }
-        
-        return false;
-    }
-
-    bool LeftMouseReleased(glm::vec2 click)
-    {
-        mDragStart.reset();
-
-        if (mDragging)
-        {
-            mDragging = false;
-            SetPosition(mOriginalPosition);
-            Widget::PropagateUp(DragEvent{DragEnded{this, click}});
-        }
-
-        return false;
-    }
-
     bool RightMousePressed(glm::vec2 click)
     {
-        if (mDragging)
-            return false;
-
         if (Within(click))
         {
             mIsSelected = true;
@@ -202,10 +160,6 @@ private:
     const BAK::InventoryItem& mItemRef;
     std::function<void()> mShowItemDescription;
     bool mIsSelected;
-
-    glm::vec2 mOriginalPosition;
-    std::optional<glm::vec2> mDragStart;
-    bool mDragging;
 
     TextBox mQuantity;
     Widget mItem;
