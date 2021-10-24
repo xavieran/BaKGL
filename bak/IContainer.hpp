@@ -24,6 +24,9 @@ class IContainer
 public:
     virtual const Inventory& GetInventory() const = 0;
     virtual Inventory& GetInventory() = 0;
+    virtual bool CanAddItem(const InventoryItem&) = 0;
+    virtual bool GiveItem(const InventoryItem&) = 0;
+    virtual bool RemoveItem(const InventoryItem&) = 0;
 };
 
 }

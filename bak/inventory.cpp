@@ -34,7 +34,7 @@ bool Inventory::CanAdd(const InventoryItem& item) const
             return sum;
         });
 
-    return (currentQuantity + item.GetObject().mImageSize) <= sMaxInventorySize;
+    return (currentQuantity + item.GetObject().mImageSize) <= mCapacity;
 }
 
 bool Inventory::HaveWeaponEquipped() const

@@ -21,22 +21,26 @@ using InventoryIndex = StrongType<unsigned, struct InventoryIndexTag>;
 class Inventory
 {
 public:
-    static constexpr auto sMaxInventorySize = 20;
-
-    Inventory()
+    Inventory(
+        unsigned capacity)
     :
+        mCapacity{capacity},
         mItems{}
     {}
+
+    Inventory(
+        unsigned capacity,
+        std::vector<InventoryItem>&& items)
+    :
+        mCapacity{capacity},
+        mItems{std::move(items)}
+    {}
+
 
     Inventory(Inventory&&) = default;
     Inventory& operator=(Inventory&&) = default;
     Inventory(const Inventory&) = default;
     Inventory& operator=(const Inventory&) = default;
-
-    Inventory(std::vector<InventoryItem>&& items)
-    :
-        mItems{std::move(items)}
-    {}
 
     const auto& GetItems() const { return mItems; }
     auto& GetItems() { return mItems; }
@@ -96,6 +100,7 @@ public:
     bool RemoveItem(BAK::InventoryIndex item);
     
 private:
+    unsigned mCapacity;
     std::vector<InventoryItem> mItems;
 };
 

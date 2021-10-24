@@ -32,7 +32,7 @@ public:
         mGameData{gameData},
         mParty{
             Royals{1000},
-            Inventory{},
+            Inventory{20},
             {},
             {}},
         mContextValue{0},

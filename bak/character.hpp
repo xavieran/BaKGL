@@ -29,8 +29,7 @@ public:
         const std::array<std::uint8_t, 2>& unknown,
         const std::array<std::uint8_t, 7>& unknown2,
         const Conditions& conditions,
-        const Inventory& inventory
-        )
+        Inventory&& inventory)
     :
         mCharacterIndex{index},
         mName{name},
@@ -39,17 +38,22 @@ public:
         mUnknown{unknown},
         mUnknown2{unknown2},
         mConditions{conditions},
-        mInventory{inventory}
+        mInventory{std::move(inventory)}
     {}
 
     /* IContainer */
+
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
 
-    CharIndex GetIndex() const { return mCharacterIndex; }
-
-    bool GiveItem(InventoryItem item)
+    bool CanAddItem(const InventoryItem& item) override
     {
+        return mInventory.CanAdd(item);
+    }
+
+    bool GiveItem(const InventoryItem& ref) override
+    {
+        auto item = ref;
         // FIXME: Check character class...
         if (CanReplaceEquippableItem(item.GetObject().mType)
             && mInventory.FindEquipped(item.GetObject().mType)
@@ -71,7 +75,7 @@ public:
         return false;
     }
 
-    bool RemoveItem(const InventoryItem& item)
+    bool RemoveItem(const InventoryItem& item) override
     {
         if (mInventory.HaveItem(item))
         {
@@ -81,6 +85,10 @@ public:
 
         return false;
     }
+
+    /* Character Getters */
+
+    CharIndex GetIndex() const { return mCharacterIndex; }
 
     bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mCurrent != 0; }
     bool IsSwordsman() const { return !IsSpellcaster(); }

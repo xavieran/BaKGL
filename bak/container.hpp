@@ -26,11 +26,26 @@ public:
         unsigned type,
         Target dialog,
         glm::vec<2, unsigned> location,
-        std::vector<InventoryItem>&& items);
+        Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
+    bool CanAddItem(const InventoryItem& item) override
+    {
+        return mInventory.CanAdd(item);
+    }
 
+    bool GiveItem(const InventoryItem& item) override
+    {
+        mInventory.AddItem(item);
+        return true;
+    }
+
+    bool RemoveItem(const InventoryItem& item) override
+    {
+        mInventory.RemoveItem(item);
+        return true;
+    }
     unsigned mAddress;
     unsigned mNumber;
     unsigned mNumberItems;
@@ -52,10 +67,27 @@ public:
         unsigned numberItems,
         unsigned capacity,
         unsigned type,
-        Inventory&& items);
+        Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
+
+    bool CanAddItem(const InventoryItem& item) override
+    {
+        return mInventory.CanAdd(item);
+    }
+
+    bool GiveItem(const InventoryItem& item) override
+    {
+        mInventory.AddItem(item);
+        return true;
+    }
+
+    bool RemoveItem(const InventoryItem& item) override
+    {
+        mInventory.RemoveItem(item);
+        return true;
+    }
 
     BAK::HotspotRef mGdsScene;
     unsigned mNumber;

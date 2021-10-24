@@ -245,7 +245,7 @@ public:
                 unknown,
                 unknown2,
                 conditions,
-                inventory);
+                std::move(inventory));
         }
         
         return chars;
@@ -552,7 +552,7 @@ public:
         const auto itemCount = mBuffer.GetUint8();
         const auto capacity = mBuffer.GetUint16LE();
         mLogger.Info() << " Items: " << +itemCount << " cap: " << capacity << "\n";
-        return Inventory{LoadItems(itemCount, capacity)};
+        return Inventory{capacity, LoadItems(itemCount, capacity)};
     }
 
     std::vector<InventoryItem> LoadItems(unsigned itemCount, unsigned capacity)
@@ -602,7 +602,7 @@ public:
             mLogger.Debug() << "Tile?: (" << +tileX << ", " << +tileY 
                 << ") Gds (" << gdsPart1 << ", " << gdsPart2 << ")\n Tp: " << +shopType 
                 << " items: " << +itemCount << " cap: " << +capacity << " displayTp?: " << +displayType<< "\n";
-            auto inventory = Inventory{LoadItems(itemCount, capacity)};
+            auto inventory = Inventory{capacity, LoadItems(itemCount, capacity)};
             // Shop data...
             if (displayType == 0x4)
                 mBuffer.DumpAndSkip(16);
@@ -718,29 +718,9 @@ public:
                 << " Tp: " << +containerType << " " 
                 << Container(containerType) << std::endl;
             
-            std::vector<InventoryItem> items{};
-            items.reserve(7);
-            std::stringstream ss{""};
-            int i = 0;
-            for (; i < chestItems; i++)
-            {
-                auto itemIndex = mBuffer.GetUint8();
-                auto condition = mBuffer.GetUint8();
-                auto status    = mBuffer.GetUint8();
-                auto modifiers = mBuffer.GetUint8();
-                auto item = InventoryItemFactory::MakeItem(
-                    ItemIndex{itemIndex},
-                    condition, 
-                    status,
-                    modifiers);
-
-                items.emplace_back(item);
-            }
-
-            for (; i < chestCapacity; i++)
-            {
-                mBuffer.Skip(4);
-            }
+            auto inventory = Inventory{
+                chestCapacity,
+                    LoadItems(chestItems, chestCapacity)};
 
             mBuffer.DumpAndSkip(1);
             auto picklockSkill  = mBuffer.GetUint8();
@@ -805,7 +785,7 @@ public:
                 containerType,
                 dialog,
                 location,
-                std::move(items));
+                std::move(inventory));
             logger.Info() << "Items: \n" << containers.back().GetInventory() << "\n";
 
 

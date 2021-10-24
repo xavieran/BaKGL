@@ -69,7 +69,7 @@ TEST_F(InventoryTestFixture, GetAndSetEquipped)
 
 TEST_F(InventoryTestFixture, FindEquipped)
 {
-    auto inventory = Inventory{};
+    auto inventory = Inventory{20};
     inventory.AddItem(
         InventoryItem{
             &mSwordObject,
@@ -82,6 +82,7 @@ TEST_F(InventoryTestFixture, FindEquipped)
     EXPECT_EQ(it, inventory.GetItems().end());
     
 }
+
 
 
 }  // namespace

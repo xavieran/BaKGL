@@ -10,7 +10,7 @@ Container::Container(
     unsigned type,
     Target dialog,
     glm::vec<2, unsigned> location,
-    std::vector<InventoryItem>&& items)
+    Inventory&& inventory)
 :
     mAddress{address},
     mNumber{number},
@@ -19,7 +19,7 @@ Container::Container(
     mType{type},
     mDialog{dialog},
     mLocation{location},
-    mInventory{std::move(items)}
+    mInventory{std::move(inventory)}
 {}
 
 std::ostream& operator<<(std::ostream& os, const Container& i)
@@ -38,14 +38,14 @@ GDSContainer::GDSContainer(
     unsigned numberItems,
     unsigned capacity,
     unsigned type,
-    Inventory&& items)
+    Inventory&& inventory)
 :
     mGdsScene{gdsScene},
     mNumber{number},
     mNumberItems{numberItems},
     mCapacity{capacity},
     mType{type},
-    mInventory{std::move(items)}
+    mInventory{std::move(inventory)}
 {}
 
 std::ostream& operator<<(std::ostream& os, const GDSContainer& i)

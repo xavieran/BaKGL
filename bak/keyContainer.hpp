@@ -18,6 +18,23 @@ public:
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
 
+    bool CanAddItem(const InventoryItem& item) override
+    {
+        return item.GetObject().mType == ItemType::Key;
+    }
+
+    bool GiveItem(const InventoryItem&) override
+    {
+        // FIXME: Implement adding keys...
+        return true;
+    }
+
+    bool RemoveItem(const InventoryItem& item) override
+    {
+        mInventory.RemoveItem(item);
+        return true;
+    }
+
     Inventory mInventory;
 };
 
