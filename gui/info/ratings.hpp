@@ -1,7 +1,11 @@
 #pragma once
 
+#include "bak/condition.hpp"
+#include "bak/skills.hpp"
+
 #include "gui/actors.hpp"
 #include "gui/colors.hpp"
+#include "gui/textBox.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>

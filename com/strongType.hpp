@@ -1,14 +1,17 @@
 #pragma once
 
+#include "com/assert.hpp"
+
 #include <functional>
 #include <ostream>
 
-template <typename UnderlyingType, typename StrongTag>
+template <typename UnderlyingT, typename StrongTag>
 class StrongType
 {
 public:
-    using ConcreteType = StrongType<UnderlyingType, StrongTag>;
+    using UnderlyingType = UnderlyingT;
 
+    using ConcreteType = StrongType<UnderlyingType, StrongTag>;
     constexpr StrongType() noexcept : mValue{} {}
     constexpr explicit StrongType(UnderlyingType v) noexcept : mValue{v} {}
 
@@ -41,3 +44,34 @@ struct hash<StrongType<U, Tag>>
 };
 
 }
+
+// [min, max)
+template <
+    typename StrongT,
+    typename StrongT::UnderlyingType min,
+    typename StrongT::UnderlyingType max>
+class Bounded : public StrongT
+{
+public:
+    using ConcreteType = Bounded<StrongT, min, max>;
+    using typename StrongT::UnderlyingType;
+    using StrongT::operator<=>;
+
+    constexpr explicit Bounded(UnderlyingType v) noexcept
+    :
+        StrongT{v}
+    {
+        ASSERT(v >= min && v < max);
+    }
+
+    constexpr Bounded() noexcept : StrongT{min} {}
+
+    constexpr Bounded(const ConcreteType&) noexcept = default;
+    constexpr ConcreteType& operator=(const ConcreteType&) noexcept = default;
+
+    constexpr Bounded(ConcreteType&&) noexcept = default;
+    constexpr ConcreteType& operator=(ConcreteType&&) noexcept = default;
+
+
+};
+

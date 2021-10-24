@@ -186,7 +186,7 @@ public:
         }
     }
 
-    void ShowCharacterPortrait(unsigned character) override
+    void ShowCharacterPortrait(BAK::ActiveCharIndex character) override
     {
         mInfoScreen.SetSelectedCharacter(character);
         mInfoScreen.UpdateCharacter();
@@ -198,8 +198,9 @@ public:
         mScreenStack.PopScreen();
     }
 
-    void ShowInventory(unsigned character) override
+    void ShowInventory(BAK::ActiveCharIndex character) override
     {
+        mCursor.PushCursor(0);
         mGuiScreens.push(GuiScreen{[](){}});
 
         mInventoryScreen.SetSelectedCharacter(character);
@@ -208,6 +209,7 @@ public:
 
     void ShowContainer(BAK::IContainer* container) override
     {
+        mCursor.PushCursor(0);
         mGuiScreens.push(GuiScreen{[&](){
             mInventoryScreen.ClearContainer();
         }});
@@ -218,6 +220,7 @@ public:
 
     void ExitInventory() override
     {
+        mCursor.PopCursor();
         mGuiScreens.top().mFinished();
         mGuiScreens.pop();
         mScreenStack.PopScreen();

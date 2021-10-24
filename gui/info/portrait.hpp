@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/types.hpp"
+
 #include "gui/actors.hpp"
 #include "gui/colors.hpp"
 #include "gui/label.hpp"
@@ -103,13 +105,13 @@ public:
         AddChildBack(&mLabel);
     }
 
-    void SetCharacter(unsigned character, std::string_view name)
+    void SetCharacter(BAK::CharIndex character, std::string_view name)
     {
         mLogger.Debug() << "Setting char: " << character << " " << name <<"\n";
         const auto s = "#" + std::string{name};
         mLabel.SetText(s);
         mLabel.SetCenter(glm::vec2{35, 72});
-        const auto& [texture, dims] = mActors.GetActorA(character + 1);
+        const auto& [texture, dims] = mActors.GetActorA(character.mValue + 1);
         mPortrait.SetTexture(texture);
     }
 

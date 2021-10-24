@@ -79,10 +79,10 @@ public:
             [this](){
                 const auto character = mGameState
                     .GetParty()
-                    .GetActiveCharacter(mSelectedCharacter)
-                    .mCharacterIndex;
+                    .GetCharacter(BAK::ActiveCharIndex{mSelectedCharacter})
+                    .GetIndex();
 
-                mGameState.SetDialogContext(character);
+                mGameState.SetDialogContext(character.mValue);
                 mGuiManager.StartDialog(
                     sCharacterFlavourDialog, false, &mDialogScene);
             }
@@ -115,7 +115,7 @@ public:
         AddChildren();
     }
 
-    void SetSelectedCharacter(unsigned character)
+    void SetSelectedCharacter(BAK::ActiveCharIndex character)
     {
         mSelectedCharacter = character;
     }
@@ -129,9 +129,9 @@ public:
 
     void UpdateCharacter()
     {
-        auto& character = mGameState.GetParty().GetActiveCharacter(mSelectedCharacter);
+        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
         mSkills.UpdateSkills(mFont, character.mSkills);
-        mPortrait.SetCharacter(character.mCharacterIndex, character.mName);
+        mPortrait.SetCharacter(character.GetIndex(), character.mName);
         mRatings.SetCharacter(character.mSkills, character.mConditions);
         character.mSkills.ClearUnseenImprovements();
     }
@@ -141,7 +141,7 @@ public:
         mLogger.Debug() << "Toggle Skill: " << BAK::ToString(skill) << "\n";
         mGameState
             .GetParty()
-            .mCharacters[mSelectedCharacter]
+            .GetCharacter(mSelectedCharacter)
             .mSkills.ToggleSkill(skill);
         UpdateCharacter();
     }
@@ -159,7 +159,7 @@ private:
     const Font& mFont;
     BAK::GameState& mGameState;
     NullDialogScene mDialogScene;
-    unsigned mSelectedCharacter;
+    BAK::ActiveCharIndex mSelectedCharacter;
 
     BAK::Layout mLayout;
 

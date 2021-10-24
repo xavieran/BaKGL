@@ -8,6 +8,8 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
+#include "gui/dragEndpoint.hpp"
+#include "gui/draggable.hpp"
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
@@ -22,6 +24,15 @@
 #include <variant>
 
 namespace Gui {
+
+class InventorySlot;
+
+using DraggableItem = Draggable<InventorySlot>;
+
+template <typename Base>
+using ItemEndpoint = DragEndpoint<
+    Base,
+    DraggableItem>;
 
 class InventorySlot :
     public Widget

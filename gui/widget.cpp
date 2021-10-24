@@ -239,6 +239,11 @@ void Widget::AdjustPosition(glm::vec2 adj)
     mPositionInfo.mPosition += adj;
 }
 
+void Widget::SetSpriteSheet(Graphics::SpriteSheetIndex spriteSheet)
+{
+    mDrawInfo.mSpriteSheet = spriteSheet;
+}
+
 void Widget::SetTexture(Graphics::TextureIndex texture)
 {
     mDrawInfo.mTexture = texture;

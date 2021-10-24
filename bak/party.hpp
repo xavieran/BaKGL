@@ -3,8 +3,10 @@
 #include "bak/character.hpp"
 #include "bak/keyContainer.hpp"
 #include "bak/money.hpp"
+#include "bak/types.hpp"
 
 #include "com/assert.hpp"
+#include "com/strongType.hpp"
 
 #include <vector>
 
@@ -13,28 +15,28 @@ namespace BAK {
 class Party
 {
 public:
-    using CharacterIndex = std::uint8_t;
-
-    const Character& GetActiveCharacter(unsigned i) const
+    const Character& GetCharacter(CharIndex i) const
     {
-        ASSERT(i < mActiveCharacters.size());
-        const auto activeIndex = mActiveCharacters[i];
-        ASSERT(activeIndex < mCharacters.size());
-        return mCharacters[activeIndex];
+        assert(mCharacters.size() == sMaxCharacters);
+        return mCharacters[i.mValue];
     }
 
-    Character& GetActiveCharacter(unsigned i)
+    Character& GetCharacter(CharIndex i)
     {
-        ASSERT(i < mActiveCharacters.size());
-        const auto activeIndex = mActiveCharacters[i];
-        ASSERT(activeIndex < mCharacters.size());
-        return mCharacters[activeIndex];
+        assert(mCharacters.size() == sMaxCharacters);
+        return mCharacters[i.mValue];
     }
 
-    const Character& GetCharacter(unsigned i) const
+    const Character& GetCharacter(ActiveCharIndex i) const
     {
-        ASSERT(i < mCharacters.size());
-        return mCharacters[i];
+        assert(mActiveCharacters.size() <= sMaxActiveCharacters);
+        return GetCharacter(mActiveCharacters[i.mValue]);
+    }
+
+    Character& GetCharacter(ActiveCharIndex i)
+    {
+        assert(mActiveCharacters.size() <= sMaxActiveCharacters);
+        return GetCharacter(mActiveCharacters[i.mValue]);
     }
 
     const auto& GetKeys() const
@@ -45,11 +47,6 @@ public:
     auto& GetKeys()
     {
         return mKeys;
-    }
-    Character& GetCharacter(unsigned i)
-    {
-        ASSERT(i < mCharacters.size());
-        return mCharacters[i];
     }
 
     Royals GetGold() const
@@ -116,18 +113,18 @@ public:
         }
     }
 
-    unsigned NextActiveCharacter(unsigned currentCharacter)
+    ActiveCharIndex NextActiveCharacter(ActiveCharIndex currentCharacter) const
     {
-        unsigned i = currentCharacter;
+        unsigned i = currentCharacter.mValue;
         if (++i == mActiveCharacters.size())
             i = 0;
-        return i;
+        return ActiveCharIndex{i};
     }
 
-    std::pair<CharacterIndex, unsigned> GetSkill(BAK::SkillType skill, bool best)
+    std::pair<CharIndex, unsigned> GetSkill(BAK::SkillType skill, bool best)
     {
         std::optional<unsigned> skillValue{};
-        CharacterIndex character = 0;
+        std::uint8_t character{0};
         for (unsigned i = 0; i < mActiveCharacters.size(); i++)
         {
             const auto charSkill = mCharacters[i].mSkills.GetSkill(skill).mCurrent;
@@ -141,16 +138,14 @@ public:
             }
         }
         ASSERT(skillValue);
-        return std::make_pair(character, *skillValue);
+        return std::make_pair(CharIndex{character}, *skillValue);
     }
 
     Royals mGold;
     KeyContainer mKeys;
 
     std::vector<Character> mCharacters;
-    std::vector<CharacterIndex> mActiveCharacters;
-
-
+    std::vector<CharIndex> mActiveCharacters;
 };
 
 std::ostream& operator<<(std::ostream&, const Party&);

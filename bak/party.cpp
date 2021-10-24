@@ -11,7 +11,7 @@ std::ostream& operator<<(std::ostream& os, const Party& party)
         os << c;
     os << "\tActive: ";
     for (const auto i : party.mActiveCharacters)
-        os << " " << party.mCharacters[i].mName << " ";
+        os << " " << party.mCharacters[i.mValue].mName << " ";
     os << "\n}";
 
     return os;

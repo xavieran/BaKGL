@@ -266,10 +266,11 @@ public:
         mPressed.SetCenter(GetCenter() - GetTopLeft());
     }
 
-    // FIXME
-    void SetTexture(Graphics::TextureIndex ti)
+    void SetTexture(Graphics::SpriteSheetIndex ss, Graphics::TextureIndex ti)
     {
+        mNormal.SetSpriteSheet(ss);
         mNormal.SetTexture(ti);
+        mPressed.SetSpriteSheet(ss);
         mPressed.SetTexture(ti);
     }
 

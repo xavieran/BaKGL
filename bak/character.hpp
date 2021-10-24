@@ -7,6 +7,7 @@
 
 #include "bak/condition.hpp"
 #include "bak/skills.hpp"
+#include "bak/types.hpp"
 #include "bak/inventory.hpp"
 
 #include <cstdint>
@@ -44,6 +45,8 @@ public:
     /* IContainer */
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
+
+    CharIndex GetIndex() const { return mCharacterIndex; }
 
     bool GiveItem(InventoryItem item)
     {
@@ -180,7 +183,7 @@ public:
         }
     }
 
-    unsigned mCharacterIndex;
+    CharIndex mCharacterIndex;
     std::string mName;
     Skills mSkills;
     std::array<std::uint8_t, 6> mSpells;

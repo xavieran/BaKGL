@@ -80,6 +80,7 @@ public:
     void AdjustPosition(glm::vec2 adj);
     void SetDimensions(glm::vec2 dims);
 
+    void SetSpriteSheet(Graphics::SpriteSheetIndex);
     void SetTexture(Graphics::TextureIndex);
     void SetColorMode(Graphics::ColorMode);
     void SetColor(glm::vec4);

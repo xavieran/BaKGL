@@ -275,12 +275,12 @@ public:
         return Royals{mBuffer.GetUint32LE()};
     }
 
-    std::vector<std::uint8_t> LoadActiveCharacters()
+    std::vector<CharIndex> LoadActiveCharacters()
     {
         mBuffer.Seek(sActiveCharactersOffset);
         const auto activeCharacters = mBuffer.GetUint8();
 
-        auto active = std::vector<std::uint8_t>{};
+        auto active = std::vector<CharIndex>{};
         for (unsigned i = 0; i < activeCharacters; i++)
         {
             const auto c = mBuffer.GetUint8();

@@ -7,6 +7,7 @@
 #include "bak/objectInfo.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "gui/inventory/equipmentSlot.hpp"
 #include "gui/inventory/inventorySlot.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -28,77 +29,6 @@
 #include <variant>
 
 namespace Gui {
-
-using DraggableItem = Draggable<InventorySlot>;
-
-template <typename Base>
-using ItemEndpoint = DragEndpoint<
-    Base,
-    DraggableItem>;
-
-class EquipmentSlot : public Widget
-{
-public:
-    EquipmentSlot(
-        glm::vec2 pos,
-        glm::vec2 dims,
-        const Icons& mIcons,
-        int icon)
-    :
-        Widget{
-            RectTag{},
-            pos,
-            dims,
-            glm::vec4{},
-            true
-        },
-        mBlank{
-            ImageTag{},
-            std::get<Graphics::SpriteSheetIndex>(
-                mIcons.GetInventoryIcon(icon)),
-            std::get<Graphics::TextureIndex>(
-                mIcons.GetInventoryIcon(icon)),
-            glm::vec2{0},
-            dims,
-            true
-        }
-    {
-        ClearItem();
-    }
-
-    void PropagateUp(const DragEvent& event)
-    {
-        // Display the "blank" when you lift the equipment off the slot
-        evaluate_if<DragStarted>(event, [&](const auto&){
-                AddChildFront(&mBlank);
-            });
-
-        evaluate_if<DragEnded>(event, [&](const auto&){
-                RemoveChild(&mBlank);
-            });
-
-        Widget::PropagateUp(event);
-    }
-
-    template <typename ...Args>
-    void AddItem(Args&&... args)
-    {
-        ClearChildren();
-        mItem.emplace(std::forward<Args>(args)...);
-        AddChildBack(&(*mItem));
-    }
-
-    void ClearItem()
-    {
-        ClearChildren();
-        AddChildBack(&mBlank);
-    }
-
-private:
-    std::optional<DraggableItem> mItem;
-    Widget mBlank;
-};
-
 
 class InventoryScreen :
     public Widget
@@ -161,11 +91,11 @@ public:
             [this](auto& item){ MoveItemToContainer(item); },
             mLayout.GetWidgetLocation(mContainerTypeRequest),
             mLayout.GetWidgetDimensions(mContainerTypeRequest),
-            std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
-            std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
-            std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
+            Graphics::SpriteSheetIndex{0},
+            Graphics::TextureIndex{0},
+            Graphics::TextureIndex{0},
             [&]{
-                mDisplayContainer = true;
+                ShowContainer();
                 RefreshGui();
             },
             []{}
@@ -195,41 +125,37 @@ public:
             131
         },
         mInventoryItems{},
-        mSelectedCharacter{0},
+        mSelectedCharacter{},
         mDisplayContainer{false},
         mContainer{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
+        SetContainerTypeImage(11);
         mCharacters.reserve(3);
     }
 
-    void SetSelectedCharacter(unsigned character)
+    void SetSelectedCharacter(
+        BAK::ActiveCharIndex character)
     {
-        mSelectedCharacter = character;
-        mDisplayContainer = false;
+        ShowCharacter(character);
         RefreshGui();
     }
 
     void ClearContainer()
     {
-        mContainerTypeDisplay.SetTexture(
-            std::get<Graphics::TextureIndex>(
-                mIcons.GetInventoryMiscIcon(11)));
+        SetContainerTypeImage(11);
 
+        mSelectedCharacter.reset();
         mContainer = nullptr;
         mDisplayContainer = false;
-        RefreshGui();
     }
 
     void SetContainer(BAK::IContainer* container)
     {
-        mContainerTypeDisplay.SetTexture(
-            std::get<Graphics::TextureIndex>(
-                mIcons.GetInventoryMiscIcon(0)));
-
+        SetContainerTypeImage(0);
         ASSERT(container);
         mContainer = container;
-        mDisplayContainer = true;
+        ShowContainer();
         RefreshGui();
     }
 
@@ -270,31 +196,66 @@ private:
         AddChildren();
     }
 
-
-    auto& GetActiveCharacter(unsigned i)
+    auto& GetCharacter(BAK::ActiveCharIndex i)
     {
-        return mGameState.GetParty()
-            .GetActiveCharacter(i);
+        return mGameState.GetParty().GetCharacter(i);
     }
 
-    void TransferItem(DraggableItem& slot, unsigned character)
+    void SetContainerTypeImage(unsigned containerType)
     {
-        if (character != mSelectedCharacter)
-        {
-            auto item = slot.GetItem();
+        const auto [ss, ti, dims] = mIcons.GetInventoryMiscIcon(containerType);
+        mLogger.Debug() << "Container:" << ti << "\n";
+        mContainerTypeDisplay.SetTexture(ss, ti);
+        mContainerTypeDisplay.CenterImage(dims);
+    }
 
-            if (GetActiveCharacter(character).GiveItem(item))
+    void ShowContainer()
+    {
+        mDisplayContainer = true;
+        mSelectedCharacter.reset();
+    }
+
+    void ShowCharacter(BAK::ActiveCharIndex character)
+    {
+        mDisplayContainer = false;
+        mSelectedCharacter = character;
+    }
+
+    void TransferItem(DraggableItem& slot, BAK::ActiveCharIndex character)
+    {
+        CheckExclusivity();
+        ASSERT(mSelectedCharacter || mContainer != nullptr);
+
+        auto item = slot.GetItem();
+
+        if (mSelectedCharacter)
+        {
+            if (character != *mSelectedCharacter)
             {
-                GetActiveCharacter(mSelectedCharacter)
-                    .GetInventory()
+                if (GetCharacter(character).GiveItem(item))
+                {
+                    GetCharacter(*mSelectedCharacter)
+                        .GetInventory()
+                        .RemoveItem(slot.GetItemIndex());
+                }
+            }
+
+            mLogger.Debug() << __FUNCTION__ << "Source: " 
+                << GetCharacter(*mSelectedCharacter).GetInventory() 
+                << "\n" << "Dest: " << GetCharacter(character).GetInventory() << "\n";
+            GetCharacter(*mSelectedCharacter).CheckPostConditions();
+        }
+        else
+        {
+            if (GetCharacter(character).GiveItem(item))
+            {
+                mContainer
+                    ->GetInventory()
                     .RemoveItem(slot.GetItemIndex());
             }
         }
 
-        mLogger.Debug() << __FUNCTION__ << "Source: " << GetActiveCharacter(mSelectedCharacter).GetInventory() << "\n" << "Dest: " << GetActiveCharacter(character).GetInventory() << "\n";
-
-        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
-        GetActiveCharacter(character).CheckPostConditions();
+        GetCharacter(character).CheckPostConditions();
         mNeedRefresh = true;
     }
 
@@ -302,35 +263,45 @@ private:
         DraggableItem& item,
         BAK::ItemType slot)
     {
+        ASSERT(mSelectedCharacter);
+
         mLogger.Debug() << "Move item to equipment slot: " 
             << item.GetItem() << " " << BAK::ToString(slot) << "\n";
 
         if (slot == BAK::ItemType::Sword)
         {
-            if (GetActiveCharacter(mSelectedCharacter).IsSwordsman())
-                GetActiveCharacter(mSelectedCharacter)
+            if (GetCharacter(*mSelectedCharacter).IsSwordsman())
+                GetCharacter(*mSelectedCharacter)
                     .ApplyItemToSlot(item.GetItemIndex(), slot);
             else
-                GetActiveCharacter(mSelectedCharacter)
+                GetCharacter(*mSelectedCharacter)
                     .ApplyItemToSlot(item.GetItemIndex(), BAK::ItemType::Staff);
         }
 
-        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
+        GetCharacter(*mSelectedCharacter).CheckPostConditions();
 
         mNeedRefresh = true;
     }
 
-    void MoveItemToContainer(DraggableItem& item)
+    void MoveItemToContainer(DraggableItem& slot)
     {
-        mLogger.Debug() << "Move item to container: " << item.GetItem() << "\n";
-        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
+        auto item = slot.GetItem();
+        mLogger.Debug() << "Move item to container: " << item << "\n";
+        ASSERT(mSelectedCharacter);
+        GetCharacter(*mSelectedCharacter).CheckPostConditions();
+        if (mContainer)
+        {
+            mContainer->GetInventory().AddItem(item);
+            GetCharacter(*mSelectedCharacter).RemoveItem(item);
+        }
     }
 
     void UseItem(DraggableItem& item, BAK::InventoryIndex itemIndex)
     {
-        auto& applyTo = GetActiveCharacter(mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
+        ASSERT(mSelectedCharacter);
+        auto& applyTo = GetCharacter(*mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
         mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
-        GetActiveCharacter(mSelectedCharacter).CheckPostConditions();
+        GetCharacter(*mSelectedCharacter).CheckPostConditions();
     }
 
     void ShowItemDescription(const BAK::InventoryItem& item)
@@ -361,15 +332,17 @@ private:
         mCharacters.clear();
 
         const auto& party = mGameState.GetParty();
-        for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
+        BAK::ActiveCharIndex person{0};
+        do
         {
-            const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(party.mActiveCharacters[person]);
+            const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(
+                party.GetCharacter(person).GetIndex().mValue);
             mCharacters.emplace_back(
                 [this, character=person](DraggableItem& slot){
                     TransferItem(slot, character);
                 },
-                mLayout.GetWidgetLocation(person),
-                mLayout.GetWidgetDimensions(person),
+                mLayout.GetWidgetLocation(person.mValue),
+                mLayout.GetWidgetDimensions(person.mValue),
                 spriteSheet,
                 image,
                 image,
@@ -381,7 +354,8 @@ private:
                     mGuiManager.ShowCharacterPortrait(character);
                 }
             );
-        }
+            person = party.NextActiveCharacter(person);
+        } while (person != BAK::ActiveCharIndex{0});
     }
 
     void UpdateGold()
@@ -403,14 +377,10 @@ private:
         mGoldDisplay.SetPosition(newPos);
     }
 
-    void SetContainerTypeImage()
-    {
-        const auto [ss, ti, dims] = mIcons.GetInventoryMiscIcon(11);
-        mContainerTypeDisplay.CenterImage(dims);
-    }
-
     void UpdateInventoryContents()
     {
+        CheckExclusivity();
+
         mInventoryItems.clear();
 
         const auto& inventory = std::invoke([&]() -> const BAK::Inventory& {
@@ -427,7 +397,7 @@ private:
             }
             else
             {
-                return GetActiveCharacter(mSelectedCharacter).GetInventory();
+                return GetCharacter(*mSelectedCharacter).GetInventory();
             }
         });
 
@@ -613,7 +583,6 @@ private:
         AddChildBack(&mExit);
         AddChildBack(&mGoldDisplay);
 
-        SetContainerTypeImage();
         AddChildBack(&mContainerTypeDisplay);
 
         for (auto& character : mCharacters)
@@ -621,17 +590,25 @@ private:
             AddChildBack(&character);
         }
 
-        AddChildBack(&mWeapon);
+        if (mSelectedCharacter)
+        {
+            AddChildBack(&mWeapon);
 
-        if (GetActiveCharacter(mSelectedCharacter).IsSwordsman())
-            AddChildBack(&mCrossbow);
+            if (GetCharacter(*mSelectedCharacter).IsSwordsman())
+                AddChildBack(&mCrossbow);
 
-        AddChildBack(&mArmor);
+            AddChildBack(&mArmor);
+        }
 
         for (auto& item : mInventoryItems)
         {
             AddChildBack(&item);
         }
+    }
+
+    void CheckExclusivity()
+    {
+        ASSERT(bool{mSelectedCharacter} ^ mDisplayContainer);
     }
 
 private:
@@ -658,7 +635,7 @@ private:
     ItemEndpointEquipmentSlot mArmor;
     std::vector<ItemEndpoint<DraggableItem>> mInventoryItems;
 
-    unsigned mSelectedCharacter;
+    std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mDisplayContainer;
     BAK::IContainer* mContainer;
     bool mNeedRefresh;

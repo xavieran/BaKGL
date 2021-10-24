@@ -182,7 +182,7 @@ public:
                 auto& party = GetParty();
                 for (const auto c : party.mActiveCharacters)
                 {
-                    party.mCharacters[c].mSkills.ImproveSkill(
+                    party.mCharacters[c.mValue].mSkills.ImproveSkill(
                         skill.mSkill,
                         skill.mValue1);
                 }
@@ -193,7 +193,7 @@ public:
                 auto& party = GetParty();
                 for (const auto c : party.mActiveCharacters)
                 {
-                    party.mCharacters[c].mConditions.IncreaseCondition(
+                    party.mCharacters[c.mValue].mConditions.IncreaseCondition(
                         cond.mCondition, cond.mValue1);
                 }
             },

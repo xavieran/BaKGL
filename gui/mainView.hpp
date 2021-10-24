@@ -124,13 +124,14 @@ public:
 
         const auto& party = gameState.GetParty();
         mLogger.Info() << "Updating Party: " << party<< "\n";
-        for (unsigned person = 0; person < party.mActiveCharacters.size(); person++)
+        BAK::ActiveCharIndex person{0};
+        do
         {
             const auto [spriteSheet, image, dimss] = mIcons.GetCharacterHead(
-                party.mActiveCharacters[person]);
+                party.GetCharacter(person).GetIndex().mValue);
             mCharacters.emplace_back(
-                mLayout.GetWidgetLocation(person + sCharacterWidgetBegin),
-                mLayout.GetWidgetDimensions(person + sCharacterWidgetBegin),
+                mLayout.GetWidgetLocation(person.mValue + sCharacterWidgetBegin),
+                mLayout.GetWidgetDimensions(person.mValue + sCharacterWidgetBegin),
                 spriteSheet,
                 image,
                 image,
@@ -141,17 +142,19 @@ public:
                     ShowPortrait(character);
                 }
             );
-        }
+            
+            person = party.NextActiveCharacter(person);
+        } while (person != BAK::ActiveCharIndex{0});
 
         AddChildren();
     }
 
-    void ShowPortrait(unsigned character)
+    void ShowPortrait(BAK::ActiveCharIndex character)
     {
         mGuiManager.ShowCharacterPortrait(character);
     }
 
-    void ShowInventory(unsigned character)
+    void ShowInventory(BAK::ActiveCharIndex character)
     {
         mGuiManager.ShowInventory(character);
     }

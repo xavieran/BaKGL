@@ -16,5 +16,15 @@ using ZoneNumber = StrongType<unsigned, struct ZoneNumberTag>;
 using ZoneTransitionIndex = StrongType<unsigned, struct ZoneTransitionIndexTag>;
 using TeleportIndex = StrongType<unsigned, struct TeleportIndexTag>;
 
+static constexpr auto sMaxActiveCharacters = 3;
+static constexpr auto sMaxCharacters = 6;
+
+using ActiveCharIndex = Bounded<
+    StrongType<unsigned, struct ActiveCharIndexTag>,
+    0, sMaxActiveCharacters>;
+
+using CharIndex = Bounded<
+    StrongType<unsigned, struct CharIndexTag>,
+    0, sMaxCharacters>;
 
 }
