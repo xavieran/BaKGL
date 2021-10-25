@@ -23,7 +23,7 @@ std::uint8_t SetItemStatus(std::uint8_t status, ItemStatus flag, bool state)
 InventoryItem::InventoryItem(
     GameObject const* object,
     ItemIndex itemIndex,
-    std::uint8_t condition,
+    unsigned condition,
     std::uint8_t status,
     std::uint8_t modifiers)
 :

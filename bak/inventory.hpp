@@ -45,6 +45,10 @@ public:
     const auto& GetItems() const { return mItems; }
     auto& GetItems() { return mItems; }
 
+    std::size_t GetNumberItems() const { return mItems.size(); }
+    std::size_t GetSpaceUsed() const;
+    
+
     const auto& GetAtIndex(InventoryIndex i) const
     {
         ASSERT(i.mValue < mItems.size());
@@ -57,14 +61,12 @@ public:
         return mItems[i.mValue];
     }
 
-    auto FindIncompleteStack(const InventoryItem& item)
+    auto FindItem(const InventoryItem& item) const
     {
         return std::find_if(
             mItems.begin(), mItems.end(),
             [&item](const auto& elem){
-                const auto stackSize = elem.GetObject().mStackSize;
-                return (elem.mItemIndex == item.mItemIndex)
-                    && (elem.mCondition != elem.GetObject().mStackSize);
+                return elem.mItemIndex == item.mItemIndex;
             });
     }
 
@@ -74,6 +76,56 @@ public:
             mItems.begin(), mItems.end(),
             [&item](const auto& elem){
                 return elem.mItemIndex == item.mItemIndex;
+            });
+    }
+
+    // Search for a stackable item prioritising incomplete stacks
+    auto FindStack(const InventoryItem& item) const
+    {
+        ASSERT(item.IsStackable());
+        auto it = std::find_if(
+            mItems.begin(), mItems.end(),
+            [&item](const auto& elem){
+                const auto stackSize = elem.GetObject().mStackSize;
+                return (elem.mItemIndex == item.mItemIndex)
+                    && (elem.mCondition != elem.GetObject().mStackSize);
+            });
+
+        // If we didn't find an incomplete stack, return a complete one
+        if (it == mItems.end())
+            return FindItem(item);
+        else
+            return it;
+    }
+
+    // Search for a stackable item prioritising incomplete stacks
+    auto FindStack(const InventoryItem& item)
+    {
+        ASSERT(item.IsStackable());
+        auto it = std::find_if(
+            mItems.begin(), mItems.end(),
+            [&item](const auto& elem){
+                const auto stackSize = elem.GetObject().mStackSize;
+                return (elem.mItemIndex == item.mItemIndex)
+                    && (elem.mCondition != elem.GetObject().mStackSize);
+            });
+        if (it == mItems.end())
+        {
+            return FindItem(item);
+        }
+        else
+        {
+            return it;
+        }
+    }
+
+    auto FindEquipped(BAK::ItemType slot) const
+    {
+        return std::find_if(
+            mItems.begin(), mItems.end(),
+            [&slot](const auto& elem){
+                return elem.GetObject().mType == slot
+                    && elem.IsEquipped();
             });
     }
 
@@ -88,18 +140,28 @@ public:
     }
     
     bool HasIncompleteStack(const InventoryItem& item) const;
-    // FIXME: probably want this to return 0 if cant add and the amount
-    // it can add if stackable and have an empty stack
-    bool CanAdd(const InventoryItem& item) const;
-    bool HaveWeaponEquipped() const;
+
+    // Characters can be added up to the size of the inventory
+    // accounting for the size of items
+    std::size_t CanAddCharacter(const InventoryItem& item) const;
+    // Containers can be added up to their capacity
+    std::size_t CanAddContainer(const InventoryItem& item) const;
+
     bool HaveItem(const InventoryItem& item) const;
 
     // Adds the given item with no checks
     void AddItem(const InventoryItem& item);
     bool RemoveItem(const InventoryItem& item);
     bool RemoveItem(BAK::InventoryIndex item);
+
+    void CheckPostConditions();
     
 private:
+    // result > 0 if can add item to inventory.
+    // for stackable items result amount is how 
+    // much of this item can be added to inventory.
+    std::size_t CanAdd(bool fits, const InventoryItem& item) const;
+
     unsigned mCapacity;
     std::vector<InventoryItem> mItems;
 };

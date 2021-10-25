@@ -90,6 +90,14 @@ public:
         }
     }
 
+    void AddItem(const InventoryItem& item)
+    {
+        if (item.IsMoney())
+            GainItem(0, item.mItemIndex.mValue, item.GetQuantity());
+        else if (item.IsKey())
+            mKeys.GiveItem(item);
+    }
+
     void GainItem(unsigned character, unsigned itemIndex, unsigned quantity)
     {
         if (itemIndex == 0x35)
@@ -105,10 +113,17 @@ public:
             auto item = InventoryItemFactory::MakeItem(
                 ItemIndex{itemIndex},
                 static_cast<std::uint8_t>(quantity));
-            for (const auto& character : mActiveCharacters)
+            if (item.IsKey())
             {
-                if (GetCharacter(character).GiveItem(item))
-                    return;
+                mKeys.GiveItem(item);
+            }
+            else
+            {
+                for (const auto& character : mActiveCharacters)
+                {
+                    if (GetCharacter(character).GiveItem(item))
+                        return;
+                }
             }
         }
     }

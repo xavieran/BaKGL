@@ -29,15 +29,29 @@ public:
     InventoryItem(
         GameObject const* object,
         ItemIndex itemIndex,
-        std::uint8_t condition,
+        unsigned condition,
         std::uint8_t status,
         std::uint8_t modifiers);
 
     const GameObject& GetObject() const { ASSERT(mObject); return *mObject; }
 
+    auto GetQuantity() const { return mCondition; }
+    auto GetCondition() const { return mCondition; }
+
     bool IsEquipped() const
     {
         return CheckItemStatus(mStatus, ItemStatus::Equipped);
+    }
+
+    bool IsMoney() const
+    {
+        return mItemIndex == ItemIndex{0x35}
+            || mItemIndex == ItemIndex{0x36};
+    }
+
+    bool IsKey() const
+    {
+        return GetObject().mType == ItemType::Key;
     }
 
     void SetEquipped(bool state)
@@ -52,7 +66,7 @@ public:
 
     GameObject const* mObject;
     ItemIndex mItemIndex;
-    std::uint8_t mCondition;
+    unsigned mCondition;
     std::uint8_t mStatus;
     std::uint8_t mModifiers;
 

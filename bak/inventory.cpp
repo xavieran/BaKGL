@@ -2,10 +2,22 @@
 
 #include "com/assert.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 namespace BAK {
 
+std::size_t Inventory::GetSpaceUsed() const
+{
+    return std::accumulate(
+        mItems.begin(), mItems.end(),
+        0,
+        [](const auto sum, const auto& elem) -> unsigned {
+            if (!elem.IsEquipped())
+                return sum + elem.GetObject().mImageSize;
+            return sum;
+        });
+}
 
 bool Inventory::HasIncompleteStack(const InventoryItem& item) const
 {
@@ -16,38 +28,43 @@ bool Inventory::HasIncompleteStack(const InventoryItem& item) const
             return (elem.mItemIndex == item.mItemIndex)
                 && (elem.mCondition != elem.GetObject().mStackSize);
         });
+
     return it != mItems.end();
 }
 
-bool Inventory::CanAdd(const InventoryItem& item) const
+std::size_t Inventory::CanAddCharacter(const InventoryItem& item) const
 {
-    // Keys can always be added
-    if (item.GetObject().mType == ItemType::Key)
-        return true;
-
-    const auto currentQuantity = std::accumulate(
-        mItems.begin(), mItems.end(),
-        0,
-        [](const auto sum, const auto& elem) -> unsigned {
-            if (!elem.IsEquipped())
-                return sum + elem.GetObject().mImageSize;
-            return sum;
-        });
-
-    return (currentQuantity + item.GetObject().mImageSize) <= mCapacity;
+    const auto currentQuantity = GetSpaceUsed();
+    const auto fits = (currentQuantity + item.GetObject().mImageSize) <= mCapacity;
+    return CanAdd(fits, item);
 }
 
-bool Inventory::HaveWeaponEquipped() const
+std::size_t Inventory::CanAddContainer(const InventoryItem& item) const
 {
-    for (const auto& item : mItems)
+    const auto fits = GetNumberItems() < mCapacity;
+    return CanAdd(fits, item);
+}
+
+std::size_t Inventory::CanAdd(bool fits, const InventoryItem& item) const
+{
+    if (fits)
     {
-        const auto itemType = item.GetObject().mType;
-        if ((itemType == BAK::ItemType::Sword
-            || itemType == BAK::ItemType::Staff)
-            && item.IsEquipped())
-            return true;
+        if (item.IsStackable())
+            return item.GetQuantity();
+        else
+            return 1;
     }
-    return false;
+    else if (item.IsStackable() && HasIncompleteStack(item))
+    {
+        ASSERT(item.GetQuantity() > 0);
+        ASSERT(item.GetQuantity() <= item.GetObject().mStackSize);
+        auto stack = FindStack(item);
+        return std::min(
+            item.GetObject().mStackSize - stack->GetQuantity(),
+            item.GetQuantity());
+    }
+
+    return 0;
 }
 
 bool Inventory::HaveItem(const InventoryItem& item) const
@@ -70,23 +87,30 @@ void Inventory::AddItem(const InventoryItem& item)
 {
     if (item.IsStackable() && HasIncompleteStack(item))
     {
-        auto it = FindIncompleteStack(item);
+        ASSERT(item.GetQuantity() > 0);
+        ASSERT(item.GetQuantity() <= item.GetObject().mStackSize);
+
+        auto it = FindStack(item);
         ASSERT(it != mItems.end());
-        const auto amountToStack = item.GetObject().mStackSize - it->mCondition;
+
+        const auto amountToStack = item.GetObject().mStackSize - it->GetQuantity();
         it->mCondition += std::min(
             item.mCondition,
-            static_cast<std::uint8_t>(amountToStack));
+            amountToStack);
 
         if (item.mCondition > amountToStack)
-            mItems.emplace_back(
-                InventoryItemFactory::MakeItem(
-                    item.mItemIndex,
-                    item.mCondition - amountToStack));
+        {
+            auto newItem = item;
+            newItem.mCondition = item.mCondition - amountToStack;
+            mItems.emplace_back(newItem);
+         }
     }
     else
     {
         mItems.emplace_back(item);
     }
+
+    CheckPostConditions();
 }
 
 bool Inventory::RemoveItem(BAK::InventoryIndex item)
@@ -104,16 +128,25 @@ bool Inventory::RemoveItem(const InventoryItem& item)
 {
     if (item.IsStackable() && HaveItem(item))
     {
-        // First try to remove from an incomplete stack
-        auto it = FindIncompleteStack(item);
-        if (it == mItems.end())
-            it = FindItem(item);
+        unsigned remainingToRemove = item.GetQuantity();
+        auto it = FindStack(item);
+        do 
+        {
+            ASSERT(it != mItems.end());
+            const auto amountToRemove = std::min(
+                remainingToRemove,
+                it->GetQuantity());
 
-        ASSERT(it != mItems.end());
-        it->mCondition -= item.mCondition;
-        if (it->mCondition == 0)
-            mItems.erase(it);
+            it->mCondition -= amountToRemove;
+            remainingToRemove -= amountToRemove;
 
+            if (it->GetQuantity() == 0)
+                mItems.erase(it);
+
+        } while ((it = FindStack(item)) != mItems.end()
+            && remainingToRemove > 0);
+
+        CheckPostConditions();
         return true;
     }
     else
@@ -127,6 +160,19 @@ bool Inventory::RemoveItem(const InventoryItem& item)
     }
 
     return false;
+}
+
+void Inventory::CheckPostConditions()
+{
+    for (const auto& item : mItems)
+    {
+        // We should never end up with a stack bigger than allowed
+        if (item.IsStackable())
+        {
+            ASSERT(item.GetQuantity() <= item.GetObject().mStackSize);
+            ASSERT(item.GetQuantity() > 0);
+        }
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Inventory& inventory)

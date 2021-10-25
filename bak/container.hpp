@@ -32,7 +32,7 @@ public:
     const Inventory& GetInventory() const override { return mInventory; }
     bool CanAddItem(const InventoryItem& item) override
     {
-        return mInventory.CanAdd(item);
+        return mInventory.CanAddContainer(item);
     }
 
     bool GiveItem(const InventoryItem& item) override
@@ -74,7 +74,7 @@ public:
 
     bool CanAddItem(const InventoryItem& item) override
     {
-        return mInventory.CanAdd(item);
+        return mInventory.CanAddContainer(item);
     }
 
     bool GiveItem(const InventoryItem& item) override

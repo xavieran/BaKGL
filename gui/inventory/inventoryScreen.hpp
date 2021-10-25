@@ -7,6 +7,7 @@
 #include "bak/objectInfo.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "gui/inventory/containerDisplay.hpp"
 #include "gui/inventory/equipmentSlot.hpp"
 #include "gui/inventory/inventorySlot.hpp"
 
@@ -100,6 +101,15 @@ public:
             },
             []{}
         },
+        mContainerScreen{
+            {11, 11},
+            {294, 121},
+            mIcons,
+            mFont,
+            [this](const auto& item){
+                ShowItemDescription(item);
+            }
+        },
         mWeapon{
             [this](auto& item){
                 MoveItemToEquipmentSlot(item, BAK::ItemType::Sword); },
@@ -130,8 +140,8 @@ public:
         mContainer{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
-        SetContainerTypeImage(11);
         mCharacters.reserve(3);
+        ClearContainer();
     }
 
     void SetSelectedCharacter(
@@ -146,6 +156,7 @@ public:
         SetContainerTypeImage(11);
 
         mSelectedCharacter.reset();
+        mContainerScreen.SetContainer(&mGameState.GetParty().GetKeys());
         mContainer = nullptr;
         mDisplayContainer = false;
     }
@@ -155,6 +166,7 @@ public:
         SetContainerTypeImage(0);
         ASSERT(container);
         mContainer = container;
+        mContainerScreen.SetContainer(container);
         ShowContainer();
         RefreshGui();
     }
@@ -192,6 +204,8 @@ private:
         UpdatePartyMembers();
         UpdateGold();
         UpdateInventoryContents();
+        if (mDisplayContainer)
+            mContainerScreen.RefreshGui();
 
         AddChildren();
     }
@@ -224,7 +238,9 @@ private:
     void TransferItem(DraggableItem& slot, BAK::ActiveCharIndex character)
     {
         CheckExclusivity();
-        ASSERT(mSelectedCharacter || mContainer != nullptr);
+        // This would be the case if we were in the key display
+        if (mDisplayContainer && mContainer == nullptr)
+            return;
 
         auto item = slot.GetItem();
 
@@ -247,7 +263,15 @@ private:
         }
         else
         {
-            if (GetCharacter(character).GiveItem(item))
+            if (item.IsMoney() || item.IsKey())
+            {
+                ASSERT(mDisplayContainer);
+                mGameState.GetParty().AddItem(item);
+                mContainer
+                    ->GetInventory()
+                    .RemoveItem(slot.GetItemIndex());
+            }
+            else if (GetCharacter(character).GiveItem(item))
             {
                 mContainer
                     ->GetInventory()
@@ -288,12 +312,14 @@ private:
         auto item = slot.GetItem();
         mLogger.Debug() << "Move item to container: " << item << "\n";
         ASSERT(mSelectedCharacter);
-        GetCharacter(*mSelectedCharacter).CheckPostConditions();
         if (mContainer)
         {
             mContainer->GetInventory().AddItem(item);
             GetCharacter(*mSelectedCharacter).RemoveItem(item);
+            mNeedRefresh = true;
         }
+        GetCharacter(*mSelectedCharacter).CheckPostConditions();
+
     }
 
     void UseItem(DraggableItem& item, BAK::InventoryIndex itemIndex)
@@ -590,7 +616,7 @@ private:
             AddChildBack(&character);
         }
 
-        if (mSelectedCharacter)
+        if (mSelectedCharacter && !mDisplayContainer)
         {
             AddChildBack(&mWeapon);
 
@@ -598,11 +624,13 @@ private:
                 AddChildBack(&mCrossbow);
 
             AddChildBack(&mArmor);
-        }
 
-        for (auto& item : mInventoryItems)
+            for (auto& item : mInventoryItems)
+                AddChildBack(&item);
+        }
+        else if (mDisplayContainer)
         {
-            AddChildBack(&item);
+            AddChildBack(&mContainerScreen);
         }
     }
 
@@ -627,6 +655,8 @@ private:
     TextBox mGoldDisplay;
     // click into shop or keys, etc.
     ItemEndpoint<ClickButtonImage> mContainerTypeDisplay;
+
+    ContainerDisplay mContainerScreen;
 
     using ItemEndpointEquipmentSlot = ItemEndpoint<EquipmentSlot>;
 

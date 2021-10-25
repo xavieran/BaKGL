@@ -48,7 +48,22 @@ public:
 
     bool CanAddItem(const InventoryItem& item) override
     {
-        return mInventory.CanAdd(item);
+        if (mInventory.CanAddCharacter(item) > 0)
+            return true;
+        else if (item.GetObject().mType == ItemType::Staff
+            && HasEmptyStaffSlot())
+            return true;
+        else if (item.GetObject().mType == ItemType::Sword
+            && HasEmptySwordSlot())
+            return true;
+        else if (item.GetObject().mType == ItemType::Crossbow
+            && HasEmptyCrossbowSlot())
+            return true;
+        else if (item.GetObject().mType == ItemType::Armor
+            && HasEmptyArmorSlot())
+            return true;
+        else
+            return false;
     }
 
     bool GiveItem(const InventoryItem& ref) override
@@ -66,7 +81,7 @@ public:
             item.SetEquipped(false);
         }
 
-        if (mInventory.CanAdd(item))
+        if (mInventory.CanAddCharacter(item))
         {
             mInventory.AddItem(item);
             return true;
@@ -92,6 +107,34 @@ public:
 
     bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mCurrent != 0; }
     bool IsSwordsman() const { return !IsSpellcaster(); }
+
+    bool HasEmptyStaffSlot() const
+    {
+        return IsSpellcaster() 
+            && mInventory.FindEquipped(ItemType::Staff) 
+                == mInventory.GetItems().end();
+    }
+
+    bool HasEmptySwordSlot() const
+    {
+        return IsSwordsman() 
+            && mInventory.FindEquipped(ItemType::Sword) 
+                == mInventory.GetItems().end();
+    }
+
+    bool HasEmptyCrossbowSlot() const
+    {
+        return IsSwordsman() 
+            && mInventory.FindEquipped(ItemType::Crossbow) 
+                == mInventory.GetItems().end();
+    }
+
+    bool HasEmptyArmorSlot() const
+    {
+        return mInventory.FindEquipped(ItemType::Armor) 
+            == mInventory.GetItems().end();
+    }
+
     ItemType GetWeaponType() const
     {
         if (IsSpellcaster())
@@ -112,10 +155,9 @@ public:
         return false;
     }
 
-    void ApplyItemToSlot(InventoryIndex index, BAK::ItemType slot)
+    void ApplyItemToSlot(InventoryIndex index, ItemType slot)
     {
         auto& item = mInventory.GetAtIndex(index);
-        Logging::LogDebug("CharacterB4Move") << __FUNCTION__ << " " << item << " " << item.IsEquipped() << " " << BAK::ToString(slot) << "\n";
         auto equipped = mInventory.FindEquipped(slot);
         // We are trying to move this item onto itself
         if (std::distance(mInventory.GetItems().begin(), equipped) == index.mValue)
@@ -123,8 +165,6 @@ public:
             return;
         }
 
-        if (equipped != mInventory.GetItems().end())
-            Logging::LogDebug("CharacterB4Eqip") << __FUNCTION__ << " " << *equipped << " " << equipped->IsEquipped() << " " << BAK::ToString(slot) << "\n";
         if (item.GetObject().mType == slot)
         {
             item.SetEquipped(true);
