@@ -218,7 +218,6 @@ private:
     void SetContainerTypeImage(unsigned containerType)
     {
         const auto [ss, ti, dims] = mIcons.GetInventoryMiscIcon(containerType);
-        mLogger.Debug() << "Container:" << ti << "\n";
         mContainerTypeDisplay.SetTexture(ss, ti);
         mContainerTypeDisplay.CenterImage(dims);
     }
@@ -235,9 +234,12 @@ private:
         mSelectedCharacter = character;
     }
 
-    void TransferItem(DraggableItem& slot, BAK::ActiveCharIndex character)
+    void TransferItem(
+        DraggableItem& slot,
+        BAK::ActiveCharIndex character)
     {
         CheckExclusivity();
+
         // This would be the case if we were in the key display
         if (mDisplayContainer && mContainer == nullptr)
             return;
@@ -267,15 +269,15 @@ private:
             {
                 ASSERT(mDisplayContainer);
                 mGameState.GetParty().AddItem(item);
-                mContainer
-                    ->GetInventory()
+                mContainer->GetInventory()
                     .RemoveItem(slot.GetItemIndex());
             }
             else if (GetCharacter(character).GiveItem(item))
             {
-                mContainer
-                    ->GetInventory()
-                    .RemoveItem(slot.GetItemIndex());
+                if (   mContainer->GetContainerType() != BAK::ContainerType::Shop
+                    && mContainer->GetContainerType() != BAK::ContainerType::Inn)
+                    mContainer->GetInventory()
+                        .RemoveItem(slot.GetItemIndex());
             }
         }
 
@@ -312,12 +314,16 @@ private:
         auto item = slot.GetItem();
         mLogger.Debug() << "Move item to container: " << item << "\n";
         ASSERT(mSelectedCharacter);
-        if (mContainer)
+
+        if (mContainer 
+            && mContainer->GetContainerType() != BAK::ContainerType::Shop
+            && mContainer->GetContainerType() != BAK::ContainerType::Inn)
         {
             mContainer->GetInventory().AddItem(item);
             GetCharacter(*mSelectedCharacter).RemoveItem(item);
             mNeedRefresh = true;
         }
+
         GetCharacter(*mSelectedCharacter).CheckPostConditions();
 
     }

@@ -108,7 +108,7 @@ void ShowContainerGui(
     std::stringstream ss{};
     ss << "\nAddr: " << std::hex << container.mAddress << " #" << std::dec 
         << container.mNumber << " items: " << container.mNumberItems << " cap: " 
-        << container.mCapacity << " type: " << container.mType;
+        << container.mCapacity << " type: " << ToString(container.mType);
     ImGui::Text(ss.str().c_str());
 
     ImGui::BeginTable("Items", 4, ImGuiTableFlags_Resizable);

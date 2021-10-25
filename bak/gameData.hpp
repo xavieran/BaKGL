@@ -592,19 +592,19 @@ public:
             auto tileY = mBuffer.GetUint8();
             ASSERT(mBuffer.GetUint16LE() == 0);
 
-            unsigned gdsPart1 = mBuffer.GetUint32LE();
-            unsigned gdsPart2 = mBuffer.GetUint32LE();
-            unsigned shopType = mBuffer.GetUint8();
-            unsigned itemCount = mBuffer.GetUint8();
-            unsigned capacity = mBuffer.GetUint8();
-            unsigned displayType = mBuffer.GetUint8();
+            const unsigned gdsPart1 = mBuffer.GetUint32LE();
+            const unsigned gdsPart2 = mBuffer.GetUint32LE();
+            const unsigned shopType = mBuffer.GetUint8();
+            const unsigned itemCount = mBuffer.GetUint8();
+            const unsigned capacity = mBuffer.GetUint8();
+            const auto containerType = static_cast<ContainerType>(mBuffer.GetUint8());
             mLogger.Debug() << "Shop #: " << i << "\n";
             mLogger.Debug() << "Tile?: (" << +tileX << ", " << +tileY 
                 << ") Gds (" << gdsPart1 << ", " << gdsPart2 << ")\n Tp: " << +shopType 
-                << " items: " << +itemCount << " cap: " << +capacity << " displayTp?: " << +displayType<< "\n";
+                << " items: " << +itemCount << " cap: " << +capacity << " displayTp?: " << ToString(containerType) << "\n";
             auto inventory = Inventory{capacity, LoadItems(itemCount, capacity)};
             // Shop data...
-            if (displayType == 0x4)
+            if (containerType == ContainerType::Shop)
                 mBuffer.DumpAndSkip(16);
             mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
             shops.emplace_back(
@@ -614,7 +614,7 @@ public:
                 shopType,
                 itemCount,
                 capacity,
-                displayType,
+                containerType,
                 std::move(inventory));
         }
 
@@ -697,26 +697,17 @@ public:
             auto xLoc = mBuffer.GetUint32LE(); // 0x8
             auto yLoc = mBuffer.GetUint32LE(); // 0xc (12)
             auto location = glm::vec<2, unsigned>{xLoc, yLoc};
-            auto chestNumber   = mBuffer.GetUint8(); // 0xd
-            auto chestItems    = mBuffer.GetUint8(); // 0xe
-            auto chestCapacity = mBuffer.GetUint8(); // 0xf
-            auto containerType = mBuffer.GetUint8(); // 0x10
+            const auto chestNumber   = mBuffer.GetUint8(); // 0xd
+            const auto chestItems    = mBuffer.GetUint8(); // 0xe
+            const auto chestCapacity = mBuffer.GetUint8(); // 0xf
+            const auto containerType = static_cast<ContainerType>(mBuffer.GetUint8());
 
             assert(chestNumber == 6 || chestNumber == 9 || chestCapacity > 0);
-
-            const auto Container = [](auto x) -> std::string
-            {
-                //if ((x & 0x04) == 0x04) return "Shop";
-                if ((x & 0x04) == 0x04) return "Shop";
-                if (x == 17) return "Fairy Chest";
-                else return "Dunno";
-            };
 
             logger.Info() << "DLog??: " << std::hex << dlogp << std::dec << " " 
                 << xLoc << "," << yLoc << " #" << +chestNumber << " items: " 
                 << +chestItems << " capacity: " << +chestCapacity 
-                << " Tp: " << +containerType << " " 
-                << Container(containerType) << std::endl;
+                << " Tp: " << ToString(containerType) << std::endl;
             
             auto inventory = Inventory{
                 chestCapacity,
@@ -729,42 +720,43 @@ public:
             logger.Info() << "Picklock: " << std::hex << +picklockSkill
                 << " dialog: " << dialog << std::dec << "\n";
 
-            if (containerType != 2
-                && containerType != 6
-                && containerType != 10)
+            if (   containerType != ContainerType::Gravestone
+                && containerType != ContainerType::Inn
+                && containerType != ContainerType::Combat)
                 dialog = KeyTarget{0};
 
-            if (Container(containerType) == "Shop")
+            if (containerType == ContainerType::Shop
+                || containerType == ContainerType::Inn)
             {
                 mBuffer.DumpAndSkip(16);
             }
-            else if (containerType == 0)
+            else if (containerType == ContainerType::Bag)
             {
                 mBuffer.Skip(-6);
             }
-            else if (containerType == 1)
+            else if (containerType == ContainerType::Unknown)
             {
                 mBuffer.Skip(-2);
             }
-            else if (containerType == 3)
+            else if (containerType == ContainerType::Building)
             {
                 const auto postDialog = Target{KeyTarget{mBuffer.GetUint32LE()}};
                 mLogger.Debug() << "PostLockDialog:  " << postDialog << "\n";
                 dialog = postDialog;
             }
-            else if (containerType == 8)
+            else if (containerType == ContainerType::TimirianyaHut)
             {
                 mBuffer.DumpAndSkip(3);
             }
-            else if (containerType == 10)
+            else if (containerType == ContainerType::Combat)
             {
                 mBuffer.DumpAndSkip(9);
             }
-            else if (containerType == 16)
+            else if (containerType == ContainerType::Chest)
             {
                 mBuffer.Skip(-2);
             }
-            else if (containerType == 17)
+            else if (containerType == ContainerType::FairyChest)
             {
                 if (chestNumber != 4 && chestCapacity == 5)
                 {
@@ -772,7 +764,7 @@ public:
                 }
                 mBuffer.DumpAndSkip(2);
             }
-            else if (containerType == 25)
+            else if (containerType == ContainerType::EventChest)
             {
                 mBuffer.DumpAndSkip(11);
             }

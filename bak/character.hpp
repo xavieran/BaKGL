@@ -101,6 +101,11 @@ public:
         return false;
     }
 
+    ContainerType GetContainerType() override
+    {
+        return ContainerType::Inv;
+    }
+
     /* Character Getters */
 
     CharIndex GetIndex() const { return mCharacterIndex; }

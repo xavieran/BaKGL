@@ -23,7 +23,7 @@ public:
         unsigned number,
         unsigned numberItems,
         unsigned capacity,
-        unsigned type,
+        ContainerType type,
         Target dialog,
         glm::vec<2, unsigned> location,
         Inventory&& inventory);
@@ -46,11 +46,17 @@ public:
         mInventory.RemoveItem(item);
         return true;
     }
+
+    ContainerType GetContainerType() override
+    {
+        return mType;
+    }
+
     unsigned mAddress;
     unsigned mNumber;
     unsigned mNumberItems;
     unsigned mCapacity;
-    unsigned mType;
+    ContainerType mType;
     Target mDialog;
     glm::vec<2, unsigned> mLocation;
     Inventory mInventory;
@@ -66,7 +72,7 @@ public:
         unsigned number,
         unsigned numberItems,
         unsigned capacity,
-        unsigned type,
+        ContainerType type,
         Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
@@ -89,11 +95,16 @@ public:
         return true;
     }
 
+    ContainerType GetContainerType() override
+    {
+        return mType;
+    }
+
     BAK::HotspotRef mGdsScene;
     unsigned mNumber;
     unsigned mNumberItems;
     unsigned mCapacity;
-    unsigned mType;
+    ContainerType mType;
     Inventory mInventory;
 };
 
