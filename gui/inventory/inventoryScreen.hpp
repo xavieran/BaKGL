@@ -204,6 +204,7 @@ private:
         UpdatePartyMembers();
         UpdateGold();
         UpdateInventoryContents();
+
         if (mDisplayContainer)
             mContainerScreen.RefreshGui();
 
@@ -250,11 +251,21 @@ private:
         {
             if (character != *mSelectedCharacter)
             {
-                if (GetCharacter(character).GiveItem(item))
+                if (GetCharacter(character).CanAddItem(item))
                 {
+                    GetCharacter(character).GiveItem(item);
                     GetCharacter(*mSelectedCharacter)
                         .GetInventory()
                         .RemoveItem(slot.GetItemIndex());
+                }
+                else
+                {
+                    // Set source and dest cahracter indices here..
+                    mGameState.SetDialogContext(1);
+                    mGuiManager.StartDialog(
+                        BAK::DialogSources::mContainerHasNoRoomForItem,
+                        false,
+                        &mDialogScene);
                 }
             }
 

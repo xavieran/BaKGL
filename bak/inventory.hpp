@@ -36,7 +36,6 @@ public:
         mItems{std::move(items)}
     {}
 
-
     Inventory(Inventory&&) = default;
     Inventory& operator=(Inventory&&) = default;
     Inventory(const Inventory&) = default;
@@ -47,7 +46,6 @@ public:
 
     std::size_t GetNumberItems() const { return mItems.size(); }
     std::size_t GetSpaceUsed() const;
-    
 
     const auto& GetAtIndex(InventoryIndex i) const
     {

@@ -55,7 +55,7 @@ public:
     // Contextual
     static constexpr auto mItemHasNoCharges         = 0x1b776c;
     // Contextual on container type (use to deduce container types?)
-    static constexpr auto mContainerHasNoRoomForItem = 0x1b7748;
+    static constexpr auto mContainerHasNoRoomForItem = KeyTarget{0x1b7748};
     static constexpr auto mDropItem = 0x1b7749;
     static constexpr auto mGenericCantUseItem = 0x1b774a;
     static constexpr auto mGenericCharacterClassCantUseItem = 0x1b774b;
