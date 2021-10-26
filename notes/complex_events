@@ -12,6 +12,9 @@
     -> Encoutner jeremey for the first time
        Sets flag daca to 0xff10 (not ff01!)
 
+
+
+
 Setting flag to 20 must be done somewhere else
 
 This is the trapped chest. 

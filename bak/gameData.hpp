@@ -137,10 +137,6 @@ public:
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         //mLogger.Info() << mParty << "\n";
         mLogger.Info() << mTime << "\n";
-        const auto val1 = ReadComplexEvent(0xdac0);
-        mLogger.Info() << "dac0: " << std::hex << val1 << "\n";
-        const auto val2 = ReadComplexEvent(0xdaca);
-        mLogger.Info() << "daca: " << std::hex << val2 << "\n";
         LoadContainers(0x1);
         LoadContainers(0x2);
         LoadContainers(0x3);
@@ -322,15 +318,26 @@ public:
         }
     }
 
+    void WriteComplexEvent(unsigned eventPtr, std::uint8_t value) const
+    {
+        // Confirm that this is definintely equivalent to the below
+        const auto eventOffset = (0xffff & (0x2540 + eventPtr)) / 10;
+        mLogger.Info() << __FUNCTION__ << ": " << std::hex << eventPtr << " off: " << eventOffset << " " << value << "\n";
+        mBuffer.Seek(sGameComplexEventRecordOffset + eventOffset);
+        mBuffer.PutUint8(value);
+        mLogger.Info() << "Wrote: " << ReadComplexEvent(eventPtr) << "\n";
+    }
+
     unsigned ReadComplexEvent(unsigned eventPtr) const
     {
         // the left over of divisor maybe is nibble?
         constexpr auto offset = -0xad7;
         constexpr auto divider = 10;
         const auto eventOffset = (eventPtr / divider) + offset;
-        mLogger.Error() << __FUNCTION__ << ": " << std::hex << eventPtr << " off: " << eventOffset << "\n";
         mBuffer.Seek(eventOffset);
-        return mBuffer.GetUint8();
+        const auto result = mBuffer.GetUint8();
+        mLogger.Info() << __FUNCTION__ << ": " << std::hex << eventPtr << " off: " << eventOffset << " READ[" << +result << "]\n";
+        return result;
     }
 
     // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,

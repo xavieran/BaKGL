@@ -250,11 +250,31 @@ public:
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const
     {
         const auto state = GetComplexEventState(choice.mEventPointer);
-        const auto expectedValue = choice.mExpectedValue;
-        return ((state ^ choice.mXorWith) == expectedValue);
-        // mUnknown1 seems to be a mask over the XOR mask
-        // mUnknown2 seems to be a mask over the value that was read...
-        // Not 100% sure on this need to do more trials
+        mLogger.Debug() << __FUNCTION__ << "Choice: " << choice 
+            << " S: [" << std::hex << +state << std::dec << "]\n";
+
+        const auto chapterFlag = GetChapter() == 9
+            ? 0x80
+            : 1 << (GetChapter() - 1);
+        const auto chapterMaskSatisfied
+            = (chapterFlag & choice.mChapterMask) != 0;
+
+        if (choice.mMustEqualExpected)
+        {
+            if (((state ^ choice.mXorMask) & choice.mExpected) == choice.mExpected
+                && chapterMaskSatisfied)
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            if (((state ^ choice.mXorMask) & choice.mExpected) != 0
+                && chapterMaskSatisfied)
+                return true;
+            else
+                return false;
+        }
     }
 
     bool EvaluateDialogChoice(const Choice& choice) const
@@ -264,12 +284,7 @@ public:
                     return GetEventState(c.mEventPointer) == c.mExpectedValue;
                 },
                 [&](const ComplexEventChoice& c){
-                    const auto state = GetComplexEventState(c.mEventPointer);
-                    if (c.mUnknown1 == 1)
-                        return state != c.mExpectedValue;
-                    else
-                        return state == c.mExpectedValue;
-                    //return (state ^ c.mXorWith) == c.mExpectedValue;
+                    return EvaluateComplexChoice(c);
                 },
                 [&](const InventoryChoice& c){
                     return GetParty().HaveItem(c.mRequiredItem) == c.mItemPresent;
@@ -284,14 +299,18 @@ public:
             choice);
     }
 
-    bool GetComplexEventState(unsigned eventPtr) const
+    std::uint8_t GetComplexEventState(unsigned eventPtr) const
     {
-        if (mEventState.contains(eventPtr))
-            return mEventState.at(eventPtr);
-        else if (mGameData != nullptr)
-            return mGameData->ReadComplexEvent(eventPtr);
+        if (mGameData != nullptr)
+        {
+            const auto res = mGameData->ReadComplexEvent(eventPtr);
+            mLogger.Info() << __FUNCTION__ << "Read[" << +res << "]\n";
+            return res;
+        }
         else
-            return false;
+        {
+            return 0;
+        }
     }
 
     bool GetEventState(unsigned eventPtr) const
@@ -358,7 +377,11 @@ public:
         const auto data = GetEventState(setFlag.mEventPointer);
         const auto result = (data & setFlag.mEventMask) 
             | setFlag.mEventData;
-        mEventState.emplace(setFlag.mEventPointer, result);
+        if (mGameData)
+            mGameData->WriteComplexEvent(setFlag.mEventPointer, result);
+        else
+            mEventState.emplace(setFlag.mEventPointer, result);
+
     }
 
     void SetDialogContext(unsigned contextValue)

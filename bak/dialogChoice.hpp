@@ -101,10 +101,10 @@ struct InventoryChoice
 struct ComplexEventChoice
 {
     std::uint16_t mEventPointer;
-    std::uint8_t mExpectedValue;
-    std::uint8_t mXorWith;
-    std::uint8_t mUnknown1;
-    std::uint8_t mUnknown2;
+    std::uint8_t mXorMask;
+    std::uint8_t mExpected;
+    std::uint8_t mMustEqualExpected;
+    std::uint8_t mChapterMask;
 };
 
 struct UnknownChoice

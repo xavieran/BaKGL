@@ -80,8 +80,9 @@ std::ostream& operator<<(std::ostream& os, const InventoryChoice& c)
 std::ostream& operator<<(std::ostream& os, const ComplexEventChoice& c)
 {
     os << ToString(ChoiceMask::ComplexEvent) << " " << std::hex << 
-        c.mEventPointer << " -> " << +c.mExpectedValue << " " 
-        << +c.mXorWith << " | " << +c.mUnknown1 << " " << +c.mUnknown2 << std::dec;
+        c.mEventPointer << " -> " << +c.mXorMask << " " 
+        << +c.mExpected << " | " << +c.mMustEqualExpected << " " 
+        << +c.mChapterMask << std::dec;
     return os;
 }
 
@@ -174,9 +175,9 @@ Choice CreateChoice(
         return ComplexEventChoice{
             state,
             static_cast<std::uint8_t>(choice0 & 0xff),
-            static_cast<std::uint8_t>(choice0 >> 4),
+            static_cast<std::uint8_t>(choice0 >> 8),
             static_cast<std::uint8_t>(choice1 & 0xff),
-            static_cast<std::uint8_t>(choice1 >> 4)
+            static_cast<std::uint8_t>(choice1 >> 8)
         };
     default:
         return UnknownChoice{
