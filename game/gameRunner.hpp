@@ -287,9 +287,8 @@ public:
                     {
                         mDynamicDialogScene.SetDialogFinished(
                             [&, cit=cit](const auto& choice){
-                                // These dialogs should always result in a choice
-                                assert(choice);
-                                if (choice->mValue == BAK::Keywords::sYesIndex)
+                                if (!choice
+                                    || choice->mValue == BAK::Keywords::sYesIndex)
                                 {
                                     mGuiManager.ShowContainer(&(*cit));
                                 }

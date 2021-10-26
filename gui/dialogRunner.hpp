@@ -109,6 +109,7 @@ public:
         BAK::Target target,
         bool isTooltip)
     {
+        mLastChoice.reset();
         assert(!mDialogState.mDialogActive);
         assert(!mDialogState.mTooltipActive);
         if (isTooltip)
@@ -222,6 +223,7 @@ public:
             });
 
         mLastChoice = choice;
+
         if (it == choices.end())
         {
             // usual "Yes/No" dialogs
