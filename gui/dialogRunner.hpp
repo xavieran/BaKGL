@@ -298,7 +298,7 @@ public:
 
         mDialogDisplay.Clear();
         if (mDialogScene)
-            mDialogDisplay.DisplayPlayer(*mDialogScene);
+            mDialogDisplay.DisplayPlayer(*mDialogScene, mCurrentDialog->mActor);
         mScreenStack.PushScreen(&mChoices);
     }
 

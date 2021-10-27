@@ -142,6 +142,40 @@ public:
         return nullptr;
     }
 
+    unsigned GetActor(unsigned actor) const
+    {
+        if (actor == 0xff)
+        {
+            const auto charIndex = GetParty().NextActiveCharacter(ActiveCharIndex{0});
+            const auto& character = GetParty().GetCharacter(charIndex);
+            mLogger.Debug() << "FF: " << charIndex << " " << character.mCharacterIndex.mValue << "\n";
+                
+            return character.mCharacterIndex.mValue + 1;
+        }
+        else if (actor == 0xf0)
+        {
+            const auto& character = GetParty().GetCharacter(ActiveCharIndex{0});
+            return character.mCharacterIndex.mValue + 1;
+        }
+        // WRONG! f4 same as text variable 4...
+        else if (actor > 0xf0)
+        {
+            return actor & 0xf;
+        }
+        else if (actor == 0xc8)
+        {
+            const auto& character = GetParty().GetCharacter(
+                GetParty().NextActiveCharacter(
+                    GetParty().NextActiveCharacter(
+                        ActiveCharIndex{0})));
+            return character.mCharacterIndex.mValue + 1;
+        }
+        else
+        {
+            return actor;
+        }
+    }
+
     const Character& GetPartyLeader()
     {
         return mPartyLeader;

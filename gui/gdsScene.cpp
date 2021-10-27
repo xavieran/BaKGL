@@ -180,7 +180,15 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::INN)
     {
-        StartDialog(BAK::DialogSources::mInnDialog, false);
+        if (hotspot.mActionArg3 != 0)
+        {
+            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+            mPendingInn = hotspot;
+        }
+        else
+        {
+            StartDialog(BAK::DialogSources::mInnDialog, false);
+        }
     }
     else if (hotspot.mAction == BAK::HotspotAction::LUTE)
     {
@@ -215,13 +223,17 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
     mGuiManager.StartDialog(target, isTooltip, this);
 }
 
-
 void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
 {
     if (mPendingGoto)
     {
         mGuiManager.EnterGDSScene(*mPendingGoto, []{});
         mPendingGoto.reset();
+    }
+    else if (mPendingInn)
+    {
+        StartDialog(BAK::DialogSources::mInnDialog, false);
+        mPendingInn.reset();
     }
     mLogger.Debug() << "Dialog finished, back to flavour text\n";
 

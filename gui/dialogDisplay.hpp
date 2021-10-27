@@ -122,10 +122,13 @@ public:
         ClearChildren();
     }
 
-    void DisplayPlayer(IDialogScene& dialogScene)
+    void DisplayPlayer(IDialogScene& dialogScene, unsigned act)
     {
-        SetActor(mGameState.GetPartyLeader().mIndex, dialogScene, false);
-        AddLabel("#" + mGameState.GetPartyLeader().mName + " asked about:#");
+        const auto actor = mGameState.GetActor(act);
+        SetActor(actor, dialogScene, false);
+        AddLabel("#" 
+            + std::string{mKeywords.GetNPCName(actor)}
+            + " asked about:#");
     }
 
     auto DisplaySnippet(
@@ -179,13 +182,7 @@ public:
 
         if (act != 0)
         {
-            actor = act;
-            // FIXME This is not quite correct, there's something special
-            // about actor indices above 0xf0 
-            if (act >= 0xf1)
-                actor = (act & 0x0f);
-            else if (act == 0xf0)
-                actor = 1;
+            actor = mGameState.GetActor(act);
         }
 
         const auto [charPos, undisplayedText] = AddText(
@@ -276,6 +273,7 @@ private:
         IDialogScene& dialogScene,
         bool showName)
     {
+        mLogger.Debug() <<" Actor: " << actor << "\n";
         if (actor > 6)
             dialogScene.DisplayNPCBackground();
         else
