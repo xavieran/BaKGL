@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/types.hpp"
 #include "bak/skills.hpp"
@@ -29,11 +30,12 @@ enum class DialogResult
     // Load skill value for a skill check
     // e.g. isaac 2dc6e5 sharpen his sword
     LoadSkillValue = 0x0a,
-    PlaySound  = 0x0c,
+    PlaySound  = 0x0c, // See RunDialog: 0x14aa
     ElapseTime = 0x0d,
     // Push this Key/Offset to the dialog queue
     // i.e. when the current dialog is finished, we enter this dialog
     PushNextDialog = 0x10,
+    UpdateCharacters = 0x11,
     LearnSpell = 0x13,
     // Teleport to another location? e.g. sewer dialog 231861
     Teleport = 0x14,
@@ -141,6 +143,14 @@ struct PushNextDialog
     std::array<std::uint8_t, 4> mRest;
 };
 
+struct UpdateCharacters
+{
+    std::uint16_t mNumberChars;
+    CharIndex mCharacter0;
+    CharIndex mCharacter1;
+    CharIndex mCharacter2;
+};
+
 struct Teleport
 {
     TeleportIndex mIndex;
@@ -172,6 +182,7 @@ using DialogAction = std::variant<
     LoadSkillValue,
     PushNextDialog,
     Teleport,
+    UpdateCharacters,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);

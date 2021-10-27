@@ -153,6 +153,19 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             mActions.emplace_back(
                 LoadSkillValue{target, skill});
         }
+        else if (dr == DialogResult::UpdateCharacters)
+        {
+            const auto number = fb.GetUint16LE();
+            const auto char0 = CharIndex{fb.GetUint16LE()};
+            const auto char1 = CharIndex{fb.GetUint16LE()};
+            const auto char2 = CharIndex{fb.GetUint16LE()};
+            mActions.emplace_back(
+                UpdateCharacters{
+                    number,
+                    char0,
+                    char1,
+                    char2});
+        }
         else if (dr == DialogResult::Teleport)
         {
             const auto teleportIndex = fb.GetUint16LE();
