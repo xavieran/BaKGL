@@ -1,3 +1,4 @@
+KEY: 1cfdea
 18:12:25.09 SPAM  [DialogStore] Offset { 19 @ 0x229e } @ [ ds: 0 act: 0 ds2: 10 ds3: 0 ]
 >> 7539 -> 1 | ffff Key [ 2f4eab ]
 >> daca -> 400 | c000 Key [ 2f4e90 ] 
@@ -12,6 +13,8 @@
     -> Encoutner jeremey for the first time
        Sets flag daca to 0xff10 (not ff01!)
 
+Fixed object: 798289, 1104467 (c, 12) (c2e51, 10da53)
+Chest: 881347, 656151 (d, b) (d72c3, a0317)
 
 
 

@@ -249,7 +249,7 @@ public:
 
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const
     {
-        const auto state = GetComplexEventState(choice.mEventPointer);
+        const auto state = GetEventState(choice.mEventPointer);
         mLogger.Debug() << __FUNCTION__ << "Choice: " << choice 
             << " S: [" << std::hex << +state << std::dec << "]\n";
 
@@ -281,7 +281,7 @@ public:
     {
         return std::visit(overloaded{
                 [&](const EventFlagChoice& c){
-                    return GetEventState(c.mEventPointer) == c.mExpectedValue;
+                    return GetEventStateBool(c.mEventPointer) == c.mExpectedValue;
                 },
                 [&](const ComplexEventChoice& c){
                     return EvaluateComplexChoice(c);
@@ -299,37 +299,22 @@ public:
             choice);
     }
 
-    std::uint8_t GetComplexEventState(unsigned eventPtr) const
+    unsigned GetEventState(unsigned eventPtr) const
     {
         if (mGameData != nullptr)
-        {
-            const auto res = mGameData->ReadComplexEvent(eventPtr);
-            mLogger.Info() << __FUNCTION__ << "Read[" << +res << "]\n";
-            return res;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    bool GetEventState(unsigned eventPtr) const
-    {
-        if (mEventState.contains(eventPtr))
-            return mEventState.at(eventPtr);
-        else if (mGameData != nullptr)
             return mGameData->ReadEvent(eventPtr);
         else
-            return false;
+            return 0;
+    }
+
+    unsigned GetEventStateBool(unsigned eventPtr) const
+    {
+        return (GetEventState(eventPtr) & 0x1) == 1;
     }
 
     bool CheckInhibited(const ConversationChoice& choice)
     {
-        if (mEventState.contains(choice.mEventPointer + 0x1a2c))
-        {
-            return mEventState.at(choice.mEventPointer + 0x1a2c);
-        }
-        else if (mGameData != nullptr)
+        if (mGameData != nullptr)
         {
             return mGameData->CheckConversationOptionInhibited(
                 choice.mEventPointer);
@@ -339,11 +324,7 @@ public:
 
     bool CheckDiscussed(const ConversationChoice& choice)
     {
-        if (mEventState.contains(choice.mEventPointer + 0xa8c))
-        {
-            return mEventState.at(choice.mEventPointer + 0xa8c);
-        }
-        else if (mGameData != nullptr)
+        if (mGameData != nullptr)
         {
             return mGameData->ReadConversationItemClicked(
                 choice.mEventPointer);
@@ -353,35 +334,14 @@ public:
 
     void MarkDiscussed(const ConversationChoice& choice)
     {
-        mEventState.emplace(choice.mEventPointer + 0xa8c, true);
+        if (mGameData)
+            mGameData->SetConversationItemClicked(choice.mEventPointer);
     }
 
     void SetEventState(const SetFlag& setFlag)
     {
-        // All complex events have 0xd000 as first byte
-        if ((setFlag.mEventPointer & 0xd000) == 0xd000)
-        {
-            SetComplexEvent(setFlag);
-        }
-        else
-        {
-            if (mGameData)
-                mGameData->SetEventFlag(true, setFlag.mEventPointer);
-            else
-                mEventState.emplace(setFlag.mEventPointer, true);
-        }
-    }
-
-    void SetComplexEvent(const SetFlag& setFlag)
-    {
-        const auto data = GetEventState(setFlag.mEventPointer);
-        const auto result = (data & setFlag.mEventMask) 
-            | setFlag.mEventData;
         if (mGameData)
-            mGameData->WriteComplexEvent(setFlag.mEventPointer, result);
-        else
-            mEventState.emplace(setFlag.mEventPointer, result);
-
+            mGameData->SetEventDialogAction(setFlag);
     }
 
     void SetDialogContext(unsigned contextValue)
@@ -395,7 +355,6 @@ public:
         {
             mGameData->ClearUnseenImprovements(character);
         }
-
     }
 
     std::vector<Container>& GetContainers(ZoneNumber zone)
@@ -415,7 +374,6 @@ public:
     std::vector<
         std::vector<Container>> mContainers;
     std::vector<GDSContainer> mGDSContainers;
-    std::unordered_map<unsigned, bool> mEventState;
     const Logging::Logger& mLogger;
 };
 

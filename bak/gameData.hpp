@@ -6,6 +6,7 @@
 #include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/container.hpp"
+#include "bak/dialogAction.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/money.hpp"
 #include "bak/party.hpp"
@@ -89,7 +90,7 @@ public:
     static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
     static constexpr auto sGameComplexEventRecordOffset = 0xb09; // -> 0xadc
 
-    static constexpr auto sConversationChoiceMarkedOffset = 0x1d4c;
+    static constexpr auto sConversationChoiceMarkedFlag = 0x1d4c;
     static constexpr auto sConversationOptionInhibitedOffset = 0x1a2c;
     // Based on disassembly this may be the state of doors (open/closed)
     static constexpr auto sDoorFlag = 0x1b58;
@@ -159,6 +160,288 @@ public:
         //LoadCombatStats(0x914b, 1698);
     }
 
+
+    std::pair<unsigned, unsigned> CalculateComplexEventOffset(unsigned eventPtr) const
+    {
+        const auto source = (eventPtr + 0x2540) & 0xffff;
+        const auto byteOffset = source / 10;
+        const auto bitOffset = source % 10 != 0
+            ? (source % 10) - 1
+            : 0;
+            
+        mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
+            << byteOffset + sGameComplexEventRecordOffset << ", " 
+            << bitOffset << ")\n" << std::dec;
+        return std::make_pair(
+            byteOffset + sGameComplexEventRecordOffset,
+            bitOffset);
+    }
+
+    std::pair<unsigned, unsigned> CalculateEventOffset(unsigned eventPtr) const
+    {
+        const unsigned startOffset = sGameEventRecordOffset;
+        const unsigned bitOffset = eventPtr & 0xf;
+        const unsigned byteOffset = (0xfffe & (eventPtr >> 3)) + startOffset;
+        mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
+            << byteOffset << ", " << bitOffset << ")\n" << std::dec;
+        return std::make_pair(byteOffset, bitOffset);
+    }
+
+    void SetBitValueAt(unsigned byteOffset, unsigned bitOffset, unsigned value)
+    {
+        mBuffer.Seek(byteOffset);
+        const auto originalData = mBuffer.GetUint16LE();
+        auto data = originalData;
+        if (value)
+            data = data | (1 << bitOffset);
+        else
+            data = data & (~(1 << bitOffset));
+  
+        mBuffer.Seek(byteOffset);
+        mBuffer.PutUint16LE(data);
+
+        mLogger.Debug() << __FUNCTION__ << std::hex << 
+            " " << byteOffset << " " << bitOffset 
+            << " original[" << +originalData << "] new[" << +data  <<"]\n";
+    }
+
+    void SetEventFlag(unsigned eventPtr, unsigned value)
+    {
+        if (eventPtr >= 0xdac0)
+        {
+            const auto [byteOffset, bitOffset] = CalculateComplexEventOffset(eventPtr);
+            SetBitValueAt(byteOffset, bitOffset, value);
+        }
+        else
+        {
+            const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
+            SetBitValueAt(byteOffset, bitOffset, value);
+        }
+    }
+
+    void SetEventDialogAction(const SetFlag& setFlag)
+    {
+        if (setFlag.mEventPointer >= 0xdac0
+            && setFlag.mEventPointer % 10 == 0)
+        {
+            const auto offset = std::get<0>(CalculateComplexEventOffset(setFlag.mEventPointer));
+            mBuffer.Seek(offset);
+            const auto data = mBuffer.GetUint8();
+            const auto newData = ((data & setFlag.mEventMask) 
+                | setFlag.mEventData)
+                ^ setFlag.mAlwaysZero;
+            mBuffer.Seek(offset);
+
+            mLogger.Debug() << __FUNCTION__ << std::hex << 
+                " " << setFlag << " offset: " << offset 
+                << " data[" << +data << "] new[" << +newData <<"]\n";
+            mBuffer.PutUint8(newData);
+        }
+        else
+        {
+            if (setFlag.mEventPointer != 0)
+                SetEventFlag(setFlag.mEventPointer, setFlag.mEventValue);
+
+            // TREAT THIS AS UINT16_T !!! EVENT MASK + EVENT DATA
+            if (setFlag.mEventMask != 0)
+                SetEventFlag(setFlag.mEventMask, setFlag.mEventValue);
+
+            if (setFlag.mAlwaysZero != 0)
+                SetEventFlag(setFlag.mAlwaysZero, setFlag.mEventValue);
+        }
+    }
+
+    unsigned ReadBitValueAt(unsigned byteOffset, unsigned bitOffset) const
+    {
+        mBuffer.Seek(byteOffset);
+        const unsigned eventData = mBuffer.GetUint16LE();
+        const unsigned bitValue = eventData >> bitOffset;
+        mLogger.Debug() << __FUNCTION__ << std::hex << 
+            " " << byteOffset << " " << bitOffset 
+            << " [" << +bitValue << "]\n";
+        return bitValue;
+    }
+
+    unsigned ReadEvent(unsigned eventPtr) const
+    {
+        if (eventPtr >= 0xdac0)
+        {
+            const auto [byteOffset, bitOffset] = CalculateComplexEventOffset(eventPtr);
+            return ReadBitValueAt(byteOffset, bitOffset);
+        }
+        else
+        {
+            const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
+            return ReadBitValueAt(byteOffset, bitOffset);
+        }
+    }
+
+    bool ReadEventBool(unsigned eventPtr) const
+    {
+        return (ReadEvent(eventPtr) & 0x1) == 1;
+    }
+
+    bool ReadSkillSelected(unsigned character, unsigned skill) const
+    {
+        constexpr auto maxSkills = 0x11;
+        return ReadEventBool(
+            sSkillSelectedEventFlag
+            + (character * maxSkills)
+            + skill);
+    }
+
+    bool ReadSkillUnseenImprovement(unsigned character, unsigned skill) const
+    {
+        constexpr auto maxSkills = 0x11;
+        return ReadEventBool(
+            sSkillImprovementEventFlag
+            + (character * maxSkills)
+            + skill);
+    }
+
+    void ClearUnseenImprovements(unsigned character)
+    {
+        constexpr auto maxSkills = 0x11;
+        for (unsigned i = 0; i < maxSkills; i++)
+        {
+            const auto flag = 
+                sSkillImprovementEventFlag
+                + (character * maxSkills)
+                + i;
+
+            SetEventFlag(flag, 0);
+        }
+    }
+
+    // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
+    // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
+    bool CheckActive(
+        const Encounter::Encounter& encounter,
+        ZoneNumber zone)
+    {
+        const auto encounterIndex = encounter.GetIndex().mValue;
+        const bool alreadyEncountered = ReadEventBool(
+            CalculateUniqueEncounterStateFlagOffset(
+                zone,
+                encounter.GetTileIndex(),
+                encounterIndex));
+        const bool encounterFlag1450 = ReadEventBool(
+            CalculateRecentEncounterStateFlag(encounterIndex));
+        // event flag 1 - this flag must be set to encounter the event
+        const bool eventFlag1 = encounter.mSaveAddress != 0
+            ? (ReadEventBool(encounter.mSaveAddress) == 1)
+            : false;
+        // event flag 2 - this flag must _not_ be set to encounter this event
+        const bool eventFlag2 = encounter.mSaveAddress2 != 0
+            ? ReadEventBool(encounter.mSaveAddress2)
+            : false;
+        return !(alreadyEncountered
+            || encounterFlag1450
+            || eventFlag1
+            || eventFlag2);
+    }
+
+    void SetPostDialogEventFlags(const Encounter::Encounter& encounter)
+    {
+        constexpr auto zone = ZoneNumber{1};
+        const auto tileIndex = encounter.GetTileIndex();
+        const auto encounterIndex = encounter.GetIndex().mValue;
+
+        if (encounter.mSaveAddress3 != 0)
+        {
+            SetEventFlag(encounter.mSaveAddress3, 1);
+        }
+
+        // Unknown 3 flag is associated with events like the sleeping glade and 
+        // timirianya danger zone (effectively, always encounter this encounter)
+        if (encounter.mUnknown3 == 0)
+        {
+            // FIXME use actual values
+            if (encounter.mUnknown2 != 0) // Inhibit for this chapter
+            {
+                SetEventFlag(CalculateUniqueEncounterStateFlagOffset(
+                    zone, tileIndex, encounterIndex), 1);
+            }
+
+            // Inhibit for this tile
+            SetEventFlag(CalculateRecentEncounterStateFlag(encounterIndex), 1);
+        }
+
+    }
+    
+    // Background and Town
+    void SetPostGDSEventFlags(const Encounter::Encounter& encounter)
+    {
+        if (encounter.mSaveAddress3 != 0)
+            SetEventFlag(encounter.mSaveAddress3, 1);
+    }
+
+    // Used by Block, Disable, Enable, Sound, Zone
+    void SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter)
+    {
+        if (encounter.mSaveAddress3 != 0)
+        {
+            SetEventFlag(encounter.mSaveAddress3, 1);
+        }
+        // FIXME use actual values
+        if (encounter.mUnknown2 != 0)
+        {
+            SetEventFlag(CalculateUniqueEncounterStateFlagOffset(ZoneNumber{1}, 0, 0), 1);
+        }
+    }
+
+
+    // For each encounter in every zone there is a unique enabled/disabled flag.
+    // This is reset every time a new chapter is loaded (I think);
+    unsigned CalculateUniqueEncounterStateFlagOffset(
+        ZoneNumber zone, 
+        std::uint8_t tileIndex,
+        std::uint8_t encounterIndex)
+    {
+        constexpr auto encounterStateOffset = 0x190;
+        constexpr auto maxEncountersPerTile = 0xa;
+        const auto zoneOffset = (zone.mValue - 1) * encounterStateOffset;
+        const auto tileOffset = tileIndex * maxEncountersPerTile;
+        const auto offset = zoneOffset + tileOffset + encounterIndex;
+        return offset + encounterStateOffset;
+    }
+
+    // 1450 is "recently encountered this encounter"
+    // should be cleared when we move to a new tile
+    // (or it will inhibit the events of the new tile)
+    unsigned CalculateRecentEncounterStateFlag(
+        std::uint8_t encounterIndex)
+    {
+        // Refer readEncounterEventState1450 in IDA
+        // These get cleared when we load a new tile
+        constexpr auto offset = 0x1450;
+        return offset + encounterIndex;
+    }
+
+    bool ReadConversationItemClicked(unsigned eventPtr) const
+    {
+        return ReadEventBool(sConversationChoiceMarkedFlag + eventPtr);
+    }
+
+    void SetConversationItemClicked(unsigned eventPtr)
+    {
+        return SetEventFlag(sConversationChoiceMarkedFlag + eventPtr, 1);
+    }
+
+    bool CheckConversationOptionInhibited(unsigned eventPtr)
+    {
+        return ReadEventBool(sConversationOptionInhibitedOffset + eventPtr);
+    }
+
+    void ClearTileRecentEncounters()
+    {
+        for (unsigned i = 0; i < 10; i++)
+        {
+            SetEventFlag(CalculateRecentEncounterStateFlag(i), 0);
+        }
+    }
+
+    /* ************* LOAD Game STATE ***************** */
     Party LoadParty()
     {
         auto characters = LoadCharacters();
@@ -285,235 +568,6 @@ public:
 
         return active;
     }
-
-    bool ReadSkillSelected(unsigned character, unsigned skill) const
-    {
-        constexpr auto maxSkills = 0x11;
-        return ReadEvent(
-            sSkillSelectedEventFlag
-            + (character * maxSkills)
-            + skill);
-    }
-
-    bool ReadSkillUnseenImprovement(unsigned character, unsigned skill) const
-    {
-        constexpr auto maxSkills = 0x11;
-        return ReadEvent(
-            sSkillImprovementEventFlag
-            + (character * maxSkills)
-            + skill);
-    }
-
-    void ClearUnseenImprovements(unsigned character)
-    {
-        constexpr auto maxSkills = 0x11;
-        for (unsigned i = 0; i < maxSkills; i++)
-        {
-            const auto flag = 
-                sSkillImprovementEventFlag
-                + (character * maxSkills)
-                + i;
-
-            SetEventFlag(false, flag);
-        }
-    }
-
-    void WriteComplexEvent(unsigned eventPtr, std::uint8_t value) const
-    {
-        // Confirm that this is definintely equivalent to the below
-        const auto eventOffset = (0xffff & (0x2540 + eventPtr)) / 10;
-        mLogger.Info() << __FUNCTION__ << ": " << std::hex << eventPtr << " off: " << eventOffset << " " << value << "\n";
-        mBuffer.Seek(sGameComplexEventRecordOffset + eventOffset);
-        mBuffer.PutUint8(value);
-        mLogger.Info() << "Wrote: " << ReadComplexEvent(eventPtr) << "\n";
-    }
-
-    unsigned ReadComplexEvent(unsigned eventPtr) const
-    {
-        // the left over of divisor maybe is nibble?
-        constexpr auto offset = -0xad7;
-        constexpr auto divider = 10;
-        const auto eventOffset = (eventPtr / divider) + offset;
-        mBuffer.Seek(eventOffset);
-        const auto result = mBuffer.GetUint8();
-        mLogger.Info() << __FUNCTION__ << ": " << std::hex << eventPtr << " off: " << eventOffset << " READ[" << +result << "]\n";
-        return result;
-    }
-
-    // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
-    // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
-    bool CheckActive(
-        const Encounter::Encounter& encounter,
-        ZoneNumber zone)
-    {
-        const auto encounterIndex = encounter.GetIndex().mValue;
-        const bool alreadyEncountered = ReadEvent(
-            CalculateUniqueEncounterStateFlagOffset(
-                zone,
-                encounter.GetTileIndex(),
-                encounterIndex));
-        const bool encounterFlag1450 = ReadEvent(
-            CalculateRecentEncounterStateFlag(encounterIndex));
-        // event flag 1 - this flag must be set to encounter the event
-        const bool eventFlag1 = encounter.mSaveAddress != 0
-            ? (ReadEvent(encounter.mSaveAddress) == 1)
-            : false;
-        // event flag 2 - this flag must _not_ be set to encounter this event
-        const bool eventFlag2 = encounter.mSaveAddress2 != 0
-            ? ReadEvent(encounter.mSaveAddress2)
-            : false;
-        return !(alreadyEncountered
-            || encounterFlag1450
-            || eventFlag1
-            || eventFlag2);
-    }
-
-    void SetPostDialogEventFlags(const Encounter::Encounter& encounter)
-    {
-        constexpr auto zone = ZoneNumber{1};
-        const auto tileIndex = encounter.GetTileIndex();
-        const auto encounterIndex = encounter.GetIndex().mValue;
-
-        if (encounter.mSaveAddress3 != 0)
-        {
-            SetEventFlag(true, encounter.mSaveAddress3);
-        }
-
-        // Unknown 3 flag is associated with events like the sleeping glade and 
-        // timirianya danger zone (effectively, always encounter this encounter)
-        if (encounter.mUnknown3 == 0)
-        {
-            // FIXME use actual values
-            if (encounter.mUnknown2 != 0) // Inhibit for this chapter
-            {
-                SetEventFlag(true, CalculateUniqueEncounterStateFlagOffset(
-                    zone, tileIndex, encounterIndex));
-            }
-
-            // Inhibit for this tile
-            SetEventFlag(true, CalculateRecentEncounterStateFlag(encounterIndex));
-        }
-
-    }
-    
-    // Background and Town
-    void SetPostGDSEventFlags(const Encounter::Encounter& encounter)
-    {
-        if (encounter.mSaveAddress3 != 0)
-            SetEventFlag(true, encounter.mSaveAddress3);
-    }
-
-    // Used by Block, Disable, Enable, Sound, Zone
-    void SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter)
-    {
-        if (encounter.mSaveAddress3 != 0)
-        {
-            SetEventFlag(true, encounter.mSaveAddress3);
-        }
-        // FIXME use actual values
-        if (encounter.mUnknown2 != 0)
-        {
-            SetEventFlag(true, CalculateUniqueEncounterStateFlagOffset(ZoneNumber{1}, 0, 0));
-        }
-    }
-
-
-    // For each encounter in every zone there is a unique enabled/disabled flag.
-    // This is reset every time a new chapter is loaded (I think);
-    unsigned CalculateUniqueEncounterStateFlagOffset(
-        ZoneNumber zone, 
-        std::uint8_t tileIndex,
-        std::uint8_t encounterIndex)
-    {
-        constexpr auto encounterStateOffset = 0x190;
-        constexpr auto maxEncountersPerTile = 0xa;
-        const auto zoneOffset = (zone.mValue - 1) * encounterStateOffset;
-        const auto tileOffset = tileIndex * maxEncountersPerTile;
-        const auto offset = zoneOffset + tileOffset + encounterIndex;
-        return offset + encounterStateOffset;
-    }
-
-    // 1450 is "recently encountered this encounter"
-    // should be cleared when we move to a new tile
-    // (or it will inhibit the events of the new tile)
-    unsigned CalculateRecentEncounterStateFlag(
-        std::uint8_t encounterIndex)
-    {
-        // Refer readEncounterEventState1450 in IDA
-        // These get cleared when we load a new tile
-        constexpr auto offset = 0x1450;
-        return offset + encounterIndex;
-    }
-
-    bool ReadConversationItemClicked(unsigned eventPtr) const
-    {
-        return ReadEvent(sConversationChoiceMarkedOffset + eventPtr);
-    }
-
-    bool CheckConversationOptionInhibited(unsigned eventPtr)
-    {
-        return ReadEvent(sConversationOptionInhibitedOffset + eventPtr);
-    }
-
-    std::pair<unsigned, unsigned> CalculateEventOffset(unsigned eventPtr) const
-    {
-        const unsigned startOffset = sGameEventRecordOffset;
-        const unsigned bitOffset = eventPtr & 0xf;
-        const unsigned byteOffset = (0xfffe & (eventPtr >> 3)) + startOffset;
-        return std::make_pair(byteOffset, bitOffset);
-    }
-
-    void ClearTileRecentEncounters()
-    {
-        for (unsigned i = 0; i < 10; i++)
-        {
-            SetEventFlag(false, CalculateRecentEncounterStateFlag(i));
-        }
-    }
-
-    void SetEventFlag(bool value, unsigned eventPtr)
-    {
-        const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
-        mBuffer.Seek(byteOffset);
-        const unsigned originalData = mBuffer.GetUint16LE();
-        mBuffer.Seek(byteOffset);
-
-        unsigned newData = originalData;
-        if (value)
-            newData = newData | (1 << bitOffset);
-        else
-            newData = newData & (~(1 << bitOffset));
-
-        mLogger.Debug() << "Set " << std::hex << eventPtr << " to: " << value 
-            << " " << byteOffset << "," << bitOffset << " orig: " << originalData 
-            << " new: " << newData << "\n";
-        mBuffer.PutUint16LE(newData);
-    }
-
-    unsigned ReadEvent(unsigned eventPtr) const
-    {
-        const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
-        mBuffer.Seek(byteOffset);
-        const unsigned eventData = mBuffer.GetUint16LE();
-        const unsigned bitValue = (eventData >> bitOffset) & 0x1;
-        mLogger.Spam() << "Ptr: " << std::hex << eventPtr << " loc: "
-            << byteOffset << " val: " << eventData << " bitVal: "
-            << bitValue << std::dec << std::endl;
-
-        return bitValue;
-    }
-
-    unsigned ReadEventWord(unsigned eventPtr) const
-    {
-        const auto [byteOffset, bitOffset] = CalculateEventOffset(eventPtr);
-        mBuffer.Seek(byteOffset);
-        unsigned eventData = mBuffer.GetUint32LE();
-        mLogger.Spam() << "Ptr: " << std::hex << eventPtr << " loc: "
-            << byteOffset << " val: " << eventData << std::dec << "\n";
-
-        return eventData;
-    }
-
     Location LoadLocation()
     {
         mBuffer.Seek(sLocationOffset);

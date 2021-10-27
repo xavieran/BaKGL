@@ -277,7 +277,7 @@ public:
             if (std::holds_alternative<BAK::ConversationChoice>(c.mChoice))
             {
                 const auto choice = std::get<BAK::ConversationChoice>(c.mChoice);
-                if (mGameState.GetEventState(choice.mEventPointer)
+                if (mGameState.GetEventStateBool(choice.mEventPointer)
                     && !mGameState.CheckInhibited(choice))
                 {
                     const auto fontStyle = mGameState.CheckDiscussed(choice)
