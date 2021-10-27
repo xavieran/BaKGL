@@ -207,6 +207,8 @@ public:
 
     void SetEventFlag(unsigned eventPtr, unsigned value)
     {
+        mLogger.Debug() << __FUNCTION__ << " " << std::hex << eventPtr 
+            << " to: " << value << std::dec << "\n";
         if (eventPtr >= 0xdac0)
         {
             const auto [byteOffset, bitOffset] = CalculateComplexEventOffset(eventPtr);

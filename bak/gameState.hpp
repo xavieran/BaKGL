@@ -249,15 +249,27 @@ public:
 
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const
     {
+        // RunDialog addr: 23d1
         const auto state = GetEventState(choice.mEventPointer);
         mLogger.Debug() << __FUNCTION__ << "Choice: " << choice 
             << " S: [" << std::hex << +state << std::dec << "]\n";
 
-        const auto chapterFlag = GetChapter() == 9
-            ? 0x80
-            : 1 << (GetChapter() - 1);
-        const auto chapterMaskSatisfied
-            = (chapterFlag & choice.mChapterMask) != 0;
+        // Probably want to put this logic somewhere else...
+        // if eventPtr % 10 != 0
+        if (mGameData 
+            && std::get<1>(mGameData->CalculateComplexEventOffset(choice.mEventPointer))
+                != 0)
+        {
+            return (state >= choice.mXorMask) && (state <= choice.mMustEqualExpected);
+        }
+
+        // Need to double check this...
+        //const auto chapterFlag = GetChapter() == 9
+        //    ? 0x80
+        //    : 1 << (GetChapter() - 1);
+        //const auto chapterMaskSatisfied
+        //    = (chapterFlag & choice.mChapterMask) != 0;
+        const auto chapterMaskSatisfied = true;
 
         if (choice.mMustEqualExpected)
         {
@@ -336,6 +348,12 @@ public:
     {
         if (mGameData)
             mGameData->SetConversationItemClicked(choice.mEventPointer);
+    }
+
+    void SetEventValue(unsigned eventPtr, unsigned value)
+    {
+        if (mGameData)
+            mGameData->SetEventFlag(eventPtr, value);
     }
 
     void SetEventState(const SetFlag& setFlag)

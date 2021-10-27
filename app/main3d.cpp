@@ -63,6 +63,8 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("DialogStore");
+    Logging::LogState::Disable("Camera");
+    Logging::LogState::Disable("Compass");
 
 
     BAK::ZoneLabel zoneLabel{1};

@@ -33,7 +33,35 @@ struct Console : public std::streambuf
     }
 
     // Console commands
-    //
+    void SetEventState(const std::vector<std::string>& words)
+    {
+        if (words.size() < 2)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: SET_EVENT_STATE PTR VALUE (%s)", ss.str().c_str());
+            return;
+        }
+
+        std::stringstream ss{};
+        ss << words[1];
+        unsigned ptr;
+        ss >> std::setbase(0) >> ptr;
+        ss = std::stringstream{};
+        ss << words[2];
+        unsigned value;
+        ss >> std::setbase(0) >> value;
+
+        if (!mGameState)
+        {
+            AddLog("[error] SET_EVENT_STATE FAILED No GameState Connected");
+            return;
+        }
+
+        mGameState->SetEventValue(ptr, value);
+    }
+
     void RemoveItem(const std::vector<std::string>& words)
     {
         if (words.size() < 3)
@@ -195,6 +223,8 @@ struct Console : public std::streambuf
                 AddLog("- %s", mCommands[i]);
         });
 
+        mCommands.push_back("SET_EVENT_STATE");
+        mCommandActions.emplace_back([this](const auto& cmd){ SetEventState(cmd); });
         mCommands.push_back("REMOVE_ITEM");
         mCommandActions.emplace_back([this](const auto& cmd){ RemoveItem(cmd); });
         mCommands.push_back("GIVE_ITEM");
