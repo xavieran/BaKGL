@@ -31,9 +31,7 @@ public:
     static constexpr auto sYesIndex = 0x100;
     static constexpr auto sNoIndex  = 0x101;
 private:
-    static constexpr auto mCharacterNameOffset = 45;
-    static constexpr auto mDialogChoiceOffset = 98;
-    static constexpr auto mQueryChoiceOffset = 1;
+    static constexpr auto mCharacterNameOffset = 293;
 
     std::vector<std::string> mPartyMembers;
     std::vector<std::string> mKeywords;

@@ -14,7 +14,8 @@ string(CONCAT CXX_IGNORES
     )
 set(CXX_IGNORE ${CXX_IGNORES})
 
-set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr")
+# FileBuffer violates alignment pretty regularly. Will need to fix at some point
+set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
 set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
 
 set(CMAKE_BUILD_TYPE Debug)

@@ -67,6 +67,7 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("MeshObjectStore");
+    Logging::LogState::Disable("Gui::StaticTTM");
 
 
     BAK::ZoneLabel zoneLabel{1};
@@ -104,7 +105,7 @@ int main(int argc, char** argv)
 
     BAK::DialogStore dialogStore{};
 
-    auto guiScalar = 4.0f;
+    auto guiScalar = 5.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;

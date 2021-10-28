@@ -164,8 +164,14 @@ public:
 
     void SetContainer(BAK::IContainer* container)
     {
-        SetContainerTypeImage(0);
-        ASSERT(container);
+        ASSERT(container != nullptr);
+
+        if (   container->GetContainerType() == BAK::ContainerType::Shop
+            || container->GetContainerType() == BAK::ContainerType::Inn)
+            SetContainerTypeImage(7);
+        else
+            SetContainerTypeImage(0);
+
         mContainer = container;
         mContainerScreen.SetContainer(container);
         ShowContainer();
@@ -314,6 +320,11 @@ private:
             else
                 GetCharacter(*mSelectedCharacter)
                     .ApplyItemToSlot(item.GetItemIndex(), BAK::ItemType::Staff);
+        }
+        else
+        {
+            GetCharacter(*mSelectedCharacter)
+                .ApplyItemToSlot(item.GetItemIndex(), slot);
         }
 
         GetCharacter(*mSelectedCharacter).CheckPostConditions();
@@ -609,7 +620,7 @@ private:
             }
 
             // Handle the final column
-            if (majorColumn == 2 && minorColumn > 0)
+            if (majorColumn % 2 && minorColumn > 0)
             {
                 minorRow += 1;
                 minorColumn = 0;

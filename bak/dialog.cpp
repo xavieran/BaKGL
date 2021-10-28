@@ -1,5 +1,7 @@
 #include "bak/dialog.hpp"
 
+#include "com/assert.hpp"
+
 namespace BAK {
 
 Keywords::Keywords()
@@ -19,43 +21,46 @@ Keywords::Keywords()
     logger.Spam() << "Loading keywords" << "\n";
     logger.Spam() << "Length: " << length << "\n";
 
+    std::vector<unsigned> offsets{};
     unsigned i = 0;
     while (fb.Tell() != 0x2b8)
     {
-        logger.Spam() << "I: " << i << " " << std::hex << fb.GetUint16LE()
-            << std::dec << "\n";
+        const auto& offset = offsets.emplace_back(fb.GetUint16LE());
+        logger.Spam() << "I: " << i << " " 
+            << std::hex << offset << std::dec << "\n";
         i++;
     }
-    i = 0;
-    while (fb.GetBytesLeft() != 0)
+    std::vector<std::string> strings{};
+    for (auto offset : offsets)
     {
-        const auto keyword = fb.GetString();
+        fb.Seek(offset);
+        const auto& keyword = strings.emplace_back(fb.GetString());
         mKeywords.emplace_back(keyword);
-        logger.Spam() << "Str:" << i << " :: " << keyword << "\n";
-        i++;
+    }
+    for (unsigned i = 0; i < strings.size(); i ++)
+    {
+        logger.Spam() << "K: " << i << " : " << strings[i] << "\n";
     }
 }
 
 std::string_view Keywords::GetDialogChoice(unsigned i) const
 {
-    assert(i + mDialogChoiceOffset < mKeywords.size());
-    return mKeywords[i + mDialogChoiceOffset];
+    //ASSERT(i + mDialogChoiceOffset < mKeywords.size());
+    return mKeywords[i];//mKeywords[i + mDialogChoiceOffset];
 }
 
 std::string_view Keywords::GetQueryChoice(unsigned i) const
 {
-    const auto k = (i & 0xff) + mQueryChoiceOffset;
-    assert(k < mKeywords.size());
-    return mKeywords[k];
+    ASSERT(i < mKeywords.size());
+    return mKeywords[i];
 }
 
 std::string_view Keywords::GetNPCName(unsigned i) const
 {
-    assert(i + mCharacterNameOffset < mKeywords.size());
-    assert(i + mCharacterNameOffset < mDialogChoiceOffset);
+    ASSERT(i + mCharacterNameOffset < mKeywords.size());
     if (i < mPartyMembers.size())
     {
-        assert(i != 0);
+        ASSERT(i != 0);
         return mPartyMembers[i - 1];
     }
     return mKeywords[i + mCharacterNameOffset];
@@ -301,7 +306,7 @@ void DialogStore::Load()
             const auto [it, emplaced] = mDialogMap.emplace(
                 key,
                 val);
-            assert(emplaced);
+            ASSERT(emplaced);
             auto [checkF, checkV] = it->second;
             mLogger.Spam() << std::hex << "0x" << it->first 
                 << " -> 0x" << checkV << std::dec << "\n";

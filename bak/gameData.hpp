@@ -174,7 +174,7 @@ public:
             ? (source % 10) - 1
             : 0;
             
-        mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
+        mLogger.Spam() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
             << byteOffset + sGameComplexEventRecordOffset << ", " 
             << bitOffset << ")\n" << std::dec;
         return std::make_pair(
@@ -187,7 +187,7 @@ public:
         const unsigned startOffset = sGameEventRecordOffset;
         const unsigned bitOffset = eventPtr & 0xf;
         const unsigned byteOffset = (0xfffe & (eventPtr >> 3)) + startOffset;
-        mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
+        mLogger.Spam() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
             << byteOffset << ", " << bitOffset << ")\n" << std::dec;
         return std::make_pair(byteOffset, bitOffset);
     }
@@ -266,7 +266,7 @@ public:
         mBuffer.Seek(byteOffset);
         const unsigned eventData = mBuffer.GetUint16LE();
         const unsigned bitValue = eventData >> bitOffset;
-        mLogger.Debug() << __FUNCTION__ << std::hex << 
+        mLogger.Spam() << __FUNCTION__ << std::hex << 
             " " << byteOffset << " " << bitOffset 
             << " [" << +bitValue << "]\n";
         return bitValue;

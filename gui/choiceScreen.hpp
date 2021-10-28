@@ -5,6 +5,7 @@
 #include "bak/types.hpp"
 
 #include "com/algorithm.hpp"
+#include "com/assert.hpp"
 #include "com/visit.hpp"
 
 #include "gui/clickButton.hpp"
@@ -41,7 +42,7 @@ public:
         mFinished{std::move(finished)},
         mLogger{Logging::LogState::GetLogger("Gui::ChoiceScreen")}
     {
-        assert(mFinished);
+        ASSERT(mFinished);
         // there's never more than this many choices
         mButtons.reserve(mMaxChoices);
     }
@@ -53,7 +54,7 @@ public:
         ClearChildren();
         mButtons.clear();
 
-        assert(choices.size() <= mMaxChoices);
+        ASSERT(choices.size() <= mMaxChoices);
 
         auto pos = glm::vec2{0};
         const auto margin = 5;
@@ -84,7 +85,6 @@ public:
     void Choose(BAK::ChoiceIndex index)
     {
         std::invoke(mFinished, index);
-        mButtons.clear();
     }
 
 private:
