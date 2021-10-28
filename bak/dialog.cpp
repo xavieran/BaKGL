@@ -45,8 +45,8 @@ Keywords::Keywords()
 
 std::string_view Keywords::GetDialogChoice(unsigned i) const
 {
-    //ASSERT(i + mDialogChoiceOffset < mKeywords.size());
-    return mKeywords[i];//mKeywords[i + mDialogChoiceOffset];
+    ASSERT(i < mKeywords.size());
+    return mKeywords[i];
 }
 
 std::string_view Keywords::GetQueryChoice(unsigned i) const

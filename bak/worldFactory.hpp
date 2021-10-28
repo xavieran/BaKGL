@@ -12,7 +12,6 @@
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
 #include "xbak/ImageResource.h"
 #include "xbak/Palette.h"
 #include "xbak/ScreenResource.h"

@@ -18,22 +18,27 @@ ZoneTextureStore::ZoneTextureStore(
     while ( found )
     {
         auto spriteSlotLbl = zoneLabel.GetSpriteSlot(spriteSlot++);
-        found = FileManager::GetInstance()->ResourceExists(spriteSlotLbl);
-        if ( found )
+        try
         {
-            ImageResource sprites;
-            FileManager::GetInstance()->Load(&sprites, spriteSlotLbl);
+            auto fb = FileBufferFactory::CreateFileBuffer(spriteSlotLbl);
+            ImageResource sprites{};
+            sprites.Load(&fb);
             TextureFactory::AddToTextureStore(
                 mTextures,
                 sprites,
                 palette);
         }
+        catch (const std::exception&)
+        {
+            found = false;
+        }
     }
 
     mTerrainOffset = GetTextures().size();
 
-    ScreenResource terrain;
-    FileManager::GetInstance()->Load(&terrain, zoneLabel.GetTerrain());
+    ScreenResource terrain{};
+    auto fb = FileBufferFactory::CreateFileBuffer(zoneLabel.GetTerrain());
+    terrain.Load(&fb);
 
     TextureFactory::AddTerrainToTextureStore(
         mTextures,

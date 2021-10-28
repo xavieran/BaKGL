@@ -9,7 +9,6 @@
 #include "graphics/texture.hpp"
 
 #include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
 #include "xbak/ImageResource.h"
 #include "xbak/ScreenResource.h"
 
