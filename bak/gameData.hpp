@@ -143,20 +143,20 @@ public:
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         //mLogger.Info() << mParty << "\n";
         mLogger.Info() << mTime << "\n";
-        LoadContainers(0x1);
-        LoadContainers(0x2);
-        LoadContainers(0x3);
-        LoadContainers(0x4);
-        LoadContainers(0x5);
-        LoadContainers(0x6);
-        LoadContainers(0x7);
-        LoadContainers(0x8);
-        LoadContainers(0x9);
-        LoadContainers(0xa);
-        LoadContainers(0xb);
-        LoadContainers(0xc);
-        mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
-            << mBuffer.Tell() << std::dec << "\n";
+        //LoadContainers(0x1);
+        //LoadContainers(0x2);
+        //LoadContainers(0x3);
+        //LoadContainers(0x4);
+        //LoadContainers(0x5);
+        //LoadContainers(0x6);
+        //LoadContainers(0x7);
+        //LoadContainers(0x8);
+        //LoadContainers(0x9);
+        //LoadContainers(0xa);
+        //LoadContainers(0xb);
+        //LoadContainers(0xc);
+        //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
+        //    << mBuffer.Tell() << std::dec << "\n";
         LoadShops();
         //LoadCombatEntityLists();
         //LoadCombatInventories(

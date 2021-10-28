@@ -17,6 +17,8 @@ set(CXX_IGNORE ${CXX_IGNORES})
 # FileBuffer violates alignment pretty regularly. Will need to fix at some point
 set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
 set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
+#set(CXX_USAN "")
+#set(CXX_ASAN "")
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
