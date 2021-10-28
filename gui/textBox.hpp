@@ -4,7 +4,6 @@
 
 #include "com/logger.hpp"
 
-#include "graphics/IGuiElement.hpp"
 #include "graphics/glm.hpp"
 #include "graphics/sprites.hpp"
 

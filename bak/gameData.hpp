@@ -75,6 +75,11 @@ public:
   * Combat Stats #3 0x9268 (bbe0)? 
   */
 
+    // Offset refers to the raw offset in the save file
+    // "Flag" refers to the flag used in the code that is 
+    // processed by "CalculateEventOffset" or "CalculateComplexEventOffset"
+    // to generate a raw offset
+    
     static constexpr auto sCharacterCount = 6;
     static constexpr auto sChapterOffset = 0x5a; // -> 5c
     static constexpr auto sGoldOffset = 0x66; // -> 6a
@@ -91,7 +96,7 @@ public:
     static constexpr auto sGameComplexEventRecordOffset = 0xb09; // -> 0xadc
 
     static constexpr auto sConversationChoiceMarkedFlag = 0x1d4c;
-    static constexpr auto sConversationOptionInhibitedOffset = 0x1a2c;
+    static constexpr auto sConversationOptionInhibitedFlag = 0x1a2c;
     // Based on disassembly this may be the state of doors (open/closed)
     static constexpr auto sDoorFlag = 0x1b58;
 
@@ -221,6 +226,9 @@ public:
         }
     }
 
+    void SetEventFlagTrue (unsigned eventPtr) { SetEventFlag(eventPtr, 1); }
+    void SetEventFlagFalse(unsigned eventPtr) { SetEventFlag(eventPtr, 0); }
+
     void SetEventDialogAction(const SetFlag& setFlag)
     {
         if (setFlag.mEventPointer >= 0xdac0
@@ -311,7 +319,7 @@ public:
                 + (character * maxSkills)
                 + i;
 
-            SetEventFlag(flag, 0);
+            SetEventFlagFalse(flag);
         }
     }
 
@@ -351,7 +359,7 @@ public:
 
         if (encounter.mSaveAddress3 != 0)
         {
-            SetEventFlag(encounter.mSaveAddress3, 1);
+            SetEventFlagTrue(encounter.mSaveAddress3);
         }
 
         // Unknown 3 flag is associated with events like the sleeping glade and 
@@ -361,12 +369,12 @@ public:
             // FIXME use actual values
             if (encounter.mUnknown2 != 0) // Inhibit for this chapter
             {
-                SetEventFlag(CalculateUniqueEncounterStateFlagOffset(
-                    zone, tileIndex, encounterIndex), 1);
+                SetEventFlagTrue(CalculateUniqueEncounterStateFlagOffset(
+                    zone, tileIndex, encounterIndex));
             }
 
             // Inhibit for this tile
-            SetEventFlag(CalculateRecentEncounterStateFlag(encounterIndex), 1);
+            SetEventFlagTrue(CalculateRecentEncounterStateFlag(encounterIndex));
         }
 
     }
@@ -375,20 +383,26 @@ public:
     void SetPostGDSEventFlags(const Encounter::Encounter& encounter)
     {
         if (encounter.mSaveAddress3 != 0)
-            SetEventFlag(encounter.mSaveAddress3, 1);
+            SetEventFlagTrue(encounter.mSaveAddress3);
     }
 
     // Used by Block, Disable, Enable, Sound, Zone
-    void SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter)
+    void SetPostEnableOrDisableEventFlags(
+        const Encounter::Encounter& encounter,
+        ZoneNumber zone)
     {
         if (encounter.mSaveAddress3 != 0)
         {
-            SetEventFlag(encounter.mSaveAddress3, 1);
+            SetEventFlagTrue(encounter.mSaveAddress3);
         }
         // FIXME use actual values
         if (encounter.mUnknown2 != 0)
         {
-            SetEventFlag(CalculateUniqueEncounterStateFlagOffset(ZoneNumber{1}, 0, 0), 1);
+            SetEventFlagTrue(
+                CalculateUniqueEncounterStateFlagOffset(
+                    zone,
+                    encounter.GetTileIndex(),
+                    encounter.GetIndex().mValue));
         }
     }
 
@@ -427,19 +441,19 @@ public:
 
     void SetConversationItemClicked(unsigned eventPtr)
     {
-        return SetEventFlag(sConversationChoiceMarkedFlag + eventPtr, 1);
+        return SetEventFlagTrue(sConversationChoiceMarkedFlag + eventPtr);
     }
 
     bool CheckConversationOptionInhibited(unsigned eventPtr)
     {
-        return ReadEventBool(sConversationOptionInhibitedOffset + eventPtr);
+        return ReadEventBool(sConversationOptionInhibitedFlag + eventPtr);
     }
 
     void ClearTileRecentEncounters()
     {
         for (unsigned i = 0; i < 10; i++)
         {
-            SetEventFlag(CalculateRecentEncounterStateFlag(i), 0);
+            SetEventFlagFalse(CalculateRecentEncounterStateFlag(i));
         }
     }
 

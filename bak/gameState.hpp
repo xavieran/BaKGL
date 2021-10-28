@@ -146,11 +146,16 @@ public:
     {
         if (actor == 0xff)
         {
-            const auto charIndex = GetParty().NextActiveCharacter(ActiveCharIndex{0});
-            const auto& character = GetParty().GetCharacter(charIndex);
-            mLogger.Debug() << "FF: " << charIndex << " " << character.mCharacterIndex.mValue << "\n";
-                
-            return character.mCharacterIndex.mValue + 1;
+            if (!mDialogCharacter)
+            {
+                const auto& character = GetParty().GetCharacter(ActiveCharIndex{0});
+                return character.mCharacterIndex.mValue + 1;
+            }
+            else
+            {
+                const auto& character = GetParty().GetCharacter(*mDialogCharacter);
+                return character.mCharacterIndex.mValue + 1;
+            }
         }
         else if (actor == 0xf0)
         {
@@ -414,6 +419,8 @@ public:
         assert(zone.mValue < 13);
         return mContainers[zone.mValue - 1];
     }
+
+    std::optional<CharIndex> mDialogCharacter;
 
     Character mPartyLeader;
     Character mPartyFollower;

@@ -2,7 +2,6 @@
 
 #include "bak/textureFactory.hpp"
 
-#include "graphics/IGuiElement.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 

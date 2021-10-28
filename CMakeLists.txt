@@ -14,10 +14,11 @@ string(CONCAT CXX_IGNORES
     )
 set(CXX_IGNORE ${CXX_IGNORES})
 
+set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr")
 set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
 
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_ASAN} ${CXX_IGNORE}")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)
 
 set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")

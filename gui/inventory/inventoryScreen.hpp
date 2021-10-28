@@ -138,6 +138,7 @@ public:
         mSelectedCharacter{},
         mDisplayContainer{false},
         mContainer{nullptr},
+        mNeedRefresh{false},
         mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
     {
         mCharacters.reserve(3);
