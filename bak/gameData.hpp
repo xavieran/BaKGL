@@ -143,20 +143,20 @@ public:
         mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
         //mLogger.Info() << mParty << "\n";
         mLogger.Info() << mTime << "\n";
-        //LoadContainers(0x1);
-        //LoadContainers(0x2);
-        //LoadContainers(0x3);
-        //LoadContainers(0x4);
-        //LoadContainers(0x5);
-        //LoadContainers(0x6);
-        //LoadContainers(0x7);
-        //LoadContainers(0x8);
-        //LoadContainers(0x9);
-        //LoadContainers(0xa);
-        //LoadContainers(0xb);
-        //LoadContainers(0xc);
-        //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
-        //    << mBuffer.Tell() << std::dec << "\n";
+        LoadContainers(0x1);
+        LoadContainers(0x2);
+        LoadContainers(0x3);
+        LoadContainers(0x4);
+        LoadContainers(0x5);
+        LoadContainers(0x6);
+        LoadContainers(0x7);
+        LoadContainers(0x8);
+        LoadContainers(0x9);
+        LoadContainers(0xa);
+        LoadContainers(0xb);
+        LoadContainers(0xc);
+        mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
+            << mBuffer.Tell() << std::dec << "\n";
         LoadShops();
         //LoadCombatEntityLists();
         //LoadCombatInventories(
@@ -665,33 +665,34 @@ public:
 
         for (unsigned i = 0; i < sShopsCount; i++)
         {
-            auto tileX = mBuffer.GetUint8();
-            auto tileY = mBuffer.GetUint8();
-            ASSERT(mBuffer.GetUint16LE() == 0);
+            const auto header = ContainerHeader{
+                ContainerGDSLocationTag{},
+                mBuffer};
+            //auto tileX = mBuffer.GetUint8();
+            //auto tileY = mBuffer.GetUint8();
+            //ASSERT(mBuffer.GetUint16LE() == 0);
 
-            const unsigned gdsPart1 = mBuffer.GetUint32LE();
-            const unsigned gdsPart2 = mBuffer.GetUint32LE();
-            const unsigned shopType = mBuffer.GetUint8();
-            const unsigned itemCount = mBuffer.GetUint8();
-            const unsigned capacity = mBuffer.GetUint8();
-            const auto containerType = static_cast<ContainerType>(mBuffer.GetUint8());
-            mLogger.Debug() << "Shop #: " << i << "\n";
-            mLogger.Debug() << "Tile?: (" << +tileX << ", " << +tileY 
-                << ") Gds (" << gdsPart1 << ", " << gdsPart2 << ")\n Tp: " << +shopType 
-                << " items: " << +itemCount << " cap: " << +capacity << " displayTp?: " << ToString(containerType) << "\n";
-            auto inventory = Inventory{capacity, LoadItems(itemCount, capacity)};
+            //const unsigned gdsPart1 = mBuffer.GetUint32LE();
+            //const unsigned gdsPart2 = mBuffer.GetUint32LE();
+            //const unsigned shopType = mBuffer.GetUint8();
+            //const unsigned itemCount = mBuffer.GetUint8();
+            //const unsigned capacity = mBuffer.GetUint8();
+            //const auto containerType = static_cast<ContainerType>(mBuffer.GetUint8());
+            mLogger.Debug() << "Shop #: " << i << " " << header << "\n";
+            auto inventory = Inventory{
+                header.mCapacity,
+                LoadItems(header.mItems, header.mCapacity)};
             // Shop data...
-            if (containerType == ContainerType::Shop)
+            if (static_cast<ContainerType>(header.mContainerType) == ContainerType::Shop)
                 mBuffer.DumpAndSkip(16);
+
             mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
             shops.emplace_back(
-                HotspotRef{
-                    static_cast<std::uint8_t>(gdsPart1),
-                    MakeHotspotChar(static_cast<char>(gdsPart2))},
-                shopType,
-                itemCount,
-                capacity,
-                containerType,
+                header.GetHotspotRef(),
+                header.mLocationType,
+                header.mItems,
+                header.mCapacity,
+                static_cast<ContainerType>(header.mContainerType),
                 std::move(inventory));
         }
 
@@ -766,29 +767,18 @@ public:
             logger.Info() << " Container: " << j
                 << " addr: " << std::hex << address << std::dec << std::endl;
 
-            auto dlogp = mBuffer.GetUint32LE(); // 0x4
-            //auto pair = glm::vec<2, std::uint16_t>{aLoc, bLoc};
-            // bLoc == C3 dbody
-            // bLoc == C4 hole dirt
-            // bLoc == C5 Bag
-            auto xLoc = mBuffer.GetUint32LE(); // 0x8
-            auto yLoc = mBuffer.GetUint32LE(); // 0xc (12)
-            auto location = glm::vec<2, unsigned>{xLoc, yLoc};
-            const auto chestNumber   = mBuffer.GetUint8(); // 0xd
-            const auto chestItems    = mBuffer.GetUint8(); // 0xe
-            const auto chestCapacity = mBuffer.GetUint8(); // 0xf
-            const auto containerType = static_cast<ContainerType>(mBuffer.GetUint8());
+            auto header = ContainerHeader(ContainerWorldLocationTag{}, mBuffer);
+            ASSERT(header.mLocationType == 6 
+                || header.mLocationType == 9
+                || header.mCapacity > 0);
+            const auto containerType = static_cast<ContainerType>(header.mContainerType);
 
-            assert(chestNumber == 6 || chestNumber == 9 || chestCapacity > 0);
-
-            logger.Info() << "DLog??: " << std::hex << dlogp << std::dec << " " 
-                << xLoc << "," << yLoc << " #" << +chestNumber << " items: " 
-                << +chestItems << " capacity: " << +chestCapacity 
+            logger.Info() << header
                 << " Tp: " << ToString(containerType) << std::endl;
             
             auto inventory = Inventory{
-                chestCapacity,
-                    LoadItems(chestItems, chestCapacity)};
+                header.mCapacity,
+                LoadItems(header.mItems, header.mCapacity)};
 
             mBuffer.DumpAndSkip(1);
             auto picklockSkill  = mBuffer.GetUint8();
@@ -835,10 +825,12 @@ public:
             }
             else if (containerType == ContainerType::FairyChest)
             {
-                if (chestNumber != 4 && chestCapacity == 5)
-                {
-                    mBuffer.DumpAndSkip(3 * 8 + 1);
-                }
+                //if (header.mLocationType != 4 
+                //    && header.mCapacity == 5)
+                //{
+                //    mLogger.Debug() << "Large Fairy Chest\n";
+                //    mBuffer.DumpAndSkip(3 * 8 + 1);
+                //}
                 mBuffer.DumpAndSkip(2);
             }
             else if (containerType == ContainerType::EventChest)
@@ -848,12 +840,12 @@ public:
 
             containers.emplace_back(
                 address,
-                chestNumber,
-                chestItems,
-                chestCapacity,
-                containerType,
+                header.mLocationType,
+                header.mItems,
+                header.mCapacity,
+                static_cast<ContainerType>(header.mContainerType),
                 dialog,
-                location,
+                header.GetPosition(),
                 std::move(inventory));
             logger.Info() << "Items: \n" << containers.back().GetInventory() << "\n";
 

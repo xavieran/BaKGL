@@ -2,7 +2,7 @@
 
 #include "bak/constants.hpp"
 #include "bak/dialog.hpp"
-#include "bak/gameState.hpp"
+//#include "bak/gameState.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/scene.hpp"
 #include "bak/types.hpp"

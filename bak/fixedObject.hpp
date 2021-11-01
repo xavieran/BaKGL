@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/container.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
@@ -10,6 +11,8 @@
 #include <glm/glm.hpp>
 
 #include <optional>
+#include <ostream>
+#include <variant>
 
 
 namespace BAK {
@@ -18,15 +21,13 @@ class FixedObject
 {
 public:
     FixedObject(
+        ContainerHeader header,
         Target dialogKey,
-        glm::vec<2, unsigned> location,
-        std::uint8_t type,
         std::optional<HotspotRef>,
         std::optional<glm::vec<2, unsigned>>);
 
+    ContainerHeader mHeader;
     Target mDialogKey;
-    glm::vec<2, unsigned> mLocation;
-    std::uint8_t mType;
     std::optional<HotspotRef> mHotspotRef;
     std::optional<GamePosition> mEncounterPos;
 };

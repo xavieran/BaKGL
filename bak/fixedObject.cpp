@@ -3,21 +3,21 @@
 namespace BAK {
 
 FixedObject::FixedObject(
+    ContainerHeader header,
     Target dialogKey,
-    glm::vec<2, unsigned> location,
-    std::uint8_t type,
     std::optional<HotspotRef> hotspotRef,
     std::optional<glm::vec<2, unsigned>> encounterOff)
 :
+    mHeader{header},
     mDialogKey{dialogKey},
-    mLocation{location},
-    mType{type},
     mHotspotRef{hotspotRef},
     mEncounterPos{std::invoke([&]() -> std::optional<GamePosition> {
         if (encounterOff)
         {
+            ASSERT(std::holds_alternative<ContainerWorldLocation>(header.mLocation));
+            const auto& loc = std::get<ContainerWorldLocation>(header.mLocation);
             return MakeGamePositionFromTileAndOffset(
-                GetTile(location),
+                GetTile(loc.mLocation),
                 *encounterOff);
         }
         else
@@ -29,10 +29,29 @@ FixedObject::FixedObject(
 
 std::ostream& operator<<(std::ostream& os, const FixedObject& obj)
 {
-    os << "FixedObject {" << obj.mDialogKey << " loc: " << obj.mLocation << " type: " << +obj.mType << " hs: " << obj.mHotspotRef << "}" << " encounterPos: " << obj.mEncounterPos << "}";
+    os << "FixedObject {" << obj.mHeader << " diag: " << obj.mDialogKey 
+        << " hs: " << obj.mHotspotRef << "}" 
+        << " encounterPos: " << obj.mEncounterPos << "}";
     return os;
 }
 
+ZoneNumber ContainerHeader::GetZone() const
+{
+    ASSERT(std::holds_alternative<ContainerWorldLocation>(mLocation));
+    return std::get<ContainerWorldLocation>(mLocation).mZone;
+}
+
+GamePosition ContainerHeader::GetPosition() const
+{
+    ASSERT(std::holds_alternative<ContainerWorldLocation>(mLocation));
+    return std::get<ContainerWorldLocation>(mLocation).mLocation;
+}
+
+HotspotRef ContainerHeader::GetHotspotRef() const
+{
+    ASSERT(std::holds_alternative<ContainerGDSLocation>(mLocation));
+    return std::get<ContainerGDSLocation>(mLocation).mLocation;
+}
 std::vector<FixedObject> LoadFixedObjects(
     unsigned targetZone)
 {
@@ -52,31 +71,25 @@ std::vector<FixedObject> LoadFixedObjects(
         for (unsigned i = 0; i < objects; i++)
         {
             logger.Debug() << "Obj no: " << i << std::endl;
-            auto zone = fb.GetUint8();
+            auto header = ContainerHeader(
+                ContainerWorldLocationTag{},
+                fb);
 
-            fb.DumpAndSkip(3);
-
-            auto x = fb.GetUint32LE();
-            auto y = fb.GetUint32LE();
-
-            fb.DumpAndSkip(3);
-
-            auto type = fb.GetUint8();
             std::uint32_t dialogKey = 0;
             std::optional<glm::vec<2, unsigned>> encounterOff{};
             auto hotspotRef = std::optional<HotspotRef>{};
 
-            if (type == 0x0)
+            if (header.mContainerType == 0x0)
             {
                 // No dialog
             }
-            else if (type == 0x2
-                || type == 0x21)
+            else if (header.mContainerType == 0x2
+                || header.mContainerType == 0x21)
             {
                 fb.DumpAndSkip(2);
-               dialogKey = fb.GetUint32LE();
+                dialogKey = fb.GetUint32LE();
             }
-            else if (type == 0x8)
+            else if (header.mContainerType == 0x8)
             {
                 fb.DumpAndSkip(2);
                 dialogKey = fb.GetUint32LE();
@@ -86,7 +99,7 @@ std::vector<FixedObject> LoadFixedObjects(
                 if (hasEncounter != 0)
                     encounterOff = glm::vec<2, unsigned>{xOff, yOff};
             }
-            else if (type == 0xa)
+            else if (header.mContainerType == 0xa)
             {
                 fb.DumpAndSkip(2);
                 dialogKey = fb.GetUint32LE();
@@ -108,17 +121,15 @@ std::vector<FixedObject> LoadFixedObjects(
                 ASSERT(false);
             }
 
-            logger.Debug() << "(" << x << "," << y << ") zone: " << +zone
-                << " tp: " << +type << " dialog: " << std::hex
+            logger.Debug() << header << " dialog: " << std::hex
                 << dialogKey << " hs: " << hotspotRef << std::dec 
                 << " encounterOff: " << encounterOff << std::endl;
 
-            if (targetZone == zone)
+            if (targetZone == header.GetZone().mValue)
             {
                 fixedObjects.emplace_back(
+                    header,
                     KeyTarget{dialogKey},
-                    glm::vec<2, unsigned>{x, y},
-                    type,
                     hotspotRef,
                     encounterOff);
             }
@@ -127,5 +138,7 @@ std::vector<FixedObject> LoadFixedObjects(
 
     return fixedObjects;
 }
+
+
 
 }

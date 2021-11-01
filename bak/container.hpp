@@ -2,10 +2,12 @@
 
 #include "bak/IContainer.hpp"
 
+#include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
 #include "bak/hotspotRef.hpp"
 #include "bak/inventory.hpp"
 #include "bak/inventoryItem.hpp"
+#include "bak/types.hpp"
 
 #include "graphics/glm.hpp"
 
@@ -14,6 +16,55 @@
 #include <ostream>
 
 namespace BAK {
+
+struct ContainerWorldLocationTag {};
+
+struct ContainerWorldLocation
+{
+    ZoneNumber mZone;
+    std::array<std::uint8_t, 3> mUnknown;
+    glm::vec<2, unsigned> mLocation;
+};
+
+std::ostream& operator<<(std::ostream&, const ContainerWorldLocation&);
+
+struct ContainerGDSLocationTag{};
+
+struct ContainerGDSLocation
+{
+    std::array<std::uint8_t, 4> mUnknown;
+    HotspotRef mLocation;
+};
+
+std::ostream& operator<<(std::ostream&, const ContainerGDSLocation&);
+
+using ContainerLocation = std::variant<
+    ContainerWorldLocation,
+    ContainerGDSLocation>;
+
+std::ostream& operator<<(std::ostream&, const ContainerLocation&);
+
+class ContainerHeader
+{
+public:
+    ContainerHeader(ContainerWorldLocationTag, FileBuffer& fb);
+    ContainerHeader(ContainerGDSLocationTag, FileBuffer& fb);
+
+    ZoneNumber GetZone() const;
+    GamePosition GetPosition() const;
+    HotspotRef GetHotspotRef() const;
+
+//private:
+    ContainerLocation mLocation;
+
+    std::uint8_t mLocationType; // no idea
+    std::uint8_t mItems;
+    std::uint8_t mCapacity;
+    std::uint8_t mContainerType;
+};
+
+std::ostream& operator<<(std::ostream&, const ContainerHeader&);
+
 
 class Container : public IContainer
 {

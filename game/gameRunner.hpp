@@ -309,8 +309,10 @@ public:
             else
             {
 
-                auto fit = std::find_if(mZoneData->mFixedObjects.begin(), mZoneData->mFixedObjects.end(),
-                    [&bakLocation](const auto& x){ return x.mLocation == bakLocation; });
+                auto fit = std::find_if(
+                    mZoneData->mFixedObjects.begin(),
+                    mZoneData->mFixedObjects.end(),
+                    [&bakLocation](const auto& x){ return x.mHeader.GetPosition() == bakLocation; });
                 if (fit != mZoneData->mFixedObjects.end())
                 {
                     if (mGuiManager.mScreenStack.size() == 1)
