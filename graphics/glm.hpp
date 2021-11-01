@@ -13,6 +13,12 @@ std::ostream& operator<<(std::ostream& os, const glm::vec<Size, T>& x)
 }
 
 template <typename S, typename T>
+vec<2, S> cast(const vec<2, T>& x)
+{
+    return static_cast<vec<2, S>>(x);
+}
+
+template <typename S, typename T>
 vec<3, S> cast(const vec<3, T>& x)
 {
     return static_cast<vec<3, S>>(x);

@@ -37,6 +37,9 @@ struct GamePositionAndHeading
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
 
+glm::vec<2, unsigned> GetTile(
+    glm::vec<2, unsigned> pos);
+
 GamePosition MakeGamePositionFromTileAndOffset(
     glm::vec<2, unsigned> tile,
     glm::vec<2, std::uint8_t> offset);

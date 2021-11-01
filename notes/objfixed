@@ -1,13 +1,24 @@
 00 00
 31 00 Objects in this zone
 
+
+01 0A 32 00 Unknown
+00 DD 09 00 X
+00 2F 0D 00 Y
+06 00 00 08 Type
+00 00 00 00 DIAG
+00 00 01 26 26
+
+
+
 01 Zone
 0A 32 00 Unknown
 00 DD 09 00 X
 00 2F 0D 00 Y
 06 00 00 Unknown
 08 Type
-00 00 00 00 00 00 01 26 26
+00 00 00 00 00 00
+01 26 26 Encounter offset...
 
 01 0A CD 00
 6F 63 0E 00

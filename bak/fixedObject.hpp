@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/types.hpp"
@@ -21,13 +22,13 @@ public:
         glm::vec<2, unsigned> location,
         std::uint8_t type,
         std::optional<HotspotRef>,
-        std::optional<TeleportIndex>);
+        std::optional<glm::vec<2, unsigned>>);
 
     Target mDialogKey;
     glm::vec<2, unsigned> mLocation;
     std::uint8_t mType;
     std::optional<HotspotRef> mHotspotRef;
-    std::optional<TeleportIndex> mTeleport;
+    std::optional<GamePosition> mEncounterPos;
 };
 
 

@@ -7,18 +7,29 @@ FixedObject::FixedObject(
     glm::vec<2, unsigned> location,
     std::uint8_t type,
     std::optional<HotspotRef> hotspotRef,
-    std::optional<TeleportIndex> teleport)
+    std::optional<glm::vec<2, unsigned>> encounterOff)
 :
     mDialogKey{dialogKey},
     mLocation{location},
     mType{type},
     mHotspotRef{hotspotRef},
-    mTeleport{teleport}
+    mEncounterPos{std::invoke([&]() -> std::optional<GamePosition> {
+        if (encounterOff)
+        {
+            return MakeGamePositionFromTileAndOffset(
+                GetTile(location),
+                *encounterOff);
+        }
+        else
+        {
+            return std::optional<GamePosition>{};
+        }
+    })}
 {}
 
 std::ostream& operator<<(std::ostream& os, const FixedObject& obj)
 {
-    os << "FixedObject {" << obj.mDialogKey << " loc: " << obj.mLocation << " type: " << +obj.mType << " hs: " << obj.mHotspotRef << "}";
+    os << "FixedObject {" << obj.mDialogKey << " loc: " << obj.mLocation << " type: " << +obj.mType << " hs: " << obj.mHotspotRef << "}" << " encounterPos: " << obj.mEncounterPos << "}";
     return os;
 }
 
@@ -52,7 +63,7 @@ std::vector<FixedObject> LoadFixedObjects(
 
             auto type = fb.GetUint8();
             std::uint32_t dialogKey = 0;
-            std::optional<TeleportIndex> teleport{};
+            std::optional<glm::vec<2, unsigned>> encounterOff{};
             auto hotspotRef = std::optional<HotspotRef>{};
 
             if (type == 0x0)
@@ -63,13 +74,17 @@ std::vector<FixedObject> LoadFixedObjects(
                 || type == 0x21)
             {
                 fb.DumpAndSkip(2);
-                dialogKey = fb.GetUint32LE();
+               dialogKey = fb.GetUint32LE();
             }
             else if (type == 0x8)
             {
-                teleport = TeleportIndex{fb.GetUint16LE()};
+                fb.DumpAndSkip(2);
                 dialogKey = fb.GetUint32LE();
-                fb.DumpAndSkip(3);
+                const auto hasEncounter = fb.GetUint8();
+                const auto xOff = fb.GetUint8();
+                const auto yOff = fb.GetUint8();
+                if (hasEncounter != 0)
+                    encounterOff = glm::vec<2, unsigned>{xOff, yOff};
             }
             else if (type == 0xa)
             {
@@ -82,13 +97,21 @@ std::vector<FixedObject> LoadFixedObjects(
                         fb.GetUint8() + 0x40)};
                 if (hotspotRef == HotspotRef{0, 0x40})
                     hotspotRef.reset();
-                fb.DumpAndSkip(3);
+                const auto hasEncounter = fb.GetUint8();
+                const auto xOff = fb.GetUint8();
+                const auto yOff = fb.GetUint8();
+                if (hasEncounter != 0)
+                    encounterOff = glm::vec<2, unsigned>{xOff, yOff};
+            }
+            else
+            {
+                ASSERT(false);
             }
 
             logger.Debug() << "(" << x << "," << y << ") zone: " << +zone
                 << " tp: " << +type << " dialog: " << std::hex
                 << dialogKey << " hs: " << hotspotRef << std::dec 
-                << " tele: " << teleport << std::endl;
+                << " encounterOff: " << encounterOff << std::endl;
 
             if (targetZone == zone)
             {
@@ -97,7 +120,7 @@ std::vector<FixedObject> LoadFixedObjects(
                     glm::vec<2, unsigned>{x, y},
                     type,
                     hotspotRef,
-                    teleport);
+                    encounterOff);
             }
         }
     }
