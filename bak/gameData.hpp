@@ -157,7 +157,7 @@ public:
         LoadContainers(0xc);
         mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
             << mBuffer.Tell() << std::dec << "\n";
-        LoadShops();
+        //LoadShops();
         //LoadCombatEntityLists();
         //LoadCombatInventories(
         //    sCombatInventoryOffset,
@@ -761,6 +761,7 @@ public:
             throw std::runtime_error("Zone not supported");
         }
 
+        mBuffer.Dump(8);
         for (unsigned j = 0; j < count; j++)
         {
             unsigned address = mBuffer.Tell();
@@ -780,62 +781,99 @@ public:
                 header.mCapacity,
                 LoadItems(header.mItems, header.mCapacity)};
 
-            mBuffer.DumpAndSkip(1);
-            auto picklockSkill  = mBuffer.GetUint8();
-            auto dialog = Target{KeyTarget{mBuffer.GetUint32LE()}};
-
-            logger.Info() << "Picklock: " << std::hex << +picklockSkill
-                << " dialog: " << dialog << std::dec << "\n";
-
-            if (   containerType != ContainerType::Gravestone
-                && containerType != ContainerType::Inn
-                && containerType != ContainerType::Combat)
-                dialog = KeyTarget{0};
+            auto picklockSkill  = 0;
+            auto dialog = KeyTarget{0};
 
             if (containerType == ContainerType::Shop
                 || containerType == ContainerType::Inn)
             {
+                mBuffer.DumpAndSkip(2);
+                dialog = KeyTarget{mBuffer.GetUint32LE()};
                 mBuffer.DumpAndSkip(16);
+            }
+            else if (containerType == ContainerType::Gravestone)
+            {
+                mBuffer.DumpAndSkip(2);
+                dialog = KeyTarget{mBuffer.GetUint32LE()};
             }
             else if (containerType == ContainerType::Bag)
             {
-                mBuffer.Skip(-6);
             }
-            else if (containerType == ContainerType::Unknown)
+            else if (containerType == ContainerType::CT1)
             {
-                mBuffer.Skip(-2);
+                const auto dontKnow = mBuffer.GetUint8();
+                const auto picklock = mBuffer.GetUint8();
+                const auto fairyChestIndex = mBuffer.GetUint8();
+                const auto damage = mBuffer.GetUint8();
+                mLogger.Debug() << "??: " << +dontKnow 
+                    << " picklock: " << +picklock << " damage: " << +damage 
+                    << " FairyChest: " <<  +fairyChestIndex << "\n";
             }
             else if (containerType == ContainerType::Building)
             {
-                const auto postDialog = Target{KeyTarget{mBuffer.GetUint32LE()}};
-                mLogger.Debug() << "PostLockDialog:  " << postDialog << "\n";
+                const auto dontKnow = mBuffer.GetUint8();
+                const auto picklock = mBuffer.GetUint8();
+                const auto fairyChestIndex = mBuffer.GetUint8();
+                const auto damage = mBuffer.GetUint8();
+                mLogger.Debug() << "??: " << +dontKnow 
+                    << " picklock: " << +picklock << " damage: " << +damage 
+                    << " FairyChest: " <<  +fairyChestIndex << "\n";
+
+                mBuffer.DumpAndSkip(2);
+                const auto postDialog = KeyTarget{mBuffer.GetUint32LE()};
+                mLogger.Debug() << "PostLockDialog:  " << Target{postDialog} << "\n";
                 dialog = postDialog;
-            }
-            else if (containerType == ContainerType::TimirianyaHut)
-            {
-                mBuffer.DumpAndSkip(3);
-            }
-            else if (containerType == ContainerType::Combat)
-            {
-                mBuffer.DumpAndSkip(9);
             }
             else if (containerType == ContainerType::Chest)
             {
-                mBuffer.Skip(-2);
+                const auto dontKnow = mBuffer.GetUint8();
+                const auto picklock = mBuffer.GetUint8();
+                const auto fairyChestIndex = mBuffer.GetUint8();
+                const auto damage = mBuffer.GetUint8();
+                mLogger.Debug() << "??: " << +dontKnow 
+                    << " picklock: " << +picklock << " damage: " << +damage 
+                    << " FairyChest: " <<  +fairyChestIndex << "\n";
             }
+            // Locked chest.....
             else if (containerType == ContainerType::FairyChest)
             {
-                //if (header.mLocationType != 4 
-                //    && header.mCapacity == 5)
-                //{
-                //    mLogger.Debug() << "Large Fairy Chest\n";
-                //    mBuffer.DumpAndSkip(3 * 8 + 1);
-                //}
-                mBuffer.DumpAndSkip(2);
+                const auto dontKnow = mBuffer.GetUint8();
+                const auto picklock = mBuffer.GetUint8();
+                const auto fairyChestIndex = mBuffer.GetUint8();
+                const auto damage = mBuffer.GetUint8();
+                mLogger.Debug() << "??: " << +dontKnow 
+                    << " picklock: " << +picklock << " damage: " << +damage 
+                    << " FairyChest: " <<  +fairyChestIndex << "\n";
+                dialog = KeyTarget{mBuffer.GetUint32LE()};
             }
             else if (containerType == ContainerType::EventChest)
             {
-                mBuffer.DumpAndSkip(11);
+                const auto dontKnow = mBuffer.GetUint8();
+                const auto picklock = mBuffer.GetUint8();
+                const auto fairyChestIndex = mBuffer.GetUint8();
+                const auto damage = mBuffer.GetUint8();
+                mLogger.Debug() << "??: " << +dontKnow 
+                    << " picklock: " << +picklock << " damage: " << +damage 
+                    << " FairyChest: " <<  +fairyChestIndex << "\n";
+
+                // ?? 2 bytes
+                // set this event flag 2 bytes
+                // 9 bytes
+                mBuffer.DumpAndSkip(13);
+            }
+            else if (containerType == ContainerType::TimirianyaHut)
+            {
+                mBuffer.DumpAndSkip(9);
+            }
+            else if (containerType == ContainerType::Combat)
+            {
+                mBuffer.DumpAndSkip(2);
+                dialog = KeyTarget{mBuffer.GetUint32LE()};
+                mBuffer.DumpAndSkip(9);
+            }
+            else
+            {
+                ASSERT(false);
             }
 
             containers.emplace_back(
@@ -847,7 +885,8 @@ public:
                 dialog,
                 header.GetPosition(),
                 std::move(inventory));
-            logger.Info() << "Items: \n" << containers.back().GetInventory() << "\n";
+            logger.Info() << containers.back() << "\n";
+            //logger.Info() << "Items: \n" << containers.back().GetInventory() << "\n";
 
 
             std::cout << std::endl;

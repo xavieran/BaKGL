@@ -65,6 +65,13 @@ public:
 
 std::ostream& operator<<(std::ostream&, const ContainerHeader&);
 
+struct Lock
+{
+    unsigned mLockFlag;
+    unsigned mRequiredPicklockSkill;
+    unsigned mFairyChestIndex;
+    unsigned mTrapDamage;
+};
 
 class Container : public IContainer
 {

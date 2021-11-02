@@ -7,6 +7,7 @@ std::string_view ToString(ContainerType type)
     switch (type)
     {
     case ContainerType::Bag: return "Bag";
+    case ContainerType::CT1: return "CT1";
     case ContainerType::Gravestone: return "Gravestone";
     case ContainerType::Building: return "Building";
     case ContainerType::Shop: return "Shop";
@@ -16,6 +17,9 @@ std::string_view ToString(ContainerType type)
     case ContainerType::Chest: return "Chest";
     case ContainerType::FairyChest: return "FairyChest";
     case ContainerType::EventChest: return "EventChest";
+    case ContainerType::Hole: return "Hole";
+    case ContainerType::Key: return "Key";
+    case ContainerType::Inv: return "Inv";
     default: return "UnknownContainerType";
     }
 }
