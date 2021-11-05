@@ -2,6 +2,7 @@
 
 #include "graphics/texture.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include <GL/glew.h>
@@ -42,7 +43,7 @@ VertexArrayObject::~VertexArrayObject()
 {
     if (mActive)
     {
-        Logging::LogDebug("GLBuffers") << "Deleting GL vertex array id" << mVertexArrayId << "\n";
+        Logging::LogDebug("GLBuffers") << "Deleting GL vertex array id: " << mVertexArrayId << "\n";
         glDeleteVertexArrays(1, &mVertexArrayId);
     }
 }
@@ -151,7 +152,8 @@ void GLBuffers::BindArraysGL()
 }
 
 
-TextureBuffer::TextureBuffer()
+TextureBuffer::TextureBuffer(
+    GLuint textureType)
 :
     mTextureBuffer{
         std::invoke([](){
@@ -159,12 +161,36 @@ TextureBuffer::TextureBuffer()
             glGenTextures(1, &texture);
             return texture;
         })
-    }
+    },
+    mTextureType{textureType},
+    mActive{true}
 {}
+
+TextureBuffer::TextureBuffer(TextureBuffer&& other)
+{
+    (*this) = std::move(other);
+}
+
+TextureBuffer& TextureBuffer::operator=(TextureBuffer&& other)
+{
+    other.mTextureBuffer = mTextureBuffer;
+    other.mTextureType = mTextureType;
+    other.mActive = false;
+    return *this;
+}
 
 TextureBuffer::~TextureBuffer()
 {
-    glDeleteTextures(1, &mTextureBuffer);
+    if (mActive)
+    {
+        Logging::LogDebug("GLBuffers") << "Deleting GL texture buffer id: " << mTextureBuffer<< "\n";
+        glDeleteTextures(1, &mTextureBuffer);
+    }
+}
+
+GLuint TextureBuffer::GetId() const
+{
+    return mTextureBuffer;
 }
 
 void TextureBuffer::BindGL() const
@@ -175,6 +201,19 @@ void TextureBuffer::BindGL() const
 void TextureBuffer::UnbindGL() const
 {
     glBindTexture(mTextureType, 0);
+}
+
+void TextureBuffer::MakeDepthBuffer(unsigned width, unsigned height)
+{
+    ASSERT(mTextureType == GL_TEXTURE_2D);
+    glActiveTexture(GL_TEXTURE0);
+    BindGL();
+    glTexImage2D(mTextureType, 0, GL_DEPTH_COMPONENT,
+        width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(mTextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(mTextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(mTextureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(mTextureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 void TextureBuffer::LoadTexturesGL(

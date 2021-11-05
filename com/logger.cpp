@@ -13,6 +13,7 @@ std::string_view LevelToString(LogLevel level)
     case LogLevel::Info:   return "INFO ";
     case LogLevel::Warn:   return "WARN ";
     case LogLevel::Error:  return "ERROR";
+    case LogLevel::Fatal: return "FATAL";
     case LogLevel::Always: return "ALWAYS";
     default: return "UNDEF";
     }

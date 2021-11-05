@@ -9,6 +9,7 @@ struct Light
 };
 
 in vec3 Position_worldspace;
+in vec3 Position_lightSpace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 lightDirection_cameraspace;
@@ -23,6 +24,24 @@ out vec4 color;
 
 uniform Light light;
 uniform sampler2DArray texture0;
+uniform sampler2D shadowMap;
+uniform mat4 lightSpaceMatrix;
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float shadow = (currentDepth - .001) > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 void main()
 {
@@ -68,10 +87,13 @@ void main()
     //  - Looking elsewhere -> < 1
     float cosAlpha = clamp(dot(E, R), 0, 1);
 
+    float shadow = ShadowCalculation(vec4(Position_lightSpace, 1));
+
     vec3 litColor
         = materialAmbientColor * light.mAmbientColor
-        + cosTheta * diffuseColor * light.mDiffuseColor
-        + pow(cosAlpha, 4) * materialSpecularColor * light.mSpecularColor;
+        + (1 - shadow) 
+            * (cosTheta * diffuseColor * light.mDiffuseColor
+            + pow(cosAlpha, 4) * materialSpecularColor * light.mSpecularColor);
     
     vec3 foggedColor = mix(fogColor, litColor, fogFactor);
 

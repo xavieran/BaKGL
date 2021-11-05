@@ -4,6 +4,7 @@ add_library(graphics
     glm.hpp
     glfw.hpp glfw.cpp
     guiTypes.hpp guiTypes.cpp
+    framebuffer.hpp framebuffer.cpp
     inputHandler.hpp inputHandler.cpp
     line.hpp
     meshObject.hpp meshObject.cpp

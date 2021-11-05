@@ -133,21 +133,29 @@ class TextureBuffer
 {
 public:
 
-    TextureBuffer();
+    TextureBuffer(GLenum textureType);
+    TextureBuffer(TextureBuffer&& other);
+    TextureBuffer& operator=(TextureBuffer&& other);
+    TextureBuffer(const TextureBuffer&) = delete;
+    TextureBuffer& operator=(const TextureBuffer&) = delete;
 
     ~TextureBuffer();
     
 
     void BindGL() const;
     void UnbindGL() const;
+    GLuint GetId() const;
     
+    void MakeDepthBuffer(unsigned width, unsigned height);
+
     void LoadTexturesGL(
         const std::vector<Texture>& textures,
         unsigned maxDim);
 
 //private:
     GLuint mTextureBuffer;
-    static constexpr GLuint mTextureType = GL_TEXTURE_2D_ARRAY;
+    GLenum mTextureType;
+    bool mActive;
 };
 
 }

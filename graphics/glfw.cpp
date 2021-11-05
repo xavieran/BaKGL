@@ -1,8 +1,39 @@
 #include "graphics/glfw.hpp"
 
 #include "com/logger.hpp"
+#include <stdexcept>
 
 namespace Graphics {
+
+void GLAPIENTRY OpenGlMessageCallback(
+    GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam)
+{
+    const auto GetLogLevel = [](GLenum level)
+    {
+        if (level == GL_DEBUG_SEVERITY_NOTIFICATION)
+            return Logging::LogLevel::Spam;
+        else if (level == GL_DEBUG_SEVERITY_LOW)
+            return Logging::LogLevel::Debug;
+        else if (level == GL_DEBUG_SEVERITY_MEDIUM)
+            return Logging::LogLevel::Info;
+        else
+            return Logging::LogLevel::Fatal;
+    };
+    const auto logLevel = GetLogLevel(severity);
+    static const auto& logger = Logging::LogState::GetLogger("OpenGL");
+    logger.Log(logLevel) << " type = 0x" << std::hex 
+        << type << " severity = 0x" << severity << std::dec 
+        << " message = " << message << "\n";
+
+    if (type == GL_DEBUG_TYPE_ERROR)
+        throw std::runtime_error("OpenGL Error");
+}
 
 std::unique_ptr<GLFWwindow, DestroyGlfwWindow> MakeGlfwWindow(
     unsigned height,
@@ -43,6 +74,9 @@ std::unique_ptr<GLFWwindow, DestroyGlfwWindow> MakeGlfwWindow(
         glfwTerminate();
         throw std::runtime_error("Failed to initialize GLEW");
     }
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(OpenGlMessageCallback, 0);
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);

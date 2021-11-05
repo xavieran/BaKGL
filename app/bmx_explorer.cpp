@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     //BAK::TextureFactory::AddToTextureStore(textures, "C11A2.BMX", "C11A.PAL");
     //BAK::TextureFactory::AddToTextureStore(textures, "C11B.BMX", "C11B.PAL");
 
-    Graphics::TextureBuffer textureBuffer{};
+    Graphics::TextureBuffer textureBuffer{GL_TEXTURE_2D_ARRAY};
     textureBuffer.LoadTexturesGL(
         textures.GetTextures(),
         textures.GetMaxDim());

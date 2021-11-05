@@ -18,6 +18,7 @@ enum class LogLevel
     Info,
     Warn,
     Error,
+    Fatal,
     Always
 };
 

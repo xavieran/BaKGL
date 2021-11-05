@@ -16,6 +16,7 @@ layout(location = 4) in float texBlendVec;
 
 // Output data ; will be interpolated for each fragment.
 out vec3 Position_worldspace;
+out vec3 Position_lightSpace;
 out vec3 Normal_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 lightDirection_cameraspace;
@@ -31,6 +32,7 @@ uniform mat4 V;
 uniform mat4 M;
 uniform Light light;
 uniform vec3 cameraPosition_worldspace;
+uniform mat4 lightSpaceMatrix;
 
 void main(){
 	// Output position of the vertex, in clip space : MVP * position
@@ -38,6 +40,7 @@ void main(){
 	
 	// Position of the vertex, in worldspace : M * position
 	Position_worldspace = (M * vec4(vertexPosition_modelspace, 1)).xyz;
+    Position_lightSpace = (lightSpaceMatrix * vec4(Position_worldspace, 1.0)).xyz;
 	
 	// Vector that goes from the vertex to the camera, in camera space.
 	// In camera space, the camera is at the origin (0,0,0).

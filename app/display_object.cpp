@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     buffers.BindArraysGL();
     glBindVertexArray(0);
 
-    Graphics::TextureBuffer textureBuffer{};
+    Graphics::TextureBuffer textureBuffer{GL_TEXTURE_2D_ARRAY};
     textureBuffer.LoadTexturesGL(textureStore.GetTextures(), textureStore.GetMaxDim());
 
     /*

@@ -108,13 +108,13 @@ public:
                                 250,
                                 item.GetLocation()});
                         mClickables.emplace(id, &item);
-                        mSystems->AddRenderable(
-                            Renderable{
-                                id,
-                                mZoneData->mObjects.GetObject("clickable"),
-                                item.GetLocation(),
-                                glm::vec3{1.0},
-                                glm::vec3{1.0}});
+                        //mSystems->AddRenderable(
+                        //    Renderable{
+                        //        id,
+                        //        mZoneData->mObjects.GetObject("clickable"),
+                        //        item.GetLocation(),
+                        //        glm::vec3{1.0},
+                        //        glm::vec3{1.0}});
 
                     }
                 }
@@ -127,13 +127,13 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                mSystems->AddRenderable(
-                    Renderable{
-                        id,
-                        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                        enc.GetLocation(),
-                        glm::vec3{0.0},
-                        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                //mSystems->AddRenderable(
+                //    Renderable{
+                //        id,
+                //        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                //        enc.GetLocation(),
+                //        glm::vec3{0.0},
+                //        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
 
                 mSystems->AddIntersectable(
                     Intersectable{

@@ -23,6 +23,7 @@ target_link_libraries(compile_shaders
 list(APPEND SHADERS
     directional
     gui
+    shadowMap
 )
 
 if(DEFINED ENV{DONT_COMPILE_SHADERS})

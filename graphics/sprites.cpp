@@ -13,7 +13,7 @@ Sprites::Sprites() noexcept
     mNonSpriteObjects{1},
     mVertexArray{},
     mBuffers{},
-    mTextureBuffer{},
+    mTextureBuffer{GL_TEXTURE_2D_ARRAY},
     mObjects{},
     mSpriteDimensions{}
 {
@@ -21,9 +21,12 @@ Sprites::Sprites() noexcept
 
 Sprites::Sprites(Sprites&& other) noexcept
 :
-    mNonSpriteObjects{other.mNonSpriteObjects}
+    mNonSpriteObjects{other.mNonSpriteObjects},
+    mVertexArray{std::move(other.mVertexArray)},
+    mBuffers{std::move(other.mBuffers)},
+    mTextureBuffer{std::move(other.mTextureBuffer)},
+    mObjects{std::move(other.mObjects)}
 {
-    (*this) = std::move(other);
 }
 
 Sprites& Sprites::operator=(Sprites&& other) noexcept
@@ -38,6 +41,9 @@ Sprites& Sprites::operator=(Sprites&& other) noexcept
 void Sprites::BindGL() const
 {
     mVertexArray.BindGL();
+
+    // FIXME!!! blergh...
+    glActiveTexture(GL_TEXTURE0);
     mTextureBuffer.BindGL();
 }
 

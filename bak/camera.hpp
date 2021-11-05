@@ -21,15 +21,45 @@ public:
         mTurnSpeed{turnSpeed},
         mDeltaTime{0},
         mPosition{0,1.4,0},
-        mProjectionMatrix{
-            glm::perspective(
-                glm::radians(45.0f),
-                static_cast<float>(width) / static_cast<float>(height),
-                1.0f,
-                4000.0f
-        )},
+        mProjectionMatrix{CalculatePerspectiveMatrix(width, height)},
         mAngle{3.14, 0}
     {}
+
+    glm::mat4 CalculateOrthoMatrix(unsigned width, unsigned height)
+    {
+        const auto w = static_cast<float>(width);
+        const auto h = static_cast<float>(height);
+        return glm::ortho(
+            -w,
+            h,
+            -w,
+            h,
+            1.0f,
+            1000.0f
+            //-1000.0f,
+            //1000.0f
+        );
+    }
+
+    glm::mat4 CalculatePerspectiveMatrix(unsigned width, unsigned height)
+    {
+        return glm::perspective(
+            glm::radians(45.0f),
+            static_cast<float>(width) / static_cast<float>(height),
+            1.0f,
+            4000.0f
+        );
+    }
+
+    void UseOrthoMatrix(unsigned width, unsigned height)
+    {
+        mProjectionMatrix = CalculateOrthoMatrix(width, height);
+    }
+
+    void UsePerspectiveMatrix(unsigned width, unsigned height)
+    {
+        mProjectionMatrix = CalculatePerspectiveMatrix(width, height);
+    }
 
     void SetGameLocation(const BAK::GamePositionAndHeading& location)
     {

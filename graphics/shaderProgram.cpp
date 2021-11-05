@@ -116,9 +116,11 @@ ShaderProgramHandle ShaderProgram::Compile()
         shaders.emplace_back(CompileShader(*mGeometryShader, GL_GEOMETRY_SHADER));
     shaders.emplace_back(CompileShader(mFragmentShader, GL_FRAGMENT_SHADER));
 
-    mLogger.Debug("Linking shader program");
+
 
     GLuint programId = glCreateProgram();
+    mLogger.Debug() << "Linking shader program: " << mVertexShader 
+        << " with Id: " << programId << "\n";
     for (auto shaderId : shaders)
         glAttachShader(programId, shaderId);
 

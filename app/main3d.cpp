@@ -20,6 +20,7 @@
 #include "graphics/glfw.hpp"
 #include "graphics/line.hpp"
 #include "graphics/meshObject.hpp"
+#include "graphics/framebuffer.hpp"
 #include "graphics/opengl.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/shaderProgram.hpp"
@@ -151,13 +152,20 @@ int main(int argc, char** argv)
 
     root.AddChildFront(&guiManager);
 
-    glm::vec3 lightPos = glm::vec3{0, 220, 0};
-    
+    constexpr auto SHADOW_DIM = 4096;
+    Camera lightCamera{
+        static_cast<unsigned>(SHADOW_DIM),
+        static_cast<unsigned>(SHADOW_DIM),
+        400 * 30.0f,
+        2.0f};
+    lightCamera.UseOrthoMatrix(200, 200);//width, height);
+
     Camera camera{
         static_cast<unsigned>(width),
         static_cast<unsigned>(height),
         400 * 30.0f,
         2.0f};
+    Camera* cameraPtr = &camera;
 
     guiManager.mMainView.SetHeading(camera.GetHeading());
     guiManager.mMainView.UpdatePartyMembers(gameState);
@@ -185,29 +193,49 @@ int main(int argc, char** argv)
     camera.SetPosition(startPosition);
     camera.SetAngle(startHeading);
 
+    Graphics::Light light{
+        glm::vec3{.2, -1, 0},
+        glm::vec3{.5, .5, .5},
+        glm::vec3{1,1,1},
+        glm::vec3{.2,.2,.2}
+    };
+
+    const auto UpdateLightCamera = [&]{
+        const auto lightPos = camera.GetNormalisedPosition() - 100.0f * glm::normalize(light.mDirection);
+        const auto diff = lightCamera.GetNormalisedPosition() - camera.GetNormalisedPosition();
+        const auto horizDistance = glm::sqrt((diff.x * diff.x) + (diff.z * diff.z));
+        const auto yAngle = -glm::atan(diff.y / horizDistance);
+        const auto xAngle = glm::atan(diff.x, diff.z) - ((180.0f / 360.0f) * (2 * 3.141592)) ;
+
+        lightCamera.SetAngle(glm::vec2{xAngle, yAngle});
+        lightCamera.SetPosition(lightPos * BAK::gWorldScale);
+    };
 
     Graphics::InputHandler inputHandler{};
-    inputHandler.Bind(GLFW_KEY_UP, [&]{ camera.StrafeForward(); });
-    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ camera.StrafeBackward(); });
-    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ camera.StrafeLeft(); });
-    inputHandler.Bind(GLFW_KEY_RIGHT, [&]{ camera.StrafeRight(); });
+    inputHandler.Bind(GLFW_KEY_G,     [&]{ cameraPtr = &camera; });
+    inputHandler.Bind(GLFW_KEY_H,     [&]{ cameraPtr = &lightCamera; });
+    inputHandler.Bind(GLFW_KEY_R,     [&]{
+        UpdateLightCamera();
+    });
+    inputHandler.Bind(GLFW_KEY_UP,   [&]{ cameraPtr->StrafeForward(); });
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ cameraPtr->StrafeBackward(); });
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ cameraPtr->StrafeLeft(); });
+    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ cameraPtr->StrafeRight(); });
 
-    inputHandler.Bind(GLFW_KEY_W, [&]{ camera.MoveForward(); });
-    inputHandler.Bind(GLFW_KEY_A, [&]{ camera.StrafeLeft(); });
-    inputHandler.Bind(GLFW_KEY_D, [&]{ camera.StrafeRight(); });
-    inputHandler.Bind(GLFW_KEY_S, [&]{ camera.MoveBackward(); });
+    inputHandler.Bind(GLFW_KEY_W, [&]{ cameraPtr->MoveForward(); });
+    inputHandler.Bind(GLFW_KEY_A, [&]{ cameraPtr->StrafeLeft(); });
+    inputHandler.Bind(GLFW_KEY_D, [&]{ cameraPtr->StrafeRight(); });
+    inputHandler.Bind(GLFW_KEY_S, [&]{ cameraPtr->MoveBackward(); });
     inputHandler.Bind(GLFW_KEY_Q, [&]{
-        camera.RotateLeft();
-        guiManager.mMainView.SetHeading(camera.GetHeading());
+        cameraPtr->RotateLeft();
+        guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         });
     inputHandler.Bind(GLFW_KEY_E, [&]{ 
-        camera.RotateRight();
-        guiManager.mMainView.SetHeading(camera.GetHeading());
+        cameraPtr->RotateRight();
+        guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         });
-    inputHandler.Bind(GLFW_KEY_X, [&]{ camera.RotateVerticalUp(); });
-    inputHandler.Bind(GLFW_KEY_Y, [&]{ camera.RotateVerticalDown(); });
-    inputHandler.Bind(GLFW_KEY_P, [&]{ lightPos.y += .5; });
-    inputHandler.Bind(GLFW_KEY_L, [&]{ lightPos.y -= .5; });
+    inputHandler.Bind(GLFW_KEY_X, [&]{ cameraPtr->RotateVerticalUp(); });
+    inputHandler.Bind(GLFW_KEY_Y, [&]{ cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ gameRunner.mGameState.mGameData->ClearTileRecentEncounters(); });
 
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
@@ -277,35 +305,48 @@ int main(int argc, char** argv)
     console.mGameRunner = &gameRunner;
     console.mGameState = &gameState;
 
-    Graphics::Light light{
-        glm::vec3{.2, -1, 0},
-        glm::vec3{.5, .5, .5},
-        glm::vec3{1,1,1},
-        glm::vec3{.2,.2,.2}
-    };
-
     do
     {
+        UpdateLightCamera();
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
 
-        camera.SetDeltaTime(deltaTime);
+        cameraPtr->SetDeltaTime(deltaTime);
         
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
         inputHandler.HandleInput(window.get());
 
         // { *** Draw 3D World ***
-        lightPos.x = camera.GetNormalisedPosition().x;
-        lightPos.z = camera.GetNormalisedPosition().z;
 
+        renderer.mDepthFB.BindGL();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderer.Draw(gameRunner.mSystems->GetRenderables(), light, camera);
-        renderer.Draw(gameRunner.mSystems->GetSprites(), light, camera);
+        glViewport(0, 0, SHADOW_DIM, SHADOW_DIM);
+        renderer.Draw(
+            gameRunner.mSystems->GetRenderables(),
+            lightCamera);
+        renderer.Draw(
+            gameRunner.mSystems->GetSprites(),
+            lightCamera);
+
+        renderer.mDepthFB.UnbindGL();
+
+        glViewport(0, 0, width, height);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderer.DrawShadow(
+            gameRunner.mSystems->GetRenderables(),
+            light,
+            lightCamera,
+            *cameraPtr);
+        renderer.DrawShadow(
+            gameRunner.mSystems->GetSprites(),
+            light,
+            lightCamera,
+            *cameraPtr);
 
         // { *** Draw 2D GUI ***
-        guiRenderer.RenderGui(&root);
+        //guiRenderer.RenderGui(&root);
 
         // { *** IMGUI START ***
         ImGui_ImplOpenGL3_NewFrame();

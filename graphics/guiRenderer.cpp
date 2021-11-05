@@ -86,8 +86,7 @@ GuiRenderer::GuiRenderer(
     float scale,
     SpriteManager& spriteManager)
 :
-    mShader{ShaderProgram{vertexShader, fragmentShader}
-        .Compile()},
+    mShader{ShaderProgram{vertexShader, fragmentShader}.Compile()},
     mSpriteManager{spriteManager},
     mDimensions{width, height, scale},
     mCamera{
@@ -114,6 +113,7 @@ void GuiRenderer::RenderGui(
         glm::vec3{0},
         element);
     mLogger.Spam() << "Rendered Gui, Calls: " << mRenderCalls << "\n";
+    mSpriteManager.DeactivateSpriteSheet();
     glEnable(GL_DEPTH_TEST);
 }
 
