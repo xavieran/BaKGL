@@ -152,13 +152,13 @@ int main(int argc, char** argv)
 
     root.AddChildFront(&guiManager);
 
-    constexpr auto SHADOW_DIM = 4096;
+    constexpr auto SHADOW_DIM = 8096;
     Camera lightCamera{
         static_cast<unsigned>(SHADOW_DIM),
         static_cast<unsigned>(SHADOW_DIM),
         400 * 30.0f,
         2.0f};
-    lightCamera.UseOrthoMatrix(200, 200);//width, height);
+    lightCamera.UseOrthoMatrix(800, 800);//width, height);
 
     Camera camera{
         static_cast<unsigned>(width),
@@ -307,7 +307,6 @@ int main(int argc, char** argv)
 
     do
     {
-        UpdateLightCamera();
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
         lastTime = currentTime;
@@ -319,10 +318,12 @@ int main(int argc, char** argv)
         inputHandler.HandleInput(window.get());
 
         // { *** Draw 3D World ***
+        UpdateLightCamera();
 
         renderer.mDepthFB.BindGL();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, SHADOW_DIM, SHADOW_DIM);
+
         renderer.Draw(
             gameRunner.mSystems->GetRenderables(),
             lightCamera);
@@ -346,7 +347,7 @@ int main(int argc, char** argv)
             *cameraPtr);
 
         // { *** Draw 2D GUI ***
-        //guiRenderer.RenderGui(&root);
+        guiRenderer.RenderGui(&root);
 
         // { *** IMGUI START ***
         ImGui_ImplOpenGL3_NewFrame();

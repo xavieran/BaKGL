@@ -246,13 +246,14 @@ public:
                             mDynamicDialogScene.SetDialogFinished(
                                 [&, zone=zone](const auto& choice){
                                     // These dialogs should always result in a choice
-                                    assert(choice);
+                                    ASSERT(choice);
                                     Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
                                     if (choice->mValue == BAK::Keywords::sYesIndex)
                                     {
                                         DoTransition(
                                             zone.mTargetZone,
                                             zone.mTargetLocation);
+                                        Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
                                     }
                                     mDynamicDialogScene.ResetDialogFinished();
                                 });

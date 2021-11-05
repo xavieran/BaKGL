@@ -47,7 +47,7 @@ public:
         mDepthFB{},
         mDepthBuffer{GL_TEXTURE_2D}
     {
-        mDepthBuffer.MakeDepthBuffer(4096, 4096);
+        mDepthBuffer.MakeDepthBuffer(8096, 8096);
         mDepthFB.AttachDepthTexture(mDepthBuffer);
     }
 
@@ -56,6 +56,8 @@ public:
         const MeshObjectStorage& objectStore,
         const TextureStoreT& textureStore)
     {
+        // FIXME Issue 48: Need to do destruct and restruct all the buffers
+        // when we load new data...
         mVertexArrayObject.BindGL();
 
         mGLBuffers.AddBuffer("vertex", 0, 3);

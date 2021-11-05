@@ -29,10 +29,10 @@ void GLAPIENTRY OpenGlMessageCallback(
     static const auto& logger = Logging::LogState::GetLogger("OpenGL");
     logger.Log(logLevel) << " type = 0x" << std::hex 
         << type << " severity = 0x" << severity << std::dec 
-        << " message = " << message << "\n";
+        << " message = " << message << std::endl;
 
-    if (type == GL_DEBUG_TYPE_ERROR)
-        throw std::runtime_error("OpenGL Error");
+    //if (type == GL_DEBUG_TYPE_ERROR)
+    //    throw std::runtime_error("OpenGL Error");
 }
 
 std::unique_ptr<GLFWwindow, DestroyGlfwWindow> MakeGlfwWindow(
