@@ -116,6 +116,10 @@ Graphics::MeshObject ZoneItemToMeshObject(
             glm::cross(
                 glmVertices[face[0]] - glmVertices[face[2]],
                 glmVertices[face[0]] - glmVertices[face[1]]));
+        if (item.IsSprite())
+        {
+            normal = glm::cross(normal, glm::vec3{1, 0, 1});
+        }
 
         for (unsigned triangle = 0; triangle < triangles; triangle++)
         {

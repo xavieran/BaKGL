@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 
     BAK::DialogStore dialogStore{};
 
-    auto guiScalar = 5.0f;
+    auto guiScalar = 4.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
         static_cast<unsigned>(SHADOW_DIM),
         400 * 30.0f,
         2.0f};
-    lightCamera.UseOrthoMatrix(800, 800);//width, height);
+    lightCamera.UseOrthoMatrix(400, 400);
 
     Camera camera{
         static_cast<unsigned>(width),
@@ -318,7 +318,7 @@ int main(int argc, char** argv)
         inputHandler.HandleInput(window.get());
 
         // { *** Draw 3D World ***
-        UpdateLightCamera();
+        //UpdateLightCamera();
 
         renderer.mDepthFB.BindGL();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
