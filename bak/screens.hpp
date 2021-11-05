@@ -4,6 +4,8 @@
 #include "bak/dialog.hpp"
 #include "bak/gameData.hpp"
 
+#include "graphics/renderer.hpp"
+
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -94,7 +96,8 @@ void ShowCameraGui(
     ss << "Pos: " << pos
         << "\nHPos: " << std::hex << static_cast<std::uint32_t>(pos.x) 
         << ", " << static_cast<std::uint32_t>(-pos.z) << std::dec
-        << "\nTile: " << glm::floor(camera.GetPosition() / glm::vec3{BAK::gTileSize});
+        << "\nTile: " << glm::floor(camera.GetPosition() / glm::vec3{BAK::gTileSize})
+        << "\nAngle: " << (360.0f * (camera.GetAngle() / (2.0f*3.141592f)));
     ImGui::TextWrapped(ss.str().c_str());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 
         / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -132,4 +135,17 @@ void ShowContainerGui(
         ImGui::TableNextRow();
     }
     ImGui::EndTable();
+}
+
+
+void ShowLightGui(
+    Graphics::Light& light)
+{
+    ImGui::Begin("Light");
+    ImGui::SliderFloat3("Dire", static_cast<float*>(&light.mDirection.x), -1.0f, 1.0f, "%.3f");
+    ImGui::SliderFloat3("Ambi", static_cast<float*>(&light.mAmbientColor.x), .0f, 1.0f, "%.3f");
+    ImGui::SliderFloat3("Diff", static_cast<float*>(&light.mDiffuseColor.x), .0f, 1.0f, "%.3f");
+    ImGui::SliderFloat3("Spec", static_cast<float*>(&light.mSpecularColor.x), .0f, 1.0f, "%.3f");
+
+    ImGui::End();
 }

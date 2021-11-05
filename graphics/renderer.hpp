@@ -6,6 +6,14 @@
 
 namespace Graphics {
 
+struct Light
+{
+    glm::vec3 mDirection;
+    glm::vec3 mAmbientColor;
+    glm::vec3 mDiffuseColor;
+    glm::vec3 mSpecularColor;
+};
+
 class Renderer
 {
 public:
@@ -13,14 +21,16 @@ public:
     :
         mModelShader{std::invoke([]{
             auto shader = ShaderProgram{
-                "normal.vert.glsl",
-                "normal.frag.glsl"};
+                "directional.vert.glsl",
+                "directional.frag.glsl"};
             return shader.Compile();
         })},
-        mSpriteShader{std::invoke([]{
+        mNormalShader{std::invoke([]{
             auto shader = ShaderProgram{
-                "sprite.vert.glsl",
-                "sprite.frag.glsl"};
+                "see_norm.vert.glsl",
+                "see_norm.geom.glsl",
+                "see_norm.frag.glsl"
+            };
             return shader.Compile();
         })},
         mVertexArrayObject{},
@@ -55,23 +65,27 @@ public:
             textureStore.GetMaxDim());
     }
 
-    template <bool isModelShader, typename Renderables, typename Camera>
+    template <typename Renderables, typename Camera>
     void Draw(
         const Renderables& renderables,
-        const glm::vec3& lightPosition,
+        const Light& light,
         const Camera& camera)
     {
         mVertexArrayObject.BindGL();
         glActiveTexture(GL_TEXTURE0);
         mTextureBuffer.BindGL();
 
-        auto& shader = isModelShader ? mModelShader : mSpriteShader;
+        auto& shader = mModelShader;
 
         shader.UseProgramGL();
         const auto textureId = shader.GetUniformLocation("texture0");
         shader.SetUniform(textureId, 0);
-        const auto lightId = shader.GetUniformLocation("lightPosition_worldspace");
-        shader.SetUniform(lightId, lightPosition);
+
+        const auto lightDir = shader.GetUniformLocation("light.mDirection");
+        shader.SetUniform(lightDir, glm::normalize(light.mDirection));
+        shader.SetUniform(shader.GetUniformLocation("light.mAmbientColor"), light.mAmbientColor);
+        shader.SetUniform(shader.GetUniformLocation("light.mDiffuseColor"), light.mDiffuseColor);
+        shader.SetUniform(shader.GetUniformLocation("light.mSpecularColor"), light.mSpecularColor);
 
         const auto cameraPositionId = shader.GetUniformLocation("cameraPosition_worldspace");
         shader.SetUniform(cameraPositionId, camera.GetNormalisedPosition());
@@ -107,7 +121,7 @@ public:
 
 private:
     ShaderProgramHandle mModelShader;
-    ShaderProgramHandle mSpriteShader;
+    ShaderProgramHandle mNormalShader;
     VertexArrayObject mVertexArrayObject;
     GLBuffers mGLBuffers;
     TextureBuffer mTextureBuffer;

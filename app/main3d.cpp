@@ -277,6 +277,13 @@ int main(int argc, char** argv)
     console.mGameRunner = &gameRunner;
     console.mGameState = &gameState;
 
+    Graphics::Light light{
+        glm::vec3{.2, -1, 0},
+        glm::vec3{.5, .5, .5},
+        glm::vec3{1,1,1},
+        glm::vec3{.2,.2,.2}
+    };
+
     do
     {
         currentTime = glfwGetTime();
@@ -294,8 +301,8 @@ int main(int argc, char** argv)
         lightPos.z = camera.GetNormalisedPosition().z;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderer.Draw<true>(gameRunner.mSystems->GetRenderables(), lightPos, camera);
-        renderer.Draw<false>(gameRunner.mSystems->GetSprites(), lightPos, camera);
+        renderer.Draw(gameRunner.mSystems->GetRenderables(), light, camera);
+        renderer.Draw(gameRunner.mSystems->GetSprites(), light, camera);
 
         // { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);
@@ -305,6 +312,8 @@ int main(int argc, char** argv)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        ShowLightGui(light);
+
         ShowCameraGui(camera);
         console.Draw("Console", &consoleOpen);
 
@@ -312,8 +321,8 @@ int main(int argc, char** argv)
         {
             ImGui::Begin("Clickable");
             std::stringstream ss{};
-            ss << "Clickable: " << gameRunner.mActiveClickable->GetZoneItem().GetName();
-                //<< " Location: " << bakLocation;
+            ss << "Clickable: " << gameRunner.mActiveClickable->GetZoneItem().GetName()
+                << "\nLocation: " << gameRunner.mActiveClickable->GetBakLocation() << "\n";
             ImGui::Text(ss.str().c_str());
 
             ImGui::Separator();

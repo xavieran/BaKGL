@@ -21,8 +21,7 @@ target_link_libraries(compile_shaders
     SDL)
 
 list(APPEND SHADERS
-    normal
-    sprite
+    directional
     gui
 )
 
