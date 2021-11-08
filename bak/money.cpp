@@ -1,5 +1,7 @@
 #include "bak/money.hpp"
 
+#include <sstream>
+
 
 namespace BAK {
 
@@ -17,6 +19,16 @@ Royals GetRoyals(Sovereigns sovereigns)
 Royals GetRemainingRoyals(Royals royals)
 {
     return Royals{royals.mValue % 10};
+}
+
+std::string ToString(Royals money)
+{
+    const auto sovereigns = BAK::GetSovereigns(money);
+    const auto royals = BAK::GetRemainingRoyals(money);
+    std::stringstream ss{};
+    ss << "#" << sovereigns << "s " << royals << "r";
+    return ss.str();
+
 }
 
 }

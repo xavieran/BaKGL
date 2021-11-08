@@ -10,6 +10,8 @@
 #include "gui/inventory/containerDisplay.hpp"
 #include "gui/inventory/equipmentSlot.hpp"
 #include "gui/inventory/inventorySlot.hpp"
+#include "gui/inventory/itemArranger.hpp"
+#include "gui/inventory/shopDisplay.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -210,10 +212,11 @@ private:
 
         UpdatePartyMembers();
         UpdateGold();
-        UpdateInventoryContents();
 
         if (mDisplayContainer)
             mContainerScreen.RefreshGui();
+        else
+            UpdateInventoryContents();
 
         AddChildren();
     }
@@ -416,11 +419,8 @@ private:
     void UpdateGold()
     {
         const auto gold = mGameState.GetParty().GetGold();
-        const auto sovereigns = BAK::GetSovereigns(gold);
-        const auto royals = BAK::GetRemainingRoyals(gold);
-        std::stringstream ss{};
-        ss << "#" << sovereigns << "s " << royals << "r";
-        const auto [textDims, _] = mGoldDisplay.AddText(mFont, ss.str());
+        const auto text = ToString(gold);
+        const auto [textDims, _] = mGoldDisplay.AddText(mFont, text);
 
         // Justify text to the right
         const auto basePos = mLayout.GetWidgetLocation(mGoldRequest);
@@ -436,19 +436,11 @@ private:
     {
         CheckExclusivity();
 
-        mInventoryItems.clear();
-
         const auto& inventory = std::invoke([&]() -> const BAK::Inventory& {
             if (mDisplayContainer)
             {
-                if (mContainer != nullptr)
-                {
-                    return mContainer->GetInventory();
-                }
-                else
-                {
-                    return mGameState.GetParty().GetKeys().GetInventory();
-                }
+                ASSERT(mContainer == nullptr);
+                return mGameState.GetParty().GetKeys().GetInventory();
             }
             else
             {
@@ -456,53 +448,38 @@ private:
             }
         });
 
+
+        mInventoryItems.clear();
+        mInventoryItems.reserve(inventory.GetNumberItems());
+
         std::vector<
             std::pair<
                 BAK::InventoryIndex,
             const BAK::InventoryItem*>> items{};
 
         const auto numItems = inventory.GetItems().size();
-        mInventoryItems.reserve(numItems);
         items.reserve(numItems);
 
         unsigned index{0};
         std::transform(
-            inventory.GetItems().begin(), inventory.GetItems().end(),
+            inventory.GetItems().begin(),
+            inventory.GetItems().end(),
             std::back_inserter(items),
             [&index](const auto& i) -> std::pair<BAK::InventoryIndex, const BAK::InventoryItem*> {
                 return std::make_pair(BAK::InventoryIndex{index++}, &i);
             });
 
-        std::sort(items.begin(), items.end(), [](const auto& l, const auto& r) 
-        {
-            return (std::get<1>(l)->GetObject().mImageSize 
-                > std::get<1>(r)->GetObject().mImageSize);
-            // FIXME: std::sort requires a strict weak ordering
-            //        otherwise it fails.
-                //|| (std::get<0>(l) < std::get<0>(r));
-        });
-
-        unsigned majorColumn = 0;
-        unsigned minorColumn = 0;
-        unsigned majorRow = 0;
-        unsigned minorRow = 0;
-
-        auto pos  = glm::vec2{105, 11};
-        const auto slotDims = glm::vec2{40, 29};
-
         mCrossbow.ClearItem();
         mArmor.ClearItem();
 
+        const auto slotDims = glm::vec2{40, 29};
+
+        // Add equipped items
         for (const auto& [invIndex, itemPtr] : items)
         {
             ASSERT(itemPtr);
             const auto& item = *itemPtr;
             const auto& [ss, ti, _] = mIcons.GetInventoryIcon(item.mItemIndex.mValue);
-            const auto itemPos = pos + glm::vec2{
-                    (majorColumn * 2 + minorColumn) * slotDims.x,
-                    (majorRow * 2 + minorRow) * slotDims.y};
-
-            auto dims = slotDims;
 
             if ((item.GetObject().mType == BAK::ItemType::Sword
                 || item.GetObject().mType == BAK::ItemType::Staff)
@@ -532,6 +509,7 @@ private:
 
                 continue;
             }
+
             if (item.GetObject().mType == BAK::ItemType::Crossbow
                 && item.IsEquipped())
             {
@@ -565,71 +543,50 @@ private:
 
                 continue;
             }
-
-            mLogger.Spam() << "Item: " << item 
-                << " mc: " << minorColumn << " MC: " << majorColumn 
-                << " mr: " << minorRow << " MR: " << majorRow << "\n";
-            if (item.GetObject().mImageSize == 1)
-            {
-                minorColumn += 1;
-            }
-            else if (item.GetObject().mImageSize == 2)
-            {
-                minorRow += 1;
-                dims.x *= 2;
-            }
-            else if (item.GetObject().mImageSize == 4)
-            {
-                dims.x *= 2;
-                dims.y *= 2;
-                majorRow += 1;
-            }
-
-            mLogger.Spam() << "AfterPlace: " << item 
-                << " mc: " << minorColumn << " MC: " << majorColumn 
-                << " mr: " << minorRow << " MR: " << majorRow << "\n";
-            mInventoryItems.emplace_back(
-                [this, index=invIndex](auto& item){
-                    UseItem(item, BAK::InventoryIndex{index}); },
-                itemPos,
-                dims,
-                mFont,
-                mIcons,
-                invIndex,
-                item,
-                [&]{
-                    ShowItemDescription(item);
-                });
-
-            if (minorColumn != 0 && minorColumn % 2 == 0)
-            {
-                minorColumn = 0;
-                minorRow += 1;
-            }
-
-            if (minorRow != 0 && minorRow % 2 == 0)
-            {
-                minorRow = 0;
-                majorRow += 1;
-            }
-
-            if (majorRow != 0 && majorRow % 2 == 0)
-            {
-                majorColumn += 1;
-                majorRow = 0;
-            }
-
-            // Handle the final column
-            if (majorColumn % 2 && minorColumn > 0)
-            {
-                minorRow += 1;
-                minorColumn = 0;
-            }
-
-            mLogger.Spam() << "CorrectRows: " << item 
-                << " mc: " << minorColumn << " MC: " << majorColumn 
-                << " mr: " << minorRow << " MR: " << majorRow << "\n";
         }
+
+        // Don't display equipped items in the inventory
+        items.erase(
+            std::remove_if(
+                items.begin(), items.end(),
+                [&](const auto& i){
+                    return inventory
+                        .GetAtIndex(std::get<BAK::InventoryIndex>(i))
+                        .IsEquipped();
+            }),
+            items.end());
+
+        // Sort by item size to ensure nice packing
+        std::sort(items.begin(), items.end(), [](const auto& l, const auto& r) 
+        {
+            return (std::get<1>(l)->GetObject().mImageSize 
+                > std::get<1>(r)->GetObject().mImageSize);
+        });
+
+        const auto pos  = glm::vec2{105, 11};
+        auto arranger = ItemArranger{};
+        arranger.PlaceItems(
+            items.begin(),
+            items.end(),
+            6,
+            4,
+            slotDims,
+            false,
+            [&](auto invIndex, const auto& item, const auto itemPos, const auto dims)
+            {
+                mInventoryItems.emplace_back(
+                    [this, index=invIndex](auto& item){
+                        UseItem(item, BAK::InventoryIndex{index}); },
+                    itemPos + pos,
+                    dims,
+                    mFont,
+                    mIcons,
+                    invIndex,
+                    item,
+                    [&]{
+                        ShowItemDescription(item);
+                    });
+            });
     }
 
     void AddChildren()
@@ -685,7 +642,8 @@ private:
     // click into shop or keys, etc.
     ItemEndpoint<ClickButtonImage> mContainerTypeDisplay;
 
-    ContainerDisplay mContainerScreen;
+    //ContainerDisplay mContainerScreen;
+    ShopDisplay mContainerScreen;
 
     using ItemEndpointEquipmentSlot = ItemEndpoint<EquipmentSlot>;
 

@@ -7,8 +7,8 @@
 #include "bak/objectInfo.hpp"
 
 #include "gui/inventory/equipmentSlot.hpp"
-#include "gui/inventory/inventorySlot.hpp"
 #include "gui/inventory/itemArranger.hpp"
+#include "gui/inventory/shopItemSlot.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -30,11 +30,13 @@
 
 namespace Gui {
 
-class ContainerDisplay :
+using DraggableShopItem = Draggable<ShopItemSlot>;
+
+class ShopDisplay :
     public Widget
 {
 public:
-    ContainerDisplay(
+    ShopDisplay(
         glm::vec2 pos,
         glm::vec2 dims,
         const Icons& icons,
@@ -54,7 +56,7 @@ public:
         mInventoryItems{},
         mContainer{nullptr},
         mShowDescription{std::move(showDescription)},
-        mLogger{Logging::LogState::GetLogger("Gui::ContainerDisplay")}
+        mLogger{Logging::LogState::GetLogger("Gui::ShopDisplay")}
     {
         assert(mShowDescription);
     }
@@ -62,6 +64,8 @@ public:
     void SetContainer(BAK::IContainer* container)
     {
         ASSERT(container);
+        //ASSERT(container->GetContainerType() == BAK::ContainerType::Shop
+        //    || container->GetContainerType() == BAK::ContainerType::Inn);
         mContainer = container;
     }
 
@@ -103,8 +107,6 @@ private:
             });
 
 
-        const auto slotDims = glm::vec2{40, 29};
-
         auto arranger = ItemArranger{};
         if (   mContainer->GetContainerType() == BAK::ContainerType::Shop
             || mContainer->GetContainerType() == BAK::ContainerType::Inn)
@@ -114,34 +116,6 @@ private:
                 3, 2,
                 glm::vec2{98, 60},
                 true,
-                [&](auto invIndex, const auto& item, const auto itemPos, const auto dims)
-                {
-                    mInventoryItems.emplace_back(
-                        itemPos,
-                        dims,
-                        mFont,
-                        mIcons,
-                        invIndex,
-                        item,
-                        [&]{
-                            ShowItemDescription(item);
-                        });
-                });
-        }
-        else
-        {
-            std::sort(
-                items.begin(), items.end(),
-                [](const auto& l, const auto& r){
-                    return (std::get<1>(l)->GetObject().mImageSize 
-                        > std::get<1>(r)->GetObject().mImageSize);
-            });
-
-            arranger.PlaceItems(
-                items.begin(), items.end(),
-                12, 4,
-                slotDims,
-                false,
                 [&](auto invIndex, const auto& item, const auto itemPos, const auto dims)
                 {
                     mInventoryItems.emplace_back(
@@ -168,7 +142,7 @@ private:
     const Font& mFont;
     const Icons& mIcons;
 
-    std::vector<DraggableItem> mInventoryItems;
+    std::vector<DraggableShopItem> mInventoryItems;
 
     BAK::IContainer* mContainer;
 

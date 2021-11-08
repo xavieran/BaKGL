@@ -2,6 +2,7 @@
 
 #include "bak/font.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include "graphics/glm.hpp"
@@ -79,7 +80,7 @@ public:
         bool isBold=false)
     {
         // otherwise iters not stable...
-        //assert(text.size() < 2048);
+        //ASSERT(text.size() < 2048);
 
         mText.clear();
 
@@ -103,7 +104,7 @@ public:
 
         const auto NextLine = [&]{
             // Save this line's dims and move on to the next
-            assert(lines.size() > 0);
+            ASSERT(lines.size() > 0);
             lines.back().mDimensions = glm::vec2{
                 charPos.x + font.GetSpace(),
                 charPos.y + font.GetHeight() + 1
@@ -146,7 +147,7 @@ public:
                 glm::vec2{fr.GetFont().GetWidth(c), fr.GetFont().GetHeight()},
                 true);
 
-            assert(lines.size() > 0);
+            ASSERT(lines.size() > 0);
             lines.back().mChars.emplace_back(&mText.back());
         };
 
@@ -384,7 +385,7 @@ public:
                 const auto horizontalAdjustment = (limit.x - lineWidth) / 2.0;
                 for (auto* c : line.mChars)
                 {
-                    assert(c);
+                    ASSERT(c);
                     c->AdjustPosition(
                         glm::vec2{horizontalAdjustment, 0});
                 }

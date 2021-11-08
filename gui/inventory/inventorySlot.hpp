@@ -159,11 +159,17 @@ public:
             + glm::vec2{4, 2});
     }
 
+protected:
+    void AddItem()
+    {
+        AddChildBack(&mItem);
+    }
+
 private:
     void AddChildren()
     {
         ClearChildren();
-        AddChildBack(&mItem);
+        AddItem();
         AddChildBack(&mQuantity);
     }
     

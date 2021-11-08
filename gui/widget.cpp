@@ -90,6 +90,7 @@ Widget::Widget(
     }
 {
 }
+
 Widget::~Widget()
 {
 }
