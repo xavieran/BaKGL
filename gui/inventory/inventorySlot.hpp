@@ -32,7 +32,7 @@ using DraggableItem = Draggable<InventorySlot>;
 template <typename Base>
 using ItemEndpoint = DragEndpoint<
     Base,
-    DraggableItem>;
+    InventorySlot>;
 
 class InventorySlot :
     public Widget
@@ -160,8 +160,11 @@ public:
     }
 
 protected:
-    void AddItem()
+    void AddItem(bool snapToTop)
     {
+        if (snapToTop)
+            mItem.SetPosition(
+                glm::vec2{mItem.GetPositionInfo().mPosition.x, 8});
         AddChildBack(&mItem);
     }
 
@@ -169,7 +172,7 @@ private:
     void AddChildren()
     {
         ClearChildren();
-        AddItem();
+        AddItem(false);
         AddChildBack(&mQuantity);
     }
     

@@ -158,9 +158,7 @@ public:
         const auto UpdateNextSlot = [&](const auto& item)
         {
             if (homogenousSlots)
-            {
                 grid.Occupy(1, 1);
-            }
             else
             {
                 switch (item.GetObject().mImageSize)

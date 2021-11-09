@@ -55,6 +55,7 @@ public:
             pos,
             dim,
             glm::vec4{0},
+            //glm::vec4{0,1,0,.3},
             true
         },
         mText{}
@@ -79,8 +80,7 @@ public:
         bool centerVertical=false,
         bool isBold=false)
     {
-        // otherwise iters not stable...
-        //ASSERT(text.size() < 2048);
+        const auto& logger = Logging::LogState::GetLogger("Gui::TextBox");
 
         mText.clear();
 
@@ -109,6 +109,7 @@ public:
                 charPos.x + font.GetSpace(),
                 charPos.y + font.GetHeight() + 1
             };
+            logger.Spam() << "NextLine: pos: " << charPos << " prevDims: " << lines.back().mDimensions << "\n";
             lines.emplace_back(Line{{}, glm::vec2{0}});
 
             charPos.x = initialPosition.x;
@@ -159,62 +160,26 @@ public:
                 Color::black);
         };
 
-        const auto DrawBold = [&](const auto& pos, auto c)
+        const auto DrawBold = [&](const auto& pos, auto c, auto bg, auto fg)
         {
             Draw(
                 charPos + glm::vec2{0, 1},
                 c,
-                Color::buttonShadow);
+                bg);
 
             Draw(
                 charPos,
                 c,
-                Color::fontHighlight);
+                fg);
         };
 
-        const auto DrawUnbold = [&](const auto& pos, auto c)
-        {
-            Draw(
-                charPos + glm::vec2{0, 1},
-                c,
-                Color::black);
-
-            Draw(
-                charPos,
-                c,
-                Color::fontUnbold);
-        };
-
-        const auto DrawRed = [&](const auto& pos, auto c)
-        {
-            Draw(
-                charPos + glm::vec2{1, 1},
-                c,
-                Color::fontRedLowlight);
-
-            Draw(
-                charPos,
-                c,
-                Color::fontRedHighlight);
-        };
-
-        const auto DrawWhite= [&](const auto& pos, auto c)
-        {
-            Draw(
-                charPos + glm::vec2{1, 1},
-                c,
-                Color::black);
-
-            Draw(
-                charPos,
-                c,
-                Color::fontWhiteHighlight);
-        };
         
         unsigned currentChar = 0;
         for (; currentChar < text.size(); currentChar++)
         {
             const auto c = text[currentChar];
+            logger.Spam() << "Char[" << c << "]" << std::hex 
+                << +c << std::dec << " " << charPos << "\n";
 
             if (c == '\n')
             {
@@ -272,20 +237,21 @@ public:
                     if (isBold)
                         DrawNormal(charPos, c);
                     else
-                        DrawBold(charPos, c);
+                        DrawBold(charPos, c, Color::buttonShadow, Color::fontHighlight);
                 }
                 else if (unbold)
                 {
                     // Maybe "lowlight", inactive
-                    DrawUnbold(charPos, c);
+                    DrawBold(charPos, c, Color::black, Color::fontUnbold);
+                    //DrawUnbold(charPos, c);
                 }
                 else if (red)
                 {
-                    DrawRed(charPos, c);
+                    DrawBold(charPos, c, Color::fontRedLowlight, Color::fontRedHighlight);
                 }
                 else if (white)
                 {
-                    DrawWhite(charPos, c);
+                    DrawBold(charPos, c, Color::black, Color::fontWhiteHighlight);
                 }
                 else if (emphasis)
                 {
@@ -305,7 +271,7 @@ public:
                 else
                 {
                     if (isBold)
-                        DrawBold(charPos, c);
+                        DrawBold(charPos, c, Color::buttonShadow, Color::fontHighlight);
                     else
                         DrawNormal(charPos, c);
                 }
@@ -321,22 +287,26 @@ public:
 
                 if (isAlphaNum && !inWord)
                 {
-                    const auto tmpPos = charPos;
-                    const auto wordStart = text.begin() + nextChar;
+                    const auto saved = charPos;
+                    const auto wordStart = std::next(text.begin(), nextChar);
                     const auto it = std::find_if(
                         wordStart,
-                        text.begin() + text.size(),
+                        std::next(text.begin(), text.size()),
                         [](const auto& c){ return c < '!' || c > 'z'; });
 
                     // Check if this word would overflow our bounds
                     wordLetters = std::distance(wordStart, it);
                     for (const auto& ch : text.substr(nextChar, wordLetters))
                         AdvanceChar(font.GetWidth(ch));
+                    logger.Spam() << "Next Word: " << text.substr(nextChar, wordLetters) << "\n";
 
                     if (charPos.x >= limit.x)
+                    {
+                        charPos = saved;
                         NextLine();
+                    }
                     else
-                        charPos = tmpPos;
+                        charPos = saved;
                 }
                 else if (isAlphaNum)
                 {
@@ -352,13 +322,11 @@ public:
             }
 
             if (charPos.y + font.GetHeight() > limit.y)
-            {
                 break;
-            }
         }
 
         // Set the dims of the final line
-        NextLine();
+        logger.Spam() << "LastLine\n"; NextLine();
 
         for (auto& elem : mText)
             this->AddChildBack(&elem);
@@ -370,19 +338,18 @@ public:
                 : 0;
 
             for (auto& w : mText)
-            {
                 w.AdjustPosition(
                     glm::vec2{0, verticalAdjustment});
-            }
         }
-
 
         if (centerHorizontal)
         {
             for (const auto& line : lines)
             {
                 const auto lineWidth = line.mDimensions.x;
-                const auto horizontalAdjustment = (limit.x - lineWidth) / 2.0;
+                auto horizontalAdjustment = (limit.x - lineWidth) / 2.0;
+                if (horizontalAdjustment < 0) horizontalAdjustment = 0;
+                logger.Spam() << "Line: " << lineWidth << " lim: " << limit.x << " adj: " << horizontalAdjustment << "\n";
                 for (auto* c : line.mChars)
                 {
                     ASSERT(c);
@@ -393,10 +360,12 @@ public:
         }
 
         auto maxX = std::max_element(
-            lines.begin(), lines.end(), [](auto lhs, auto rhs)
-            {
+            lines.begin(), lines.end(),
+            [](auto lhs, auto rhs){
                 return lhs.mDimensions.x < rhs.mDimensions.x;
             });
+
+        ASSERT(currentChar < 2048);
 
         return std::make_pair(
             glm::vec2{maxX->mDimensions.x, charPos.y},

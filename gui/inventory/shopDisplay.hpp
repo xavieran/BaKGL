@@ -30,12 +30,12 @@
 
 namespace Gui {
 
-using DraggableShopItem = Draggable<ShopItemSlot>;
-
 class ShopDisplay :
     public Widget
 {
 public:
+    static constexpr auto mItemsPerPage = 6;
+
     ShopDisplay(
         glm::vec2 pos,
         glm::vec2 dims,
@@ -53,6 +53,7 @@ public:
         },
         mFont{font},
         mIcons{icons},
+        mShopPage{0},
         mInventoryItems{},
         mContainer{nullptr},
         mShowDescription{std::move(showDescription)},
@@ -67,6 +68,7 @@ public:
         //ASSERT(container->GetContainerType() == BAK::ContainerType::Shop
         //    || container->GetContainerType() == BAK::ContainerType::Inn);
         mContainer = container;
+        mShopPage = 0;
     }
 
     void RefreshGui()
@@ -76,7 +78,22 @@ public:
         AddChildren();
     }
 
+    void AdvanceNextPage()
+    {
+        if ((++mShopPage) == GetMaxPages())
+            mShopPage = 0;
+    }
+
 private:
+
+    unsigned GetMaxPages()
+    {
+        ASSERT(mContainer != nullptr);
+        const auto nItems = mContainer->GetInventory().GetNumberItems();
+        const auto fullPages = nItems / mItemsPerPage;
+        const auto partialPages = (nItems % mItemsPerPage) != 0;
+        return fullPages + partialPages;
+    }
 
     void ShowItemDescription(const BAK::InventoryItem& item)
     {
@@ -87,6 +104,7 @@ private:
     {
         ASSERT(mContainer != nullptr);
         mInventoryItems.clear();
+
         const auto& inventory = mContainer->GetInventory();
 
         std::vector<
@@ -106,13 +124,22 @@ private:
                 return std::make_pair(BAK::InventoryIndex{index++}, &i);
             });
 
-
         auto arranger = ItemArranger{};
         if (   mContainer->GetContainerType() == BAK::ContainerType::Shop
-            || mContainer->GetContainerType() == BAK::ContainerType::Inn)
+            || mContainer->GetContainerType() == BAK::ContainerType::Inn  )
         {
+            ASSERT(items.size() > mShopPage * mItemsPerPage);
+
+            const auto begin = std::next(items.begin(), mShopPage * mItemsPerPage);
+            const auto nItems = std::distance(begin, items.end());
+            const auto end = std::next(
+                begin,
+                std::min(
+                    static_cast<size_t>(mItemsPerPage),
+                    static_cast<size_t>(nItems)));
+
             arranger.PlaceItems(
-                items.begin(), items.begin() + 6,
+                begin, end,
                 3, 2,
                 glm::vec2{98, 60},
                 true,
@@ -142,6 +169,7 @@ private:
     const Font& mFont;
     const Icons& mIcons;
 
+    unsigned mShopPage;
     std::vector<DraggableShopItem> mInventoryItems;
 
     BAK::IContainer* mContainer;

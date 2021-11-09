@@ -42,9 +42,13 @@ public:
 
     // Request offsets
     static constexpr auto mContainerTypeRequest = 3;
-    static constexpr auto mUseItemRequest = 4;
+
+    static constexpr auto mNextPageButton = 12;
+    static constexpr auto mNextPageRequest = 4;
+
     static constexpr auto mExitRequest = 5;
     static constexpr auto mExitButton = 13;
+
     static constexpr auto mGoldRequest = 6;
 
     InventoryScreen(
@@ -77,6 +81,15 @@ public:
             true
         },
         mCharacters{},
+        mNextPage{
+            mLayout.GetWidgetLocation(mNextPageRequest),
+            mLayout.GetWidgetDimensions(mNextPageRequest),
+            std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mNextPageButton)),
+            std::get<Graphics::TextureIndex>(mIcons.GetButton(mNextPageButton)),
+            std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mNextPageButton)),
+            [this]{ AdvanceNextPage(); },
+            []{}
+        },
         mExit{
             mLayout.GetWidgetLocation(mExitRequest),
             mLayout.GetWidgetDimensions(mExitRequest),
@@ -246,7 +259,7 @@ private:
     }
 
     void TransferItem(
-        DraggableItem& slot,
+        InventorySlot& slot,
         BAK::ActiveCharIndex character)
     {
         CheckExclusivity();
@@ -307,7 +320,7 @@ private:
     }
 
     void MoveItemToEquipmentSlot(
-        DraggableItem& item,
+        InventorySlot& item,
         BAK::ItemType slot)
     {
         ASSERT(mSelectedCharacter);
@@ -335,7 +348,7 @@ private:
         mNeedRefresh = true;
     }
 
-    void MoveItemToContainer(DraggableItem& slot)
+    void MoveItemToContainer(InventorySlot& slot)
     {
         auto item = slot.GetItem();
         mLogger.Debug() << "Move item to container: " << item << "\n";
@@ -354,12 +367,19 @@ private:
 
     }
 
-    void UseItem(DraggableItem& item, BAK::InventoryIndex itemIndex)
+    void UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
     {
         ASSERT(mSelectedCharacter);
         auto& applyTo = GetCharacter(*mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
         mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
         GetCharacter(*mSelectedCharacter).CheckPostConditions();
+    }
+
+    void AdvanceNextPage()
+    {
+        mLogger.Debug() << __FUNCTION__ << "\n";
+        mContainerScreen.AdvanceNextPage();
+        mNeedRefresh = true;
     }
 
     void ShowItemDescription(const BAK::InventoryItem& item)
@@ -396,7 +416,7 @@ private:
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(
                 party.GetCharacter(person).GetIndex().mValue);
             mCharacters.emplace_back(
-                [this, character=person](DraggableItem& slot){
+                [this, character=person](InventorySlot& slot){
                     TransferItem(slot, character);
                 },
                 mLayout.GetWidgetLocation(person.mValue),
@@ -592,6 +612,7 @@ private:
     void AddChildren()
     {
         AddChildBack(&mFrame);
+        AddChildBack(&mNextPage);
         AddChildBack(&mExit);
         AddChildBack(&mGoldDisplay);
 
@@ -637,6 +658,7 @@ private:
     Widget mFrame;
 
     std::vector<ItemEndpoint<ClickButtonImage>> mCharacters;
+    ClickButtonImage mNextPage;
     ClickButtonImage mExit;
     TextBox mGoldDisplay;
     // click into shop or keys, etc.

@@ -18,12 +18,9 @@
 
 namespace Gui {
 
-using DraggableItem = Draggable<InventorySlot>;
+class ShopItemSlot;
 
-template <typename Base>
-using ItemEndpoint = DragEndpoint<
-    Base,
-    DraggableItem>;
+using DraggableShopItem = Draggable<ShopItemSlot>;
 
 class ShopItemSlot :
     public InventorySlot
@@ -49,7 +46,7 @@ public:
         },
         mDescription{
             glm::vec2{0, 0},
-            glm::vec2{98, 50}
+            glm::vec2{80, 50}
         }
     {
         ClearChildren();
@@ -67,25 +64,27 @@ public:
         ss << "#" << item.GetObject().mName << " (" 
             << +item.mCondition << (item.IsStackable() ? ")" : "%)");
         ss << "\n#" << ToString(BAK::Royals{static_cast<unsigned>(item.GetObject().mValue)});
-        Logging::LogDebug(__FUNCTION__) << "Desc: " << ss.str() << std::endl;
 
-        const auto& [textDims, _] = mDescription.AddText(
-            font,
-            ss.str(),
-            true,
-            false);
+        // First calculate text dims, trim the textbox to that size,
+        // then add the text again, centered
+        const auto& [textDims, _] = mDescription.AddText(font, ss.str());
+        mDescription.SetDimensions(textDims);
+        mDescription.AddText(font, ss.str(), true);
 
         const auto& dims = GetPositionInfo().mDimensions;
+        auto diff = dims - textDims;
+        if (diff.x < 0) diff.x = 0;
+        else diff.x = diff.x / 2;
+
         mDescription.SetPosition(
-            dims - textDims 
-            + glm::vec2{4, 2});
+            glm::vec2{diff.x, diff.y} + glm::vec2{4, 2});
     }
 
 private:
     void AddChildren()
     {
         ClearChildren();
-        AddItem();
+        AddItem(true);
         AddChildBack(&mDescription);
     }
     

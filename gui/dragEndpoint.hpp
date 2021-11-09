@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gui/draggable.hpp"
+
 #include "gui/widget.hpp"
 
 namespace Gui {
