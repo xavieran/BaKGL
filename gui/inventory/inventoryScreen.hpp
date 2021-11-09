@@ -43,7 +43,7 @@ public:
     // Request offsets
     static constexpr auto mContainerTypeRequest = 3;
 
-    static constexpr auto mNextPageButton = 12;
+    static constexpr auto mNextPageButton = 52;
     static constexpr auto mNextPageRequest = 4;
 
     static constexpr auto mExitRequest = 5;

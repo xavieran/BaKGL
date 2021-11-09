@@ -41,6 +41,15 @@ public:
             event);
     }
 
+    void ShowCursor()
+    {
+        AddChildBack(&mCursor);
+    }
+
+    void HideCursor()
+    {
+        RemoveChild(&mCursor);
+    }
 
     Cursor& GetCursor()
     {

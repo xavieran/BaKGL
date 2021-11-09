@@ -340,6 +340,7 @@ int main(int argc, char** argv)
             light,
             lightCamera,
             *cameraPtr);
+
         renderer.DrawShadow(
             gameRunner.mSystems->GetSprites(),
             light,
