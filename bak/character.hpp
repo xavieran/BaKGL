@@ -106,6 +106,8 @@ public:
         return ContainerType::Inv;
     }
 
+    const Shop& GetShopData() const override { ASSERT(false); }
+
     /* Character Getters */
 
     CharIndex GetIndex() const { return mCharacterIndex; }

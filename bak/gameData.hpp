@@ -157,7 +157,7 @@ public:
         LoadContainers(0xc);
         mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
             << mBuffer.Tell() << std::dec << "\n";
-        //LoadShops();
+        LoadShops();
         //LoadCombatEntityLists();
         //LoadCombatInventories(
         //    sCombatInventoryOffset,
@@ -658,6 +658,37 @@ public:
         return items;
     }
 
+    Shop LoadShop()
+    {
+        const auto templeNumber = mBuffer.GetUint8();
+        const auto sellFactor = mBuffer.GetUint8();
+        const auto maxDiscount = mBuffer.GetUint8();
+        const auto buyFactor = mBuffer.GetUint8();
+        const auto haggle = mBuffer.GetUint16LE();
+        const auto bardingSkill = mBuffer.GetUint8();
+        const auto bardingReward = mBuffer.GetUint8();
+        const auto bardingMaxReward = mBuffer.GetUint8();
+        const auto unknown = mBuffer.GetArray<3>();
+        const auto repairTypes = mBuffer.GetUint8();
+        const auto repairFactor = mBuffer.GetUint8();
+        const auto categories = mBuffer.GetUint16LE();
+
+        return Shop{
+            templeNumber,
+            sellFactor,
+            maxDiscount,
+            buyFactor,
+            haggle,
+            bardingSkill,
+            bardingReward,
+            bardingMaxReward,
+            unknown,
+            repairTypes,
+            repairFactor,
+            categories
+        };
+    }
+
     std::vector<GDSContainer> LoadShops()
     {
         mBuffer.Seek(sShopsOffset);
@@ -678,22 +709,24 @@ public:
             //const unsigned itemCount = mBuffer.GetUint8();
             //const unsigned capacity = mBuffer.GetUint8();
             //const auto containerType = static_cast<ContainerType>(mBuffer.GetUint8());
+            mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
             mLogger.Debug() << "Shop #: " << i << " " << header << "\n";
             auto inventory = Inventory{
                 header.mCapacity,
                 LoadItems(header.mItems, header.mCapacity)};
-            // Shop data...
+            auto shopData = std::optional<Shop>{};
             if (static_cast<ContainerType>(header.mContainerType) == ContainerType::Shop)
-                mBuffer.DumpAndSkip(16);
+                shopData = LoadShop();
 
-            mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
             shops.emplace_back(
                 header.GetHotspotRef(),
                 header.mLocationType,
                 header.mItems,
                 header.mCapacity,
                 static_cast<ContainerType>(header.mContainerType),
+                shopData,
                 std::move(inventory));
+            mLogger.Debug() << shops.back() << "\n";
         }
 
         return shops;
@@ -774,6 +807,8 @@ public:
                 || header.mCapacity > 0);
             const auto containerType = static_cast<ContainerType>(header.mContainerType);
 
+            auto shopData = std::optional<Shop>{};
+
             logger.Info() << header
                 << " Tp: " << ToString(containerType) << std::endl;
             
@@ -789,7 +824,7 @@ public:
             {
                 mBuffer.DumpAndSkip(2);
                 dialog = KeyTarget{mBuffer.GetUint32LE()};
-                mBuffer.DumpAndSkip(16);
+                shopData = LoadShop();
             }
             else if (containerType == ContainerType::Gravestone)
             {
@@ -884,6 +919,7 @@ public:
                 static_cast<ContainerType>(header.mContainerType),
                 dialog,
                 header.GetPosition(),
+                shopData,
                 std::move(inventory));
             logger.Info() << containers.back() << "\n";
             //logger.Info() << "Items: \n" << containers.back().GetInventory() << "\n";

@@ -1,6 +1,26 @@
 #include "IContainer.hpp"
 
+#include "com/ostream.hpp"
+
 namespace BAK {
+
+std::ostream& operator<<(std::ostream& os, const Shop& shop)
+{
+    os << std::dec << "Shop { templeNumber: " << +shop.mTempleNumber
+        << " sellFactor: " << +shop.mSellFactor
+        << " maxDiscount: " << +shop.mMaxDiscount
+        << " buyFactor: " << +shop.mBuyFactor
+        << " haggle: " << std::hex << shop.mHaggle << std::dec
+        << " bardingSkill: " << +shop.mBardingSkill
+        << " bardingReward: " << +shop.mBardingReward
+        << " bardingMaxReward: " << +shop.mBardingMaxReward
+        << " unknown: " << std::hex << shop.mUnknown << std::dec
+        << " repairTypes: " << +shop.mRepairTypes
+        << " repairFactor: " << +shop.mRepairFactor
+        << " categories: " << std::hex << shop.mCategories << std::dec << "}";
+
+    return os;
+}
 
 std::string_view ToString(ContainerType type)
 {

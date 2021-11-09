@@ -9,6 +9,8 @@
 #include "bak/inventoryItem.hpp"
 #include "bak/types.hpp"
 
+#include "com/assert.hpp"
+
 #include "graphics/glm.hpp"
 
 #include <glm/glm.hpp>
@@ -61,17 +63,10 @@ public:
     std::uint8_t mItems;
     std::uint8_t mCapacity;
     std::uint8_t mContainerType;
+    std::optional<Shop> mShopData;
 };
 
 std::ostream& operator<<(std::ostream&, const ContainerHeader&);
-
-struct Lock
-{
-    unsigned mLockFlag;
-    unsigned mRequiredPicklockSkill;
-    unsigned mFairyChestIndex;
-    unsigned mTrapDamage;
-};
 
 class Container : public IContainer
 {
@@ -84,6 +79,7 @@ public:
         ContainerType type,
         Target dialog,
         glm::vec<2, unsigned> location,
+        std::optional<Shop> shopData,
         Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
@@ -110,6 +106,12 @@ public:
         return mType;
     }
 
+    const Shop& GetShopData() const override
+    {
+        ASSERT(mShopData);
+        return *mShopData;
+    }
+
     unsigned mAddress;
     unsigned mNumber;
     unsigned mNumberItems;
@@ -117,6 +119,7 @@ public:
     ContainerType mType;
     Target mDialog;
     glm::vec<2, unsigned> mLocation;
+    std::optional<Shop> mShopData;
     Inventory mInventory;
 };
 
@@ -131,6 +134,7 @@ public:
         unsigned numberItems,
         unsigned capacity,
         ContainerType type,
+        std::optional<Shop> shopData,
         Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
@@ -158,11 +162,18 @@ public:
         return mType;
     }
 
+    const Shop& GetShopData() const override
+    {
+        ASSERT(mShopData);
+        return *mShopData;
+    }
+
     BAK::HotspotRef mGdsScene;
     unsigned mNumber;
     unsigned mNumberItems;
     unsigned mCapacity;
     ContainerType mType;
+    std::optional<Shop> mShopData;
     Inventory mInventory;
 };
 
