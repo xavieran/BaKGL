@@ -318,7 +318,7 @@ int main(int argc, char** argv)
         inputHandler.HandleInput(window.get());
 
         // { *** Draw 3D World ***
-        //UpdateLightCamera();
+        UpdateLightCamera();
 
         renderer.mDepthFB.BindGL();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

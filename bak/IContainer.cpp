@@ -24,4 +24,10 @@ std::string_view ToString(ContainerType type)
     }
 }
 
+bool IContainer::IsShop() const
+{
+    return GetContainerType() == BAK::ContainerType::Shop
+        || GetContainerType() == BAK::ContainerType::Inn;
+}
+
 }

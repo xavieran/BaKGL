@@ -88,7 +88,7 @@ public:
  
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
-    bool CanAddItem(const InventoryItem& item) override
+    bool CanAddItem(const InventoryItem& item) const override
     {
         return mInventory.CanAddContainer(item);
     }
@@ -105,7 +105,7 @@ public:
         return true;
     }
 
-    ContainerType GetContainerType() override
+    ContainerType GetContainerType() const override
     {
         return mType;
     }
@@ -136,7 +136,7 @@ public:
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
 
-    bool CanAddItem(const InventoryItem& item) override
+    bool CanAddItem(const InventoryItem& item) const override
     {
         return mInventory.CanAddContainer(item);
     }
@@ -153,7 +153,7 @@ public:
         return true;
     }
 
-    ContainerType GetContainerType() override
+    ContainerType GetContainerType() const override
     {
         return mType;
     }

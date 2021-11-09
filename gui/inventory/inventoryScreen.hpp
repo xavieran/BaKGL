@@ -125,6 +125,15 @@ public:
                 ShowItemDescription(item);
             }
         },
+        mShopScreen{
+            {11, 11},
+            {294, 121},
+            mIcons,
+            mFont,
+            [this](const auto& item){
+                ShowItemDescription(item);
+            }
+        },
         mWeapon{
             [this](auto& item){
                 MoveItemToEquipmentSlot(item, BAK::ItemType::Sword); },
@@ -181,14 +190,19 @@ public:
     {
         ASSERT(container != nullptr);
 
-        if (   container->GetContainerType() == BAK::ContainerType::Shop
-            || container->GetContainerType() == BAK::ContainerType::Inn)
-            SetContainerTypeImage(7);
-        else
-            SetContainerTypeImage(0);
-
         mContainer = container;
-        mContainerScreen.SetContainer(container);
+
+        if (container->IsShop())
+        {
+            SetContainerTypeImage(7);
+            mShopScreen.SetContainer(container);
+        }
+        else
+        {
+            SetContainerTypeImage(0);
+            mContainerScreen.SetContainer(container);
+        }
+
         ShowContainer();
         RefreshGui();
     }
@@ -227,7 +241,16 @@ private:
         UpdateGold();
 
         if (mDisplayContainer)
-            mContainerScreen.RefreshGui();
+        {
+            if (mContainer && mContainer->IsShop())
+            {
+                mShopScreen.RefreshGui();
+            }
+            else
+            {
+                mContainerScreen.RefreshGui();
+            }
+        }
         else
             UpdateInventoryContents();
 
@@ -308,8 +331,7 @@ private:
             }
             else if (GetCharacter(character).GiveItem(item))
             {
-                if (   mContainer->GetContainerType() != BAK::ContainerType::Shop
-                    && mContainer->GetContainerType() != BAK::ContainerType::Inn)
+                if (!mContainer->IsShop())
                     mContainer->GetInventory()
                         .RemoveItem(slot.GetItemIndex());
             }
@@ -354,9 +376,7 @@ private:
         mLogger.Debug() << "Move item to container: " << item << "\n";
         ASSERT(mSelectedCharacter);
 
-        if (mContainer 
-            && mContainer->GetContainerType() != BAK::ContainerType::Shop
-            && mContainer->GetContainerType() != BAK::ContainerType::Inn)
+        if (mContainer && mContainer->IsShop())
         {
             mContainer->GetInventory().AddItem(item);
             GetCharacter(*mSelectedCharacter).RemoveItem(item);
@@ -378,8 +398,11 @@ private:
     void AdvanceNextPage()
     {
         mLogger.Debug() << __FUNCTION__ << "\n";
-        mContainerScreen.AdvanceNextPage();
-        mNeedRefresh = true;
+        if (mDisplayContainer)
+        {
+            mShopScreen.AdvanceNextPage();
+            mNeedRefresh = true;
+        }
     }
 
     void ShowItemDescription(const BAK::InventoryItem& item)
@@ -612,7 +635,6 @@ private:
     void AddChildren()
     {
         AddChildBack(&mFrame);
-        AddChildBack(&mNextPage);
         AddChildBack(&mExit);
         AddChildBack(&mGoldDisplay);
 
@@ -637,7 +659,16 @@ private:
         }
         else if (mDisplayContainer)
         {
-            AddChildBack(&mContainerScreen);
+            if (mContainer && mContainer->IsShop())
+            {
+                AddChildBack(&mShopScreen);
+                if (mShopScreen.GetMaxPages() > 1)
+                    AddChildBack(&mNextPage);
+            }
+            else
+            {
+                AddChildBack(&mContainerScreen);
+            }
         }
     }
 
@@ -664,8 +695,8 @@ private:
     // click into shop or keys, etc.
     ItemEndpoint<ClickButtonImage> mContainerTypeDisplay;
 
-    //ContainerDisplay mContainerScreen;
-    ShopDisplay mContainerScreen;
+    ContainerDisplay mContainerScreen;
+    ShopDisplay mShopScreen;
 
     using ItemEndpointEquipmentSlot = ItemEndpoint<EquipmentSlot>;
 

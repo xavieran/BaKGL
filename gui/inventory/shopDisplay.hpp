@@ -84,8 +84,6 @@ public:
             mShopPage = 0;
     }
 
-private:
-
     unsigned GetMaxPages()
     {
         ASSERT(mContainer != nullptr);
@@ -94,6 +92,8 @@ private:
         const auto partialPages = (nItems % mItemsPerPage) != 0;
         return fullPages + partialPages;
     }
+
+private:
 
     void ShowItemDescription(const BAK::InventoryItem& item)
     {
