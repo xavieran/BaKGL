@@ -23,6 +23,7 @@ add_library(bak
     keyContainer.hpp keyContainer.cpp
     layout.hpp layout.cpp
     money.hpp money.cpp
+    monster.hpp monster.cpp
     party.hpp party.cpp
     palette.hpp palette.cpp
     objectInfo.hpp objectInfo.cpp
