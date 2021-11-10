@@ -12,5 +12,6 @@ Royals GetRoyals(Sovereigns sovereigns);
 Royals GetRemainingRoyals(Royals);
 
 std::string ToString(Royals);
+std::string ToShopString(Royals);
 
 }

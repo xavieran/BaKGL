@@ -5,6 +5,7 @@
 #include "bak/inventory.hpp"
 #include "bak/layout.hpp"
 #include "bak/objectInfo.hpp"
+#include "bak/shop.hpp"
 
 #include "gui/inventory/equipmentSlot.hpp"
 #include "gui/inventory/itemArranger.hpp"
@@ -152,6 +153,7 @@ private:
                         mIcons,
                         invIndex,
                         item,
+                        BAK::Shop::GetSellPrice(item, mContainer->GetShopData()),
                         [&]{
                             ShowItemDescription(item);
                         });

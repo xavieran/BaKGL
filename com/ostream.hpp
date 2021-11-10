@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <ostream>
 #include <optional>
+#include <vector>
 
 namespace std {
 
@@ -15,6 +16,18 @@ inline ostream& operator<<(ostream& os, const array<T, N>& a)
     {
         os << sep << setw(2) << setfill('0') << +a[i];
         sep = " ";
+    }
+    return os;
+}
+
+template <typename T>
+inline ostream& operator<<(ostream& os, const vector<T>& items)
+{
+    string sep = "";
+    for (const auto& item : items)
+    {
+        os << sep << item;
+        sep = ",";
     }
     return os;
 }

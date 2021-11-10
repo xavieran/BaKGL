@@ -149,14 +149,19 @@ public:
         const Font& font,
         const BAK::InventoryItem& item)
     {
-        std::stringstream ss{};
-        ss << "#" << +item.mCondition << 
-            (item.IsStackable() ? "" : "%");
-        const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
-        const auto& dims = GetPositionInfo().mDimensions;
-        mQuantity.SetPosition(
-            dims - textDims 
-            + glm::vec2{4, 2});
+        if (item.IsConditionBased() 
+            || item.IsStackable()
+            || item.IsChargeBased())
+        {
+            std::stringstream ss{};
+            ss << "#" << +item.mCondition << 
+                ((item.IsStackable() || item.IsChargeBased()) ? "" : "%");
+            const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
+            const auto& dims = GetPositionInfo().mDimensions;
+            mQuantity.SetPosition(
+                dims - textDims 
+                + glm::vec2{4, 2});
+        }
     }
 
 protected:

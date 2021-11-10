@@ -59,6 +59,16 @@ public:
         mStatus = SetItemStatus(mStatus, ItemStatus::Equipped, state);
     }
 
+    bool IsConditionBased() const
+    {
+        return (0x1000 & GetObject().mFlags) == 0x1000;
+    }
+
+    bool IsChargeBased() const
+    {
+        return (0x2000 & GetObject().mFlags) == 0x2000;
+    }
+
     bool IsStackable() const
     {
         return (0x0800 & GetObject().mFlags) == 0x0800;

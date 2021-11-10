@@ -4,9 +4,9 @@
 
 namespace BAK {
 
-std::ostream& operator<<(std::ostream& os, const Shop& shop)
+std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
 {
-    os << std::dec << "Shop { templeNumber: " << +shop.mTempleNumber
+    os << std::dec << "ShopStats { templeNumber: " << +shop.mTempleNumber
         << " sellFactor: " << +shop.mSellFactor
         << " maxDiscount: " << +shop.mMaxDiscount
         << " buyFactor: " << +shop.mBuyFactor
@@ -17,7 +17,8 @@ std::ostream& operator<<(std::ostream& os, const Shop& shop)
         << " unknown: " << std::hex << shop.mUnknown << std::dec
         << " repairTypes: " << +shop.mRepairTypes
         << " repairFactor: " << +shop.mRepairFactor
-        << " categories: " << std::hex << shop.mCategories << std::dec << "}";
+        << " categories: " << std::hex << shop.mCategories << std::dec
+        << " [" << GetCategories(shop.mCategories) << "]}";
 
     return os;
 }

@@ -72,7 +72,7 @@ Container::Container(
     ContainerType type,
     Target dialog,
     glm::vec<2, unsigned> location,
-    std::optional<Shop> shopData,
+    std::optional<ShopStats> shopData,
     Inventory&& inventory)
 :
     mAddress{address},
@@ -103,7 +103,7 @@ GDSContainer::GDSContainer(
     unsigned numberItems,
     unsigned capacity,
     ContainerType type,
-    std::optional<Shop> shopData,
+    std::optional<ShopStats> shopData,
     Inventory&& inventory)
 :
     mGdsScene{gdsScene},

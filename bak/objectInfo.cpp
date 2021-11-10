@@ -25,6 +25,47 @@ std::string_view ToString(RacialModifier m)
     }
 }
 
+std::string_view ToString(ItemCategory i)
+{
+    switch (i)
+    {
+    case ItemCategory::Modifier: return "Modifier";
+    case ItemCategory::Potion: return "Potion";
+    case ItemCategory::Book: return "Book";
+    case ItemCategory::Staff: return "Staff";
+    case ItemCategory::Magical: return "Magical";
+    case ItemCategory::Armor: return "Armor";
+    case ItemCategory::Crossbow: return "Crossbow";
+    case ItemCategory::Sword: return "Sword";
+    case ItemCategory::Combat: return "Combat";
+    case ItemCategory::Gemstones: return "Gemstones";
+    case ItemCategory::Rations: return "Rations";
+    case ItemCategory::Other: return "Other";
+    case ItemCategory::NonSaleable: return "NonSaleable";
+    case ItemCategory::Scroll: return "Scroll";
+    case ItemCategory::Key: return "Key";
+    case ItemCategory::Inn: return "Inn";
+    default: return "UnknownItemCategory";
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, ItemCategory cat)
+{
+    os << ToString(cat);
+    return os;
+}
+
+std::vector<ItemCategory> GetCategories(std::uint16_t value)
+{
+    auto categories = std::vector<ItemCategory>{};
+    for (std::uint16_t cat = 0; cat < 16; cat++)
+    {
+        if (((1 << cat) & value) != 0)
+            categories.emplace_back(static_cast<ItemCategory>(cat));
+    }
+    return categories;
+}
+
 std::string_view ToString(ItemType i)
 {
     switch (i)
@@ -69,8 +110,10 @@ std::ostream& operator<<(std::ostream& os, const GameObject& go)
         << " size: " << go.mImageSize << " " << ToString(go.mRace) << " " << ToString(go.mType)
         << " stackSize: " << go.mStackSize << " defaultStackSize: " << go.mDefaultStackSize
         << " eff (" << std::hex << go.mEffectMask << ", " << std::dec << go.mEffect
-        << " ) mod (" << std::hex << go.mModifierMask << ", " << std::dec << go.mModifier
-        << ")}";
+        << " ) potionPower: " << go.mPotionPowerOrBookChance
+        << " mod (" << std::hex << go.mModifierMask << ", " << std::dec << go.mModifier
+        << ") df0: " << go.mDullFactor0 << " df1: " << go.mDullFactor1 
+        << " minCond: " << go.mMinCondition << "}";
     return os;
 }
 
@@ -101,14 +144,17 @@ ObjectIndex::ObjectIndex()
         const auto type = fb.GetUint16LE();
         const auto effectMask = fb.GetUint16LE();
         const auto effect = fb.GetSint16LE();
-        const auto unknown5 = fb.GetArray<4>();
+        const auto potionPowerOrBookChance = fb.GetUint16LE();
+        const auto unknown5 = fb.GetArray<2>();
         const auto modifierMask = fb.GetUint16LE();
         const auto modifier = fb.GetSint16LE();
-        const auto unknown6 = fb.GetArray<6>();
+        const auto dullFactor0 = fb.GetUint16LE();
+        const auto dullFactor1 = fb.GetUint16LE();
+        const auto minimumCondition = fb.GetUint16LE();
 
-        logger.Debug() << i << " Unknown: " << unknown << "|"
+        logger.Debug() << i << std::hex << " Unknown: " << unknown << "|"
             << unknown2 << "|" << unknown3 << "|" << unknown4 << "|"
-            << unknown5 << "|" << unknown6 << " " << name << "\n";
+            << unknown5 << "|" << name << std::dec << "\n";
 
         mObjects[i] = GameObject{
             name,
@@ -127,8 +173,12 @@ ObjectIndex::ObjectIndex()
             static_cast<ItemType>(type),
             effectMask,
             effect,
+            potionPowerOrBookChance,
             modifierMask,
-            modifier};
+            modifier,
+            dullFactor0,
+            dullFactor1,
+            minimumCondition};
         logger.Debug() << mObjects[i] << "\n";
     }
 }

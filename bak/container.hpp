@@ -63,7 +63,7 @@ public:
     std::uint8_t mItems;
     std::uint8_t mCapacity;
     std::uint8_t mContainerType;
-    std::optional<Shop> mShopData;
+    std::optional<ShopStats> mShopData;
 };
 
 std::ostream& operator<<(std::ostream&, const ContainerHeader&);
@@ -79,7 +79,7 @@ public:
         ContainerType type,
         Target dialog,
         glm::vec<2, unsigned> location,
-        std::optional<Shop> shopData,
+        std::optional<ShopStats> shopData,
         Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
@@ -106,7 +106,7 @@ public:
         return mType;
     }
 
-    const Shop& GetShopData() const override
+    const ShopStats& GetShopData() const override
     {
         ASSERT(mShopData);
         return *mShopData;
@@ -119,7 +119,7 @@ public:
     ContainerType mType;
     Target mDialog;
     glm::vec<2, unsigned> mLocation;
-    std::optional<Shop> mShopData;
+    std::optional<ShopStats> mShopData;
     Inventory mInventory;
 };
 
@@ -134,7 +134,7 @@ public:
         unsigned numberItems,
         unsigned capacity,
         ContainerType type,
-        std::optional<Shop> shopData,
+        std::optional<ShopStats> shopData,
         Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
@@ -162,7 +162,7 @@ public:
         return mType;
     }
 
-    const Shop& GetShopData() const override
+    const ShopStats& GetShopData() const override
     {
         ASSERT(mShopData);
         return *mShopData;
@@ -173,7 +173,7 @@ public:
     unsigned mNumberItems;
     unsigned mCapacity;
     ContainerType mType;
-    std::optional<Shop> mShopData;
+    std::optional<ShopStats> mShopData;
     Inventory mInventory;
 };
 

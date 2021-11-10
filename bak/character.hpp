@@ -46,8 +46,15 @@ public:
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
 
-    bool CanAddItem(const InventoryItem& item) const override
+    bool CanAddItem(const InventoryItem& ref) const override
     {
+        auto item = ref;
+        // Day's rations are equivalent to 1 of normal rations
+        if (ref.mItemIndex == ItemIndex{134})
+        {
+            item = InventoryItemFactory::MakeItem(ItemIndex{72}, 1);
+        }
+
         if (mInventory.CanAddCharacter(item) > 0)
             return true;
         else if (item.GetObject().mType == ItemType::Staff
@@ -81,6 +88,22 @@ public:
             item.SetEquipped(false);
         }
 
+        // Day's rations are equivalent to 1 of normal rations
+        if (ref.mItemIndex == ItemIndex{134})
+        {
+            item = InventoryItemFactory::MakeItem(ItemIndex{72}, 1);
+        }
+        // Quegian brandy
+        else if (ref.mItemIndex == ItemIndex{135}
+            || ref.mItemIndex == ItemIndex{136}
+            || ref.mItemIndex == ItemIndex{137})
+        {
+            mConditions.IncreaseCondition(
+                static_cast<Condition>(ref.GetObject().mEffectMask),
+                ref.GetObject().mEffect);
+            return true;
+        }
+
         if (mInventory.CanAddCharacter(item))
         {
             mInventory.AddItem(item);
@@ -106,7 +129,7 @@ public:
         return ContainerType::Inv;
     }
 
-    const Shop& GetShopData() const override { ASSERT(false); }
+    const ShopStats& GetShopData() const override { ASSERT(false); }
 
     /* Character Getters */
 

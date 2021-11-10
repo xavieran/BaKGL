@@ -658,7 +658,7 @@ public:
         return items;
     }
 
-    Shop LoadShop()
+    ShopStats LoadShop()
     {
         const auto templeNumber = mBuffer.GetUint8();
         const auto sellFactor = mBuffer.GetUint8();
@@ -673,7 +673,7 @@ public:
         const auto repairFactor = mBuffer.GetUint8();
         const auto categories = mBuffer.GetUint16LE();
 
-        return Shop{
+        return ShopStats{
             templeNumber,
             sellFactor,
             maxDiscount,
@@ -714,7 +714,7 @@ public:
             auto inventory = Inventory{
                 header.mCapacity,
                 LoadItems(header.mItems, header.mCapacity)};
-            auto shopData = std::optional<Shop>{};
+            auto shopData = std::optional<ShopStats>{};
             if (static_cast<ContainerType>(header.mContainerType) == ContainerType::Shop)
                 shopData = LoadShop();
 
@@ -807,7 +807,7 @@ public:
                 || header.mCapacity > 0);
             const auto containerType = static_cast<ContainerType>(header.mContainerType);
 
-            auto shopData = std::optional<Shop>{};
+            auto shopData = std::optional<ShopStats>{};
 
             logger.Info() << header
                 << " Tp: " << ToString(containerType) << std::endl;

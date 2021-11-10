@@ -30,6 +30,7 @@ add_library(bak
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
     screens.hpp
+    shop.hpp shop.cpp
     skills.hpp skills.cpp
     textureFactory.hpp textureFactory.cpp
     worldClock.hpp worldClock.cpp

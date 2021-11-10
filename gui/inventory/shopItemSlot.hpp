@@ -33,6 +33,7 @@ public:
         const Icons& icons,
         BAK::InventoryIndex itemIndex,
         const BAK::InventoryItem& item,
+        BAK::Royals sellPrice,
         std::function<void()>&& showItemDescription)
     :
         InventorySlot{
@@ -44,9 +45,10 @@ public:
             item,
             std::move(showItemDescription)
         },
+        mSellPrice{sellPrice},
         mDescription{
             glm::vec2{0, 0},
-            glm::vec2{80, 50}
+            glm::vec2{84, 50}
         }
     {
         ClearChildren();
@@ -61,9 +63,13 @@ public:
         ASSERT(item.GetObject().mValue >= 0);
 
         std::stringstream ss{};
-        ss << "#" << item.GetObject().mName << " (" 
-            << +item.mCondition << (item.IsStackable() ? ")" : "%)");
-        ss << "\n#" << ToString(BAK::Royals{static_cast<unsigned>(item.GetObject().mValue)});
+        ss << "#" << item.GetObject().mName;
+        if (item.IsStackable() || item.IsChargeBased())
+            ss << " ("  << +item.mCondition << ")";
+        else if (item.IsConditionBased())
+            ss << " ("  << +item.mCondition << "%)";
+
+        ss << "\n#" << ToShopString(mSellPrice);
 
         // First calculate text dims, trim the textbox to that size,
         // then add the text again, centered
@@ -88,6 +94,7 @@ private:
         AddChildBack(&mDescription);
     }
     
+    BAK::Royals mSellPrice;
     TextBox mDescription;
 };
 

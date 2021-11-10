@@ -33,6 +33,24 @@ struct Console : public std::streambuf
     }
 
     // Console commands
+    void ShowTeleports(const std::vector<std::string>& words)
+    {
+        if (!mGameRunner)
+        {
+            AddLog("[error] SHOW_TELEPORTS FAILED No GameRunner Connected");
+            return;
+        }
+
+        std::stringstream ss{};
+        for (unsigned i = 0; i < 40; i++)
+        {
+            ss = std::stringstream{};
+            ss << i << " " << mGameRunner->mTeleportFactory.Get(i);
+            AddLog(ss.str().c_str());
+        }
+    }
+
+    // Console commands
     void SetEventState(const std::vector<std::string>& words)
     {
         if (words.size() < 2)
@@ -232,6 +250,8 @@ struct Console : public std::streambuf
         mCommands.push_back("DO_TELEPORT");
         mCommandActions.emplace_back([this](const auto& cmd){ DoTeleport(cmd); });
 
+        mCommands.push_back("SHOW_TELEPORTS");
+        mCommandActions.emplace_back([this](const auto& cmd){ ShowTeleports(cmd); });
         mCommands.push_back("SET_POSITION");
         mCommandActions.emplace_back([this](const auto& cmd){ SetPosition(cmd); });
 

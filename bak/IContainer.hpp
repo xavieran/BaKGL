@@ -16,7 +16,7 @@ struct Lock
     unsigned mTrapDamage;
 };
 
-struct Shop
+struct ShopStats
 {
     std::uint8_t mTempleNumber;
     std::uint8_t mSellFactor;
@@ -32,7 +32,7 @@ struct Shop
     std::uint16_t mCategories;
 };
 
-std::ostream& operator<<(std::ostream&, const Shop&);
+std::ostream& operator<<(std::ostream&, const ShopStats&);
 
 enum class ContainerType
 {
@@ -64,7 +64,7 @@ public:
     virtual bool GiveItem(const InventoryItem&) = 0;
     virtual bool RemoveItem(const InventoryItem&) = 0;
     virtual ContainerType GetContainerType() const = 0;
-    virtual const Shop& GetShopData() const = 0;
+    virtual const ShopStats& GetShopData() const = 0;
     bool IsShop() const;
 };
 

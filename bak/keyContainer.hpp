@@ -61,7 +61,7 @@ public:
         return ContainerType::Key;
     }
 
-    const Shop& GetShopData() const override { ASSERT(false); }
+    const ShopStats& GetShopData() const override { ASSERT(false); }
     Inventory mInventory;
 };
 

@@ -37,6 +37,31 @@ enum class RacialModifier
 
 std::string_view ToString(RacialModifier);
 
+enum class ItemCategory : std::uint16_t
+{
+    Inn,     // ale and brandy, etc.
+    Key,
+    Armor,
+    NonSaleable,
+    Other,
+    Rations,
+    Gemstones,
+    Combat,  // potion noxum, powder bag, tuning fork
+    Crossbow, 
+    Sword, // include quarrel & bowstring
+    Scroll, // excl. Valheru Armor
+    Magical,
+    Staff,    // excl. Crystal Staff
+    Book,     // excl. Journals
+    Potion,   // incl. Herbal Pack
+    Modifier // incl. Coltari
+};
+
+std::string_view ToString(ItemCategory);
+std::ostream& operator<<(std::ostream& os, ItemCategory cat);
+
+std::vector<ItemCategory> GetCategories(std::uint16_t);
+
 enum class ItemType
 {
     Unspecified,
@@ -88,10 +113,12 @@ public:
     ItemType mType;
     std::uint16_t mEffectMask;
     std::int16_t mEffect;
+    std::uint16_t mPotionPowerOrBookChance;
     std::uint16_t mModifierMask;
     std::int16_t mModifier;
-    //TemporaryModifier mEffect;
-    //PermanentModifier mModifier;
+    std::uint16_t mDullFactor0;
+    std::uint16_t mDullFactor1;
+    std::uint16_t mMinCondition;
 };
 
 std::ostream& operator<<(std::ostream&, const GameObject&);
