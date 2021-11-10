@@ -34,7 +34,8 @@ std::string ToShopString(Royals money)
     const auto sovereigns = BAK::GetSovereigns(money);
     const auto royals = BAK::GetRemainingRoyals(money);
     std::stringstream ss{};
-    if (sovereigns.mValue != 0) ss << "#" << sovereigns << " gold";
+    ss << "#" ;
+    if (sovereigns.mValue != 0) ss << sovereigns << " gold";
     if (royals.mValue != 0) ss << " " << royals << " silver";
     return ss.str();
 }

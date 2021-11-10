@@ -356,19 +356,20 @@ private:
         ASSERT(mContainer);
 
         auto item = slot.GetItem();
-
-        if (item.IsKey())
+        const auto price = mShopScreen.GetSellPrice(slot.GetItemIndex());
+        if (mGameState.GetParty().GetGold().mValue >= price.mValue)
         {
-            ASSERT(mDisplayContainer);
-            mGameState.GetParty().AddItem(item);
-            mContainer->GetInventory()
-                .RemoveItem(slot.GetItemIndex());
-            mGameState.GetParty().LoseMoney(mShopScreen.GetSellPrice(slot.GetItemIndex()));
-
-        }
-        else if (GetCharacter(character).GiveItem(item))
-        {
-            mGameState.GetParty().LoseMoney(mShopScreen.GetSellPrice(slot.GetItemIndex()));
+            ASSERT(GetCharacter(character).CanAddItem(item));
+            if (item.IsKey())
+            {
+                ASSERT(mDisplayContainer);
+                mGameState.GetParty().AddItem(item);
+            }
+            else
+            {
+                ASSERT(GetCharacter(character).GiveItem(item));
+            }
+            mGameState.GetParty().LoseMoney(price);
         }
 
         mNeedRefresh = true;
