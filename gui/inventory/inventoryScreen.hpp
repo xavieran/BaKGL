@@ -70,7 +70,11 @@ public:
         mFont{font},
         mIcons{icons},
         mGameState{gameState},
-        mDialogScene{},
+        mDialogScene{
+            []{},
+            []{},
+            [](const auto&){}
+        },
         mLayout{sLayoutFile},
         mFrame{
             ImageTag{},
@@ -281,59 +285,187 @@ private:
         mSelectedCharacter = character;
     }
 
-    void TransferItem(
+    void TransferItemFromCharacterToCharacter(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex source,
+        BAK::ActiveCharIndex dest)
+    {
+        auto item = slot.GetItem();
+        if (GetCharacter(dest).CanAddItem(item))
+        {
+            GetCharacter(dest).GiveItem(item);
+            GetCharacter(source)
+                .GetInventory()
+                .RemoveItem(slot.GetItemIndex());
+        }
+        else
+        {
+            // Set source and dest cahracter indices here..
+            mGameState.SetDialogContext(1);
+            mGuiManager.StartDialog(
+                BAK::DialogSources::mContainerHasNoRoomForItem,
+                false,
+                &mDialogScene);
+        }
+
+        mLogger.Debug() << __FUNCTION__ << "Source: " 
+            << GetCharacter(source).GetInventory() 
+            << "\n" << "Dest: " << GetCharacter(dest).GetInventory() << "\n";
+        GetCharacter(source).CheckPostConditions();
+    }
+
+    void TransferItemFromContainerToCharacter(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex character)
+    {
+        ASSERT(mContainer);
+
+        auto item = slot.GetItem();
+
+        if (item.IsMoney() || item.IsKey())
+        {
+            ASSERT(mDisplayContainer);
+            mGameState.GetParty().AddItem(item);
+            mContainer->GetInventory()
+                .RemoveItem(slot.GetItemIndex());
+        }
+        else if (GetCharacter(character).GiveItem(item))
+        {
+            mContainer->GetInventory()
+                .RemoveItem(slot.GetItemIndex());
+        }
+    }
+
+    void SellItem(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex character)
+    {
+        ASSERT(mContainer);
+        mGameState.GetParty().GainMoney(
+            mShopScreen.GetBuyPrice(slot.GetItem()));
+        mContainer->GiveItem(slot.GetItem());
+        GetCharacter(character).GetInventory()
+            .RemoveItem(slot.GetItemIndex());
+        mNeedRefresh = true;
+    }
+
+    void BuyItem(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex character)
+    {
+        ASSERT(mContainer);
+
+        auto item = slot.GetItem();
+
+        if (item.IsKey())
+        {
+            ASSERT(mDisplayContainer);
+            mGameState.GetParty().AddItem(item);
+            mContainer->GetInventory()
+                .RemoveItem(slot.GetItemIndex());
+            mGameState.GetParty().LoseMoney(mShopScreen.GetSellPrice(slot.GetItemIndex()));
+
+        }
+        else if (GetCharacter(character).GiveItem(item))
+        {
+            mGameState.GetParty().LoseMoney(mShopScreen.GetSellPrice(slot.GetItemIndex()));
+        }
+
+        mNeedRefresh = true;
+    }
+
+    void TransferItemToShop(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex character)
+    {
+        ASSERT(mContainer);
+        if (true) // mShopScreen.CanBuyItem(slot.GetItem());
+        {
+            mGameState.SetItemValue(mShopScreen.GetBuyPrice(slot.GetItem()));
+            mGuiManager.StartDialog(
+                BAK::DialogSources::mSellItemDialog,
+                false,
+                &mDialogScene);
+
+            mDialogScene.SetDialogFinished(
+                [this, &slot, character](const auto& choice)
+                {
+                    ASSERT(choice);
+                    if (choice->mValue == BAK::Keywords::sYesIndex)
+                    {
+                        SellItem(slot, character);
+                    }
+                    mDialogScene.ResetDialogFinished();
+                });
+        }
+        else
+        {
+            mGameState.SetDialogContext(0xb);
+            mGuiManager.StartDialog(
+                BAK::DialogSources::mContainerHasNoRoomForItem,
+                false,
+                &mDialogScene);
+        }
+    }
+
+    void TransferItemFromShopToCharacter(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex character)
+    {
+        ASSERT(mContainer);
+        if (GetCharacter(character).CanAddItem(slot.GetItem()))
+        {
+            mGameState.SetItemValue(mShopScreen.GetSellPrice(slot.GetItemIndex()));
+            mGuiManager.StartDialog(
+                BAK::DialogSources::mBuyItemDialog,
+                false,
+                &mDialogScene);
+
+            mDialogScene.SetDialogFinished(
+                [this, &slot, character](const auto& choice)
+                {
+                    ASSERT(choice);
+                    // FIXME: Add haggling...
+                    if (choice->mValue == 0x104)
+                    {
+                        BuyItem(slot, character);
+                    }
+                    mDialogScene.ResetDialogFinished();
+                });
+        }
+        else
+        {
+            mGameState.SetDialogContext(0xb);
+            mGuiManager.StartDialog(
+                BAK::DialogSources::mContainerHasNoRoomForItem,
+                false,
+                &mDialogScene);
+        }
+    }
+
+    void TransferItemToCharacter(
         InventorySlot& slot,
         BAK::ActiveCharIndex character)
     {
         CheckExclusivity();
 
-        // This would be the case if we were in the key display
+        // When displaying keys, can't transfer items
         if (mDisplayContainer && mContainer == nullptr)
             return;
 
-        auto item = slot.GetItem();
-
-        if (mSelectedCharacter)
+        if (mSelectedCharacter && (*mSelectedCharacter != character))
         {
-            if (character != *mSelectedCharacter)
-            {
-                if (GetCharacter(character).CanAddItem(item))
-                {
-                    GetCharacter(character).GiveItem(item);
-                    GetCharacter(*mSelectedCharacter)
-                        .GetInventory()
-                        .RemoveItem(slot.GetItemIndex());
-                }
-                else
-                {
-                    // Set source and dest cahracter indices here..
-                    mGameState.SetDialogContext(1);
-                    mGuiManager.StartDialog(
-                        BAK::DialogSources::mContainerHasNoRoomForItem,
-                        false,
-                        &mDialogScene);
-                }
-            }
-
-            mLogger.Debug() << __FUNCTION__ << "Source: " 
-                << GetCharacter(*mSelectedCharacter).GetInventory() 
-                << "\n" << "Dest: " << GetCharacter(character).GetInventory() << "\n";
-            GetCharacter(*mSelectedCharacter).CheckPostConditions();
+            TransferItemFromCharacterToCharacter(slot, *mSelectedCharacter, character);
         }
         else
         {
-            if (item.IsMoney() || item.IsKey())
+            if (mContainer->IsShop())
             {
-                ASSERT(mDisplayContainer);
-                mGameState.GetParty().AddItem(item);
-                mContainer->GetInventory()
-                    .RemoveItem(slot.GetItemIndex());
+                TransferItemFromShopToCharacter(slot, character);
             }
-            else if (GetCharacter(character).GiveItem(item))
+            else
             {
-                if (!mContainer->IsShop())
-                    mContainer->GetInventory()
-                        .RemoveItem(slot.GetItemIndex());
+                TransferItemFromContainerToCharacter(slot, character);
             }
         }
 
@@ -372,19 +504,27 @@ private:
 
     void MoveItemToContainer(InventorySlot& slot)
     {
-        auto item = slot.GetItem();
-        mLogger.Debug() << "Move item to container: " << item << "\n";
+        // Can't move an item in a container to the container...
+        if (mDisplayContainer)
+            return;
+
         ASSERT(mSelectedCharacter);
+
+        mLogger.Debug() << "Move item to container: " << slot.GetItem() << "\n";
 
         if (mContainer && mContainer->IsShop())
         {
-            mContainer->GetInventory().AddItem(item);
-            GetCharacter(*mSelectedCharacter).RemoveItem(item);
-            mNeedRefresh = true;
+            ASSERT(mSelectedCharacter);
+            TransferItemToShop(slot, *mSelectedCharacter);
+        }
+        else if (mContainer)
+        {
+            mContainer->GetInventory().AddItem(slot.GetItem());
+            GetCharacter(*mSelectedCharacter).GetInventory().RemoveItem(slot.GetItemIndex());
         }
 
         GetCharacter(*mSelectedCharacter).CheckPostConditions();
-
+        mNeedRefresh = true;
     }
 
     void UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
@@ -440,7 +580,7 @@ private:
                 party.GetCharacter(person).GetIndex().mValue);
             mCharacters.emplace_back(
                 [this, character=person](InventorySlot& slot){
-                    TransferItem(slot, character);
+                    TransferItemToCharacter(slot, character);
                 },
                 mLayout.GetWidgetLocation(person.mValue),
                 mLayout.GetWidgetDimensions(person.mValue),
@@ -682,7 +822,7 @@ private:
     const Font& mFont;
     const Icons& mIcons;
     BAK::GameState& mGameState;
-    NullDialogScene mDialogScene;
+    DynamicDialogScene mDialogScene;
 
     BAK::Layout mLayout;
 

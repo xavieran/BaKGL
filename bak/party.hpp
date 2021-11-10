@@ -67,6 +67,17 @@ public:
         return false;
     }
 
+    void GainMoney(Royals royals)
+    {
+        mGold.mValue += royals.mValue;
+    }
+
+    void LoseMoney(Royals royals)
+    {
+        ASSERT(royals.mValue < mGold.mValue);
+        mGold.mValue -= royals.mValue;
+    }
+
     void RemoveItem(unsigned itemIndex, unsigned quantity)
     {
         if (itemIndex == 0x35)

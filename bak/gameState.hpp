@@ -6,6 +6,7 @@
 #include "bak/dialogChoice.hpp"
 #include "bak/gameData.hpp"
 #include "bak/money.hpp"
+#include "bak/textVariableStore.hpp"
 #include "bak/types.hpp"
 
 #include "com/visit.hpp"
@@ -36,11 +37,13 @@ public:
             {},
             {}},
         mContextValue{0},
+        mItemValue{0},
         mSkillValue{0},
         mChapter{1},
         mZone{1},
         mContainers{},
         mGDSContainers{},
+        mTextVariableStore{},
         mLogger{Logging::LogState::GetLogger("BAK::GameState")}
     {
         if (mGameData != nullptr)
@@ -67,6 +70,8 @@ public:
             return mGameData->mParty;
         return mParty;
     }
+    
+    const TextVariableStore& GetTextVariableStore() const { return mTextVariableStore; }
 
     struct Character
     {
@@ -200,6 +205,23 @@ public:
                 mLogger.Debug() << "Setting flag of event: " << BAK::DialogAction{set} << "\n";
                 SetEventState(set);
             },
+            [&](const BAK::SetTextVariable& set)
+            {
+                if (set.mWhat == 0x11)
+                {
+                    mTextVariableStore.SetTextVariable(set.mWhich, "Active Character");
+                }
+                if (set.mWhat == 0x1c)
+                {
+                    mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
+                }
+                else if (set.mWhat == 0x13)
+                {
+                    mTextVariableStore.SetTextVariable(
+                        set.mWhich,
+                        ToShopDialogString(mItemValue));
+                }
+            },
             [&](const BAK::LoseItem& lose)
             {
                 // FIXME: Implement if this skill only improves for one character
@@ -259,6 +281,11 @@ public:
         }
         else if (choice.mState == BAK::ActiveStateFlag::Context
             && mContextValue == choice.mExpectedValue)
+        {
+            return true;
+        }
+        else if (choice.mState == BAK::ActiveStateFlag::CantAfford
+            && (GetMoney() > mItemValue) == (choice.mExpectedValue == 1))
         {
             return true;
         }
@@ -406,6 +433,11 @@ public:
         mContextValue = contextValue;
     }
 
+    void SetItemValue(Royals value)
+    {
+        mItemValue = value;
+    }
+
     void ClearUnseenImprovements(unsigned character)
     {
         if (mGameData)
@@ -427,12 +459,14 @@ public:
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue;
+    Royals mItemValue;
     unsigned mSkillValue;
     unsigned mChapter;
     ZoneNumber mZone;
     std::vector<
         std::vector<Container>> mContainers;
     std::vector<GDSContainer> mGDSContainers;
+    TextVariableStore mTextVariableStore;
     const Logging::Logger& mLogger;
 };
 

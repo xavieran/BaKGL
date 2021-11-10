@@ -15,7 +15,6 @@
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
 
-#include <regex>
 #include <string>
 #include <string_view>
 
@@ -144,15 +143,7 @@ public:
         else
             text = std::string{snippet.GetText()};
 
-        text = std::regex_replace(
-            text,
-            std::regex{"@4"},
-            std::string{mGameState.GetPartyLeader().mName});
-
-        text = std::regex_replace(
-            text,
-            std::regex{"@0"},
-            std::string{mGameState.GetPartyFollower().mName});
+        text = mGameState.GetTextVariableStore().SubstituteVariables(text);
 
         const auto ds1 = snippet.mDisplayStyle;
         const auto act = snippet.mActor;

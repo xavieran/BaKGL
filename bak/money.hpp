@@ -13,5 +13,6 @@ Royals GetRemainingRoyals(Royals);
 
 std::string ToString(Royals);
 std::string ToShopString(Royals);
+std::string ToShopDialogString(Royals);
 
 }

@@ -87,11 +87,24 @@ public:
 
     unsigned GetMaxPages()
     {
-        ASSERT(mContainer != nullptr);
+        ASSERT(mContainer);
         const auto nItems = mContainer->GetInventory().GetNumberItems();
         const auto fullPages = nItems / mItemsPerPage;
         const auto partialPages = (nItems % mItemsPerPage) != 0;
         return fullPages + partialPages;
+    }
+
+    BAK::Royals GetSellPrice(BAK::InventoryIndex itemIndex)
+    {
+        ASSERT(mContainer);
+        const auto& item = mContainer->GetInventory().GetAtIndex(itemIndex);
+        return BAK::Shop::GetSellPrice(item, mContainer->GetShopData());
+    }
+
+    BAK::Royals GetBuyPrice(const BAK::InventoryItem& item)
+    {
+        ASSERT(mContainer);
+        return BAK::Shop::GetBuyPrice(item, mContainer->GetShopData());
     }
 
 private:
