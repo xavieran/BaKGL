@@ -13,8 +13,8 @@ uniform sampler2DArray texture0;
 // colorMode
 // 0 :: Use Texture
 // 1 :: Use Solid Color
-// 2 :: Use mix of texture and solid color
-// 3 :: Use solid color with texture alpha
+// 2 :: Use mix of texture and solid color (TintColor)
+// 3 :: Use solid color with texture alpha (ReplaceColor)
 
 void main()
 {
@@ -31,7 +31,6 @@ void main()
         color = vec4(
             blockColorB,
             textureSample.a);
-
     else
         color = vec4(textureColor, textureSample.a);
 }

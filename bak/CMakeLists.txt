@@ -28,6 +28,7 @@ add_library(bak
     party.hpp party.cpp
     palette.hpp palette.cpp
     objectInfo.hpp objectInfo.cpp
+    random.hpp random.cpp
     resourceNames.hpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp

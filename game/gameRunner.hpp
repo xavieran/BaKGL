@@ -305,7 +305,8 @@ public:
                         mGuiManager.StartDialog(
                             cit->mDialog,
                             false,
-                            false,
+                            //FIXME: There are a few dialogs of fixed objects which require the frame
+                            false, 
                             &mDynamicDialogScene);
                     }
                     else
@@ -338,7 +339,8 @@ public:
                             mGuiManager.StartDialog(
                                 fit->mDialogKey,
                                 false,
-                                false,
+                                //FIXME: There are a few dialogs of fixed objects which require the frame
+                                false, 
                                 &mDynamicDialogScene);
                         Logging::LogDebug(__FUNCTION__) << "ClickableFixedObject: " << *fit << "\n";
                     }

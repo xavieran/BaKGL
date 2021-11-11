@@ -24,7 +24,8 @@ enum class DialogFrame
 {
     Fullscreen = 0,
     ActionArea = 1,
-    LowerArea = 2
+    ActionAreaInventory = 2,
+    LowerArea = 3
 };
 
 class DialogDisplay : public Widget
@@ -146,23 +147,23 @@ public:
         text = mGameState.GetTextVariableStore().SubstituteVariables(text);
 
         const auto ds1 = snippet.mDisplayStyle;
+        const auto ds2 = snippet.mDisplayStyle2;
         const auto ds3 = snippet.mDisplayStyle3;
         const auto act = snippet.mActor;
 
-        const auto dialogFrame = std::invoke([ds1, ds3, act]{
+        const auto dialogFrame = std::invoke([ds1, ds2, ds3, act]{
             if (act != 0x0)
                 return DialogFrame::LowerArea;
-
-            if (ds1 == 0x02 || ds3 == 0x02 || ds1 == 0x05)
-                return DialogFrame::ActionArea;
-            else if (ds1 == 0x03
-                || ds1 == 0x04)
+            else if (ds1 == 0x05)
+                return DialogFrame::ActionAreaInventory;
+            else if (ds1 == 0x03 || ds1 == 0x04)
                 return DialogFrame::LowerArea;
+            else if (ds1 == 0x02 || ds3 == 0x02 || ds2 == 0x14)
+                return DialogFrame::ActionArea;
             else
                 return DialogFrame::Fullscreen;
         });
 
-        const auto ds2 = snippet.mDisplayStyle2;
         const bool verticallyCentered
             = ((ds2 & 0x10) == 0x10) || (ds2 == 0x3);
         const bool horizontallyCentered 
@@ -235,9 +236,23 @@ private:
                 centeredY,
                 isBold);
         } break;
+        case DialogFrame::ActionAreaInventory: [[fallthrough]];
         case DialogFrame::ActionArea:
         {
             AddChildBack(&mActionAreaFrame);
+            if (dialogFrame == DialogFrame::ActionArea)
+            {
+                mActionAreaFrame.SetPosition({13, 11});
+                mActionAreaFrame.SetDimensions({295, 101});
+                mActionAreaTextBox.SetDimensions({295, 101});
+            }
+            // Inventory style is a bit bigger..
+            else
+            {
+                mActionAreaFrame.SetPosition({12, 11});
+                mActionAreaFrame.SetDimensions({295, 121});
+                mActionAreaTextBox.SetDimensions({295, 121});
+            }
             return mActionAreaTextBox.AddText(
                 mFont,
                 text,

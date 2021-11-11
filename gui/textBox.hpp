@@ -9,6 +9,7 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/colors.hpp"
+#include "gui/fontManager.hpp"
 #include "gui/widget.hpp"
 
 #include "xbak/FileBuffer.h"
@@ -16,32 +17,6 @@
 #include <glm/glm.hpp>
 
 namespace Gui {
-
-class Font
-{
-public:
-    Font(
-        const std::string& font,
-        Graphics::SpriteManager& spriteManager)
-    :
-        mFont{std::invoke([&]{
-            auto fb = FileBufferFactory::CreateFileBuffer(font);
-            return BAK::LoadFont(fb);
-        })},
-        mSpriteSheet{spriteManager.AddSpriteSheet()}
-    {
-        spriteManager.GetSpriteSheet(mSpriteSheet)
-            .LoadTexturesGL(mFont.GetCharacters());
-    }
-
-    const auto& GetFont() const { return mFont; }
-    const auto& GetSpriteSheet() const { return mSpriteSheet; }
-
-private:
-    BAK::Font mFont;
-    Graphics::SpriteSheetIndex mSpriteSheet;
-};
-
 
 class TextBox : public Widget
 {

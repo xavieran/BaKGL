@@ -75,6 +75,26 @@ public:
         return (0x0800 & GetObject().mFlags) == 0x0800;
     }
 
+    bool IsNumberBased() const
+    {
+        return (0x8000 & GetObject().mFlags) == 0x8000;
+    }
+
+    bool DisplayCondition() const
+    {
+        return IsConditionBased();
+    }
+
+    bool DisplayNumber() const
+    {
+        return IsConditionBased() 
+            || IsStackable()
+            || IsChargeBased()
+            || IsNumberBased()
+            || IsKey();
+    }
+
+
     GameObject const* mObject;
     ItemIndex mItemIndex;
     unsigned mCondition;

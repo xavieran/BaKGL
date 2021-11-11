@@ -57,6 +57,7 @@ public:
         mLogger{Logging::LogState::GetLogger("Gui::ContainerDisplay")}
     {
         assert(mShowDescription);
+        mInventoryItems.reserve(20);
     }
 
     void SetContainer(BAK::IContainer* container)

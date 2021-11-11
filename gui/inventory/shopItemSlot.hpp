@@ -64,7 +64,7 @@ public:
 
         std::stringstream ss{};
         ss << "#" << item.GetObject().mName;
-        if (item.IsStackable() || item.IsChargeBased())
+        if (item.IsStackable() || item.IsChargeBased() || item.IsNumberBased())
             ss << " ("  << +item.mCondition << ")";
         else if (item.IsConditionBased())
             ss << " ("  << +item.mCondition << "%)";

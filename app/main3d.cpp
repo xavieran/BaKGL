@@ -281,7 +281,6 @@ int main(int argc, char** argv)
         }
     );
 
-
     double currentTime = 0;
     double lastTime = 0;
     float deltaTime = 0;
@@ -309,6 +308,7 @@ int main(int argc, char** argv)
     {
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
+        guiManager.OnTimeDelta(currentTime - lastTime);
         lastTime = currentTime;
 
         cameraPtr->SetDeltaTime(deltaTime);

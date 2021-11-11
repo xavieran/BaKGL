@@ -8,10 +8,12 @@
 
 #include "gui/IGuiManager.hpp"
 
+#include "gui/animatorStore.hpp"
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/icons.hpp"
+#include "gui/fontManager.hpp"
 #include "gui/info/infoScreen.hpp"
 #include "gui/inventory/inventoryScreen.hpp"
 #include "gui/lock/lockScreen.hpp"
@@ -55,7 +57,7 @@ public:
             glm::vec2{1},
             false
         },
-        mFont{"GAME.FNT", spriteManager},
+        mFontManager{spriteManager},
         mActors{spriteManager},
         mBackgrounds{spriteManager},
         mIcons{spriteManager},
@@ -67,7 +69,7 @@ public:
             glm::vec2{320, 240},
             mActors,
             mBackgrounds,
-            mFont,
+            mFontManager.GetGameFont(),
             gameState,
             mScreenStack,
             [this](const auto& choice){ DialogFinished(choice); }
@@ -80,23 +82,24 @@ public:
             mActors,
             mBackgrounds,
             mIcons,
-            mFont,
+            mFontManager.GetGameFont(),
             mGameState},
         mInventoryScreen{
             *this,
             mBackgrounds,
             mIcons,
-            mFont,
+            mFontManager.GetGameFont(),
             mGameState},
         mLockScreen{
             *this,
             mBackgrounds,
             mIcons,
-            mFont,
+            mFontManager.GetGameFont(),
             mGameState},
         mGdsScenes{},
         mDialogScene{nullptr},
         mGuiScreens{},
+        mAnimatorStore{},
         mZoneLoader{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
     {
@@ -127,6 +130,16 @@ public:
         EnterGDSScene(hotspot, []{});
     }
 
+    void OnTimeDelta(double delta)
+    {
+        mAnimatorStore.OnTimeDelta(delta);
+    }
+
+    void AddAnimator(LinearAnimator&& animator) override
+    {
+        mAnimatorStore.AddAnimator(std::move(animator));
+    }
+
     void EnterGDSScene(
         const BAK::HotspotRef& hotspot,
         std::function<void()>&& finished) override
@@ -140,7 +153,7 @@ public:
                 mSpriteManager,
                 mActors,
                 mBackgrounds,
-                mFont,
+                mFontManager.GetGameFont(),
                 mGameState,
                 static_cast<IGuiManager&>(*this)));
         mGuiScreens.push(std::move(finished));
@@ -232,7 +245,10 @@ public:
     {
         mCursor.PushCursor(0);
         mLogger.Debug() << __FUNCTION__ << ":" << (*container).GetLockData() << "\n";
-        if (container->GetLockData().mRating > 0 && container->GetContainerType() == BAK::ContainerType::FairyChest)
+
+        if (!mLockScreen.IsUnlocked()
+            && container->GetLockData().mRating > 0 
+            && container->GetContainerType() == BAK::ContainerType::FairyChest)
         {
             ShowLock(container);
         }
@@ -244,6 +260,7 @@ public:
 
             mInventoryScreen.SetContainer(container);
             mScreenStack.PushScreen(&mInventoryScreen);
+            mLockScreen.ResetUnlocked();
         }
     }
 
@@ -265,6 +282,11 @@ public:
     {
         mCursor.PopCursor();
         mScreenStack.PopScreen();
+
+        if (mLockScreen.IsUnlocked())
+        {
+            ShowContainer(mLockScreen.GetContainer());
+        }
     }
 
     void PopGuiScreen()
@@ -282,7 +304,7 @@ public:
     }
 
 //private:
-    Font mFont;
+    FontManager mFontManager;
     Actors mActors;
     Backgrounds mBackgrounds;
     Icons mIcons;
@@ -304,6 +326,7 @@ public:
     IDialogScene* mDialogScene;
     std::stack<GuiScreen> mGuiScreens;
 
+    AnimatorStore mAnimatorStore;
     BAK::IZoneLoader* mZoneLoader;
 
     const Logging::Logger& mLogger;

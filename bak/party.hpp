@@ -104,11 +104,11 @@ public:
             auto item = InventoryItemFactory::MakeItem(
                 ItemIndex{itemIndex},
                 static_cast<std::uint8_t>(quantity));
-            for (const auto& character : mActiveCharacters)
-            {
-                if (GetCharacter(character).RemoveItem(item))
-                    return;
-            }
+            if (item.IsKey())
+                mKeys.RemoveItem(item);
+            else
+                for (const auto& character : mActiveCharacters)
+                    if (GetCharacter(character).RemoveItem(item)) return;
         }
     }
 

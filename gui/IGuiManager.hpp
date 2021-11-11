@@ -2,6 +2,8 @@
 
 #include "gui/IDialogScene.hpp"
 
+#include "gui/animator.hpp"
+
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/types.hpp"
@@ -27,6 +29,8 @@ public:
 
     virtual void ShowLock(BAK::IContainer*) = 0;
     virtual void ExitLock() = 0;
+
+    virtual void AddAnimator(LinearAnimator&&) = 0;
 };
 
 class NullGuiManager : public IGuiManager
@@ -47,6 +51,8 @@ class NullGuiManager : public IGuiManager
 
     void ShowLock(BAK::IContainer*) override {}
     void ExitLock() override {}
+
+    void AddAnimator(LinearAnimator&&) override {}
 };
 
 }

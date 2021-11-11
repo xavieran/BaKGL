@@ -149,13 +149,11 @@ public:
         const Font& font,
         const BAK::InventoryItem& item)
     {
-        if (item.IsConditionBased() 
-            || item.IsStackable()
-            || item.IsChargeBased())
+        if (item.DisplayNumber())
         {
             std::stringstream ss{};
             ss << "#" << +item.mCondition << 
-                ((item.IsStackable() || item.IsChargeBased()) ? "" : "%");
+                (item.DisplayCondition()  ? "%" : "");
             const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
             const auto& dims = GetPositionInfo().mDimensions;
             mQuantity.SetPosition(

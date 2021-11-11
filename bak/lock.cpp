@@ -1,7 +1,8 @@
 #include "bak/lock.hpp"
 
-namespace BAK {
+#include "bak/random.hpp"
 
+namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const LockStats& lock)
 {
@@ -12,11 +13,11 @@ std::ostream& operator<<(std::ostream& os, const LockStats& lock)
 
 LockType ClassifyLock(unsigned lockRating)
 {
-    if (lockRating < 51)
+    if (lockRating < 0x33)
         return LockType::Easy;
-    else if (lockRating < 81)
+    else if (lockRating < 0x51)
         return LockType::Medium;
-    else if (lockRating < 101)
+    else if (lockRating < 0x65)
         return LockType::Hard;
     else
         return LockType::Unpickable;
@@ -85,11 +86,6 @@ unsigned DescribeLock(unsigned picklockSkill, unsigned lockRating)
         return 3; // lock is broen
 }
 
-unsigned GetRandom()
-{
-    return 5;
-}
-
 unsigned GetRandomMod100()
 {
     return (GetRandom() & 0xfff) % 100;
@@ -99,13 +95,14 @@ bool KeyBroken(const InventoryItem& item, const Skill& skill, unsigned lockRatin
 {
     // Returns e.g. 0x32 for peasants key...
     const auto keyRating = GetKeyRating(item.mItemIndex);
+    // from the disassembly... looks reasonable
     const auto diff = 100 - keyRating;
-    const auto skillLimitOn3 = skill.mCurrent / 3;
-    const auto diffSubSkill = (diff - skillLimitOn3) << 1;
-    const auto diffSubSkillOn3 = diffSubSkill / 3;
+    const auto skillDiv3 = skill.mCurrent / 3;
+    const auto diffSubSkill = (diff - skillDiv3) << 1;
+    const auto diffSubSkillDiv3 = diffSubSkill / 3;
 
     const auto randomNumber = GetRandomMod100();
-    return randomNumber < diffSubSkillOn3;
+    return randomNumber < diffSubSkillDiv3;
 }
 
 bool PicklockBroken(const Skill& skill, unsigned lockRating)

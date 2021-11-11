@@ -47,7 +47,8 @@ public:
             std::make_pair("INVENTOR.SCX", "INVENTOR.PAL"),
             std::make_pair("OPTIONS0.SCX", "OPTIONS.PAL"),
             std::make_pair("OPTIONS1.SCX", "OPTIONS.PAL"),
-            std::make_pair("OPTIONS2.SCX", "OPTIONS.PAL")
+            std::make_pair("OPTIONS2.SCX", "OPTIONS.PAL"),
+            std::make_pair("PUZZLE.SCX", "PUZZLE.PAL")
         })
         {
             AddScreen(scx, pal);

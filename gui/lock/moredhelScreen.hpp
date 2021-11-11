@@ -34,12 +34,12 @@
 
 namespace Gui {
 
-class LockScreen :
+class MoredhelScreen :
     public Widget
 {
 public:
-    static constexpr auto sLayoutFile = "REQ_INV.DAT";
-    static constexpr auto sBackground = "INVENTOR.SCX";
+    static constexpr auto sLayoutFile = "REQ_PUZL.DAT";
+    static constexpr auto sBackground = "PUZZLE.SCX";
 
     // Request offsets
     static constexpr auto mContainerTypeRequest = 3;
@@ -52,11 +52,12 @@ public:
 
     static constexpr auto mGoldRequest = 6;
 
-    LockScreen(
+    MoredhelScreen(
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
         const Icons& icons,
-        const Font& font,
+        const Font& puzzleFont,
+        const Font& alienFont,
         BAK::GameState& gameState)
     :
         // Black background
@@ -85,7 +86,6 @@ public:
             GetPositionInfo().mDimensions,
             true
         },
-        mCharacters{},
         mExit{
             mLayout.GetWidgetLocation(mExitRequest),
             mLayout.GetWidgetDimensions(mExitRequest),
@@ -95,16 +95,12 @@ public:
             [this]{ mGuiManager.ExitLock(); },
             []{}
         },
-        mGoldDisplay{
-            mLayout.GetWidgetLocation(mGoldRequest),
-            mLayout.GetWidgetDimensions(mGoldRequest),
-        },
-        mLock{
+        mLeftClasp{
             [this](){ ShowLockDescription(); },
             [this](const auto& item){ AttemptLock(item); },
             icons,
             glm::vec2{13, 12}},
-        mContainerTypeDisplay{
+        mRightClasp{
             mLayout.GetWidgetLocation(mContainerTypeRequest),
             mLayout.GetWidgetDimensions(mContainerTypeRequest),
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
@@ -113,7 +109,7 @@ public:
             []{},
             []{}
         },
-        mContainerScreen{
+        mTumblers{
             {105, 11},
             {200, 121},
             mIcons,
@@ -122,11 +118,10 @@ public:
                 ShowItemDescription(item);
             }
         },
-        mSelectedCharacter{},
         mContainer{nullptr},
         mNeedRefresh{false},
         mUnlocked{false},
-        mLogger{Logging::LogState::GetLogger("Gui::LockScreen")}
+        mLogger{Logging::LogState::GetLogger("Gui::MoredhelScreen")}
     {
         mCharacters.reserve(3);
         mContainerTypeDisplay.CenterImage(
@@ -136,8 +131,9 @@ public:
     void SetSelectedCharacter(
         BAK::ActiveCharIndex character)
     {
-        mLogger.Debug() << "Setting seleted character to: " << character << "\n";
         mSelectedCharacter = character;
+        mCharacters[character.mValue].SetColor(glm::vec4{1.0, 0, 0, .3});
+        mCharacters[character.mValue].SetColorMode(Graphics::ColorMode::TintColor);
         mNeedRefresh = true;
     }
 
@@ -162,16 +158,16 @@ public:
 
         mContainer = container;
 
+        //SetImageBasedOnLockType(
+        //    BAK::ClassifyLock(container->GetLockData().mRating));
         mLock.SetImageBasedOnLockType(
             BAK::ClassifyLock(container->GetLockData().mRating));
         mLock.SetLocked();
-        ResetUnlocked();
+        mUnlocked = false;
 
         // Automatically set to the highest skilled character
         const auto [character, _] = mGameState.GetParty().GetSkill(BAK::SkillType::Lockpick, true);
-        ASSERT(mGameState.GetParty().FindActiveCharacter(character));
-        SetSelectedCharacter(
-            *mGameState.GetParty().FindActiveCharacter(character));
+        mSelectedCharacter = mGameState.GetParty().FindActiveCharacter(character);
 
         mContainerScreen.SetContainer(
             &mGameState.GetParty().GetKeys());
@@ -301,7 +297,6 @@ private:
             {
                 if (BAK::PicklockSkillImproved())
                 {
-                    mLogger.Debug() << "Lockpick Skill improved!\n";
                     //ImproveSkill x1
                 }
 
@@ -417,27 +412,19 @@ private:
             const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(
                 party.GetCharacter(person).GetIndex().mValue);
             mCharacters.emplace_back(
+                mLayout.GetWidgetLocation(person.mValue),
+                mLayout.GetWidgetDimensions(person.mValue),
+                spriteSheet,
+                image,
+                image,
                 [this, character=person]{
                     // Switch character
                     SetSelectedCharacter(character);
                 },
                 [this, character=person]{
                     mGuiManager.ShowCharacterPortrait(character);
-                },
-                ImageTag{},
-                spriteSheet,
-                image,
-                mLayout.GetWidgetLocation(person.mValue),
-                mLayout.GetWidgetDimensions(person.mValue),
-                true
+                }
             );
-
-            if (person != mSelectedCharacter)
-            {
-                mCharacters[person.mValue].SetColor(glm::vec4{.05, .05, .05, 1}); 
-                mCharacters[person.mValue].SetColorMode(Graphics::ColorMode::TintColor);
-            }
-
             person = party.NextActiveCharacter(person);
         } while (person != BAK::ActiveCharIndex{0});
     }
@@ -484,16 +471,7 @@ private:
 
     Widget mFrame;
 
-    using CharacterButton = Clickable<
-        Clickable<
-            Widget,
-            RightMousePress,
-            std::function<void()>>,
-        LeftMousePress,
-        std::function<void()>>;
-
-    std::vector<CharacterButton> mCharacters;
-
+    std::vector<ClickButtonImage> mCharacters;
     ClickButtonImage mExit;
     TextBox mGoldDisplay;
     
