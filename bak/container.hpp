@@ -63,7 +63,6 @@ public:
     std::uint8_t mItems;
     std::uint8_t mCapacity;
     std::uint8_t mContainerType;
-    std::optional<ShopStats> mShopData;
 };
 
 std::ostream& operator<<(std::ostream&, const ContainerHeader&);
@@ -80,6 +79,7 @@ public:
         Target dialog,
         glm::vec<2, unsigned> location,
         std::optional<ShopStats> shopData,
+        LockStats lockData,
         Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
@@ -112,6 +112,11 @@ public:
         return *mShopData;
     }
 
+    const LockStats& GetLockData() const override
+    {
+        return mLockData;
+    }
+
     unsigned mAddress;
     unsigned mNumber;
     unsigned mNumberItems;
@@ -120,6 +125,7 @@ public:
     Target mDialog;
     glm::vec<2, unsigned> mLocation;
     std::optional<ShopStats> mShopData;
+    LockStats mLockData;
     Inventory mInventory;
 };
 
@@ -135,6 +141,7 @@ public:
         unsigned capacity,
         ContainerType type,
         std::optional<ShopStats> shopData,
+        LockStats lockData,
         Inventory&& inventory);
  
     Inventory& GetInventory() override { return mInventory; }
@@ -168,12 +175,18 @@ public:
         return *mShopData;
     }
 
+    const LockStats& GetLockData() const override
+    {
+        return mLockData;
+    }
+
     BAK::HotspotRef mGdsScene;
     unsigned mNumber;
     unsigned mNumberItems;
     unsigned mCapacity;
     ContainerType mType;
     std::optional<ShopStats> mShopData;
+    LockStats mLockData;
     Inventory mInventory;
 };
 

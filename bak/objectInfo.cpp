@@ -189,6 +189,12 @@ const GameObject& ObjectIndex::GetObject(ItemIndex index) const
     return mObjects[index.mValue];
 }
 
+const ObjectIndex& GetObjectIndex()
+{
+    static auto objectIndex = ObjectIndex{};
+    return objectIndex;
+}
+
 std::ostream& ShowRow(std::ostream& os, const GameObject& go)
 {
     std::stringstream ss{};

@@ -1,6 +1,7 @@
 add_executable(bakTest
     characterTest.cpp
     keyContainerTest.cpp
+    lockTest.cpp
     inventoryTest.cpp
     partyTest.cpp
     )

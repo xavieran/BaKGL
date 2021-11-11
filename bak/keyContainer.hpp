@@ -24,8 +24,7 @@ public:
 
     bool GiveItem(const InventoryItem& item) override
     {
-        ASSERT(item.GetQuantity() == 1);
-        ASSERT(item.GetObject().mType == ItemType::Key);
+        ASSERT(item.IsKey());
         auto it = mInventory.FindItem(item);
         if (it != mInventory.GetItems().end())
             it->mCondition++;
@@ -62,6 +61,7 @@ public:
     }
 
     const ShopStats& GetShopData() const override { ASSERT(false); }
+    const LockStats& GetLockData() const override { ASSERT(false); }
     Inventory mInventory;
 };
 

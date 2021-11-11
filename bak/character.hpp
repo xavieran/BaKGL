@@ -134,6 +134,7 @@ public:
     }
 
     const ShopStats& GetShopData() const override { ASSERT(false); }
+    const LockStats& GetLockData() const override { ASSERT(false); }
 
     /* Character Getters */
 
@@ -263,6 +264,11 @@ public:
 
             ASSERT(crossbowCount <= 1);
         }
+    }
+
+    const Skills& GetSkills() const
+    {
+        return mSkills;
     }
 
     CharIndex mCharacterIndex;

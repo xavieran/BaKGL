@@ -91,8 +91,8 @@ public:
     static constexpr auto mRepairShopItemDoesntNeedRepair = 0x1b7765;
     static constexpr auto mShopBeginRepairDialog = 0x1b7766;
     static constexpr auto mShopRepairDialogTooltip = 0x1b7767;
-    static constexpr auto mLockKnownNoPicklocks = 0x1b776a;
-    static constexpr auto mLockDialog = 0x1b776b;
+    static constexpr auto mLockKnown  = KeyTarget{0x1b776a};
+    static constexpr auto mLockDialog = KeyTarget{0x1b776b};
 
     static constexpr auto mInnDialog  = KeyTarget{0x13d672};
 
@@ -121,6 +121,14 @@ public:
     static constexpr auto mBardingPoor = KeyTarget{0x58};
     static constexpr auto mBardingOkay = KeyTarget{0x59};
     static constexpr auto mBardingGood = KeyTarget{0x5a};
+
+    static constexpr auto mKeyOpenedLock    = KeyTarget{0x51};
+    static constexpr auto mKeyDoesntFit     = KeyTarget{0x52};
+    static constexpr auto mLockPicked       = KeyTarget{0x53};
+    static constexpr auto mFailedToPickLock = KeyTarget{0x54};
+    static constexpr auto mPicklockBroken   = KeyTarget{0x55};
+    static constexpr auto mKeyBroken        = KeyTarget{0xf5};
+
 
 };
 

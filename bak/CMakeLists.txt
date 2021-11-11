@@ -22,6 +22,7 @@ add_library(bak
     inventoryItem.hpp inventoryItem.cpp
     keyContainer.hpp keyContainer.cpp
     layout.hpp layout.cpp
+    lock.hpp lock.cpp
     money.hpp money.cpp
     monster.hpp monster.cpp
     party.hpp party.cpp

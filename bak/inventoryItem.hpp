@@ -51,7 +51,8 @@ public:
 
     bool IsKey() const
     {
-        return GetObject().mType == ItemType::Key;
+        return GetObject().mType == ItemType::Key 
+            || mItemIndex.mValue == 'P';
     }
 
     void SetEquipped(bool state)
@@ -94,7 +95,7 @@ public:
         std::uint8_t status,
         std::uint8_t modifiers)
     {
-        static ObjectIndex objects{};
+        const auto& objects = GetObjectIndex();
 
         return InventoryItem{
             &objects.GetObject(itemIndex),

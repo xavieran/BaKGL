@@ -103,6 +103,8 @@ public:
     static constexpr auto sSkillSelectedEventFlag = 0x1856;
     static constexpr auto sSkillImprovementEventFlag= 0x18ce;
 
+    static constexpr auto sLockHasBeenSeenFlag = 0x1c5c;
+
     static constexpr auto sCombatEntityListCount  = 700;
     static constexpr auto sCombatEntityListOffset = 0x1383;
 
@@ -449,6 +451,16 @@ public:
         return ReadEventBool(sConversationOptionInhibitedFlag + eventPtr);
     }
 
+    void SetLockHasBeenSeen(unsigned lockIndex)
+    {
+        SetEventFlagTrue(sLockHasBeenSeenFlag + lockIndex);
+    }
+
+    bool CheckLockHasBeenSeen(unsigned lockIndex)
+    {
+        return ReadEventBool(sLockHasBeenSeenFlag + lockIndex);
+    }
+
     void ClearTileRecentEncounters()
     {
         for (unsigned i = 0; i < 10; i++)
@@ -658,6 +670,15 @@ public:
         return items;
     }
 
+    LockStats LoadLock()
+    {
+        const auto lockFlag = mBuffer.GetUint8();
+        const auto picklock = mBuffer.GetUint8();
+        const auto fairyChestIndex = mBuffer.GetUint8();
+        const auto damage = mBuffer.GetUint8();
+        return LockStats{lockFlag, picklock, fairyChestIndex, damage};
+    }
+
     ShopStats LoadShop()
     {
         const auto templeNumber = mBuffer.GetUint8();
@@ -725,6 +746,7 @@ public:
                 header.mCapacity,
                 static_cast<ContainerType>(header.mContainerType),
                 shopData,
+                LockStats{},
                 std::move(inventory));
             mLogger.Debug() << shops.back() << "\n";
         }
@@ -808,6 +830,7 @@ public:
             const auto containerType = static_cast<ContainerType>(header.mContainerType);
 
             auto shopData = std::optional<ShopStats>{};
+            auto lockData = LockStats{0,0,0,0};
 
             logger.Info() << header
                 << " Tp: " << ToString(containerType) << std::endl;
@@ -836,24 +859,11 @@ public:
             }
             else if (containerType == ContainerType::CT1)
             {
-                const auto dontKnow = mBuffer.GetUint8();
-                const auto picklock = mBuffer.GetUint8();
-                const auto fairyChestIndex = mBuffer.GetUint8();
-                const auto damage = mBuffer.GetUint8();
-                mLogger.Debug() << "??: " << +dontKnow 
-                    << " picklock: " << +picklock << " damage: " << +damage 
-                    << " FairyChest: " <<  +fairyChestIndex << "\n";
+                lockData = LoadLock();
             }
             else if (containerType == ContainerType::Building)
             {
-                const auto dontKnow = mBuffer.GetUint8();
-                const auto picklock = mBuffer.GetUint8();
-                const auto fairyChestIndex = mBuffer.GetUint8();
-                const auto damage = mBuffer.GetUint8();
-                mLogger.Debug() << "??: " << +dontKnow 
-                    << " picklock: " << +picklock << " damage: " << +damage 
-                    << " FairyChest: " <<  +fairyChestIndex << "\n";
-
+                lockData = LoadLock();
                 mBuffer.DumpAndSkip(2);
                 const auto postDialog = KeyTarget{mBuffer.GetUint32LE()};
                 mLogger.Debug() << "PostLockDialog:  " << Target{postDialog} << "\n";
@@ -861,36 +871,17 @@ public:
             }
             else if (containerType == ContainerType::Chest)
             {
-                const auto dontKnow = mBuffer.GetUint8();
-                const auto picklock = mBuffer.GetUint8();
-                const auto fairyChestIndex = mBuffer.GetUint8();
-                const auto damage = mBuffer.GetUint8();
-                mLogger.Debug() << "??: " << +dontKnow 
-                    << " picklock: " << +picklock << " damage: " << +damage 
-                    << " FairyChest: " <<  +fairyChestIndex << "\n";
+                lockData = LoadLock();
             }
             // Locked chest.....
             else if (containerType == ContainerType::FairyChest)
             {
-                const auto dontKnow = mBuffer.GetUint8();
-                const auto picklock = mBuffer.GetUint8();
-                const auto fairyChestIndex = mBuffer.GetUint8();
-                const auto damage = mBuffer.GetUint8();
-                mLogger.Debug() << "??: " << +dontKnow 
-                    << " picklock: " << +picklock << " damage: " << +damage 
-                    << " FairyChest: " <<  +fairyChestIndex << "\n";
+                lockData = LoadLock();
                 dialog = KeyTarget{mBuffer.GetUint32LE()};
             }
             else if (containerType == ContainerType::EventChest)
             {
-                const auto dontKnow = mBuffer.GetUint8();
-                const auto picklock = mBuffer.GetUint8();
-                const auto fairyChestIndex = mBuffer.GetUint8();
-                const auto damage = mBuffer.GetUint8();
-                mLogger.Debug() << "??: " << +dontKnow 
-                    << " picklock: " << +picklock << " damage: " << +damage 
-                    << " FairyChest: " <<  +fairyChestIndex << "\n";
-
+                lockData = LoadLock();
                 // ?? 2 bytes
                 // set this event flag 2 bytes
                 // 9 bytes
@@ -920,12 +911,9 @@ public:
                 dialog,
                 header.GetPosition(),
                 shopData,
+                lockData,
                 std::move(inventory));
-            logger.Info() << containers.back() << "\n";
-            //logger.Info() << "Items: \n" << containers.back().GetInventory() << "\n";
-
-
-            std::cout << std::endl;
+            logger.Info() << containers.back() << std::endl;
         }
 
         return containers;

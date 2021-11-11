@@ -135,6 +135,8 @@ public:
     std::array<GameObject, sObjectCount> mObjects;
 };
 
+const ObjectIndex& GetObjectIndex();
+
 std::ostream& operator<<(std::ostream&, const ObjectIndex&);
 
 }

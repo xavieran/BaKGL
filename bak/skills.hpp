@@ -30,6 +30,24 @@ enum class SkillType
     GainHealth
 };
 
+static constexpr auto sSkillCaps = std::array<std::uint16_t, 16>{
+    0x1f4,
+    0x1f4,
+    0x1f4,
+    0x1f4,
+    0x0c8,
+    0x0c8,
+    0x0c8,
+    0x0c8,
+    0x0c8,
+    0x0c8,
+    0x0c8,
+    0x0c8,
+    0x0c8,
+    0x064,
+    0x0c8,
+    0x0c8};
+
 std::string_view ToString(SkillType);
 
 struct Skill

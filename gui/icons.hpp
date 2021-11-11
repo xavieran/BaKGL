@@ -71,6 +71,10 @@ public:
             BAK::TextureFactory::AddToTextureStore(
                 textures, "INVMISC.BMX", "OPTIONS.PAL");
 
+            mInventoryLockOffset = textures.size();
+            BAK::TextureFactory::AddToTextureStore(
+                textures, "INVLOCK.BMX", "OPTIONS.PAL");
+
 
             for (const auto& t : textures.GetTextures())
             {
@@ -151,6 +155,16 @@ public:
             mInventoryIconsDims[index]);
     }
 
+    IconInfo GetInventoryLockIcon(unsigned i) const
+    {
+        const auto index = i + mInventoryLockOffset;
+        assert(index < mInventoryIconsDims.size());
+        return std::make_tuple(
+            mInventoryIconsSpriteSheet,
+            Graphics::TextureIndex{index},
+            mInventoryIconsDims[index]);
+    }
+
 private:
     Graphics::SpriteSheetIndex mButtonIconsSpriteSheet;
     unsigned mPressedOffset;
@@ -160,6 +174,7 @@ private:
     unsigned mHeadsOffset;
     unsigned mCompassOffset;
     unsigned mInventoryMiscOffset;
+    unsigned mInventoryLockOffset;
     std::vector<glm::vec2> mInventoryIconsDims;
 
     const Logging::Logger& mLogger;

@@ -27,6 +27,17 @@ public:
         return mCharacters[i.mValue];
     }
 
+    std::optional<ActiveCharIndex> FindActiveCharacter(CharIndex index)
+    {
+        const auto it = std::find(mActiveCharacters.begin(), mActiveCharacters.end(), index);
+        if (it != mActiveCharacters.end())
+            return ActiveCharIndex{
+                static_cast<unsigned>(
+                    std::distance(mActiveCharacters.begin(), it))};
+        else
+            return std::optional<ActiveCharIndex>{};
+    }
+
     const Character& GetCharacter(ActiveCharIndex i) const
     {
         assert(mActiveCharacters.size() <= sMaxActiveCharacters);

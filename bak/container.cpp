@@ -73,6 +73,7 @@ Container::Container(
     Target dialog,
     glm::vec<2, unsigned> location,
     std::optional<ShopStats> shopData,
+    LockStats lockData,
     Inventory&& inventory)
 :
     mAddress{address},
@@ -83,6 +84,7 @@ Container::Container(
     mDialog{dialog},
     mLocation{location},
     mShopData{shopData},
+    mLockData{lockData},
     mInventory{std::move(inventory)}
 {}
 
@@ -92,7 +94,7 @@ std::ostream& operator<<(std::ostream& os, const Container& i)
         << ", num: " << i.mNumber << ", numItems: " << i.mNumberItems << ", capacity: " 
         << i.mCapacity << ", type: " << ToString(i.mType) << std::dec
         << ", dialog:" << i.mDialog << ", loc: " << i.mLocation 
-        << " shop: " << i.mShopData
+        << " shop: " << i.mShopData << " lock: " << i.mLockData
         << ", inventory: [" << i.mInventory << "]}";
     return os;
 }
@@ -104,6 +106,7 @@ GDSContainer::GDSContainer(
     unsigned capacity,
     ContainerType type,
     std::optional<ShopStats> shopData,
+    LockStats lockData,
     Inventory&& inventory)
 :
     mGdsScene{gdsScene},
@@ -112,6 +115,7 @@ GDSContainer::GDSContainer(
     mCapacity{capacity},
     mType{type},
     mShopData{shopData},
+    mLockData{lockData},
     mInventory{std::move(inventory)}
 {}
 
@@ -120,7 +124,7 @@ std::ostream& operator<<(std::ostream& os, const GDSContainer& i)
     os << "Container { addr: " << std::hex << i.mGdsScene << std::dec 
         << ", num: " << i.mNumber << ", numItems: " << i.mNumberItems << ", capacity: " 
         << i.mCapacity << ", type: " << ToString(i.mType)
-        << " shop: " << i.mShopData
+        << " shop: " << i.mShopData << " lock: " << i.mLockData
         << ", inventory: [" << i.mInventory << "]}";
     return os;
 }

@@ -8,7 +8,7 @@
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     
     std::string saveFile{argv[1]};
 
@@ -19,6 +19,7 @@ int main(int argc, char** argv)
     logger.Info() << "Tile: " << std::hex << gameData.mLocation.mTile << std::dec <<  " " << gameData.mLocation.mTile << "\n";
     logger.Info() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
+    logger.Info() << "Party: " << gameData.mParty << "\n";
 
     return 0;
 }

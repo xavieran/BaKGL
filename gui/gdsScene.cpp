@@ -213,6 +213,8 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 
 void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
 {
+    // FIXME: There's a crash here if someone left clicks after having right clicked
+    // Left click should clear the hotspot active flag...
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
     StartDialog(hotspot.mTooltip, true);
 }

@@ -43,6 +43,7 @@ public:
         mClickablesEnabled{false},
         mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
     {
+        ASSERT(mLoadRenderer);
     }
 
     void DoTeleport(BAK::TeleportIndex teleIndex) override

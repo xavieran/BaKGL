@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
     inputHandler.Bind(GLFW_KEY_RIGHT, [&]{
         iconI++;
-        const auto& [ss, ti, dims] = icons.GetButton(iconI);
+        const auto& [ss, ti, dims] = icons.GetInventoryLockIcon(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
     });
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{
         iconI--;
-        const auto& [ss, ti, dims] = icons.GetButton(iconI);
+        const auto& [ss, ti, dims] = icons.GetInventoryLockIcon(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);

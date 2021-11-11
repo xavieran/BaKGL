@@ -14,6 +14,7 @@
 #include "gui/icons.hpp"
 #include "gui/info/infoScreen.hpp"
 #include "gui/inventory/inventoryScreen.hpp"
+#include "gui/lock/lockScreen.hpp"
 #include "gui/mainView.hpp"
 #include "gui/widget.hpp"
 
@@ -82,6 +83,12 @@ public:
             mFont,
             mGameState},
         mInventoryScreen{
+            *this,
+            mBackgrounds,
+            mIcons,
+            mFont,
+            mGameState},
+        mLockScreen{
             *this,
             mBackgrounds,
             mIcons,
@@ -224,18 +231,39 @@ public:
     void ShowContainer(BAK::IContainer* container) override
     {
         mCursor.PushCursor(0);
-        mGuiScreens.push(GuiScreen{[&](){
-            mInventoryScreen.ClearContainer();
-        }});
+        mLogger.Debug() << __FUNCTION__ << ":" << (*container).GetLockData() << "\n";
+        if (container->GetLockData().mRating > 0 && container->GetContainerType() == BAK::ContainerType::FairyChest)
+        {
+            ShowLock(container);
+        }
+        else
+        {
+            mGuiScreens.push(GuiScreen{[&](){
+                mInventoryScreen.ClearContainer();
+            }});
 
-        mInventoryScreen.SetContainer(container);
-        mScreenStack.PushScreen(&mInventoryScreen);
+            mInventoryScreen.SetContainer(container);
+            mScreenStack.PushScreen(&mInventoryScreen);
+        }
     }
 
     void ExitInventory() override
     {
         mCursor.PopCursor();
         PopAndRunGuiScreen();
+        mScreenStack.PopScreen();
+    }
+
+    void ShowLock(BAK::IContainer* container) override
+    {
+        mCursor.PushCursor(0);
+        mLockScreen.SetContainer(container);
+        mScreenStack.PushScreen(&mLockScreen);
+    }
+
+    void ExitLock() override
+    {
+        mCursor.PopCursor();
         mScreenStack.PopScreen();
     }
 
@@ -270,6 +298,7 @@ public:
     MainView mMainView;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
+    LockScreen mLockScreen;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;

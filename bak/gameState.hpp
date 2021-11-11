@@ -197,6 +197,12 @@ public:
         return mPartyFollower;
     }
 
+    void SetKeyName(BAK::ItemIndex key)
+    {
+        constexpr auto knownKeyDialogKeyVariable = 2;
+        mTextVariableStore.SetTextVariable(knownKeyDialogKeyVariable, GetObjectIndex().GetObject(key).mName);
+    }
+
     void EvaluateAction(const DialogAction& action)
     {
         std::visit(overloaded{
@@ -414,6 +420,19 @@ public:
     {
         if (mGameData)
             mGameData->SetConversationItemClicked(choice.mEventPointer);
+    }
+
+    bool CheckLockSeen(unsigned lockIndex)
+    {
+        if (mGameData)
+            return mGameData->CheckLockHasBeenSeen(lockIndex);
+        return false;
+    }
+
+    void MarkLockSeen(unsigned lockIndex)
+    {
+        if (mGameData)
+            mGameData->SetLockHasBeenSeen(lockIndex);
     }
 
     void SetEventValue(unsigned eventPtr, unsigned value)
