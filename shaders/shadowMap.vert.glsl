@@ -20,7 +20,5 @@ void main()
     vertexColor = vertexColor_modelspace;
     uvCoords = textureCoords.xyz;
     texBlend = texBlendVec;
-
-
 }  
 

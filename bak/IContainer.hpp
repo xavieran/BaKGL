@@ -1,7 +1,8 @@
 #pragma once
 
-#include "inventory.hpp"
-#include "inventoryItem.hpp"
+#include "bak/inventory.hpp"
+#include "bak/inventoryItem.hpp"
+#include "bak/shop.hpp"
 
 #include <ostream>
 #include <string_view>
@@ -15,24 +16,6 @@ struct Lock
     unsigned mFairyChestIndex;
     unsigned mTrapDamage;
 };
-
-struct ShopStats
-{
-    std::uint8_t mTempleNumber;
-    std::uint8_t mSellFactor;
-    std::uint8_t mMaxDiscount;
-    std::uint8_t mBuyFactor;
-    std::uint16_t mHaggle;
-    std::uint8_t mBardingSkill;
-    std::uint8_t mBardingReward;
-    std::uint8_t mBardingMaxReward;
-    std::array<std::uint8_t, 3> mUnknown;
-    std::uint8_t mRepairTypes;
-    std::uint8_t mRepairFactor;
-    std::uint16_t mCategories;
-};
-
-std::ostream& operator<<(std::ostream&, const ShopStats&);
 
 enum class ContainerType
 {

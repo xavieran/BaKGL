@@ -130,8 +130,9 @@ public:
         {
             // Need this to set the right dimensions for the texture
             const auto& tex = textureStore.GetTexture(mSpriteIndex);
-            auto width  = tex.GetWidth() * 5;
-            auto height = tex.GetHeight() * 5;
+            const auto spriteScale = 7.0f;
+            auto width  = static_cast<int>(static_cast<float>(tex.GetWidth()) * (spriteScale * .75));
+            auto height = tex.GetHeight() * spriteScale;
             mVertices.emplace_back(-width, height, 0);
             mVertices.emplace_back(width, height, 0);
             mVertices.emplace_back(width, 0, 0);
@@ -162,7 +163,7 @@ public:
     const auto& GetPush() const { return mPush; }
     const auto& GetPalettes() const { return mPalettes; }
     const auto& GetVertices() const { return mVertices; }
-    const auto& GetScale() const { return mScale; }
+    auto GetScale() const { return mScale; }
     bool GetClickable() const
     {
         for (std::string s : {

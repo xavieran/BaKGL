@@ -305,6 +305,7 @@ private:
             mGuiManager.StartDialog(
                 BAK::DialogSources::mContainerHasNoRoomForItem,
                 false,
+                false,
                 &mDialogScene);
         }
 
@@ -386,6 +387,7 @@ private:
             mGuiManager.StartDialog(
                 BAK::DialogSources::mSellItemDialog,
                 false,
+                false,
                 &mDialogScene);
 
             mDialogScene.SetDialogFinished(
@@ -405,6 +407,7 @@ private:
             mGuiManager.StartDialog(
                 BAK::DialogSources::mContainerHasNoRoomForItem,
                 false,
+                false,
                 &mDialogScene);
         }
     }
@@ -419,6 +422,7 @@ private:
             mGameState.SetItemValue(mShopScreen.GetSellPrice(slot.GetItemIndex()));
             mGuiManager.StartDialog(
                 BAK::DialogSources::mBuyItemDialog,
+                false,
                 false,
                 &mDialogScene);
 
@@ -439,6 +443,7 @@ private:
             mGameState.SetDialogContext(0xb);
             mGuiManager.StartDialog(
                 BAK::DialogSources::mContainerHasNoRoomForItem,
+                false,
                 false,
                 &mDialogScene);
         }
@@ -565,6 +570,7 @@ private:
         mGameState.SetDialogContext(context);
         mGuiManager.StartDialog(
             dialog,
+            false,
             false,
             &mDialogScene);
     }

@@ -146,13 +146,14 @@ public:
         text = mGameState.GetTextVariableStore().SubstituteVariables(text);
 
         const auto ds1 = snippet.mDisplayStyle;
+        const auto ds3 = snippet.mDisplayStyle3;
         const auto act = snippet.mActor;
 
-        const auto dialogFrame = std::invoke([ds1, act]{
+        const auto dialogFrame = std::invoke([ds1, ds3, act]{
             if (act != 0x0)
                 return DialogFrame::LowerArea;
 
-            if (ds1 == 0x02)
+            if (ds1 == 0x02 || ds3 == 0x02 || ds1 == 0x05)
                 return DialogFrame::ActionArea;
             else if (ds1 == 0x03
                 || ds1 == 0x04)

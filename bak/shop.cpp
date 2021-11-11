@@ -1,8 +1,32 @@
 #include "bak/shop.hpp"
 
 #include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include <cmath>
+
+namespace BAK {
+
+std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
+{
+    os << std::dec << "ShopStats { templeNumber: " << +shop.mTempleNumber
+        << " sellFactor: " << +shop.mSellFactor
+        << " maxDiscount: " << +shop.mMaxDiscount
+        << " buyFactor: " << +shop.mBuyFactor
+        << " haggle: " << std::hex << shop.mHaggle << std::dec
+        << " bardingSkill: " << +shop.mBardingSkill
+        << " bardingReward: " << +shop.mBardingReward
+        << " bardingMaxReward: " << +shop.mBardingMaxReward
+        << " unknown: " << std::hex << shop.mUnknown << std::dec
+        << " repairTypes: " << +shop.mRepairTypes
+        << " repairFactor: " << +shop.mRepairFactor
+        << " categories: " << std::hex << shop.mCategories << std::dec
+        << " [" << GetCategories(shop.mCategories) << "]}";
+
+    return os;
+}
+
+}
 
 namespace BAK::Shop {
 

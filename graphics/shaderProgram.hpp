@@ -1,6 +1,7 @@
 #pragma once
 
 #include "com/logger.hpp"
+#include "com/strongType.hpp"
 
 #include <GL/glew.h>
 
@@ -13,6 +14,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+using Float = StrongType<float, struct FloatTag>;
 
 std::string ShaderTypeToString(GLenum shaderType);
 
@@ -32,6 +35,7 @@ public:
     static void SetUniform(GLuint id, const glm::mat4& value);
 
     static void SetUniform(GLuint id, int value);
+    static void SetUniform(GLuint id, Float value);
     static void SetUniform(GLuint id, const glm::vec3& value);
     static void SetUniform(GLuint id, const glm::vec4& value);
     

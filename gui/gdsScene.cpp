@@ -220,7 +220,7 @@ void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
 void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 {
     mDialogDisplay.Clear();
-    mGuiManager.StartDialog(target, isTooltip, this);
+    mGuiManager.StartDialog(target, isTooltip, false, this);
 }
 
 void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)

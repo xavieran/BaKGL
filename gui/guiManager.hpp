@@ -88,6 +88,9 @@ public:
             mFont,
             mGameState},
         mGdsScenes{},
+        mDialogScene{nullptr},
+        mGuiScreens{},
+        mZoneLoader{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
     {
         AddChildBack(&mScreenStack);
@@ -109,7 +112,7 @@ public:
     {
         mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         // When teleporting we need to add the "root" GDS scene to the stack
-        // because it won't have been there
+        // because it won't have been there...
         if (hotspot.mGdsNumber < 12 && hotspot.mGdsChar != 'A')
             EnterGDSScene(
                 BAK::HotspotRef{hotspot.mGdsNumber, 'A'},
@@ -139,6 +142,7 @@ public:
 
     void ExitGDSScene() override
     {
+        mLogger.Debug() << "Exiting GDS Scene" << std::endl;
         RemoveGDSScene(true);
     }
 
@@ -147,18 +151,27 @@ public:
         mScreenStack.PopChild();
         mCursor.PopCursor();
         if (runFinished)
-            mGuiScreens.top().mFinished();
+            PopAndRunGuiScreen();
+        else
+            PopGuiScreen();
         mGdsScenes.pop_back();
-        mGuiScreens.pop();
+        mLogger.Debug() << "Removed GDS Scene" << std::endl;
     }
 
     void StartDialog(
         BAK::Target dialog,
         bool isTooltip,
+        bool drawWorldFrame,
         IDialogScene* scene) override
     {
         mCursor.PushCursor(0);
-        mScreenStack.PushScreen(&mWorldDialogFrame);
+        if (drawWorldFrame)
+            mScreenStack.PushScreen(&mWorldDialogFrame);
+        mGuiScreens.push(GuiScreen{[this, drawWorldFrame](){
+            if (drawWorldFrame)
+                mScreenStack.PopScreen();
+        }});
+
         mScreenStack.PushScreen(&mDialogRunner);
         mDialogScene = scene;
         mDialogRunner.SetDialogScene(scene);
@@ -168,9 +181,10 @@ public:
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
         assert(mDialogScene);
-        mScreenStack.PopScreen(); // Dialog frame
+        PopAndRunGuiScreen();
         mScreenStack.PopScreen(); // Dialog runner
         mCursor.PopCursor();
+
         mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
         mDialogScene->DialogFinished(choice);
         const auto teleport = mDialogRunner.GetAndResetPendingTeleport();
@@ -221,13 +235,22 @@ public:
     void ExitInventory() override
     {
         mCursor.PopCursor();
-        mGuiScreens.top().mFinished();
-        mGuiScreens.pop();
+        PopAndRunGuiScreen();
         mScreenStack.PopScreen();
     }
 
-    void RunContainer(BAK::KeyTarget dialogTarget)
+    void PopGuiScreen()
     {
+        mGuiScreens.pop();
+    }
+
+    void PopAndRunGuiScreen()
+    {
+        // Avoids reentrancy issue by ensuring this gui screen is not
+        // in the stack when it is executed.
+        auto guiScreen = mGuiScreens.top();
+        mGuiScreens.pop();
+        guiScreen.mFinished();
     }
 
 //private:

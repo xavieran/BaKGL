@@ -100,6 +100,9 @@ public:
         shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
         shader.SetUniform(shader.GetUniformLocation("shadowMap"), 1);
 
+        shader.SetUniform(shader.GetUniformLocation("fogStrength"), Float{0.0005f});
+        shader.SetUniform(shader.GetUniformLocation("fogColor"), glm::vec3{.15, .31, .36});
+
         shader.SetUniform(shader.GetUniformLocation("light.mDirection"), light.mDirection);
         shader.SetUniform(shader.GetUniformLocation("light.mAmbientColor"), light.mAmbientColor);
         shader.SetUniform(shader.GetUniformLocation("light.mDiffuseColor"), light.mDiffuseColor);
@@ -146,6 +149,8 @@ public:
         const Camera& lightCamera)
     {
         mVertexArrayObject.BindGL();
+        glActiveTexture(GL_TEXTURE0);
+        mTextureBuffer.BindGL();
 
         auto& shader = mShadowMapShader;
 

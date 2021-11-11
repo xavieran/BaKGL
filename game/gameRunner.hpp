@@ -93,7 +93,7 @@ public:
                         mZoneData->mObjects.GetObject(item.GetZoneItem().GetName()),
                         item.GetLocation(),
                         item.GetRotation(),
-                        glm::vec3{item.GetZoneItem().GetScale()}};
+                        glm::vec3{static_cast<float>(item.GetZoneItem().GetScale())}};
 
                     if (item.GetZoneItem().IsSprite())
                         mSystems->AddSprite(renderable);
@@ -184,6 +184,7 @@ public:
                                                 mGuiManager.StartDialog(
                                                     exitDialog,
                                                     false,
+                                                    false,
                                                     &mDynamicDialogScene);
                                                 });
                                     }
@@ -200,6 +201,7 @@ public:
                             mGuiManager.StartDialog(
                                 gds.mEntryDialog,
                                 false,
+                                false,
                                 &mDynamicDialogScene);
                         }
                     },
@@ -207,6 +209,7 @@ public:
                         if (mGuiManager.mScreenStack.size() == 1)
                             mGuiManager.StartDialog(
                                 e.mDialog,
+                                false,
                                 false,
                                 &mDynamicDialogScene);
                     },
@@ -228,6 +231,7 @@ public:
                             mGuiManager.StartDialog(
                                 e.mDialog,
                                 false,
+                                true,
                                 &mDynamicDialogScene);
 
                             if (mGameState.mGameData)
@@ -260,6 +264,7 @@ public:
 
                             mGuiManager.StartDialog(
                                 zone.mDialog,
+                                false,
                                 false,
                                 &mDynamicDialogScene);
                         }
@@ -299,6 +304,7 @@ public:
                         mGuiManager.StartDialog(
                             cit->mDialog,
                             false,
+                            false,
                             &mDynamicDialogScene);
                     }
                     else
@@ -330,6 +336,7 @@ public:
                         if (fit->mDialogKey != BAK::Target{BAK::KeyTarget{0}})
                             mGuiManager.StartDialog(
                                 fit->mDialogKey,
+                                false,
                                 false,
                                 &mDynamicDialogScene);
                         Logging::LogDebug(__FUNCTION__) << "ClickableFixedObject: " << *fit << "\n";

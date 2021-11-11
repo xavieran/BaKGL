@@ -84,7 +84,7 @@ public:
 
                 mGameState.SetDialogContext(character.mValue);
                 mGuiManager.StartDialog(
-                    sCharacterFlavourDialog, false, &mDialogScene);
+                    sCharacterFlavourDialog, false, false, &mDialogScene);
             }
         },
         mRatings{
@@ -107,7 +107,7 @@ public:
             },
             [this](){
                 mGuiManager.StartDialog(
-                    sSkillRightClickDialog, false, &mDialogScene);
+                    sSkillRightClickDialog, false, false, &mDialogScene);
             }
         },
         mLogger{Logging::LogState::GetLogger("Gui::InfoScreen")}

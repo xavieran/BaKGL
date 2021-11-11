@@ -76,12 +76,15 @@ public:
     bool GiveItem(const InventoryItem& ref) override
     {
         auto item = ref;
+
+        bool equipped = false;
         // FIXME: Check character class...
         if (CanReplaceEquippableItem(item.GetObject().mType)
             && mInventory.FindEquipped(item.GetObject().mType)
                 == mInventory.GetItems().end())
         {
             item.SetEquipped(true);
+            equipped = true;
         }
         else
         {
@@ -104,7 +107,8 @@ public:
             return true;
         }
 
-        if (mInventory.CanAddCharacter(item))
+        if (mInventory.CanAddCharacter(item)
+            || equipped)
         {
             mInventory.AddItem(item);
             return true;
