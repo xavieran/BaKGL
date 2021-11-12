@@ -73,7 +73,7 @@ SDL_Audio::SDL_Audio()
     }
 }
 
-SDL_Audio::~SDL_Audio()
+SDL_Audio::~SDL_Audio() noexcept(false)
 {
     Mix_HaltChannel(-1);
     if (!Sound_Quit())

@@ -3,7 +3,6 @@
 #include "bak/types.hpp"
 
 #include <array>
-#include <iostream>
 #include <ostream>
 #include <string>
 
@@ -93,9 +92,8 @@ enum class ItemType
 
 std::string_view ToString(ItemType);
 
-class GameObject
+struct GameObject
 {
-public:
     std::string mName;
     unsigned int mFlags;
     int mLevel;

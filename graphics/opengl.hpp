@@ -6,8 +6,6 @@
 
 #include <GL/glew.h>
 
-#include <cmath>
-
 namespace Graphics {
 
 enum class BindPoint

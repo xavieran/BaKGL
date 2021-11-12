@@ -7,7 +7,6 @@
 
 #include "graphics/IGuiElement.hpp"
 #include "graphics/guiTypes.hpp"
-#include "graphics/glm.hpp"
 
 namespace Gui {
 

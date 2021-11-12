@@ -1,5 +1,8 @@
 #include "com/ostreamMux.hpp"
 
+#include <algorithm>
+#include <string>
+
 OStreamMux::OStreamMux()
 :
     mOutputs{&std::cout}

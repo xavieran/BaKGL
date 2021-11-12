@@ -1,13 +1,6 @@
 #include "bak/dialog.hpp"
 
-#include "bak/resourceNames.hpp"
-
 #include "com/logger.hpp"
-
-#include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
-
-#include <iomanip>
 
 unsigned GetInput()
 {

@@ -10,9 +10,9 @@ namespace BAK::Encounter {
 01 27 00 F5 32 29 00 00 00
 */
 
-class Block
+struct Block
 {
-public:
+    Block(KeyTarget dialog) : mDialog{dialog} {}
     KeyTarget mDialog;
 };
 

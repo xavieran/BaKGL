@@ -1,30 +1,17 @@
 #pragma once
 
-#include "bak/coordinates.hpp"
 #include "bak/hotspot.hpp"
-#include "bak/scene.hpp"
-#include "bak/sceneData.hpp"
 #include "bak/textureFactory.hpp"
 
-#include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 
-#include "gui/colors.hpp"
 #include "gui/dialogDisplay.hpp"
-#include "gui/dialogRunner.hpp"
 #include "gui/hotspot.hpp"
-#include "gui/widget.hpp"
-#include "gui/scene.hpp"
-#include "gui/screenStack.hpp"
 #include "gui/staticTTM.hpp"
-
-#include <glm/glm.hpp>
-
-#include <iostream>
-#include <variant>
+#include "gui/widget.hpp"
 
 namespace Gui {
 

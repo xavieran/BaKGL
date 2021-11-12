@@ -6,15 +6,11 @@
 #include "bak/dialog.hpp"
 #include "bak/hotspotRef.hpp"
 #include "bak/inventory.hpp"
-#include "bak/inventoryItem.hpp"
 #include "bak/types.hpp"
 
 #include "com/assert.hpp"
 
-#include "graphics/glm.hpp"
-
-#include <glm/glm.hpp>
-
+#include <variant>
 #include <ostream>
 
 namespace BAK {
@@ -67,7 +63,7 @@ public:
 
 std::ostream& operator<<(std::ostream&, const ContainerHeader&);
 
-class Container : public IContainer
+class Container final : public IContainer
 {
 public:
     Container(
@@ -131,7 +127,7 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const Container& i);
 
-class GDSContainer : public IContainer
+class GDSContainer final : public IContainer
 {
 public:
     GDSContainer(

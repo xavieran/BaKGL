@@ -3,15 +3,9 @@
 #include "bak/lock.hpp"
 #include "bak/IContainer.hpp"
 #include "bak/dialogSources.hpp"
-#include "bak/inventory.hpp"
 #include "bak/layout.hpp"
-#include "bak/objectInfo.hpp"
-#include "bak/textureFactory.hpp"
 
-#include "gui/lock/lock.hpp"
-
-#include "gui/inventory/containerDisplay.hpp"
-#include "gui/inventory/inventorySlot.hpp"
+#include "gui/lock/tumbler.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -42,22 +36,15 @@ public:
     static constexpr auto sBackground = "PUZZLE.SCX";
 
     // Request offsets
-    static constexpr auto mContainerTypeRequest = 3;
-
-    static constexpr auto mNextPageButton = 52;
-    static constexpr auto mNextPageRequest = 4;
-
-    static constexpr auto mExitRequest = 5;
+    static constexpr auto mExitRequest = 0;
     static constexpr auto mExitButton = 13;
-
-    static constexpr auto mGoldRequest = 6;
 
     MoredhelScreen(
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
         const Icons& icons,
-        const Font& puzzleFont,
         const Font& alienFont,
+        const Font& puzzleFont,
         BAK::GameState& gameState)
     :
         // Black background
@@ -69,7 +56,8 @@ public:
             true
         },
         mGuiManager{guiManager},
-        mFont{font},
+        mAlienFont{alienFont},
+        mPuzzleFont{puzzleFont},
         mIcons{icons},
         mGameState{gameState},
         mDialogScene{
@@ -77,6 +65,7 @@ public:
             []{},
             [](const auto&){}
         },
+        mFairyChest{},
         mLayout{sLayoutFile},
         mFrame{
             ImageTag{},
@@ -96,45 +85,32 @@ public:
             []{}
         },
         mLeftClasp{
-            [this](){ ShowLockDescription(); },
-            [this](const auto& item){ AttemptLock(item); },
-            icons,
-            glm::vec2{13, 12}},
-        mRightClasp{
-            mLayout.GetWidgetLocation(mContainerTypeRequest),
-            mLayout.GetWidgetDimensions(mContainerTypeRequest),
+            ImageTag{},
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
             std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
+            mLayout.GetWidgetLocation(1),
+            mLayout.GetWidgetDimensions(1),
+            true
+        },
+        mRightClasp{
+            ImageTag{},
+            std::get<Graphics::SpriteSheetIndex>(mIcons.GetInventoryMiscIcon(11)),
             std::get<Graphics::TextureIndex>(mIcons.GetInventoryMiscIcon(11)),
-            []{},
-            []{}
+            mLayout.GetWidgetLocation(1),
+            mLayout.GetWidgetDimensions(1),
+            true
         },
-        mTumblers{
-            {105, 11},
-            {200, 121},
-            mIcons,
-            mFont,
-            [this](const auto& item){
-                ShowItemDescription(item);
-            }
+        mDescription{
+            {40, 100},
+            {240, 64}
         },
+        mTumblers{},
+        mReqLocs{},
         mContainer{nullptr},
         mNeedRefresh{false},
         mUnlocked{false},
         mLogger{Logging::LogState::GetLogger("Gui::MoredhelScreen")}
     {
-        mCharacters.reserve(3);
-        mContainerTypeDisplay.CenterImage(
-            std::get<2>(mIcons.GetInventoryMiscIcon(11)));
-    }
-
-    void SetSelectedCharacter(
-        BAK::ActiveCharIndex character)
-    {
-        mSelectedCharacter = character;
-        mCharacters[character.mValue].SetColor(glm::vec4{1.0, 0, 0, .3});
-        mCharacters[character.mValue].SetColorMode(Graphics::ColorMode::TintColor);
-        mNeedRefresh = true;
     }
 
     void ResetUnlocked()
@@ -157,47 +133,14 @@ public:
         ASSERT(container != nullptr);
 
         mContainer = container;
+        const auto& snippet = BAK::DialogSources::GetFairyChestKey(121);
+            //container->GetLockData().mFairyChestIndex);
+        mFairyChest = BAK::GenerateFairyChest(
+            std::string{BAK::GetDialogStore().GetSnippet(snippet).GetText()});
 
-        //SetImageBasedOnLockType(
-        //    BAK::ClassifyLock(container->GetLockData().mRating));
-        mLock.SetImageBasedOnLockType(
-            BAK::ClassifyLock(container->GetLockData().mRating));
-        mLock.SetLocked();
-        mUnlocked = false;
-
-        // Automatically set to the highest skilled character
-        const auto [character, _] = mGameState.GetParty().GetSkill(BAK::SkillType::Lockpick, true);
-        mSelectedCharacter = mGameState.GetParty().FindActiveCharacter(character);
-
-        mContainerScreen.SetContainer(
-            &mGameState.GetParty().GetKeys());
+        ResetUnlocked();
 
         RefreshGui();
-    }
-
-    /* Widget */
-    bool OnMouseEvent(const MouseEvent& event) override
-    {
-        const bool handled = Widget::OnMouseEvent(event);
-
-        // Don't refresh things until we have finished
-        // processing this event. This prevents deleting
-        // children that are about to handle it.
-        if (mNeedRefresh)
-        {
-            RefreshGui();
-            mNeedRefresh = false;
-        }
-
-        return handled;
-    }
-
-    void PropagateUp(const DragEvent& event) override
-    {
-        mLogger.Debug() << __FUNCTION__ << " ev: " << event << "\n";
-        bool handled = Widget::OnDragEvent(event);
-        if (handled)
-            return;
     }
 
 private:
@@ -205,12 +148,68 @@ private:
     {
         ClearChildren();
 
-        UpdatePartyMembers();
-        UpdateGold();
+        UpdateTumblers();
 
-        mContainerScreen.RefreshGui();
+        mDescription.AddText(
+            mPuzzleFont, 
+            "\xf7" + mFairyChest->mHint, true, true);
+
+        mReqLocs.clear();
+
+        mReqLocs.reserve(mLayout.GetSize());
+        for (unsigned i = 0; i < mLayout.GetSize(); i++)
+        {
+            mReqLocs.emplace_back(
+                mLayout.GetWidgetLocation(i),
+                mLayout.GetWidgetDimensions(i));
+            std::stringstream ss{};
+            ss << i;
+            mReqLocs.back().AddText(mPuzzleFont, ss.str());
+        }
 
         AddChildren();
+    }
+
+    void UpdateTumblers()
+    {
+        ASSERT(mFairyChest);
+        mTumblers.clear();
+        const auto tumblers = mFairyChest->mAnswer.size();
+        ASSERT(tumblers <= 15);
+        unsigned margin = 15 - tumblers;
+        unsigned startLocation = margin / 2;
+        mTumblers.reserve(tumblers);
+        for (unsigned i = 0; i < tumblers; i++)
+        {
+            //if (mFairyChest->mAnswer[i] != ' ')
+            mTumblers.emplace_back(
+                [this, i](){ IncrementTumbler(i); },
+                mLayout.GetWidgetLocation(1 + startLocation + i)
+                    + glm::vec2{0, 56},
+                mLayout.GetWidgetDimensions(1 + startLocation + i),
+                mPuzzleFont);
+            mTumblers.back().SetDigits(i, *mFairyChest);
+            //}
+        }
+    }
+
+    void IncrementTumbler(unsigned tumblerIndex)
+    {
+        ASSERT(tumblerIndex < mTumblers.size());
+        mTumblers[tumblerIndex].NextDigit();
+
+        EvaluateLock();
+    }
+
+    void EvaluateLock()
+    {
+        std::string guess{};
+        for (const auto& t : mTumblers)
+            guess.push_back(t.GetDigit());
+
+        if (guess == mFairyChest->mAnswer)
+            mLogger.Debug() << "Correct\n";
+
     }
 
     auto& GetCharacter(BAK::ActiveCharIndex i)
@@ -218,150 +217,7 @@ private:
         return mGameState.GetParty().GetCharacter(i);
     }
 
-    void ShowLockDescription()
-    {
-        unsigned context = 0;
-        auto dialog = BAK::DialogSources::mLockDialog;
-
-        const auto lockRating = mContainer->GetLockData().mRating;
-        const auto lockIndex = BAK::GetLockIndex(lockRating);
-        const auto lockpickSkill = GetCharacter(*mSelectedCharacter)
-            .GetSkills().GetSkill(BAK::SkillType::Lockpick).mCurrent;
-
-        if (!lockIndex)
-        {
-            context = BAK::DescribeLock(lockpickSkill, lockRating);
-        }
-        else
-        {
-            if (mGameState.CheckLockSeen(*lockIndex))
-            {
-                const auto item = BAK::GetCorrespondingKey(*lockIndex);
-                if (mGameState.GetParty().HaveItem(item))
-                    context = 0;
-                else
-                    context = 1;
-                mGameState.SetKeyName(item);
-                dialog = BAK::DialogSources::mLockKnown;
-            }
-            else
-            {
-                context = BAK::DescribeLock(lockpickSkill, lockRating);
-            }
-        }
-
-        mGameState.SetDialogContext(context);
-        mGuiManager.StartDialog(
-            dialog,
-            false,
-            false,
-            &mDialogScene);
-    }
-
-    void AttemptLock(const InventorySlot& itemSlot)
-    {
-        ASSERT(mContainer);
-        ASSERT(mSelectedCharacter);
-
-        auto context = 0;
-        auto dialog = BAK::KeyTarget{0};
-
-        const auto& item = itemSlot.GetItem();
-        ASSERT(item.IsKey());
-        const auto& skill = GetCharacter(*mSelectedCharacter)
-            .GetSkills().GetSkill(BAK::SkillType::Lockpick);
-        const auto lockRating = mContainer->GetLockData().mRating;
-
-        if (item.mItemIndex == BAK::ItemIndex{'P'}) // Picklock
-        {
-            if (BAK::CanPickLock(skill, lockRating))
-            {
-                // locks are for blah and blah
-                // success
-                // ImproveSkill x2
-                mGuiManager.AddAnimator(
-                    LinearAnimator{
-                        .25,
-                        glm::vec4{13, 17, 0, 0},
-                        glm::vec4{13, 2, 0, 0},
-                        [&](const auto& delta){
-                            mLock.AdjustShacklePosition(glm::vec2{delta});
-                            return false;
-                        },
-                        [&](){ Unlocked(BAK::DialogSources::mLockPicked); }
-                    });
-
-                mUnlocked = true;
-            }
-            else
-            {
-                if (BAK::PicklockSkillImproved())
-                {
-                    //ImproveSkill x1
-                }
-
-                if (BAK::PicklockBroken(skill, lockRating))
-                {
-                    // Remove a picklock from inventory...
-                    dialog = BAK::DialogSources::mPicklockBroken;
-                    mGameState.GetParty().RemoveItem('P', 1);
-                }
-                else
-                {
-                    dialog = BAK::DialogSources::mFailedToPickLock;
-                }
-            }
-        }
-        else
-        {
-            if (BAK::TryOpenLockWithKey(item, lockRating))
-            {
-                // succeeded..
-                ASSERT(BAK::GetLockIndex(lockRating));
-                mGameState.MarkLockSeen(*BAK::GetLockIndex(lockRating));
-                //mLock.SetUnlocked();
-                mGuiManager.AddAnimator(
-                    LinearAnimator{
-                        .2,
-                        glm::vec4{13, 17, 0, 0},
-                        glm::vec4{13, 2, 0, 0},
-                        [&](const auto& delta){
-                            mLock.AdjustShacklePosition(glm::vec2{delta});
-                            return false;
-                        },
-                        [&](){ Unlocked(BAK::DialogSources::mKeyOpenedLock); }
-                    });
-                mUnlocked = true;
-            }
-            else
-            {
-                if (BAK::WouldKeyBreak(item, lockRating)
-                    && BAK::KeyBroken(item, skill, lockRating))
-                {
-                    mGameState.GetParty().RemoveItem(item.mItemIndex.mValue, 1);
-                    dialog = BAK::DialogSources::mKeyBroken;
-                }
-                else
-                {
-                    dialog = BAK::DialogSources::mKeyDoesntFit;
-                }
-            }
-        }
-
-        mNeedRefresh = true;
-
-        if (!mUnlocked)
-        {
-            mGameState.SetDialogContext(context);
-            mGuiManager.StartDialog(
-                dialog,
-                false,
-                false,
-                &mDialogScene);
-        }
-    }
-
-    void Unlocked(BAK::KeyTarget dialog)
+    void Unlocked()
     {
         mDialogScene.SetDialogFinished(
             [this](const auto&)
@@ -371,118 +227,49 @@ private:
             });
 
         mGuiManager.StartDialog(
-            dialog,
+            BAK::KeyTarget{0xe},
             false,
             false,
             &mDialogScene);
     }
 
-    void ShowItemDescription(const BAK::InventoryItem& item)
-    {
-        unsigned context = 0;
-        auto dialog = BAK::KeyTarget{0};
-        // FIXME: Probably want to put this logic elsewhere...
-        if (item.GetObject().mType == BAK::ItemType::Scroll)
-        {
-            context = item.mCondition;
-            dialog = BAK::DialogSources::GetScrollDescription();
-        }
-        else
-        {
-            context = item.mItemIndex.mValue;
-            dialog = BAK::DialogSources::GetItemDescription();
-        }
-
-        mGameState.SetDialogContext(context);
-        mGuiManager.StartDialog(
-            dialog,
-            false,
-            false,
-            &mDialogScene);
-    }
-
-    void UpdatePartyMembers()
-    {
-        mCharacters.clear();
-
-        const auto& party = mGameState.GetParty();
-        BAK::ActiveCharIndex person{0};
-        do
-        {
-            const auto [spriteSheet, image, _] = mIcons.GetCharacterHead(
-                party.GetCharacter(person).GetIndex().mValue);
-            mCharacters.emplace_back(
-                mLayout.GetWidgetLocation(person.mValue),
-                mLayout.GetWidgetDimensions(person.mValue),
-                spriteSheet,
-                image,
-                image,
-                [this, character=person]{
-                    // Switch character
-                    SetSelectedCharacter(character);
-                },
-                [this, character=person]{
-                    mGuiManager.ShowCharacterPortrait(character);
-                }
-            );
-            person = party.NextActiveCharacter(person);
-        } while (person != BAK::ActiveCharIndex{0});
-    }
-
-    void UpdateGold()
-    {
-        const auto gold = mGameState.GetParty().GetGold();
-        const auto text = ToString(gold);
-        const auto [textDims, _] = mGoldDisplay.AddText(mFont, text);
-
-        // Justify text to the right
-        const auto basePos = mLayout.GetWidgetLocation(mGoldRequest);
-        const auto newPos = basePos 
-            + glm::vec2{
-                3 + mLayout.GetWidgetDimensions(mGoldRequest).x - textDims.x,
-                4};
-
-        mGoldDisplay.SetPosition(newPos);
-    }
+private:
 
     void AddChildren()
     {
         AddChildBack(&mFrame);
         AddChildBack(&mExit);
-        AddChildBack(&mGoldDisplay);
+        AddChildBack(&mDescription);
 
-        AddChildBack(&mContainerTypeDisplay);
-
-        for (auto& character : mCharacters)
-            AddChildBack(&character);
-
-        AddChildBack(&mLock);
-        AddChildBack(&mContainerScreen);
+        for (auto& t : mTumblers)
+            AddChildBack(&t);
     }
 
-private:
+
     IGuiManager& mGuiManager;
-    const Font& mFont;
+    const Font& mAlienFont;
+    const Font& mPuzzleFont;
     const Icons& mIcons;
     BAK::GameState& mGameState;
     DynamicDialogScene mDialogScene;
 
+    std::optional<BAK::FairyChest> mFairyChest;
     BAK::Layout mLayout;
 
     Widget mFrame;
-
-    std::vector<ClickButtonImage> mCharacters;
     ClickButtonImage mExit;
-    TextBox mGoldDisplay;
-    
-    Clickable<
-        ItemEndpoint<Lock>,
-        RightMousePress,
-        std::function<void()>> mLock;
-    ClickButtonImage mContainerTypeDisplay;
-    ContainerDisplay mContainerScreen;
+    Widget mLeftClasp;
+    Widget mRightClasp;
+    TextBox mDescription;
 
-    std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
+    using ClickableTumbler = Clickable<
+        Tumbler,
+        LeftMousePress,
+        std::function<void()>>;
+    std::vector<ClickableTumbler> mTumblers;
+
+    std::vector<TextBox> mReqLocs;
+    
     BAK::IContainer* mContainer;
     bool mNeedRefresh;
 

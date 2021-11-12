@@ -45,7 +45,6 @@ class Vertex final
     public:
         Vertex();
         Vertex ( const Vector3D &p );
-        Vertex& operator= ( const Vertex &v );
         const Vector3D& GetPosition() const;
         const Vector3D& GetRelativePosition() const;
         int GetAngle() const;

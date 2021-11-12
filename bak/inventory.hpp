@@ -2,16 +2,11 @@
 
 #include "bak/inventoryItem.hpp"
 #include "bak/objectInfo.hpp"
-#include "bak/types.hpp"
 
 #include "com/assert.hpp"
 #include "com/strongType.hpp"
-#include "com/logger.hpp"
 
-#include <algorithm>
 #include <iostream>
-#include <numeric>
-#include <string>
 #include <vector>
 
 namespace BAK {

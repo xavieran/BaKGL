@@ -1,5 +1,9 @@
 #include "bak/fixedObject.hpp"
 
+#include "bak/coordinates.hpp"
+
+#include "com/ostream.hpp"
+
 namespace BAK {
 
 FixedObject::FixedObject(

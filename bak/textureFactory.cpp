@@ -1,7 +1,5 @@
 #include "bak/textureFactory.hpp"
 
-#include "bak/coordinates.hpp"
-
 namespace BAK {
 
 Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette)

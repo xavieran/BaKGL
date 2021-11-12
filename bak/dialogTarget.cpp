@@ -1,5 +1,7 @@
 #include "bak/dialogTarget.hpp"
 
+#include <iomanip>
+#include <type_traits>
 
 namespace BAK {
 

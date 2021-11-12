@@ -39,6 +39,16 @@ namespace BAK::Encounter {
 */
 struct EventFlag
 {
+    EventFlag(
+        std::uint8_t percentChance,
+        std::uint16_t eventPointer,
+        bool isEnable)
+    :
+        mPercentChance{percentChance},
+        mEventPointer{eventPointer},
+        mIsEnable{isEnable}
+    {}
+
     std::uint8_t mPercentChance;
     std::uint16_t mEventPointer;
     bool mIsEnable;

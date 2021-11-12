@@ -1,4 +1,7 @@
 #include "bak/sceneData.hpp"
+
+#include "com/visit.hpp"
+
 #include "graphics/glm.hpp"
 
 #include <sstream>

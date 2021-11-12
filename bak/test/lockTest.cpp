@@ -3,6 +3,8 @@
 #include "bak/lock.hpp"
 #include "bak/inventoryItem.hpp"
 
+#include "com/logger.hpp"
+
 namespace BAK {
 
 struct LockTestFixture : public ::testing::Test

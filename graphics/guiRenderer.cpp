@@ -1,7 +1,6 @@
 #include "graphics/guiRenderer.hpp"
 
 #include "com/assert.hpp"
-#include "com/logger.hpp"
 
 #include <GL/glew.h>
 

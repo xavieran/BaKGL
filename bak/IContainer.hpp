@@ -1,11 +1,9 @@
 #pragma once
 
 #include "bak/inventory.hpp"
-#include "bak/inventoryItem.hpp"
 #include "bak/lock.hpp"
 #include "bak/shop.hpp"
 
-#include <ostream>
 #include <string_view>
 
 namespace BAK {

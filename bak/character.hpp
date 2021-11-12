@@ -1,7 +1,6 @@
 #pragma once
 
 #include "com/logger.hpp"
-#include "com/ostream.hpp"
 
 #include "bak/IContainer.hpp"
 
@@ -11,14 +10,13 @@
 #include "bak/inventory.hpp"
 
 #include <cstdint>
-#include <ios>
 #include <iterator>
 #include <ostream>
 #include <string>
 
 namespace BAK {
 
-class Character : public IContainer
+class Character final : public IContainer
 {
 public:
     Character(

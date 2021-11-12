@@ -7,17 +7,10 @@
 #include "graphics/opengl.hpp"
 #include "graphics/shaderProgram.hpp"
 
-#include "xbak/FileManager.h"
-#include "xbak/FileBuffer.h"
-
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/epsilon.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 int main(int argc, char** argv)

@@ -2,7 +2,6 @@
 #include "bak/constants.hpp"
 #include "bak/container.hpp"
 #include "bak/coordinates.hpp"
-#include "bak/fixedObject.hpp"
 #include "bak/gameData.hpp"
 #include "bak/screens.hpp"
 
@@ -14,36 +13,20 @@
 #include "game/systems.hpp"
 
 #include "graphics/inputHandler.hpp"
-#include "graphics/IGuiElement.hpp"
-#include "graphics/cube.hpp"
 #include "graphics/guiRenderer.hpp"
 #include "graphics/glfw.hpp"
-#include "graphics/line.hpp"
-#include "graphics/meshObject.hpp"
 #include "graphics/framebuffer.hpp"
-#include "graphics/opengl.hpp"
 #include "graphics/renderer.hpp"
-#include "graphics/shaderProgram.hpp"
 #include "graphics/sprites.hpp"
-#include "graphics/texture.hpp"
 
-#include "gui/IDialogScene.hpp"
 #include "gui/guiManager.hpp"
 #include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
-#include "xbak/FileManager.h"
-#include "xbak/FileBuffer.h"
-
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <functional>
 #include <memory>

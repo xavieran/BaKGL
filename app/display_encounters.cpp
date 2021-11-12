@@ -1,13 +1,9 @@
 #include "com/logger.hpp"
 
 #include "bak/encounter/encounter.hpp"
-#include "bak/palette.hpp"
 #include "bak/zoneReference.hpp"
 
-#include "graphics/glm.hpp"
-
 #include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
 
 int main(int argc, char** argv)
 {

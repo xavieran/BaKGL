@@ -17,6 +17,7 @@
 #include "gui/info/infoScreen.hpp"
 #include "gui/inventory/inventoryScreen.hpp"
 #include "gui/lock/lockScreen.hpp"
+#include "gui/lock/moredhelScreen.hpp"
 #include "gui/mainView.hpp"
 #include "gui/widget.hpp"
 
@@ -38,7 +39,7 @@ public:
     std::function<void()> mFinished;
 };
 
-class GuiManager : public Widget, public IGuiManager
+class GuiManager final : public Widget, public IGuiManager
 {
 public:
 
@@ -83,19 +84,30 @@ public:
             mBackgrounds,
             mIcons,
             mFontManager.GetGameFont(),
-            mGameState},
+            mGameState
+        },
         mInventoryScreen{
             *this,
             mBackgrounds,
             mIcons,
             mFontManager.GetGameFont(),
-            mGameState},
+            mGameState
+        },
         mLockScreen{
             *this,
             mBackgrounds,
             mIcons,
             mFontManager.GetGameFont(),
-            mGameState},
+            mGameState
+        },
+        mMoredhelScreen{
+            *this,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetAlienFont(),
+            mFontManager.GetPuzzleFont(),
+            mGameState
+        },
         mGdsScenes{},
         mDialogScene{nullptr},
         mGuiScreens{},
@@ -274,8 +286,10 @@ public:
     void ShowLock(BAK::IContainer* container) override
     {
         mCursor.PushCursor(0);
-        mLockScreen.SetContainer(container);
-        mScreenStack.PushScreen(&mLockScreen);
+        //mLockScreen.SetContainer(container);
+        //mScreenStack.PushScreen(&mLockScreen);
+        mMoredhelScreen.SetContainer(container);
+        mScreenStack.PushScreen(&mMoredhelScreen);
     }
 
     void ExitLock() override
@@ -321,6 +335,7 @@ public:
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
     LockScreen mLockScreen;
+    MoredhelScreen mMoredhelScreen;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;

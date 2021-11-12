@@ -3,6 +3,8 @@
 #include "bak/inventory.hpp"
 #include "bak/inventoryItem.hpp"
 
+#include "com/logger.hpp"
+
 namespace BAK {
 
 struct InventoryTestFixture : public ::testing::Test
@@ -11,42 +13,46 @@ struct InventoryTestFixture : public ::testing::Test
     :
         mObjects{}
     {
-        mObjects.emplace_back(
+        mObjects.emplace_back(GameObject{
             "Normal",
             1, 1, 1,
             1, 1, 1, 1,
             0, 1, 0, 0,
             RacialModifier::None,
             ItemType::Other,
-            0, 0, 0, 0
+            0, 0, 0, 0, 0,
+            0, 0, 0}
         );
 
-        mObjects.emplace_back(
+        mObjects.emplace_back(GameObject{
             "Sword",
             1, 1, 1,
             1, 1, 1, 1,
             0, 2, 0, 0,
             RacialModifier::None,
             ItemType::Sword,
-            0, 0, 0, 0
+            0, 0, 0, 0, 0,
+            0, 0, 0}
         );
-        mObjects.emplace_back(
+        mObjects.emplace_back(GameObject{
             "Armor",
             1, 1, 1,
             1, 1, 1, 1,
             0, 4, 0, 0,
             RacialModifier::None,
             ItemType::Armor,
-            0, 0, 0, 0
+            0, 0, 0, 0, 0,
+            0, 0, 0}
         );
-        mObjects.emplace_back(
+        mObjects.emplace_back(GameObject{
             "Stack",
             0x0800, 1, 1,
             1, 1, 1, 1,
             0, 1, mStackSize, 5,
             RacialModifier::None,
             ItemType::Sword,
-            0, 0, 0, 0
+            0, 0, 0, 0, 0,
+            0, 0, 0}
         );
     }
 

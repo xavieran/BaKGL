@@ -3,7 +3,6 @@
 #include "com/logger.hpp"
 
 #include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
 
 int main(int argc, char** argv)
 {

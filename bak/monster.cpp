@@ -1,6 +1,11 @@
 #include "bak/monster.hpp"
 
+#include "com/logger.hpp"
+
 #include "com/assert.hpp"
+#include "com/ostream.hpp"
+
+#include "xbak/FileBuffer.h"
 
 #include <iostream>
 

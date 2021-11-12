@@ -1,16 +1,12 @@
 #pragma once
 
 #include "bak/scene.hpp"
-#include "bak/textureFactory.hpp"
 
 #include "com/logger.hpp"
 
 #include "graphics/guiTypes.hpp"
 #include "graphics/sprites.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/types.hpp"
 
-#include "gui/colors.hpp"
 #include "gui/scene.hpp"
 #include "gui/widget.hpp"
 

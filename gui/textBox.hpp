@@ -35,7 +35,7 @@ public:
         },
         mText{}
     {
-        // should be enough...
+        // FIXME: Do this when text is added...
         mText.reserve(2048);
         // no point propagating MouseMoved to every
         // character of text
@@ -76,6 +76,7 @@ public:
         auto red      = false;
         auto white    = false;
         auto inWord   = false;
+        auto moredhel = false;
 
         const auto NextLine = [&]{
             // Save this line's dims and move on to the next
@@ -148,6 +149,23 @@ public:
                 fg);
         };
 
+        const auto DrawMoredhel = [&](const auto& pos, auto c)
+        {
+            Draw(
+                charPos + glm::vec2{0, -1},
+                c,
+                Color::moredhelFontUpper);
+
+            Draw(
+                charPos + glm::vec2{0, 1},
+                c,
+                Color::moredhelFontLower);
+
+            Draw(
+                charPos,
+                c,
+                Color::black);
+        };
         
         unsigned currentChar = 0;
         for (; currentChar < text.size(); currentChar++)
@@ -167,6 +185,11 @@ public:
             }
             else if (c == ' ')
             {
+                if (moredhel)
+                {
+                    // moredhel text is very spaced...
+                    Advance(font.GetSpace() * 6);
+                }
                 Advance(font.GetSpace());
                 emphasis = false;
                 italic = false;
@@ -186,6 +209,10 @@ public:
             else if (c == static_cast<char>(0xf6))
             {
                 white = !white;
+            }
+            else if (c == static_cast<char>(0xf7))
+            {
+                moredhel = !moredhel;
             }
             else if (c == static_cast<char>(0xf0))
             {
@@ -207,7 +234,11 @@ public:
             }
             else
             {
-                if (bold)
+                if (moredhel)
+                {
+                    DrawMoredhel(charPos, c);
+                }
+                else if (bold)
                 {
                     if (isBold)
                         DrawNormal(charPos, c);

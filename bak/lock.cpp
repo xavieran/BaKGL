@@ -127,15 +127,20 @@ bool CanPickLock(const Skill& skill, unsigned lockRating)
     return (lockRating <= 100) && (skill.mCurrent > lockRating);
 }
 
-
 FairyChest GenerateFairyChest(const std::string& data)
 {
     const auto texts = SplitString("\n#", data);
     ASSERT(texts.size() == 3);
     const auto& answer = texts[0];
+
     auto options = SplitString("\n", texts[1]);
-    options.erase(options.begin());
-    const auto& hint   = texts[2];
+    options.erase(options.begin()); // remove leading empty string
+
+    const auto& hint = texts[2];
+
+    for (unsigned i = 0; i < options.size(); i++)
+        ASSERT(options[i].size() == answer.size());
+
     return FairyChest{answer, options, hint};
 }
 

@@ -1,10 +1,8 @@
 #include "bak/hotspot.hpp"
-#include "bak/dialog.hpp"
 
 #include "com/logger.hpp"
 
 #include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
 
 int main(int argc, char** argv)
 {

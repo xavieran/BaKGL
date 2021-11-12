@@ -22,6 +22,28 @@ namespace BAK::Encounter {
 class Combat
 {
 public:
+    Combat(
+        unsigned combatIndex,
+        KeyTarget entryDialog,
+        KeyTarget scoutDialog,
+        std::optional<GamePositionAndHeading> trap,
+        GamePositionAndHeading northRetreat,
+        GamePositionAndHeading westRetreat,
+        GamePositionAndHeading southRetreat,
+        GamePositionAndHeading eastRetreat,
+        std::vector<unsigned> combatants)
+    :
+        mCombatIndex{combatIndex},
+        mEntryDialog{entryDialog},
+        mScoutDialog{scoutDialog},
+        mTrap{trap},
+        mNorthRetreat{northRetreat},
+        mWestRetreat{westRetreat},
+        mSouthRetreat{southRetreat},
+        mEastRetreat{eastRetreat},
+        mCombatants{combatIndex}
+    {}
+
     unsigned mCombatIndex;
     KeyTarget mEntryDialog;
     KeyTarget mScoutDialog;

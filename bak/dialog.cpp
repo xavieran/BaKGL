@@ -420,4 +420,10 @@ std::string DialogStore::GetDialogFile(std::uint8_t i)
     return ss.str();
 }
 
+const DialogStore& GetDialogStore()
+{
+    static DialogStore dialogStore{};
+    return dialogStore;
+}
+
 }

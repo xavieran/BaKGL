@@ -1,5 +1,9 @@
 #include "bak/character.hpp"
 
+#include "com/ostream.hpp"
+
+#include <ios>
+
 namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const Character& c)

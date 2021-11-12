@@ -1,13 +1,11 @@
 #pragma once
 
-#include "bak/constants.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
 #include "bak/dialogTarget.hpp"
 #include "bak/resourceNames.hpp"
 
 #include "com/logger.hpp"
-#include "com/ostream.hpp"
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
@@ -139,5 +137,7 @@ private:
 
     const Logging::Logger& mLogger;
 };
+
+const DialogStore& GetDialogStore();
 
 }

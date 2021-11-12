@@ -6,7 +6,6 @@
 #include "bak/types.hpp"
 
 #include "com/assert.hpp"
-#include "com/strongType.hpp"
 
 #include <vector>
 

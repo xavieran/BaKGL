@@ -4,6 +4,8 @@
 #include "bak/inventory.hpp"
 #include "bak/inventoryItem.hpp"
 
+#include "com/logger.hpp"
+
 namespace BAK {
 
 struct KeyTestFixture : public ::testing::Test
@@ -12,34 +14,37 @@ struct KeyTestFixture : public ::testing::Test
     :
         mObjects{}
     {
-        mObjects.emplace_back(
+        mObjects.emplace_back(GameObject{
             "Key1",
             1, 1, 1,
             1, 1, 1, 1,
             0, 1, 0, 0,
             RacialModifier::None,
             ItemType::Key,
-            0, 0, 0, 0
+            0, 0, 0, 0, 0,
+            0, 0, 0}
         );
 
-        mObjects.emplace_back(
+        mObjects.emplace_back(GameObject{
             "Key2",
             1, 1, 1,
             1, 1, 1, 1,
             0, 2, 0, 0,
             RacialModifier::None,
             ItemType::Key,
-            0, 0, 0, 0
+            0, 0, 0, 0, 0,
+            0, 0, 0}
         );
 
-        mObjects.emplace_back(
+        mObjects.emplace_back(GameObject{
             "NonKey",
             1, 1, 1,
             1, 1, 1, 1,
             0, 2, 0, 0,
             RacialModifier::None,
             ItemType::Other,
-            0, 0, 0, 0
+            0, 0, 0, 0, 0,
+            0, 0, 0}
         );
     }
 

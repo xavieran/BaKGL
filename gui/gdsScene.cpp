@@ -4,11 +4,6 @@
 
 #include "com/assert.hpp"
 
-#include <glm/glm.hpp>
-
-#include <iostream>
-#include <variant>
-
 namespace Gui {
 
 GDSScene::GDSScene(

@@ -1,19 +1,11 @@
 #pragma once
 
 #include "bak/container.hpp"
-#include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
-#include "bak/hotspot.hpp"
-#include "bak/types.hpp"
-
-#include "com/logger.hpp"
-
-#include <glm/glm.hpp>
+#include "bak/hotspotRef.hpp"
 
 #include <optional>
 #include <ostream>
-#include <variant>
-
 
 namespace BAK {
 

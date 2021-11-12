@@ -1,6 +1,5 @@
 #pragma once
 
-#include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/types.hpp"
 #include "bak/skills.hpp"

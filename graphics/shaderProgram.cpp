@@ -1,18 +1,10 @@
 #include "graphics/shaderProgram.hpp"
 
-#include "com/logger.hpp"
-
-#include <GL/glew.h>
-
-#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <optional>
-#include <string>
-#include <vector>
 
 std::string ShaderTypeToString(GLenum shaderType)
 {

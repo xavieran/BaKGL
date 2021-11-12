@@ -1,42 +1,21 @@
-#include "bak/camera.hpp"
-#include "bak/coordinates.hpp"
 #include "com/logger.hpp"
-#include "bak/screens.hpp"
-#include "bak/textureFactory.hpp"
 
 #include "graphics/inputHandler.hpp"
 #include "graphics/glm.hpp"
 #include "graphics/glfw.hpp"
-#include "graphics/quad.hpp"
 #include "graphics/guiRenderer.hpp"
-#include "graphics/meshObject.hpp"
-#include "graphics/opengl.hpp"
-#include "graphics/shaderProgram.hpp"
-#include "graphics/texture.hpp"
 
 #include "gui/window.hpp"
 #include "gui/icons.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
-#include "xbak/FileManager.h"
-#include "xbak/FileBuffer.h"
-#include "xbak/PaletteResource.h"
-
-#include <GL/glew.h>
-
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
-#include <functional>
 #include <memory>
 #include <sstream>
-
-#include <getopt.h>
 
 int main(int argc, char** argv)
 {

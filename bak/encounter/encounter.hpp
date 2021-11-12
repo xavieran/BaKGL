@@ -2,28 +2,20 @@
 
 #include "bak/constants.hpp"
 
-#include "bak/encounter/gdsEntry.hpp"
 #include "bak/encounter/background.hpp"
 #include "bak/encounter/block.hpp"
 #include "bak/encounter/combat.hpp"
 #include "bak/encounter/dialog.hpp"
 #include "bak/encounter/disable.hpp"
 #include "bak/encounter/enable.hpp"
-#include "bak/encounter/sound.hpp"
 #include "bak/encounter/town.hpp"
 #include "bak/encounter/trap.hpp"
 #include "bak/encounter/zone.hpp"
 
 #include "com/strongType.hpp"
-#include "com/visit.hpp"
-
-#include "graphics/glm.hpp"
-
-#include "xbak/FileBuffer.h"
 
 #include <glm/glm.hpp>
 
-#include <iostream>
 #include <ostream>
 #include <string_view>
 #include <variant>

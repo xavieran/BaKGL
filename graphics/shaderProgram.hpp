@@ -6,11 +6,7 @@
 #include <GL/glew.h>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <optional>
 #include <string>
 #include <vector>

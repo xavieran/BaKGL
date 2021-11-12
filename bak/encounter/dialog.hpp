@@ -4,8 +4,8 @@
 
 namespace BAK::Encounter {
 
-class Dialog {
-public:
+struct Dialog {
+    Dialog(KeyTarget dialog) : mDialog{dialog} {}
     KeyTarget mDialog;
 };
 

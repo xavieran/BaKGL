@@ -3,7 +3,7 @@
 #include "com/assert.hpp"
 
 #include <algorithm>
-#include <iostream>
+#include <numeric>
 
 namespace BAK {
 

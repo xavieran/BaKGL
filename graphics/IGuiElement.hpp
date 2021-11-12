@@ -1,16 +1,11 @@
 #pragma once
 
-#include "graphics/glm.hpp"
-#include "graphics/types.hpp"
 #include "graphics/guiTypes.hpp"
 
 #include <glm/glm.hpp>
 
-#include <functional>
-#include <optional>
 #include <ostream>
 #include <vector>
-#include <unordered_map>
 
 namespace Graphics {
 

@@ -1,16 +1,12 @@
 #pragma once
 
-#include "bak/constants.hpp"
 #include "bak/dialog.hpp"
-//#include "bak/gameState.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/scene.hpp"
 #include "bak/types.hpp"
 
 #include "com/logger.hpp"
-#include "com/string.hpp"
 
-#include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 
 #include <glm/glm.hpp>
@@ -39,6 +35,30 @@ std::ostream& operator<<(std::ostream&, HotspotAction);
 
 struct Hotspot
 {
+    Hotspot(
+        std::uint16_t hotspot,
+        glm::vec<2, int> topLeft,
+        glm::vec<2, int> dimensions,
+        std::uint16_t keyword,
+        HotspotAction action,
+        std::uint16_t actionArg1,
+        std::uint16_t actionArg2,
+        std::uint32_t actionArg3,
+        KeyTarget tooltip,
+        KeyTarget dialog)
+    :
+        mHotspot{hotspot},
+        mTopLeft{topLeft},
+        mDimensions{dimensions},
+        mKeyword{keyword},
+        mAction{action},
+        mActionArg1{actionArg1},
+        mActionArg2{actionArg2},
+        mActionArg3{actionArg3},
+        mTooltip{tooltip},
+        mDialog{dialog}
+    {}
+
     std::uint16_t mHotspot;
     glm::vec<2, int> mTopLeft;
     glm::vec<2, int> mDimensions;

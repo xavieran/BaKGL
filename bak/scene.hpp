@@ -93,6 +93,16 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
 // Helper during loading
 struct SceneChunk
 {
+    SceneChunk(
+        Actions action,
+        std::optional<std::string> resourceName,
+        std::vector<std::int16_t> arguments)
+    :
+        mAction{action},
+        mResourceName{resourceName},
+        mArguments{arguments}
+    {}
+
     Actions mAction;
     std::optional<std::string> mResourceName;
     std::vector<std::int16_t> mArguments;

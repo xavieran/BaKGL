@@ -14,6 +14,16 @@ namespace BAK {
 struct Glyph
 {
     static constexpr auto MAX_FONT_HEIGHT = 16;
+    Glyph(
+        unsigned width,
+        unsigned height,
+        std::array<std::uint16_t, MAX_FONT_HEIGHT> points)
+    :
+        mWidth{width},
+        mHeight{height},
+        mPoints{points}
+    {}
+
     unsigned mWidth;
     unsigned mHeight;
     std::array<std::uint16_t, MAX_FONT_HEIGHT> mPoints;

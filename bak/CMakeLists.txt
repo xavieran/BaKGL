@@ -11,7 +11,6 @@ add_library(bak
     dialogChoice.hpp dialogChoice.cpp
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
-    eventHandler.hpp
     fixedObject.hpp fixedObject.cpp
     font.hpp font.cpp
     gameData.hpp

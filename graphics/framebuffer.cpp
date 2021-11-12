@@ -1,5 +1,8 @@
 #include "graphics/framebuffer.hpp"
 
+#include "com/logger.hpp"
+
+
 namespace Graphics {
 
 FrameBuffer::FrameBuffer()

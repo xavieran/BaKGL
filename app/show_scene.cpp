@@ -1,13 +1,5 @@
-#include "bak/camera.hpp"
-#include "bak/coordinates.hpp"
 #include "bak/encounter/teleport.hpp"
-#include "bak/font.hpp"
 #include "bak/gameState.hpp"
-#include "bak/hotspot.hpp"
-#include "bak/screens.hpp"
-#include "bak/scene.hpp"
-#include "bak/sceneData.hpp"
-#include "bak/textureFactory.hpp"
 
 #include "com/algorithm.hpp"
 #include "com/logger.hpp"
@@ -16,48 +8,23 @@
 #include "graphics/glfw.hpp"
 #include "graphics/guiRenderer.hpp"
 #include "graphics/inputHandler.hpp"
-#include "graphics/meshObject.hpp"
-#include "graphics/opengl.hpp"
-#include "graphics/shaderProgram.hpp"
 #include "graphics/texture.hpp"
 
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
-#include "gui/clickButton.hpp"
-#include "gui/contents.hpp"
-#include "gui/dialogRunner.hpp"
-#include "gui/gdsScene.hpp"
 #include "gui/guiManager.hpp"
-#include "gui/hotspot.hpp"
-#include "gui/label.hpp"
-#include "gui/mainView.hpp"
 #include "gui/mouseEvent.hpp"
-#include "gui/scene.hpp"
-#include "gui/textBox.hpp"
-#include "gui/widget.hpp"
 #include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"
-
-#include "xbak/FileManager.h"
-#include "xbak/FileBuffer.h"
-#include "xbak/PaletteResource.h"
 
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-
 #include <functional>
 #include <memory>
 #include <sstream>
-
-#include <getopt.h>
 
 struct DummyZoneLoader : public BAK::IZoneLoader
 {
@@ -111,11 +78,6 @@ int main(int argc, char** argv)
         guiScalar,
         spriteManager};
 
-    auto guiShaderProgram = ShaderProgram{
-        "gui.vert.glsl",
-        "gui.frag.glsl"};
-    auto guiShader = guiShaderProgram.Compile();
-
     const auto root = static_cast<std::uint8_t>(std::atoi(argv[1]));
     auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
 
@@ -129,9 +91,6 @@ int main(int argc, char** argv)
             return BAK::GameState{};
     });
     
-    auto screens = Gui::ScreenStack{};
-    auto scenes = std::stack<std::unique_ptr<Gui::GDSScene>>{};
-
     const auto font = Gui::Font{"GAME.FNT", spriteManager};
     const auto actors = Gui::Actors{spriteManager};
     const auto backgrounds = Gui::Backgrounds{spriteManager};
@@ -207,8 +166,6 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    guiShader.UseProgramGL();
-
     do
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

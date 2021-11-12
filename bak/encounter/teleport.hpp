@@ -54,9 +54,18 @@ FF 00 00 00 00 00 00 28 00 02 00
 
 namespace BAK::Encounter {
 
-class Teleport
+struct Teleport
 {
-public:
+    Teleport(
+        std::optional<ZoneNumber> targetZone,
+        GamePositionAndHeading targetLocation,
+        std::optional<HotspotRef> targetGDSScene)
+    :
+        mTargetZone{targetZone},
+        mTargetLocation{targetLocation},
+        mTargetGDSScene{targetGDSScene}
+    {}
+
     std::optional<ZoneNumber> mTargetZone;
     GamePositionAndHeading mTargetLocation;
     std::optional<HotspotRef> mTargetGDSScene;

@@ -29,4 +29,11 @@ constexpr auto buttonHighlight  = glm::vec4{.651, .573, .255, 1};
 
 constexpr auto itemHighlighted  = glm::vec4{.490, .063, .031, .5};
 
+constexpr auto moredhelFontUpper = glm::vec4{.188, .157, .188, 1};
+constexpr auto moredhelFontLower = glm::vec4{.255, .286, .255, 1};
+
+constexpr auto tumblerBackground = glm::vec4{.188, .255, .286, 1};
+constexpr auto tumblerShadow     = glm::vec4{.349, .349, .318, 1};
+constexpr auto tumblerHighlight  = glm::vec4{.063, .063, .094, 1};
+
 }

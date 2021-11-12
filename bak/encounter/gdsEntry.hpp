@@ -17,9 +17,25 @@ namespace BAK::Encounter {
 */
 
 // This is a GDS scene ala towns
-class RawGDSEntry
+struct RawGDSEntry
 {
-public:
+    RawGDSEntry(
+        HotspotRef hotspot,
+        KeyTarget entryDialog,
+        KeyTarget exitDialog,
+        glm::vec<2, unsigned> exitOffset,
+        std::uint16_t exitHeading,
+        // Whether to animate travelling into the town
+        bool walkToDest)
+    :
+        mHotspot{hotspot},
+        mEntryDialog{entryDialog},
+        mExitDialog{exitDialog},
+        mExitOffset{exitOffset},
+        mExitHeading{exitHeading},
+        mWalkToDest{walkToDest}
+    {}
+
     HotspotRef mHotspot;
     KeyTarget mEntryDialog;
     KeyTarget mExitDialog;
@@ -29,9 +45,8 @@ public:
     bool mWalkToDest;
 };
 
-class GDSEntry
+struct GDSEntry
 {
-public:
     HotspotRef mHotspot;
     KeyTarget mEntryDialog;
     KeyTarget mExitDialog;

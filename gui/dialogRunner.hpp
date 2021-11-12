@@ -6,6 +6,7 @@
 
 #include "com/algorithm.hpp"
 #include "com/assert.hpp"
+#include "com/ostream.hpp"
 #include "com/random.hpp"
 #include "com/visit.hpp"
 

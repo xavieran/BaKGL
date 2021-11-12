@@ -2,11 +2,7 @@
 
 #include "graphics/opengl.hpp"
 
-#include "com/logger.hpp"
-
 #include <GL/glew.h>
-
-#include <cmath>
 
 namespace Graphics {
 

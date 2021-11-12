@@ -6,7 +6,6 @@
 #include <optional>
 #include <ostream>
 
-
 namespace BAK {
 
 struct LockStats

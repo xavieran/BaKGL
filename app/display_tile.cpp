@@ -8,9 +8,6 @@
 
 #include "graphics/glm.hpp"
 
-#include "xbak/FileBuffer.h"
-#include "xbak/FileManager.h"
-
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");

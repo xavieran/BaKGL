@@ -1,5 +1,7 @@
 #include "bak/container.hpp"
 
+#include "com/ostream.hpp"
+
 namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const ContainerWorldLocation& loc)

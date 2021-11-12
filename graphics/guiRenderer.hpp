@@ -8,10 +8,6 @@
 
 #include "com/logger.hpp"
 
-#include <GL/glew.h>
-
-#include <cmath>
-
 namespace Graphics {
 
 // Tightly coupled with the GUI shader

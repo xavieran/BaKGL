@@ -40,16 +40,6 @@ Vertex::Vertex(const Vector3D &p)
 {
 }
 
-Vertex& Vertex::operator= ( const Vertex &v )
-{
-    pos = v.pos;
-    relpos = v.relpos;
-    angle = v.angle;
-    distance = v.distance;
-    distanceFactor = v.distanceFactor;
-    return *this;
-}
-
 const Vector3D& Vertex::GetPosition() const
 {
     return pos;

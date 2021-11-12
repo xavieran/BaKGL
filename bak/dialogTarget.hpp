@@ -3,8 +3,7 @@
 #include "com/strongType.hpp"
 
 #include <functional>
-#include <iomanip>
-#include <type_traits>
+#include <ostream>
 #include <variant>
 
 namespace BAK {
@@ -22,8 +21,6 @@ struct OffsetTarget
             && dialogFile == other.dialogFile;
     }
 };
-
-
 
 using Target = std::variant<KeyTarget, OffsetTarget>;
 

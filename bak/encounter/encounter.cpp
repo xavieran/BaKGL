@@ -1,9 +1,9 @@
 #include "bak/encounter/encounter.hpp"
 
 #include "com/logger.hpp"
+#include "com/visit.hpp"
 
 #include "graphics/glm.hpp"
-#include <glm/glm.hpp>
 
 #include <iostream>
 #include <string_view>

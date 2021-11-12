@@ -3,8 +3,6 @@
 #include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
 
-#include "gui/widget.hpp"
-
 #include <glm/glm.hpp>
 
 #include <variant>

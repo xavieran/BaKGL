@@ -1,10 +1,8 @@
 #pragma once
 
-#include "com/logger.hpp"
-#include "com/ostream.hpp"
-
-#include "xbak/Exception.h"
-#include "xbak/FileBuffer.h"
+#include <cstdint>
+#include <vector>
+#include <string>
 
 namespace BAK {
 
@@ -15,6 +13,20 @@ public:
 
     struct Monster
     {
+        Monster(
+            std::string prefix,
+            std::uint8_t unknown0,
+            std::uint8_t unknown1,
+            std::uint8_t unknown2,
+            std::uint8_t unknown3)
+        :
+            mPrefix{prefix},
+            mUnknown0{unknown0},
+            mUnknown1{unknown1},
+            mUnknown2{unknown2},
+            mUnknown3{unknown3}
+        {}
+
         std::string mPrefix;
         std::uint8_t mUnknown0;
         std::uint8_t mUnknown1;

@@ -15,21 +15,11 @@
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 #include "xbak/ImageResource.h"
-#include "xbak/Palette.h"
-#include "xbak/ScreenResource.h"
 #include "xbak/TableResource.h"
 #include "xbak/TileWorldResource.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <functional>   
-#include <iomanip>   
-#include <iostream>   
 #include <optional>
-#include <sstream>
-#include <unordered_map>
 
 namespace BAK {
 

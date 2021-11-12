@@ -1,7 +1,5 @@
 #pragma once
 
-#include "com/visit.hpp"
-
 #include <glm/glm.hpp>
 
 #include <cstdint>

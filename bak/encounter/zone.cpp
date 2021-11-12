@@ -50,9 +50,10 @@ void ZoneFactory::Load()
         const auto loc = MakeGamePositionFromTileAndOffset(tile, offset);
 
         mZones.emplace_back(
-            zone,
-            GamePositionAndHeading{loc, heading},
-            KeyTarget{dialog});
+            Zone{
+                zone,
+                GamePositionAndHeading{loc, heading},
+                KeyTarget{dialog}});
         Logging::LogDebug("ZoneFactory") << "ZoneTransition: " << i << " " << mZones.back() << "\n";
     }
 }
