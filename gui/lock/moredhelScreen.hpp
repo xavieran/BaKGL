@@ -133,8 +133,8 @@ public:
         ASSERT(container != nullptr);
 
         mContainer = container;
-        const auto& snippet = BAK::DialogSources::GetFairyChestKey(121);
-            //container->GetLockData().mFairyChestIndex);
+        const auto& snippet = BAK::DialogSources::GetFairyChestKey(
+            container->GetLockData().mFairyChestIndex);
         mFairyChest = BAK::GenerateFairyChest(
             std::string{BAK::GetDialogStore().GetSnippet(snippet).GetText()});
 
@@ -181,7 +181,6 @@ private:
         mTumblers.reserve(tumblers);
         for (unsigned i = 0; i < tumblers; i++)
         {
-            //if (mFairyChest->mAnswer[i] != ' ')
             mTumblers.emplace_back(
                 [this, i](){ IncrementTumbler(i); },
                 mLayout.GetWidgetLocation(1 + startLocation + i)
@@ -189,7 +188,7 @@ private:
                 mLayout.GetWidgetDimensions(1 + startLocation + i),
                 mPuzzleFont);
             mTumblers.back().SetDigits(i, *mFairyChest);
-            //}
+            // if char ==  ' ' dont add the tumbler...?
         }
     }
 
@@ -208,17 +207,16 @@ private:
             guess.push_back(t.GetDigit());
 
         if (guess == mFairyChest->mAnswer)
-            mLogger.Debug() << "Correct\n";
+        {
+            Unlocked();
+        }
 
-    }
-
-    auto& GetCharacter(BAK::ActiveCharIndex i)
-    {
-        return mGameState.GetParty().GetCharacter(i);
     }
 
     void Unlocked()
     {
+        mUnlocked = true;
+
         mDialogScene.SetDialogFinished(
             [this](const auto&)
             {
@@ -233,8 +231,6 @@ private:
             &mDialogScene);
     }
 
-private:
-
     void AddChildren()
     {
         AddChildBack(&mFrame);
@@ -245,6 +241,7 @@ private:
             AddChildBack(&t);
     }
 
+private:
 
     IGuiManager& mGuiManager;
     const Font& mAlienFont;

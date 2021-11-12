@@ -258,11 +258,17 @@ public:
         mCursor.PushCursor(0);
         mLogger.Debug() << __FUNCTION__ << ":" << (*container).GetLockData() << "\n";
 
-        if (!mLockScreen.IsUnlocked()
-            && container->GetLockData().mRating > 0 
+        if (   container->GetLockData().mRating > 0 
+            && !mLockScreen.IsUnlocked()
             && container->GetContainerType() == BAK::ContainerType::FairyChest)
         {
             ShowLock(container);
+        }
+        else if (container->GetLockData().mFairyChestIndex > 0 
+            && !mMoredhelScreen.IsUnlocked()
+            && container->GetContainerType() == BAK::ContainerType::FairyChest)
+        {
+            ShowWordLock(container);
         }
         else
         {
@@ -273,6 +279,7 @@ public:
             mInventoryScreen.SetContainer(container);
             mScreenStack.PushScreen(&mInventoryScreen);
             mLockScreen.ResetUnlocked();
+            mMoredhelScreen.ResetUnlocked();
         }
     }
 
@@ -286,8 +293,13 @@ public:
     void ShowLock(BAK::IContainer* container) override
     {
         mCursor.PushCursor(0);
-        //mLockScreen.SetContainer(container);
-        //mScreenStack.PushScreen(&mLockScreen);
+        mLockScreen.SetContainer(container);
+        mScreenStack.PushScreen(&mLockScreen);
+    }
+
+    void ShowWordLock(BAK::IContainer* container)
+    {
+        mCursor.PushCursor(0);
         mMoredhelScreen.SetContainer(container);
         mScreenStack.PushScreen(&mMoredhelScreen);
     }
@@ -300,6 +312,10 @@ public:
         if (mLockScreen.IsUnlocked())
         {
             ShowContainer(mLockScreen.GetContainer());
+        }
+        else if (mMoredhelScreen.IsUnlocked())
+        {
+            ShowContainer(mMoredhelScreen.GetContainer());
         }
     }
 

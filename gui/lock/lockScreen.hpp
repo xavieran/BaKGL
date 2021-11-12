@@ -368,6 +368,7 @@ private:
 
     void Unlocked(BAK::KeyTarget dialog)
     {
+        mGameState.SetDialogContext(0);
         mDialogScene.SetDialogFinished(
             [this](const auto&)
             {
