@@ -5,6 +5,7 @@
 #include "bak/types.hpp"
 
 #include "com/algorithm.hpp"
+#include "com/assert.hpp"
 #include "com/random.hpp"
 #include "com/visit.hpp"
 
@@ -74,7 +75,7 @@ public:
         mLogger{Logging::LogState::GetLogger("Gui::DialogRunner")}
     {
         AddChildBack(&mDialogDisplay);
-        assert(mFinished);
+        ASSERT(mFinished);
     }
 
     ~DialogRunner()
@@ -110,8 +111,8 @@ public:
         bool isTooltip)
     {
         mLastChoice.reset();
-        assert(!mDialogState.mDialogActive);
-        assert(!mDialogState.mTooltipActive);
+        ASSERT(!mDialogState.mDialogActive);
+        ASSERT(!mDialogState.mTooltipActive);
         if (isTooltip)
             mDialogState.ActivateTooltip();
         else

@@ -3,6 +3,7 @@
 #include "bak/dialog.hpp"
 #include "bak/encounter/combat.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include "xbak/FileBuffer.h"
@@ -20,7 +21,7 @@ GenericCombatFactory<isTrap>::GenericCombatFactory()
 template <bool isTrap>
 const Combat& GenericCombatFactory<isTrap>::Get(unsigned i) const
 {
-    assert(i < mCombats.size());
+    ASSERT(i < mCombats.size());
     return mCombats[i];
 }
 

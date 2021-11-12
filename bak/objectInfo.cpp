@@ -1,5 +1,6 @@
 #include "bak/objectInfo.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -185,7 +186,7 @@ ObjectIndex::ObjectIndex()
     
 const GameObject& ObjectIndex::GetObject(ItemIndex index) const
 {
-    assert(index.mValue < sObjectCount);
+    ASSERT(index.mValue < sObjectCount);
     return mObjects[index.mValue];
 }
 

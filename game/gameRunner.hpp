@@ -176,7 +176,7 @@ public:
                             mDynamicDialogScene.SetDialogFinished(
                                 [&, gds=gds](const auto& choice){
                                     // These dialogs should always result in a choice
-                                    assert(choice);
+                                    ASSERT(choice);
                                     if (choice->mValue == BAK::Keywords::sYesIndex)
                                     {
                                         mGuiManager.EnterGDSScene(

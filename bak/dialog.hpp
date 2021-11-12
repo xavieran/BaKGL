@@ -12,7 +12,6 @@
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
 
-#include <cassert>
 #include <iomanip>
 #include <ostream>
 #include <unordered_map>

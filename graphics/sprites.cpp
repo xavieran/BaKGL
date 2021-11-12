@@ -1,5 +1,7 @@
 #include "graphics/sprites.hpp"
 
+#include "com/assert.hpp"
+
 #include <GL/glew.h>
 
 #include <memory>
@@ -97,7 +99,7 @@ std::size_t Sprites::size()
 
 glm::vec2 Sprites::GetDimensions(unsigned i) const
 {
-    assert(i < mSpriteDimensions.size());
+    ASSERT(i < mSpriteDimensions.size());
     return mSpriteDimensions[i];
 }
 
@@ -116,7 +118,7 @@ SpriteSheetIndex SpriteManager::AddSpriteSheet()
     const auto& logger = Logging::LogState::GetLogger("SpriteManager");
     const auto spriteSheetIndex = NextSpriteSheet();
     logger.Debug() << "Adding sprite sheet index: " << spriteSheetIndex << "\n";
-    assert(mSprites.size() == spriteSheetIndex.mValue);
+    ASSERT(mSprites.size() == spriteSheetIndex.mValue);
     mSprites.emplace_back();
     return spriteSheetIndex;
 }
@@ -141,7 +143,7 @@ void SpriteManager::ActivateSpriteSheet(SpriteSheetIndex spriteSheet)
 
 Sprites& SpriteManager::GetSpriteSheet(SpriteSheetIndex spriteSheet)
 {
-    assert(mSprites.size() > spriteSheet.mValue);
+    ASSERT(mSprites.size() > spriteSheet.mValue);
     return mSprites[spriteSheet.mValue];
 }
 

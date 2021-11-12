@@ -6,6 +6,7 @@
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
 
+#include "com/assert.hpp"
 #include "com/visit.hpp"
 
 namespace Gui {
@@ -29,8 +30,8 @@ public:
         mLeftPressedCallback{std::move(onLeftMousePress)},
         mRightPressedCallback{std::move(onRightMousePress)}
     {
-        assert(mLeftPressedCallback);
-        assert(mRightPressedCallback);
+        ASSERT(mLeftPressedCallback);
+        ASSERT(mRightPressedCallback);
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
@@ -136,7 +137,7 @@ public:
 
     bool LeftMousePressed(glm::vec2 click)
     {
-        assert(mButton.size() >= 1);
+        ASSERT(mButton.size() >= 1);
         if (Within(click))
         {
             mButton[0] = &mPressed;
@@ -147,7 +148,7 @@ public:
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        assert(mButton.size() >= 1);
+        ASSERT(mButton.size() >= 1);
         mButton[0] = &mNormal;
         return false;
     }
@@ -156,7 +157,7 @@ public:
     {
         if (!Within(pos))
         {
-            assert(mButton.size() >= 1);
+            ASSERT(mButton.size() >= 1);
             mButton[0] = &mNormal;
         }
 
@@ -232,7 +233,7 @@ public:
 
     bool LeftMousePressed(glm::vec2 click)
     {
-        assert(mButton.size() >= 1);
+        ASSERT(mButton.size() >= 1);
         if (Within(click))
             mButton[0] = &mPressed;
 
@@ -241,7 +242,7 @@ public:
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        assert(mButton.size() >= 1);
+        ASSERT(mButton.size() >= 1);
         mButton[0] = &mNormal;
         return false;
     }
@@ -250,7 +251,7 @@ public:
     {
         if (!Within(pos))
         {
-            assert(mButton.size() >= 1);
+            ASSERT(mButton.size() >= 1);
             mButton[0] = &mNormal;
         }
 

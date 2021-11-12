@@ -2,6 +2,8 @@
 
 #include "bak/textureFactory.hpp"
 
+#include "com/assert.hpp"
+
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
@@ -89,7 +91,7 @@ public:
 
     IconInfo GetButton(unsigned i) const
     {
-        assert(i < mButtonIconsDims.size());
+        ASSERT(i < mButtonIconsDims.size());
         return std::make_tuple(
             mButtonIconsSpriteSheet,
             Graphics::TextureIndex{i},
@@ -99,7 +101,7 @@ public:
     IconInfo GetPressedButton(unsigned i) const
     {
         const auto index = i + mPressedOffset;
-        assert(index < mButtonIconsDims.size());
+        ASSERT(index < mButtonIconsDims.size());
         return std::make_tuple(
             mButtonIconsSpriteSheet,
             Graphics::TextureIndex{index},
@@ -108,7 +110,7 @@ public:
 
     IconInfo GetInventoryIcon(unsigned i) const
     {
-        assert(i < mInventoryIconsDims.size());
+        ASSERT(i < mInventoryIconsDims.size());
         return std::make_tuple(
             mInventoryIconsSpriteSheet,
             Graphics::TextureIndex{i},
@@ -128,7 +130,7 @@ public:
     IconInfo GetCharacterHead(unsigned i) const
     {
         const auto index = i + mHeadsOffset;
-        assert(index < mInventoryIconsDims.size());
+        ASSERT(index < mInventoryIconsDims.size());
         return std::make_tuple(
             mInventoryIconsSpriteSheet,
             Graphics::TextureIndex{index},
@@ -138,7 +140,7 @@ public:
     IconInfo GetCompass() const
     {
         const auto index = mCompassOffset;
-        assert(index < mInventoryIconsDims.size());
+        ASSERT(index < mInventoryIconsDims.size());
         return std::make_tuple(
             mInventoryIconsSpriteSheet,
             Graphics::TextureIndex{index},
@@ -148,7 +150,7 @@ public:
     IconInfo GetInventoryMiscIcon(unsigned i) const
     {
         const auto index = i + mInventoryMiscOffset;
-        assert(index < mInventoryIconsDims.size());
+        ASSERT(index < mInventoryIconsDims.size());
         return std::make_tuple(
             mInventoryIconsSpriteSheet,
             Graphics::TextureIndex{index},
@@ -158,7 +160,7 @@ public:
     IconInfo GetInventoryLockIcon(unsigned i) const
     {
         const auto index = i + mInventoryLockOffset;
-        assert(index < mInventoryIconsDims.size());
+        ASSERT(index < mInventoryIconsDims.size());
         return std::make_tuple(
             mInventoryIconsSpriteSheet,
             Graphics::TextureIndex{index},

@@ -3,10 +3,12 @@
 #include "bak/constants.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/encounter/encounter.hpp"
-#include "com/logger.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/zoneReference.hpp"
+
+#include "com/assert.hpp"
+#include "com/logger.hpp"
 
 #include "graphics/meshObject.hpp"
 
@@ -22,7 +24,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <cassert>   
 #include <functional>   
 #include <iomanip>   
 #include <iostream>   
@@ -84,7 +85,7 @@ public:
         {
             for (const auto& vertex : datInfo.vertices)
             {
-                assert(vertex);
+                ASSERT(vertex);
                 mVertices.emplace_back(BAK::ToGlCoord<int>(*vertex));
             }
             for (const auto& face : datInfo.faces)
@@ -150,7 +151,7 @@ public:
             mColors.emplace_back(datInfo.sprite);
         }
 
-        assert((mFaces.size() == mColors.size())
+        ASSERT((mFaces.size() == mColors.size())
             && (mFaces.size() == mPalettes.size())
             && (mFaces.size() == mPush.size()));
     }
@@ -233,11 +234,11 @@ public:
             mZoneLabel.GetTable());
         table.Load(&fb);
 
-        assert(table.GetMapSize() == table.GetDatSize());
+        ASSERT(table.GetMapSize() == table.GetDatSize());
 
         for (unsigned i = 0; i < table.GetMapSize(); i++)
         {
-            assert(table.GetDatItem(i) != nullptr);
+            ASSERT(table.GetDatItem(i) != nullptr);
             mItems.emplace_back(
                 table.GetMapItem(i),
                 *table.GetDatItem(i),
@@ -249,7 +250,7 @@ public:
 
     const ZoneItem& GetZoneItem(const unsigned i) const
     {
-        assert(i < mItems.size());
+        ASSERT(i < mItems.size());
         return mItems[i];
     }
 
@@ -260,7 +261,7 @@ public:
             return name == item.GetName();
             });
 
-        assert(it != mItems.end());
+        ASSERT(it != mItems.end());
         return *it;
     }
 

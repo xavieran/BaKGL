@@ -1,13 +1,12 @@
 #include "bak/scene.hpp"
 
-#include "com/string.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
+#include "com/string.hpp"
 
 #include "xbak/ResourceTag.h"
 #include "xbak/TaggedResource.h"
 
-#include <cassert>
 #include <functional>
 #include <unordered_map>
 
@@ -126,8 +125,8 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
                 break;
             case AdsActions::END:
             {
-                assert(currentIndex);
-                assert(ttmIndex);
+                ASSERT(currentIndex);
+                ASSERT(ttmIndex);
                 auto it = tags.GetTagMap().find(*currentIndex);
                 if (it == tags.GetTagMap().end())
                     throw std::runtime_error("Tag not found");
@@ -299,7 +298,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             if (loadingScene)
                 PushScene();
 
-            assert(chunk.mResourceName);
+            ASSERT(chunk.mResourceName);
             currentScene.mSceneTag = *chunk.mResourceName;
             currentScene.mActions.clear();
             currentScene.mImages.clear();
@@ -320,24 +319,24 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             break;
 
         case Actions::LOAD_PALETTE:
-            assert(loadingScene);
-            assert(chunk.mResourceName);
-            assert(paletteSlot);
+            ASSERT(loadingScene);
+            ASSERT(chunk.mResourceName);
+            ASSERT(paletteSlot);
             palettes[*paletteSlot] = *chunk.mResourceName;
             break;
 
         case Actions::SET_COLOR:
-            assert(paletteSlot);
+            ASSERT(paletteSlot);
             activeColor = std::make_pair(
                 *paletteSlot,
                 chunk.mArguments[0]);
             break;
         case Actions::LOAD_IMAGE:
         {
-            assert(loadingScene);
-            assert(chunk.mResourceName);
-            assert(imageSlot);
-            assert(paletteSlot);
+            ASSERT(loadingScene);
+            ASSERT(chunk.mResourceName);
+            ASSERT(imageSlot);
+            ASSERT(paletteSlot);
             auto name = *chunk.mResourceName;
             (*(name.end() - 1)) = 'X';
             images[*imageSlot] = std::make_pair(name, *paletteSlot);
@@ -345,7 +344,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             break;
         case Actions::DRAW_RECT:
         case Actions::DRAW_FRAME:
-            assert(activeColor);
+            ASSERT(activeColor);
             currentScene.mActions.emplace_back(
                 DrawRect{
                     *activeColor,

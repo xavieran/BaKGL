@@ -1,5 +1,6 @@
 #include "graphics/guiRenderer.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include <GL/glew.h>
@@ -122,7 +123,7 @@ void GuiRenderer::RenderGuiImpl(
     Graphics::IGuiElement* element)
 {
     mRenderCalls++;
-    assert(element);
+    ASSERT(element);
     mLogger.Spam() << "Rendering GUI Element: [0x" << std::hex 
         << element << std::dec << "] " << *element << "\n";
 

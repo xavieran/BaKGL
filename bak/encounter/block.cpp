@@ -1,8 +1,8 @@
 #include "bak/encounter/block.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "com/assert.hpp"
 
-#include <cassert>
+#include "xbak/FileBuffer.h"
 
 namespace BAK::Encounter {
 
@@ -22,7 +22,7 @@ BlockFactory::BlockFactory()
 
 const Block& BlockFactory::Get(unsigned i) const
 {
-    assert(i < mBlocks.size());
+    ASSERT(i < mBlocks.size());
     return mBlocks[i];
 }
 
@@ -36,7 +36,7 @@ void BlockFactory::Load()
     {
         fb.Skip(3);
         const auto target = fb.GetUint32LE();
-        assert(fb.GetUint16LE() == 0);
+        ASSERT(fb.GetUint16LE() == 0);
         mBlocks.emplace_back(KeyTarget{target});
     }
 }

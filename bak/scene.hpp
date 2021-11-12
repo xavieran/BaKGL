@@ -4,6 +4,8 @@
 #include "bak/sceneData.hpp"
 #include "bak/types.hpp"
 
+#include "com/assert.hpp"
+
 #include "xbak/FileBuffer.h"
 
 #include <optional>
@@ -34,7 +36,7 @@ struct ADSIndex
                 return mIf;
             else
             {
-                assert(mElse);
+                ASSERT(mElse);
                 return *mElse;
             }
         }
@@ -52,7 +54,7 @@ struct ADSIndex
         }
         else
         {
-            assert(mElse);
+            ASSERT(mElse);
             return *mElse;
         }
     }

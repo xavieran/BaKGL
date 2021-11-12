@@ -2,12 +2,13 @@
 
 #include "bak/textureFactory.hpp"
 
+#include "com/assert.hpp"
+
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
 #include "gui/widget.hpp"
 
-#include <cassert>
 #include <stack>
 
 namespace Gui {
@@ -55,7 +56,7 @@ public:
 
     void PushCursor(unsigned cursor)
     {
-        assert(cursor < mSprites.size());
+        ASSERT(cursor < mSprites.size());
         mCursors.push(
             std::make_pair(
                 mSprites.GetDimensions(cursor),
@@ -67,7 +68,7 @@ public:
     void PopCursor()
     {
         // We should always have at least one cursor
-        assert(mCursors.size() >= 2);
+        ASSERT(mCursors.size() >= 2);
         mLogger.Spam() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
         mCursors.pop();
         UpdateCursor();
@@ -85,7 +86,7 @@ public:
 
     const auto& GetCursor()
     {
-        assert(mCursors.size() >= 1);
+        ASSERT(mCursors.size() >= 1);
         return mCursors.top();
     }
 
@@ -97,7 +98,7 @@ public:
 private:
     void UpdateCursor()
     {
-        assert(mCursors.size() >= 1);
+        ASSERT(mCursors.size() >= 1);
         const auto & [dimensions, texture] = GetCursor();
         mDrawInfo.mTexture = Graphics::TextureIndex{texture};
         mPositionInfo.mDimensions = dimensions;

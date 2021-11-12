@@ -17,13 +17,13 @@ class Party
 public:
     const Character& GetCharacter(CharIndex i) const
     {
-        assert(mCharacters.size() == sMaxCharacters);
+        ASSERT(mCharacters.size() == sMaxCharacters);
         return mCharacters[i.mValue];
     }
 
     Character& GetCharacter(CharIndex i)
     {
-        assert(mCharacters.size() == sMaxCharacters);
+        ASSERT(mCharacters.size() == sMaxCharacters);
         return mCharacters[i.mValue];
     }
 
@@ -40,13 +40,13 @@ public:
 
     const Character& GetCharacter(ActiveCharIndex i) const
     {
-        assert(mActiveCharacters.size() <= sMaxActiveCharacters);
+        ASSERT(mActiveCharacters.size() <= sMaxActiveCharacters);
         return GetCharacter(mActiveCharacters[i.mValue]);
     }
 
     Character& GetCharacter(ActiveCharIndex i)
     {
-        assert(mActiveCharacters.size() <= sMaxActiveCharacters);
+        ASSERT(mActiveCharacters.size() <= sMaxActiveCharacters);
         return GetCharacter(mActiveCharacters[i.mValue]);
     }
 

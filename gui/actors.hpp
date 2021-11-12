@@ -2,6 +2,8 @@
 
 #include "bak/textureFactory.hpp"
 
+#include "com/assert.hpp"
+
 #include "graphics/IGuiElement.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
@@ -87,7 +89,7 @@ public:
     GetActor(unsigned actor) const
     {
         unsigned index = actor - 1;
-        assert(index < mActorDimensions.size());
+        ASSERT(index < mActorDimensions.size());
         return mActorDimensions[index];
     }
 
@@ -96,7 +98,7 @@ public:
         glm::vec2>
     GetActorA(unsigned actor) const
     {
-        assert(mActorADimensions.contains(actor));
+        ASSERT(mActorADimensions.contains(actor));
         return mActorADimensions.find(actor)->second;
     }
 

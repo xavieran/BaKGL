@@ -368,7 +368,8 @@ private:
             }
             else
             {
-                ASSERT(GetCharacter(character).GiveItem(item));
+                const auto result = GetCharacter(character).GiveItem(item);
+                ASSERT(result);
             }
             mGameState.GetParty().LoseMoney(price);
         }

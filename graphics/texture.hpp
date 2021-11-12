@@ -1,8 +1,9 @@
 #pragma once
 
+#include "com/assert.hpp"
+
 #include <glm/glm.hpp>
 
-#include <cassert>
 #include <string>
 #include <vector>
 
@@ -77,7 +78,7 @@ public:
     }
 
     const std::vector<Texture>& GetTextures() const { return mTextures; }
-    const Texture& GetTexture(std::size_t i) const { assert(i < mTextures.size()); return mTextures[i]; }
+    const Texture& GetTexture(std::size_t i) const { ASSERT(i < mTextures.size()); return mTextures[i]; }
 
     unsigned GetMaxDim() const { return mMaxDim; }
     unsigned GetMaxHeight() const { return mMaxHeight; }

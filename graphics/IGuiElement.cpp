@@ -1,5 +1,7 @@
 #include "graphics/IGuiElement.hpp"
 
+#include "com/assert.hpp"
+
 namespace Graphics {
 
 IGuiElement::IGuiElement()
@@ -31,7 +33,7 @@ void IGuiElement::AddChildBack(Graphics::IGuiElement* elem)
 void IGuiElement::RemoveChild(Graphics::IGuiElement* elem)
 {
     const auto it = std::find(mChildren.begin(), mChildren.end(), elem);
-    assert(it != mChildren.end());
+    ASSERT(it != mChildren.end());
     mChildren.erase(it);
 }
 

@@ -3,7 +3,6 @@
 #include "bak/types.hpp"
 
 #include <array>
-#include <cassert>
 #include <iostream>
 #include <ostream>
 #include <string>

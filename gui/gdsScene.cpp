@@ -1,5 +1,8 @@
 #include "gui/gdsScene.hpp"
+
 #include "bak/dialogSources.hpp"
+
+#include "com/assert.hpp"
 
 #include <glm/glm.hpp>
 
@@ -120,14 +123,14 @@ GDSScene::GDSScene(
 void GDSScene::DisplayNPCBackground()
 {
     mFrame.ClearChildren();
-    assert(mStaticTTMs.size() > 0);
+    ASSERT(mStaticTTMs.size() > 0);
     mFrame.AddChildBack(mStaticTTMs.back().GetScene());
 }
 
 void GDSScene::DisplayPlayerBackground()
 {
     mFrame.ClearChildren();
-    assert(mStaticTTMs.size() > 0);
+    ASSERT(mStaticTTMs.size() > 0);
     mFrame.AddChildBack(mStaticTTMs.back().GetBackground());
 }
 
@@ -145,7 +148,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
                 hotspot.mActionArg2, mGameState);
 
             // respect the earlier reserve
-            assert(mStaticTTMs.size () < mMaxSceneNesting);
+            ASSERT(mStaticTTMs.size () < mMaxSceneNesting);
             mStaticTTMs.emplace_back(
                 mSpriteManager,
                 scene1,

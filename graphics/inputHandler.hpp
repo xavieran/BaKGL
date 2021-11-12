@@ -7,7 +7,6 @@
 
 #include <glm/glm.hpp>
 
-#include <cassert>
 #include <functional>
 
 namespace Graphics {

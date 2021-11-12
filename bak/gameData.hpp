@@ -560,7 +560,7 @@ public:
 
     Conditions LoadConditions(unsigned character)
     {
-        assert(character < sCharacterCount);
+        ASSERT(character < sCharacterCount);
         mBuffer.Seek(sCharacterStatusOffset 
             + character * Conditions::sNumConditions);
 
@@ -601,7 +601,7 @@ public:
         mBuffer.Seek(sLocationOffset);
 
         unsigned zone = mBuffer.GetUint8();
-        assert(zone < 12);
+        ASSERT(zone < 12);
         mLogger.Info() << "Zone:" << zone << std::endl;
 
         unsigned xtile = mBuffer.GetUint8();
@@ -1016,7 +1016,7 @@ public:
         {
             mBuffer.Dump(13);
             auto x = mBuffer.Tell();
-            //assert(mBuffer.GetUint8() == 0x64);
+            //ASSERT(mBuffer.GetUint8() == 0x64);
             mBuffer.GetUint8(); // always 0x64 for combats
             mBuffer.GetUint8();// == 0x0a);
             mBuffer.Skip(2);

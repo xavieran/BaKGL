@@ -2,6 +2,8 @@
 
 #include "graphics/texture.hpp"
 
+#include "com/assert.hpp"
+
 #include "xbak/FileBuffer.h"
 
 #include <iostream>
@@ -38,7 +40,7 @@ public:
         {
             std::cout << "BAD:{" << std::dec << +c << "}\n";
         }
-        assert(mFirstChar <= c);
+        ASSERT(mFirstChar <= c);
         return c - mFirstChar;
     }
 

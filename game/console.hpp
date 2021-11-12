@@ -271,7 +271,7 @@ struct Console : public std::streambuf
             ClearLog();
         });
 
-        assert(static_cast<std::size_t>(mCommands.size())
+        ASSERT(static_cast<std::size_t>(mCommands.size())
             == mCommandActions.size());
         mAutoScroll = true;
         mScrollToBottom = false;

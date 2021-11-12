@@ -467,7 +467,7 @@ public:
 
     std::vector<Container>& GetContainers(ZoneNumber zone)
     {
-        assert(zone.mValue < 13);
+        ASSERT(zone.mValue < 13);
         return mContainers[zone.mValue - 1];
     }
 

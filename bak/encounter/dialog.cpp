@@ -1,8 +1,8 @@
 #include "bak/encounter/dialog.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "com/assert.hpp"
 
-#include <cassert>
+#include "xbak/FileBuffer.h"
 
 namespace BAK::Encounter {
 
@@ -21,7 +21,7 @@ DialogFactory::DialogFactory()
 
 const Dialog& DialogFactory::Get(unsigned i) const
 {
-    assert(i < mDialogs.size());
+    ASSERT(i < mDialogs.size());
     return mDialogs[i];
 }
 

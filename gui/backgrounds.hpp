@@ -67,7 +67,7 @@ public:
 
     Graphics::TextureIndex GetScreen(const std::string& scx) const
     {
-        assert(mScxToSprite.contains(scx));
+        ASSERT(mScxToSprite.contains(scx));
         const auto ti = *mScxToSprite.find(scx);
         return ti.second;
     }

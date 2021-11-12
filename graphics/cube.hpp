@@ -3,6 +3,8 @@
 #include "graphics/meshObject.hpp"
 #include "graphics/quad.hpp"
 
+#include "com/assert.hpp"
+
 #include <glm/glm.hpp>
 
 #include <vector>
@@ -58,8 +60,8 @@ public:
         unsigned off = 0;
         for (const auto& q : mQuads)
         {
-            assert(q.mVertices.size() == q.mNormals.size());
-            assert(q.mVertices.size() == q.mIndices.size());
+            ASSERT(q.mVertices.size() == q.mNormals.size());
+            ASSERT(q.mVertices.size() == q.mIndices.size());
             for (unsigned i = 0; i < q.GetNumVertices(); i++)
             {
                 vertices.emplace_back(q.mVertices[i]);

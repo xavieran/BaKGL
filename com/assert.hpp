@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-#ifdef NO_ASSERT
+#ifdef NDEBUG
 #define ASSERT(x) ;
 #else
 #define ASSERT(x) assert((x));

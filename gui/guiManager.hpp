@@ -200,7 +200,7 @@ public:
 
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
-        assert(mDialogScene);
+        ASSERT(mDialogScene);
         PopAndRunGuiScreen();
         mScreenStack.PopScreen(); // Dialog runner
         mCursor.PopCursor();

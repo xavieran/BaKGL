@@ -2,9 +2,9 @@
 
 #include "bak/encounter/gdsEntry.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "com/assert.hpp"
 
-#include <cassert>
+#include "xbak/FileBuffer.h"
 
 namespace BAK::Encounter {
 
@@ -19,7 +19,7 @@ GDSEntryFactory<S>::GDSEntryFactory()
 template <typename S>
 GDSEntry GDSEntryFactory<S>::Get(unsigned i, glm::vec<2, unsigned> tile) const
 {
-    assert(i < mGDSEntrys.size());
+    ASSERT(i < mGDSEntrys.size());
     const auto& rawGds = mGDSEntrys[i];
     return GDSEntry{
         rawGds.mHotspot,
@@ -55,7 +55,7 @@ void GDSEntryFactory<S>::Load()
         // ... ???
         const auto heading = fb.GetUint16LE() >> 8;
         const auto walkToDest = fb.GetUint8();
-        assert(fb.GetUint16LE() == 0);
+        ASSERT(fb.GetUint16LE() == 0);
 
         mGDSEntrys.emplace_back(
             HotspotRef{gdsNumber, gdsChar},

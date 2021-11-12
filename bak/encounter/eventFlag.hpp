@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cassert>
+#include "com/assert.hpp"
+
 #include <cstdint>
 #include <ostream>
 #include <vector>

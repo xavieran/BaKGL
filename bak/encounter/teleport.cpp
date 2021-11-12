@@ -1,5 +1,6 @@
 #include "bak/encounter/teleport.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -24,7 +25,7 @@ TeleportFactory::TeleportFactory()
 
 const Teleport& TeleportFactory::Get(unsigned i) const
 {
-    assert(i < mTeleports.size());
+    ASSERT(i < mTeleports.size());
     return mTeleports[i];
 }
 

@@ -28,12 +28,12 @@ set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")
 
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=*,-llvmlibc-*,-modernize-use-trailing-return-type")
 
-# I just want all the bins in the build dir
+# --- Put all binaries in the root of the build dir ---
 set(
   CMAKE_RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR})
 
-# Packages
+# --- External Packages ---
 find_package(SDL REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_sound REQUIRED)
@@ -52,19 +52,14 @@ find_package(glfw3 3.3 REQUIRED)
 include(FetchContent)
 FetchContent_Declare(
   googletest
-  # Specify the commit you depend on and update it regularly.
   URL https://github.com/google/googletest/archive/release-1.11.0.zip
 )
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-## Now simply link against gtest or gtest_main as needed. Eg
-#add_executable(example example.cpp)
-#target_link_libraries(example gtest_main)
-#add_test(NAME example_test COMMAND example)
 
-# My project directories
+# --- My project directories ---
 include_directories(".")
 
 add_subdirectory("app")

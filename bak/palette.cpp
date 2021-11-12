@@ -1,5 +1,7 @@
 #include "bak/palette.hpp"
 
+#include "com/assert.hpp"
+
 #include "xbak/FileBuffer.h"
 #include "xbak/TaggedResource.h"
 
@@ -29,7 +31,7 @@ Palette::Palette(const std::string& filename)
 
 const glm::vec4& Palette::GetColor(unsigned i) const
 {
-    assert(i < mColors.size());
+    ASSERT(i < mColors.size());
     return mColors[i];
 }
 

@@ -4,6 +4,7 @@
 #include "bak/gameState.hpp"
 
 #include "com/algorithm.hpp"
+#include "com/assert.hpp"
 #include "com/visit.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -198,7 +199,7 @@ public:
         const auto& snippet = mDialogStore.GetSnippet(target);
         const auto text = snippet.GetText();
         const auto flavourText = find_nth(text.begin(), text.end(), '#', 2);
-        assert(flavourText != text.end());
+        ASSERT(flavourText != text.end());
         const auto remainingText = std::string{flavourText, text.end()};
         auto nullScene = NullDialogScene{};
         DisplaySnippet(nullScene, snippet, remainingText);

@@ -2,6 +2,7 @@
 
 #include "bak/textureFactory.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include "graphics/guiTypes.hpp"
@@ -168,7 +169,7 @@ Widget* StaticTTM::GetScene()
 
 Widget* StaticTTM::GetBackground()
 {
-    assert(mDialogBackground);
+    ASSERT(mDialogBackground);
     return &(*mDialogBackground);
 }
 

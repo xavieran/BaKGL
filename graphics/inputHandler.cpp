@@ -1,6 +1,7 @@
 #include "graphics/inputHandler.hpp"
 
-#include <cassert>
+#include "com/assert.hpp"
+
 #include <functional>
 
 namespace Graphics {
@@ -122,19 +123,19 @@ void InputHandler::HandleMouseInput(GLFWwindow* window)
 
 void InputHandler::MouseAction(GLFWwindow* window, int button, int action, int mods)
 {
-    assert(sHandler);
+    ASSERT(sHandler);
     sHandler->HandleMouseCallback(window, button, action, mods);
 }
 
 void InputHandler::MouseMotionAction(GLFWwindow* window, double xpos, double ypos)
 {
-    assert(sHandler);
+    ASSERT(sHandler);
     sHandler->HandleMouseMotionCallback(window, xpos, ypos);
 }
 
 void InputHandler::KeyboardAction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    assert(sHandler);
+    ASSERT(sHandler);
     sHandler->HandleKeyboardCallback(window, key, scancode, action, mods);
 }
 

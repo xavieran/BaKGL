@@ -52,7 +52,7 @@ public:
 
     void PopScreen()
     {
-        assert(mChildren.size() > 0);
+        ASSERT(mChildren.size() > 0);
         mLogger.Debug() << "Popped widget: "  << std::hex << mChildren.back() << std::dec << "\n";
         PopChild();
     }
