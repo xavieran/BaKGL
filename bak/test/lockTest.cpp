@@ -47,4 +47,26 @@ TEST_F(LockTestFixture, TryOpenLockWithKey)
     EXPECT_EQ(TryOpenLockWithKey(key, 90), true);
 }
 
+TEST(FairyChest, ParseData)
+{
+    const auto data = std::string{
+R"(DAY NIGHT
+#
+DRV SAGHO
+OAB FIRMT
+FLC HRUNI
+EPY NGHSK
+#
+The light one breaks but never falls.
+His brother falls but never breaks.)"};
+    const auto fairyChest = GenerateFairyChest(data);
+    EXPECT_EQ(fairyChest.mAnswer, "DAY NIGHT");
+    ASSERT_EQ(fairyChest.mOptions.size(), 4);
+    EXPECT_EQ(fairyChest.mOptions[0], "DRV SAGHO");
+    EXPECT_EQ(fairyChest.mOptions[1], "OAB FIRMT");
+    EXPECT_EQ(fairyChest.mOptions[2], "FLC HRUNI");
+    EXPECT_EQ(fairyChest.mOptions[3], "EPY NGHSK");
+    EXPECT_EQ(fairyChest.mHint, "\nThe light one breaks but never falls.\nHis brother falls but never breaks.");
+}
+
 }

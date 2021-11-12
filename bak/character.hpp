@@ -133,9 +133,8 @@ public:
         return ContainerType::Inv;
     }
 
-    const ShopStats& GetShopData() const override { ASSERT(false); }
-    const LockStats& GetLockData() const override { ASSERT(false); }
-
+    const ShopStats& GetShopData() const override { ASSERT(false); return *reinterpret_cast<const ShopStats*>(this);}
+    const LockStats& GetLockData() const override { ASSERT(false); return *reinterpret_cast<const LockStats*>(this); }
     /* Character Getters */
 
     CharIndex GetIndex() const { return mCharacterIndex; }

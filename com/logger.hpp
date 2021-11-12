@@ -150,6 +150,7 @@ private:
     std::string mName;
 };
 
+std::ostream& LogInfo(const std::string& loggerName);
 std::ostream& LogDebug(const std::string& loggerName);
 std::ostream& LogSpam(const std::string& loggerName);
 

@@ -31,6 +31,11 @@ std::ostream LogState::sOutput{&LogState::sMux};
 std::ostream LogState::nullStream{nullptr};
 
 
+std::ostream& LogInfo(const std::string& loggerName)
+{
+    return LogState::Log(Logging::LogLevel::Info, loggerName);
+}
+
 std::ostream& LogDebug(const std::string& loggerName)
 {
     return LogState::Log(Logging::LogLevel::Debug, loggerName);

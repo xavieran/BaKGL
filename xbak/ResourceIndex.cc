@@ -102,7 +102,7 @@ void ResourceIndex::Save(const std::string &filename)
             res.Seek(offset);
             res.Load(resBuffer);
             std::string resIdxName = resBuffer.GetString(RES_FILENAME_LEN);
-            ResourceIndexData resIdxData;
+            ResourceIndexData resIdxData{};
             Find(resIdxName, resIdxData);
             rmfBuffer.PutUint32LE(resIdxData.hashkey);
             rmfBuffer.PutUint32LE(offset);

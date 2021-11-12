@@ -17,6 +17,13 @@ struct LockStats
     unsigned mTrapDamage;
 };
 
+struct FairyChest
+{
+    std::string mAnswer;
+    std::vector<std::string> mOptions;
+    std::string mHint;
+};
+
 std::ostream& operator<<(std::ostream&, const LockStats&);
 
 // This is the lock "image" type
@@ -43,5 +50,7 @@ bool KeyBroken(const InventoryItem& item, const Skill& skill, unsigned lockRatin
 bool PicklockBroken(const Skill& skill, unsigned lockRating);
 bool PicklockSkillImproved();
 bool CanPickLock(const Skill& skill, unsigned lockRating);
+
+FairyChest GenerateFairyChest(const std::string&);
 
 }
