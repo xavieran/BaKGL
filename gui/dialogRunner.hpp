@@ -16,7 +16,6 @@
 #include "gui/colors.hpp"
 #include "gui/choiceScreen.hpp"
 #include "gui/dialogDisplay.hpp"
-#include "gui/frame.hpp"
 #include "gui/label.hpp"
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"

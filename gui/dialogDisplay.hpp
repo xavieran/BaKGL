@@ -11,7 +11,6 @@
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
-#include "gui/frame.hpp"
 #include "gui/label.hpp"
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
@@ -78,6 +77,7 @@ public:
             true
         },
         mActionAreaFrame{
+            ClipRegionTag{},
             glm::vec2{15, 11},
             glm::vec2{289, 101},
             true
@@ -93,8 +93,11 @@ public:
             true
         },
         mLowerFrame{
+            RectTag{},
             glm::vec2{15, 125},
-            glm::vec2{285, 66}
+            glm::vec2{285, 66},
+            glm::vec4{0},
+            true
         },
         mFullscreenTextBox{
             glm::vec2{30, 30},
@@ -311,9 +314,9 @@ private:
     Widget mActor;
 
     Widget mFullscreenFrame;
-    Frame mActionAreaFrame;
+    Widget mActionAreaFrame;
     Widget mActionAreaBackground;
-    Frame mLowerFrame;
+    Widget mLowerFrame;
 
     TextBox mFullscreenTextBox;
     TextBox mActionAreaTextBox;
