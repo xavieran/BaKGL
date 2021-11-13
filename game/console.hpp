@@ -50,6 +50,31 @@ struct Console : public std::streambuf
         }
     }
 
+    void SaveGame(const std::vector<std::string>& words)
+    {
+        if (words.size() < 2)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: SAVE_GAME FILENAME (%s)", ss.str().c_str());
+            return;
+        }
+
+        if (!mGameState)
+        {
+            AddLog("[error] SAVE_GAME FAILED No GameState Connected");
+            return;
+        }
+
+        const auto saved = mGameState->Save(words[1]);
+        if (saved)
+            AddLog("Game saved to: %s", words[1].c_str());
+        else
+            AddLog("Game not saved, no game data");
+
+    }
+
     // Console commands
     void SetEventState(const std::vector<std::string>& words)
     {
@@ -241,6 +266,8 @@ struct Console : public std::streambuf
                 AddLog("- %s", mCommands[i]);
         });
 
+        mCommands.push_back("SAVE_GAME");
+        mCommandActions.emplace_back([this](const auto& cmd){ SaveGame(cmd); });
         mCommands.push_back("SET_EVENT_STATE");
         mCommandActions.emplace_back([this](const auto& cmd){ SetEventState(cmd); });
         mCommands.push_back("REMOVE_ITEM");

@@ -465,6 +465,16 @@ public:
         }
     }
 
+    bool Save(const std::string& saveName)
+    {
+        if (mGameData)
+        {
+            mGameData->Save(saveName);
+            return true;
+        }
+        return false;
+    }
+
     std::vector<Container>& GetContainers(ZoneNumber zone)
     {
         ASSERT(zone.mValue < 13);

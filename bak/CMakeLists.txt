@@ -13,7 +13,7 @@ add_library(bak
     dialogTarget.hpp dialogTarget.cpp
     fixedObject.hpp fixedObject.cpp
     font.hpp font.cpp
-    gameData.hpp
+    gameData.hpp gameData.cpp
     gameState.hpp
     hotspot.hpp hotspot.cpp
     hotspotRef.hpp hotspotRef.cpp
