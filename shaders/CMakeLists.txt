@@ -22,6 +22,7 @@ target_link_libraries(compile_shaders
 
 list(APPEND SHADERS
     directional
+    instance
     gui
     shadowMap
 )

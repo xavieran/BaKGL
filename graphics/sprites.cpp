@@ -81,12 +81,13 @@ void Sprites::LoadTexturesGL(const TextureStore& textures)
 
     mVertexArray.BindGL();
 
-    mBuffers.AddBuffer("vertex", 0, 3);
-    mBuffers.AddBuffer("textureCoord", 1, 3);
+    mBuffers.AddStaticArrayBuffer<glm::vec3>("vertex", GLLocation{0});
+    mBuffers.AddStaticArrayBuffer<glm::vec3>("textureCoord", GLLocation{1});
+    mBuffers.AddElementBuffer("elements");
 
-    mBuffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, mObjects.mVertices);
-    mBuffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, mObjects.mTextureCoords);
-    mBuffers.LoadBufferDataGL(mBuffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, mObjects.mIndices);
+    mBuffers.LoadBufferDataGL("vertex", mObjects.mVertices);
+    mBuffers.LoadBufferDataGL("textureCoord", mObjects.mTextureCoords);
+    mBuffers.LoadBufferDataGL("elements", mObjects.mIndices);
     mBuffers.BindArraysGL();
     
     UnbindGL();

@@ -3,18 +3,51 @@
 #include "graphics/texture.hpp"
 
 #include "com/logger.hpp"
+#include "com/strongType.hpp"
 
 #include <GL/glew.h>
 
 namespace Graphics {
 
-enum class BindPoint
+using GLLocation = StrongType<unsigned, struct GLLocationTag>;
+using GLElems    = StrongType<unsigned, struct GLElemsTag>;
+using GLDataType = StrongType<unsigned, struct GLDataTypeTag>;
+using GLBufferId = StrongType<unsigned, struct GLBufferIdTag>;
+
+static constexpr auto GLNullLocation = GLLocation{static_cast<unsigned>(-1)};
+
+enum class GLBindPoint
 {
     ArrayBuffer,
-    ElementArrayBuffer
+    ElementArrayBuffer,
+    TextureBuffer
 };
 
-GLenum ToGlEnum(BindPoint p);
+GLenum ToGlEnum(GLBindPoint);
+
+enum class GLUpdateType
+{
+    StaticDraw,
+    DynamicDraw 
+};
+
+GLenum ToGlEnum(GLUpdateType);
+
+struct GLBuffer
+{
+    // Location in the shader
+    GLLocation mLocation;
+    // Elements per object (e.g. color = 4 floats)
+    GLElems mElems;
+    // GLBindPoint (ARRAY, ELEMENT_ARRAY, etc)
+    GLBindPoint mGLBindPoint;
+    // e.g. GL_FLOAT, or GL_UNSIGNED
+    GLDataType mDataType;
+    // e.g. StaticDraw or DynamicDraw
+    GLUpdateType mUpdateType;
+    // GL assigned buffer id
+    GLBufferId mBuffer;
+};
 
 class VertexArrayObject
 {
@@ -49,39 +82,63 @@ public:
     GLBuffers& operator=(const GLBuffers&) = delete;
     ~GLBuffers();
 
+    const auto& GetGLBuffer(const std::string& name) const
+    {
+        if (!mBuffers.contains(name))
+        {
+            Logging::LogDebug("GLBuffers") << "No buffer named: " << name << std::endl;
+            ASSERT(false);
+        }
+        return mBuffers.find(name)->second;
+    }
+
     void AddBuffer(
         const std::string& name,
-        unsigned location,
-        unsigned elems);
+        GLLocation,
+        GLElems,
+        GLDataType,
+        GLBindPoint,
+        GLUpdateType);
+
+    template <typename T>
+    void AddStaticArrayBuffer(
+        const std::string& name,
+        GLLocation location)
+    {
+        static_assert(std::is_same_v<typename T::value_type, float> || std::is_same_v<typename T::value_type, unsigned>);
+        constexpr auto dataType = std::invoke([](){
+            if constexpr (std::is_same_v<typename T::value_type, float>) return GLDataType{GL_FLOAT};
+            else return GLDataType{GL_UNSIGNED_INT};
+        });
+        AddBuffer(name, location, GLElems{T::length()}, dataType, GLBindPoint::ArrayBuffer, GLUpdateType::StaticDraw);
+    }
+
+    void AddElementBuffer(const std::string& name);
+    void AddTextureBuffer(const std::string& name);
     
-    static GLuint GenBufferGL();
+    static GLBufferId GenBufferGL();
 
     template <typename T>
     void LoadBufferDataGL(
-        const std::string& buffer,
-        GLenum target,
+        const std::string& name,
         const std::vector<T>& data)
     {
-        LoadBufferDataGL(
-            mBuffers[buffer].mBuffer,
-            target,
-            data);
+        LoadBufferDataGL(GetGLBuffer(name), data);
     }
 
     template <typename T>
     void LoadBufferDataGL(
-        GLuint buffer,
-        GLenum target,
+        const GLBuffer& buffer,
         const std::vector<T>& data)
     {
-        glBindBuffer(target, buffer);
+        glBindBuffer(
+            ToGlEnum(buffer.mGLBindPoint),
+            buffer.mBuffer.mValue);
         glBufferData(
-            target,
+            ToGlEnum(buffer.mGLBindPoint),
             data.size() * sizeof(T),
             &data.front(),
-            // This will need to change...
-            GL_DYNAMIC_DRAW);
-            //GL_STATIC_DRAW);
+            ToGlEnum(buffer.mUpdateType));
     }
 
     template <typename T>
@@ -91,7 +148,7 @@ public:
         unsigned offset,
         const std::vector<T>& data)
     {
-        glBindBuffer(target, mBuffers[name].mBuffer);
+        glBindBuffer(target, GetGLBuffer(name).mBuffer.mValue);
         glBufferSubData(
             target,
             offset,
@@ -99,26 +156,18 @@ public:
             &data.front());
     }
 
-    void BindAttribArrayGL(
-        unsigned location,
-        unsigned elems,
-        GLuint buffer);
+    void BindAttribArrayGL(const GLBuffer&);
     
     void BindArraysGL();
-    
-//private:
-    struct GLBuffer
-    {
-        // Location in the shader
-        unsigned mLocation;
-        // Elements per object (e.g. color = 4 floats)
-        unsigned mElems;
-        // BindPoint (ARRAY, ELEMENT_ARRAY, etc)
-        BindPoint mBindPoint;
-        // GL assigned buffer id
-        GLuint mBuffer;
-    };
 
+    void SetAttribDivisor(const std::string& name, unsigned divisor)
+    {
+        const auto location = GetGLBuffer(name).mLocation;
+        glEnableVertexAttribArray(location.mValue);
+        glVertexAttribDivisor(location.mValue, divisor);
+    }
+
+    //private:
     std::unordered_map<std::string, GLBuffer> mBuffers;
 
     GLuint mElementBuffer;

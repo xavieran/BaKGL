@@ -60,18 +60,19 @@ public:
         // when we load new data...
         mVertexArrayObject.BindGL();
 
-        mGLBuffers.AddBuffer("vertex", 0, 3);
-        mGLBuffers.AddBuffer("normal", 1, 3);
-        mGLBuffers.AddBuffer("color", 2, 4);
-        mGLBuffers.AddBuffer("textureCoord", 3, 3);
-        mGLBuffers.AddBuffer("textureBlend", 4, 1);
+        mGLBuffers.AddStaticArrayBuffer<glm::vec3>("vertex", GLLocation{0});
+        mGLBuffers.AddStaticArrayBuffer<glm::vec3>("normal", GLLocation{1});
+        mGLBuffers.AddStaticArrayBuffer<glm::vec4>("color", GLLocation{2});
+        mGLBuffers.AddStaticArrayBuffer<glm::vec3>("textureCoord", GLLocation{3});
+        mGLBuffers.AddStaticArrayBuffer<glm::vec1>("textureBlend", GLLocation{4});
+        mGLBuffers.AddElementBuffer("elements");
 
-        mGLBuffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, objectStore.mVertices);
-        mGLBuffers.LoadBufferDataGL("normal", GL_ARRAY_BUFFER, objectStore.mNormals);
-        mGLBuffers.LoadBufferDataGL("color", GL_ARRAY_BUFFER, objectStore.mColors);
-        mGLBuffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, objectStore.mTextureCoords);
-        mGLBuffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, objectStore.mTextureBlends);
-        mGLBuffers.LoadBufferDataGL(mGLBuffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, objectStore.mIndices);
+        mGLBuffers.LoadBufferDataGL("vertex", objectStore.mVertices);
+        mGLBuffers.LoadBufferDataGL("normal", objectStore.mNormals);
+        mGLBuffers.LoadBufferDataGL("color", objectStore.mColors);
+        mGLBuffers.LoadBufferDataGL("textureCoord", objectStore.mTextureCoords);
+        mGLBuffers.LoadBufferDataGL("textureBlend", objectStore.mTextureBlends);
+        mGLBuffers.LoadBufferDataGL("elements", objectStore.mIndices);
 
         mGLBuffers.BindArraysGL();
 

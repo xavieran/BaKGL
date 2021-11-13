@@ -112,21 +112,24 @@ int main(int argc, char** argv)
     const auto& textureBlends = objStore.mTextureBlends;
     const auto& indices       = objStore.mIndices;
 
+    using namespace Graphics;
     Graphics::GLBuffers buffers{};
-    buffers.AddBuffer("vertex", 0, 3);
-    buffers.AddBuffer("normal", 1, 3);
-    buffers.AddBuffer("color", 2, 4);
-    buffers.AddBuffer("textureCoord", 3, 3);
-    buffers.AddBuffer("textureBlend", 4, 1);
+    buffers.AddStaticArrayBuffer<glm::vec3>("vertex", GLLocation{0});
+    buffers.AddStaticArrayBuffer<glm::vec3>("normal", GLLocation{1});
+    buffers.AddStaticArrayBuffer<glm::vec4>("color", GLLocation{2});
+    buffers.AddStaticArrayBuffer<glm::vec3>("textureCoord", GLLocation{3});
+    buffers.AddStaticArrayBuffer<glm::vec1>("textureBlend", GLLocation{4});
+    buffers.AddElementBuffer("elements");
 
-    buffers.LoadBufferDataGL("vertex", GL_ARRAY_BUFFER, vertices);
-    buffers.LoadBufferDataGL("normal", GL_ARRAY_BUFFER, normals);
-    buffers.LoadBufferDataGL("color", GL_ARRAY_BUFFER, colors);
-    buffers.LoadBufferDataGL("textureCoord", GL_ARRAY_BUFFER, textureCoords);
-    buffers.LoadBufferDataGL("textureBlend", GL_ARRAY_BUFFER, textureBlends);
+    buffers.LoadBufferDataGL("vertex", objStore.mVertices);
+    buffers.LoadBufferDataGL("normal", objStore.mNormals);
+    buffers.LoadBufferDataGL("color", objStore.mColors);
+    buffers.LoadBufferDataGL("textureCoord", objStore.mTextureCoords);
+    buffers.LoadBufferDataGL("textureBlend", objStore.mTextureBlends);
+    buffers.LoadBufferDataGL("elements", objStore.mIndices);
 
-    buffers.LoadBufferDataGL(buffers.mElementBuffer, GL_ELEMENT_ARRAY_BUFFER, indices);
     buffers.BindArraysGL();
+
     glBindVertexArray(0);
 
     Graphics::TextureBuffer textureBuffer{GL_TEXTURE_2D_ARRAY};

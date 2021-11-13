@@ -47,8 +47,8 @@ void GuiCamera::CalculateMatrices()
         mWidth,
         mHeight,
         0.0f,
-        -1.0f,
-        1.0f);
+        -100.0f,
+        100.0f);
 }
 
 void GuiCamera::UpdateModelViewMatrix(const glm::mat4& modelMatrix)

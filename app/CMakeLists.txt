@@ -8,6 +8,7 @@ list(APPEND APP_BINARIES
     display_save
     display_tile
     display_ttm
+    instancing
     main3d
     show_scene
     show_imgui

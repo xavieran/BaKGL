@@ -45,7 +45,7 @@ public:
 
     glm::vec2 GetDimensions(unsigned i) const;
     
-private:
+//private:
     const std::size_t mNonSpriteObjects;
     VertexArrayObject mVertexArray;
     GLBuffers mBuffers;

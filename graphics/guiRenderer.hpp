@@ -27,7 +27,7 @@ public:
     void ScissorRegion(glm::vec2 topLeft, glm::vec2 dimensions);
     void DisableScissor();
 
-private:
+//private:
     float mWidth;
     float mHeight;
     float mScale;
@@ -60,7 +60,7 @@ public:
     void RenderGui(
         Graphics::IGuiElement* element);
 
-private:
+//private:
     void RenderGuiImpl(
         glm::vec2 translate,
         Graphics::IGuiElement* element);

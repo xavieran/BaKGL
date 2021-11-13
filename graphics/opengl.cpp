@@ -11,13 +11,24 @@
 
 namespace Graphics {
 
-GLenum ToGlEnum(BindPoint p)
+GLenum ToGlEnum(GLBindPoint p)
 {
     switch (p)
     {
-    case BindPoint::ArrayBuffer: return GL_ARRAY_BUFFER;
-    case BindPoint::ElementArrayBuffer: return GL_ELEMENT_ARRAY_BUFFER;
-    default: return GL_ARRAY_BUFFER;
+    case GLBindPoint::ArrayBuffer: return GL_ARRAY_BUFFER;
+    case GLBindPoint::ElementArrayBuffer: return GL_ELEMENT_ARRAY_BUFFER;
+    case GLBindPoint::TextureBuffer: return GL_TEXTURE_BUFFER;
+    default: ASSERT(false); return GL_ARRAY_BUFFER;
+    }
+}
+
+GLenum ToGlEnum(GLUpdateType p)
+{
+    switch (p)
+    {
+    case GLUpdateType::StaticDraw: return GL_STATIC_DRAW;
+    case GLUpdateType::DynamicDraw: return GL_DYNAMIC_DRAW;
+    default: ASSERT(false); return GL_STATIC_DRAW;
     }
 }
 
@@ -68,7 +79,7 @@ GLuint VertexArrayObject::GenVertexArrayGL()
 GLBuffers::GLBuffers()
 :
     mBuffers{},
-    mElementBuffer{GenBufferGL()},
+    mElementBuffer{GenBufferGL().mValue},
     mActive{true}
 {
 }
@@ -97,58 +108,79 @@ GLBuffers::~GLBuffers()
         {
             Logging::LogDebug("GLBuffers") << "    Deleting buffer: " 
                 << name << std::endl;
-            glDeleteBuffers(1, &buffer.mBuffer);
+            glDeleteBuffers(1, &buffer.mBuffer.mValue);
         }
     }
 }
 
 void GLBuffers::AddBuffer(
     const std::string& name,
-    unsigned location,
-    unsigned elems)
+    GLLocation location,
+    GLElems elems,
+    GLDataType dataType,
+    GLBindPoint bindPoint,
+    GLUpdateType updateType)
 {
     mBuffers.emplace(
         name,
         GLBuffer{
             location,
             elems,
-            BindPoint::ArrayBuffer,
+            bindPoint,
+            dataType,
+            updateType,
             GenBufferGL()});
 
-    BindAttribArrayGL(
-        location,
-        elems,
-        mBuffers[name].mBuffer);
+    BindAttribArrayGL(GetGLBuffer(name));
 }
 
-GLuint GLBuffers::GenBufferGL()
+void GLBuffers::AddElementBuffer(
+    const std::string& name)
+{
+    AddBuffer(name, GLNullLocation, GLElems{1}, GLDataType{GL_UNSIGNED_INT}, GLBindPoint::ElementArrayBuffer, GLUpdateType::StaticDraw);
+}
+
+void GLBuffers::AddTextureBuffer(
+    const std::string& name)
+{
+    AddBuffer(name, GLNullLocation, GLElems{4}, GLDataType{GL_FLOAT}, GLBindPoint::TextureBuffer, GLUpdateType::DynamicDraw);
+}
+
+
+GLBufferId GLBuffers::GenBufferGL()
 {
     GLuint buffer;
     glGenBuffers(1, &buffer);
-    return buffer;
+    return GLBufferId{buffer};
 }
 
-void GLBuffers::BindAttribArrayGL(
-    unsigned location,
-    unsigned elems,
-    GLuint buffer)
+void GLBuffers::BindAttribArrayGL(const GLBuffer& buffer)
 {
-    glEnableVertexAttribArray(location);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glVertexAttribPointer(
-        location,
-        elems,
-        GL_FLOAT,           // type
-        GL_FALSE,           // normalized?
-        0,                  // stride
-        (void*)0            // array buffer offset
-    );
+    if (buffer.mLocation != GLNullLocation)
+    {
+        glEnableVertexAttribArray(buffer.mLocation.mValue);
+        glBindBuffer(ToGlEnum(buffer.mGLBindPoint), buffer.mBuffer.mValue);
+        glVertexAttribPointer(
+            buffer.mLocation.mValue,
+            buffer.mElems.mValue,
+            buffer.mDataType.mValue,
+            GL_FALSE, // normalized?
+            0,        // stride
+            (void*) 0 // array buffer offset
+        );
+    }
+    else
+    {
+        glBindBuffer(ToGlEnum(buffer.mGLBindPoint), buffer.mBuffer.mValue);
+    }
 }
 
 void GLBuffers::BindArraysGL()
 {
     for (const auto& [name, buffer] : mBuffers)
-        BindAttribArrayGL(buffer.mLocation, buffer.mElems, buffer.mBuffer);
+    {
+        BindAttribArrayGL(buffer);
+    }
 }
 
 
