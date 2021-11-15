@@ -1,0 +1,13 @@
+Before clicking on something that triggers dialog
+> bpint 21 *
+then click
+dosbox will stop
+> bpdel *
+remove the existing ints.
+continue until you get into the dialog key finding loop. (e.g. ovrl 3dc7, 3b52)
+> bp ovrl:1b4 (1b4 is finished finding key)
+step out of that function into "RunDialog"
+then
+> bp ovrl:2771
+This will get you to the end of the dialog
+Then you will be in whatever code called run dialog

@@ -4,6 +4,7 @@ add_executable(bakTest
     lockTest.cpp
     inventoryTest.cpp
     partyTest.cpp
+    skillTest.cpp
     )
 
 target_link_libraries(bakTest

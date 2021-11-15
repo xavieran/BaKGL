@@ -210,7 +210,9 @@ public:
     void SetKeyName(BAK::ItemIndex key)
     {
         constexpr auto knownKeyDialogKeyVariable = 2;
-        mTextVariableStore.SetTextVariable(knownKeyDialogKeyVariable, GetObjectIndex().GetObject(key).mName);
+        mTextVariableStore.SetTextVariable(
+            knownKeyDialogKeyVariable,
+            GetObjectIndex().GetObject(key).mName);
     }
 
     void EvaluateAction(const DialogAction& action)
@@ -276,7 +278,9 @@ public:
             },
             [&](const BAK::LoadSkillValue& load)
             {
-                const auto [character, value] = GetParty().GetSkill(load.mSkill, load.mTarget == 1);
+                const auto [character, value] = GetParty().GetSkill(
+                    load.mSkill,
+                    load.mTarget == 1); // best or worst skill
                 mSkillValue = value;
             },
             [&](const auto& a){

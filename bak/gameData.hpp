@@ -88,7 +88,8 @@ public:
     static constexpr auto sCharacterNameOffset    = 0x9f; // -> 0xdb
     static constexpr auto sCharacterSkillOffset   = 0xdb; // -> 0x315
     static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
-    static constexpr auto sCharacterStatusOffset  = 0x330; // -> 0x
+    static constexpr auto sCharacterStatusOffset  = 0x330;
+    static constexpr auto sCharacterPotionOffset  = 0x350;
 
     // Single bit indicators for event state tracking 
     // In the code this offset is 0x440a in the game -> diff of 0x3d28

@@ -1,0 +1,37 @@
+Character skill trials.
+Trial 1.
+Locklear. Picklock @ 11,12,12,0,0 Skill NOT selected, NO modifiers, NO conditions, NO bad health
+readSkill (locklear, 0, picklock)
+
+ax = skill.Current
+skill.Limit = ax
+localvar skillCurrent = ax
+if ((skill.Modifier) != 0)
+    ax = skill.Modifier
+    skillCurrent += ax
+    if (skillCurrent < 0)
+        skillCurrent = 0
+    ax = skillCurrent
+    skill.Limit = ax
+if (di + 58 != 0) (di + 58 is from the start of the character defn. seems to be an index?
+    skillBitOffset = 1 << whichSkill (e.g. 1 << 0xd == 0x2000)
+    offset = (charIndex * 0x70) + 4082 // this refs to some character struct
+    for (unsigned i = 0; i < 8; i++, offset += 0xE)
+        bx = offset
+        if (offset.skillMax == 0)
+            continue
+        if (skill.limit & skillBitOffset == 0)
+            continue
+        else
+    for (unsigned i = 0; i < 7; i++, offset += 0x17)
+
+    
+
+CalculateHealthEffect:
+    ax = di+9
+    bx = di+8
+    if (cx (bx + 833h above) > 1)
+        dx = cx (2)
+        ax *= 2
+    then
+        skillValue * health

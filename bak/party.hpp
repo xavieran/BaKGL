@@ -166,7 +166,7 @@ public:
         auto character = CharIndex{0};
         for (unsigned i = 0; i < mActiveCharacters.size(); i++)
         {
-            const auto charSkill = GetCharacter(ActiveCharIndex{i}).mSkills.GetSkill(skill).mCurrent;
+            const auto charSkill = GetCharacter(ActiveCharIndex{i}).GetSkill(skill);
             if (!skillValue
                 || best
                     ? charSkill > skillValue

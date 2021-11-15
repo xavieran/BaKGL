@@ -118,6 +118,7 @@ public:
     void SetSelectedCharacter(BAK::ActiveCharIndex character)
     {
         mSelectedCharacter = character;
+        mGameState.GetParty().GetCharacter(character).UpdateSkills();
     }
 
     void AdvanceCharacter()

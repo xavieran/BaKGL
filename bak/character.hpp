@@ -268,9 +268,24 @@ public:
         return mSkills;
     }
 
+    unsigned GetSkill(SkillType skill) const
+    {
+        mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        return CalculateEffectiveSkillValue(
+            skill,
+            mSkills,
+            mConditions);
+    }
+
+    void UpdateSkills()
+    {
+        for (unsigned i = 0; i < BAK::Skills::sSkills; i++)
+            GetSkill(static_cast<SkillType>(i));
+    }
+
     CharIndex mCharacterIndex;
     std::string mName;
-    Skills mSkills;
+    mutable Skills mSkills;
     std::array<std::uint8_t, 6> mSpells;
     std::array<std::uint8_t, 2> mUnknown;
     std::array<std::uint8_t, 7> mUnknown2;

@@ -168,7 +168,9 @@ public:
         ResetUnlocked();
 
         // Automatically set to the highest skilled character
-        const auto [character, _] = mGameState.GetParty().GetSkill(BAK::SkillType::Lockpick, true);
+        const auto [character, _] = mGameState.GetParty().GetSkill(
+            BAK::SkillType::Lockpick,
+            true);
         ASSERT(mGameState.GetParty().FindActiveCharacter(character));
         SetSelectedCharacter(
             *mGameState.GetParty().FindActiveCharacter(character));
@@ -230,7 +232,7 @@ private:
         const auto lockRating = mContainer->GetLockData().mRating;
         const auto lockIndex = BAK::GetLockIndex(lockRating);
         const auto lockpickSkill = GetCharacter(*mSelectedCharacter)
-            .GetSkills().GetSkill(BAK::SkillType::Lockpick).mCurrent;
+            .GetSkill(BAK::SkillType::Lockpick);
 
         if (!lockIndex)
         {
@@ -269,11 +271,12 @@ private:
 
         auto context = 0;
         auto dialog = BAK::KeyTarget{0};
+        mGameState.SetActiveCharacter(GetCharacter(*mSelectedCharacter).mCharacterIndex);
 
         const auto& item = itemSlot.GetItem();
         ASSERT(item.IsKey());
         const auto& skill = GetCharacter(*mSelectedCharacter)
-            .GetSkills().GetSkill(BAK::SkillType::Lockpick);
+            .GetSkill(BAK::SkillType::Lockpick);
         const auto lockRating = mContainer->GetLockData().mRating;
 
         if (item.mItemIndex == BAK::ItemIndex{'P'}) // Picklock

@@ -2,6 +2,7 @@
 
 #include "bak/inventoryItem.hpp"
 #include "bak/objectInfo.hpp"
+#include "bak/skills.hpp"
 
 #include "com/assert.hpp"
 #include "com/strongType.hpp"
@@ -148,6 +149,20 @@ public:
     bool RemoveItem(BAK::InventoryIndex item);
 
     void CheckPostConditions();
+
+    unsigned CalculateModifiers(SkillType skill) const
+    {
+        unsigned mods = 0;
+        for (const auto& item : mItems)
+        {
+            if ((item.GetObject().mModifierMask 
+                & (1 << static_cast<unsigned>(skill))) != 0)
+            {
+                mods += item.GetObject().mModifier;
+            }
+        }
+        return mods;
+    }
     
 private:
     // result > 0 if can add item to inventory.

@@ -94,13 +94,13 @@ unsigned GetRandomMod100()
     return (GetRandom() & 0xfff) % 100;
 }
 
-bool KeyBroken(const InventoryItem& item, const Skill& skill, unsigned lockRating)
+bool KeyBroken(const InventoryItem& item, unsigned skill, unsigned lockRating)
 {
     // Returns e.g. 0x32 for peasants key...
     const auto keyRating = GetKeyRating(item.mItemIndex);
     // from the disassembly... looks reasonable
     const auto diff = 100 - keyRating;
-    const auto skillDiv3 = skill.mCurrent / 3;
+    const auto skillDiv3 = skill / 3;
     const auto diffSubSkill = (diff - skillDiv3) << 1;
     const auto diffSubSkillDiv3 = diffSubSkill / 3;
 
@@ -108,11 +108,11 @@ bool KeyBroken(const InventoryItem& item, const Skill& skill, unsigned lockRatin
     return randomNumber < diffSubSkillDiv3;
 }
 
-bool PicklockBroken(const Skill& skill, unsigned lockRating)
+bool PicklockBroken(unsigned skill, unsigned lockRating)
 {
     const auto randomNumber = GetRandomMod100();
     // Returns e.g. 0x32 for peasants key...
-    const auto diff = ((lockRating - skill.mCurrent) << 1) / 3;
+    const auto diff = ((lockRating - skill) << 1) / 3;
 
     return randomNumber < diff;
 }
@@ -122,9 +122,9 @@ bool PicklockSkillImproved()
     return GetRandomMod100() < 0x28;
 }
 
-bool CanPickLock(const Skill& skill, unsigned lockRating)
+bool CanPickLock(unsigned skill, unsigned lockRating)
 {
-    return (lockRating <= 100) && (skill.mCurrent > lockRating);
+    return (lockRating <= 100) && (skill > lockRating);
 }
 
 FairyChest GenerateFairyChest(const std::string& data)

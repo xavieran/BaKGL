@@ -57,7 +57,9 @@ GDSScene::GDSScene(
         backgrounds,
         font,
         gameState},
+    mPendingInn{},
     mPendingGoto{},
+    mKickedOut{false},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
     auto textures = Graphics::TextureStore{};
@@ -237,6 +239,14 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
         StartDialog(BAK::DialogSources::mInnDialog, false);
         mPendingInn.reset();
     }
+    else if (mKickedOut)
+    {
+        mKickedOut = false;
+        mGuiManager.ExitGDSScene();
+        // Return immediately or the following 
+        // actions will take place on destructed GDSScene
+        return;
+    }
     mLogger.Debug() << "Dialog finished, back to flavour text\n";
 
     if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
@@ -272,10 +282,7 @@ void GDSScene::DoBard()
             status,
             BAK::Sovereigns{shopStats.mBardingMaxReward},
             mGameState.GetChapter());
-        mGameState.SetItemValue(reward);
-        mGameState.SetActiveCharacter(character);
         // shop->ReduceAvailableBardReward(reward);
-        StartDialog(GetDialog(status), false);
         mGameState.GetParty().GainMoney(reward);
         const auto skillMultiplier = std::invoke([&]{
             if (status == BAK::Bard::BardStatus::Failed
@@ -289,6 +296,12 @@ void GDSScene::DoBard()
             3,
             skillMultiplier,
             BAK::SkillType::Barding);
+
+        if (status == BAK::Bard::BardStatus::Failed)
+            mKickedOut = true;
+        mGameState.SetItemValue(reward);
+        mGameState.SetActiveCharacter(character);
+        StartDialog(GetDialog(status), false);
     }
 }
 

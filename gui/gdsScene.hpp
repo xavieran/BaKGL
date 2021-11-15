@@ -64,6 +64,8 @@ public:
 
     std::optional<BAK::Hotspot> mPendingInn;
     std::optional<BAK::HotspotRef> mPendingGoto;
+    // e.g. when you fail barding
+    bool mKickedOut;
 
     static constexpr auto mMaxSceneNesting = 4;
 

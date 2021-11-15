@@ -2,6 +2,8 @@
 
 #include "com/assert.hpp"
 
+#include "bak/condition.hpp"
+
 #include <array>
 #include <ostream>
 #include <string_view>
@@ -30,6 +32,9 @@ enum class SkillType
     GainHealth
 };
 
+static constexpr auto sSkillMin = std::array<std::uint16_t, 16>{
+    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
 static constexpr auto sSkillCaps = std::array<std::uint16_t, 16>{
     0x1f4,
     0x1f4,
@@ -48,13 +53,17 @@ static constexpr auto sSkillCaps = std::array<std::uint16_t, 16>{
     0x0c8,
     0x0c8};
 
+constexpr std::uint16_t sSkillAbsMax = 0xfa;
+
+constexpr std::uint8_t sSkillHealthEffect[16] = {0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2};
+
 std::string_view ToString(SkillType);
 
 struct Skill
 {
     std::uint8_t mMax;
+    std::uint8_t mTrueSkill;
     std::uint8_t mCurrent;
-    std::uint8_t mLimit;
     std::uint8_t mExperience;
     std::int8_t mModifier;
     bool mSelected;
@@ -105,12 +114,17 @@ struct Skills
         // FIXME: Check for overflow...
         // FIXME: Account for whether this skill is selected or not...
         s.mMax += value; 
+        s.mTrueSkill += value;
         s.mCurrent += value;
-        s.mLimit += value;
         s.mUnseenImprovement = true;
     }
 };
 
 std::ostream& operator<<(std::ostream&, const Skills&);
+
+unsigned CalculateEffectiveSkillValue(
+    SkillType,
+    Skills&,
+    const Conditions&);
 
 }

@@ -44,11 +44,11 @@ unsigned DescribeLock(unsigned picklockSkill, unsigned lockRating);
 
 bool TryOpenLockWithKey(const BAK::InventoryItem&, unsigned lockRating); 
 bool WouldKeyBreak(const BAK::InventoryItem&, unsigned lockRating);
-bool KeyBroken(const InventoryItem& item, const Skill& skill, unsigned lockRating);
+bool KeyBroken(const InventoryItem& item, unsigned skill, unsigned lockRating);
 
-bool PicklockBroken(const Skill& skill, unsigned lockRating);
+bool PicklockBroken(unsigned skill, unsigned lockRating);
 bool PicklockSkillImproved();
-bool CanPickLock(const Skill& skill, unsigned lockRating);
+bool CanPickLock(unsigned skill, unsigned lockRating);
 
 FairyChest GenerateFairyChest(const std::string&);
 
