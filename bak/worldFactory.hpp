@@ -366,7 +366,7 @@ public:
 
     const auto& GetTile() const { return mTile; }
     const auto& GetItems() const { return mItemInsts; }
-    const auto& GetEncounters(unsigned chapter) const
+    const auto& GetEncounters(Chapter chapter) const
     {
         if (mEncounters)
             return mEncounters->GetEncounters(chapter);

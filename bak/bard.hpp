@@ -18,7 +18,7 @@ BardStatus ClassifyBardAttempt(
     unsigned bardingSkill,
     unsigned innRequirement);
 
-Royals GetReward(BardStatus, Sovereigns innReward);
+Royals GetReward(BardStatus, Sovereigns innReward, Chapter);
 
 KeyTarget GetDialog(BardStatus);
 

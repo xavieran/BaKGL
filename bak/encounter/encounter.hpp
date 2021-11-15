@@ -163,7 +163,7 @@ public:
         unsigned tileIndex);
     
     const std::vector<Encounter>& GetEncounters(
-        unsigned chapter) const;
+        Chapter chapter) const;
     
 private:
     std::vector<
@@ -173,7 +173,7 @@ private:
 std::vector<Encounter> LoadEncounters(
     const EncounterFactory&,
     FileBuffer& fb,
-    unsigned chapter,
+    Chapter chapter,
     glm::vec<2, unsigned> tile,
     unsigned tileIndex);
 

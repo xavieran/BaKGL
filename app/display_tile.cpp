@@ -46,8 +46,8 @@ int main(int argc, char** argv)
     }
 
     constexpr auto chapter = 1;
-    logger.Info() << "Encounters: " << world.GetEncounters(chapter).size() << "\n";
-    for (const auto& encounter : world.GetEncounters(chapter))
+    logger.Info() << "Encounters: " << world.GetEncounters(BAK::Chapter{chapter}).size() << "\n";
+    for (const auto& encounter : world.GetEncounters(BAK::Chapter{chapter}))
     {
         logger.Info() << "Encounter: " << encounter << "\n";
     }

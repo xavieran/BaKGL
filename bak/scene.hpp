@@ -28,7 +28,7 @@ struct ADSIndex
 
     TTMIndex GetTTMIndex(const BAK::GameState& gs) const
     {
-        const auto chapter = gs.GetChapter();
+        const auto chapter = gs.GetChapter().mValue;
         if (mGreaterThan && mLessThan)
         {
             if (chapter >= *mGreaterThan
@@ -61,8 +61,8 @@ struct ADSIndex
 
     TTMIndex mIf;
     std::optional<TTMIndex> mElse;
-    std::optional<Chapter> mGreaterThan;
-    std::optional<Chapter> mLessThan;
+    std::optional<unsigned> mGreaterThan;
+    std::optional<unsigned> mLessThan;
 };
 
 std::ostream& operator<<(std::ostream&, const ADSIndex&);

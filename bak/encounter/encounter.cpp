@@ -112,7 +112,7 @@ CalculateLocationAndDims(
 std::vector<Encounter> LoadEncounters(
     const EncounterFactory& ef,
     FileBuffer& fb,
-    unsigned chapter,
+    Chapter chapter,
     glm::vec<2, unsigned> tile,
     unsigned tileIndex)
 {
@@ -123,7 +123,7 @@ std::vector<Encounter> LoadEncounters(
     constexpr auto encounterEntrySize = 0x13;
     constexpr auto maxEncounters = 0xa;
     // + 2 for the count of encounters
-    fb.Seek((chapter - 1) * (encounterEntrySize * maxEncounters + 2));
+    fb.Seek((chapter.mValue - 1) * (encounterEntrySize * maxEncounters + 2));
     unsigned numberOfEncounters = fb.GetUint16LE();
 
     encounters.reserve(numberOfEncounters);
@@ -235,22 +235,22 @@ EncounterStore::EncounterStore(
     mChapters{}
 {
     mChapters.reserve(10);
-    for (unsigned chapter = 1; chapter <= 10; chapter++)
+    for (unsigned chapter = 1; chapter < 11; chapter++)
     {
         mChapters.emplace_back(
             LoadEncounters(
                 ef,
                 fb,
-                chapter,
+                Chapter{chapter},
                 tile,
                 tileIndex));
     }
 }
 
-const std::vector<Encounter>& EncounterStore::GetEncounters(unsigned chapter) const
+const std::vector<Encounter>& EncounterStore::GetEncounters(Chapter chapter) const
 {
-    assert(chapter > 0 && chapter < 10);
-    return mChapters[chapter - 1];
+    assert(chapter.mValue > 0 && chapter.mValue < 11);
+    return mChapters[chapter.mValue - 1];
 }
 
 }

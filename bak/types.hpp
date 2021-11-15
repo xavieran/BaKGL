@@ -6,7 +6,7 @@
 
 namespace BAK {
 
-using Chapter = unsigned;
+using Chapter = Bounded<StrongType<unsigned, struct ChapterTag>, 1, 11>;
 using EntityIndex = StrongType<unsigned, struct EntityIndexTag>;
 using ChoiceIndex = StrongType<unsigned, struct ChoiceIndexTag>;
 using SongIndex = std::uint16_t;

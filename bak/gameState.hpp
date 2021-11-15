@@ -290,8 +290,8 @@ public:
         Logging::LogDebug(__FUNCTION__) << "Choice: " 
             << Choice{choice} << " contextVar: " << mContextValue << " time: " << GetTime() << "\n";
         if (choice.mState == BAK::ActiveStateFlag::Chapter
-            && (GetChapter() >= choice.mExpectedValue
-                && GetChapter() <= choice.mExpectedValue2))
+            && (GetChapter().mValue >= choice.mExpectedValue
+                && GetChapter().mValue <= choice.mExpectedValue2))
         {
             return true;
         }
@@ -500,7 +500,7 @@ public:
     unsigned mContextValue;
     Royals mItemValue;
     unsigned mSkillValue;
-    unsigned mChapter;
+    Chapter mChapter;
     ZoneNumber mZone;
     std::vector<
         std::vector<Container>> mContainers;

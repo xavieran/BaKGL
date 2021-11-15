@@ -29,7 +29,7 @@ int main(int argc, char** argv)
                     logger.Info() << "Loading world tile:" << zone << " " << x 
                         << "," << y << " c: " << c << "\n";
                         const auto encounters = BAK::Encounter::LoadEncounters(
-                                ef, fb, c, glm::vec<2, unsigned>(x, y), tileIndex);
+                                ef, fb, BAK::Chapter{c}, glm::vec<2, unsigned>(x, y), tileIndex);
                         for (const auto& encounter : encounters)
                             logger.Info() << "Encounter: " << encounter << "\n";
                 }

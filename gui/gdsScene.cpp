@@ -270,7 +270,8 @@ void GDSScene::DoBard()
             skill, shopStats.mBardingSkill);
         const auto reward = BAK::Bard::GetReward(
             status,
-            BAK::Sovereigns{shopStats.mBardingMaxReward});
+            BAK::Sovereigns{shopStats.mBardingMaxReward},
+            mGameState.GetChapter());
         mGameState.SetItemValue(reward);
         mGameState.SetActiveCharacter(character);
         // shop->ReduceAvailableBardReward(reward);

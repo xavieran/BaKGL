@@ -30,9 +30,11 @@ BardStatus ClassifyBardAttempt(unsigned bardingSkill, unsigned innRequirement)
     }
 }
 
-Royals GetReward(BardStatus status, Sovereigns innReward)
+Royals GetReward(BardStatus status, Sovereigns innReward, Chapter chapter)
 {
-    unsigned reward = GetRoyals(innReward).mValue;
+    const auto perChapterReward = (chapter.mValue - 1) * .05 * GetRoyals(innReward).mValue;
+    const auto chapterReward = static_cast<unsigned>(std::round(perChapterReward));
+    const unsigned reward = GetRoyals(innReward).mValue + chapterReward;
     switch (status)
     {
     case BardStatus::Failed: return Royals{0};
