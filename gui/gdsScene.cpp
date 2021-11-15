@@ -288,6 +288,9 @@ void GDSScene::DoBard()
             3,
             skillMultiplier,
             BAK::SkillType::Barding);
+
+        if (status == BAK::Bard::BardStatus::Failed)
+            mGuiManager.ExitGDSScene();
     }
 }
 
