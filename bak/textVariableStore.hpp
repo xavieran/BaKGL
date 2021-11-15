@@ -43,9 +43,15 @@ public:
         mTextVariables[MakeVariableName(variable)] = value;
     }
 
+    void SetActiveCharacter(std::string value)
+    {
+        mTextVariables["@"] = value;
+    }
+
     std::string SubstituteVariables(const std::string& text) const
     {
         auto newText = text;
+
         for (const auto& [key, value] : mTextVariables)
         {
             newText = std::regex_replace(
@@ -53,6 +59,7 @@ public:
                 std::regex{key},
                 value);
         }
+
         return newText;
     }
 

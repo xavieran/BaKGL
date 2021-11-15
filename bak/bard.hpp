@@ -1,52 +1,28 @@
 #pragma once
 
-#include "bak/skills.hpp"
+#include "bak/dialog.hpp"
+#include "bak/money.hpp"
+#include "bak/types.hpp"
 
-namespace BAK {
+namespace BAK::Bard {
 
-class Bard
+enum class BardStatus
 {
-public:
-
-    void DoBard(unsigned bardingSkill, unsigned innRequirement)
-    {
-        const auto xpGained = 128 - (112 * (bardingSkill / 100.));
-        if (bardingSkill < innRequirement)
-        {
-            // TrainSkill(3, 1, 0xB);
-            if (bardingSkill < ((innRequirement * 3) / 4))
-            {
-                // Fail
-                // Play song 0x3f0
-            }
-            else
-            {
-                // Minimum wage
-                // Play song 0x410
-                // auto reward = Royals{(innReward * 10) / 4}
-            }
-        }
-        else
-        {
-            // TrainSkill(3, 2, 0xB);
-            if (bardingSkill < ((innRequirement + 100) / 2))
-            {
-                // Good
-                // Play song 0x40f
-                // auto reward = Royals{(innReward * 10) / 2}
-            }
-            else
-            {
-                // Perfect
-                // Play song 0x3ef
-                // auto reward = Royals{(innReward * 10)}
-            }
-            // xpGained *= 2;
-        }
-
-
-    }
-
+    Failed,
+    Poor,
+    Good,
+    Best
 };
+
+BardStatus ClassifyBardAttempt(
+    unsigned bardingSkill,
+    unsigned innRequirement);
+
+Royals GetReward(BardStatus, Sovereigns innReward);
+
+KeyTarget GetDialog(BardStatus);
+
+SongIndex GetSong(BardStatus);
+
 
 }

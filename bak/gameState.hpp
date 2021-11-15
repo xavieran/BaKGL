@@ -60,15 +60,25 @@ public:
     const Party& GetParty() const
     {
         if (mGameData)
+        {
             return mGameData->mParty;
+        }
         return mParty;
     }
 
     Party& GetParty()
     {
         if (mGameData)
+        {
             return mGameData->mParty;
+        }
         return mParty;
+    }
+
+    void SetActiveCharacter(CharIndex character)
+    {
+        mTextVariableStore.SetActiveCharacter(
+            GetParty().GetCharacter(character).mName);
     }
     
     const TextVariableStore& GetTextVariableStore() const { return mTextVariableStore; }

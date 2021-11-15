@@ -42,6 +42,7 @@ public:
     void StartDialog(BAK::Target target, bool isTooltip);
     void DialogFinished(const std::optional<BAK::ChoiceIndex>&) override;
     void EnterContainer();
+    void DoBard();
 
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;

@@ -1,6 +1,8 @@
 #include "gui/gdsScene.hpp"
 
+#include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/money.hpp"
 
 #include "com/assert.hpp"
 
@@ -190,7 +192,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::LUTE)
     {
-        StartDialog(BAK::DialogSources::mBardingGood, false);
+        DoBard();
     }
     else if (hotspot.mAction == BAK::HotspotAction::GOTO)
     {
@@ -249,6 +251,44 @@ void GDSScene::EnterContainer()
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     if (container != nullptr)
         mGuiManager.ShowContainer(container);
+}
+
+void GDSScene::DoBard()
+{
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    auto& shopStats = container->GetShopData();
+
+    if (shopStats.mBardingMaxReward != shopStats.mBardingReward)
+    {
+        StartDialog(BAK::DialogSources::mBardingAlreadyDone, false);
+    }
+    else
+    {
+        const auto [character, skill] = mGameState.GetParty().GetSkill(
+            BAK::SkillType::Barding, true);
+        const auto status = BAK::Bard::ClassifyBardAttempt(
+            skill, shopStats.mBardingSkill);
+        const auto reward = BAK::Bard::GetReward(
+            status,
+            BAK::Sovereigns{shopStats.mBardingMaxReward});
+        mGameState.SetItemValue(reward);
+        mGameState.SetActiveCharacter(character);
+        // shop->ReduceAvailableBardReward(reward);
+        StartDialog(GetDialog(status), false);
+        mGameState.GetParty().GainMoney(reward);
+        const auto skillMultiplier = std::invoke([&]{
+            if (status == BAK::Bard::BardStatus::Failed
+                || status == BAK::Bard::BardStatus::Poor)
+                return 1;
+            else
+                return 2;
+            });
+
+        mGameState.GetParty().ImproveSkill(
+            3,
+            skillMultiplier,
+            BAK::SkillType::Barding);
+    }
 }
 
 }

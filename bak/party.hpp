@@ -6,6 +6,7 @@
 #include "bak/types.hpp"
 
 #include "com/assert.hpp"
+#include "com/logger.hpp"
 
 #include <vector>
 
@@ -17,12 +18,14 @@ public:
     const Character& GetCharacter(CharIndex i) const
     {
         ASSERT(mCharacters.size() == sMaxCharacters);
+        ASSERT(i.mValue < mCharacters.size());
         return mCharacters[i.mValue];
     }
 
     Character& GetCharacter(CharIndex i)
     {
         ASSERT(mCharacters.size() == sMaxCharacters);
+        ASSERT(i.mValue < mCharacters.size());
         return mCharacters[i.mValue];
     }
 
@@ -160,21 +163,25 @@ public:
     std::pair<CharIndex, unsigned> GetSkill(BAK::SkillType skill, bool best)
     {
         std::optional<unsigned> skillValue{};
-        std::uint8_t character{0};
+        auto character = CharIndex{0};
         for (unsigned i = 0; i < mActiveCharacters.size(); i++)
         {
-            const auto charSkill = mCharacters[i].mSkills.GetSkill(skill).mCurrent;
+            const auto charSkill = GetCharacter(ActiveCharIndex{i}).mSkills.GetSkill(skill).mCurrent;
             if (!skillValue
                 || best
                     ? charSkill > skillValue
                     : charSkill < skillValue)
             {
                 skillValue = charSkill;
-                character = i;
+                character = mActiveCharacters[i];
             }
         }
         ASSERT(skillValue);
-        return std::make_pair(CharIndex{character}, *skillValue);
+        return std::make_pair(character, *skillValue);
+    }
+
+    void ImproveSkill(unsigned who, unsigned skillMultiplier, BAK::SkillType)
+    {
     }
 
     Royals mGold;
