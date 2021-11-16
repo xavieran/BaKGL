@@ -260,6 +260,7 @@ public:
                 // Refer to dala blessing (13 @ 0xfd8c)
                 // who == 2 => apply gain to selected character (ref gamestate)
                 // who == 1 => apply gain to all characters
+                // Ref label: RunDialog_GainSkillAction for actual code
                 GetParty().ImproveSkillForAll(
                         skill.mSkill,
                         0,

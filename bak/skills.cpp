@@ -75,7 +75,6 @@ unsigned CalculateEffectiveSkillValue(
     for (unsigned i = 0 ; i < 8; i++)
         ;
 
-    // Maybe effect of conditions..?
     for (unsigned i = 0 ; i < 7; i++)
     {
         const auto condition = static_cast<Condition>(i);
