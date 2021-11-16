@@ -292,10 +292,10 @@ void GDSScene::DoBard()
                 return 2;
             });
 
-        mGameState.GetParty().ImproveSkill(
+        mGameState.GetParty().ImproveSkillForAll(
+            BAK::SkillType::Barding,
             3,
-            skillMultiplier,
-            BAK::SkillType::Barding);
+            skillMultiplier);
 
         if (status == BAK::Bard::BardStatus::Failed)
             mKickedOut = true;

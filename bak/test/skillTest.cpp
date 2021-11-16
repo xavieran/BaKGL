@@ -11,7 +11,7 @@ struct SkillTestFixture : public ::testing::Test
 {
     SkillTestFixture()
     :
-        mSkills{
+        mSkills{{
             Skill{55, 55, 55, 0, 0, false, false},
             Skill{45, 45, 45, 0, 0, false, false},
             Skill{ 4,  4,  4, 0, 0, false, false},
@@ -27,7 +27,9 @@ struct SkillTestFixture : public ::testing::Test
             Skill{80, 80, 80, 0, 0, false, false}, // Haggle
             Skill{80, 80, 80, 0, 0, false, false}, // Lockpick
             Skill{80, 80, 80, 0, 0, false, false}, // Scout
-            Skill{80, 80, 80, 0, 0, false, false}} // Stealth
+            Skill{80, 80, 80, 0, 0, false, false}}, // Stealth
+            0
+        }
         , mConditions{
             ConditionValue{0},
             ConditionValue{0},
@@ -203,5 +205,50 @@ TEST_F(SkillTestFixture, LowHealthAndDrunkAndModifierTest)
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
 
+TEST_F(SkillTestFixture, ImproveSkillTest)
+{
+    auto& skill = mSkills.GetSkill(BAK::SkillType::Lockpick);
+    skill.mMax       = 24;
+    skill.mCurrent   = 24;
+    skill.mTrueSkill = 24;
+
+    for (unsigned i = 0; i < 3; i++)
+        mSkills.ImproveSkill(
+            BAK::SkillType::Lockpick, 
+            3,
+            2);
+    EXPECT_EQ(skill.mTrueSkill, 24);
+    EXPECT_EQ(skill.mExperience, 0xf0);
+    EXPECT_EQ(skill.mUnseenImprovement, false);
+
+    mSkills.ToggleSkill(BAK::SkillType::Lockpick);
+
+    mSkills.ImproveSkill(
+            BAK::SkillType::Lockpick, 
+            3,
+            2);
+
+    EXPECT_EQ(skill.mTrueSkill, 25);
+    EXPECT_EQ(skill.mExperience, 104);
+    EXPECT_EQ(skill.mUnseenImprovement, true);
+}
+
+TEST_F(SkillTestFixture, ImproveSkillFromDialogTest)
+{
+    auto& skill = mSkills.GetSkill(BAK::SkillType::Lockpick);
+    skill.mMax       = 24;
+    skill.mCurrent   = 24;
+    skill.mTrueSkill = 24;
+
+    mSkills.ToggleSkill(BAK::SkillType::Lockpick);
+    mSkills.ImproveSkill(
+            BAK::SkillType::Lockpick, 
+            0,
+            5 << 8);
+
+    EXPECT_EQ(skill.mTrueSkill, 31);
+    EXPECT_EQ(skill.mExperience, 128);
+    EXPECT_EQ(skill.mUnseenImprovement, true);
+}
 
 }

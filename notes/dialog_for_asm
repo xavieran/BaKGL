@@ -11,3 +11,5 @@ then
 > bp ovrl:2771
 This will get you to the end of the dialog
 Then you will be in whatever code called run dialog
+e.g. for picklocking
+>bp overl2:210

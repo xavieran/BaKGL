@@ -1,5 +1,7 @@
 #include "bak/skills.hpp"
 
+#include "com/logger.hpp"
+
 namespace BAK {
 
 std::string_view ToString(SkillType s)
@@ -29,8 +31,8 @@ std::string_view ToString(SkillType s)
 
 std::ostream& operator<<(std::ostream& os, const Skill& s)
 {
-    os << "{ Max: " << +s.mMax << " Current: " << +s.mTrueSkill 
-        << " Limit: " << +s.mCurrent << " Experience: " << +s.mExperience
+    os << "{ Max: " << +s.mMax << " TrueSkill: " << +s.mTrueSkill 
+        << " Current: " << +s.mCurrent << " Experience: " << +s.mExperience
         << " Modifier: " << +s.mModifier << "[";
     if (s.mSelected) os << "*";
     else os << " ";
@@ -47,6 +49,7 @@ std::ostream& operator<<(std::ostream& os, const Skills& s)
     {
         os << ToString(static_cast<SkillType>(i)) << " " << s.mSkills[i] << "\n";
     }
+        os << "SelectedSkillPool: " << s.mSelectedSkillPool << "\n";
     return os;
 }
 
@@ -121,12 +124,91 @@ unsigned CalculateEffectiveSkillValue(
     if (skillCurrent > sSkillAbsMax)
         skillCurrent = sSkillAbsMax;
 
-    if (skillCurrent < sSkillMin[skillIndex])
-        skillCurrent = sSkillMin[skillIndex];
+    if (skillCurrent < sEffectiveSkillMin[skillIndex])
+        skillCurrent = sEffectiveSkillMin[skillIndex];
 
     skill.mCurrent = skillCurrent;
 
     return skillCurrent;
+}
+
+void DoImproveSkill(
+    SkillType skillType,
+    Skill& skill,
+    unsigned skillChangeType,
+    unsigned multiplier,
+    unsigned selectedSkillPool)
+{
+    if (skill.mMax == 0) return;
+
+    const auto skillIndex = static_cast<unsigned>(skillType);
+
+    const auto initialSkillValue = skill.mTrueSkill;
+
+    int experienceChange = 0;
+
+    if (skillChangeType == 3)
+    {
+        const auto diff = sSkillExperienceVar1[skillIndex]
+            - sSkillExperienceVar2[skillIndex];
+        experienceChange = ((diff * skill.mTrueSkill) / 100)
+            + sSkillExperienceVar2[skillIndex];
+
+        if (multiplier != 0)
+            experienceChange *= multiplier;
+    }
+    else if (skillChangeType == 2)
+    {
+        experienceChange = (100 - skill.mTrueSkill) * multiplier;
+    }
+    else if (skillChangeType == 1)
+    {
+        experienceChange = (skill.mTrueSkill * multiplier) / 100;
+    }
+    else
+    {
+        experienceChange = multiplier;
+    }
+
+    // di + 0x58
+    bool realChar = true;
+    if (realChar)
+    {
+        if (skill.mSelected)
+        {
+            const auto bonus = (experienceChange * selectedSkillPool) 
+                / (sTotalSelectedSkillPool * 2);
+            experienceChange += bonus;
+        }
+    }
+
+    experienceChange += skill.mExperience;
+    auto levels = experienceChange / 256;
+    auto leftoverExperience = experienceChange % 256;
+    skill.mExperience = leftoverExperience;
+
+    if (levels < 0)
+    {
+        // fill this out...
+        // offset 0x573
+    }
+
+    skill.mTrueSkill = levels + skill.mTrueSkill;
+
+    if (skill.mTrueSkill < sSkillMin[skillIndex])
+        skill.mTrueSkill = sSkillMin[skillIndex];
+
+    if (skill.mTrueSkill > sSkillMax[skillIndex])
+        skill.mTrueSkill = sSkillMax[skillIndex];
+
+    if (skill.mTrueSkill > skill.mMax)
+        skill.mMax = skill.mTrueSkill;
+
+    if (initialSkillValue != skill.mTrueSkill)
+        skill.mUnseenImprovement = true;
+
+    Logging::LogDebug(__FUNCTION__) << "SkillImproved: " 
+        << ToString(skillType) << " " << skill << "\n";
 }
 
 }

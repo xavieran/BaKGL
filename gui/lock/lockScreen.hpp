@@ -283,9 +283,10 @@ private:
         {
             if (BAK::CanPickLock(skill, lockRating))
             {
-                // locks are for blah and blah
-                // success
-                // ImproveSkill x2
+                GetCharacter(*mSelectedCharacter).ImproveSkill(
+                    BAK::SkillType::Lockpick,
+                    3,
+                    2);
                 mGuiManager.AddAnimator(
                     LinearAnimator{
                         .25,
@@ -304,8 +305,10 @@ private:
             {
                 if (BAK::PicklockSkillImproved())
                 {
-                    mLogger.Debug() << "Lockpick Skill improved!\n";
-                    //ImproveSkill x1
+                    GetCharacter(*mSelectedCharacter).ImproveSkill(
+                        BAK::SkillType::Lockpick,
+                        3,
+                        2);
                 }
 
                 if (BAK::PicklockBroken(skill, lockRating))

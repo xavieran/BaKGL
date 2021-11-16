@@ -20,6 +20,7 @@ public:
     TextVariableStore()
     :
         mTextVariables{},
+        mSelectedCharacter{},
         mLogger{Logging::LogState::GetLogger("BAK::TextVariableStore")}
     {}
 
@@ -45,7 +46,7 @@ public:
 
     void SetActiveCharacter(std::string value)
     {
-        mTextVariables["@"] = value;
+        mSelectedCharacter = value;
     }
 
     std::string SubstituteVariables(const std::string& text) const
@@ -60,11 +61,19 @@ public:
                 value);
         }
 
+        // Do this last so it doesn't break all the others
+        newText = std::regex_replace(
+                newText,
+                std::regex{"@"},
+                mSelectedCharacter);
+
+
         return newText;
     }
 
 private:
     std::unordered_map<std::string, std::string> mTextVariables;
+    std::string mSelectedCharacter;
 
     const Logging::Logger& mLogger;
 };

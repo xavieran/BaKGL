@@ -88,6 +88,7 @@ public:
     static constexpr auto sCharacterNameOffset    = 0x9f; // -> 0xdb
     static constexpr auto sCharacterSkillOffset   = 0xdb; // -> 0x315
     static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
+    static constexpr auto sCharacterSelectedSkillPool = 0x324; // -> 0x319
     static constexpr auto sCharacterStatusOffset  = 0x330;
     static constexpr auto sCharacterPotionOffset  = 0x350;
 
@@ -162,6 +163,9 @@ public:
     bool ReadSkillSelected(unsigned character, unsigned skill) const;
     bool ReadSkillUnseenImprovement(unsigned character, unsigned skill) const;
     void ClearUnseenImprovements(unsigned character);
+
+    std::uint8_t ReadSelectedSkillPool(unsigned character) const;
+    void SetSelectedSkillPool(unsigned character, std::uint8_t value);
 
     // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
     // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter

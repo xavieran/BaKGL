@@ -257,14 +257,13 @@ public:
             [&](const BAK::GainSkill& skill)
             {
                 // FIXME: Implement if this skill only improves for one character
-                //        Figure out what to do with mValue0,2,3 
-                auto& party = GetParty();
-                for (const auto c : party.mActiveCharacters)
-                {
-                    party.mCharacters[c.mValue].mSkills.ImproveSkill(
+                // Refer to dala blessing (13 @ 0xfd8c)
+                // who == 2 => apply gain to selected character (ref gamestate)
+                // who == 1 => apply gain to all characters
+                GetParty().ImproveSkillForAll(
                         skill.mSkill,
-                        skill.mValue1);
-                }
+                        0,
+                        skill.mValue1 << 8);
             },
             [&](const BAK::GainCondition& cond)
             {

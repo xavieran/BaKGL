@@ -167,6 +167,7 @@ public:
         for (unsigned i = 0; i < mActiveCharacters.size(); i++)
         {
             const auto charSkill = GetCharacter(ActiveCharIndex{i}).GetSkill(skill);
+            Logging::LogDebug(__FUNCTION__) << "Char: " << GetCharacter(ActiveCharIndex{i}).mName << " skill: " << charSkill << "\n";
             if (!skillValue
                 || best
                     ? charSkill > skillValue
@@ -180,8 +181,15 @@ public:
         return std::make_pair(character, *skillValue);
     }
 
-    void ImproveSkill(unsigned who, unsigned skillMultiplier, BAK::SkillType)
+    void ImproveSkillForAll(BAK::SkillType skill, unsigned skillChangeType, unsigned multiplier)
     {
+        for (const auto c : mActiveCharacters)
+        {
+            GetCharacter(c).ImproveSkill(
+                skill,
+                skillChangeType,
+                multiplier);
+        }
     }
 
     Royals mGold;

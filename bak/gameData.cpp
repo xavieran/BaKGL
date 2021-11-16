@@ -190,6 +190,18 @@ bool GameData::ReadSkillUnseenImprovement(unsigned character, unsigned skill) co
         + skill);
 }
 
+std::uint8_t GameData::ReadSelectedSkillPool(unsigned character) const
+{
+    mBuffer.Seek(sCharacterSelectedSkillPool + (1 << character));
+    return mBuffer.GetUint8();
+}
+
+void GameData::SetSelectedSkillPool(unsigned character, std::uint8_t value)
+{
+    mBuffer.Seek(sCharacterSelectedSkillPool + (1 << character));
+    return mBuffer.PutUint8(value);
+}
+
 void GameData::ClearUnseenImprovements(unsigned character)
 {
     constexpr auto maxSkills = 0x11;
@@ -414,6 +426,8 @@ std::vector<Character> GameData::LoadCharacters()
 
             mBuffer.Seek(pos);
         }
+
+        skills.mSelectedSkillPool = skills.CalculateSelectedSkillPool();
 
         auto unknown2 = mBuffer.GetArray<7>();
         mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";

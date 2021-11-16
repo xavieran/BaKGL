@@ -268,6 +268,12 @@ public:
         return mSkills;
     }
 
+    void ImproveSkill(SkillType skill, unsigned skillChangeType, unsigned multiplier)
+    {
+        mSkills.ImproveSkill(skill, skillChangeType, multiplier);
+        UpdateSkills();
+    }
+
     unsigned GetSkill(SkillType skill) const
     {
         mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
