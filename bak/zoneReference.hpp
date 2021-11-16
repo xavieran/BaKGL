@@ -7,8 +7,7 @@
 
 namespace BAK {
 
-std::vector<glm::vec<2, unsigned>> LoadZoneRef(
+std::vector<glm::uvec2> LoadZoneRef(
     const std::string& path);
-
 
 }

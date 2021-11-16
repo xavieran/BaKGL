@@ -3,6 +3,7 @@ list(APPEND APP_BINARIES
     display_dialog
     display_encounters
     display_fo
+    display_fmap
     display_gds
     display_object
     display_save
