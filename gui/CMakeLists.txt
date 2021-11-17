@@ -4,7 +4,7 @@ add_library(gui
     colors.hpp
     cursor.hpp
     dragEvent.hpp dragEvent.cpp
-    dialogRunner.hpp
+    dialogRunner.hpp dialogRunner.cpp
     gdsScene.hpp gdsScene.cpp
     hotspot.hpp
     label.hpp
