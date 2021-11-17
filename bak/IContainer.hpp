@@ -38,8 +38,8 @@ public:
     virtual bool GiveItem(const InventoryItem&) = 0;
     virtual bool RemoveItem(const InventoryItem&) = 0;
     virtual ContainerType GetContainerType() const = 0;
-    virtual const ShopStats& GetShopData() const = 0;
-    virtual const LockStats& GetLockData() const = 0;
+    virtual ShopStats& GetShopData() = 0;
+    virtual LockStats& GetLockData() = 0;
     bool IsShop() const;
 };
 

@@ -102,13 +102,13 @@ public:
         return mType;
     }
 
-    const ShopStats& GetShopData() const override
+    ShopStats& GetShopData() override
     {
         ASSERT(mShopData);
         return *mShopData;
     }
 
-    const LockStats& GetLockData() const override
+    LockStats& GetLockData() override
     {
         return mLockData;
     }
@@ -165,13 +165,13 @@ public:
         return mType;
     }
 
-    const ShopStats& GetShopData() const override
+    ShopStats& GetShopData() override
     {
         ASSERT(mShopData);
         return *mShopData;
     }
 
-    const LockStats& GetLockData() const override
+    LockStats& GetLockData() override
     {
         return mLockData;
     }

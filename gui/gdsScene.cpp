@@ -282,7 +282,7 @@ void GDSScene::DoBard()
             status,
             BAK::Sovereigns{shopStats.mBardingMaxReward},
             mGameState.GetChapter());
-        // shop->ReduceAvailableBardReward(reward);
+        BAK::Bard::ReduceAvailableReward(shopStats, reward);
         mGameState.GetParty().GainMoney(reward);
         const auto skillMultiplier = std::invoke([&]{
             if (status == BAK::Bard::BardStatus::Failed

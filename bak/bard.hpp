@@ -2,6 +2,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/money.hpp"
+#include "bak/shop.hpp"
 #include "bak/types.hpp"
 
 namespace BAK::Bard {
@@ -19,6 +20,7 @@ BardStatus ClassifyBardAttempt(
     unsigned innRequirement);
 
 Royals GetReward(BardStatus, Sovereigns innReward, Chapter);
+void ReduceAvailableReward(ShopStats&, Royals reward);
 
 KeyTarget GetDialog(BardStatus);
 
