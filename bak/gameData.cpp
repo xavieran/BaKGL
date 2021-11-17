@@ -1,5 +1,7 @@
 #include "bak/gameData.hpp"
 
+#include "com/bits.hpp"
+
 namespace BAK {
 
 GameData::GameData(const std::string& save)
@@ -70,11 +72,7 @@ void GameData::SetBitValueAt(unsigned byteOffset, unsigned bitOffset, unsigned v
 {
     mBuffer.Seek(byteOffset);
     const auto originalData = mBuffer.GetUint16LE();
-    auto data = originalData;
-    if (value)
-        data = data | (1 << bitOffset);
-    else
-        data = data & (~(1 << bitOffset));
+    const auto data = SetBit(originalData, bitOffset, value != 0);
 
     mBuffer.Seek(byteOffset);
     mBuffer.PutUint16LE(data);

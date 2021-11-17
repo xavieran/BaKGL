@@ -25,6 +25,8 @@ public:
         Graphics::TextureIndex,
         glm::vec2>;
 
+    static constexpr auto sInventoryModsOffset = 132;
+
     Icons(
         Graphics::SpriteManager& spriteManager)
     :
@@ -150,6 +152,16 @@ public:
     IconInfo GetInventoryMiscIcon(unsigned i) const
     {
         const auto index = i + mInventoryMiscOffset;
+        ASSERT(index < mInventoryIconsDims.size());
+        return std::make_tuple(
+            mInventoryIconsSpriteSheet,
+            Graphics::TextureIndex{index},
+            mInventoryIconsDims[index]);
+    }
+
+    IconInfo GetInventoryModifierIcon(unsigned i) const
+    {
+        const auto index = i + sInventoryModsOffset;
         ASSERT(index < mInventoryIconsDims.size());
         return std::make_tuple(
             mInventoryIconsSpriteSheet,

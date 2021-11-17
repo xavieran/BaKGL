@@ -5,6 +5,8 @@
 #include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "gui/inventory/modifiers.hpp"
+
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
@@ -64,7 +66,6 @@ public:
         },
         mItem{
             ImageTag{},
-
             std::get<Graphics::SpriteSheetIndex>(
                 icons.GetInventoryIcon(item.GetObject().mImageIndex)),
             std::get<Graphics::TextureIndex>(
@@ -73,6 +74,12 @@ public:
             std::get<glm::vec2>(
                 icons.GetInventoryIcon(item.GetObject().mImageIndex)),
             true
+        },
+        mModifiers{
+            glm::vec2{0},
+            glm::vec2{0},
+            icons,
+            item
         }
     {
         assert(mShowItemDescription);
@@ -177,6 +184,7 @@ private:
         ClearChildren();
         AddItem(false);
         AddChildBack(&mQuantity);
+        AddChildBack(&mModifiers);
     }
     
     const BAK::InventoryIndex mItemIndex;
@@ -186,6 +194,7 @@ private:
 
     TextBox mQuantity;
     Widget mItem;
+    Modifiers mModifiers;
 };
 
 }

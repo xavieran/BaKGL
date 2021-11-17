@@ -1,6 +1,7 @@
 #include "bak/inventoryItem.hpp"
 
 #include "com/assert.hpp"
+#include "com/bits.hpp"
 
 #include <iostream>
 
@@ -8,16 +9,12 @@ namespace BAK {
 
 bool CheckItemStatus(std::uint8_t status, ItemStatus flag)
 {
-    const auto shifted = 1 << static_cast<std::uint8_t>(flag);
-    return (status & shifted) == shifted;
+    return CheckBitSet(status, flag);
 }
 
 std::uint8_t SetItemStatus(std::uint8_t status, ItemStatus flag, bool state)
 {
-    if (state)
-        return status | (1 << static_cast<std::uint8_t>(flag));
-    else
-        return status & (~(1 << static_cast<std::uint8_t>(flag)));
+    return SetBit(status, flag, state);
 }
 
 InventoryItem::InventoryItem(

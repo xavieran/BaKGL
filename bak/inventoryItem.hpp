@@ -3,14 +3,26 @@
 #include "bak/objectInfo.hpp"
 #include "bak/types.hpp"
 
+#include "com/bits.hpp"
+
 #include <iostream>
 
 namespace BAK {
 
 enum class ItemStatus : std::uint8_t
 {
+    Broken     = 4,
+    Repairable = 5,
     Equipped   = 6,
-    Repairable = 7,
+    Poisoned   = 7
+};
+
+enum class ItemFlags : std::uint16_t
+{
+    Stackable      = 11, // 0x0800
+    ConditionBased = 12, // 0x1000
+    ChargeBased    = 13, // 0x2000
+    QuantityBased  = 15, // 0x8000
 };
 
 bool CheckItemStatus(std::uint8_t status, ItemStatus flag);
@@ -36,6 +48,16 @@ public:
         return CheckItemStatus(mStatus, ItemStatus::Equipped);
     }
 
+    bool IsRepairable() const
+    {
+        return CheckItemStatus(mStatus, ItemStatus::Repairable);
+    }
+
+    bool IsPoisoned() const
+    {
+        return CheckItemStatus(mStatus, ItemStatus::Poisoned);
+    }
+
     bool IsMoney() const
     {
         return mItemIndex == ItemIndex{0x35}
@@ -53,24 +75,29 @@ public:
         mStatus = SetItemStatus(mStatus, ItemStatus::Equipped, state);
     }
 
+    bool HasFlag(ItemFlags flag) const
+    {
+        return CheckBitSet(GetObject().mFlags, flag);
+    }
+
     bool IsConditionBased() const
     {
-        return (0x1000 & GetObject().mFlags) == 0x1000;
+        return HasFlag(ItemFlags::ConditionBased);
     }
 
     bool IsChargeBased() const
     {
-        return (0x2000 & GetObject().mFlags) == 0x2000;
+        return HasFlag(ItemFlags::ChargeBased);
     }
 
     bool IsStackable() const
     {
-        return (0x0800 & GetObject().mFlags) == 0x0800;
+        return HasFlag(ItemFlags::Stackable);
     }
 
-    bool IsNumberBased() const
+    bool IsQuantityBased() const
     {
-        return (0x8000 & GetObject().mFlags) == 0x8000;
+        return HasFlag(ItemFlags::QuantityBased);
     }
 
     bool DisplayCondition() const
@@ -83,18 +110,29 @@ public:
         return IsConditionBased() 
             || IsStackable()
             || IsChargeBased()
-            || IsNumberBased()
+            || IsQuantityBased()
             || IsKey();
     }
 
+    bool HasModifier(Modifier mod)
+    {
+        return CheckBitSet(mModifiers, mod);
+    }
+
+    std::vector<Modifier> GetModifiers() const
+    {
+        auto mods = std::vector<Modifier>{};
+        for (unsigned i = 0; i < 8; i++)
+            if (CheckBitSet(mModifiers, i))
+                mods.emplace_back(static_cast<Modifier>(i));
+        return mods;
+    }
 
     GameObject const* mObject;
     ItemIndex mItemIndex;
     unsigned mCondition;
     std::uint8_t mStatus;
     std::uint8_t mModifiers;
-
-
 };
 
 std::ostream& operator<<(std::ostream&, const InventoryItem&);

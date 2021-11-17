@@ -8,20 +8,16 @@
 
 namespace BAK {
 
-enum class TemporaryModifier
+enum class Modifier
 {
-    Fire      = 0x1,
-    SteelFire = 0x2,
-    Frost     = 0x4,
-    Oil       = 0x8
-};
-
-enum class PermanentModifier
-{
-    BlueOil   = 0x1, // What is this?
-    Blessing1 = 0x2,
-    Blessing2 = 0x4,
-    Blessing3 = 0x8
+    Fire      = 0,
+    SteelFire = 1,
+    Frost     = 2,
+    BrownOil  = 3,
+    BlueOil   = 4,
+    Blessing1 = 5,
+    Blessing2 = 6,
+    Blessing3 = 7
 };
 
 enum class RacialModifier
