@@ -67,7 +67,7 @@ void DialogRunner::SetDialogScene(IDialogScene* dialogScene)
     mDialogScene = dialogScene;
 }
 
-bool DialogRunner::Active()
+bool DialogRunner::IsActive()
 {
     return mDialogState.mDialogActive 
         || mDialogState.mTooltipActive;
@@ -79,7 +79,7 @@ void DialogRunner::BeginDialog(
 {
     mLastChoice.reset();
 
-    ASSERT(!Active());
+    ASSERT(!IsActive());
 
     if (isTooltip)
         mDialogState.ActivateTooltip();

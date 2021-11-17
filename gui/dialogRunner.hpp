@@ -48,18 +48,17 @@ public:
 
     void SetDialogScene(IDialogScene* dialogScene);
 
-    bool Active();
-    
     void BeginDialog(
         BAK::Target target,
         bool isTooltip);
 
     bool OnMouseEvent(const MouseEvent& event) override;
 
+private:
+    bool IsActive();
+    
     bool LeftMousePressed(glm::vec2);
     bool MouseMoved(glm::vec2 pos);
-    
-private:
 
     void EvaluateSnippetActions();
     void DisplaySnippet();
