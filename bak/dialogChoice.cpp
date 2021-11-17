@@ -42,6 +42,12 @@ std::string_view ToString(ChoiceMask m)
     };
 }
 
+std::ostream& operator<<(std::ostream& os, const NoChoice& c)
+{
+    os << ToString(ChoiceMask::NoChoice);
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const ConversationChoice& c)
 {
     os << ToString(ChoiceMask::Conversation) << " " << std::hex
@@ -147,6 +153,8 @@ Choice CreateChoice(
     const auto mask = CategoriseChoice(state);
     switch (mask)
     {
+    case ChoiceMask::NoChoice:
+        return NoChoice{};
     case ChoiceMask::Conversation:
         return ConversationChoice{
             state, ""

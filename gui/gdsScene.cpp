@@ -268,14 +268,16 @@ void GDSScene::DoBard()
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     auto& shopStats = container->GetShopData();
 
+    const auto [character, skill] = mGameState.GetParty().GetSkill(
+        BAK::SkillType::Barding, true);
+    mGameState.SetActiveCharacter(character);
+
     if (shopStats.mBardingMaxReward != shopStats.mBardingReward)
     {
         StartDialog(BAK::DialogSources::mBardingAlreadyDone, false);
     }
     else
     {
-        const auto [character, skill] = mGameState.GetParty().GetSkill(
-            BAK::SkillType::Barding, true);
         const auto status = BAK::Bard::ClassifyBardAttempt(
             skill, shopStats.mBardingSkill);
         const auto reward = BAK::Bard::GetReward(
@@ -300,7 +302,6 @@ void GDSScene::DoBard()
         if (status == BAK::Bard::BardStatus::Failed)
             mKickedOut = true;
         mGameState.SetItemValue(reward);
-        mGameState.SetActiveCharacter(character);
         StartDialog(GetDialog(status), false);
     }
 }

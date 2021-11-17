@@ -28,7 +28,8 @@ namespace Gui {
 class DialogRunner : public Widget
 {
 public:
-    using FinishCallback = std::function<void(std::optional<BAK::ChoiceIndex>)>;
+    using FinishCallback = std::function<
+        void(std::optional<BAK::ChoiceIndex>)>;
 
     DialogRunner(
         glm::vec2 pos,
@@ -58,17 +59,16 @@ public:
                 MakeChoice(choice);
             }
         },
-        mDialogStore{},
         mKeywords{},
         mGameState{gameState},
         mCenter{160, 112},
         mFont{fr},
         mActors{actors},
         mCurrentTarget{},
-        mCurrentDialog{},
         mLastChoice{},
         mPendingZoneTeleport{},
         mRemainingText{""},
+        mTextDims{0},
         mDialogDisplay{pos, dims, actors, bgs, fr, gameState},
         mFinished{finished},
         mDialogScene{nullptr},
@@ -92,7 +92,6 @@ public:
         return tmp;
     }
 
-
     void SetDialogScene(IDialogScene* dialogScene)
     {
         mDialogScene = dialogScene;
@@ -104,24 +103,22 @@ public:
             || mDialogState.mTooltipActive;
     }
 
-    // if pos is set then exit the dialog as soon as the 
-    // mouse moves away from pos (as in tooltips)
     void BeginDialog(
         BAK::Target target,
         bool isTooltip)
     {
         mLastChoice.reset();
-        ASSERT(!mDialogState.mDialogActive);
-        ASSERT(!mDialogState.mTooltipActive);
+
+        ASSERT(!Active());
+
         if (isTooltip)
             mDialogState.ActivateTooltip();
         else
             mDialogState.ActivateDialog();
 
-        mCurrentTarget = target;
-        Logging::LogDebug("Gui::DialogRunner")
-            << "BeginDialog" << target << " snip: " << mCurrentDialog << "\n";
-        RunDialog(true);
+        mTargetStack.push(target);
+        mLogger.Debug() << "BeginDialog" << target << "\n";
+        ContinueDialogFromStack();
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
@@ -134,9 +131,33 @@ public:
             event);
     }
 
+    void CompleteDialog()
+    {
+        mLogger.Debug() << "Finished dialog\n";
+        mDialogDisplay.Clear();
+        mDialogState.DeactivateDialog();
+        mDialogScene = nullptr;
+        mCurrentTarget.reset();
+        mRemainingText.clear();
+        std::invoke(mFinished, GetLastChoice());
+        // reset last choice...?
+    }
+
     bool LeftMousePressed(glm::vec2)
     {
-        RunDialog();
+        if (mDialogState.mTooltipActive)
+        {
+            mDialogState.ForceDeactivateTooltip(
+            [this](){
+                mDialogScene = nullptr;
+                std::invoke(mFinished, GetLastChoice());
+            });
+        }
+        else
+        {
+            RunDialog();
+        }
+
         return true;
     }
 
@@ -151,10 +172,10 @@ public:
         return false;
     }
 
-
     void EvaluateSnippetActions()
     {
-        for (const auto& action : mCurrentDialog->mActions)
+        mLogger.Debug() << "Evaluating actions for " << mCurrentTarget << "\n";
+        for (const auto& action : GetSnippet().mActions)
         {
             std::visit(overloaded{
                 [&](const BAK::PushNextDialog& push){
@@ -172,39 +193,67 @@ public:
         }
     }
 
-    void UpdateSnippet()
+    void DisplaySnippet()
     {
-        std::optional<std::string_view>  remaining{};
+        std::string text{};
         if (!mRemainingText.empty())
-            remaining = std::string_view{mRemainingText};
+            text = mRemainingText;
+        else
+        {
+            text = GetSnippet().GetText();
+            // Bit hacky: Add an extra line to ensure enough room to
+            // display the query choice
+            if (GetSnippet().IsQueryChoice())
+                text += "\n";
+        }
         auto nullDialog = NullDialogScene{};
-        mRemainingText = mDialogDisplay.DisplaySnippet(
+
+        const auto [textDims, rem] = mDialogDisplay.DisplaySnippet(
             mDialogScene ? *mDialogScene : nullDialog,
-            *mCurrentDialog,
-            remaining);
+            GetSnippet(),
+            text);
+        mTextDims = textDims;
+        mRemainingText = rem;
     }
 
-    BAK::Target ProgressDialog()
+    const BAK::DialogSnippet& GetSnippet() const
     {
-        if (mCurrentDialog && (mCurrentDialog->mDisplayStyle3 == 0x8))
-        {
-            const auto choice = GetRandomNumber(0, mCurrentDialog->GetChoices().size() - 1);
-            return mCurrentDialog->GetChoices()[choice].mTarget;
+        ASSERT(mCurrentTarget);
+        return BAK::GetDialogStore().GetSnippet(*mCurrentTarget);
+    }
+
+    std::optional<BAK::Target> GetNextTarget()
+    {
+        if (!mCurrentTarget)
+        { 
+            if (!mTargetStack.empty())
+                return GetAndPopTargetStack();
+            else
+                return std::optional<BAK::Target>{};
         }
-        else if (mCurrentDialog && mCurrentDialog->GetChoices().size() >= 1)
+
+        const auto& snip = GetSnippet();
+        if (snip.IsRandomChoice())
         {
-            for (const auto& c : mCurrentDialog->GetChoices())
+            ASSERT(snip.GetChoices().size() > 0);
+            const auto choice = GetRandomNumber(0, snip.GetChoices().size() - 1);
+            return snip.GetChoices()[choice].mTarget;
+        }
+        else if (snip.GetChoices().size() >= 1)
+        {
+            for (const auto& c : snip.GetChoices())
             {
                 if (mGameState.EvaluateDialogChoice(c.mChoice))
                     return c.mTarget;
             }
+        }
 
-            return mCurrentDialog->GetChoices().back().mTarget;
-        }
-        else
+        if (!mTargetStack.empty())
         {
-            return *mCurrentTarget;
+            return GetAndPopTargetStack();
         }
+
+        return std::optional<BAK::Target>{};
     }
 
     void MakeChoice(BAK::ChoiceIndex choice)
@@ -212,7 +261,7 @@ public:
         mLogger.Debug() << "Made choice: " << choice << "\n";
         mScreenStack.PopScreen();
 
-        const auto& choices = mCurrentDialog->GetChoices();
+        const auto& choices = GetSnippet().GetChoices();
         const auto it = std::find_if(choices.begin(), choices.end(),
             [choice](const auto& c){
                 if (std::holds_alternative<BAK::ConversationChoice>(c.mChoice))
@@ -231,19 +280,12 @@ public:
             if (choices.size() == 0 || choices.size() == 1)
             {
                 mLogger.Info() << "Yes|No dialog choice. Player chose: " << mLastChoice << "\n";
-
-                mCurrentDialog = std::optional<BAK::DialogSnippet>{};
-                mRemainingText = std::string{};
-                RunDialog();
             }
             else
             {
                 // Break out of the question loop
+                ASSERT(!mTargetStack.empty());
                 mTargetStack.pop();
-                mCurrentTarget = mTargetStack.top();
-                mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
-                mTargetStack.pop();
-                UpdateSnippet();
             }
         }
         else
@@ -254,26 +296,21 @@ public:
                     mGameState.MarkDiscussed(c);
                 });
 
-            mCurrentTarget = it->mTarget;
-            mCurrentDialog = mDialogStore.GetSnippet(*mCurrentTarget);
-            EvaluateSnippetActions();
-            mCurrentDialog = std::optional<BAK::DialogSnippet>{};
-            mRemainingText = std::string{};
-            // blergh this and the above are really unpleasant this
-            // flow could be improved...
-            RunDialog(true);
+            mTargetStack.push(it->mTarget);
         }
+
+        ContinueDialogFromStack();
     }
 
     void ShowDialogChoices()
     {
-        mLogger.Debug() << "DialogChoices: " << mCurrentDialog << "\n";
+        mLogger.Debug() << "DialogChoices: " << GetSnippet() << "\n";
         mChoices.SetPosition(glm::vec2{15, 125});
         mChoices.SetDimensions(glm::vec2{295, 66});
 
         auto choices = std::vector<std::pair<BAK::ChoiceIndex, std::string>>{};
         unsigned i = 0;
-        for (const auto& c : mCurrentDialog->GetChoices())
+        for (const auto& c : GetSnippet().GetChoices())
         {
             if (std::holds_alternative<BAK::ConversationChoice>(c.mChoice))
             {
@@ -299,19 +336,20 @@ public:
 
         mDialogDisplay.Clear();
         if (mDialogScene)
-            mDialogDisplay.DisplayPlayer(*mDialogScene, mCurrentDialog->mActor);
+            mDialogDisplay.DisplayPlayer(*mDialogScene, GetSnippet().mActor);
         mScreenStack.PushScreen(&mChoices);
     }
 
     void ShowQueryChoices()
     {
-        mLogger.Debug() << "QueryChoices: " << mCurrentDialog << "\n";
-        mChoices.SetPosition(glm::vec2{15, 125});
+        mLogger.Debug() << "QueryChoices: " << GetSnippet() << "\n";
+        mLogger.Debug() << "Last text dims:" << mTextDims << "\n";
+        mChoices.SetPosition(glm::vec2{100, mTextDims.y});
         mChoices.SetDimensions(glm::vec2{285, 66});
 
         auto choices = std::vector<std::pair<BAK::ChoiceIndex, std::string>>{};
         unsigned i = 0;
-        for (const auto& c : mCurrentDialog->GetChoices())
+        for (const auto& c : GetSnippet().GetChoices())
         {
             if (std::holds_alternative<BAK::QueryChoice>(c.mChoice))
             {
@@ -354,81 +392,69 @@ public:
         mScreenStack.PushScreen(&mChoices);
     }
 
-    bool RunDialog(bool first=false)
+    void ContinueDialogFromStack()
     {
-        bool progressing = true;
-        mLogger.Debug() << "RunDialog first: [" << first << "] rem: "
-            << mRemainingText << " CurTarg: " << mCurrentTarget 
-            << " CurSnip: " << mCurrentDialog << "\n";
+        mRemainingText.clear();
+        mCurrentTarget.reset();
+        RunDialog();
+    }
+
+    bool RunDialog()
+    {
+        mLogger.Debug() << "RunDialog rem: ["
+            << mRemainingText << "] CurTarg: " << mCurrentTarget <<"\n";
 
         if (!mRemainingText.empty())
         {
-            UpdateSnippet();
+            DisplaySnippet();
+            if (mRemainingText.empty())
+                ShowQueryChoices();
+
             return true;
         }
 
-        constexpr std::string_view empty = "";
-        unsigned iters = 0;
+        if (mCurrentTarget && GetSnippet().IsQueryChoice())
+        {
+            ShowQueryChoices();
+            return true;
+        }
+
         do
         {
-            BAK::Target current;
-            if (!mCurrentDialog && mCurrentTarget)
+            const auto nextTarget = GetNextTarget();
+            mLogger.Debug() << "Curr: " << mCurrentTarget 
+                << " Next Target: " << nextTarget << "\n";
+            if (!nextTarget)
             {
-                current = *mCurrentTarget;
+                CompleteDialog();
+                return false;
             }
             else
             {
-                current = ProgressDialog();
+                mCurrentTarget = *nextTarget;
+                EvaluateSnippetActions();
+                mLogger.Debug() << "Progressing through: " << GetSnippet() << "\n";
             }
+        } while (!mCurrentTarget
+            || !GetSnippet().IsDisplayable());
 
-            auto currentDialog = mDialogStore.GetSnippet(current);
-            mLogger.Debug() << "Progressed through: " << current 
-                << "(" << mCurrentTarget << ") " << currentDialog << std::endl;
-            if (current == *mCurrentTarget && !first)
-            {
-                if (!mTargetStack.empty())
-                {
-                    current = mTargetStack.top();
-                    currentDialog = mDialogStore.GetSnippet(current);
-                    mTargetStack.pop();
-                    mLogger.Debug() << "Evaluating stacked dialog\n";
-                }
-                else
-                {
-                    progressing = false;
-                    mLogger.Debug() << "Finished dialog\n";
-                    mDialogDisplay.Clear();
-                    mDialogState.DeactivateDialog();
-                    mDialogScene = nullptr;
-                    std::invoke(mFinished, GetLastChoice());
+        if (GetSnippet().IsDialogChoice())
+            ShowDialogChoices();
+        else
+            DisplaySnippet();
 
-                    return false;
-                }
-            }
-
-            mCurrentTarget = current;
-            mCurrentDialog = currentDialog;
-            EvaluateSnippetActions();
-
-            const auto text = mCurrentDialog->GetText();
-            if (text != empty)
-            {
-                UpdateSnippet();
-                if (mCurrentDialog->mDisplayStyle3 == 0x2)
-                    //&& mCurrentDialog->GetChoices().size() > 0)
-                    ShowQueryChoices();
-                progressing = false;
-            }
-            else if (mCurrentDialog->mDisplayStyle3 == 0x4)
-            {
-                ShowDialogChoices();
-                progressing = false;
-            }
-
-        // FIXME: Fix the infinite loop sometimes...
-        } while (progressing && (iters++ < 20));
+        if (GetSnippet().IsQueryChoice() && mRemainingText.empty())
+            ShowQueryChoices();
 
         return true;
+    }
+
+    BAK::Target GetAndPopTargetStack()
+    {
+        ASSERT(!mTargetStack.empty());
+        const auto target = mTargetStack.top();
+        mTargetStack.pop();
+        return target;
     }
 
 private:
@@ -456,6 +482,14 @@ private:
         }
 
         template <typename F>
+        void ForceDeactivateTooltip(F&& f)
+        {
+            ASSERT(mTooltipActive);
+            f();
+            mTooltipActive = false;
+        }
+
+        template <typename F>
         void DeactivateTooltip(F&& f)
         {
             constexpr auto tooltipSensitivity = 15;
@@ -476,7 +510,6 @@ private:
     ScreenStack& mScreenStack;
     DialogState mDialogState;
     ChoiceScreen mChoices;
-    BAK::DialogStore mDialogStore;
     BAK::Keywords mKeywords;
     BAK::GameState& mGameState;
     glm::vec2 mCenter;
@@ -485,12 +518,12 @@ private:
     const Actors& mActors;
 
     std::optional<BAK::Target> mCurrentTarget;
-    std::optional<BAK::DialogSnippet> mCurrentDialog;
     std::optional<BAK::ChoiceIndex> mLastChoice;
     std::optional<BAK::TeleportIndex> mPendingZoneTeleport;
     std::stack<BAK::Target> mTargetStack;
 
     std::string mRemainingText;
+    glm::vec2 mTextDims;
     DialogDisplay mDialogDisplay;
     FinishCallback mFinished;
     IDialogScene* mDialogScene;

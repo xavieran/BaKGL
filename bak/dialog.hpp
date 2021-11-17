@@ -70,6 +70,11 @@ public:
     const auto& GetChoices() const { return mChoices; }
     std::string_view GetText() const { return mText; }
 
+    bool IsQueryChoice()  const { return mDisplayStyle3 == 0x2; }
+    bool IsDialogChoice() const { return mDisplayStyle3 == 0x4; }
+    bool IsRandomChoice() const { return mDisplayStyle3 == 0x8; }
+    bool IsDisplayable()  const { return !mText.empty() || IsDialogChoice(); }
+
     // Display Style One - where to display text
     // 0x00 -> Center of full screen
     // 0x02 -> In action/game part of screen

@@ -6,6 +6,7 @@
 
 #include "com/algorithm.hpp"
 #include "com/assert.hpp"
+#include "com/ostream.hpp"
 #include "com/visit.hpp"
 
 #include "gui/clickButton.hpp"
@@ -47,9 +48,10 @@ public:
     }
 
     void StartChoices(
-        std::vector<std::pair<BAK::ChoiceIndex, std::string>> choices,
+        const std::vector<std::pair<BAK::ChoiceIndex, std::string>>& choices,
         glm::vec2 buttonSize)
     {
+        mLogger.Debug() << __FUNCTION__ << " choices: " << choices << "\n";
         ClearChildren();
         mButtons.clear();
 

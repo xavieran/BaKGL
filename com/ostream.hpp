@@ -20,6 +20,14 @@ inline ostream& operator<<(ostream& os, const array<T, N>& a)
     return os;
 }
 
+template <typename T, typename U>
+inline ostream& operator<<(ostream& os, const pair<T, U>& p)
+{
+    const auto& [a, b] = p;
+    os << "(" << a << ", " << b << ")";
+    return os;
+}
+
 template <typename T>
 inline ostream& operator<<(ostream& os, const vector<T>& items)
 {

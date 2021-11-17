@@ -107,6 +107,10 @@ struct ComplexEventChoice
     std::uint8_t mChapterMask;
 };
 
+struct NoChoice
+{
+};
+
 struct UnknownChoice
 {
     ChoiceMask mChoiceCategory;
@@ -116,6 +120,7 @@ struct UnknownChoice
 };
 
 using Choice = std::variant<
+    NoChoice,
     ConversationChoice,
     QueryChoice,
     EventFlagChoice,

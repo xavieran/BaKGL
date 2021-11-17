@@ -46,7 +46,6 @@ public:
             glm::vec4{0},
             true
         },
-        mDialogStore{},
         mKeywords{},
         mGameState{gameState},
         mCenter{160, 112},
@@ -138,15 +137,11 @@ public:
     auto DisplaySnippet(
         IDialogScene& dialogScene,
         const BAK::DialogSnippet& snippet,
-        std::optional<std::string_view> remainingText)
+        std::string_view remainingText)
     {
         ClearChildren();
 
-        std::string text{};
-        if (remainingText)
-            text = std::string{*remainingText};
-        else
-            text = std::string{snippet.GetText()};
+        std::string text{remainingText};
 
         text = mGameState.GetTextVariableStore().SubstituteVariables(text);
 
@@ -194,12 +189,12 @@ public:
             SetActor(*actor, dialogScene, true);
         }
 
-        return std::string{undisplayedText};
+        return std::make_pair(charPos, std::string{undisplayedText});
     }
 
     void ShowFlavourText(BAK::Target target)
     {
-        const auto& snippet = mDialogStore.GetSnippet(target);
+        const auto& snippet = BAK::GetDialogStore().GetSnippet(target);
         const auto text = snippet.GetText();
         const auto flavourText = find_nth(text.begin(), text.end(), '#', 2);
         ASSERT(flavourText != text.end());
@@ -304,7 +299,6 @@ private:
     }
 
 private:
-    BAK::DialogStore mDialogStore;
     BAK::Keywords mKeywords;
     BAK::GameState& mGameState;
     glm::vec2 mCenter;

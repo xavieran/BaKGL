@@ -378,6 +378,9 @@ public:
     bool EvaluateDialogChoice(const Choice& choice) const
     {
         return std::visit(overloaded{
+                [&](const NoChoice& c){
+                    return true;
+                },
                 [&](const EventFlagChoice& c){
                     return GetEventStateBool(c.mEventPointer) == c.mExpectedValue;
                 },
