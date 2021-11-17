@@ -11,6 +11,28 @@
 
 namespace BAK {
 
+std::string_view ToString(Modifier m)
+{
+    switch (m)
+    {
+    case Modifier::Flaming: return "Flaming";
+    case Modifier::SteelFire: return "SteelFire";
+    case Modifier::Frost: return "Frost";
+    case Modifier::BrownOil: return "BrownOil";
+    case Modifier::BlueOil: return "BlueOil";
+    case Modifier::Blessing1: return "Blessing1";
+    case Modifier::Blessing2: return "Blessing2";
+    case Modifier::Blessing3: return "Blessing3";
+    default: return "Unknown Modifier";
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, Modifier m)
+{
+    os << ToString(m);
+    return os;
+}
+
 std::string_view ToString(RacialModifier m)
 {
     switch (m)

@@ -10,7 +10,7 @@ namespace BAK {
 
 enum class Modifier
 {
-    Fire      = 0,
+    Flaming = 0,
     SteelFire = 1,
     Frost     = 2,
     BrownOil  = 3,
@@ -19,6 +19,9 @@ enum class Modifier
     Blessing2 = 6,
     Blessing3 = 7
 };
+
+std::string_view ToString(Modifier);
+std::ostream& operator<<(std::ostream& os, Modifier);
 
 enum class RacialModifier
 {

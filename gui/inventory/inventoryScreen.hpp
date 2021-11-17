@@ -283,6 +283,7 @@ private:
     {
         mDisplayContainer = false;
         mSelectedCharacter = character;
+        mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
     }
 
     void TransferItemFromCharacterToCharacter(

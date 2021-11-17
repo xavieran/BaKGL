@@ -1,7 +1,7 @@
 #include "bak/inventoryItem.hpp"
 
 #include "com/assert.hpp"
-#include "com/bits.hpp"
+#include "com/ostream.hpp"
 
 #include <iostream>
 
@@ -34,7 +34,8 @@ InventoryItem::InventoryItem(
 std::ostream& operator<<(std::ostream& os, const InventoryItem& i)
 {
     os << i.GetObject().mName << " #" << i.mItemIndex << " pct/qty: " << 
-        +i.mCondition << " status: " << +i.mStatus << " mods: " << +i.mModifiers;
+        +i.mCondition << " status: " << +i.mStatus << " mods: [" << i.GetModifiers() 
+        << "] IsEquipped: " << i.IsEquipped() << "\n";
     return os;
 }
 

@@ -407,7 +407,8 @@ public:
         if (!mRemainingText.empty())
         {
             DisplaySnippet();
-            if (mRemainingText.empty())
+            if (mRemainingText.empty() 
+                && GetSnippet().IsQueryChoice())
                 ShowQueryChoices();
 
             return true;

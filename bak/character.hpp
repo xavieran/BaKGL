@@ -137,7 +137,7 @@ public:
 
     CharIndex GetIndex() const { return mCharacterIndex; }
 
-    bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mCurrent != 0; }
+    bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mMax != 0; }
     bool IsSwordsman() const { return !IsSpellcaster(); }
 
     bool HasEmptyStaffSlot() const
