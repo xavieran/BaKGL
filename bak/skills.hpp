@@ -37,31 +37,27 @@ static constexpr auto sEffectiveSkillMin = std::array<std::uint16_t, 16>{
     0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 static constexpr auto sSkillCaps = std::array<std::uint16_t, 16>{
-    0x1f4,
-    0x1f4,
-    0x1f4,
-    0x1f4,
-    0x0c8,
-    0x0c8,
-    0x0c8,
-    0x0c8,
-    0x0c8,
-    0x0c8,
-    0x0c8,
-    0x0c8,
-    0x0c8,
-    0x064,
-    0x0c8,
-    0x0c8};
+    0x1f4, 0x1f4, 0x1f4, 0x1f4,
+    0x0c8, 0x0c8, 0x0c8, 0x0c8,
+    0x0c8, 0x0c8, 0x0c8, 0x0c8,
+    0x0c8, 0x064, 0x0c8, 0x0c8};
 
 constexpr std::uint16_t sSkillAbsMax = 0xfa;
 
-constexpr std::uint8_t sSkillHealthEffect[16] = {0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2};
-constexpr std::uint8_t sSkillExperienceVar1[16] = {3, 3, 1, 1, 2, 3, 1, 3, 8, 5, 5, 0x20, 2, 3, 8, 1};
-constexpr std::uint8_t sSkillExperienceVar2[16] = {0x33, 0x33, 8, 8, 8, 0x33, 8, 0x33, 0, 0, 0, 0x80, 0x20, 0x33, 0, 0x40};
+constexpr std::uint8_t sSkillHealthEffect[16] = {
+    0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2};
+constexpr std::uint8_t sSkillExperienceVar1[16] = {
+    3, 3, 1, 1, 2, 3, 1, 3, 8, 5, 5, 0x20, 2, 3, 8, 1};
+constexpr std::uint8_t sSkillExperienceVar2[16] = {
+    0x33, 0x33, 8, 8, 8, 0x33, 8, 0x33, 0, 0, 0, 0x80, 0x20, 0x33, 0, 0x40};
 
-constexpr std::uint8_t sSkillMin[16] = {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-constexpr std::uint8_t sSkillMax[16] = {0xFA, 0xFA, 0xFA, 0xFA, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64};
+constexpr std::uint8_t sSkillMin[16] = {
+    0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+constexpr std::uint8_t sSkillMax[16] = {
+    0xFA, 0xFA, 0xFA, 0xFA,
+    0x64, 0x64, 0x64, 0x64,
+    0x64, 0x64, 0x64, 0x64,
+    0x64, 0x64, 0x64, 0x64};
 
 constexpr std::uint8_t sTotalSelectedSkillPool = 0x1a;
 

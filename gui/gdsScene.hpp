@@ -29,11 +29,11 @@ public:
         BAK::GameState& gameState,
         IGuiManager& guiManager);
     
-    void DisplayNPCBackground() override;
-    void DisplayPlayerBackground() override;
-
     GDSScene(const GDSScene&) = delete;
     GDSScene& operator=(const GDSScene&) = delete;
+
+    void DisplayNPCBackground() override;
+    void DisplayPlayerBackground() override;
 
 public:
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot);
@@ -63,6 +63,7 @@ public:
     DialogDisplay mDialogDisplay;
 
     std::optional<BAK::Hotspot> mPendingInn;
+    bool mPendingContainer;
     std::optional<BAK::HotspotRef> mPendingGoto;
     // e.g. when you fail barding
     bool mKickedOut;

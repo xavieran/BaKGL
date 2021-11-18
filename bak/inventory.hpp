@@ -40,6 +40,7 @@ public:
     const auto& GetItems() const { return mItems; }
     auto& GetItems() { return mItems; }
 
+    std::size_t GetCapacity() const { return mCapacity; }
     std::size_t GetNumberItems() const { return mItems.size(); }
     std::size_t GetSpaceUsed() const;
 

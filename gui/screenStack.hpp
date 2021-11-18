@@ -3,6 +3,8 @@
 #include "gui/colors.hpp"
 #include "gui/widget.hpp"
 
+#include "com/ostream.hpp"
+
 #include <glm/glm.hpp>
 
 #include <iostream>
@@ -46,6 +48,7 @@ public:
 
     void PushScreen(Widget* widget)
     {
+        mLogger.Debug() << "Widgets: " << GetChildren() << "\n";
         mLogger.Debug() << "Pushed widget " << std::hex << widget << std::dec << "\n";
         AddChildBack(widget);
     }

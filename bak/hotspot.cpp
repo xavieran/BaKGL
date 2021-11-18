@@ -41,7 +41,9 @@ std::ostream& operator<<(std::ostream& os, const Hotspot& hs)
         << " arg2: " << hs.mActionArg2 
         << " arg3: " << hs.mActionArg3
         << " tip: " << hs.mTooltip
-        << " dialog: " << hs.mDialog << std::dec
+        << " dialog: " << hs.mDialog 
+        << " unknown: " << hs.mUnknown0 << " | " << hs.mUnknown1
+        << " | " << hs.mUnknown2 << std::dec
         << " }";
     return os;
 }
@@ -95,8 +97,8 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
         auto w = fb.GetUint16LE();
         auto h = fb.GetUint16LE();
         logger.Spam() << "Hotspot #" << std::dec << i << std::endl;
-        const auto unknown = fb.GetUint16LE();
-        logger.Spam() << "Unknown: " << std::hex << unknown << std::dec << std::endl;
+        const auto unknown0 = fb.GetUint16LE();
+        logger.Spam() << "Unknown0: " << std::hex << unknown0 << std::dec << std::endl;
         const auto keyword = fb.GetUint16LE();
         const auto action = static_cast<HotspotAction>(fb.GetUint16LE());
         logger.Spam() << "Action: " << action << std::endl;
@@ -106,12 +108,12 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
         logger.Spam() << "A1: " << actionArg1 << std::hex << " A2: " << actionArg2 << " A3: " << actionArg3 << std::dec << "\n";
         std::uint32_t tooltip = fb.GetUint32LE(); 
         logger.Spam() << "RightClick: " << std::hex << tooltip << std::endl;
-        const auto unknown2 = fb.GetUint32LE();
-        logger.Spam() << "Unknown2: " << std::hex << unknown2 << std::dec << std::endl;
+        const auto unknown1 = fb.GetUint32LE();
+        logger.Spam() << "Unknown1: " << std::hex << unknown1 << std::dec << std::endl;
         std::uint32_t dialog = fb.GetUint32LE(); 
         logger.Spam() << "LeftClick: " << std::hex << dialog << std::endl;
-        const auto unknown3 = fb.GetUint16LE();
-        logger.Spam() << "Unknown3: " << std::hex << unknown3 << std::dec << std::endl;
+        const auto unknown2 = fb.GetUint16LE();
+        logger.Spam() << "Unknown2: " << std::hex << unknown2 << std::dec << std::endl;
 
         hotspots.emplace_back(
             i,
@@ -123,7 +125,10 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
             actionArg2,
             actionArg3,
             KeyTarget{tooltip},
-            KeyTarget{dialog});
+            KeyTarget{dialog},
+            unknown0,
+            unknown1,
+            unknown2);
     }
 
     mHotspots = hotspots;

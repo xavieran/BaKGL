@@ -257,6 +257,12 @@ public:
     {
         mCursor.PushCursor(0);
         mLogger.Debug() << __FUNCTION__ << ":" << (*container).GetLockData() << "\n";
+        if (container->GetInventory().GetCapacity() == 0)
+        {
+            // FIXME: need to refactor fixed objects
+            // this is clearly not even a container...
+            return;
+        }
 
         if (   container->GetLockData().mRating > 0 
             && !mLockScreen.IsUnlocked()
@@ -277,6 +283,7 @@ public:
             }});
 
             mInventoryScreen.SetContainer(container);
+            mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
             mScreenStack.PushScreen(&mInventoryScreen);
             mLockScreen.ResetUnlocked();
             mMoredhelScreen.ResetUnlocked();

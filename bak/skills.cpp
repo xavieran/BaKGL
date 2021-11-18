@@ -148,6 +148,9 @@ void DoImproveSkill(
 
     if (skillChangeType == 3)
     {
+        // FIXME: double check this... obviously these
+        // numbers can go negative for many of the vals
+        // in the array
         const auto diff = sSkillExperienceVar1[skillIndex]
             - sSkillExperienceVar2[skillIndex];
         experienceChange = ((diff * skill.mTrueSkill) / 100)

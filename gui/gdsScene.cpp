@@ -58,6 +58,7 @@ GDSScene::GDSScene(
         font,
         gameState},
     mPendingInn{},
+    mPendingContainer{false},
     mPendingGoto{},
     mKickedOut{false},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
@@ -174,7 +175,16 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         || hotspot.mAction == BAK::HotspotAction::BARMAID
         || hotspot.mAction == BAK::HotspotAction::CONTAINER)
     {
-        EnterContainer();
+        // FIXME! Need someting a bit more generic than this...
+        if (hotspot.mActionArg3 != 0)
+        {
+            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+            mPendingContainer = true;
+        }
+        else
+        {
+            EnterContainer();
+        }
     }
     else if (hotspot.mAction == BAK::HotspotAction::REPAIR)
     {
@@ -238,6 +248,11 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
     {
         StartDialog(BAK::DialogSources::mInnDialog, false);
         mPendingInn.reset();
+    }
+    else if (mPendingContainer)
+    {
+        mPendingContainer = false;
+        EnterContainer();
     }
     else if (mKickedOut)
     {

@@ -45,7 +45,10 @@ struct Hotspot
         std::uint16_t actionArg2,
         std::uint32_t actionArg3,
         KeyTarget tooltip,
-        KeyTarget dialog)
+        KeyTarget dialog,
+        std::uint16_t unknown0,
+        std::uint32_t unknown1,
+        std::uint16_t unknown2)
     :
         mHotspot{hotspot},
         mTopLeft{topLeft},
@@ -56,7 +59,10 @@ struct Hotspot
         mActionArg2{actionArg2},
         mActionArg3{actionArg3},
         mTooltip{tooltip},
-        mDialog{dialog}
+        mDialog{dialog},
+        mUnknown0{unknown0},
+        mUnknown1{unknown1},
+        mUnknown2{unknown2}
     {}
 
     std::uint16_t mHotspot;
@@ -69,6 +75,10 @@ struct Hotspot
     std::uint32_t mActionArg3;
     KeyTarget mTooltip;
     KeyTarget mDialog;
+    
+    std::uint16_t mUnknown0;
+    std::uint32_t mUnknown1;
+    std::uint16_t mUnknown2;
 };
 
 std::ostream& operator<<(std::ostream&, const Hotspot&);
