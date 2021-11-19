@@ -283,10 +283,8 @@ private:
         {
             if (BAK::CanPickLock(skill, lockRating))
             {
-                GetCharacter(*mSelectedCharacter).ImproveSkill(
-                    BAK::SkillType::Lockpick,
-                    3,
-                    2);
+                GetCharacter(*mSelectedCharacter)
+                    .ImproveSkill(BAK::SkillType::Lockpick, 3, 2);
                 mGuiManager.AddAnimator(
                     LinearAnimator{
                         .25,

@@ -34,7 +34,6 @@ public:
         mZoneData{nullptr},
         mActiveEncounter{nullptr},
         mActiveClickable{nullptr},
-        mActiveClickable2{nullptr},
         mEncounters{},
         mClickables{},
         mSystems{nullptr},
@@ -80,8 +79,6 @@ public:
         mEncounters.clear();
         mClickables.clear();
         mActiveEncounter = nullptr;
-        mActiveClickable = nullptr;
-        mActiveClickable2 = nullptr;
 
         for (const auto& world : mZoneData->mWorldTiles.GetTiles())
         {
@@ -149,9 +146,110 @@ public:
             }
         }
     }
-
-    void DoGenericContainer(BAK::GenericContainer& container)
+    
+    void EncounterChest(BAK::GenericContainer& chest)
     {
+        bool openedSuccessfully = false;
+        if (!chest.HasLock())
+        {
+
+            // DoDialog 0xc2
+            // ShowContainer
+        }
+        else if (chest.GetLock().mLockFlag == 1 || chest.GetLock().mLockFlag == 4) // trapped chest
+        {
+            auto& lock = chest.GetLock();
+            bool eyesOfIshapActive = false;
+            // Know trap is trapped
+            if (lock.mLockFlag == 0x4 && eyesOfIshapActive)
+            {
+                // DoChoice Dialog 0xbe (open trapped box or not)
+                bool choseToOpenTrappedChest = false;
+                if (choseToOpenTrappedChest)
+                {
+                    const auto& [character, skill] = mGameState
+                        .GetParty().GetSkill(BAK::SkillType::Lockpick, true);
+                    if (skill > lock.mRating)
+                    {
+                        mGameState.GetParty()
+                            .GetCharacter(character)
+                            .ImproveSkill(BAK::SkillType::Lockpick, 3, 2);
+                        openedSuccessfully = true;
+                        lock.mLockFlag = 1;
+                        lock.mTrapDamage = 0;
+                    }
+                    else
+                    {
+                        // This seems buggy - even if you disarm the trap with 
+                        // scent of sarig, the dialog later still says the box
+                        // is charred...
+                        // Damage characters
+                        // Do Dialog: 0xc0
+                        lock.mLockFlag = 1;
+                        lock.mTrapDamage = 0;
+                    }
+                }
+                else
+                {
+                    // Chose not to open box .. continue
+                }
+            }
+            // Don't know chest is trapped 
+            else
+            {
+                if (lock.mTrapDamage == 0)
+                {
+                    // DoChoice dialog 0x13d // trap is charred
+                    // if (choseToOpen)
+                    //    continue to chest
+                    // else
+                    //    exit
+                }
+                else
+                {
+                    // DoChoice dialog 0x4f
+                    // if (yes)
+                        // Damage Characters
+                        // Do Dialog 0xc0
+                    // else Finish...
+                }
+            }
+        }
+        else if (chest.HasLock() && chest.GetLock().mFairyChestIndex > 0)
+        {
+            // DoFairyChest Dialog 0xc
+        }
+        else if (chest.HasLock())
+        {
+            // Do Choice 0x4f
+            // if (choise) DoVanillaLock Encounter
+            // else nothing
+        }
+
+        if (openedSuccessfully)
+        {
+            if (chest.HasEncounter())
+            {
+                if (chest.GetEncounter().mSetEventFlag != 0)
+                {
+                    mGameState.SetEventValue(
+                        chest.GetEncounter().mSetEventFlag,
+                        1);
+                }
+            }
+
+            // ShowContainer
+        }
+    }
+
+    void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container)
+    {
+        mLogger.Debug() << __FUNCTION__ << " " << container << "\n";
+        if (et == BAK::EntityType::CHEST)
+        {
+            return;
+        }
+
         if (container.mHeader.HasDialog())
         {
             if (mGuiManager.mScreenStack.size() == 1)
@@ -336,35 +434,6 @@ public:
         {
             //DoEncounter(*mActiveEncounter);
         }
-
-        if (mActiveClickable2)
-        {
-            const auto bakLocation = mActiveClickable2->GetBakLocation();
-
-            auto& containers = mGameState.GetContainers(
-                BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
-            auto cit = std::find_if(containers.begin(), containers.end(),
-                [&bakLocation](const auto& x){
-                    return x.mHeader.GetPosition() == bakLocation;
-                });
-
-            if (cit != containers.end())
-            {
-                mLogger.Debug() << "Container: " << *cit << "\n";
-                DoGenericContainer(*cit);
-            }
-
-            auto fit = std::find_if(
-                mZoneData->mFixedObjects.begin(),
-                mZoneData->mFixedObjects.end(),
-                [&bakLocation](const auto& x){ return x.mHeader.GetPosition() == bakLocation; });
-            if (fit != mZoneData->mFixedObjects.end())
-            {
-                DoGenericContainer(*fit);
-            }
-
-            mActiveClickable2 = nullptr;
-        }
     }
 
     void ResetClickable()
@@ -382,7 +451,28 @@ public:
         if (bestId)
         {
             mActiveClickable = mClickables[*bestId];
-            mActiveClickable2 = mClickables[*bestId];
+            const auto bakLocation = mActiveClickable->GetBakLocation();
+            const auto et = mActiveClickable->GetZoneItem().GetEntityType();
+
+            auto& containers = mGameState.GetContainers(
+                BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
+            auto cit = std::find_if(containers.begin(), containers.end(),
+                [&bakLocation](const auto& x){
+                    return x.mHeader.GetPosition() == bakLocation;
+                });
+
+            if (cit != containers.end())
+                DoGenericContainer(et, *cit);
+
+            auto fit = std::find_if(
+                mZoneData->mFixedObjects.begin(),
+                mZoneData->mFixedObjects.end(),
+                [&bakLocation](const auto& x){
+                    return x.mHeader.GetPosition() == bakLocation;
+                });
+
+            if (fit != mZoneData->mFixedObjects.end())
+                DoGenericContainer(et, *fit);
         }
     }
 
@@ -395,7 +485,6 @@ public:
 
     const BAK::Encounter::Encounter* mActiveEncounter;
     const BAK::WorldItemInstance* mActiveClickable;
-    const BAK::WorldItemInstance* mActiveClickable2;
     std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> mEncounters;
     std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> mClickables{};
     std::unique_ptr<Systems> mSystems;

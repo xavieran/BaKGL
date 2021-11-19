@@ -81,7 +81,7 @@ public:
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
             std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
             std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
-            [this]{ mGuiManager.ExitLock(); },
+            [this]{ mGuiManager.ExitLock(); }, // do dialog 0xd (couldnt open moredhel chest)
             []{}
         },
         mLeftClasp{
