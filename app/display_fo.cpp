@@ -1,7 +1,5 @@
 #include "bak/fixedObject.hpp"
 
-#include "bak/monster.hpp"
-
 #include "com/logger.hpp"
 
 int main(int argc, char** argv)
@@ -20,8 +18,6 @@ int main(int argc, char** argv)
     {
         logger.Info() << o << "\n";
     }
-
-    const auto mon = BAK::MonsterNames{};
 
     return 0;
 }

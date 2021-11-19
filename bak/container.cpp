@@ -1,6 +1,10 @@
 #include "bak/container.hpp"
 
+#include "bak/inventory.hpp"
+
 #include "com/ostream.hpp"
+
+#include <optional>
 
 namespace BAK {
 
@@ -65,6 +69,98 @@ ContainerHeader::ContainerHeader(ContainerGDSLocationTag, FileBuffer& fb)
     mContainerType = fb.GetUint8();
 }
 
+std::ostream& operator<<(std::ostream& os, const ContainerEncounter& ce)
+{
+    os << "ContainerEncounter { require: " << std::hex << ce.mRequireEventFlag
+        << " set: " << ce.mSetEventFlag << std::dec << " hotspot: " << 
+        ce.mHotspotRef << " pos: " << ce.mEncounterPos << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ContainerDialog& ce)
+{
+    os << "ContainerDialog { unknown: " << std::hex << ce.mUnknown
+        << " dialog: " << ce.mDialog << std::dec << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const GenericContainer& gc)
+{
+    os << "GenericContainer{ " << gc.mHeader;
+    if (gc.mLock) os << gc.mLock;
+    if (gc.mDialog) os << gc.mDialog;
+    if (gc.mShop) os << gc.mShop;
+    if (gc.mEncounter) os << gc.mEncounter;
+    if (gc.mLastAccessed) os << std::hex << " LastAccessed: " << gc.mLastAccessed << std::dec;
+    os << "}";
+    return os;
+}
+
+GenericContainer LoadGenericContainer(FileBuffer& fb)
+{
+    auto header = ContainerHeader{
+        ContainerWorldLocationTag{},
+        fb};
+
+    auto lockData = std::optional<LockStats>{};
+    auto dialog = std::optional<ContainerDialog>{};
+    auto shopData = std::optional<ShopStats>{};
+    auto encounter = std::optional<ContainerEncounter>{};
+    auto lastAccessed = std::optional<Time>{};
+
+    auto inventory = LoadItems(fb, header.mItems, header.mCapacity);
+
+    if ((header.mContainerType & 0x1) != 0)
+    {
+        lockData = LoadLock(fb);
+    }
+    if ((header.mContainerType & 0x2) != 0)
+    {
+        const auto unknown = fb.GetUint16LE();
+        const auto diag = KeyTarget{fb.GetUint32LE()};
+        dialog = ContainerDialog{unknown, diag};
+    }
+    if ((header.mContainerType & 0x4) != 0)
+    {
+        shopData = LoadShop(fb);
+    }
+    if ((header.mContainerType & 0x8) != 0)
+    {
+        const auto requireEventFlag = fb.GetUint16LE();
+        const auto setEventFlag = fb.GetUint16LE();
+        auto hotspotRef = std::optional<HotspotRef>{};
+        hotspotRef = HotspotRef{
+            fb.GetUint8(),
+            static_cast<char>(
+                fb.GetUint8() + 0x40)};
+        if (hotspotRef->mGdsNumber == 0)
+            hotspotRef.reset();
+        auto encounterOff = std::optional<glm::uvec2>{};
+        const auto hasEncounter = fb.GetUint8();
+        const auto xOff = fb.GetUint8();
+        const auto yOff = fb.GetUint8();
+        if (hasEncounter != 0)
+            encounterOff = glm::uvec2{xOff, yOff};
+
+        encounter = ContainerEncounter{
+            requireEventFlag,
+            setEventFlag,
+            hotspotRef,
+            encounterOff};
+    }
+    if ((header.mContainerType & 0x10) != 0)
+    {
+        lastAccessed = Time{fb.GetUint32LE()};
+    }
+
+    return GenericContainer{
+        header,
+        lockData,
+        dialog,
+        shopData,
+        encounter,
+        lastAccessed};
+}
 
 Container::Container(
     unsigned address,

@@ -184,4 +184,30 @@ std::ostream& operator<<(std::ostream& os, const Inventory& inventory)
     return os;
 }
 
+Inventory LoadItems(FileBuffer& fb, unsigned itemCount, unsigned capacity)
+{
+    std::vector<InventoryItem> items{};
+    unsigned i;
+    for (i = 0; i < itemCount; i++)
+    {
+        const auto item = ItemIndex{fb.GetUint8()};
+        const auto& object = GetObjectIndex().GetObject(item);
+        const auto condition = fb.GetUint8();
+        const auto status = fb.GetUint8();
+        const auto modifiers = fb.GetUint8();
+
+        items.emplace_back(
+            InventoryItemFactory::MakeItem(
+                item,
+                condition,
+                status,
+                modifiers));
+    }
+
+    for (; i < capacity; i++)
+        fb.Skip(4);
+
+    return Inventory{capacity, std::move(items)};
+}
+
 }

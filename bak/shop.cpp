@@ -26,6 +26,37 @@ std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
     return os;
 }
 
+ShopStats LoadShop(FileBuffer& fb)
+{
+    const auto templeNumber = fb.GetUint8();
+    const auto sellFactor = fb.GetUint8();
+    const auto maxDiscount = fb.GetUint8();
+    const auto buyFactor = fb.GetUint8();
+    const auto haggle = fb.GetUint16LE();
+    const auto bardingSkill = fb.GetUint8();
+    const auto bardingReward = fb.GetUint8();
+    const auto bardingMaxReward = fb.GetUint8();
+    const auto unknown = fb.GetArray<3>();
+    const auto repairTypes = fb.GetUint8();
+    const auto repairFactor = fb.GetUint8();
+    const auto categories = fb.GetUint16LE();
+
+    return ShopStats{
+        templeNumber,
+        sellFactor,
+        maxDiscount,
+        buyFactor,
+        haggle,
+        bardingSkill,
+        bardingReward,
+        bardingMaxReward,
+        unknown,
+        repairTypes,
+        repairFactor,
+        categories
+    };
+}
+
 }
 
 namespace BAK::Shop {

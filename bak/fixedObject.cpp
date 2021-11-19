@@ -80,7 +80,7 @@ std::vector<FixedObject> LoadFixedObjects(
                 fb);
 
             std::uint32_t dialogKey = 0;
-            std::optional<glm::vec<2, unsigned>> encounterOff{};
+            std::optional<glm::uvec2> encounterOff{};
             auto hotspotRef = std::optional<HotspotRef>{};
 
             if (header.mContainerType == 0x0)
@@ -118,7 +118,7 @@ std::vector<FixedObject> LoadFixedObjects(
                 const auto xOff = fb.GetUint8();
                 const auto yOff = fb.GetUint8();
                 if (hasEncounter != 0)
-                    encounterOff = glm::vec<2, unsigned>{xOff, yOff};
+                    encounterOff = glm::uvec2{xOff, yOff};
             }
             else
             {

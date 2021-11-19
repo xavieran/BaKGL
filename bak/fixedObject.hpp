@@ -16,7 +16,7 @@ public:
         ContainerHeader header,
         Target dialogKey,
         std::optional<HotspotRef>,
-        std::optional<glm::vec<2, unsigned>>);
+        std::optional<GamePosition>);
 
     ContainerHeader mHeader;
     Target mDialogKey;

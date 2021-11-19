@@ -37,7 +37,7 @@ std::ostream& operator<<(std::ostream& os, const SetTextVariable& action)
 
 std::ostream& operator<<(std::ostream& os, const ElapseTime& action)
 {
-    os << "ElapseTime { HowLong: " << action.mTime.ToString()
+    os << "ElapseTime { HowLong: " << action.mTime
         << " rest[" << std::hex << action.mRest << std::dec << "]}";
     return os;
 }

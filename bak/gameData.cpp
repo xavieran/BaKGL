@@ -1,6 +1,9 @@
 #include "bak/gameData.hpp"
 
+#include "bak/container.hpp"
+
 #include "com/bits.hpp"
+#include "com/ostream.hpp"
 
 namespace BAK {
 
@@ -636,6 +639,85 @@ std::vector<GDSContainer> GameData::LoadShops()
     return shops;
 }
 
+//GenericContainer GameData::LoadGenericContainer()
+//{
+//    auto header = ContainerHeader(ContainerWorldLocationTag{}, mBuffer);
+//    ASSERT(header.mLocationType == 6 
+//        || header.mLocationType == 9
+//        || header.mCapacity > 0);
+//    const auto containerType = static_cast<ContainerType>(header.mContainerType);
+//
+//    auto startDialog = std::optional<Target>{};
+//    auto endDialog = std::optional<Target>{};
+//    auto lockData = std::optional<LockStats>{};
+//    auto shopData = std::optional<ShopStats>{};
+//    auto requireEventFlag = std::optional<unsigned>{};
+//    auto setEventFlag = std::optional<unsigned>{};
+//    auto hotspotRef = std::optional<HotspotRef>{};
+//    auto encounterOff = std::optional<glm::uvec2>{};
+//    auto lastAccessed = std::optional<unsigned>{};
+//    auto unknown = std::optional<unsigned>{};
+//
+//    auto LoadHotspot = [&]{
+//        hotspotRef = HotspotRef{
+//            mBuffer.GetUint8(),
+//            static_cast<char>(
+//                mBuffer.GetUint8() + 0x40)};
+//        if (hotspotRef->mGdsNumber == 0)
+//            hotspotRef.reset();
+//    };
+//
+//    auto LoadEncounter = [&]{
+//        const auto hasEncounter = mBuffer.GetUint8();
+//        const auto xOff = mBuffer.GetUint8();
+//        const auto yOff = mBuffer.GetUint8();
+//        if (hasEncounter != 0)
+//            encounterOff = glm::uvec2{xOff, yOff};
+//    };
+//
+//    auto inventory = Inventory{
+//        header.mCapacity,
+//        LoadItems(header.mItems, header.mCapacity)};
+//
+//    if ((header.mContainerType & 0x1) != 0)
+//    {
+//        lockData = LoadLock();
+//    }
+//    if ((header.mContainerType & 0x2) != 0)
+//    {
+//        unknown = mBuffer.GetUint16LE();
+//        startDialog = KeyTarget{mBuffer.GetUint32LE()};
+//    }
+//    if ((header.mContainerType & 0x4) != 0)
+//    {
+//        shopData = LoadShop();
+//    }
+//    if ((header.mContainerType & 0x8) != 0)
+//    {
+//        requireEventFlag = mBuffer.GetUint16LE();
+//        setEventFlag = mBuffer.GetUint16LE();
+//        LoadHotspot();
+//        LoadEncounter();
+//    }
+//    if ((header.mContainerType & 0x10) != 0)
+//    {
+//        lastAccessed = mBuffer.GetUint32LE();
+//    }
+//
+//    return GenericContainer{
+//        header,
+//        startDialog,
+//        lockData,
+//        shopData,
+//        hotspotRef,
+//        encounterOff,
+//        endDialog,
+//        requireEventFlag,
+//        setEventFlag,
+//        lastAccessed,
+//        unknown};
+//}
+
 std::vector<Container> GameData::LoadContainers(unsigned zone)
 {
     const auto& logger = Logging::LogState::GetLogger("GameData");
@@ -643,7 +725,6 @@ std::vector<Container> GameData::LoadContainers(unsigned zone)
     std::vector<Container> containers{};
 
     unsigned count = 0;
-    // TombStone
     switch (zone)
     {
     case 1:
@@ -704,6 +785,9 @@ std::vector<Container> GameData::LoadContainers(unsigned zone)
         unsigned address = mBuffer.Tell();
         logger.Info() << " Container: " << j
             << " addr: " << std::hex << address << std::dec << std::endl;
+        auto cont = LoadGenericContainer(mBuffer);
+        logger.Info() << cont << "\n";
+        continue;
 
         auto header = ContainerHeader(ContainerWorldLocationTag{}, mBuffer);
         ASSERT(header.mLocationType == 6 
@@ -711,6 +795,8 @@ std::vector<Container> GameData::LoadContainers(unsigned zone)
             || header.mCapacity > 0);
         const auto containerType = static_cast<ContainerType>(header.mContainerType);
 
+        auto eventFlag = std::optional<unsigned>{};
+        auto encounterOff = std::optional<glm::uvec2>{};
         auto shopData = std::optional<ShopStats>{};
         auto lockData = LockStats{0,0,0,0};
 
@@ -759,25 +845,48 @@ std::vector<Container> GameData::LoadContainers(unsigned zone)
         else if (containerType == ContainerType::FairyChest)
         {
             lockData = LoadLock();
-            dialog = KeyTarget{mBuffer.GetUint32LE()};
+            const auto unknown = mBuffer.GetUint32LE();
+            if (unknown != 0)
+                mLogger.Debug() << "FC Unknown: " << std::hex << unknown << std::dec << "\n";
+            //ASSERT(mBuffer.GetUint32LE() == 0);
         }
         else if (containerType == ContainerType::EventChest)
         {
             lockData = LoadLock();
+            mBuffer.DumpAndSkip(2);
+            //mBuffer.DumpAndSkip(2);
+            eventFlag = mBuffer.GetUint16LE();
             // ?? 2 bytes
             // set this event flag 2 bytes
             // 9 bytes
-            mBuffer.DumpAndSkip(13);
+            mBuffer.DumpAndSkip(9);
         }
         else if (containerType == ContainerType::TimirianyaHut)
         {
-            mBuffer.DumpAndSkip(9);
+            mBuffer.DumpAndSkip(2);
+            eventFlag = mBuffer.GetUint16LE();
+            mBuffer.DumpAndSkip(2);
+            const auto hasEncounter = mBuffer.GetUint8();
+            const auto xOff = mBuffer.GetUint8();
+            const auto yOff = mBuffer.GetUint8();
+            if (hasEncounter != 0)
+                encounterOff = glm::vec<2, unsigned>{xOff, yOff};
+
         }
         else if (containerType == ContainerType::Combat)
         {
             mBuffer.DumpAndSkip(2);
             dialog = KeyTarget{mBuffer.GetUint32LE()};
-            mBuffer.DumpAndSkip(9);
+            eventFlag = mBuffer.GetUint16LE();
+            const auto eventFlag2 = mBuffer.GetUint16LE();
+            if (eventFlag != 0)
+                mLogger.Debug() << "Combat evFlag: " << eventFlag <<"\n";
+            mBuffer.DumpAndSkip(2);
+            const auto hasEncounter = mBuffer.GetUint8();
+            const auto xOff = mBuffer.GetUint8();
+            const auto yOff = mBuffer.GetUint8();
+            if (hasEncounter != 0)
+                encounterOff = glm::vec<2, unsigned>{xOff, yOff};
         }
         else
         {

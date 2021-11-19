@@ -226,7 +226,9 @@ public:
             {
                 italic = true;
             }
-            else if (c == static_cast<char>(0xe1))
+            else if (c == static_cast<char>(0xe1)
+                || c == static_cast<char>(0xe2) // not sure on e2
+                || c == static_cast<char>(0xe3)) // not sure on e3
             {
                 // Book text.. quoted or something
                 DrawNormal(charPos, ' ');

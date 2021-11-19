@@ -40,18 +40,13 @@ struct Time
         return mTime * 2;
     }
 
-    std::string ToString() const
-    {
-        std::stringstream ss{};
-        ss << GetDays() << " days " << std::setw(2) << std::setfill('0')
-            << GetHour() << ":" << GetMinute();
-        return ss.str();
-
-    }   
-
-    std::uint32_t mTime;
+        std::uint32_t mTime;
 
 };
+
+std::string ToString(Time t);
+
+std::ostream& operator<<(std::ostream&, const Time&);
 
 class WorldClock
 {

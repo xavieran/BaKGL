@@ -3,6 +3,8 @@
 #include "bak/money.hpp"
 #include "bak/inventoryItem.hpp"
 
+#include "xbak/FileBuffer.h"
+
 namespace BAK {
 
 struct ShopStats
@@ -21,8 +23,9 @@ struct ShopStats
     std::uint16_t mCategories;
 };
 
-
 std::ostream& operator<<(std::ostream&, const ShopStats&);
+
+ShopStats LoadShop(FileBuffer& fb);
 
 }
 

@@ -3,6 +3,7 @@
 #include "graphics/texture.hpp"
 
 #include "com/assert.hpp"
+#include "com/logger.hpp"
 
 #include "xbak/FileBuffer.h"
 
@@ -48,7 +49,8 @@ public:
     {
         if (!(mFirstChar <= c))
         {
-            std::cout << "BAD:{" << std::dec << +c << "}\n";
+            Logging::LogFatal("BAK::Font") << "Request for bad char: {" 
+                << std::hex << +c << std::dec << "} [" << c << "]" << std::endl;
         }
         ASSERT(mFirstChar <= c);
         return c - mFirstChar;

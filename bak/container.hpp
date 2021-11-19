@@ -63,6 +63,40 @@ public:
 
 std::ostream& operator<<(std::ostream&, const ContainerHeader&);
 
+struct ContainerEncounter
+{
+    unsigned mRequireEventFlag;
+    unsigned mSetEventFlag;
+    std::optional<HotspotRef> mHotspotRef;
+    std::optional<GamePosition> mEncounterPos;
+};
+
+std::ostream& operator<<(std::ostream&, const ContainerEncounter&);
+
+struct ContainerDialog
+{
+    unsigned mUnknown;
+    Target mDialog;
+};
+
+std::ostream& operator<<(std::ostream&, const ContainerDialog&);
+
+class GenericContainer
+{
+public:
+
+    ContainerHeader mHeader;
+    std::optional<LockStats> mLock;
+    std::optional<ContainerDialog> mDialog;
+    std::optional<ShopStats> mShop;
+    std::optional<ContainerEncounter> mEncounter;
+    std::optional<Time> mLastAccessed;
+};
+
+GenericContainer LoadGenericContainer(FileBuffer& fb);
+
+std::ostream& operator<<(std::ostream&, const GenericContainer&);
+
 class Container final : public IContainer
 {
 public:

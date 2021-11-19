@@ -167,8 +167,15 @@ public:
     std::uint8_t ReadSelectedSkillPool(unsigned character) const;
     void SetSelectedSkillPool(unsigned character, std::uint8_t value);
 
-    // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
-    // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
+    // Called by
+    // * checkBlockTriggered
+    // * checkTownTriggered
+    // * checkBackgroundTriggered
+    // * checkZoneTriggered,
+    // * doEnableEncounter
+    // * doDialogEncounter
+    // * doDisableEncounter
+    // * doSoundEncounter
     bool CheckActive(
         const Encounter::Encounter& encounter,
         ZoneNumber zone) const;
@@ -178,7 +185,12 @@ public:
     // Background and Town
     void SetPostGDSEventFlags(const Encounter::Encounter& encounter);
     
-    // Used by Block, Disable, Enable, Sound, Zone
+    // Used by
+    // * Block
+    // * Disable
+    // * Enable
+    // * Sound
+    // * Zone
     void SetPostEnableOrDisableEventFlags(
         const Encounter::Encounter& encounter,
         ZoneNumber zone);
@@ -219,12 +231,13 @@ public:
     std::vector<InventoryItem> LoadItems(unsigned itemCount, unsigned capacity);
     
     LockStats LoadLock();
-
     ShopStats LoadShop();
+
     std::vector<GDSContainer> LoadShops();
+    //GenericContainer LoadGenericContainer();
     std::vector<Container> LoadContainers(unsigned zone);
 
-    // Probablynot chapter offsets.. ?
+    // Probably not chapter offsets.. ?
     void LoadChapterOffsetP();
     void LoadCombatEntityLists();
     void LoadCombatStats(unsigned offset, unsigned num);

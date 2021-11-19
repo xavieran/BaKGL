@@ -7,6 +7,8 @@
 #include "com/assert.hpp"
 #include "com/strongType.hpp"
 
+#include "xbak/FileBuffer.h"
+
 #include <iostream>
 #include <vector>
 
@@ -176,4 +178,10 @@ private:
 };
 
 std::ostream& operator<<(std::ostream&, const Inventory&);
+
+Inventory LoadItems(
+    FileBuffer& fb,
+    unsigned itemCount,
+    unsigned capacity);
+
 }

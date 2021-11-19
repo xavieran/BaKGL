@@ -134,19 +134,47 @@ public:
         }
         else
         {
-            auto item = InventoryItemFactory::MakeItem(
+            auto baseItem = InventoryItemFactory::MakeItem(
                 ItemIndex{itemIndex},
                 static_cast<std::uint8_t>(quantity));
-            if (item.IsKey())
+
+            const auto stackSize = baseItem.GetObject().mStackSize;
+
+            // Split into stacks if necessary
+            std::vector<InventoryItem> items{};
+            if (baseItem.GetQuantity() > stackSize)
             {
-                mKeys.GiveItem(item);
+                const auto nStacks = baseItem.GetQuantity() / stackSize;
+                for (unsigned i = 0; i < nStacks; i++)
+                {
+                    items.emplace_back(
+                        InventoryItemFactory::MakeItem(
+                            ItemIndex{itemIndex},
+                            stackSize));
+                }
+                const auto remainder = baseItem.GetQuantity() % stackSize;
+                if (remainder != 0)
+                    items.emplace_back(
+                        InventoryItemFactory::MakeItem(
+                            ItemIndex{itemIndex},
+                            remainder));
             }
             else
             {
-                for (const auto& character : mActiveCharacters)
+                items.emplace_back(baseItem);
+            }
+
+            for (const auto& item : items)
+            {
+                if (item.IsKey())
                 {
-                    if (GetCharacter(character).GiveItem(item))
-                        return;
+                    mKeys.GiveItem(item);
+                }
+                else
+                {
+                    for (const auto& character : mActiveCharacters)
+                        if (GetCharacter(character).GiveItem(item))
+                            break;
                 }
             }
         }

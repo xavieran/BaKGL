@@ -242,15 +242,13 @@ public:
             },
             [&](const BAK::LoseItem& lose)
             {
-                // FIXME: Implement if this skill only improves for one character
-                //        Figure out what to do with mValue0,2,3 
+                mLogger.Debug() << "Losing item: " << lose << "\n";
                 auto& party = GetParty();
                 party.RemoveItem(lose.mItemIndex, lose.mQuantity);
             },
             [&](const BAK::GiveItem& give)
             {
-                // FIXME: Implement if this skill only improves for one character
-                //        Figure out what to do with mValue0,2,3 
+                mLogger.Debug() << "Giving item: " << give << "\n";
                 auto& party = GetParty();
                 party.GainItem(give.mCharacter, give.mItemIndex, give.mQuantity);
             },
@@ -261,6 +259,7 @@ public:
                 // who == 2 => apply gain to selected character (ref gamestate)
                 // who == 1 => apply gain to all characters
                 // Ref label: RunDialog_GainSkillAction for actual code
+                mLogger.Debug() << "Gaining skill: " << skill << "\n";
                 GetParty().ImproveSkillForAll(
                         skill.mSkill,
                         0,
@@ -268,6 +267,7 @@ public:
             },
             [&](const BAK::GainCondition& cond)
             {
+                mLogger.Debug() << "Gaining condition: " << cond << "\n";
                 // FIXME: Implement if this condition only changes for one character
                 auto& party = GetParty();
                 for (const auto c : party.mActiveCharacters)
@@ -278,6 +278,7 @@ public:
             },
             [&](const BAK::LoadSkillValue& load)
             {
+                mLogger.Debug() << "Loading skill value: " << load << "\n";
                 const auto [character, value] = GetParty().GetSkill(
                     load.mSkill,
                     load.mTarget == 1); // best or worst skill

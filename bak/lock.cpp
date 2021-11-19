@@ -14,6 +14,16 @@ std::ostream& operator<<(std::ostream& os, const LockStats& lock)
     return os;
 }
 
+LockStats LoadLock(FileBuffer& fb)
+{
+    const auto lockFlag = fb.GetUint8();
+    const auto picklock = fb.GetUint8();
+    const auto fairyChestIndex = fb.GetUint8();
+    const auto damage = fb.GetUint8();
+    return LockStats{lockFlag, picklock, fairyChestIndex, damage};
+}
+
+
 LockType ClassifyLock(unsigned lockRating)
 {
     if (lockRating < 0x33)

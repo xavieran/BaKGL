@@ -3,6 +3,8 @@
 #include "bak/inventoryItem.hpp"
 #include "bak/skills.hpp"
 
+#include "xbak/FileBuffer.h"
+
 #include <optional>
 #include <ostream>
 
@@ -15,6 +17,8 @@ struct LockStats
     unsigned mFairyChestIndex;
     unsigned mTrapDamage;
 };
+
+LockStats LoadLock(FileBuffer& fb);
 
 struct FairyChest
 {
