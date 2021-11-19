@@ -32,4 +32,12 @@ bool IContainer::IsShop() const
         || GetContainerType() == BAK::ContainerType::Inn;
 }
 
+bool IContainer::HasLock() const
+{
+    return CheckBitSet(
+        static_cast<std::uint8_t>(GetContainerType()),
+        0x0);
+}
+
+
 }

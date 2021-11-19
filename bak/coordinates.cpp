@@ -9,15 +9,15 @@ std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading& pah)
     return os;
 }
 
-glm::vec<2, unsigned> GetTile(
-    glm::vec<2, unsigned> pos)
+glm::uvec2 GetTile(
+    glm::uvec2 pos)
 {
     return glm::floor(glm::cast<float>(pos)
         / glm::vec2{BAK::gTileSize});
 }
 
 GamePosition MakeGamePositionFromTileAndOffset(
-    glm::vec<2, unsigned> tile,
+    glm::uvec2 tile,
     glm::vec<2, std::uint8_t> offset)
 {
     const auto Convert = [](auto t, auto o)

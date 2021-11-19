@@ -131,8 +131,8 @@ public:
         return ContainerType::Inv;
     }
 
-    ShopStats& GetShopData() override { ASSERT(false); return *reinterpret_cast<ShopStats*>(this);}
-    LockStats& GetLockData() override { ASSERT(false); return *reinterpret_cast<LockStats*>(this); }
+    ShopStats& GetShop() override { ASSERT(false); return *reinterpret_cast<ShopStats*>(this);}
+    LockStats& GetLock() override { ASSERT(false); return *reinterpret_cast<LockStats*>(this); }
     /* Character Getters */
 
     CharIndex GetIndex() const { return mCharacterIndex; }

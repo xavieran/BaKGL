@@ -4,6 +4,7 @@
 
 #include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
+#include "bak/coordinates.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/zone.hpp"
@@ -109,13 +110,13 @@ public:
                                 250,
                                 item.GetLocation()});
                         mClickables.emplace(id, &item);
-                        //mSystems->AddRenderable(
-                        //    Renderable{
-                        //        id,
-                        //        mZoneData->mObjects.GetObject("clickable"),
-                        //        item.GetLocation(),
-                        //        glm::vec3{1.0},
-                        //        glm::vec3{1.0}});
+                        mSystems->AddRenderable(
+                            Renderable{
+                                id,
+                                mZoneData->mObjects.GetObject("clickable"),
+                                item.GetLocation(),
+                                glm::vec3{1.0},
+                                glm::vec3{1.0}});
 
                     }
                 }
@@ -145,6 +146,167 @@ public:
                         enc.GetLocation()});
 
                 mEncounters.emplace(id, &enc);
+            }
+        }
+    }
+
+    void DoGenericContainer(BAK::GenericContainer& container)
+    {
+        if (container.mHeader.HasDialog())
+        {
+            if (mGuiManager.mScreenStack.size() == 1)
+            {
+                mDynamicDialogScene.SetDialogFinished(
+                    [&](const auto&){
+                        if (container.mHeader.HasEncounter() && container.mEncounter->mHotspotRef)
+                        {
+                            mGuiManager.EnterGDSScene(*container.mEncounter->mHotspotRef, []{});
+                        }
+                        mDynamicDialogScene.ResetDialogFinished();
+                    });
+
+                if (container.mHeader.HasDialog())
+                    mGuiManager.StartDialog(
+                        container.mDialog->mDialog,
+                        false,
+                        //FIXME: There are a few dialogs of fixed objects which require the frame
+                        false, 
+                        &mDynamicDialogScene);
+            }
+            else
+            {
+                Logging::LogDebug(__FUNCTION__) << "Called while GUI active\n";
+            }
+        }
+
+        if (container.mHeader.HasEncounter() && container.mEncounter->mEncounterPos)
+        {
+            CheckAndDoEncounter(*container.mEncounter->mEncounterPos);
+        }
+    }
+
+    void DoEncounter(const BAK::Encounter::Encounter& encounter)
+    {
+        std::visit(
+            overloaded{
+            [&](const BAK::Encounter::GDSEntry& gds){
+                if (mGuiManager.mScreenStack.size() == 1)
+                {
+                    mDynamicDialogScene.SetDialogFinished(
+                        [&, gds=gds](const auto& choice){
+                            // These dialogs should always result in a choice
+                            ASSERT(choice);
+                            if (choice->mValue == BAK::Keywords::sYesIndex)
+                            {
+                                mGuiManager.EnterGDSScene(
+                                    gds.mHotspot, 
+                                    [&, exitDialog=gds.mExitDialog](){
+                                        mGuiManager.StartDialog(
+                                            exitDialog,
+                                            false,
+                                            false,
+                                            &mDynamicDialogScene);
+                                        });
+                            }
+
+                            // FIXME: Move this into the if block so we only
+                            // modify the players position if they entered the town.
+                            // Will need a "TryMoveCamera" step that checks encounter 
+                            // bounds and doesn't move if its a no. 
+                            // Will need the same for block and Zone transitions too.
+                            mCamera.SetGameLocation(gds.mExitPosition);
+                            mDynamicDialogScene.ResetDialogFinished();
+                        });
+
+                    mGuiManager.StartDialog(
+                        gds.mEntryDialog,
+                        false,
+                        false,
+                        &mDynamicDialogScene);
+                }
+            },
+            [&](const BAK::Encounter::Block& e){
+                if (mGuiManager.mScreenStack.size() == 1)
+                    mGuiManager.StartDialog(
+                        e.mDialog,
+                        false,
+                        false,
+                        &mDynamicDialogScene);
+            },
+            [&](const BAK::Encounter::Combat& e){
+            },
+            [&](const BAK::Encounter::Dialog& e){
+                if (mGuiManager.mScreenStack.size() == 1
+                    && mGameState.mGameData->CheckActive(
+                        *mActiveEncounter,
+                        mGameState.GetZone()))
+                {
+                    mSavedAngle = mCamera.GetAngle();
+                    mDynamicDialogScene.SetDialogFinished(
+                        [&](const auto&){
+                            mCamera.SetAngle(mSavedAngle);
+                            mDynamicDialogScene.ResetDialogFinished();
+                        });
+
+                    mGuiManager.StartDialog(
+                        e.mDialog,
+                        false,
+                        true,
+                        &mDynamicDialogScene);
+
+                    if (mGameState.mGameData)
+                        mGameState.mGameData->SetPostDialogEventFlags(
+                            *mActiveEncounter);
+                }
+
+            },
+            [](const BAK::Encounter::EventFlag& flag){
+                //if (EncoutnerActive)
+                //mGameState.SetEventState(flag.mEventPointer, flag.mIsEnable);
+            },
+            [&](const BAK::Encounter::Zone& zone){
+                if (mGuiManager.mScreenStack.size() == 1)
+                {
+                    mDynamicDialogScene.SetDialogFinished(
+                        [&, zone=zone](const auto& choice){
+                            // These dialogs should always result in a choice
+                            ASSERT(choice);
+                            Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
+                            if (choice->mValue == BAK::Keywords::sYesIndex)
+                            {
+                                DoTransition(
+                                    zone.mTargetZone,
+                                    zone.mTargetLocation);
+                                Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
+                            }
+                            mDynamicDialogScene.ResetDialogFinished();
+                        });
+
+                    mGuiManager.StartDialog(
+                        zone.mDialog,
+                        false,
+                        false,
+                        &mDynamicDialogScene);
+                }
+            },
+        },
+        encounter.GetEncounter());
+    }
+
+    void CheckAndDoEncounter(glm::uvec2 position)
+    {
+        mLogger.Debug() << __FUNCTION__ << " Pos: " << position << "\n";
+        auto intersectable = mSystems->RunIntersection(
+            BAK::ToGlCoord<float>(position));
+        if (intersectable)
+        {
+            auto it = mEncounters.find(*intersectable);
+            if (it != mEncounters.end())
+            {
+                const auto* encounter = it->second;
+                mActiveEncounter = encounter;
+                if (mActiveEncounter)
+                    DoEncounter(*mActiveEncounter);
             }
         }
     }
@@ -282,15 +444,16 @@ public:
                 BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
             auto cit = std::find_if(containers.begin(), containers.end(),
                 [&bakLocation](const auto& x){
-                    return x.mLocation == bakLocation;
+                    return x.mHeader.GetPosition() == bakLocation;
                 });
 
             if (cit != containers.end())
             {
                 mLogger.Debug() << "Container: " << *cit << "\n";
+                const auto& header = cit->mHeader;
                 if (mGuiManager.mScreenStack.size() == 1)
                 {
-                    if (cit->mDialog != BAK::Target{BAK::KeyTarget{0}})
+                    if (cit->HasDialog())
                     {
                         mDynamicDialogScene.SetDialogFinished(
                             [&, cit=cit](const auto& choice){
@@ -303,7 +466,7 @@ public:
                             });
 
                         mGuiManager.StartDialog(
-                            cit->mDialog,
+                            cit->GetDialog().mDialog,
                             false,
                             //FIXME: There are a few dialogs of fixed objects which require the frame
                             false, 
@@ -324,26 +487,7 @@ public:
                     [&bakLocation](const auto& x){ return x.mHeader.GetPosition() == bakLocation; });
                 if (fit != mZoneData->mFixedObjects.end())
                 {
-                    if (mGuiManager.mScreenStack.size() == 1)
-                    {
-                        mDynamicDialogScene.SetDialogFinished(
-                            [&, obj=fit](const auto&){
-                                Logging::LogDebug(__FUNCTION__) << "DialogFinished: HS: " << obj->mHotspotRef << "\n";
-                                if (obj->mHotspotRef)
-                                {
-                                    mGuiManager.EnterGDSScene(*obj->mHotspotRef, []{});
-                                }
-                                mDynamicDialogScene.ResetDialogFinished();
-                            });
-                        if (fit->mDialogKey != BAK::Target{BAK::KeyTarget{0}})
-                            mGuiManager.StartDialog(
-                                fit->mDialogKey,
-                                false,
-                                //FIXME: There are a few dialogs of fixed objects which require the frame
-                                false, 
-                                &mDynamicDialogScene);
-                        Logging::LogDebug(__FUNCTION__) << "ClickableFixedObject: " << *fit << "\n";
-                    }
+                    DoGenericContainer(*fit);
                 }
             }
 

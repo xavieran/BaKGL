@@ -57,7 +57,6 @@ int main(int argc, char** argv)
     BAK::ZoneLabel zoneLabel{1};
     glm::vec<3, float> startPosition{0.0f, 0.0f, 0.0f};
     glm::vec<2, float> startHeading{3.14f, 0.0f};
-    auto containers = std::vector<BAK::Container>{};
     
     BAK::GameData* gameData{nullptr};
 
@@ -71,7 +70,6 @@ int main(int argc, char** argv)
             std::string saveFile = optarg;
             gameData = new BAK::GameData(saveFile);
             const auto zone = gameData->mLocation.mZone;
-            containers = gameData->LoadContainers(zone);
             logger.Info() << "Loaded save: " << gameData->mName << "\n";
 
             zoneLabel = BAK::ZoneLabel{zone};

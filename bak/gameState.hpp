@@ -151,7 +151,7 @@ public:
     {
         for (auto& shop : mGDSContainers)
         {
-            if (shop.mGdsScene == ref)
+            if (shop.mHeader.GetHotspotRef() == ref)
                 return &shop;
         }
         return nullptr;
@@ -493,7 +493,7 @@ public:
         return false;
     }
 
-    std::vector<Container>& GetContainers(ZoneNumber zone)
+    std::vector<GenericContainer>& GetContainers(ZoneNumber zone)
     {
         ASSERT(zone.mValue < 13);
         return mContainers[zone.mValue - 1];
@@ -511,8 +511,8 @@ public:
     Chapter mChapter;
     ZoneNumber mZone;
     std::vector<
-        std::vector<Container>> mContainers;
-    std::vector<GDSContainer> mGDSContainers;
+        std::vector<GenericContainer>> mContainers;
+    std::vector<GenericContainer> mGDSContainers;
     TextVariableStore mTextVariableStore;
     const Logging::Logger& mLogger;
 };

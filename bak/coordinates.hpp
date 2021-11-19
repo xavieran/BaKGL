@@ -25,7 +25,7 @@
 
 namespace BAK {
 
-using GamePosition = glm::vec<2, unsigned>;
+using GamePosition = glm::uvec2;
 using GameHeading  = std::uint16_t;
 
 struct GamePositionAndHeading
@@ -36,11 +36,11 @@ struct GamePositionAndHeading
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
 
-glm::vec<2, unsigned> GetTile(
-    glm::vec<2, unsigned> pos);
+glm::uvec2 GetTile(
+    glm::uvec2 pos);
 
 GamePosition MakeGamePositionFromTileAndOffset(
-    glm::vec<2, unsigned> tile,
+    glm::uvec2 tile,
     glm::vec<2, std::uint8_t> offset);
 
 template <typename T>
@@ -53,7 +53,7 @@ glm::vec<3, T> ToGlCoord(const Vector3D& coord)
 }
 
 template <typename T>
-glm::vec<3, T> ToGlCoord(const glm::vec<2, unsigned>& coord)
+glm::vec<3, T> ToGlCoord(const glm::uvec2& coord)
 {
     return glm::vec<3, T>{
         static_cast<T>(coord.x),

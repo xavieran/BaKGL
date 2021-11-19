@@ -1,6 +1,7 @@
 #include "bak/gameData.hpp"
 
 #include "bak/container.hpp"
+#include "bak/inventory.hpp"
 
 #include "com/bits.hpp"
 #include "com/ostream.hpp"
@@ -367,7 +368,7 @@ Party GameData::LoadParty()
     auto characters = LoadCharacters();
     auto active = LoadActiveCharacters();
     auto gold = LoadGold();
-    auto keys = LoadInventory(sPartyKeyInventoryOffset);
+    auto keys = LoadCharacterInventory(sPartyKeyInventoryOffset);
     return Party{
         gold,
         std::move(keys),
@@ -433,7 +434,7 @@ std::vector<Character> GameData::LoadCharacters()
         auto unknown2 = mBuffer.GetArray<7>();
         mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";
         // Load inventory
-        auto inventory = LoadInventory(
+        auto inventory = LoadCharacterInventory(
             inventoryOffset + inventoryLength * character);
 
         auto conditions = LoadConditions(character);
@@ -529,40 +530,14 @@ WorldClock GameData::LoadWorldTime()
 }
 
 
-Inventory GameData::LoadInventory(unsigned offset)
+Inventory GameData::LoadCharacterInventory(unsigned offset)
 {
     mBuffer.Seek(offset);
 
     const auto itemCount = mBuffer.GetUint8();
     const auto capacity = mBuffer.GetUint16LE();
     mLogger.Info() << " Items: " << +itemCount << " cap: " << capacity << "\n";
-    return Inventory{capacity, LoadItems(itemCount, capacity)};
-}
-
-std::vector<InventoryItem> GameData::LoadItems(unsigned itemCount, unsigned capacity)
-{
-    std::vector<InventoryItem> items{};
-    unsigned i;
-    for (i = 0; i < itemCount; i++)
-    {
-        const auto item = ItemIndex{mBuffer.GetUint8()};
-        const auto& object = mObjects.GetObject(item);
-        const auto condition = mBuffer.GetUint8();
-        const auto status = mBuffer.GetUint8();
-        const auto modifiers = mBuffer.GetUint8();
-
-        items.emplace_back(
-            InventoryItemFactory::MakeItem(
-                item,
-                condition,
-                status,
-                modifiers));
-    }
-
-    for (; i < capacity; i++)
-        mBuffer.Skip(4);
-
-    return items;
+    return LoadInventory(mBuffer, itemCount, capacity);
 }
 
 LockStats GameData::LoadLock()
@@ -605,124 +580,53 @@ ShopStats GameData::LoadShop()
     };
 }
 
-std::vector<GDSContainer> GameData::LoadShops()
+std::vector<GenericContainer> GameData::LoadShops()
 {
     mBuffer.Seek(sShopsOffset);
-    auto shops = std::vector<GDSContainer>{};
+    auto shops = std::vector<GenericContainer>{};
 
     for (unsigned i = 0; i < sShopsCount; i++)
     {
-        const auto header = ContainerHeader{
-            ContainerGDSLocationTag{},
-            mBuffer};
-        mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
-        mLogger.Debug() << "Shop #: " << i << " " << header << "\n";
-        auto inventory = Inventory{
-            header.mCapacity,
-            LoadItems(header.mItems, header.mCapacity)};
-        auto shopData = std::optional<ShopStats>{};
-        if (static_cast<ContainerType>(header.mContainerType) == ContainerType::Shop)
-            shopData = LoadShop();
-
-        shops.emplace_back(
-            header.GetHotspotRef(),
-            header.mLocationType,
-            header.mItems,
-            header.mCapacity,
-            static_cast<ContainerType>(header.mContainerType),
-            shopData,
-            LockStats{},
-            std::move(inventory));
-        mLogger.Debug() << shops.back() << "\n";
+        const unsigned address = mBuffer.Tell();
+        mLogger.Info() << " Container: " << i
+            << " addr: " << std::hex << address << std::dec << std::endl;
+        auto container = LoadGenericContainer(
+            mBuffer,
+            true);
+        shops.emplace_back(std::move(container));
+        mLogger.Info() << container << "\n";
     }
+    //{
+    //    const auto header = ContainerHeader{
+    //        ContainerGDSLocationTag{},
+    //        mBuffer};
+    //    mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
+    //    mLogger.Debug() << "Shop #: " << i << " " << header << "\n";
+    //    auto inventory = LoadInventory(mBuffer, header.mItems, header.mCapacity);
+    //    auto shopData = std::optional<ShopStats>{};
+    //    if (header.HasShop())
+    //        shopData = LoadShop();
+
+    //    shops.emplace_back(
+    //        header.GetHotspotRef(),
+    //        header.mLocationType,
+    //        header.mItems,
+    //        header.mCapacity,
+    //        static_cast<ContainerType>(header.mFlags),
+    //        shopData,
+    //        LockStats{},
+    //        std::move(inventory));
+    //    mLogger.Debug() << shops.back() << "\n";
+    //}
 
     return shops;
 }
 
-//GenericContainer GameData::LoadGenericContainer()
-//{
-//    auto header = ContainerHeader(ContainerWorldLocationTag{}, mBuffer);
-//    ASSERT(header.mLocationType == 6 
-//        || header.mLocationType == 9
-//        || header.mCapacity > 0);
-//    const auto containerType = static_cast<ContainerType>(header.mContainerType);
-//
-//    auto startDialog = std::optional<Target>{};
-//    auto endDialog = std::optional<Target>{};
-//    auto lockData = std::optional<LockStats>{};
-//    auto shopData = std::optional<ShopStats>{};
-//    auto requireEventFlag = std::optional<unsigned>{};
-//    auto setEventFlag = std::optional<unsigned>{};
-//    auto hotspotRef = std::optional<HotspotRef>{};
-//    auto encounterOff = std::optional<glm::uvec2>{};
-//    auto lastAccessed = std::optional<unsigned>{};
-//    auto unknown = std::optional<unsigned>{};
-//
-//    auto LoadHotspot = [&]{
-//        hotspotRef = HotspotRef{
-//            mBuffer.GetUint8(),
-//            static_cast<char>(
-//                mBuffer.GetUint8() + 0x40)};
-//        if (hotspotRef->mGdsNumber == 0)
-//            hotspotRef.reset();
-//    };
-//
-//    auto LoadEncounter = [&]{
-//        const auto hasEncounter = mBuffer.GetUint8();
-//        const auto xOff = mBuffer.GetUint8();
-//        const auto yOff = mBuffer.GetUint8();
-//        if (hasEncounter != 0)
-//            encounterOff = glm::uvec2{xOff, yOff};
-//    };
-//
-//    auto inventory = Inventory{
-//        header.mCapacity,
-//        LoadItems(header.mItems, header.mCapacity)};
-//
-//    if ((header.mContainerType & 0x1) != 0)
-//    {
-//        lockData = LoadLock();
-//    }
-//    if ((header.mContainerType & 0x2) != 0)
-//    {
-//        unknown = mBuffer.GetUint16LE();
-//        startDialog = KeyTarget{mBuffer.GetUint32LE()};
-//    }
-//    if ((header.mContainerType & 0x4) != 0)
-//    {
-//        shopData = LoadShop();
-//    }
-//    if ((header.mContainerType & 0x8) != 0)
-//    {
-//        requireEventFlag = mBuffer.GetUint16LE();
-//        setEventFlag = mBuffer.GetUint16LE();
-//        LoadHotspot();
-//        LoadEncounter();
-//    }
-//    if ((header.mContainerType & 0x10) != 0)
-//    {
-//        lastAccessed = mBuffer.GetUint32LE();
-//    }
-//
-//    return GenericContainer{
-//        header,
-//        startDialog,
-//        lockData,
-//        shopData,
-//        hotspotRef,
-//        encounterOff,
-//        endDialog,
-//        requireEventFlag,
-//        setEventFlag,
-//        lastAccessed,
-//        unknown};
-//}
-
-std::vector<Container> GameData::LoadContainers(unsigned zone)
+std::vector<GenericContainer> GameData::LoadContainers(unsigned zone)
 {
-    const auto& logger = Logging::LogState::GetLogger("GameData");
-    logger.Info() << "Loading containers for Z: " << zone << "\n";
-    std::vector<Container> containers{};
+    const auto& mLogger = Logging::LogState::GetLogger("GameData");
+    mLogger.Info() << "Loading containers for Z: " << zone << "\n";
+    std::vector<GenericContainer> containers{};
 
     unsigned count = 0;
     switch (zone)
@@ -782,129 +686,12 @@ std::vector<Container> GameData::LoadContainers(unsigned zone)
     mBuffer.Dump(8);
     for (unsigned j = 0; j < count; j++)
     {
-        unsigned address = mBuffer.Tell();
-        logger.Info() << " Container: " << j
+        const unsigned address = mBuffer.Tell();
+        mLogger.Info() << " Container: " << j
             << " addr: " << std::hex << address << std::dec << std::endl;
-        auto cont = LoadGenericContainer(mBuffer);
-        logger.Info() << cont << "\n";
-        continue;
-
-        auto header = ContainerHeader(ContainerWorldLocationTag{}, mBuffer);
-        ASSERT(header.mLocationType == 6 
-            || header.mLocationType == 9
-            || header.mCapacity > 0);
-        const auto containerType = static_cast<ContainerType>(header.mContainerType);
-
-        auto eventFlag = std::optional<unsigned>{};
-        auto encounterOff = std::optional<glm::uvec2>{};
-        auto shopData = std::optional<ShopStats>{};
-        auto lockData = LockStats{0,0,0,0};
-
-        logger.Info() << header
-            << " Tp: " << ToString(containerType) << std::endl;
-        
-        auto inventory = Inventory{
-            header.mCapacity,
-            LoadItems(header.mItems, header.mCapacity)};
-
-        auto picklockSkill  = 0;
-        auto dialog = KeyTarget{0};
-
-        if (containerType == ContainerType::Shop
-            || containerType == ContainerType::Inn)
-        {
-            mBuffer.DumpAndSkip(2);
-            dialog = KeyTarget{mBuffer.GetUint32LE()};
-            shopData = LoadShop();
-        }
-        else if (containerType == ContainerType::Gravestone)
-        {
-            mBuffer.DumpAndSkip(2);
-            dialog = KeyTarget{mBuffer.GetUint32LE()};
-        }
-        else if (containerType == ContainerType::Bag)
-        {
-        }
-        else if (containerType == ContainerType::CT1)
-        {
-            lockData = LoadLock();
-        }
-        else if (containerType == ContainerType::Building)
-        {
-            lockData = LoadLock();
-            mBuffer.DumpAndSkip(2);
-            const auto postDialog = KeyTarget{mBuffer.GetUint32LE()};
-            mLogger.Debug() << "PostLockDialog:  " << Target{postDialog} << "\n";
-            dialog = postDialog;
-        }
-        else if (containerType == ContainerType::Chest)
-        {
-            lockData = LoadLock();
-        }
-        // Locked chest.....
-        else if (containerType == ContainerType::FairyChest)
-        {
-            lockData = LoadLock();
-            const auto unknown = mBuffer.GetUint32LE();
-            if (unknown != 0)
-                mLogger.Debug() << "FC Unknown: " << std::hex << unknown << std::dec << "\n";
-            //ASSERT(mBuffer.GetUint32LE() == 0);
-        }
-        else if (containerType == ContainerType::EventChest)
-        {
-            lockData = LoadLock();
-            mBuffer.DumpAndSkip(2);
-            //mBuffer.DumpAndSkip(2);
-            eventFlag = mBuffer.GetUint16LE();
-            // ?? 2 bytes
-            // set this event flag 2 bytes
-            // 9 bytes
-            mBuffer.DumpAndSkip(9);
-        }
-        else if (containerType == ContainerType::TimirianyaHut)
-        {
-            mBuffer.DumpAndSkip(2);
-            eventFlag = mBuffer.GetUint16LE();
-            mBuffer.DumpAndSkip(2);
-            const auto hasEncounter = mBuffer.GetUint8();
-            const auto xOff = mBuffer.GetUint8();
-            const auto yOff = mBuffer.GetUint8();
-            if (hasEncounter != 0)
-                encounterOff = glm::vec<2, unsigned>{xOff, yOff};
-
-        }
-        else if (containerType == ContainerType::Combat)
-        {
-            mBuffer.DumpAndSkip(2);
-            dialog = KeyTarget{mBuffer.GetUint32LE()};
-            eventFlag = mBuffer.GetUint16LE();
-            const auto eventFlag2 = mBuffer.GetUint16LE();
-            if (eventFlag != 0)
-                mLogger.Debug() << "Combat evFlag: " << eventFlag <<"\n";
-            mBuffer.DumpAndSkip(2);
-            const auto hasEncounter = mBuffer.GetUint8();
-            const auto xOff = mBuffer.GetUint8();
-            const auto yOff = mBuffer.GetUint8();
-            if (hasEncounter != 0)
-                encounterOff = glm::vec<2, unsigned>{xOff, yOff};
-        }
-        else
-        {
-            ASSERT(false);
-        }
-
-        containers.emplace_back(
-            address,
-            header.mLocationType,
-            header.mItems,
-            header.mCapacity,
-            static_cast<ContainerType>(header.mContainerType),
-            dialog,
-            header.GetPosition(),
-            shopData,
-            lockData,
-            std::move(inventory));
-        logger.Info() << containers.back() << std::endl;
+        auto container = LoadGenericContainer(mBuffer, false);
+        containers.emplace_back(std::move(container));
+        mLogger.Info() << container << "\n";
     }
 
     return containers;
@@ -1020,7 +807,7 @@ void GameData::LoadCombatInventories(unsigned offset, unsigned number)
         mLogger.Info() << "CombatInventory #" << i << " "
             << std::hex << x << std::dec << " CBT: " << +combatNo 
             << " PER: " << +combatantNo << " Unk: " << unknown << std::endl;
-        const auto inventory = LoadInventory(mBuffer.Tell());
+        const auto inventory = LoadCharacterInventory(mBuffer.Tell());
         mLogger.Info() << inventory << "\n";
     }
 }

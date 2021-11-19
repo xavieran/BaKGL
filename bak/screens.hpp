@@ -105,13 +105,11 @@ void ShowCameraGui(
 }
 
 void ShowContainerGui(
-    const BAK::Container& container)
+    const BAK::GenericContainer& container)
 {
     std::cout << "Container: " << container << std::endl;
     std::stringstream ss{};
-    ss << "\nAddr: " << std::hex << container.mAddress << " #" << std::dec 
-        << container.mNumber << " items: " << container.mNumberItems << " cap: " 
-        << container.mCapacity << " type: " << ToString(container.mType);
+    ss << "\n" << container << "\n";
     ImGui::Text(ss.str().c_str());
 
     ImGui::BeginTable("Items", 4, ImGuiTableFlags_Resizable);

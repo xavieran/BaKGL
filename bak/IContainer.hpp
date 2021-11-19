@@ -27,15 +27,6 @@ enum class ContainerType
     Inv = 0xff
 };
 
-enum class ClickableProperty
-{
-    HasLock      = 1,
-    HasDialog    = 2,
-    HasShop      = 4,
-    HasEncounter = 8,
-    HasTime      = 0x10,
-};
-
 std::string_view ToString(ContainerType);
 
 class IContainer
@@ -47,9 +38,10 @@ public:
     virtual bool GiveItem(const InventoryItem&) = 0;
     virtual bool RemoveItem(const InventoryItem&) = 0;
     virtual ContainerType GetContainerType() const = 0;
-    virtual ShopStats& GetShopData() = 0;
-    virtual LockStats& GetLockData() = 0;
+    virtual ShopStats& GetShop() = 0;
+    virtual LockStats& GetLock() = 0;
     bool IsShop() const;
+    bool HasLock() const;
 };
 
 }

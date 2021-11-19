@@ -48,7 +48,7 @@ public:
     
     ZoneLabel mZoneLabel;
     BAK::Palette mPalette;
-    std::vector<FixedObject> mFixedObjects;
+    std::vector<GenericContainer> mFixedObjects;
     BAK::ZoneTextureStore mZoneTextures;
     BAK::ZoneItemStore mZoneItems;
     BAK::WorldTileStore mWorldTiles;

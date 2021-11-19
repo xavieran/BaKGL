@@ -184,7 +184,7 @@ std::ostream& operator<<(std::ostream& os, const Inventory& inventory)
     return os;
 }
 
-Inventory LoadItems(FileBuffer& fb, unsigned itemCount, unsigned capacity)
+Inventory LoadInventory(FileBuffer& fb, unsigned itemCount, unsigned capacity)
 {
     std::vector<InventoryItem> items{};
     unsigned i;

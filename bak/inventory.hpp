@@ -34,10 +34,10 @@ public:
         mItems{std::move(items)}
     {}
 
-    Inventory(Inventory&&) = default;
-    Inventory& operator=(Inventory&&) = default;
-    Inventory(const Inventory&) = default;
-    Inventory& operator=(const Inventory&) = default;
+    Inventory(Inventory&&) noexcept                 = default;
+    Inventory& operator=(Inventory&&) noexcept      = default;
+    Inventory(const Inventory&) noexcept            = default;
+    Inventory& operator=(const Inventory&) noexcept = default;
 
     const auto& GetItems() const { return mItems; }
     auto& GetItems() { return mItems; }
@@ -179,7 +179,7 @@ private:
 
 std::ostream& operator<<(std::ostream&, const Inventory&);
 
-Inventory LoadItems(
+Inventory LoadInventory(
     FileBuffer& fb,
     unsigned itemCount,
     unsigned capacity);

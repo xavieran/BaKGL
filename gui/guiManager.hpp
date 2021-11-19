@@ -256,7 +256,6 @@ public:
     void ShowContainer(BAK::IContainer* container) override
     {
         mCursor.PushCursor(0);
-        mLogger.Debug() << __FUNCTION__ << ":" << (*container).GetLockData() << "\n";
         if (container->GetInventory().GetCapacity() == 0)
         {
             // FIXME: need to refactor fixed objects
@@ -264,13 +263,15 @@ public:
             return;
         }
 
-        if (   container->GetLockData().mRating > 0 
+        if (   container->HasLock()
+            && container->GetLock().mRating > 0 
             && !mLockScreen.IsUnlocked()
             && container->GetContainerType() == BAK::ContainerType::FairyChest)
         {
             ShowLock(container);
         }
-        else if (container->GetLockData().mFairyChestIndex > 0 
+        else if (container->HasLock()
+            && container->GetLock().mFairyChestIndex > 0 
             && !mMoredhelScreen.IsUnlocked()
             && container->GetContainerType() == BAK::ContainerType::FairyChest)
         {

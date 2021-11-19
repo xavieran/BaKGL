@@ -98,13 +98,13 @@ public:
     {
         ASSERT(mContainer);
         const auto& item = mContainer->GetInventory().GetAtIndex(itemIndex);
-        return BAK::Shop::GetSellPrice(item, mContainer->GetShopData());
+        return BAK::Shop::GetSellPrice(item, mContainer->GetShop());
     }
 
     BAK::Royals GetBuyPrice(const BAK::InventoryItem& item)
     {
         ASSERT(mContainer);
-        return BAK::Shop::GetBuyPrice(item, mContainer->GetShopData());
+        return BAK::Shop::GetBuyPrice(item, mContainer->GetShop());
     }
 
 private:
@@ -166,7 +166,7 @@ private:
                         mIcons,
                         invIndex,
                         item,
-                        BAK::Shop::GetSellPrice(item, mContainer->GetShopData()),
+                        BAK::Shop::GetSellPrice(item, mContainer->GetShop()),
                         [&]{
                             ShowItemDescription(item);
                         });

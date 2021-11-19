@@ -227,15 +227,13 @@ public:
     Location LoadLocation();
     WorldClock LoadWorldTime();
 
-    Inventory LoadInventory(unsigned offset);
-    std::vector<InventoryItem> LoadItems(unsigned itemCount, unsigned capacity);
+    Inventory LoadCharacterInventory(unsigned offset);
     
     LockStats LoadLock();
     ShopStats LoadShop();
 
-    std::vector<GDSContainer> LoadShops();
-    //GenericContainer LoadGenericContainer();
-    std::vector<Container> LoadContainers(unsigned zone);
+    std::vector<GenericContainer> LoadShops();
+    std::vector<GenericContainer> LoadContainers(unsigned zone);
 
     // Probably not chapter offsets.. ?
     void LoadChapterOffsetP();

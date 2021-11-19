@@ -33,8 +33,8 @@ std::ostream& operator<<(std::ostream& os, const ContainerHeader& header)
 {
     os << "ContainerHeader {" << header.mLocation << " LocType: "
         << +header.mLocationType << " Items: " << +header.mItems
-        << " Capacity: " << +header.mCapacity << " ContainerType: "
-        << +header.mContainerType << "}";
+        << " Capacity: " << +header.mCapacity << " Flags: " << std::hex
+        << +header.mFlags << std::dec << "}";
     return os;
 }
 
@@ -49,10 +49,10 @@ ContainerHeader::ContainerHeader(ContainerWorldLocationTag, FileBuffer& fb)
         unknown,
         GamePosition{x, y}};
 
-    mLocationType  = fb.GetUint8();
-    mItems         = fb.GetUint8();
-    mCapacity      = fb.GetUint8();
-    mContainerType = fb.GetUint8();
+    mLocationType = fb.GetUint8();
+    mItems        = fb.GetUint8();
+    mCapacity     = fb.GetUint8();
+    mFlags        = fb.GetUint8();
 }
 
 ContainerHeader::ContainerHeader(ContainerGDSLocationTag, FileBuffer& fb)
@@ -63,10 +63,28 @@ ContainerHeader::ContainerHeader(ContainerGDSLocationTag, FileBuffer& fb)
             static_cast<std::uint8_t>(fb.GetUint32LE()),
             MakeHotspotChar(static_cast<char>(fb.GetUint32LE()))}};
 
-    mLocationType  = fb.GetUint8();
-    mItems         = fb.GetUint8();
-    mCapacity      = fb.GetUint8();
-    mContainerType = fb.GetUint8();
+    mLocationType = fb.GetUint8();
+    mItems        = fb.GetUint8();
+    mCapacity     = fb.GetUint8();
+    mFlags        = fb.GetUint8();
+}
+
+ZoneNumber ContainerHeader::GetZone() const
+{
+    ASSERT(std::holds_alternative<ContainerWorldLocation>(mLocation));
+    return std::get<ContainerWorldLocation>(mLocation).mZone;
+}
+
+GamePosition ContainerHeader::GetPosition() const
+{
+    ASSERT(std::holds_alternative<ContainerWorldLocation>(mLocation));
+    return std::get<ContainerWorldLocation>(mLocation).mLocation;
+}
+
+HotspotRef ContainerHeader::GetHotspotRef() const
+{
+    ASSERT(std::holds_alternative<ContainerGDSLocation>(mLocation));
+    return std::get<ContainerGDSLocation>(mLocation).mLocation;
 }
 
 std::ostream& operator<<(std::ostream& os, const ContainerEncounter& ce)
@@ -92,15 +110,16 @@ std::ostream& operator<<(std::ostream& os, const GenericContainer& gc)
     if (gc.mShop) os << gc.mShop;
     if (gc.mEncounter) os << gc.mEncounter;
     if (gc.mLastAccessed) os << std::hex << " LastAccessed: " << gc.mLastAccessed << std::dec;
+    if (gc.HasInventory()) os << gc.mInventory;
     os << "}";
     return os;
 }
 
-GenericContainer LoadGenericContainer(FileBuffer& fb)
+GenericContainer LoadGenericContainer(FileBuffer& fb, bool isGdsLocation)
 {
-    auto header = ContainerHeader{
-        ContainerWorldLocationTag{},
-        fb};
+    auto header = isGdsLocation
+        ? ContainerHeader{ContainerGDSLocationTag{}, fb}
+        : ContainerHeader{ContainerWorldLocationTag{}, fb};
 
     auto lockData = std::optional<LockStats>{};
     auto dialog = std::optional<ContainerDialog>{};
@@ -108,49 +127,65 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
     auto encounter = std::optional<ContainerEncounter>{};
     auto lastAccessed = std::optional<Time>{};
 
-    auto inventory = LoadItems(fb, header.mItems, header.mCapacity);
+    auto inventory = LoadInventory(fb, header.mItems, header.mCapacity);
 
-    if ((header.mContainerType & 0x1) != 0)
+    if (header.mFlags == 0x21)
     {
-        lockData = LoadLock(fb);
-    }
-    if ((header.mContainerType & 0x2) != 0)
-    {
+        // This is not actually correct interpretation
+        // for this property type
         const auto unknown = fb.GetUint16LE();
         const auto diag = KeyTarget{fb.GetUint32LE()};
         dialog = ContainerDialog{unknown, diag};
     }
-    if ((header.mContainerType & 0x4) != 0)
+    else
     {
-        shopData = LoadShop(fb);
-    }
-    if ((header.mContainerType & 0x8) != 0)
-    {
-        const auto requireEventFlag = fb.GetUint16LE();
-        const auto setEventFlag = fb.GetUint16LE();
-        auto hotspotRef = std::optional<HotspotRef>{};
-        hotspotRef = HotspotRef{
-            fb.GetUint8(),
-            static_cast<char>(
-                fb.GetUint8() + 0x40)};
-        if (hotspotRef->mGdsNumber == 0)
-            hotspotRef.reset();
-        auto encounterOff = std::optional<glm::uvec2>{};
-        const auto hasEncounter = fb.GetUint8();
-        const auto xOff = fb.GetUint8();
-        const auto yOff = fb.GetUint8();
-        if (hasEncounter != 0)
-            encounterOff = glm::uvec2{xOff, yOff};
+        if (header.HasLock())
+        {
+            lockData = LoadLock(fb);
+        }
+        if (header.HasDialog())
+        {
+            const auto unknown = fb.GetUint16LE();
+            const auto diag = KeyTarget{fb.GetUint32LE()};
+            dialog = ContainerDialog{unknown, diag};
+        }
+        if (header.HasShop())
+        {
+            shopData = LoadShop(fb);
+        }
+        if (header.HasEncounter())
+        {
+            const auto requireEventFlag = fb.GetUint16LE();
+            const auto setEventFlag = fb.GetUint16LE();
+            auto hotspotRef = std::optional<HotspotRef>{};
+            hotspotRef = HotspotRef{
+                fb.GetUint8(),
+                static_cast<char>(
+                    fb.GetUint8() + 0x40)};
+            if (hotspotRef->mGdsNumber == 0)
+                hotspotRef.reset();
+            auto encounterPos = std::optional<glm::uvec2>{};
+            const auto hasEncounter = fb.GetUint8();
+            const auto xOff = fb.GetUint8();
+            const auto yOff = fb.GetUint8();
+            if (hasEncounter != 0)
+            {
+                const auto encounterOff = glm::uvec2{xOff, yOff};
+                encounterPos = MakeGamePositionFromTileAndOffset(
+                    GetTile(header.GetPosition()),
+                    encounterOff);
+            }
 
-        encounter = ContainerEncounter{
-            requireEventFlag,
-            setEventFlag,
-            hotspotRef,
-            encounterOff};
-    }
-    if ((header.mContainerType & 0x10) != 0)
-    {
-        lastAccessed = Time{fb.GetUint32LE()};
+            encounter = ContainerEncounter{
+                requireEventFlag,
+                setEventFlag,
+                hotspotRef,
+                encounterPos};
+        }
+        if (header.HasTime())
+        {
+            lastAccessed = Time{fb.GetUint32LE()};
+        }
     }
 
     return GenericContainer{
@@ -159,73 +194,8 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
         dialog,
         shopData,
         encounter,
-        lastAccessed};
+        lastAccessed,
+        std::move(inventory)};
 }
-
-Container::Container(
-    unsigned address,
-    unsigned number,
-    unsigned numberItems,
-    unsigned capacity,
-    ContainerType type,
-    Target dialog,
-    glm::vec<2, unsigned> location,
-    std::optional<ShopStats> shopData,
-    LockStats lockData,
-    Inventory&& inventory)
-:
-    mAddress{address},
-    mNumber{number},
-    mNumberItems{numberItems},
-    mCapacity{capacity},
-    mType{type},
-    mDialog{dialog},
-    mLocation{location},
-    mShopData{shopData},
-    mLockData{lockData},
-    mInventory{std::move(inventory)}
-{}
-
-std::ostream& operator<<(std::ostream& os, const Container& i)
-{
-    os << "Container { addr: " << std::hex << i.mAddress << std::dec 
-        << ", num: " << i.mNumber << ", numItems: " << i.mNumberItems << ", capacity: " 
-        << i.mCapacity << ", type: " << ToString(i.mType) << std::dec
-        << ", dialog:" << i.mDialog << ", loc: " << i.mLocation 
-        << " shop: " << i.mShopData << " lock: " << i.mLockData
-        << ", inventory: [" << i.mInventory << "]}";
-    return os;
-}
-
-GDSContainer::GDSContainer(
-    BAK::HotspotRef gdsScene,
-    unsigned number,
-    unsigned numberItems,
-    unsigned capacity,
-    ContainerType type,
-    std::optional<ShopStats> shopData,
-    LockStats lockData,
-    Inventory&& inventory)
-:
-    mGdsScene{gdsScene},
-    mNumber{number},
-    mNumberItems{numberItems},
-    mCapacity{capacity},
-    mType{type},
-    mShopData{shopData},
-    mLockData{lockData},
-    mInventory{std::move(inventory)}
-{}
-
-std::ostream& operator<<(std::ostream& os, const GDSContainer& i)
-{
-    os << "Container { addr: " << std::hex << i.mGdsScene << std::dec 
-        << ", num: " << i.mNumber << ", numItems: " << i.mNumberItems << ", capacity: " 
-        << i.mCapacity << ", type: " << ToString(i.mType)
-        << " shop: " << i.mShopData << " lock: " << i.mLockData
-        << ", inventory: [" << i.mInventory << "]}";
-    return os;
-}
-
 
 }

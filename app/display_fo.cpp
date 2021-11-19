@@ -18,6 +18,7 @@ int main(int argc, char** argv)
     {
         logger.Info() << o << "\n";
     }
+    logger.Info() << "Done\n";
 
     return 0;
 }

@@ -163,7 +163,7 @@ public:
         mContainer = container;
 
         mLock.SetImageBasedOnLockType(
-            BAK::ClassifyLock(container->GetLockData().mRating));
+            BAK::ClassifyLock(container->GetLock().mRating));
         mLock.SetLocked();
         ResetUnlocked();
 
@@ -229,7 +229,7 @@ private:
         unsigned context = 0;
         auto dialog = BAK::DialogSources::mLockDialog;
 
-        const auto lockRating = mContainer->GetLockData().mRating;
+        const auto lockRating = mContainer->GetLock().mRating;
         const auto lockIndex = BAK::GetLockIndex(lockRating);
         const auto lockpickSkill = GetCharacter(*mSelectedCharacter)
             .GetSkill(BAK::SkillType::Lockpick);
@@ -277,7 +277,7 @@ private:
         ASSERT(item.IsKey());
         const auto& skill = GetCharacter(*mSelectedCharacter)
             .GetSkill(BAK::SkillType::Lockpick);
-        const auto lockRating = mContainer->GetLockData().mRating;
+        const auto lockRating = mContainer->GetLock().mRating;
 
         if (item.mItemIndex == BAK::ItemIndex{'P'}) // Picklock
         {
