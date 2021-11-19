@@ -97,7 +97,9 @@ std::ostream& operator<<(std::ostream& os, const ContainerEncounter& ce)
 
 std::ostream& operator<<(std::ostream& os, const ContainerDialog& ce)
 {
-    os << "ContainerDialog { unknown: " << std::hex << ce.mUnknown
+    os << "ContainerDialog { cv: " 
+        << std::hex << +ce.mContextVar
+        << " order: " << +ce.mDialogOrder
         << " dialog: " << ce.mDialog << std::dec << "}";
     return os;
 }
@@ -133,9 +135,10 @@ GenericContainer LoadGenericContainer(FileBuffer& fb, bool isGdsLocation)
     {
         // This is not actually correct interpretation
         // for this property type
-        const auto unknown = fb.GetUint16LE();
-        const auto diag = KeyTarget{fb.GetUint32LE()};
-        dialog = ContainerDialog{unknown, diag};
+        const auto contextVar = fb.GetUint8();
+        const auto dialogOrder = fb.GetUint8();
+        const auto dialogKey = KeyTarget{fb.GetUint32LE()};
+        dialog = ContainerDialog{contextVar, dialogOrder, dialogKey};
     }
     else
     {
@@ -145,9 +148,10 @@ GenericContainer LoadGenericContainer(FileBuffer& fb, bool isGdsLocation)
         }
         if (header.HasDialog())
         {
-            const auto unknown = fb.GetUint16LE();
-            const auto diag = KeyTarget{fb.GetUint32LE()};
-            dialog = ContainerDialog{unknown, diag};
+            const auto contextVar = fb.GetUint8();
+            const auto dialogOrder = fb.GetUint8();
+            const auto dialogKey = KeyTarget{fb.GetUint32LE()};
+            dialog = ContainerDialog{contextVar, dialogOrder, dialogKey};
         }
         if (header.HasShop())
         {

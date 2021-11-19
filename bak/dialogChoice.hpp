@@ -19,7 +19,7 @@ enum class ActiveStateFlag : std::uint16_t
     Chapter    = 0x7537,
     NightTime  = 0x7539,
     // Doesn't seem like anyone's about...
-    Unknown1   = 0x753a,
+    GameTime   = 0x753a,
     BeforeArvo = 0x753c,
     SkillCheck = 0x753d,
     Unknown3   = 0x753e,

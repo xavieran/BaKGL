@@ -19,11 +19,11 @@ namespace BAK {
 // Bit indices
 enum class ContainerProperty
 {
-    HasLock      = 0,
-    HasDialog    = 1,
-    HasShop      = 2,
-    HasEncounter = 3,
-    HasTime      = 4
+    HasLock      = 0, // 0x1
+    HasDialog    = 1, // 0x2
+    HasShop      = 2, // 0x4
+    HasEncounter = 3, // 0x8
+    HasTime      = 4  // 0x10
 };
 
 struct ContainerWorldLocationTag {};
@@ -83,8 +83,8 @@ std::ostream& operator<<(std::ostream&, const ContainerHeader&);
 
 struct ContainerEncounter
 {
-    unsigned mRequireEventFlag;
-    unsigned mSetEventFlag;
+    std::uint16_t mRequireEventFlag;
+    std::uint16_t mSetEventFlag;
     std::optional<HotspotRef> mHotspotRef;
     std::optional<GamePosition> mEncounterPos;
 };
@@ -93,7 +93,8 @@ std::ostream& operator<<(std::ostream&, const ContainerEncounter&);
 
 struct ContainerDialog
 {
-    unsigned mUnknown;
+    std::uint8_t mContextVar;
+    std::uint8_t mDialogOrder;
     Target mDialog;
 };
 

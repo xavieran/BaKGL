@@ -129,13 +129,13 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                //mSystems->AddRenderable(
-                //    Renderable{
-                //        id,
-                //        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                //        enc.GetLocation(),
-                //        glm::vec3{0.0},
-                //        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                mSystems->AddRenderable(
+                    Renderable{
+                        id,
+                        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                        enc.GetLocation(),
+                        glm::vec3{0.0},
+                        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
 
                 mSystems->AddIntersectable(
                     Intersectable{
@@ -158,6 +158,9 @@ public:
             {
                 mDynamicDialogScene.SetDialogFinished(
                     [&](const auto&){
+
+                    // add choice
+                    //if (!choice || choice->mValue == BAK::Keywords::sYesIndex)
                         if (container.mHeader.HasEncounter() && container.mEncounter->mHotspotRef)
                         {
                             mGuiManager.EnterGDSScene(*container.mEncounter->mHotspotRef, []{});
@@ -179,14 +182,15 @@ public:
             }
         }
 
-        if (container.mHeader.HasEncounter() && container.mEncounter->mEncounterPos)
+        if (container.HasEncounter() && container.GetEncounter().mEncounterPos)
         {
-            CheckAndDoEncounter(*container.mEncounter->mEncounterPos);
+            CheckAndDoEncounter(*container.mEncounter->mEncounterPos + glm::uvec2{800, 800});
         }
     }
 
     void DoEncounter(const BAK::Encounter::Encounter& encounter)
     {
+        mLogger.Debug() << "Doing Encounter: " << encounter << "\n";
         std::visit(
             overloaded{
             [&](const BAK::Encounter::GDSEntry& gds){
@@ -298,6 +302,7 @@ public:
         mLogger.Debug() << __FUNCTION__ << " Pos: " << position << "\n";
         auto intersectable = mSystems->RunIntersection(
             BAK::ToGlCoord<float>(position));
+        mCamera.SetPosition(BAK::ToGlCoord<float>(position));
         if (intersectable)
         {
             auto it = mEncounters.find(*intersectable);
@@ -329,111 +334,7 @@ public:
 
         if (mActiveEncounter)
         {
-            const auto& encounter = mActiveEncounter->GetEncounter();
-            std::visit(
-                overloaded{
-                    [&](const BAK::Encounter::GDSEntry& gds){
-                        if (mGuiManager.mScreenStack.size() == 1)
-                        {
-                            mDynamicDialogScene.SetDialogFinished(
-                                [&, gds=gds](const auto& choice){
-                                    // These dialogs should always result in a choice
-                                    ASSERT(choice);
-                                    if (choice->mValue == BAK::Keywords::sYesIndex)
-                                    {
-                                        mGuiManager.EnterGDSScene(
-                                            gds.mHotspot, 
-                                            [&, exitDialog=gds.mExitDialog](){
-                                                mGuiManager.StartDialog(
-                                                    exitDialog,
-                                                    false,
-                                                    false,
-                                                    &mDynamicDialogScene);
-                                                });
-                                    }
-
-                                    // FIXME: Move this into the if block so we only
-                                    // modify the players position if they entered the town.
-                                    // Will need a "TryMoveCamera" step that checks encounter 
-                                    // bounds and doesn't move if its a no. 
-                                    // Will need the same for block and Zone transitions too.
-                                    mCamera.SetGameLocation(gds.mExitPosition);
-                                    mDynamicDialogScene.ResetDialogFinished();
-                                });
-
-                            mGuiManager.StartDialog(
-                                gds.mEntryDialog,
-                                false,
-                                false,
-                                &mDynamicDialogScene);
-                        }
-                    },
-                    [&](const BAK::Encounter::Block& e){
-                        if (mGuiManager.mScreenStack.size() == 1)
-                            mGuiManager.StartDialog(
-                                e.mDialog,
-                                false,
-                                false,
-                                &mDynamicDialogScene);
-                    },
-                    [&](const BAK::Encounter::Combat& e){
-                    },
-                    [&](const BAK::Encounter::Dialog& e){
-                        if (mGuiManager.mScreenStack.size() == 1
-                            && mGameState.mGameData->CheckActive(
-                                *mActiveEncounter,
-                                mGameState.GetZone()))
-                        {
-                            mSavedAngle = mCamera.GetAngle();
-                            mDynamicDialogScene.SetDialogFinished(
-                                [&](const auto&){
-                                    mCamera.SetAngle(mSavedAngle);
-                                    mDynamicDialogScene.ResetDialogFinished();
-                                });
-
-                            mGuiManager.StartDialog(
-                                e.mDialog,
-                                false,
-                                true,
-                                &mDynamicDialogScene);
-
-                            if (mGameState.mGameData)
-                                mGameState.mGameData->SetPostDialogEventFlags(
-                                    *mActiveEncounter);
-                        }
-
-                    },
-                    [](const BAK::Encounter::EventFlag& flag){
-                        //if (EncoutnerActive)
-                        //mGameState.SetEventState(flag.mEventPointer, flag.mIsEnable);
-                    },
-                    [&](const BAK::Encounter::Zone& zone){
-                        if (mGuiManager.mScreenStack.size() == 1)
-                        {
-                            mDynamicDialogScene.SetDialogFinished(
-                                [&, zone=zone](const auto& choice){
-                                    // These dialogs should always result in a choice
-                                    ASSERT(choice);
-                                    Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
-                                    if (choice->mValue == BAK::Keywords::sYesIndex)
-                                    {
-                                        DoTransition(
-                                            zone.mTargetZone,
-                                            zone.mTargetLocation);
-                                        Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
-                                    }
-                                    mDynamicDialogScene.ResetDialogFinished();
-                                });
-
-                            mGuiManager.StartDialog(
-                                zone.mDialog,
-                                false,
-                                false,
-                                &mDynamicDialogScene);
-                        }
-                    },
-                },
-                encounter);
+            //DoEncounter(*mActiveEncounter);
         }
 
         if (mActiveClickable2)
@@ -450,45 +351,16 @@ public:
             if (cit != containers.end())
             {
                 mLogger.Debug() << "Container: " << *cit << "\n";
-                const auto& header = cit->mHeader;
-                if (mGuiManager.mScreenStack.size() == 1)
-                {
-                    if (cit->HasDialog())
-                    {
-                        mDynamicDialogScene.SetDialogFinished(
-                            [&, cit=cit](const auto& choice){
-                                if (!choice
-                                    || choice->mValue == BAK::Keywords::sYesIndex)
-                                {
-                                    mGuiManager.ShowContainer(&(*cit));
-                                }
-                                mDynamicDialogScene.ResetDialogFinished();
-                            });
-
-                        mGuiManager.StartDialog(
-                            cit->GetDialog().mDialog,
-                            false,
-                            //FIXME: There are a few dialogs of fixed objects which require the frame
-                            false, 
-                            &mDynamicDialogScene);
-                    }
-                    else
-                    {
-                        mGuiManager.ShowContainer(&(*cit));
-                    }
-                }
+                DoGenericContainer(*cit);
             }
-            else
-            {
 
-                auto fit = std::find_if(
-                    mZoneData->mFixedObjects.begin(),
-                    mZoneData->mFixedObjects.end(),
-                    [&bakLocation](const auto& x){ return x.mHeader.GetPosition() == bakLocation; });
-                if (fit != mZoneData->mFixedObjects.end())
-                {
-                    DoGenericContainer(*fit);
-                }
+            auto fit = std::find_if(
+                mZoneData->mFixedObjects.begin(),
+                mZoneData->mFixedObjects.end(),
+                [&bakLocation](const auto& x){ return x.mHeader.GetPosition() == bakLocation; });
+            if (fit != mZoneData->mFixedObjects.end())
+            {
+                DoGenericContainer(*fit);
             }
 
             mActiveClickable2 = nullptr;

@@ -92,6 +92,7 @@ CalculateLocationAndDims(
     const auto top = topLeft.y;
     const auto right = bottomRight.x;
     const auto bottom = bottomRight.y;
+    ASSERT(right >= left && top >= bottom);
     const auto width = right == left
         ? gOffsetScale
         : right - left;

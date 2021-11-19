@@ -119,11 +119,7 @@ public:
 
     auto GetLocation() const
     {
-        return glm::vec3{
-            static_cast<float>(mLocation.x),
-            0.0f,
-            -(static_cast<float>(mLocation.y))};
-
+        return ToGlCoord<float>(mLocation);
     }
 
     auto GetDims() const
