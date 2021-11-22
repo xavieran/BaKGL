@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <optional>
 #include <utility>
 #include <variant>
 

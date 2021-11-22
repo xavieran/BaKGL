@@ -12,6 +12,7 @@
 #include "gui/inventory/inventorySlot.hpp"
 #include "gui/inventory/itemArranger.hpp"
 #include "gui/inventory/shopDisplay.hpp"
+#include "gui/inventory/splitStackDialog.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -177,6 +178,7 @@ private:
     ItemEndpointEquipmentSlot mCrossbow;
     ItemEndpointEquipmentSlot mArmor;
     std::vector<ItemEndpoint<DraggableItem>> mInventoryItems;
+    SplitStackDialog mSplitStackDialog;
 
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mDisplayContainer;

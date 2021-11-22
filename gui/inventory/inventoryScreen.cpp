@@ -114,6 +114,11 @@ InventoryScreen::InventoryScreen(
         131
     },
     mInventoryItems{},
+    mSplitStackDialog{
+        {128, 40},
+        mFont,
+        [](bool share, unsigned amount){}
+    },
     mSelectedCharacter{},
     mDisplayContainer{false},
     mContainer{nullptr},
@@ -444,6 +449,8 @@ void InventoryScreen::TransferItemToCharacter(
 {
     CheckExclusivity();
 
+    //mSplitStackDialog.SetMaxAmount(slot.GetItem().GetQuantity());
+
     // When displaying keys, can't transfer items
     if (mDisplayContainer && mContainer == nullptr)
         return;
@@ -454,6 +461,10 @@ void InventoryScreen::TransferItemToCharacter(
             slot,
             *mSelectedCharacter,
             character);
+    }
+    else if (mSelectedCharacter && (*mSelectedCharacter == mSelectedCharacter))
+    {
+        // Do nothing
     }
     else
     {
@@ -868,6 +879,8 @@ void InventoryScreen::AddChildren()
             AddChildBack(&mContainerScreen);
         }
     }
+
+    //AddChildBack(&mSplitStackDialog);
 }
 
 void InventoryScreen::CheckExclusivity()
