@@ -196,6 +196,11 @@ public:
         }
     }
 
+    bool GetSpellActive(unsigned spell)
+    {
+        return true;
+    }
+
     const Character& GetPartyLeader()
     {
         return mPartyLeader;
@@ -395,7 +400,7 @@ public:
                     return EvaluateGameStateChoice(c);
                 },
                 [&](const auto& c){
-                    return true; 
+                    return false; 
                 },
             },
             choice);

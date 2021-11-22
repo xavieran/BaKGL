@@ -142,7 +142,8 @@ public:
 
             // Split into stacks if necessary
             std::vector<InventoryItem> items{};
-            if (baseItem.GetQuantity() > stackSize)
+            if (baseItem.IsStackable()
+                && baseItem.GetQuantity() > stackSize)
             {
                 const auto nStacks = baseItem.GetQuantity() / stackSize;
                 for (unsigned i = 0; i < nStacks; i++)

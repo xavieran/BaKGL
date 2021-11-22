@@ -256,39 +256,15 @@ public:
     void ShowContainer(BAK::IContainer* container) override
     {
         mCursor.PushCursor(0);
-        if (container->GetInventory().GetCapacity() == 0)
-        {
-            // FIXME: need to refactor fixed objects
-            // this is clearly not even a container...
-            return;
-        }
+        ASSERT(container->GetInventory().GetCapacity() > 0);
 
-        if (   container->HasLock()
-            && container->GetLock().mRating > 0 
-            && !mLockScreen.IsUnlocked()
-            && container->GetContainerType() == BAK::ContainerType::FairyChest)
-        {
-            ShowLock(container);
-        }
-        else if (container->HasLock()
-            && container->GetLock().mFairyChestIndex > 0 
-            && !mMoredhelScreen.IsUnlocked()
-            && container->GetContainerType() == BAK::ContainerType::FairyChest)
-        {
-            ShowWordLock(container);
-        }
-        else
-        {
-            mGuiScreens.push(GuiScreen{[&](){
-                mInventoryScreen.ClearContainer();
-            }});
+        mGuiScreens.push(GuiScreen{[&](){
+            mInventoryScreen.ClearContainer();
+        }});
 
-            mInventoryScreen.SetContainer(container);
-            mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
-            mScreenStack.PushScreen(&mInventoryScreen);
-            mLockScreen.ResetUnlocked();
-            mMoredhelScreen.ResetUnlocked();
-        }
+        mInventoryScreen.SetContainer(container);
+        mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
+        mScreenStack.PushScreen(&mInventoryScreen);
     }
 
     void ExitInventory() override
@@ -298,33 +274,44 @@ public:
         mScreenStack.PopScreen();
     }
 
-    void ShowLock(BAK::IContainer* container) override
+    void ShowLock(
+        BAK::IContainer* container,
+        std::function<void()>&& finished) override
     {
-        mCursor.PushCursor(0);
-        mLockScreen.SetContainer(container);
-        mScreenStack.PushScreen(&mLockScreen);
-    }
+        ASSERT(container->HasLock()
+            && (container->GetLock().IsFairyChest()
+                || !container->GetLock().IsTrapped()));
 
-    void ShowWordLock(BAK::IContainer* container)
-    {
         mCursor.PushCursor(0);
-        mMoredhelScreen.SetContainer(container);
-        mScreenStack.PushScreen(&mMoredhelScreen);
+
+        mGuiScreens.push(finished);
+        if (container->GetLock().IsFairyChest())
+        {
+            mMoredhelScreen.SetContainer(container);
+            mScreenStack.PushScreen(&mMoredhelScreen);
+        }
+        else
+        {
+            mLockScreen.SetContainer(container);
+            mScreenStack.PushScreen(&mLockScreen);
+        }
     }
 
     void ExitLock() override
     {
         mCursor.PopCursor();
         mScreenStack.PopScreen();
+        PopAndRunGuiScreen();
+    }
 
-        if (mLockScreen.IsUnlocked())
-        {
-            ShowContainer(mLockScreen.GetContainer());
-        }
-        else if (mMoredhelScreen.IsUnlocked())
-        {
-            ShowContainer(mMoredhelScreen.GetContainer());
-        }
+    bool IsLockOpened() const override
+    {
+        return mLockScreen.IsUnlocked();
+    } 
+
+    bool IsWordLockOpened() const override
+    {
+        return mMoredhelScreen.IsUnlocked();
     }
 
     void PopGuiScreen()

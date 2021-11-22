@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/chestEncounter.hpp"
 #include "game/systems.hpp"
 
 #include "bak/IZoneLoader.hpp"
@@ -26,6 +27,7 @@ public:
         mCamera{camera},
         mGameState{gameState},
         mGuiManager{guiManager},
+        mChestEncounter{mGuiManager, mGameState},
         mDynamicDialogScene{
             [&](){ mCamera.SetAngle(mSavedAngle); },
             [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
@@ -222,7 +224,7 @@ public:
         else if (chest.HasLock())
         {
             // Do Choice 0x4f
-            // if (choise) DoVanillaLock Encounter
+            // if (choice) DoVanillaLock Encounter
             // else nothing
         }
 
@@ -244,9 +246,11 @@ public:
 
     void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container)
     {
-        mLogger.Debug() << __FUNCTION__ << " " << container << "\n";
+        mLogger.Debug() << __FUNCTION__ << " " 
+            << static_cast<unsigned>(et) << " " << container << "\n";
         if (et == BAK::EntityType::CHEST)
         {
+            mChestEncounter.BeginEncounter(container);
             return;
         }
 
@@ -279,16 +283,22 @@ public:
                 Logging::LogDebug(__FUNCTION__) << "Called while GUI active\n";
             }
         }
+        else if (container.GetInventory().GetCapacity() > 0)
+        {
+            mGuiManager.ShowContainer(&container);
+        }
 
         if (container.HasEncounter() && container.GetEncounter().mEncounterPos)
         {
-            CheckAndDoEncounter(*container.mEncounter->mEncounterPos + glm::uvec2{800, 800});
+            CheckAndDoEncounter(
+                *container.mEncounter->mEncounterPos
+                + glm::uvec2{800, 800}); // Hack to ensure these encounters trigger...
         }
     }
 
     void DoEncounter(const BAK::Encounter::Encounter& encounter)
     {
-        mLogger.Debug() << "Doing Encounter: " << encounter << "\n";
+        mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
         std::visit(
             overloaded{
             [&](const BAK::Encounter::GDSEntry& gds){
@@ -400,7 +410,6 @@ public:
         mLogger.Debug() << __FUNCTION__ << " Pos: " << position << "\n";
         auto intersectable = mSystems->RunIntersection(
             BAK::ToGlCoord<float>(position));
-        mCamera.SetPosition(BAK::ToGlCoord<float>(position));
         if (intersectable)
         {
             auto it = mEncounters.find(*intersectable);
@@ -432,7 +441,7 @@ public:
 
         if (mActiveEncounter)
         {
-            //DoEncounter(*mActiveEncounter);
+            DoEncounter(*mActiveEncounter);
         }
     }
 
@@ -479,6 +488,7 @@ public:
     Camera& mCamera;
     BAK::GameState& mGameState;
     Gui::GuiManager& mGuiManager;
+    ChestEncounter mChestEncounter;
     Gui::DynamicDialogScene mDynamicDialogScene;
 
     std::unique_ptr<BAK::Zone> mZoneData;

@@ -27,8 +27,10 @@ public:
     virtual void ShowContainer(BAK::IContainer*) = 0;
     virtual void ExitInventory() = 0;
 
-    virtual void ShowLock(BAK::IContainer*) = 0;
+    virtual void ShowLock(BAK::IContainer*, std::function<void()>&& finished) = 0;
     virtual void ExitLock() = 0;
+    virtual bool IsLockOpened() const = 0;
+    virtual bool IsWordLockOpened() const = 0;
 
     virtual void AddAnimator(LinearAnimator&&) = 0;
 };
@@ -49,8 +51,10 @@ class NullGuiManager : public IGuiManager
     void ShowContainer(BAK::IContainer*) override {}
     void ExitInventory() override {}
 
-    void ShowLock(BAK::IContainer*) override {}
+    void ShowLock(BAK::IContainer*, std::function<void()>&& finished) override {}
     void ExitLock() override {}
+    bool IsLockOpened() const override { return false; }
+    bool IsWordLockOpened() const override { return false; }
 
     void AddAnimator(LinearAnimator&&) override {}
 };

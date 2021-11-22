@@ -82,7 +82,7 @@ public:
     }
 
     template <typename Renderables, typename Camera>
-    void DrawShadow(
+    void DrawWithShadow(
         const Renderables& renderables,
         const Light& light,
         const Camera& lightCamera,
@@ -145,7 +145,7 @@ public:
     }
 
     template <typename Renderables, typename Camera>
-    void Draw(
+    void DrawDepthMap(
         const Renderables& renderables,
         const Camera& lightCamera)
     {

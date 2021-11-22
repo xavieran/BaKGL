@@ -16,6 +16,17 @@ struct LockStats
     unsigned mRating;
     unsigned mFairyChestIndex;
     unsigned mTrapDamage;
+
+    bool IsFairyChest()
+    {
+        return mFairyChestIndex != 0;
+    }
+
+    bool IsTrapped()
+    {
+        return mLockFlag == 1 || mLockFlag == 4;
+    }
+
 };
 
 LockStats LoadLock(FileBuffer& fb);

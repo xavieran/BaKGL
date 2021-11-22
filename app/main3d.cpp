@@ -227,7 +227,10 @@ int main(int argc, char** argv)
         {
             bool guiHandled = root.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
-            if (!guiHandled)
+            // i.e. only MainView is present
+            // should really formalise this with some sort of
+            // GuiManager state, interacting with 2d or 3d world..?
+            if (!guiHandled && guiManager.mScreenStack.size() == 1)
             {
                 gameRunner.CheckClickable();
             }
@@ -305,10 +308,10 @@ int main(int argc, char** argv)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, SHADOW_DIM, SHADOW_DIM);
 
-        renderer.Draw(
+        renderer.DrawDepthMap(
             gameRunner.mSystems->GetRenderables(),
             lightCamera);
-        renderer.Draw(
+        renderer.DrawDepthMap(
             gameRunner.mSystems->GetSprites(),
             lightCamera);
 
@@ -316,13 +319,13 @@ int main(int argc, char** argv)
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderer.DrawShadow(
+        renderer.DrawWithShadow(
             gameRunner.mSystems->GetRenderables(),
             light,
             lightCamera,
             *cameraPtr);
 
-        renderer.DrawShadow(
+        renderer.DrawWithShadow(
             gameRunner.mSystems->GetSprites(),
             light,
             lightCamera,

@@ -164,7 +164,7 @@ public:
         });
 
         const bool verticallyCentered
-            = ((ds2 & 0x10) == 0x10) || (ds2 == 0x3);
+            = ((ds2 & 0x10) != 0) || (ds2 == 0x3);
         const bool horizontallyCentered 
             = (ds2 & 0x4) == 0x4;
         const bool isBold

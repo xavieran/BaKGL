@@ -70,7 +70,7 @@ public:
     const auto& GetChoices() const { return mChoices; }
     std::string_view GetText() const { return mText; }
 
-    bool IsQueryChoice()  const { return mDisplayStyle3 == 0x2; }
+    bool IsQueryChoice()  const { return (mDisplayStyle3 & 0x2) != 0; }
     bool IsDialogChoice() const { return mDisplayStyle3 == 0x4; }
     bool IsRandomChoice() const { return mDisplayStyle3 == 0x8; }
     bool IsDisplayable()  const { return !mText.empty() || IsDialogChoice(); }
