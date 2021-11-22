@@ -118,6 +118,11 @@ public:
         AddChildBack(&mScreenStack);
     }
 
+    virtual ScreenStack& GetScreenStack() override
+    {
+        return mScreenStack;
+    }
+
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader)
     {
         ASSERT(zoneLoader);

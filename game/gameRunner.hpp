@@ -149,101 +149,6 @@ public:
         }
     }
     
-    void EncounterChest(BAK::GenericContainer& chest)
-    {
-        bool openedSuccessfully = false;
-        if (!chest.HasLock())
-        {
-
-            // DoDialog 0xc2
-            // ShowContainer
-        }
-        else if (chest.GetLock().mLockFlag == 1 || chest.GetLock().mLockFlag == 4) // trapped chest
-        {
-            auto& lock = chest.GetLock();
-            bool eyesOfIshapActive = false;
-            // Know trap is trapped
-            if (lock.mLockFlag == 0x4 && eyesOfIshapActive)
-            {
-                // DoChoice Dialog 0xbe (open trapped box or not)
-                bool choseToOpenTrappedChest = false;
-                if (choseToOpenTrappedChest)
-                {
-                    const auto& [character, skill] = mGameState
-                        .GetParty().GetSkill(BAK::SkillType::Lockpick, true);
-                    if (skill > lock.mRating)
-                    {
-                        mGameState.GetParty()
-                            .GetCharacter(character)
-                            .ImproveSkill(BAK::SkillType::Lockpick, 3, 2);
-                        openedSuccessfully = true;
-                        lock.mLockFlag = 1;
-                        lock.mTrapDamage = 0;
-                    }
-                    else
-                    {
-                        // This seems buggy - even if you disarm the trap with 
-                        // scent of sarig, the dialog later still says the box
-                        // is charred...
-                        // Damage characters
-                        // Do Dialog: 0xc0
-                        lock.mLockFlag = 1;
-                        lock.mTrapDamage = 0;
-                    }
-                }
-                else
-                {
-                    // Chose not to open box .. continue
-                }
-            }
-            // Don't know chest is trapped 
-            else
-            {
-                if (lock.mTrapDamage == 0)
-                {
-                    // DoChoice dialog 0x13d // trap is charred
-                    // if (choseToOpen)
-                    //    continue to chest
-                    // else
-                    //    exit
-                }
-                else
-                {
-                    // DoChoice dialog 0x4f
-                    // if (yes)
-                        // Damage Characters
-                        // Do Dialog 0xc0
-                    // else Finish...
-                }
-            }
-        }
-        else if (chest.HasLock() && chest.GetLock().mFairyChestIndex > 0)
-        {
-            // DoFairyChest Dialog 0xc
-        }
-        else if (chest.HasLock())
-        {
-            // Do Choice 0x4f
-            // if (choice) DoVanillaLock Encounter
-            // else nothing
-        }
-
-        if (openedSuccessfully)
-        {
-            if (chest.HasEncounter())
-            {
-                if (chest.GetEncounter().mSetEventFlag != 0)
-                {
-                    mGameState.SetEventValue(
-                        chest.GetEncounter().mSetEventFlag,
-                        1);
-                }
-            }
-
-            // ShowContainer
-        }
-    }
-
     void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container)
     {
         mLogger.Debug() << __FUNCTION__ << " " 
@@ -260,9 +165,6 @@ public:
             {
                 mDynamicDialogScene.SetDialogFinished(
                     [&](const auto&){
-
-                    // add choice
-                    //if (!choice || choice->mValue == BAK::Keywords::sYesIndex)
                         if (container.mHeader.HasEncounter() && container.mEncounter->mHotspotRef)
                         {
                             mGuiManager.EnterGDSScene(*container.mEncounter->mHotspotRef, []{});

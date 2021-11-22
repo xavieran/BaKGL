@@ -133,10 +133,9 @@ int main(int argc, char** argv)
 
     root.AddChildFront(&guiManager);
 
-    constexpr auto SHADOW_DIM = 8096;
     Camera lightCamera{
-        static_cast<unsigned>(SHADOW_DIM),
-        static_cast<unsigned>(SHADOW_DIM),
+        static_cast<unsigned>(width),
+        static_cast<unsigned>(height),
         400 * 30.0f,
         2.0f};
     lightCamera.UseOrthoMatrix(400, 400);
@@ -152,7 +151,9 @@ int main(int argc, char** argv)
     guiManager.mMainView.UpdatePartyMembers(gameState);
 
     // OpenGL 3D Renderer
-    auto renderer = Graphics::Renderer{};
+    auto renderer = Graphics::Renderer{
+        1024,
+        1024};
 
     Game::GameRunner gameRunner{
         camera,
@@ -304,18 +305,14 @@ int main(int argc, char** argv)
         // { *** Draw 3D World ***
         UpdateLightCamera();
 
-        renderer.mDepthFB.BindGL();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glViewport(0, 0, SHADOW_DIM, SHADOW_DIM);
-
+        renderer.BeginDepthMapDraw();
         renderer.DrawDepthMap(
             gameRunner.mSystems->GetRenderables(),
             lightCamera);
         renderer.DrawDepthMap(
             gameRunner.mSystems->GetSprites(),
             lightCamera);
-
-        renderer.mDepthFB.UnbindGL();
+        renderer.EndDepthMapDraw();
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

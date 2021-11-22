@@ -84,7 +84,7 @@ bool TryOpenLockWithKey(const BAK::InventoryItem& item, unsigned lockRating)
 bool WouldKeyBreak(const InventoryItem& item, unsigned lockRating)
 {
     // Special keys should never break
-    return !TryOpenLockWithKey(item, lockRating) && lockRating <= 100;
+    return !TryOpenLockWithKey(item, lockRating) && GetKeyRating(item.mItemIndex) <= 100;
 }
 
 unsigned DescribeLock(unsigned picklockSkill, unsigned lockRating)

@@ -1,28 +1,15 @@
 #pragma once
 
-#include "bak/IContainer.hpp"
-#include "bak/dialogSources.hpp"
-#include "bak/inventory.hpp"
-#include "bak/layout.hpp"
-#include "bak/objectInfo.hpp"
+#include "com/assert.hpp"
+#include "com/logger.hpp"
 
-#include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
-#include "gui/backgrounds.hpp"
-#include "gui/dragEndpoint.hpp"
-#include "gui/draggable.hpp"
-#include "gui/icons.hpp"
-#include "gui/colors.hpp"
-#include "gui/clickButton.hpp"
-#include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "graphics/glm.hpp"
 
 #include <glm/glm.hpp>
 
 #include <algorithm>
 #include <iostream>
-#include <utility>
-#include <variant>
+#include <optional>
 
 namespace Gui {
 
@@ -31,69 +18,16 @@ class Grid
 public:
     Grid(
         unsigned columns,
-        unsigned rows)
-    :
-        mColumns{columns},
-        mRows{rows},
-        mGrid{std::invoke([&]{
-            std::vector<std::vector<bool>> grid;
-            for (unsigned i = 0; i < rows; i++)
-                grid.emplace_back(columns, false);
-            return grid;
-        })}
-    {
-    }
+        unsigned rows);
 
     void Occupy(
         unsigned columns,
-        unsigned rows)
-    {
-        const auto& logger = Logging::LogState::GetLogger("Grid");
-        const auto currentPos = GetNextSlot();
-        for (unsigned r = 0; r < rows; r++)
-        {
-            for (unsigned c = 0; c < columns; c++)
-            {
-                ASSERT(currentPos.y + r < mRows);
-                ASSERT(currentPos.x + c < mColumns);
-                mGrid[currentPos.y + r][currentPos.x + c] = true;
-            }
-        }
-    }
+        unsigned rows);
 
-    glm::vec<2, unsigned> GetNextSlot() const
-    {
-        const auto& logger = Logging::LogState::GetLogger("Grid");
-        std::optional<glm::vec<2, unsigned>> slot{};
-        unsigned r = 0;
-        unsigned c = 0;
-        while (!slot)
-        {
-            if (!Get(c, r))
-                slot = glm::vec<2, unsigned>{c, r};
+    glm::vec<2, unsigned> GetNextSlot() const;
 
-            if ((++r) == mRows)
-            {
-                r = 0;
-                c++;
-            }
-        }
-
-        ASSERT(slot);
-        return *slot;
-    }
-
-    const auto& GetGrid() const
-    {
-        return mGrid;
-    }
-
-    bool Get(unsigned column, unsigned row) const
-    {
-        ASSERT(row < mRows);
-        ASSERT(column < mColumns);
-        return mGrid[row][column];
-    }
+    const auto& GetGrid() const;
+    bool Get(unsigned column, unsigned row) const;
 
 private:
     unsigned mColumns;
@@ -102,28 +36,12 @@ private:
     std::vector<std::vector<bool>> mGrid;
 };
 
-std::ostream& operator<<(std::ostream& os, const Grid& grid)
-{
-    for (const auto& row : grid.GetGrid())
-    {
-        for (const auto c : row)
-        {
-            os << (c ? '*' : '.');
-        }
-        os << '\n';
-    }
-
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const Grid& grid);
 
 class ItemArranger
 {
 public:
-    ItemArranger()
-    :
-        mLogger{Logging::LogState::GetLogger("Gui::Inventory::ItemArranger")}
-    {
-    }
+    ItemArranger();
 
     template <typename It, typename AddItem>
     void PlaceItems(
@@ -196,6 +114,7 @@ public:
         }
     }
 
+private:
     const Logging::Logger& mLogger;
 };
 

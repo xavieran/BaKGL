@@ -21,7 +21,7 @@ uniform samplerBuffer texCoords;
 uniform mat4 V;
 
 void main(){
-    int colorMode = params.x;
+    colorMode = params.x;
     int texCoord = params.y;
     float depth = params.z;
     int sampler = params.w;

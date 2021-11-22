@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gui/IDialogScene.hpp"
+#include "gui/screenStack.hpp"
 
 #include "gui/animator.hpp"
 
@@ -33,30 +34,7 @@ public:
     virtual bool IsWordLockOpened() const = 0;
 
     virtual void AddAnimator(LinearAnimator&&) = 0;
-};
-
-class NullGuiManager : public IGuiManager
-{
-    void EnterGDSScene(
-        const BAK::HotspotRef&,
-        std::function<void()>&&) override {}
-    void ExitGDSScene() override {}
-
-    void StartDialog(BAK::Target, bool, bool, IDialogScene*) override {}
-
-    void ShowCharacterPortrait(BAK::ActiveCharIndex) override {}
-    void ExitCharacterPortrait() override {}
-
-    void ShowInventory(BAK::ActiveCharIndex) override {}
-    void ShowContainer(BAK::IContainer*) override {}
-    void ExitInventory() override {}
-
-    void ShowLock(BAK::IContainer*, std::function<void()>&& finished) override {}
-    void ExitLock() override {}
-    bool IsLockOpened() const override { return false; }
-    bool IsWordLockOpened() const override { return false; }
-
-    void AddAnimator(LinearAnimator&&) override {}
+    virtual ScreenStack& GetScreenStack() = 0;
 };
 
 }

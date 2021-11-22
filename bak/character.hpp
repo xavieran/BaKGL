@@ -44,6 +44,12 @@ public:
     Inventory& GetInventory() override { return mInventory; }
     const Inventory& GetInventory() const override { return mInventory; }
 
+    bool CanSwapItem(const InventoryItem& ref) const
+    {
+        return (ref.GetObject().mType == BAK::ItemType::Sword && IsSwordsman())
+            || (ref.GetObject().mType == BAK::ItemType::Staff && IsSpellcaster());
+    }
+
     bool CanAddItem(const InventoryItem& ref) const override
     {
         auto item = ref;
@@ -76,7 +82,6 @@ public:
         auto item = ref;
 
         bool equipped = false;
-        // FIXME: Check character class...
         if (CanReplaceEquippableItem(item.GetObject().mType)
             && mInventory.FindEquipped(item.GetObject().mType)
                 == mInventory.GetItems().end())

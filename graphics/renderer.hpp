@@ -18,7 +18,9 @@ struct Light
 class Renderer
 {
 public:
-    Renderer()
+    Renderer(
+        unsigned depthMapWidth,
+        unsigned depthMapHeight)
     :
         mModelShader{std::invoke([]{
             auto shader = ShaderProgram{
@@ -44,10 +46,13 @@ public:
         mVertexArrayObject{},
         mGLBuffers{},
         mTextureBuffer{GL_TEXTURE_2D_ARRAY},
+        mDepthMapDims{depthMapWidth, depthMapHeight},
         mDepthFB{},
         mDepthBuffer{GL_TEXTURE_2D}
     {
-        mDepthBuffer.MakeDepthBuffer(8096, 8096);
+        mDepthBuffer.MakeDepthBuffer(
+            mDepthMapDims.x, 
+            mDepthMapDims.y);
         mDepthFB.AttachDepthTexture(mDepthBuffer);
     }
 
@@ -144,6 +149,18 @@ public:
         }
     }
 
+    void BeginDepthMapDraw()
+    {
+        mDepthFB.BindGL();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, mDepthMapDims.x, mDepthMapDims.y);
+    }
+
+    void EndDepthMapDraw()
+    {
+        mDepthFB.UnbindGL();
+    }
+
     template <typename Renderables, typename Camera>
     void DrawDepthMap(
         const Renderables& renderables,
@@ -190,6 +207,7 @@ public:
     VertexArrayObject mVertexArrayObject;
     GLBuffers mGLBuffers;
     TextureBuffer mTextureBuffer;
+    glm::uvec2 mDepthMapDims;
     FrameBuffer mDepthFB;
     TextureBuffer mDepthBuffer;
 };

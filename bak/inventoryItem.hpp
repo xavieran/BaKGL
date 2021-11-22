@@ -100,6 +100,11 @@ public:
         return HasFlag(ItemFlags::QuantityBased);
     }
 
+    bool IsItemType(BAK::ItemType type) const
+    {
+        return GetObject().mType == type;
+    }
+
     bool DisplayCondition() const
     {
         return IsConditionBased();

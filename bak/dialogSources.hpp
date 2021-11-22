@@ -65,7 +65,7 @@ public:
     static constexpr auto mCantGiveItemDuringCombat = 0x1b774c;
     static constexpr auto mCantTakeItemDuringCombat = 0x1b774d;
     static constexpr auto mCantStealItemDuringCombat = 0x1b7769;
-    static constexpr auto mCantDiscardOnlyWeapon = 0x1b774e;
+    static constexpr auto mCantDiscardOnlyWeapon = KeyTarget{0x1b774e};
     static constexpr auto mCantDropFlamingTorch  = 0x1b775d;
     static constexpr auto mCantRepairItem        = 0x1b775e;
     static constexpr auto mCantHaggleScroll      = 0x1b775f;
