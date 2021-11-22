@@ -37,6 +37,7 @@ public:
             {},
             {}},
         mContextValue{0},
+        mShopType{0},
         mItemValue{0},
         mSkillValue{0},
         mChapter{1},
@@ -142,9 +143,15 @@ public:
         }
     }
 
+    void SetShopType(unsigned shopType)
+    {
+        mShopType = shopType;
+    }
+
     auto GetShopType() const
     {
-        return 4;
+        ASSERT(mShopType != 0);
+        return mShopType;
     }
 
     IContainer* GetContainerForGDSScene(BAK::HotspotRef ref)
@@ -511,6 +518,7 @@ public:
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue;
+    unsigned mShopType;
     Royals mItemValue;
     unsigned mSkillValue;
     Chapter mChapter;

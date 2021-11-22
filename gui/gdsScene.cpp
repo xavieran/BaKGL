@@ -77,6 +77,14 @@ GDSScene::GDSScene(
     auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
 
+    // Needed for repair shops...
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    if (container && container->IsShop())
+    {
+        auto& shopStats = container->GetShop();
+        mGameState.SetShopType(shopStats.mRepairTypes);
+    }
+
     const auto& scene1 = mSceneHotspots.GetScene(
         mSceneHotspots.mSceneIndex1, mGameState);
     const auto& scene2 = mSceneHotspots.GetScene(
@@ -96,19 +104,22 @@ GDSScene::GDSScene(
     mHotspots.reserve(mSceneHotspots.mHotspots.size());
     for (const auto& hs : mSceneHotspots.mHotspots)
     {
-        mHotspots.emplace_back(
-            cursor,
-            hs.mTopLeft,
-            hs.mDimensions,
-            hs.mKeyword - 1, // cursor index
-            [this, hs](){
-                HandleHotspotLeftClicked(hs);
-            },
-            [this, hs](){
-                HandleHotspotRightClicked(hs);
-            });
+        if (hs.IsActive(mGameState.GetChapter()))
+        {
 
-        AddChildBack(&mHotspots.back());
+            mHotspots.emplace_back(
+                cursor,
+                hs.mTopLeft,
+                hs.mDimensions,
+                hs.mKeyword - 1, // cursor index
+                [this, hs](){
+                    HandleHotspotLeftClicked(hs);
+                },
+                [this, hs](){
+                    HandleHotspotRightClicked(hs);
+                });
+            AddChildBack(&mHotspots.back());
+        }
     }
 
     DisplayNPCBackground();

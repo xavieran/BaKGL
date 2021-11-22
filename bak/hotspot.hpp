@@ -75,6 +75,12 @@ struct Hotspot
     std::uint32_t mActionArg3;
     KeyTarget mTooltip;
     KeyTarget mDialog;
+
+    // Yes but there is more to it - e.g. Sarth
+    bool IsActive(Chapter chapter) const
+    {
+        return (mUnknown0 ^ 0xffff) & (1 << (chapter.mValue - 1));
+    }
     
     std::uint16_t mUnknown0;
     std::uint32_t mUnknown1;
