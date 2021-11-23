@@ -93,12 +93,15 @@ private:
 
     void TransferItemFromCharacterToCharacter(
         InventorySlot& slot,
+        unsigned amount,
         BAK::ActiveCharIndex source,
         BAK::ActiveCharIndex dest);
 
     void TransferItemFromContainerToCharacter(
         InventorySlot& slot,
-        BAK::ActiveCharIndex character);
+        BAK::ActiveCharIndex character,
+        bool share,
+        unsigned amount);
 
     void SellItem(
         InventorySlot& slot,
@@ -106,7 +109,9 @@ private:
 
     void BuyItem(
         InventorySlot& slot,
-        BAK::ActiveCharIndex character);
+        BAK::ActiveCharIndex character,
+        bool share,
+        unsigned amount);
 
     void TransferItemToShop(
         InventorySlot& slot,
@@ -114,17 +119,32 @@ private:
     
     void TransferItemFromShopToCharacter(
         InventorySlot& slot,
-        BAK::ActiveCharIndex character);
+        BAK::ActiveCharIndex character,
+        bool share,
+        unsigned amount);
     
+    // This happens at the callback on characters
     void TransferItemToCharacter(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex character,
+        bool share,
+        unsigned amount);
+
+    void SplitStackBeforeTransferItemToCharacter(
         InventorySlot& slot,
         BAK::ActiveCharIndex character);
     
+    // This happens at the callback on container display
+    void MoveItemToContainer(InventorySlot& slot, bool share, unsigned amount);
+
+    void SplitStackBeforeMoveItemToContainer(InventorySlot& slot);
+
+    // This happens at the callback on equipment slots
     void MoveItemToEquipmentSlot(
         InventorySlot& item,
         BAK::ItemType slot);
 
-    void MoveItemToContainer(InventorySlot& slot);
+    void CompleteTransferStack(bool share, unsigned amount);
     
     void UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex);
     

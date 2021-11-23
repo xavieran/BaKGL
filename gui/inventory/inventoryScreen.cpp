@@ -59,7 +59,7 @@ InventoryScreen::InventoryScreen(
         mLayout.GetWidgetDimensions(mGoldRequest),
     },
     mContainerTypeDisplay{
-        [this](auto& item){ MoveItemToContainer(item); },
+        [this](auto& item){ SplitStackBeforeMoveItemToContainer(item); },
         mLayout.GetWidgetLocation(mContainerTypeRequest),
         mLayout.GetWidgetDimensions(mContainerTypeRequest),
         Graphics::SpriteSheetIndex{0},
@@ -115,9 +115,8 @@ InventoryScreen::InventoryScreen(
     },
     mInventoryItems{},
     mSplitStackDialog{
-        {128, 40},
-        mFont,
-        [](bool share, unsigned amount){}
+        {128, 80},
+        mFont
     },
     mSelectedCharacter{},
     mDisplayContainer{false},
@@ -190,13 +189,18 @@ void InventoryScreen::PropagateUp(const DragEvent& event)
 
     if (std::holds_alternative<DragStarted>(event))
     {
-        HighlightValidDrops(
-            *static_cast<InventorySlot*>(
-                std::get<DragStarted>(event).mWidget));
+        auto& slot = *static_cast<InventorySlot*>(
+                std::get<DragStarted>(event).mWidget);
+        HighlightValidDrops(slot);
+        // FIXME: Ideally this happens when an item is first clicked,
+        // not just when dragged...
+        mGameState.SetInventoryItem(slot.GetItem());
     }
     else if (std::holds_alternative<DragEnded>(event))
     {
         UnhighlightDrops();
+        const auto& pos = std::get<DragEnded>(event).mValue;
+        mSplitStackDialog.SetCenter(pos);
     }
 
     bool handled = Widget::OnDragEvent(event);
@@ -250,6 +254,7 @@ void InventoryScreen::ShowCharacter(BAK::ActiveCharIndex character)
 
 void InventoryScreen::TransferItemFromCharacterToCharacter(
     InventorySlot& slot,
+    unsigned amount,
     BAK::ActiveCharIndex source,
     BAK::ActiveCharIndex dest)
 {
@@ -291,12 +296,20 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
         return;
     }
 
+    // Reduce item amount to chosen amount
+    item.SetQuantity(amount);
+
     if (GetCharacter(dest).CanAddItem(item))
     {
         GetCharacter(dest).GiveItem(item);
-        GetCharacter(source)
-            .GetInventory()
-            .RemoveItem(slot.GetItemIndex());
+        if (item.IsStackable())
+            GetCharacter(source)
+                .GetInventory()
+                .RemoveItem(item);
+        else
+            GetCharacter(source)
+                .GetInventory()
+                .RemoveItem(slot.GetItemIndex());
     }
     else
     {
@@ -313,11 +326,14 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
 
 void InventoryScreen::TransferItemFromContainerToCharacter(
     InventorySlot& slot,
-    BAK::ActiveCharIndex character)
+    BAK::ActiveCharIndex character,
+    bool share,
+    unsigned amount)
 {
     ASSERT(mContainer);
 
     auto item = slot.GetItem();
+    item.SetQuantity(amount);
 
     if (item.IsMoney() || item.IsKey())
     {
@@ -328,8 +344,10 @@ void InventoryScreen::TransferItemFromContainerToCharacter(
     }
     else if (GetCharacter(character).GiveItem(item))
     {
-        mContainer->GetInventory()
-            .RemoveItem(slot.GetItemIndex());
+        if (item.IsStackable())
+            mContainer->GetInventory().RemoveItem(item);
+        else
+            mContainer->GetInventory().RemoveItem(slot.GetItemIndex());
     }
     else
     {
@@ -344,19 +362,26 @@ void InventoryScreen::SellItem(
     mGameState.GetParty().GainMoney(
         mShopScreen.GetBuyPrice(slot.GetItem()));
     mContainer->GiveItem(slot.GetItem());
+
     GetCharacter(character).GetInventory()
         .RemoveItem(slot.GetItemIndex());
+
     mNeedRefresh = true;
 }
 
 void InventoryScreen::BuyItem(
     InventorySlot& slot,
-    BAK::ActiveCharIndex character)
+    BAK::ActiveCharIndex character,
+    bool share,
+    unsigned amount)
 {
     ASSERT(mContainer);
 
     auto item = slot.GetItem();
-    const auto price = mShopScreen.GetSellPrice(slot.GetItemIndex());
+    item.SetQuantity(amount);
+    const auto price = mShopScreen.GetSellPrice(
+        slot.GetItemIndex(),
+        amount);
     if (mGameState.GetParty().GetGold().mValue >= price.mValue)
     {
         ASSERT(GetCharacter(character).CanAddItem(item));
@@ -416,22 +441,26 @@ void InventoryScreen::TransferItemToShop(
 
 void InventoryScreen::TransferItemFromShopToCharacter(
     InventorySlot& slot,
-    BAK::ActiveCharIndex character)
+    BAK::ActiveCharIndex character,
+    bool share,
+    unsigned amount)
 {
     ASSERT(mContainer);
     if (GetCharacter(character).CanAddItem(slot.GetItem()))
     {
-        mGameState.SetItemValue(mShopScreen.GetSellPrice(slot.GetItemIndex()));
+        mGameState.SetItemValue(
+            mShopScreen.GetSellPrice(slot.GetItemIndex(),
+            amount));
         StartDialog(BAK::DialogSources::mBuyItemDialog);
 
         mDialogScene.SetDialogFinished(
-            [this, &slot, character](const auto& choice)
+            [this, &slot, character, share, amount](const auto& choice)
             {
                 ASSERT(choice);
                 // FIXME: Add haggling...
                 if (choice->mValue == 0x104)
                 {
-                    BuyItem(slot, character);
+                    BuyItem(slot, character, share, amount);
                 }
                 mDialogScene.ResetDialogFinished();
             });
@@ -445,41 +474,78 @@ void InventoryScreen::TransferItemFromShopToCharacter(
 
 void InventoryScreen::TransferItemToCharacter(
     InventorySlot& slot,
-    BAK::ActiveCharIndex character)
+    BAK::ActiveCharIndex character,
+    bool share,
+    unsigned amount)
 {
     CheckExclusivity();
-
-    //mSplitStackDialog.SetMaxAmount(slot.GetItem().GetQuantity());
-
-    // When displaying keys, can't transfer items
-    if (mDisplayContainer && mContainer == nullptr)
-        return;
 
     if (mSelectedCharacter && (*mSelectedCharacter != character))
     {
         TransferItemFromCharacterToCharacter(
             slot,
+            amount,
             *mSelectedCharacter,
             character);
-    }
-    else if (mSelectedCharacter && (*mSelectedCharacter == mSelectedCharacter))
-    {
-        // Do nothing
     }
     else
     {
         if (mContainer->IsShop())
         {
-            TransferItemFromShopToCharacter(slot, character);
+            TransferItemFromShopToCharacter(
+                slot,
+                character,
+                share,
+                amount);
         }
         else
         {
-            TransferItemFromContainerToCharacter(slot, character);
+            TransferItemFromContainerToCharacter(
+                slot,
+                character,
+                share,
+                amount);
         }
     }
 
     GetCharacter(character).CheckPostConditions();
     mNeedRefresh = true;
+}
+
+void InventoryScreen::SplitStackBeforeTransferItemToCharacter(
+    InventorySlot& slot,
+    BAK::ActiveCharIndex character)
+{
+    // Can't transfer items when displaying keys
+    if (mDisplayContainer && mContainer == nullptr)
+        return;
+    // Can't transfer items to self
+    if (mSelectedCharacter && (*mSelectedCharacter == character))
+        return;
+
+    // Can't buy split stacks from shops
+    if (slot.GetItem().IsStackable() 
+        && (!mContainer || !mContainer->IsShop()))
+    {
+        const auto maxAmount = GetCharacter(character).GetInventory()
+            .CanAddCharacter(slot.GetItem());
+
+        mSplitStackDialog.BeginSplitDialog(
+            [&, character](bool share, unsigned amount){
+                mGuiManager.GetScreenStack().PopScreen();
+                TransferItemToCharacter(slot, character, share, amount);
+            },
+            maxAmount);
+        mGuiManager.GetScreenStack().PushScreen(&mSplitStackDialog);
+    }
+    else
+    {
+        TransferItemToCharacter(
+            slot,
+            character,
+            false,
+            slot.GetItem().GetQuantity());
+    }
 }
 
 void InventoryScreen::MoveItemToEquipmentSlot(
@@ -511,15 +577,18 @@ void InventoryScreen::MoveItemToEquipmentSlot(
     mNeedRefresh = true;
 }
 
-void InventoryScreen::MoveItemToContainer(InventorySlot& slot)
+void InventoryScreen::MoveItemToContainer(
+    InventorySlot& slot,
+    bool share,
+    unsigned amount)
 {
     // Can't move an item in a container to the container...
-    if (mDisplayContainer)
-        return;
-
+    ASSERT(!mDisplayContainer);
     ASSERT(mSelectedCharacter);
 
-    const auto& item = slot.GetItem();
+    auto item = slot.GetItem();
+    item.SetQuantity(amount);
+
     if (item.IsEquipped() 
         && (item.IsItemType(BAK::ItemType::Sword)
             || item.IsItemType(BAK::ItemType::Staff)))
@@ -527,21 +596,57 @@ void InventoryScreen::MoveItemToContainer(InventorySlot& slot)
         StartDialog(BAK::DialogSources::mCantDiscardOnlyWeapon);
         return;
     }
-    mLogger.Debug() << "Move item to container: " << slot.GetItem() << "\n";
+    mLogger.Debug() << "Move item to container: " << item << "\n";
 
     if (mContainer && mContainer->IsShop())
     {
         ASSERT(mSelectedCharacter);
-        TransferItemToShop(slot, *mSelectedCharacter);
+        TransferItemToShop(
+            slot,
+            *mSelectedCharacter);
     }
-    else if (mContainer)
+    else if (mContainer && mContainer->CanAddItem(item))
     {
-        mContainer->GetInventory().AddItem(slot.GetItem());
-        GetCharacter(*mSelectedCharacter).GetInventory().RemoveItem(slot.GetItemIndex());
+        mContainer->GetInventory().AddItem(item);
+        if (item.IsStackable())
+            GetCharacter(*mSelectedCharacter).GetInventory()
+                .RemoveItem(item);
+        else
+            GetCharacter(*mSelectedCharacter).GetInventory()
+                .RemoveItem(slot.GetItemIndex());
+    }
+    else
+    {
+        StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
     }
 
     GetCharacter(*mSelectedCharacter).CheckPostConditions();
     mNeedRefresh = true;
+}
+
+void InventoryScreen::SplitStackBeforeMoveItemToContainer(InventorySlot& slot)
+{
+    if (mDisplayContainer || !mContainer)
+        return;
+
+    // Game doesn't split stacks when selling to shops
+    if (slot.GetItem().IsStackable() && !mContainer->IsShop())
+    {
+        const auto maxAmount = mContainer->GetInventory()
+            .CanAddContainer(slot.GetItem());
+
+        mSplitStackDialog.BeginSplitDialog(
+            [&](bool share, unsigned amount){
+                mGuiManager.GetScreenStack().PopScreen();
+                MoveItemToContainer(slot, share, amount);
+            },
+            maxAmount);
+        mGuiManager.GetScreenStack().PushScreen(&mSplitStackDialog);
+    }
+    else
+    {
+        MoveItemToContainer(slot, false, slot.GetItem().GetQuantity());
+    }
 }
 
 void InventoryScreen::UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
@@ -569,7 +674,7 @@ void InventoryScreen::ShowItemDescription(const BAK::InventoryItem& item)
     // FIXME: Probably want to put this logic elsewhere...
     if (item.GetObject().mType == BAK::ItemType::Scroll)
     {
-        context = item.mCondition;
+        context = item.GetCondition();
         dialog = BAK::DialogSources::GetScrollDescription();
     }
     else
@@ -641,7 +746,7 @@ void InventoryScreen::UpdatePartyMembers()
             party.GetCharacter(person).GetIndex().mValue);
         mCharacters.emplace_back(
             [this, character=person](InventorySlot& slot){
-                TransferItemToCharacter(slot, character);
+                SplitStackBeforeTransferItemToCharacter(slot, character);
             },
             [this, character=person]{
                 // Switch character
@@ -879,8 +984,6 @@ void InventoryScreen::AddChildren()
             AddChildBack(&mContainerScreen);
         }
     }
-
-    //AddChildBack(&mSplitStackDialog);
 }
 
 void InventoryScreen::CheckExclusivity()

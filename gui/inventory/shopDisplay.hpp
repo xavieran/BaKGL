@@ -94,10 +94,13 @@ public:
         return fullPages + partialPages;
     }
 
-    BAK::Royals GetSellPrice(BAK::InventoryIndex itemIndex)
+    BAK::Royals GetSellPrice(
+        BAK::InventoryIndex itemIndex,
+        unsigned amount)
     {
         ASSERT(mContainer);
-        const auto& item = mContainer->GetInventory().GetAtIndex(itemIndex);
+        auto item = mContainer->GetInventory().GetAtIndex(itemIndex);
+        item.mCondition = amount;
         return BAK::Shop::GetSellPrice(item, mContainer->GetShop());
     }
 

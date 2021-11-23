@@ -75,6 +75,12 @@ public:
         mStatus = SetItemStatus(mStatus, ItemStatus::Equipped, state);
     }
 
+    void SetQuantity(unsigned quantity)
+    {
+        ASSERT(!IsStackable() || (IsStackable() && quantity <= GetObject().mStackSize));
+        mCondition = quantity;
+    }
+
     bool HasFlag(ItemFlags flag) const
     {
         return CheckBitSet(GetObject().mFlags, flag);

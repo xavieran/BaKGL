@@ -80,7 +80,7 @@ public:
     ClickButton(
         glm::vec2 pos,
         glm::vec2 dims,
-        const Font& fr,
+        const Font& font,
         const std::string& label,
         std::function<void()>&& onLeftMousePress)
     :
@@ -90,6 +90,7 @@ public:
             std::move(onLeftMousePress),
             [](){}
         },
+        mFont{font},
         mNormal{
             glm::vec2{0, 0},
             dims,
@@ -107,14 +108,20 @@ public:
             dims},
         mButton{}
     {
-        const auto& [endPos, text] = mText.AddText(fr, label);
-        const auto& textPos = mText.GetPositionInfo().mPosition;
+        SetText(label);
+        mButton.emplace_back(&mNormal);
+        mButton.emplace_back(&mText);
+    }
+
+    void SetText(std::string_view label)
+    {
+        const auto textPos = glm::vec2{3, 2};
+        const auto& dims = GetPositionInfo().mDimensions;
+        const auto& [endPos, text] = mText.AddText(mFont, label);
         mText.SetPosition(
             glm::vec2{
                 textPos.x + (dims.x - endPos.x) / 2,
                 textPos.y});
-        mButton.emplace_back(&mNormal);
-        mButton.emplace_back(&mText);
     }
 
     const std::vector<Graphics::IGuiElement*>& GetChildren() const override
@@ -165,6 +172,8 @@ public:
     }
 
 private:
+    const Font& mFont;
+
     Button mNormal;
     Button mPressed;
     TextBox mText;

@@ -40,6 +40,7 @@ public:
         mShopType{0},
         mItemValue{0},
         mSkillValue{0},
+        mSelectedItem{},
         mChapter{1},
         mZone{1},
         mContainers{},
@@ -241,15 +242,22 @@ public:
                 {
                     mTextVariableStore.SetTextVariable(set.mWhich, "Active Character");
                 }
-                if (set.mWhat == 0x1c)
+                else if (set.mWhat == 0x12)
                 {
-                    mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
+                    ASSERT(mSelectedItem);
+                    mTextVariableStore.SetTextVariable(
+                        set.mWhich,
+                        mSelectedItem->GetObject().mName);
                 }
                 else if (set.mWhat == 0x13)
                 {
                     mTextVariableStore.SetTextVariable(
                         set.mWhich,
                         ToShopDialogString(mItemValue));
+                }
+                else if (set.mWhat == 0x1c)
+                {
+                    mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
                 }
             },
             [&](const BAK::LoseItem& lose)
@@ -487,6 +495,11 @@ public:
         mItemValue = value;
     }
 
+    void SetInventoryItem(const InventoryItem& item)
+    {
+        mSelectedItem = item;
+    }
+
     void ClearUnseenImprovements(unsigned character)
     {
         if (mGameData)
@@ -521,6 +534,7 @@ public:
     unsigned mShopType;
     Royals mItemValue;
     unsigned mSkillValue;
+    std::optional<InventoryItem> mSelectedItem;
     Chapter mChapter;
     ZoneNumber mZone;
     std::vector<
