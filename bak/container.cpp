@@ -106,13 +106,13 @@ std::ostream& operator<<(std::ostream& os, const ContainerDialog& ce)
 
 std::ostream& operator<<(std::ostream& os, const GenericContainer& gc)
 {
-    os << "GenericContainer{ " << gc.mHeader;
-    if (gc.mLock) os << gc.mLock;
-    if (gc.mDialog) os << gc.mDialog;
-    if (gc.mShop) os << gc.mShop;
-    if (gc.mEncounter) os << gc.mEncounter;
-    if (gc.mLastAccessed) os << std::hex << " LastAccessed: " << gc.mLastAccessed << std::dec;
-    if (gc.HasInventory()) os << gc.mInventory;
+    os << "GenericContainer{ " << gc.GetHeader();
+    if (gc.HasLock()) os << gc.GetLock();
+    if (gc.HasDialog()) os << gc.GetDialog();
+    if (gc.HasShop()) os << gc.GetShop();
+    if (gc.HasEncounter()) os << gc.GetEncounter();
+    if (gc.HasLastAccessed()) os << std::hex << " LastAccessed: " << gc.GetLastAccessed() << std::dec;
+    if (gc.HasInventory()) os << " " << gc.GetInventory();
     os << "}";
     return os;
 }

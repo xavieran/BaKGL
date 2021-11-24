@@ -106,6 +106,7 @@ Directories::CreatePath(const std::string &path)
             {
                 throw IOError(__FILE__, __LINE__);
             }
+            printf("Created data path: %s\n", path.c_str());
         }
         else
         {

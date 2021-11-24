@@ -159,22 +159,22 @@ public:
             return;
         }
 
-        if (container.mHeader.HasDialog())
+        if (container.GetHeader().HasDialog())
         {
             if (mGuiManager.mScreenStack.size() == 1)
             {
                 mDynamicDialogScene.SetDialogFinished(
                     [&](const auto&){
-                        if (container.mHeader.HasEncounter() && container.mEncounter->mHotspotRef)
+                        if (container.GetHeader().HasEncounter() && container.GetEncounter().mHotspotRef)
                         {
-                            mGuiManager.EnterGDSScene(*container.mEncounter->mHotspotRef, []{});
+                            mGuiManager.EnterGDSScene(*container.GetEncounter().mHotspotRef, []{});
                         }
                         mDynamicDialogScene.ResetDialogFinished();
                     });
 
-                if (container.mHeader.HasDialog())
+                if (container.GetHeader().HasDialog())
                     mGuiManager.StartDialog(
-                        container.mDialog->mDialog,
+                        container.GetDialog().mDialog,
                         false,
                         //FIXME: There are a few dialogs of fixed objects which require the frame
                         false, 
@@ -193,7 +193,7 @@ public:
         if (container.HasEncounter() && container.GetEncounter().mEncounterPos)
         {
             CheckAndDoEncounter(
-                *container.mEncounter->mEncounterPos
+                *container.GetEncounter().mEncounterPos
                 + glm::uvec2{800, 800}); // Hack to ensure these encounters trigger...
         }
     }
@@ -369,7 +369,7 @@ public:
                 BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
             auto cit = std::find_if(containers.begin(), containers.end(),
                 [&bakLocation](const auto& x){
-                    return x.mHeader.GetPosition() == bakLocation;
+                    return x.GetHeader().GetPosition() == bakLocation;
                 });
 
             if (cit != containers.end())
@@ -379,7 +379,7 @@ public:
                 mZoneData->mFixedObjects.begin(),
                 mZoneData->mFixedObjects.end(),
                 [&bakLocation](const auto& x){
-                    return x.mHeader.GetPosition() == bakLocation;
+                    return x.GetHeader().GetPosition() == bakLocation;
                 });
 
             if (fit != mZoneData->mFixedObjects.end())

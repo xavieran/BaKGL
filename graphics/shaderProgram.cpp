@@ -185,7 +185,8 @@ std::optional<std::string> ShaderProgram::FindFile(const std::string& shaderPath
 
     std::vector<std::string> searchPaths{
         "Code/BaKGL/shaders",
-        ".shaders"};
+        ".shaders",
+        "shaders"};
 
     for (const auto& searchPath : searchPaths)
     {

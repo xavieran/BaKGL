@@ -23,21 +23,21 @@ GameData::GameData(const std::string& save)
     mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
     //mLogger.Info() << mParty << "\n";
     mLogger.Info() << mTime << "\n";
-    LoadContainers(0x1);
-    LoadContainers(0x2);
-    LoadContainers(0x3);
-    LoadContainers(0x4);
-    LoadContainers(0x5);
-    LoadContainers(0x6);
-    LoadContainers(0x7);
-    LoadContainers(0x8);
-    LoadContainers(0x9);
-    LoadContainers(0xa);
-    LoadContainers(0xb);
-    LoadContainers(0xc);
-    mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
-        << mBuffer.Tell() << std::dec << "\n";
-    LoadShops();
+    //LoadContainers(0x1);
+    //LoadContainers(0x2);
+    //LoadContainers(0x3);
+    //LoadContainers(0x4);
+    //LoadContainers(0x5);
+    //LoadContainers(0x6);
+    //LoadContainers(0x7);
+    //LoadContainers(0x8);
+    //LoadContainers(0x9);
+    //LoadContainers(0xa);
+    //LoadContainers(0xb);
+    //LoadContainers(0xc);
+    //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
+    //    << mBuffer.Tell() << std::dec << "\n";
+    //LoadShops();
     //LoadCombatEntityLists();
     //LoadCombatInventories(
     //    sCombatInventoryOffset,
@@ -594,30 +594,8 @@ std::vector<GenericContainer> GameData::LoadShops()
             mBuffer,
             true);
         shops.emplace_back(std::move(container));
-        mLogger.Info() << container << "\n";
+        mLogger.Info() << shops.back() << "\n";
     }
-    //{
-    //    const auto header = ContainerHeader{
-    //        ContainerGDSLocationTag{},
-    //        mBuffer};
-    //    mLogger.Debug() << std::hex << mBuffer.Tell() << std::dec << "\n";
-    //    mLogger.Debug() << "Shop #: " << i << " " << header << "\n";
-    //    auto inventory = LoadInventory(mBuffer, header.mItems, header.mCapacity);
-    //    auto shopData = std::optional<ShopStats>{};
-    //    if (header.HasShop())
-    //        shopData = LoadShop();
-
-    //    shops.emplace_back(
-    //        header.GetHotspotRef(),
-    //        header.mLocationType,
-    //        header.mItems,
-    //        header.mCapacity,
-    //        static_cast<ContainerType>(header.mFlags),
-    //        shopData,
-    //        LockStats{},
-    //        std::move(inventory));
-    //    mLogger.Debug() << shops.back() << "\n";
-    //}
 
     return shops;
 }
@@ -628,62 +606,10 @@ std::vector<GenericContainer> GameData::LoadContainers(unsigned zone)
     mLogger.Info() << "Loading containers for Z: " << zone << "\n";
     std::vector<GenericContainer> containers{};
 
-    unsigned count = 0;
-    switch (zone)
-    {
-    case 1:
-        mBuffer.Seek(0x3b621); // 36 items 1
-        count = 36;
-        break;
-    case 2:
-        mBuffer.Seek(0x3be55); // 25 2
-        count = 25;
-        break;
-    case 3:
-        mBuffer.Seek(0x3c55f); // 54 3
-        count = 54;
-        break;
-    case 4:
-        mBuffer.Seek(0x3d0b4); // 65 4
-        count = 65;
-        break;
-    case 5:
-        mBuffer.Seek(0x3dc07); // 63 5
-        count = 63;
-        break;
-    case 6:
-        mBuffer.Seek(0x3e708); // 131 6
-        count = 131;
-        break;
-    case 7:
-        mBuffer.Seek(0x3f8b2); // 115 7
-        count = 115;
-        break;
-    case 8:
-        mBuffer.Seek(0x40c97); // 67 8
-        count = 67;
-        break;
-    case 9:
-        mBuffer.Seek(0x416b7); // 110 9
-        count = 110;
-        break;
-    case 10:
-        mBuffer.Seek(0x42868); // 25 A
-        count = 25;
-        break;
-    case 11:
-        mBuffer.Seek(0x43012); // 30 B
-        count = 30;
-        break;
-    case 12:
-        mBuffer.Seek(0x4378f); // 60 C
-        count = 60;
-        break;
-    default:
-        throw std::runtime_error("Zone not supported");
-    }
+    ASSERT(zone < sZoneContainerOffsets.size());
+    const auto [offset, count] = sZoneContainerOffsets[zone];
+    mBuffer.Seek(offset);
 
-    mBuffer.Dump(8);
     for (unsigned j = 0; j < count; j++)
     {
         const unsigned address = mBuffer.Tell();
@@ -691,7 +617,7 @@ std::vector<GenericContainer> GameData::LoadContainers(unsigned zone)
             << " addr: " << std::hex << address << std::dec << std::endl;
         auto container = LoadGenericContainer(mBuffer, false);
         containers.emplace_back(std::move(container));
-        mLogger.Info() << container << "\n";
+        mLogger.Info() << containers.back() << "\n";
     }
 
     return containers;
@@ -762,8 +688,8 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
         mLogger.Info() << "Combat #" << std::dec << i 
             << " " << std::hex << mBuffer.Tell() << std::endl;
         mLogger.Info() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
-        mBuffer.Dump(6);
-        mBuffer.Skip(6);
+        // These are spells
+        mBuffer.DumpAndSkip(6);
 
         std::stringstream ss{""};
         for (const auto& stat : {
@@ -776,8 +702,7 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
                 << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " ";
             mBuffer.Skip(2);
         }
-        mBuffer.Dump(7);
-        mBuffer.Skip(7);
+        mBuffer.DumpAndSkip(7);
         mLogger.Info() << ss.str() << std::endl;
     }
     mLogger.Info() << "Combat Stats End @" 
@@ -797,11 +722,11 @@ void GameData::LoadCombatInventories(unsigned offset, unsigned number)
         //ASSERT(mBuffer.GetUint8() == 0x64);
         mBuffer.GetUint8(); // always 0x64 for combats
         mBuffer.GetUint8();// == 0x0a);
-        mBuffer.Skip(2);
+        mBuffer.DumpAndSkip(2);
         auto combatantNo = mBuffer.GetUint16LE();
-        mBuffer.Skip(2);
+        mBuffer.DumpAndSkip(2);
         auto combatNo = mBuffer.GetUint16LE();
-        mBuffer.Skip(2);
+        mBuffer.DumpAndSkip(2);
 
         int unknown = mBuffer.GetUint8();
         mLogger.Info() << "CombatInventory #" << i << " "

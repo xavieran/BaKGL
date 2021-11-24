@@ -159,7 +159,7 @@ public:
     {
         for (auto& shop : mGDSContainers)
         {
-            if (shop.mHeader.GetHotspotRef() == ref)
+            if (shop.GetHeader().GetHotspotRef() == ref)
                 return &shop;
         }
         return nullptr;

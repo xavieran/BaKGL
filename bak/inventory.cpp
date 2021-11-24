@@ -177,16 +177,18 @@ void Inventory::CheckPostConditions()
 
 std::ostream& operator<<(std::ostream& os, const Inventory& inventory)
 {
-    for (unsigned i = 0; i < inventory.GetItems().size(); i++)
+    os << "Inventory {\n";
+    for (unsigned i = 0; i < inventory.GetNumberItems(); i++)
     {
-        os << i << " >> " << inventory.GetItems()[i] << "\n";
+        os << "#" << i << " -> " << inventory.GetAtIndex(InventoryIndex{i}) << "\n";
     }
+    os << "}";
     return os;
 }
 
 Inventory LoadInventory(FileBuffer& fb, unsigned itemCount, unsigned capacity)
 {
-    std::vector<InventoryItem> items{};
+    auto items = std::vector<InventoryItem>{};
     unsigned i;
     for (i = 0; i < itemCount; i++)
     {

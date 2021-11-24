@@ -143,6 +143,7 @@ int main ( int argc, char **argv )
                     FileManager::GetInstance()->ArchiveAllResources();
                     break;
                 case 'E':
+                    printf("Extracting resources\n");
                     FileManager::GetInstance()->ExtractAllResources();
                     break;
                 default:

@@ -103,29 +103,35 @@ public:
     static constexpr auto sDoorFlag = 0x1b58;
 
     static constexpr auto sSkillSelectedEventFlag = 0x1856;
-    static constexpr auto sSkillImprovementEventFlag= 0x18ce;
+    static constexpr auto sSkillImprovementEventFlag = 0x18ce;
 
     static constexpr auto sLockHasBeenSeenFlag = 0x1c5c;
 
     static constexpr auto sCombatEntityListCount  = 700;
     static constexpr auto sCombatEntityListOffset = 0x1383;
 
+    static constexpr auto sCombatSkillsListOffset = 0x914b;
+    static constexpr auto sCombatSkillsListCount  = 1698;
+
     static constexpr auto sCharacterInventoryOffset = 0x3a804; // -> 3aa4b
     static constexpr auto sPartyKeyInventoryOffset = 0x3aaa4;
 
-    static constexpr auto sZone1ContainerOffset = 0x3b631;
-    static constexpr auto sZone2ContainerOffset = 0x3be55;
-    static constexpr auto sZone3ContainerOffset = 0x3c55f;
-    static constexpr auto sZone4ContainerOffset = 0x3d0b4;
-    static constexpr auto sZone5ContainerOffset = 0x3dc07;
-    static constexpr auto sZone6ContainerOffset = 0x3e708;
-    static constexpr auto sZone7ContainerOffset = 0x3f8b2;
-    static constexpr auto sZone8ContainerOffset = 0x40c97;
-    static constexpr auto sZone9ContainerOffset = 0x416b7;
-    static constexpr auto sZoneAContainerOffset = 0x42868;
-    static constexpr auto sZoneBContainerOffset = 0x43012;
-    static constexpr auto sZoneCContainerOffset = 0x4378f;
-    
+    static constexpr std::array<std::pair<unsigned, unsigned>, 13> sZoneContainerOffsets = {
+        std::make_pair(0x3ab4f, 15), // cheat chests and debug inventories...
+        {0x3b621, 36},
+        {0x3be55, 25},
+        {0x3c55f, 54},
+        {0x3d0b4, 65},
+        {0x3dc07, 63},
+        {0x3e708, 131},
+        {0x3f8b2, 115},
+        {0x40c97, 67},
+        {0x416b7, 110},
+        {0x42868, 25},
+        {0x43012, 30},
+        {0x4378f, 60}
+    };
+
     static constexpr auto sShopsCount  = 98;
     static constexpr auto sShopsOffset = 0x443c9;
 

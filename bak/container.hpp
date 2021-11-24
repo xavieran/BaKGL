@@ -103,7 +103,6 @@ std::ostream& operator<<(std::ostream&, const ContainerDialog&);
 class GenericContainer : public IContainer
 {
 public:
-
     GenericContainer(
         ContainerHeader header,
         std::optional<LockStats> lock,
@@ -123,28 +122,32 @@ public:
     {
     }
 
+    GenericContainer(GenericContainer&&) noexcept                 = default;
+    GenericContainer& operator=(GenericContainer&&) noexcept      = default;
+    GenericContainer(const GenericContainer&) noexcept            = default;
+    GenericContainer& operator=(const GenericContainer&) noexcept = default;
 
-    ContainerHeader mHeader;
-    std::optional<LockStats> mLock;
-    std::optional<ContainerDialog> mDialog;
-    std::optional<ShopStats> mShop;
-    std::optional<ContainerEncounter> mEncounter;
-    std::optional<Time> mLastAccessed;
-    Inventory mInventory;
+    const ContainerHeader& GetHeader() const { return mHeader; }
 
     bool HasLock() const { return bool{mLock}; }
     LockStats& GetLock() override { ASSERT(mLock); return *mLock; }
+    const LockStats& GetLock() const { ASSERT(mLock); return *mLock; }
 
     bool HasDialog() const { return bool{mDialog}; }
+    const ContainerDialog& GetDialog() const { ASSERT(mDialog); return *mDialog; }
     ContainerDialog& GetDialog() { ASSERT(mDialog); return *mDialog; }
 
     bool HasShop() const { return bool{mShop}; }
     ShopStats& GetShop() override { ASSERT(mShop); return *mShop; }
+    const ShopStats& GetShop() const { ASSERT(mShop); return *mShop; }
 
     bool HasEncounter() const { return bool{mEncounter}; }
     ContainerEncounter& GetEncounter() { ASSERT(mEncounter); return *mEncounter; }
+    const ContainerEncounter& GetEncounter() const { ASSERT(mEncounter); return *mEncounter; }
+
     bool HasLastAccessed() const { return bool{mLastAccessed}; }
     Time& GetLastAccessed() { ASSERT(mLastAccessed); return *mLastAccessed; }
+    const Time& GetLastAccessed() const { ASSERT(mLastAccessed); return *mLastAccessed; }
 
     bool HasInventory() const { return bool{mHeader.mCapacity != 0}; }
 
@@ -172,6 +175,15 @@ public:
     {
         return static_cast<ContainerType>(mHeader.mFlags);
     }
+
+private:
+    ContainerHeader mHeader;
+    std::optional<LockStats> mLock;
+    std::optional<ContainerDialog> mDialog;
+    std::optional<ShopStats> mShop;
+    std::optional<ContainerEncounter> mEncounter;
+    std::optional<Time> mLastAccessed;
+    Inventory mInventory;
 };
 
 GenericContainer LoadGenericContainer(FileBuffer& fb, bool isGdsLocation);

@@ -28,7 +28,7 @@ std::vector<GenericContainer> LoadFixedObjects(
             auto container = LoadGenericContainer(fb, false);
             logger.Debug() << "Obj no: " << i << std::endl;
             logger.Debug() << container << std::endl;
-            if (container.mHeader.GetZone().mValue == targetZone)
+            if (container.GetHeader().GetZone().mValue == targetZone)
                 fixedObjects.emplace_back(std::move(container));
         }
     }
