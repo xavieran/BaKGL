@@ -184,7 +184,6 @@ std::optional<std::string> ShaderProgram::FindFile(const std::string& shaderPath
     if (home == nullptr) return std::optional<std::string>{};
 
     std::vector<std::string> searchPaths{
-        "Code/BaKGL/shaders",
         ".shaders",
         "shaders"};
 
