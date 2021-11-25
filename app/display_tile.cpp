@@ -45,7 +45,7 @@ int main(int argc, char** argv)
         logger.Info() << "Item: " << name << " loc: " << item.GetLocation() << std::endl;
     }
 
-    constexpr auto chapter = 1;
+    constexpr auto chapter = 7;
     logger.Info() << "Encounters: " << world.GetEncounters(BAK::Chapter{chapter}).size() << "\n";
     for (const auto& encounter : world.GetEncounters(BAK::Chapter{chapter}))
     {

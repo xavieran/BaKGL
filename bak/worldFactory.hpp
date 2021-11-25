@@ -34,11 +34,11 @@ enum class EntityType
     CHEST      =  6,
     DEADBODY1  =  7,
     FENCE      =  8,
-    GATE       =  9,
+    GATE       =  9, // RIFT GATE
     BUILDING   = 10,
     TOMBSTONE  = 12,
     SIGN       = 13,
-    ROOM       = 14,
+    TUNNEL1    = 14, // ALSO TUNNEL...
     PIT        = 15,
     DEADBODY2  = 16,
     DIRTPILE   = 17,
@@ -62,7 +62,7 @@ enum class EntityType
     CATAPULT   = 36,
     COLUMN     = 37,
     LANDSCAPE  = 38,
-    MOUNTAIN   = 39, // with tunnel
+    TUNNEL2    = 39, // with tunnel
     BAG        = 41,
     LADDER     = 42
 };
@@ -206,8 +206,9 @@ public:
             "ground",
             "zero",
             "one",
+            "bridge",
             "tree",
-            "cryst",
+            "cryst", // this might not be true
             "t0",
             "g0",
             "r0",

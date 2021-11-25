@@ -89,14 +89,17 @@ bool WouldKeyBreak(const InventoryItem& item, unsigned lockRating)
 
 unsigned DescribeLock(unsigned picklockSkill, unsigned lockRating)
 {
-    if (picklockSkill > lockRating)
+    if (lockRating > 106)
+        return 3; // lock is broken
+    else if (lockRating > 100 && lockRating < 107)
+        return 2; // lock takes special key
+    else if (picklockSkill > lockRating)
         return 0; // lock is easy
     else if (picklockSkill <= lockRating)
         return 1; // lock too complicated
-    else if (lockRating > 100 && lockRating < 107)
-        return 2; // lock takes special key
     else
-        return 3; // lock is broen
+        ASSERT(false);
+        return 0;
 }
 
 unsigned GetRandomMod100()

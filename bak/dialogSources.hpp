@@ -121,6 +121,12 @@ public:
     static constexpr auto mBardingPoor = KeyTarget{0x58};
     static constexpr auto mBardingOkay = KeyTarget{0x59};
     static constexpr auto mBardingGood = KeyTarget{0x5a};
+    
+    static constexpr auto mWordlockIntro     = KeyTarget{0xc};
+    static constexpr auto mOpenUnlockedBox   = KeyTarget{0xc2};
+    static constexpr auto mOpenTrappedBox    = KeyTarget{0xbe};
+    static constexpr auto mChooseUnlock      = KeyTarget{0x4f};
+    static constexpr auto mOpenExplodedChest = KeyTarget{0x13d};
 
     static constexpr auto mKeyOpenedLock    = KeyTarget{0x51};
     static constexpr auto mKeyDoesntFit     = KeyTarget{0x52};
@@ -132,6 +138,22 @@ public:
     static constexpr auto mTombNoShovel  = KeyTarget{0x42};
     static constexpr auto mTombNoBody    = KeyTarget{0x43};
     static constexpr auto mTombJustABody = KeyTarget{0x44};
+
+    static constexpr auto mUnknownObject = KeyTarget{0x9a};
+    static constexpr auto mBag           = KeyTarget{0x9e};
+    static constexpr auto mFoodBush      = KeyTarget{0x9f};
+    static constexpr auto mCampfire      = KeyTarget{0xa6};
+    static constexpr auto mCorn          = KeyTarget{0xaa};
+    static constexpr auto mCrystalTree   = KeyTarget{0xb2};
+    static constexpr auto mDirtpile      = KeyTarget{0xf};
+    static constexpr auto mHealthBush    = KeyTarget{0xa0};
+    static constexpr auto mPoisonBush    = KeyTarget{0xa1};
+    static constexpr auto mStones        = KeyTarget{0xaf};
+    static constexpr auto mScarecrow     = KeyTarget{0xb5};
+    static constexpr auto mSiegeEngine   = KeyTarget{0xb7};
+    static constexpr auto mStump         = KeyTarget{0xba};
+    static constexpr auto mTrappedAnimal = KeyTarget{0xab};
+    static constexpr auto mWell          = KeyTarget{0xbc};
 };
 
 }

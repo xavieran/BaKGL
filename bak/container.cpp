@@ -38,6 +38,20 @@ std::ostream& operator<<(std::ostream& os, const ContainerHeader& header)
     return os;
 }
 
+ContainerHeader::ContainerHeader()
+    :
+        mLocation{
+            ContainerWorldLocation{
+                ZoneNumber{0},
+                std::array<std::uint8_t, 3>{},
+                glm::uvec2{0, 0}}},
+        mLocationType{0},
+        mItems{0},
+        mCapacity{0},
+        mFlags{0}
+{
+}
+
 ContainerHeader::ContainerHeader(ContainerWorldLocationTag, FileBuffer& fb)
 {
     const auto zone = ZoneNumber{fb.GetUint8()};

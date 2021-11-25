@@ -56,6 +56,7 @@ std::ostream& operator<<(std::ostream&, const ContainerLocation&);
 class ContainerHeader
 {
 public:
+    ContainerHeader();
     ContainerHeader(ContainerWorldLocationTag, FileBuffer& fb);
     ContainerHeader(ContainerGDSLocationTag, FileBuffer& fb);
 

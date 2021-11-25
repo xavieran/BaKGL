@@ -1,7 +1,6 @@
 #pragma once
 
-#include "game/chestEncounter.hpp"
-#include "game/tombEncounter.hpp"
+#include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
 #include "bak/IZoneLoader.hpp"
@@ -28,8 +27,11 @@ public:
         mCamera{camera},
         mGameState{gameState},
         mGuiManager{guiManager},
-        mChestEncounter{mGuiManager, mGameState},
-        mTombEncounter{mGuiManager, mGameState},
+        mInteractableFactory{
+            mGuiManager,
+            mGameState,
+            [this](const auto& pos){ CheckAndDoEncounter(pos); }},
+        mCurrentInteractable{nullptr},
         mDynamicDialogScene{
             [&](){ mCamera.SetAngle(mSavedAngle); },
             [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
@@ -40,6 +42,14 @@ public:
         mActiveClickable{nullptr},
         mEncounters{},
         mClickables{},
+        mNullContainer{
+            BAK::ContainerHeader{},
+            std::nullopt,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt,
+            BAK::Inventory{0}},
         mSystems{nullptr},
         mSavedAngle{0},
         mLoadRenderer{std::move(loadRenderer)},
@@ -150,21 +160,17 @@ public:
             }
         }
     }
-    
+
     void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container)
     {
         mLogger.Debug() << __FUNCTION__ << " " 
             << static_cast<unsigned>(et) << " " << container << "\n";
-        if (et == BAK::EntityType::CHEST)
-        {
-            mChestEncounter.BeginEncounter(container);
-            return;
-        }
-        else if (et == BAK::EntityType::TOMBSTONE)
-        {
-            mTombEncounter.BeginEncounter(container);
-            return;
-        }
+
+        mCurrentInteractable = mInteractableFactory.MakeInteractable(et);
+        ASSERT(mCurrentInteractable);
+        mCurrentInteractable->BeginInteraction(container);
+
+        /*
 
         if (container.GetHeader().HasDialog())
         {
@@ -203,6 +209,7 @@ public:
                 *container.GetEncounter().mEncounterPos
                 + glm::uvec2{800, 800}); // Hack to ensure these encounters trigger...
         }
+        */
     }
 
     void DoEncounter(const BAK::Encounter::Encounter& encounter)
@@ -380,7 +387,10 @@ public:
                 });
 
             if (cit != containers.end())
+            {
                 DoGenericContainer(et, *cit);
+                return;
+            }
 
             auto fit = std::find_if(
                 mZoneData->mFixedObjects.begin(),
@@ -390,15 +400,20 @@ public:
                 });
 
             if (fit != mZoneData->mFixedObjects.end())
+            {
                 DoGenericContainer(et, *fit);
+                return;
+            }
+
+            DoGenericContainer(et, mNullContainer);
         }
     }
 
     Camera& mCamera;
     BAK::GameState& mGameState;
     Gui::GuiManager& mGuiManager;
-    ChestEncounter mChestEncounter;
-    TombEncounter mTombEncounter;
+    InteractableFactory mInteractableFactory;
+    std::unique_ptr<IInteractable> mCurrentInteractable;
     Gui::DynamicDialogScene mDynamicDialogScene;
 
     std::unique_ptr<BAK::Zone> mZoneData;
@@ -407,6 +422,7 @@ public:
     const BAK::WorldItemInstance* mActiveClickable;
     std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> mEncounters;
     std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> mClickables{};
+    BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;
     std::function<void(const BAK::Zone&)>&& mLoadRenderer;

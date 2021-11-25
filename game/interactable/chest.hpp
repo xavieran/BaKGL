@@ -1,16 +1,19 @@
 #pragma once
 
+#include "game/interactable/IInteractable.hpp"
+
 #include "bak/IContainer.hpp"
 #include "bak/container.hpp"
 #include "bak/dialog.hpp"
+#include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 
-namespace Game {
+namespace Game::Interactable {
 
-class ChestEncounter
+class Chest : public IInteractable
 {
 private:
     enum class State
@@ -23,7 +26,7 @@ private:
     };
 
 public:
-    ChestEncounter(
+    Chest(
         Gui::IGuiManager& guiManager,
         BAK::GameState& gameState)
     :
@@ -37,7 +40,7 @@ public:
         mState{State::Idle}
     {}
 
-    void BeginEncounter(BAK::GenericContainer& chest)
+    void BeginInteraction(BAK::GenericContainer& chest) override
     {
         ASSERT(mState == State::Idle);
 
@@ -49,18 +52,18 @@ public:
         if (!chest.HasLock())
         {
             // If no lock, just open the box
-            StartDialog(BAK::KeyTarget{0xc2});
+            StartDialog(BAK::DialogSources::mOpenUnlockedBox);
         }
         else if (chest.GetLock().IsFairyChest())
         {
             // If word lock, show flavour text then transition
             // into word lock screen
-            StartDialog(BAK::KeyTarget{0xc});
+            StartDialog(BAK::DialogSources::mWordlockIntro);
         }
         else if (!chest.GetLock().IsTrapped())
         {
             // If normal lock, ask if user wants to open lock
-            StartDialog(BAK::KeyTarget{0x4f});
+            StartDialog(BAK::DialogSources::mChooseUnlock);
         }
         else
         {
@@ -68,20 +71,22 @@ public:
             if (mGameState.GetSpellActive(5) && chest.GetLock().mLockFlag == 4)
             {
                 // Box is trapped, do we want to open it?
-                StartDialog(BAK::KeyTarget{0xbe});
+                StartDialog(BAK::DialogSources::mOpenTrappedBox);
             }
             // Chest is not trapped
             else if (chest.GetLock().mLockFlag == 1)
             {
                 ASSERT(chest.GetLock().mLockFlag == 1);
-                StartDialog(BAK::KeyTarget{0x13d});
+                StartDialog(BAK::DialogSources::mOpenExplodedChest);
             }
             else
             {
-                StartDialog(BAK::KeyTarget{0x4f});
+                StartDialog(BAK::DialogSources::mChooseUnlock);
             }
         }
     }
+
+    void EncounterFinished() override {}
 
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {

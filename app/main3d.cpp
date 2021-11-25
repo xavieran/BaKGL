@@ -341,19 +341,6 @@ int main(int argc, char** argv)
         ShowCameraGui(camera);
         console.Draw("Console", &consoleOpen);
 
-        if (gameRunner.mActiveClickable)
-        {
-            ImGui::Begin("Clickable");
-            std::stringstream ss{};
-            ss << "Clickable: " << gameRunner.mActiveClickable->GetZoneItem().GetName()
-                << "\nLocation: " << gameRunner.mActiveClickable->GetBakLocation() << "\n";
-            ImGui::Text(ss.str().c_str());
-
-            ImGui::Separator();
-
-            ImGui::End();
-        }
-
         gameRunner.RunGameUpdate();
 
         if (gameRunner.mActiveEncounter)

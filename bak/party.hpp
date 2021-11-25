@@ -17,14 +17,14 @@ class Party
 public:
     const Character& GetCharacter(CharIndex i) const
     {
-        ASSERT(mCharacters.size() == sMaxCharacters);
+        //ASSERT(mCharacters.size() == sMaxCharacters);
         ASSERT(i.mValue < mCharacters.size());
         return mCharacters[i.mValue];
     }
 
     Character& GetCharacter(CharIndex i)
     {
-        ASSERT(mCharacters.size() == sMaxCharacters);
+        //ASSERT(mCharacters.size() == sMaxCharacters);
         ASSERT(i.mValue < mCharacters.size());
         return mCharacters[i.mValue];
     }

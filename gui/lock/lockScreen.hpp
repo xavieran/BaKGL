@@ -247,7 +247,8 @@ private:
                     context = 0;
                 else
                     context = 1;
-                mGameState.SetKeyName(item);
+                mGameState.SetInventoryItem(
+                    BAK::InventoryItemFactory::MakeItem(item, 1));
                 dialog = BAK::DialogSources::mLockKnown;
             }
             else

@@ -34,14 +34,23 @@ public:
         mParty{
             Royals{1000},
             Inventory{20},
-            {},
-            {}},
+            std::vector<BAK::Character>{
+                BAK::Character{
+                    0,
+                    "None",
+                    Skills{},
+                    {},
+                    {},
+                    {},
+                    Conditions{},
+                    Inventory{5}}},
+            std::vector<CharIndex>{CharIndex{0}}},
         mContextValue{0},
         mShopType{0},
         mItemValue{0},
         mSkillValue{0},
         mSelectedItem{},
-        mChapter{1},
+        mChapter{7},
         mZone{1},
         mContainers{},
         mGDSContainers{},
@@ -218,14 +227,6 @@ public:
     const Character& GetPartyFollower()
     {
         return mPartyFollower;
-    }
-
-    void SetKeyName(BAK::ItemIndex key)
-    {
-        constexpr auto knownKeyDialogKeyVariable = 2;
-        mTextVariableStore.SetTextVariable(
-            knownKeyDialogKeyVariable,
-            GetObjectIndex().GetObject(key).mName);
     }
 
     void EvaluateAction(const DialogAction& action)

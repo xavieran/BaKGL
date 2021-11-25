@@ -1,5 +1,7 @@
 #pragma once
 
+#include "game/interactable/IInteractable.hpp"
+
 #include "bak/IContainer.hpp"
 #include "bak/container.hpp"
 #include "bak/dialog.hpp"
@@ -10,9 +12,9 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 
-namespace Game {
+namespace Game::Interactable {
 
-class TombEncounter
+class Tomb : public IInteractable
 {
 private:
 
@@ -23,9 +25,10 @@ private:
     };
 
 public:
-    TombEncounter(
+    Tomb(
         Gui::IGuiManager& guiManager,
-        BAK::GameState& gameState)
+        BAK::GameState& gameState,
+        const EncounterCallback& encounterCallback)
     :
         mGuiManager{guiManager},
         mGameState{gameState},
@@ -34,10 +37,11 @@ public:
             []{},
             [&](const auto& choice){ DialogFinished(choice); }},
         mCurrentTomb{nullptr},
-        mState{State::Idle}
+        mState{State::Idle},
+        mEncounterCallback{encounterCallback}
     {}
 
-    void BeginEncounter(BAK::GenericContainer& tomb)
+    void BeginInteraction(BAK::GenericContainer& tomb) override
     {
         mCurrentTomb = &tomb;
         mGameState.SetDialogContext(0);
@@ -116,10 +120,12 @@ public:
     {
         Logging::LogInfo("Tomb") << __FUNCTION__ << " " 
             << mCurrentTomb->GetEncounter() << "\n";
-        FinishedEncounter();
+        std::invoke(
+            mEncounterCallback,
+            *mCurrentTomb->GetEncounter().mEncounterPos);
     }
 
-    void FinishedEncounter()
+    void EncounterFinished() override
     {
         DigTomb();
     }
@@ -152,6 +158,7 @@ private:
     Gui::DynamicDialogScene mDialogScene;
     BAK::GenericContainer* mCurrentTomb;
     State mState;
+    const EncounterCallback& mEncounterCallback;
 };
 
 }

@@ -99,9 +99,9 @@ int main(int argc, char** argv)
     // Create and compile our GLSL program from the shaders
     //
     auto shaderProgram = ShaderProgram{
-        "vertex.glsl",
+        "directional.vert.glsl",
         //"geometry.glsl",
-        "fragment.glsl"};
+        "directional.frag.glsl"};
     
     auto programId = shaderProgram.Compile();
 
