@@ -141,6 +141,7 @@ public:
 
     static constexpr auto mUnknownObject = KeyTarget{0x9a};
     static constexpr auto mBag           = KeyTarget{0x9e};
+    static constexpr auto mBody          = KeyTarget{0x4e};
     static constexpr auto mFoodBush      = KeyTarget{0x9f};
     static constexpr auto mCampfire      = KeyTarget{0xa6};
     static constexpr auto mCorn          = KeyTarget{0xaa};

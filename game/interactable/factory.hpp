@@ -76,6 +76,11 @@ public:
                 mGuiManager,
                 BAK::DialogSources::mBag,
                 mEncounterCallback);
+        case InteractableType::Body:
+            return std::make_unique<Generic>(
+                mGuiManager,
+                BAK::DialogSources::mBody,
+                mEncounterCallback);
         case InteractableType::Chest:
             return std::make_unique<Chest>(
                 mGuiManager,
