@@ -79,41 +79,40 @@ public:
     // Search for a stackable item prioritising incomplete stacks
     auto FindStack(const InventoryItem& item) const
     {
-        ASSERT(item.IsStackable());
-        auto it = std::find_if(
-            mItems.begin(), mItems.end(),
-            [&item](const auto& elem){
-                const auto stackSize = elem.GetObject().mStackSize;
-                return (elem.mItemIndex == item.mItemIndex)
-                    && (elem.mCondition != elem.GetObject().mStackSize);
+        // This is unpleasant, the dream would be to use
+        // std::views::zip_view (C++23) with std::views::filter... 
+        ASSERT(item.IsStackable() || item.IsChargeBased());
+        auto items = std::vector<
+            std::pair<
+                std::size_t,
+                std::reference_wrapper<const InventoryItem>>>{};
+
+        for (std::size_t i = 0; i < mItems.size(); i++)
+        {
+            if (mItems[i].mItemIndex == item.mItemIndex)
+                items.emplace_back(i, std::ref(mItems[i]));
+        }
+
+        auto it = std::min_element(items.begin(), items.end(),
+            [](const auto& l, const auto& r){
+                return (std::get<1>(l).get().GetQuantity() < std::get<1>(r).get().GetQuantity());
             });
 
         // If we didn't find an incomplete stack, return a complete one
-        if (it == mItems.end())
+        if (it == items.end())
             return FindItem(item);
         else
-            return it;
+            return std::next(mItems.begin(), it->first);
     }
 
     // Search for a stackable item prioritising incomplete stacks
     auto FindStack(const InventoryItem& item)
     {
-        ASSERT(item.IsStackable());
-        auto it = std::find_if(
-            mItems.begin(), mItems.end(),
-            [&item](const auto& elem){
-                const auto stackSize = elem.GetObject().mStackSize;
-                return (elem.mItemIndex == item.mItemIndex)
-                    && (elem.mCondition != elem.GetObject().mStackSize);
-            });
-        if (it == mItems.end())
-        {
-            return FindItem(item);
-        }
-        else
-        {
-            return it;
-        }
+        // Is there a better way?
+        auto cit = static_cast<const Inventory*>(this)->FindStack(item);
+        return std::next(
+            mItems.begin(),
+            std::distance(mItems.cbegin(), cit));
     }
 
     auto FindEquipped(BAK::ItemType slot) const

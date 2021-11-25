@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/chestEncounter.hpp"
+#include "game/tombEncounter.hpp"
 #include "game/systems.hpp"
 
 #include "bak/IZoneLoader.hpp"
@@ -28,6 +29,7 @@ public:
         mGameState{gameState},
         mGuiManager{guiManager},
         mChestEncounter{mGuiManager, mGameState},
+        mTombEncounter{mGuiManager, mGameState},
         mDynamicDialogScene{
             [&](){ mCamera.SetAngle(mSavedAngle); },
             [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
@@ -156,6 +158,11 @@ public:
         if (et == BAK::EntityType::CHEST)
         {
             mChestEncounter.BeginEncounter(container);
+            return;
+        }
+        else if (et == BAK::EntityType::TOMBSTONE)
+        {
+            mTombEncounter.BeginEncounter(container);
             return;
         }
 
@@ -391,6 +398,7 @@ public:
     BAK::GameState& mGameState;
     Gui::GuiManager& mGuiManager;
     ChestEncounter mChestEncounter;
+    TombEncounter mTombEncounter;
     Gui::DynamicDialogScene mDynamicDialogScene;
 
     std::unique_ptr<BAK::Zone> mZoneData;

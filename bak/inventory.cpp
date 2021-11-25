@@ -95,13 +95,13 @@ void Inventory::AddItem(const InventoryItem& item)
 
         const auto amountToStack = item.GetObject().mStackSize - it->GetQuantity();
         it->mCondition += std::min(
-            item.mCondition,
+            item.GetQuantity(),
             amountToStack);
 
-        if (item.mCondition > amountToStack)
+        if (item.GetQuantity() > amountToStack)
         {
             auto newItem = item;
-            newItem.mCondition = item.mCondition - amountToStack;
+            newItem.SetQuantity(item.GetQuantity() - amountToStack);
             mItems.emplace_back(newItem);
          }
     }
@@ -126,7 +126,8 @@ bool Inventory::RemoveItem(BAK::InventoryIndex item)
 
 bool Inventory::RemoveItem(const InventoryItem& item)
 {
-    if (item.IsStackable() && HaveItem(item))
+    if ((item.IsStackable() || item.IsChargeBased())
+        && HaveItem(item))
     {
         unsigned remainingToRemove = item.GetQuantity();
         auto it = FindStack(item);

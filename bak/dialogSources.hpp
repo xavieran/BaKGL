@@ -129,7 +129,9 @@ public:
     static constexpr auto mPicklockBroken   = KeyTarget{0x55};
     static constexpr auto mKeyBroken        = KeyTarget{0xf5};
 
-
+    static constexpr auto mTombNoShovel  = KeyTarget{0x42};
+    static constexpr auto mTombNoBody    = KeyTarget{0x43};
+    static constexpr auto mTombJustABody = KeyTarget{0x44};
 };
 
 }

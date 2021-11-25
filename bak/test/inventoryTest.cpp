@@ -193,6 +193,49 @@ TEST_F(InventoryTestFixture, FindStack)
         ASSERT_NE(it, inventory.GetItems().end());
         EXPECT_EQ(it->GetQuantity(), 10);
     }
+
+    {
+        auto inventory = Inventory{
+            5,
+            {
+                MakeItem("Armor", 99),
+                MakeItem("Stack", 10),
+                MakeItem("Stack", 6),
+            }};
+
+        const auto it = inventory.FindStack(MakeItem("Stack", 1));
+        ASSERT_NE(it, inventory.GetItems().end());
+        EXPECT_EQ(it->GetQuantity(), 6);
+    }
+
+    {
+        auto inventory = Inventory{
+            10,
+            {
+                MakeItem("Armor", 99),
+                MakeItem("Stack", 10),
+                MakeItem("Stack", 6),
+                MakeItem("Stack", 10),
+                MakeItem("Stack", 4),
+                MakeItem("Stack", 6),
+                MakeItem("Stack", 10),
+            }};
+
+        const auto it = inventory.FindStack(MakeItem("Stack", 1));
+        ASSERT_NE(it, inventory.GetItems().end());
+        EXPECT_EQ(it->GetQuantity(), 4);
+    }
+
+    {
+        auto inventory = Inventory{
+            5,
+            {
+                MakeItem("Armor", 99),
+            }};
+
+        const auto it = inventory.FindStack(MakeItem("Stack", 1));
+        EXPECT_EQ(it, inventory.GetItems().end());
+    }
 }
 
 TEST_F(InventoryTestFixture, CanAddCharacterSuccess)
@@ -275,6 +318,7 @@ TEST_F(InventoryTestFixture, CanAddContainerFail)
     EXPECT_EQ(inventory.CanAddCharacter(stack10), 0);
 }
 
+ 
 TEST_F(InventoryTestFixture, AddItem)
 {
     auto inventory = Inventory{

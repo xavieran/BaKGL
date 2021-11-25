@@ -39,7 +39,7 @@ public:
         if (it != mInventory.GetItems().end())
         {
             ASSERT(it->GetQuantity() > 0);
-            it->mCondition--;
+            it->SetQuantity(it->GetQuantity() - 1);
             if (it->GetQuantity() == 0)
             {
                 mInventory.RemoveItem(
