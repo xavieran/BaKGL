@@ -151,9 +151,10 @@ int main(int argc, char** argv)
     guiManager.mMainView.UpdatePartyMembers(gameState);
 
     // OpenGL 3D Renderer
+    constexpr auto sShadowDim = 4096;
     auto renderer = Graphics::Renderer{
-        1024,
-        1024};
+        sShadowDim,
+        sShadowDim};
 
     Game::GameRunner gameRunner{
         camera,

@@ -171,38 +171,6 @@ public:
         mCurrentInteractable->BeginInteraction(container);
 
         /*
-
-        if (container.GetHeader().HasDialog())
-        {
-            if (mGuiManager.mScreenStack.size() == 1)
-            {
-                mDynamicDialogScene.SetDialogFinished(
-                    [&](const auto&){
-                        if (container.GetHeader().HasEncounter() && container.GetEncounter().mHotspotRef)
-                        {
-                            mGuiManager.EnterGDSScene(*container.GetEncounter().mHotspotRef, []{});
-                        }
-                        mDynamicDialogScene.ResetDialogFinished();
-                    });
-
-                if (container.GetHeader().HasDialog())
-                    mGuiManager.StartDialog(
-                        container.GetDialog().mDialog,
-                        false,
-                        //FIXME: There are a few dialogs of fixed objects which require the frame
-                        false, 
-                        &mDynamicDialogScene);
-            }
-            else
-            {
-                Logging::LogDebug(__FUNCTION__) << "Called while GUI active\n";
-            }
-        }
-        else if (container.GetInventory().GetCapacity() > 0)
-        {
-            mGuiManager.ShowContainer(&container);
-        }
-
         if (container.HasEncounter() && container.GetEncounter().mEncounterPos)
         {
             CheckAndDoEncounter(
@@ -386,6 +354,7 @@ public:
                     return x.GetHeader().GetPosition() == bakLocation;
                 });
 
+            mLogger.Debug() <<" " << mActiveClickable->GetZoneItem().GetName()<< "\n";
             if (cit != containers.end())
             {
                 DoGenericContainer(et, *cit);

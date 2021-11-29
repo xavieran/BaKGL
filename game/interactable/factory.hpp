@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/interactable/IInteractable.hpp"
+#include "game/interactable/building.hpp"
 #include "game/interactable/chest.hpp"
 #include "game/interactable/generic.hpp"
 #include "game/interactable/ladder.hpp"
@@ -69,17 +70,19 @@ public:
         const auto interactableType = static_cast<InteractableType>(
                 static_cast<unsigned>(entity) - nonInteractables);
 
+        const auto MakeGeneric = [this](BAK::Target dialog){
+            return std::make_unique<Generic>(
+                mGuiManager,
+                dialog,
+                mEncounterCallback);
+        };
+
         switch (interactableType)
         {
-        case InteractableType::Bag:
-            return std::make_unique<Generic>(
+        case InteractableType::Building:
+            return std::make_unique<Building>(
                 mGuiManager,
-                BAK::DialogSources::mBag,
-                mEncounterCallback);
-        case InteractableType::Body:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mBody,
+                mGameState,
                 mEncounterCallback);
         case InteractableType::Chest:
             return std::make_unique<Chest>(
@@ -94,88 +97,47 @@ public:
             return std::make_unique<Ladder>(
                 mGuiManager,
                 mGameState);
+        case InteractableType::Bag:
+            return MakeGeneric(BAK::DialogSources::mBag);
+        case InteractableType::Body:
+            return MakeGeneric(BAK::DialogSources::mBody);
         case InteractableType::Campfire:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mCampfire,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mCampfire);
         case InteractableType::Corn:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mCorn,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mCorn);
         case InteractableType::CrystalTree:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mCrystalTree,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mCrystalTree);
         case InteractableType::DirtMound:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mDirtpile,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mDirtpile);
         case InteractableType::Stones:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mStones,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mStones);
         case InteractableType::Scarecrow:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mScarecrow,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mScarecrow);
         case InteractableType::Stump:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mStump,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mStump);
         case InteractableType::SiegeEngine:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mSiegeEngine,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mSiegeEngine);
         case InteractableType::DeadAnimal:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mTrappedAnimal,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mTrappedAnimal);
         case InteractableType::HealthBush:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mHealthBush,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mHealthBush);
         case InteractableType::PoisonBush:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mPoisonBush,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mPoisonBush);
         case InteractableType::FoodBush:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mFoodBush,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mFoodBush);
         case InteractableType::Well:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mWell,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mWell);
         case InteractableType::Column:  [[ fallthrough ]];
         case InteractableType::Sign:    [[ fallthrough ]];
         case InteractableType::Slab:    [[ fallthrough ]];
         case InteractableType::Tunnel0: [[ fallthrough ]];
         case InteractableType::Tunnel1:
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mUnknownObject,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mUnknownObject);
         default:
             Logging::LogFatal(__FUNCTION__) << "Unhandled entity type: " 
                 << static_cast<unsigned>(entity) << std::endl;
             ASSERT(false);
-            return std::make_unique<Generic>(
-                mGuiManager,
-                BAK::DialogSources::mUnknownObject,
-                mEncounterCallback);
+            return MakeGeneric(BAK::DialogSources::mUnknownObject);
         }
     }
 
