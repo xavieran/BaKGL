@@ -44,7 +44,7 @@ struct SkillTestFixture : public ::testing::Test
 protected:
     void SetUp() override
     {
-        Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+        Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
     }
 
     Skills mSkills;
