@@ -394,7 +394,7 @@ public:
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;
-    std::function<void(const BAK::Zone&)>&& mLoadRenderer;
+    std::function<void(const BAK::Zone&)> mLoadRenderer;
     BAK::Encounter::TeleportFactory mTeleportFactory;
 
     bool mClickablesEnabled;

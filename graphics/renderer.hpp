@@ -47,13 +47,21 @@ public:
         mGLBuffers{},
         mTextureBuffer{GL_TEXTURE_2D_ARRAY},
         mDepthMapDims{depthMapWidth, depthMapHeight},
-        mDepthFB{},
-        mDepthBuffer{GL_TEXTURE_2D}
+        mDepthFB1{},
+        mDepthFB2{},
+        mDepthBuffer1{GL_TEXTURE_2D},
+        mDepthBuffer2{GL_TEXTURE_2D},
+        mUseDepthBuffer1{false}
     {
-        mDepthBuffer.MakeDepthBuffer(
+        mDepthBuffer1.MakeDepthBuffer(
             mDepthMapDims.x, 
             mDepthMapDims.y);
-        mDepthFB.AttachDepthTexture(mDepthBuffer);
+        mDepthFB1.AttachDepthTexture(mDepthBuffer1);
+
+        mDepthBuffer2.MakeDepthBuffer(
+            mDepthMapDims.x, 
+            mDepthMapDims.y);
+        mDepthFB2.AttachDepthTexture(mDepthBuffer2);
     }
 
     template <typename TextureStoreT>
@@ -98,7 +106,10 @@ public:
         mTextureBuffer.BindGL();
 
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, mDepthBuffer.GetId());
+        glBindTexture(GL_TEXTURE_2D,
+            mUseDepthBuffer1
+            ? mDepthBuffer1.GetId()
+            : mDepthBuffer2.GetId());
 
         auto& shader = mModelShader;
         shader.UseProgramGL();
@@ -151,14 +162,33 @@ public:
 
     void BeginDepthMapDraw()
     {
-        mDepthFB.BindGL();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glViewport(0, 0, mDepthMapDims.x, mDepthMapDims.y);
+        if (mUseDepthBuffer1)
+        {
+            mDepthFB1.BindGL();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glViewport(0, 0, mDepthMapDims.x, mDepthMapDims.y);
+        }
+        else
+        {
+            mDepthFB2.BindGL();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glViewport(0, 0, mDepthMapDims.x, mDepthMapDims.y);
+        }
     }
 
     void EndDepthMapDraw()
     {
-        mDepthFB.UnbindGL();
+
+        if (mUseDepthBuffer1)
+        {
+            mDepthFB1.UnbindGL();
+        }
+        else
+        {
+            mDepthFB2.UnbindGL();
+        }
+
+        mUseDepthBuffer1 = !mUseDepthBuffer1;
     }
 
     template <typename Renderables, typename Camera>
@@ -167,12 +197,14 @@ public:
         const Camera& lightCamera)
     {
         mVertexArrayObject.BindGL();
-        glActiveTexture(GL_TEXTURE0);
-        mTextureBuffer.BindGL();
 
         auto& shader = mShadowMapShader;
 
         shader.UseProgramGL();
+
+        // Required so we get correct depth for sprites with alpha
+        glActiveTexture(GL_TEXTURE0);
+        mTextureBuffer.BindGL();
 
         shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
         const auto lightSpaceMatrixId = shader.GetUniformLocation("lightSpaceMatrix");
@@ -208,8 +240,11 @@ public:
     GLBuffers mGLBuffers;
     TextureBuffer mTextureBuffer;
     glm::uvec2 mDepthMapDims;
-    FrameBuffer mDepthFB;
-    TextureBuffer mDepthBuffer;
+    FrameBuffer mDepthFB1;
+    FrameBuffer mDepthFB2;
+    TextureBuffer mDepthBuffer1;
+    TextureBuffer mDepthBuffer2;
+    bool mUseDepthBuffer1;
 };
 
 }
