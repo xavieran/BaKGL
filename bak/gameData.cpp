@@ -246,9 +246,10 @@ bool GameData::CheckActive(
         || eventFlag2);
 }
 
-void GameData::SetPostDialogEventFlags(const Encounter::Encounter& encounter)
+void GameData::SetPostDialogEventFlags(
+    const Encounter::Encounter& encounter,
+    ZoneNumber zone)
 {
-    constexpr auto zone = ZoneNumber{1};
     const auto tileIndex = encounter.GetTileIndex();
     const auto encounterIndex = encounter.GetIndex().mValue;
 
@@ -261,21 +262,27 @@ void GameData::SetPostDialogEventFlags(const Encounter::Encounter& encounter)
     // timirianya danger zone (effectively, always encounter this encounter)
     if (encounter.mUnknown3 == 0)
     {
-        // FIXME use actual values
-        if (encounter.mUnknown2 != 0) // Inhibit for this chapter
+        // Inhibit for this chapter
+        if (encounter.mUnknown2 != 0)
         {
-            SetEventFlagTrue(CalculateUniqueEncounterStateFlagOffset(
-                zone, tileIndex, encounterIndex));
+            SetEventFlagTrue(
+                CalculateUniqueEncounterStateFlagOffset(
+                    zone,
+                    tileIndex,
+                    encounterIndex));
         }
 
         // Inhibit for this tile
-        SetEventFlagTrue(CalculateRecentEncounterStateFlag(encounterIndex));
+        SetEventFlagTrue(
+            CalculateRecentEncounterStateFlag(
+                encounterIndex));
     }
 
 }
 
 // Background and Town
-void GameData::SetPostGDSEventFlags(const Encounter::Encounter& encounter)
+void GameData::SetPostGDSEventFlags(
+    const Encounter::Encounter& encounter)
 {
     if (encounter.mSaveAddress3 != 0)
         SetEventFlagTrue(encounter.mSaveAddress3);
@@ -290,7 +297,7 @@ void GameData::SetPostEnableOrDisableEventFlags(
     {
         SetEventFlagTrue(encounter.mSaveAddress3);
     }
-    // FIXME use actual values
+
     if (encounter.mUnknown2 != 0)
     {
         SetEventFlagTrue(

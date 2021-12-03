@@ -186,10 +186,13 @@ public:
         const Encounter::Encounter& encounter,
         ZoneNumber zone) const;
 
-    void SetPostDialogEventFlags(const Encounter::Encounter& encounter);
+    void SetPostDialogEventFlags(
+        const Encounter::Encounter& encounter,
+        ZoneNumber zone);
     
     // Background and Town
-    void SetPostGDSEventFlags(const Encounter::Encounter& encounter);
+    void SetPostGDSEventFlags(
+        const Encounter::Encounter& encounter);
     
     // Used by
     // * Block

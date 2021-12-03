@@ -86,6 +86,12 @@ public:
         return mParty;
     }
 
+    GameData& GetGameData()
+    {
+        ASSERT(mGameData);
+        return *mGameData;
+    }
+
     void SetActiveCharacter(CharIndex character)
     {
         mTextVariableStore.SetActiveCharacter(
@@ -485,6 +491,34 @@ public:
         if (mGameData)
             mGameData->SetEventDialogAction(setFlag);
     }
+
+    bool CheckEncounterActive(const Encounter::Encounter& encounter)
+    {
+         if (!mGameData) return true;
+         return mGameData->CheckActive(encounter, mZone);
+    }
+
+    void SetPostDialogEventFlags(const Encounter::Encounter& encounter)
+    {
+        if (mGameData)
+            GetGameData().SetPostDialogEventFlags(
+                encounter,
+                mZone);
+    }
+
+    void SetPostGDSEventFlags(const Encounter::Encounter& encounter)
+    {
+        if (mGameData)
+            mGameData->SetPostGDSEventFlags(encounter);
+    }
+
+    void SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter)
+    {
+        if (mGameData)
+            mGameData->SetPostEnableOrDisableEventFlags(encounter, mZone);
+    }
+
+
 
     void SetDialogContext(unsigned contextValue)
     {

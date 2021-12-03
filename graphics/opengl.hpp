@@ -57,8 +57,8 @@ public:
     VertexArrayObject(const VertexArrayObject&) = delete;
     VertexArrayObject& operator=(const VertexArrayObject&) = delete;
 
-    VertexArrayObject(VertexArrayObject&& other);
-    VertexArrayObject& operator=(VertexArrayObject&& other);
+    VertexArrayObject(VertexArrayObject&& other) noexcept;
+    VertexArrayObject& operator=(VertexArrayObject&& other) noexcept;
 
     ~VertexArrayObject();
 
@@ -76,10 +76,13 @@ class GLBuffers
 {
 public:
     GLBuffers();
-    GLBuffers(GLBuffers&& other);
-    GLBuffers& operator=(GLBuffers&& other);
+
+    GLBuffers(GLBuffers&& other) noexcept;
+    GLBuffers& operator=(GLBuffers&& other) noexcept;
+
     GLBuffers(const GLBuffers&) = delete;
     GLBuffers& operator=(const GLBuffers&) = delete;
+
     ~GLBuffers();
 
     const auto& GetGLBuffer(const std::string& name) const
@@ -87,7 +90,7 @@ public:
         if (!mBuffers.contains(name))
         {
             Logging::LogDebug("GLBuffers") << "No buffer named: " << name << std::endl;
-            ASSERT(false);
+            throw std::runtime_error("Request for nonexistent GL Buffer");
         }
         return mBuffers.find(name)->second;
     }
@@ -179,10 +182,11 @@ public:
 class TextureBuffer
 {
 public:
+    static constexpr auto sMaxTextures = 256;
 
     TextureBuffer(GLenum textureType);
-    TextureBuffer(TextureBuffer&& other);
-    TextureBuffer& operator=(TextureBuffer&& other);
+    TextureBuffer(TextureBuffer&& other) noexcept;
+    TextureBuffer& operator=(TextureBuffer&& other) noexcept;
     TextureBuffer(const TextureBuffer&) = delete;
     TextureBuffer& operator=(const TextureBuffer&) = delete;
 
@@ -194,6 +198,7 @@ public:
     GLuint GetId() const;
     
     void MakeDepthBuffer(unsigned width, unsigned height);
+    void MakeTexture2DArray();
 
     void LoadTexturesGL(
         const std::vector<Texture>& textures,

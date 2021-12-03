@@ -180,6 +180,130 @@ public:
         */
     }
 
+    void DoBlockEncounter(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::Block& block)
+    {
+        if (!mGameState.CheckEncounterActive(encounter))
+            return;
+
+        mGuiManager.StartDialog(
+                block.mDialog,
+                false,
+                false,
+                &mDynamicDialogScene);
+
+        mGameState.SetPostEnableOrDisableEventFlags(encounter);
+    }
+
+    void DoEventFlagEncounter(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::EventFlag& flag)
+    {
+        if (!mGameState.CheckEncounterActive(encounter))
+            return;
+
+        if (flag.mEventPointer != 0)
+            mGameState.SetEventValue(flag.mEventPointer, flag.mIsEnable ? 1 : 0);
+
+        mGameState.SetPostEnableOrDisableEventFlags(encounter);
+    }
+
+    void DoZoneEncounter(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::Zone& zone)
+    {
+        if (!mGameState.CheckEncounterActive(encounter))
+            return;
+
+        mDynamicDialogScene.SetDialogFinished(
+            [&, zone=zone](const auto& choice){
+                // These dialogs should always result in a choice
+                ASSERT(choice);
+                Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
+                if (choice->mValue == BAK::Keywords::sYesIndex)
+                {
+                    DoTransition(
+                        zone.mTargetZone,
+                        zone.mTargetLocation);
+                    Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
+                }
+                mDynamicDialogScene.ResetDialogFinished();
+            });
+
+        mGuiManager.StartDialog(
+            zone.mDialog,
+            false,
+            false,
+            &mDynamicDialogScene);
+    }
+
+    void DoDialogEncounter(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::Dialog& dialog)
+    {
+        if (!mGameState.CheckEncounterActive(encounter))
+            return;
+
+        mSavedAngle = mCamera.GetAngle();
+        mDynamicDialogScene.SetDialogFinished(
+            [&](const auto&){
+                mCamera.SetAngle(mSavedAngle);
+                mDynamicDialogScene.ResetDialogFinished();
+            });
+
+        mGuiManager.StartDialog(
+            dialog.mDialog,
+            false,
+            true,
+            &mDynamicDialogScene);
+
+        if (mGameState.mGameData)
+            mGameState.SetPostDialogEventFlags(
+                encounter);
+    }
+
+    void DoGDSEncounter(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::GDSEntry& gds)
+    {
+        if (!mGameState.CheckEncounterActive(encounter))
+            return;
+
+        mDynamicDialogScene.SetDialogFinished(
+            [&, gds=gds](const auto& choice){
+                // These dialogs should always result in a choice
+                ASSERT(choice);
+                if (choice->mValue == BAK::Keywords::sYesIndex)
+                {
+                    mGuiManager.EnterGDSScene(
+                        gds.mHotspot, 
+                        [&, exitDialog=gds.mExitDialog](){
+                            mGuiManager.StartDialog(
+                                exitDialog,
+                                false,
+                                false,
+                                &mDynamicDialogScene);
+                            });
+                }
+
+                // FIXME: Move this into the if block so we only
+                // modify the players position if they entered the town.
+                // Will need a "TryMoveCamera" step that checks encounter 
+                // bounds and doesn't move if its a no. 
+                // Will need the same for block and Zone transitions too.
+                mCamera.SetGameLocation(gds.mExitPosition);
+                mGameState.SetPostGDSEventFlags(encounter);
+                mDynamicDialogScene.ResetDialogFinished();
+            });
+
+        mGuiManager.StartDialog(
+            gds.mEntryDialog,
+            false,
+            false,
+            &mDynamicDialogScene);
+    }
+
     void DoEncounter(const BAK::Encounter::Encounter& encounter)
     {
         mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
@@ -187,103 +311,26 @@ public:
             overloaded{
             [&](const BAK::Encounter::GDSEntry& gds){
                 if (mGuiManager.mScreenStack.size() == 1)
-                {
-                    mDynamicDialogScene.SetDialogFinished(
-                        [&, gds=gds](const auto& choice){
-                            // These dialogs should always result in a choice
-                            ASSERT(choice);
-                            if (choice->mValue == BAK::Keywords::sYesIndex)
-                            {
-                                mGuiManager.EnterGDSScene(
-                                    gds.mHotspot, 
-                                    [&, exitDialog=gds.mExitDialog](){
-                                        mGuiManager.StartDialog(
-                                            exitDialog,
-                                            false,
-                                            false,
-                                            &mDynamicDialogScene);
-                                        });
-                            }
-
-                            // FIXME: Move this into the if block so we only
-                            // modify the players position if they entered the town.
-                            // Will need a "TryMoveCamera" step that checks encounter 
-                            // bounds and doesn't move if its a no. 
-                            // Will need the same for block and Zone transitions too.
-                            mCamera.SetGameLocation(gds.mExitPosition);
-                            mDynamicDialogScene.ResetDialogFinished();
-                        });
-
-                    mGuiManager.StartDialog(
-                        gds.mEntryDialog,
-                        false,
-                        false,
-                        &mDynamicDialogScene);
-                }
+                    DoGDSEncounter(encounter, gds);
             },
-            [&](const BAK::Encounter::Block& e){
+            [&](const BAK::Encounter::Block& block){
                 if (mGuiManager.mScreenStack.size() == 1)
-                    mGuiManager.StartDialog(
-                        e.mDialog,
-                        false,
-                        false,
-                        &mDynamicDialogScene);
+                    DoBlockEncounter(encounter, block);
             },
-            [&](const BAK::Encounter::Combat& e){
+            [](const BAK::Encounter::Combat& combat){
+                // Fill in ...
             },
-            [&](const BAK::Encounter::Dialog& e){
-                if (mGuiManager.mScreenStack.size() == 1
-                    && mGameState.mGameData->CheckActive(
-                        *mActiveEncounter,
-                        mGameState.GetZone()))
-                {
-                    mSavedAngle = mCamera.GetAngle();
-                    mDynamicDialogScene.SetDialogFinished(
-                        [&](const auto&){
-                            mCamera.SetAngle(mSavedAngle);
-                            mDynamicDialogScene.ResetDialogFinished();
-                        });
-
-                    mGuiManager.StartDialog(
-                        e.mDialog,
-                        false,
-                        true,
-                        &mDynamicDialogScene);
-
-                    if (mGameState.mGameData)
-                        mGameState.mGameData->SetPostDialogEventFlags(
-                            *mActiveEncounter);
-                }
-
+            [&](const BAK::Encounter::Dialog& dialog){
+                if (mGuiManager.mScreenStack.size() == 1)
+                    DoDialogEncounter(encounter, dialog);
             },
-            [](const BAK::Encounter::EventFlag& flag){
-                //if (EncoutnerActive)
-                //mGameState.SetEventState(flag.mEventPointer, flag.mIsEnable);
+            [&](const BAK::Encounter::EventFlag& flag){
+                if (mGuiManager.mScreenStack.size() == 1)
+                    DoEventFlagEncounter(encounter, flag);
             },
             [&](const BAK::Encounter::Zone& zone){
                 if (mGuiManager.mScreenStack.size() == 1)
-                {
-                    mDynamicDialogScene.SetDialogFinished(
-                        [&, zone=zone](const auto& choice){
-                            // These dialogs should always result in a choice
-                            ASSERT(choice);
-                            Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
-                            if (choice->mValue == BAK::Keywords::sYesIndex)
-                            {
-                                DoTransition(
-                                    zone.mTargetZone,
-                                    zone.mTargetLocation);
-                                Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
-                            }
-                            mDynamicDialogScene.ResetDialogFinished();
-                        });
-
-                    mGuiManager.StartDialog(
-                        zone.mDialog,
-                        false,
-                        false,
-                        &mDynamicDialogScene);
-                }
+                    DoZoneEncounter(encounter, zone);
             },
         },
         encounter.GetEncounter());

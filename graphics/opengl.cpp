@@ -38,13 +38,15 @@ VertexArrayObject::VertexArrayObject()
     mActive{true}
 {}
 
-VertexArrayObject::VertexArrayObject(VertexArrayObject&& other)
+VertexArrayObject::VertexArrayObject(VertexArrayObject&& other) noexcept
 {
     (*this) = std::move(other);
 }
 
-VertexArrayObject& VertexArrayObject::operator=(VertexArrayObject&& other)
+VertexArrayObject& VertexArrayObject::operator=(VertexArrayObject&& other) noexcept
 {
+    if (this == &other) return *this;
+
     other.mVertexArrayId = mVertexArrayId;
     other.mActive = false;
     return *this;
@@ -84,13 +86,15 @@ GLBuffers::GLBuffers()
 {
 }
 
-GLBuffers::GLBuffers(GLBuffers&& other)
+GLBuffers::GLBuffers(GLBuffers&& other) noexcept
 {
     (*this) = std::move(other);
 }
 
-GLBuffers& GLBuffers::operator=(GLBuffers&& other)
+GLBuffers& GLBuffers::operator=(GLBuffers&& other) noexcept
 {
+    if (this == &other) return *this;
+
     for (const auto& [name, buffer] : mBuffers)
         mBuffers.emplace(name, buffer);
 
@@ -198,12 +202,12 @@ TextureBuffer::TextureBuffer(
     mActive{true}
 {}
 
-TextureBuffer::TextureBuffer(TextureBuffer&& other)
+TextureBuffer::TextureBuffer(TextureBuffer&& other) noexcept
 {
     (*this) = std::move(other);
 }
 
-TextureBuffer& TextureBuffer::operator=(TextureBuffer&& other)
+TextureBuffer& TextureBuffer::operator=(TextureBuffer&& other) noexcept
 {
     other.mTextureBuffer = mTextureBuffer;
     other.mTextureType = mTextureType;
@@ -248,30 +252,43 @@ void TextureBuffer::MakeDepthBuffer(unsigned width, unsigned height)
     glTexParameteri(mTextureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
+//void TextureBuffer::MakeTexture2DArray()
+//{
+//    BindGL();
+//
+//    glTexStorage3D(
+//        mTextureType,
+//        1,              // levels
+//        GL_RGBA8,       // Internal format
+//        maxDim, maxDim, // width,height
+//        sMaxTextures     // Number of layers
+//    );
+//}
+
 void TextureBuffer::LoadTexturesGL(
     const std::vector<Texture>& textures,
     unsigned maxDim)
 {
-    constexpr auto maxTextures = 256;
-    if (textures.size() > maxTextures)
+    if (textures.size() > sMaxTextures)
         throw std::runtime_error("Too many textures");
 
     BindGL();
 
     glTexStorage3D(
         mTextureType,
-        5,              // levels
+        1,              // levels
         GL_RGBA8,       // Internal format
         maxDim, maxDim, // width,height
-        maxTextures     // Number of layers
+        sMaxTextures     // Number of layers
     );
-    
+
+
     unsigned index = 0;
     for (const auto& tex : textures)
     {
         std::vector<glm::vec4> paddedTex(
             maxDim * maxDim,
-            glm::vec4{0, 0, 0, 0});
+            glm::vec4{0});
 
         // Chuck the image in the padded sized texture
         // GetPixel() will wrap and fill the texture
@@ -287,6 +304,7 @@ void TextureBuffer::LoadTexturesGL(
             GL_RGBA,           // format
             GL_FLOAT,          // type
             paddedTex.data()); // pointer to data
+
         index++;
     }
     
