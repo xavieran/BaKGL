@@ -225,11 +225,10 @@ bool GameData::CheckActive(
     ZoneNumber zone) const
 {
     const auto encounterIndex = encounter.GetIndex().mValue;
-    const bool alreadyEncountered = ReadEventBool(
-        CalculateUniqueEncounterStateFlagOffset(
-            zone,
-            encounter.GetTileIndex(),
-            encounterIndex));
+    const bool alreadyEncountered = CheckUniqueEncounterStateFlagOffset(
+        zone,
+        encounter.GetTileIndex(),
+        encounterIndex);
     const bool encounterFlag1450 = ReadEventBool(
         CalculateRecentEncounterStateFlag(encounterIndex));
     // event flag 1 - this flag must be set to encounter the event
@@ -242,6 +241,34 @@ bool GameData::CheckActive(
         : false;
     return !(alreadyEncountered
         || encounterFlag1450
+        || eventFlag1
+        || eventFlag2);
+}
+
+bool GameData::CheckCombatActive(
+    const Encounter::Encounter& encounter,
+    ZoneNumber zone) const
+{
+    const auto encounterIndex = encounter.GetIndex().mValue;
+    const bool alreadyEncountered = CheckUniqueEncounterStateFlagOffset(
+        zone,
+        encounter.GetTileIndex(),
+        encounterIndex);
+
+    constexpr auto combatIndex = 0;
+    // If this flag is not set then this combat hasn't been seen
+    const bool encounterFlag1464 = !CheckCombatEncounterStateFlag(combatIndex);
+
+    // event flag 1 - this flag must be set to encounter the event
+    const bool eventFlag1 = encounter.mSaveAddress != 0
+        ? (ReadEventBool(encounter.mSaveAddress) == 1)
+        : false;
+    // event flag 2 - this flag must _not_ be set to encounter this event
+    const bool eventFlag2 = encounter.mSaveAddress2 != 0
+        ? ReadEventBool(encounter.mSaveAddress2)
+        : false;
+    return !(alreadyEncountered
+        || encounterFlag1464
         || eventFlag1
         || eventFlag2);
 }
@@ -324,6 +351,38 @@ unsigned GameData::CalculateUniqueEncounterStateFlagOffset(
     return offset + encounterStateOffset;
 }
 
+bool GameData::CheckUniqueEncounterStateFlagOffset(
+    ZoneNumber zone, 
+    std::uint8_t tileIndex,
+    std::uint8_t encounterIndex) const
+{
+    return ReadEventBool(
+        CalculateUniqueEncounterStateFlagOffset(
+            zone,
+            tileIndex,
+            encounterIndex));
+}
+
+unsigned GameData::CalculateCombatEncounterStateFlag(
+    unsigned combatIndex) const
+{
+    constexpr auto combatEncounterFlag = 0x1464;
+    return combatIndex + combatEncounterFlag;
+}
+
+bool GameData::CheckCombatEncounterStateFlag(
+    unsigned combatIndex) const
+{
+    constexpr auto alwaysTriggeredIndex = 0x3e8;
+    if (combatIndex >= alwaysTriggeredIndex)
+        return true;
+    else
+        return ReadEventBool(
+            CalculateCombatEncounterStateFlag(combatIndex));
+}
+
+
+
 // 1450 is "recently encountered this encounter"
 // should be cleared when we move to a new tile
 // (or it will inhibit the events of the new tile)
@@ -387,21 +446,15 @@ Party GameData::LoadParty()
 std::vector<Character> GameData::LoadCharacters()
 {
     unsigned characters = sCharacterCount;
-    const auto nameOffset = sCharacterNameOffset;
-    const auto nameLength = 10;
-    const auto skillLength = 5 * 16 + 8 + 7;
-    const auto skillOffset = sCharacterSkillOffset;
-    const auto inventoryOffset = sCharacterInventoryOffset;
-    const auto inventoryLength = 0x70;
 
     std::vector<Character> chars;
 
     for (unsigned character = 0; character < characters; character++)
     {
-        mBuffer.Seek(nameOffset + nameLength * character);
-        auto name = mBuffer.GetString(nameLength);
+        mBuffer.Seek(GetCharacterNameOffset(character));
+        auto name = mBuffer.GetString(sCharacterNameLength);
 
-        mBuffer.Seek(skillOffset + skillLength * character);
+        mBuffer.Seek(GetCharacterSkillOffset(character));
         mLogger.Debug() << "Name: " << name << "@" 
             << std::hex << mBuffer.Tell() << std::dec << "\n";
 
@@ -413,8 +466,8 @@ std::vector<Character> GameData::LoadCharacters()
         for (unsigned i = 0; i < Skills::sSkills; i++)
         {
             const auto max        = mBuffer.GetUint8();
+            const auto trueSkill  = mBuffer.GetUint8();
             const auto current    = mBuffer.GetUint8();
-            const auto limit      = mBuffer.GetUint8();
             const auto experience = mBuffer.GetUint8();
             const auto modifier   = mBuffer.GetSint8();
 
@@ -425,8 +478,8 @@ std::vector<Character> GameData::LoadCharacters()
 
             skills.mSkills[i] = Skill{
                 max,
+                trueSkill,
                 current,
-                limit,
                 experience,
                 modifier,
                 selected,
@@ -442,7 +495,7 @@ std::vector<Character> GameData::LoadCharacters()
         mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";
         // Load inventory
         auto inventory = LoadCharacterInventory(
-            inventoryOffset + inventoryLength * character);
+            GetCharacterInventoryOffset(character));
 
         auto conditions = LoadConditions(character);
 
@@ -463,8 +516,7 @@ std::vector<Character> GameData::LoadCharacters()
 Conditions GameData::LoadConditions(unsigned character)
 {
     ASSERT(character < sCharacterCount);
-    mBuffer.Seek(sCharacterStatusOffset 
-        + character * Conditions::sNumConditions);
+    mBuffer.Seek(GetCharacterConditionOffset(character));
 
     auto conditions = Conditions{};
     for (unsigned i = 0; i < Conditions::sNumConditions; i++)

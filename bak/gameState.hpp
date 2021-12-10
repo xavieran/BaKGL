@@ -6,6 +6,7 @@
 #include "bak/dialogChoice.hpp"
 #include "bak/gameData.hpp"
 #include "bak/money.hpp"
+#include "bak/save.hpp"
 #include "bak/textVariableStore.hpp"
 #include "bak/types.hpp"
 
@@ -24,18 +25,12 @@ public:
     GameState(
         GameData* gameData)
     :
-        mPartyLeader{
-            "Locklear",
-            1},
-        mPartyFollower{
-            "Owyn",
-            2},
         mGameData{gameData},
         mParty{
             Royals{1000},
             Inventory{20},
-            std::vector<BAK::Character>{
-                BAK::Character{
+            std::vector<Character>{
+                Character{
                     0,
                     "None",
                     Skills{},
@@ -100,12 +95,6 @@ public:
     
     const TextVariableStore& GetTextVariableStore() const { return mTextVariableStore; }
 
-    struct Character
-    {
-        std::string mName;
-        unsigned mIndex;
-    };
-
     void SetChapter(Chapter chapter)
     {
         if (mGameData)
@@ -131,10 +120,23 @@ public:
 
     void SetLocation(BAK::Location loc)
     {
+        mZone = ZoneNumber{loc.mZone};
         if (mGameData)
+        {
             mGameData->mLocation = loc;
-        else
-            mZone = ZoneNumber{loc.mZone};
+        }
+    }
+
+    void SetLocation(BAK::GamePositionAndHeading posAndHeading)
+    {
+        if (mGameData)
+        {
+            const auto loc = Location{
+                mZone.mValue,
+                GetTile(posAndHeading.mPosition),
+                posAndHeading};
+            mGameData->mLocation = loc;
+        }
     }
 
     auto GetZone() const
@@ -222,17 +224,6 @@ public:
     bool GetSpellActive(unsigned spell)
     {
         return true;
-    }
-
-    const Character& GetPartyLeader()
-    {
-        return mPartyLeader;
-    }
-
-    // Return random person who's not the leader...
-    const Character& GetPartyFollower()
-    {
-        return mPartyFollower;
     }
 
     void EvaluateAction(const DialogAction& action)
@@ -547,6 +538,15 @@ public:
     {
         if (mGameData)
         {
+            BAK::Save(GetParty(), mGameData->GetFileBuffer());
+
+            for (const auto& container : mGDSContainers)
+                BAK::Save(container, mGameData->GetFileBuffer());
+
+            for (const auto& zoneContainers : mContainers)
+                for (const auto& container : zoneContainers)
+                    BAK::Save(container, mGameData->GetFileBuffer());
+
             mGameData->Save(saveName);
             return true;
         }
@@ -561,8 +561,6 @@ public:
 
     std::optional<CharIndex> mDialogCharacter;
 
-    Character mPartyLeader;
-    Character mPartyFollower;
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue;

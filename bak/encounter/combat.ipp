@@ -35,8 +35,11 @@ void GenericCombatFactory<isTrap>::Load()
     const auto logger = Logging::LogState::GetLogger("Combat");
 
     const auto count = fb.GetUint16LE();
+    logger.Debug() << "Combats: " << count <<"\n";
     for (unsigned i = 0; i < count; i++)
     {
+        logger.Debug() << "Combat #" << i << " @" 
+            << std::hex << fb.Tell() << std::dec << "\n";
         fb.Skip(5);
         const auto combatIndex = fb.GetUint32LE();
         const auto entryDialog = fb.GetUint32LE();

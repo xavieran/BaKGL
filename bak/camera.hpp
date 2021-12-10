@@ -69,6 +69,12 @@ public:
         SetAngle(BAK::ToGlAngle(location.mHeading));
     }
 
+    BAK::GamePositionAndHeading GetGameLocation() const
+    {
+        auto pos = glm::uvec2{mPosition.x, -mPosition.z};
+        return BAK::GamePositionAndHeading{pos, GetGameAngle()};
+    }
+
     void SetPosition(const glm::vec3& position)
     {
         mPosition = position;

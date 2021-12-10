@@ -267,8 +267,9 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::GDSEntry& gds)
     {
-        if (!mGameState.CheckEncounterActive(encounter))
-            return;
+        // Pretty sure GDS encoutners will always happen...
+        //if (!mGameState.CheckEncounterActive(encounter))
+        //    return;
 
         mDynamicDialogScene.SetDialogFinished(
             [&, gds=gds](const auto& choice){

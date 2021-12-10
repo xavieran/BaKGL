@@ -204,13 +204,14 @@ public:
     {
         for (std::string s : {
             "ground",
+            "genmtn",
             "zero",
             "one",
             "bridge",
             "cryst", // this might not be true
             "fence",
             "tree",
-            "db",
+            //"db",
             "t0",
             "g0",
             "r0",

@@ -71,7 +71,11 @@ public:
     bool HasTime() const { return CheckBitSet(mFlags, ContainerProperty::HasTime); }
     bool HasInventory() const { return mCapacity != 0; }
 
+    std::uint32_t GetAddress() const { return mAddress; }
+
 //private:
+
+    std::uint32_t mAddress;
     ContainerLocation mLocation;
 
     std::uint8_t mLocationType; // no idea

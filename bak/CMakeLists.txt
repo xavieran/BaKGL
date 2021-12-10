@@ -30,6 +30,7 @@ add_library(bak
     objectInfo.hpp objectInfo.cpp
     random.hpp random.cpp
     resourceNames.hpp
+    save.hpp save.cpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
     screens.hpp

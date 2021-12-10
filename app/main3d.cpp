@@ -298,6 +298,7 @@ int main(int argc, char** argv)
         lastTime = currentTime;
 
         cameraPtr->SetDeltaTime(deltaTime);
+        gameState.SetLocation(cameraPtr->GetGameLocation());
         
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);

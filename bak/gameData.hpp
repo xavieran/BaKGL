@@ -85,8 +85,13 @@ public:
     static constexpr auto sGoldOffset = 0x66; // -> 6a
     static constexpr auto sTimeOffset = 0x6a; // -> 0x72
     static constexpr auto sLocationOffset = 0x76; // -> 0x88
+
     static constexpr auto sCharacterNameOffset    = 0x9f; // -> 0xdb
+    static constexpr auto sCharacterNameLength    = 10;
+
     static constexpr auto sCharacterSkillOffset   = 0xdb; // -> 0x315
+    static constexpr auto sCharacterSkillLength   = 5 * 16 + 8 + 7;
+
     static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
     static constexpr auto sCharacterSelectedSkillPool = 0x324; // -> 0x319
     static constexpr auto sCharacterStatusOffset  = 0x330;
@@ -114,6 +119,8 @@ public:
     static constexpr auto sCombatSkillsListCount  = 1698;
 
     static constexpr auto sCharacterInventoryOffset = 0x3a804; // -> 3aa4b
+    static constexpr auto sCharacterInventoryLength = 0x70; // -> 3aa4b
+
     static constexpr auto sPartyKeyInventoryOffset = 0x3aaa4;
 
     static constexpr std::array<std::pair<unsigned, unsigned>, 13> sZoneContainerOffsets = {
@@ -146,11 +153,24 @@ public:
         mBuffer.Seek(0);
         mBuffer.PutString(saveName);
 
+        // Location
+        mBuffer.Seek(sLocationOffset);
+        mBuffer.PutUint8(mLocation.mZone);
+        mBuffer.PutUint8(mLocation.mTile.x);
+        mBuffer.PutUint8(mLocation.mTile.y);
+        mBuffer.PutUint32LE(mLocation.mLocation.mPosition.x);
+        mBuffer.PutUint32LE(mLocation.mLocation.mPosition.y);
+        mBuffer.Skip(5);
+        mBuffer.PutUint16LE(mLocation.mLocation.mHeading);
+
+
         auto saveFile = std::ofstream{
             saveName,
             std::ios::binary | std::ios::out};
         mBuffer.Save(saveFile);
     }
+
+    FileBuffer& GetFileBuffer() { return mBuffer; }
 
     std::pair<unsigned, unsigned> CalculateComplexEventOffset(unsigned eventPtr) const;
     std::pair<unsigned, unsigned> CalculateEventOffset(unsigned eventPtr) const;
@@ -186,11 +206,19 @@ public:
         const Encounter::Encounter& encounter,
         ZoneNumber zone) const;
 
+    bool CheckCombatActive(
+        const Encounter::Encounter& encounter,
+        ZoneNumber zone) const;
+
+    // Used by
+    // * Dialog
     void SetPostDialogEventFlags(
         const Encounter::Encounter& encounter,
         ZoneNumber zone);
     
-    // Background and Town
+    // Used by
+    // * Background
+    // * Town
     void SetPostGDSEventFlags(
         const Encounter::Encounter& encounter);
     
@@ -210,12 +238,24 @@ public:
         ZoneNumber zone, 
         std::uint8_t tileIndex,
         std::uint8_t encounterIndex) const;
+
+    bool CheckUniqueEncounterStateFlagOffset(
+        ZoneNumber zone, 
+        std::uint8_t tileIndex,
+        std::uint8_t encounterIndex) const;
     
     // 1450 is "recently encountered this encounter"
     // should be cleared when we move to a new tile
     // (or it will inhibit the events of the new tile)
     unsigned CalculateRecentEncounterStateFlag(
         std::uint8_t encounterIndex) const;
+
+    // 1464 is combat completed flag
+    unsigned CalculateCombatEncounterStateFlag(
+        unsigned combatIndex) const;
+
+    bool CheckCombatEncounterStateFlag(
+        unsigned combatIndex) const;
 
     void ClearTileRecentEncounters();
     
@@ -227,6 +267,11 @@ public:
     bool CheckLockHasBeenSeen(unsigned lockIndex);
     
     /* ************* LOAD Game STATE ***************** */
+    static constexpr unsigned GetCharacterNameOffset(unsigned c) { return c * sCharacterNameLength + sCharacterNameOffset; }
+    static constexpr unsigned GetCharacterSkillOffset(unsigned c) { return c * sCharacterSkillLength + sCharacterSkillOffset; }
+    static constexpr unsigned GetCharacterInventoryOffset(unsigned c) { return c * sCharacterInventoryLength + sCharacterInventoryOffset; }
+    static constexpr unsigned GetCharacterConditionOffset(unsigned c) { return c * Conditions::sNumConditions + sCharacterStatusOffset; }
+
     Party LoadParty();
     std::vector<Character> LoadCharacters();
     Conditions LoadConditions(unsigned character);

@@ -40,6 +40,7 @@ std::ostream& operator<<(std::ostream& os, const ContainerHeader& header)
 
 ContainerHeader::ContainerHeader()
     :
+        mAddress{0},
         mLocation{
             ContainerWorldLocation{
                 ZoneNumber{0},
@@ -54,10 +55,13 @@ ContainerHeader::ContainerHeader()
 
 ContainerHeader::ContainerHeader(ContainerWorldLocationTag, FileBuffer& fb)
 {
+    mAddress = fb.Tell();
+
     const auto zone = ZoneNumber{fb.GetUint8()};
     const auto unknown = fb.GetArray<3>();
     const auto x = fb.GetUint32LE();
     const auto y = fb.GetUint32LE();
+
     mLocation = ContainerWorldLocation{
         zone,
         unknown,
@@ -71,6 +75,8 @@ ContainerHeader::ContainerHeader(ContainerWorldLocationTag, FileBuffer& fb)
 
 ContainerHeader::ContainerHeader(ContainerGDSLocationTag, FileBuffer& fb)
 {
+    mAddress = fb.Tell();
+
     mLocation = ContainerGDSLocation{
         fb.GetArray<4>(),
         HotspotRef{

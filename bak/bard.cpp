@@ -48,10 +48,12 @@ Royals GetReward(BardStatus status, Sovereigns innReward, Chapter chapter)
 
 void ReduceAvailableReward(ShopStats& stats, Royals reward)
 {
-    if (reward.mValue > stats.mBardingReward)
+    if (reward.mValue > 0)
         stats.mBardingReward = 0;
-    else
-        stats.mBardingReward -= reward.mValue;
+    //if (reward.mValue > stats.mBardingReward)
+    //    stats.mBardingReward = 0;
+    //else
+    //    stats.mBardingReward -= reward.mValue;
 }
 
 KeyTarget GetDialog(BardStatus status)
