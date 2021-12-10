@@ -57,7 +57,14 @@ void Save(const GenericContainer& gc, FileBuffer& fb)
         fb.PutUint16LE(shop.mHaggle);
         fb.PutUint8(shop.mBardingSkill);
         fb.PutUint8(shop.mBardingReward);
-        fb.Skip(8); // None of these need to change
+        fb.PutUint8(shop.mBardingMaxReward);
+        for (unsigned i = 0; i < 3; i++)
+        {
+            fb.PutUint8(shop.mUnknown[i]);
+        }
+        fb.PutUint8(shop.mRepairTypes);
+        fb.PutUint8(shop.mRepairFactor);
+        fb.PutUint16LE(shop.mCategories);
     }
 
     if (gc.HasEncounter())
