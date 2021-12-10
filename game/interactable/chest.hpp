@@ -191,7 +191,6 @@ public:
     void Explode()
     {
         // Do TrapDamage amount of damage to party
-        mCurrentChest->GetLock().mLockFlag   = 1;
         mCurrentChest->GetLock().mTrapDamage = 0;
         StartDialog(BAK::KeyTarget{0xc0});
         mState = State::Exploded;
