@@ -11,7 +11,7 @@ Palette::Palette(const std::string& filename)
 :
     mColors{}
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(filename);
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(filename);
     auto palbuf = fb.Find(TAG_VGA);
     const auto size = palbuf.GetSize() / 3;
     mColors.reserve(size);

@@ -20,7 +20,7 @@ ZoneTextureStore::ZoneTextureStore(
         auto spriteSlotLbl = zoneLabel.GetSpriteSlot(spriteSlot++);
         try
         {
-            auto fb = FileBufferFactory::CreateFileBuffer(spriteSlotLbl);
+            auto fb = FileBufferFactory::Get().CreateDataBuffer(spriteSlotLbl);
             ImageResource sprites{};
             sprites.Load(&fb);
             TextureFactory::AddToTextureStore(
@@ -37,7 +37,7 @@ ZoneTextureStore::ZoneTextureStore(
     mTerrainOffset = GetTextures().size();
 
     ScreenResource terrain{};
-    auto fb = FileBufferFactory::CreateFileBuffer(zoneLabel.GetTerrain());
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(zoneLabel.GetTerrain());
     terrain.Load(&fb);
 
     TextureFactory::AddTerrainToTextureStore(

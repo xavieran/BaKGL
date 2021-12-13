@@ -10,7 +10,7 @@ namespace BAK {
 
 GameData::GameData(const std::string& save)
 :
-    mBuffer{FileBufferFactory::CreateFileBuffer(save)},
+    mBuffer{FileBufferFactory::Get().CreateSaveBuffer(save)},
     mLogger{Logging::LogState::GetLogger("GameData")},
     mName{LoadSaveName()},
     mObjects{},

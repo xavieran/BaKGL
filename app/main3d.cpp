@@ -5,7 +5,12 @@
 #include "bak/gameData.hpp"
 #include "bak/screens.hpp"
 
+extern "C" {
+#include "com/getopt.h"
+}
+
 #include "com/logger.hpp"
+#include "com/path.hpp"
 #include "com/visit.hpp"
 
 #include "game/console.hpp"
@@ -28,23 +33,19 @@
 
 #include <GLFW/glfw3.h>
 
+#include <filesystem>
 #include <functional>
 #include <memory>
 #include <sstream>
 
-#include <getopt.h>
-
 int main(int argc, char** argv)
 {
-    struct option options[] = {
-        {"save",required_argument,0,'s'},
-        {"zone",required_argument,0,'z'}
-    };
-    int optionIndex = 0;
-
     const auto& logger = Logging::LogState::GetLogger("main");
+
+    auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
+    Logging::LogState::AddStream(&log);
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
-    Logging::LogState::Disable("Camera");
+
     Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadEncounter");
@@ -53,6 +54,12 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("MeshObjectStore");
     Logging::LogState::Disable("Gui::StaticTTM");
 
+    struct option options[] = {
+        {"save",required_argument,0,'s'},
+        {"zone",required_argument,0,'z'}
+    };
+    int optionIndex = 0;
+    int opt;
 
     BAK::ZoneLabel zoneLabel{1};
     glm::vec<3, float> startPosition{0.0f, 0.0f, 0.0f};
@@ -60,11 +67,12 @@ int main(int argc, char** argv)
     
     BAK::GameData* gameData{nullptr};
 
-    int opt;
-    while ((opt = getopt_long (argc, argv, "s:z:", options, &optionIndex)) != -1)
+	bool noOptions = true;
+    while ((opt = getopt_long(argc, argv, "s:z:", options, &optionIndex)) != -1)
     {   
         if (opt == 's')
         {
+			noOptions = false;
             logger.Info() << "Loading save file: " << optarg << std::endl;
 
             std::string saveFile = optarg;
@@ -79,13 +87,23 @@ int main(int argc, char** argv)
         }
         else if (opt == 'z')
         {
+			noOptions = false;
             logger.Info() << "Loading zone: " << optarg << std::endl;
             auto zone = std::string{optarg};
             zoneLabel = BAK::ZoneLabel{zone};
         }
     }
 
-    BAK::DialogStore dialogStore{};
+	if (noOptions)
+	{
+		logger.Info() << "Attempting to load default save 'NEW_GAME.GAM'\n";
+		gameData = new BAK::GameData("NEW_GAME.GAM");
+		const auto zone = gameData->mLocation.mZone;
+		logger.Info() << "Loaded save: " << gameData->mName << "\n";
+		zoneLabel = BAK::ZoneLabel{ zone };
+		startPosition = BAK::ToGlCoord<float>(gameData->mLocation.mLocation.mPosition);
+		startHeading = BAK::ToGlAngle(gameData->mLocation.mLocation.mHeading);
+	}
 
     auto guiScalar = 4.0f;
 
@@ -359,25 +377,25 @@ int main(int argc, char** argv)
                     [&](const BAK::Encounter::GDSEntry& gds){
                         ShowDialogGui(
                             gds.mEntryDialog,
-                            dialogStore,
+                            BAK::DialogStore::Get(),
                             gameData);
                     },
                     [&](const BAK::Encounter::Block& e){
                         ShowDialogGui(
                             e.mDialog,
-                            dialogStore,
+                            BAK::DialogStore::Get(),
                             gameData);
                     },
                     [&](const BAK::Encounter::Combat& e){
                         ShowDialogGui(
                             e.mEntryDialog,
-                            dialogStore,
+                            BAK::DialogStore::Get(),
                             gameData);
                     },
                     [&](const BAK::Encounter::Dialog& e){
                         ShowDialogGui(
                             e.mDialog,
-                            dialogStore,
+                            BAK::DialogStore::Get(),
                             gameData);
                     },
                     [](const BAK::Encounter::EventFlag&){
@@ -385,7 +403,7 @@ int main(int argc, char** argv)
                     [&](const BAK::Encounter::Zone& e){
                         ShowDialogGui(
                             e.mDialog,
-                            dialogStore,
+                            BAK::DialogStore::Get(),
                             gameData);
                     },
                 },

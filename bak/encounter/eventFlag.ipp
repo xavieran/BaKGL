@@ -26,7 +26,7 @@ EventFlag EventFlagFactory<isEnable>::Get(unsigned i) const
 template <bool isEnable>
 void EventFlagFactory<isEnable>::EventFlagFactory::Load()
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(
         isEnable ? sEnable : sDisable);
 
     const auto count = fb.GetUint32LE();

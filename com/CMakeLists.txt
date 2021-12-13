@@ -1,6 +1,8 @@
 add_library(com
     algorithm.hpp
+    getopt.h getopt_long.c
     logger.hpp logger.cpp
+    path.hpp path.cpp
     random.hpp random.cpp
     string.hpp string.cpp
     visit.hpp

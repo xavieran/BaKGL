@@ -1,24 +1,11 @@
-set(LINK_3D_LIBRARIES 
-    bak
-    com
-    glfw
-    graphics
-    imgui
-    xbak
-    ${GLEW_LIBRARIES} 
-    ${GLM_LIBRARIES}
-    ${OPENGL_LIBRARY}
-)
-
 add_executable (compile_shaders compile_shaders.cpp)
 
 target_link_libraries(compile_shaders
-    stdc++
-    m
-    dl
-    pthread 
+    ${UNIX_LINKS}
     ${LINK_3D_LIBRARIES}
-    SDL)
+    com
+    graphics
+    )
 
 list(APPEND SHADERS
     directional

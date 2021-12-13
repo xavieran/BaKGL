@@ -53,7 +53,7 @@ RequestResource::RequestResource(const std::string& file)
 :
     RequestResource{}
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(file);
+    auto fb = FileBufferFactory::Get().CreateFileBuffer(file);
     Load(&fb);
 }
 

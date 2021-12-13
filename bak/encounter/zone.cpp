@@ -30,7 +30,7 @@ const Zone& ZoneFactory::Get(unsigned i) const
 
 void ZoneFactory::Load()
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(
         sFilename);
 
     const auto count = fb.GetUint32LE();

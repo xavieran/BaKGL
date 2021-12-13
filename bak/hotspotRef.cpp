@@ -1,5 +1,6 @@
 #include "bak/hotspotRef.hpp"
 
+#include <sstream>
 #include <iomanip>
 
 namespace BAK {

@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
     BAK::Keywords keywords{};
-    BAK::DialogStore dialog{};
+    const auto& dialog = BAK::DialogStore::Get();
     
     //dialog.ShowAllDialogs();
     std::uint32_t key;

@@ -44,24 +44,29 @@ class FileBuffer
 {
     private:
         // Be nicer if this was a shared ptr...
-        uint8_t * buffer;
-        uint8_t * current;
-        unsigned int size;
-        unsigned int nextbit;
-        const bool ownbuffer;
+        uint8_t * mBuffer;
+        uint8_t * mCurrent;
+        unsigned int mSize;
+        unsigned int mNextBit;
+        bool mOwnBuffer;
 
         FileBuffer(
             std::uint8_t*,
             std::uint8_t*,
             std::uint32_t,
             std::uint32_t);
-
+            
     public:
         FileBuffer ( const unsigned int n );
-        //FileBuffer ( std::string path );
-        virtual ~FileBuffer();
+        FileBuffer(const FileBuffer&) noexcept = delete;
+        FileBuffer& operator=(const FileBuffer&) noexcept = delete;
 
-        // Create a new file buffer starting from this tag
+        FileBuffer(FileBuffer&&) noexcept;
+        FileBuffer& operator=(FileBuffer&&) noexcept;
+
+        ~FileBuffer();
+
+        // Create a new file mBuffer starting from this tag
         FileBuffer Find(std::uint32_t tag) const;
 
         void Load ( std::ifstream &ifs );
@@ -145,10 +150,27 @@ class FileBuffer
 class FileBufferFactory
 {
 public:
-    static FileBuffer CreateFileBuffer(const std::string& path);
+    static FileBufferFactory& Get();
+
+    void SetDataPath(const std::string&);
+    void SetSavePath(const std::string&);
+
+    FileBuffer CreateDataBuffer(const std::string& path);
+    FileBuffer CreateSaveBuffer(const std::string& path);
+    FileBuffer CreateFileBuffer(const std::string& path);
+
+private:
+
+    FileBufferFactory();
+
+    FileBufferFactory& operator=(const FileBufferFactory&) noexcept = delete;
+    FileBufferFactory(const FileBufferFactory&) noexcept = delete;
+    FileBufferFactory& operator=(FileBufferFactory&&) noexcept = delete;
+    FileBufferFactory(FileBufferFactory&&) noexcept = delete;
+
+    std::string mDataPath;
+    std::string mSavePath;
 };
-
-
 
 #endif
 

@@ -26,8 +26,7 @@ int main(int argc, char** argv)
     if (argc == 2)
         gameData = std::make_unique<BAK::GameData>(argv[1]);
 
-    BAK::DialogStore dialogStore{};
-    //BAK::DialogIndex dialogIndex{};
+    const auto& dialogStore = BAK::DialogStore::Get();
 
     if( !glfwInit() )
     {

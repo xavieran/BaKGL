@@ -15,7 +15,7 @@ public:
         Graphics::SpriteManager& spriteManager)
     :
         mFont{std::invoke([&]{
-            auto fb = FileBufferFactory::CreateFileBuffer(font);
+            auto fb = FileBufferFactory::Get().CreateDataBuffer(font);
             return BAK::LoadFont(fb);
         })},
         mSpriteSheet{spriteManager.AddSpriteSheet()}

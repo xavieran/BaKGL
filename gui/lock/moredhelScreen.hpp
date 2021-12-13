@@ -136,7 +136,7 @@ public:
         const auto& snippet = BAK::DialogSources::GetFairyChestKey(
             container->GetLock().mFairyChestIndex);
         mFairyChest = BAK::GenerateFairyChest(
-            std::string{BAK::GetDialogStore().GetSnippet(snippet).GetText()});
+            std::string{BAK::DialogStore::Get().GetSnippet(snippet).GetText()});
 
         ResetUnlocked();
 

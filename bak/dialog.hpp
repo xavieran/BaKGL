@@ -111,7 +111,7 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d);
 class DialogStore
 {
 public:
-    DialogStore();
+    static const DialogStore& Get();
 
     void ShowAllDialogs();
     void ShowDialog(Target dialogKey);
@@ -120,7 +120,7 @@ public:
 
     bool HasSnippet(Target target) const;
 
-    OffsetTarget GetTarget(KeyTarget dialogKey);
+    OffsetTarget GetTarget(KeyTarget dialogKey) const;
 
     std::string_view GetFirstText(const DialogSnippet& snippet) const;
 
@@ -128,6 +128,8 @@ public:
     const DialogSnippet& operator()(OffsetTarget snippetKey) const;
 
 private:
+    DialogStore();
+
     void Load();
 
     std::string GetDialogFile(std::uint8_t i);
@@ -141,8 +143,7 @@ private:
         DialogSnippet> mSnippetMap;
 
     const Logging::Logger& mLogger;
-};
 
-const DialogStore& GetDialogStore();
+};
 
 }

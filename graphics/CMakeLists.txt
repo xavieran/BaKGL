@@ -17,4 +17,7 @@ add_library(graphics
     types.hpp
 )
 
-target_link_libraries(graphics glfw)
+target_link_libraries(
+    graphics
+    com
+    ${LINK_3D_LIBRARIES})

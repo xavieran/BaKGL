@@ -23,8 +23,8 @@
 //#if defined(HAVE_LIBSDL_MIXER) && defined(HAVE_LIBSDL_SOUND)
 
 #include "SDL.h"
-#include "SDL_mixer.h"
-#include "SDL_sound.h"
+//#include "SDL_mixer.h"
+//#include "SDL_sound.h"
 
 const unsigned int AUDIO_FREQUENCY       = 11025;
 const unsigned int AUDIO_FORMAT          = AUDIO_U8;
@@ -34,11 +34,11 @@ const unsigned int AUDIO_BUFFER_SIZE     = 4096;
 const unsigned int AUDIO_RAW_BUFFER_SIZE = 16384;
 
 SDL_mutex    *audioMutex;
-Sound_Sample *audioSample[AUDIO_CHANNELS];
+//Sound_Sample *audioSample[AUDIO_CHANNELS];
 
 void ChannelDone(int channel)
 {
-    Mix_FreeChunk(Mix_GetChunk(channel));
+    /*Mix_FreeChunk(Mix_GetChunk(channel));
     SDL_LockMutex(audioMutex);
     if (audioSample[channel])
     {
@@ -46,10 +46,12 @@ void ChannelDone(int channel)
         audioSample[channel] = 0;
     }
     SDL_UnlockMutex(audioMutex);
+    */
 }
 
 SDL_Audio::SDL_Audio()
 {
+    /*
     memset(audioSample, 0, sizeof(audioSample));
     audioMutex = SDL_CreateMutex();
     if (!audioMutex)
@@ -71,10 +73,12 @@ SDL_Audio::SDL_Audio()
     {
         throw SDL_Exception(__FILE__, __LINE__, Sound_GetError());
     }
+    */
 }
 
 SDL_Audio::~SDL_Audio() noexcept(false)
 {
+    /*
     Mix_HaltChannel(-1);
     if (!Sound_Quit())
     {
@@ -86,10 +90,12 @@ SDL_Audio::~SDL_Audio() noexcept(false)
     {
         SDL_DestroyMutex(audioMutex);
     }
+    */
 }
 
 int SDL_Audio::PlaySound(FileBuffer *buffer, const int repeat)
 {
+    /*
     static Sound_AudioInfo info =
     {
         AUDIO_FORMAT, AUDIO_STEREO, AUDIO_FREQUENCY
@@ -130,11 +136,13 @@ int SDL_Audio::PlaySound(FileBuffer *buffer, const int repeat)
         throw SDL_Exception(__FILE__, __LINE__, SDL_GetError());
     }
     return channel;
+    */
+    return 0;
 }
 
 void SDL_Audio::StopSound(const int channel)
 {
-    Mix_HaltChannel(channel);
+    //Mix_HaltChannel(channel);
 }
 
 //#endif

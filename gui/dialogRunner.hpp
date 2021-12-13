@@ -21,6 +21,7 @@
 #include "gui/widget.hpp"
 
 #include <regex>
+#include <stack>
 #include <variant>
 
 namespace Gui {

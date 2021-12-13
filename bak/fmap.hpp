@@ -19,7 +19,7 @@ public:
 
     FMapXY()
     {
-        auto fb = FileBufferFactory::CreateFileBuffer(sFile);
+        auto fb = FileBufferFactory::Get().Get().CreateDataBuffer(sFile);
         unsigned i = 0;
 
         for (unsigned zone = 0; zone < 12; zone++)
@@ -46,7 +46,7 @@ public:
 
     FMapTowns()
     {
-        auto fb = FileBufferFactory::CreateFileBuffer(sFile);
+        auto fb = FileBufferFactory::Get().Get().CreateDataBuffer(sFile);
         const auto x1 = fb.GetUint16LE();
         const auto x2 = fb.GetUint16LE();
         const auto y1 = fb.GetUint16LE();

@@ -177,7 +177,7 @@ void DialogRunner::DisplaySnippet()
 const BAK::DialogSnippet& DialogRunner::GetSnippet() const
 {
     ASSERT(mCurrentTarget);
-    return BAK::GetDialogStore().GetSnippet(*mCurrentTarget);
+    return BAK::DialogStore::Get().GetSnippet(*mCurrentTarget);
 }
 
 std::optional<BAK::Target> DialogRunner::GetNextTarget()

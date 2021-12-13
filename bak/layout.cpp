@@ -15,7 +15,7 @@ Layout::Layout(
     mOffset{},
     mWidgets{}
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(path);
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(path);
 
     fb.Skip(2);
     mIsPopup = (fb.GetSint16LE() != 0);

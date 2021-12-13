@@ -16,17 +16,13 @@ list(APPEND APP_BINARIES
     bmx_explorer
 )
 
-set(LINK_3D_LIBRARIES 
+set(APP_LIBS
     bak
     com
-    glfw
     graphics
     gui
     imgui
     xbak
-    ${GLEW_LIBRARIES} 
-    ${GLM_LIBRARIES}
-    ${OPENGL_LIBRARY}
 )
 
 set(CMAKE_CXX_CLANG_TIDY "")
@@ -34,13 +30,12 @@ set(CMAKE_CXX_CLANG_TIDY "")
 foreach (APP_BIN IN LISTS APP_BINARIES)
     add_executable (${APP_BIN} ${APP_BIN}.cpp)
     target_link_libraries(${APP_BIN}
-        stdc++
-        m
-        dl
-        pthread 
+        ${LINK_UNIX_LIBRARIES}
         ${LINK_3D_LIBRARIES}
-        SDL
-        ${APP_INCLUDES})
+        ${SDL_LIBRARIES}
+        ${APP_LIBS}
+    )
+
 endforeach()
 
 

@@ -17,8 +17,7 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
-#ifndef SDL_VIDEO_H
-#define SDL_VIDEO_H
+#pragma once
 
 #ifdef HAVE_CONFIG
 #include "config.h"
@@ -94,5 +93,3 @@ public:
     void GrabInput ( const bool toggle );
     void SaveScreenShot ( const std::string& filename );
 };
-
-#endif

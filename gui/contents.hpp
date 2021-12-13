@@ -60,7 +60,7 @@ public:
 
         RequestResource requestRes{};
         {
-            auto fb = FileBufferFactory::CreateFileBuffer(
+            auto fb = FileBufferFactory::CreateDataBuffer(
                 std::string{request});
             requestRes.Load(&fb);
         }

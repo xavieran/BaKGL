@@ -27,7 +27,7 @@ const Dialog& DialogFactory::Get(unsigned i) const
 
 void DialogFactory::Load()
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(
         sFilename);
 
     const auto count = fb.GetUint16LE();

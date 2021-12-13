@@ -23,7 +23,7 @@ int main(int argc, char** argv)
             const auto y = tile.y;
             try 
             {
-                auto fb = FileBufferFactory::CreateFileBuffer(zoneLabel.GetTileData(x ,y));
+                auto fb = FileBufferFactory::Get().CreateDataBuffer(zoneLabel.GetTileData(x ,y));
                 for (unsigned c = 1; c < 11; c++)
                 {
                     logger.Info() << "Loading world tile:" << zone << " " << x 

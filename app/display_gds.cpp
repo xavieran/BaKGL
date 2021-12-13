@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 
     logger.Info() << "Loading gds:" << gdsFile << std::endl;
 
-    auto fb = FileBufferFactory::CreateFileBuffer(gdsFile);
+    auto fb = FileBufferFactory::Get().Get().CreateDataBuffer(gdsFile);
     BAK::SceneHotspots sceneHotspots{std::move(fb)};
 
     return 0;

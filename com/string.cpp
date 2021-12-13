@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <iterator>
+#include <algorithm>
 
 std::string ToUpper(std::string_view str)
 {

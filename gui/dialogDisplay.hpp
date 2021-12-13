@@ -194,7 +194,7 @@ public:
 
     void ShowFlavourText(BAK::Target target)
     {
-        const auto& snippet = BAK::GetDialogStore().GetSnippet(target);
+        const auto& snippet = BAK::DialogStore::Get().GetSnippet(target);
         const auto text = snippet.GetText();
         const auto flavourText = find_nth(text.begin(), text.end(), '#', 2);
         ASSERT(flavourText != text.end());

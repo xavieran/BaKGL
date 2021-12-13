@@ -8,8 +8,8 @@ add_executable(bakTest
     )
 
 target_link_libraries(bakTest
-    stdc++
-    m
+    #stdc++
+    #m
     bak
     com
     gtest_main)

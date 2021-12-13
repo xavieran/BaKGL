@@ -38,7 +38,7 @@ GDSEntry GDSEntryFactory<S>::Get(unsigned i, glm::vec<2, unsigned> tile) const
 template <typename S>
 void GDSEntryFactory<S>::Load()
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(
         sFilename);
 
     const auto count = fb.GetUint32LE();

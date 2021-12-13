@@ -141,9 +141,10 @@ std::ostream& operator<<(std::ostream& os, const GameObject& go)
 ObjectIndex::ObjectIndex()
 {
     const auto& logger = Logging::LogState::GetLogger("BAK::ObjectIndex");
-    auto fb = FileBufferFactory::CreateFileBuffer("OBJINFO.DAT");
+    auto fb = FileBufferFactory::Get().CreateDataBuffer("OBJINFO.DAT");
     for (unsigned i = 0; i < sObjectCount; i++)
     {
+        fb.Dump(logger.Debug(), 30);
         const auto name = fb.GetString(30);
         logger.Debug() << "ItemOff: " << std::hex << fb.Tell() << std::dec << "\n";
         const auto unknown = fb.GetArray<2>();

@@ -272,7 +272,7 @@ public:
     {
         TableResource table{};
 
-        auto fb = FileBufferFactory::CreateFileBuffer(
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(
             mZoneLabel.GetTable());
         table.Load(&fb);
 
@@ -380,7 +380,7 @@ public:
     {
         const auto& logger = Logging::LogState::GetLogger("World");
         const auto tile = zoneItems.GetZoneLabel().GetTileWorld(x, y);
-        auto fb = FileBufferFactory::CreateFileBuffer(tile);
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(tile);
         logger.Debug() << "Loading tile: " << tile << std::endl;
 
         TileWorldResource world{};
@@ -401,7 +401,7 @@ public:
         {
             try
             {
-                auto fb = FileBufferFactory::CreateFileBuffer(
+                auto fb = FileBufferFactory::Get().CreateDataBuffer(
                     zoneItems.GetZoneLabel().GetTileData(x, y));
                 mEncounters = Encounter::EncounterStore(
                     ef,

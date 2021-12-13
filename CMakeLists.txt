@@ -12,16 +12,22 @@ string(CONCAT CXX_IGNORES
     "-Wno-format-security "
     "-Wno-deprecated-enum-enum-conversion "
     )
+
 set(CXX_IGNORE ${CXX_IGNORES})
+set(CXX_FLAGS "-Wall -Wextra -Werror")
+if (MSVC)
+    set(CXX_IGNORE "")
+    set(CXX_FLAGS "")
+endif()
 
 # FileBuffer violates alignment pretty regularly. Will need to fix at some point
-set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
-set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
-#set(CXX_USAN "")
-#set(CXX_ASAN "")
+#set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
+#set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
+set(CXX_USAN "")
+set(CXX_ASAN "")
 
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
+set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)
 
 set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")
@@ -34,32 +40,94 @@ set(
   ${CMAKE_BINARY_DIR})
 
 # --- External Packages ---
+
+# --- SDL --- #
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/SDL-1.2.15")
+
 find_package(SDL REQUIRED)
 find_package(SDL_mixer REQUIRED)
-find_package(SDL_sound REQUIRED)
+
 include_directories(${SDL_INCLUDE_DIR})
 include_directories(${SDL_mixer_INCLUDE_DIR})
-include_directories(${SDL_sound_INCLUDE_DIR})
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/glm")
-
+# --- OpenGL related packages --- #
 find_package(OpenGL REQUIRED)
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/freeglut")
 find_package(GLUT REQUIRED)
+
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/glew-2.1.0")
 find_package(GLEW REQUIRED)
-find_package(glm REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
 
 include(FetchContent)
+
+# --- GLM --- #
+
+FetchContent_Declare(
+    glm 
+    GIT_REPOSITORY https://github.com/g-truc/glm
+)
+
+FetchContent_GetProperties(glm)
+if(NOT glm_POPULATED)
+    FetchContent_Populate(glm)
+
+    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
+    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+    set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+
+    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
+endif()
+
+# --- GLFW --- #
+FetchContent_Declare(
+        glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw
+)
+
+FetchContent_GetProperties(glfw)
+if(NOT glfw_POPULATED)
+    FetchContent_Populate(glfw)
+    # set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build the GLFW shared libraries")
+    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
+    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+    set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+
+    add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
+
+endif()
+
+if (NOT GLFW3_LIBRARY)
+    set(GLFW3_LIBRARY glfw)
+endif()
+
+include_directories(${GLFW_SOURCE_DIR}/include)
+
+# --- GOOGLETEST --- #
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/release-1.11.0.zip
 )
+
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+# --- Common Link Libraries --- #
+set(LINK_3D_LIBRARIES 
+    ${GLEW_LIBRARIES} 
+    glm
+    ${OPENGL_LIBRARY} 
+    ${GLFW3_LIBRARY}
+    )
 
-# --- My project directories ---
+if (${CMAKE_SYSTEM} STREQUAL "Linux")
+    set(LINK_UNIX_LIBRARIES stdc++ m dl pthread)
+endif()
+
+# --- My project directories --- #
 include_directories(".")
 
 add_subdirectory("app")

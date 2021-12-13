@@ -143,9 +143,9 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
         << " " << mSceneIndex1
         << " " << mSceneIndex2 << "\n";
 
-    auto fb2 = FileBufferFactory::CreateFileBuffer(mSceneADS);
+    auto fb2 = FileBufferFactory::Get().CreateDataBuffer(mSceneADS);
     mAdsIndices = BAK::LoadSceneIndices(fb2);
-    auto fb3 = FileBufferFactory::CreateFileBuffer(mSceneTTM);
+    auto fb3 = FileBufferFactory::Get().CreateDataBuffer(mSceneTTM);
     mScenes = BAK::LoadScenes(fb3);
 }
 

@@ -3,8 +3,8 @@ add_executable(guiTest
     )
 
 target_link_libraries(guiTest
-    stdc++
-    m
+    #stdc++
+    #m
     gui
     gtest_main)
 

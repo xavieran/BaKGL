@@ -1,5 +1,7 @@
 #include "bak/worldClock.hpp"
 
+#include <sstream>
+
 namespace BAK {
 
 std::string ToString(Time t)

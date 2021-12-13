@@ -18,7 +18,7 @@ MonsterNames::MonsterNames()
 {
     const auto& logger = Logging::LogState::GetLogger("MonsterNames");
     {
-        auto fb = FileBufferFactory::CreateFileBuffer("MNAMES.DAT");
+        auto fb = FileBufferFactory::Get().CreateDataBuffer("MNAMES.DAT");
         auto monsters = fb.GetUint32LE();
         logger.Spam() << "Loading keywords" << "\n";
         logger.Spam() << "Length: " << monsters << "\n";
@@ -49,7 +49,7 @@ MonsterNames::MonsterNames()
         }
     }
     {
-        auto fb = FileBufferFactory::CreateFileBuffer("BNAMES.DAT");
+        auto fb = FileBufferFactory::Get().CreateDataBuffer("BNAMES.DAT");
         auto monsters = fb.GetUint32LE();
         logger.Spam() << "Loading keywords" << "\n";
         logger.Spam() << "Length: " << monsters << "\n";

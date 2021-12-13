@@ -31,7 +31,7 @@ const Teleport& TeleportFactory::Get(unsigned i) const
 
 void TeleportFactory::Load()
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(
         sFilename);
 
     unsigned i = 0;

@@ -3,8 +3,8 @@ add_executable(guiInventoryTest
     )
 
 target_link_libraries(guiInventoryTest
-    stdc++
-    m
+    #stdc++
+    #m
     gui
     guiInventory
     gtest_main)

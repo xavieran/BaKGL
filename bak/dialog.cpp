@@ -16,7 +16,7 @@ Keywords::Keywords()
     mKeywords{}
 {
     const auto& logger = Logging::LogState::GetLogger("Keywords");
-    auto fb = FileBufferFactory::CreateFileBuffer("KEYWORD.DAT");
+    auto fb = FileBufferFactory::Get().CreateDataBuffer("KEYWORD.DAT");
     auto length = fb.GetUint16LE();
     logger.Spam() << "Loading keywords" << "\n";
     logger.Spam() << "Length: " << length << "\n";
@@ -281,6 +281,12 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
     return os;
 }
 
+const DialogStore& DialogStore::Get()
+{
+    static DialogStore dialogStore{};
+    return dialogStore;
+}
+
 DialogStore::DialogStore()
 :
     mDialogMap{},
@@ -295,7 +301,7 @@ void DialogStore::Load()
     for (std::uint8_t dialogFile = 0; dialogFile < 32; dialogFile++)
     {
         auto fname = GetDialogFile(dialogFile);
-        auto fb = FileBufferFactory::CreateFileBuffer(fname);
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(fname);
         unsigned dialogs = fb.GetUint16LE();
         mLogger.Debug() << "Dialog " << fname << " has: " << dialogs << " dialogs" << "\n";
 
@@ -306,7 +312,7 @@ void DialogStore::Load()
             const auto [it, emplaced] = mDialogMap.emplace(
                 key,
                 val);
-            ASSERT(emplaced);
+            //ASSERT(emplaced);
             auto [checkF, checkV] = it->second;
             mLogger.Spam() << std::hex << "0x" << it->first 
                 << " -> 0x" << checkV << std::dec << "\n";
@@ -363,7 +369,7 @@ bool DialogStore::HasSnippet(Target target) const
     }
 }
 
-OffsetTarget DialogStore::GetTarget(KeyTarget dialogKey)
+OffsetTarget DialogStore::GetTarget(KeyTarget dialogKey) const
 {
     auto it = mDialogMap.find(dialogKey);
     if (it == mDialogMap.end())
@@ -418,12 +424,6 @@ std::string DialogStore::GetDialogFile(std::uint8_t i)
     std::stringstream ss{};
     ss << "DIAL_Z" << std::setw(2) << std::setfill('0') << +i << ".DDX";
     return ss.str();
-}
-
-const DialogStore& GetDialogStore()
-{
-    static DialogStore dialogStore{};
-    return dialogStore;
 }
 
 }

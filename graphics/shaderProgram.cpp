@@ -1,5 +1,7 @@
 #include "graphics/shaderProgram.hpp"
 
+#include "com/path.hpp"
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <filesystem>
@@ -180,12 +182,15 @@ GLuint ShaderProgram::CompileShader(const std::string& shader, GLenum shaderType
 
 std::optional<std::string> ShaderProgram::FindFile(const std::string& shaderPath)
 {   
-    auto* home = getenv("HOME");
-    if (home == nullptr) return std::optional<std::string>{};
+    const auto home = GetHomeDirectory();
 
-    std::vector<std::string> searchPaths{
+    const std::vector<std::string> searchPaths{
         ".shaders",
-        "shaders"};
+        "shaders",
+        "C:\\Users\\xavieran\\Source\\Repos\\xavieran\\BaKGL\\shaders"
+    };
+
+    Logging::LogInfo(__FUNCTION__) << "Home: " << home << std::endl;
 
     for (const auto& searchPath : searchPaths)
     {

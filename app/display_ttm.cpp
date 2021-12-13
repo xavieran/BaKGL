@@ -15,12 +15,12 @@ int main(int argc, char** argv)
     logger.Info() << "Loading ADS and TTM:" << adsFile << " " << ttmFile << std::endl;
 
     {
-        auto fb = FileBufferFactory::CreateFileBuffer(adsFile);
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(adsFile);
         BAK::LoadSceneIndices(fb);
     }
 
     {
-        auto fb = FileBufferFactory::CreateFileBuffer(ttmFile);
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(ttmFile);
         BAK::LoadScenes(fb);
     }
 

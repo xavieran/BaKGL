@@ -17,6 +17,10 @@
  * Copyright (C) Guido de Jong <guidoj@users.sf.net>
  */
 
+#include "com/logger.hpp"
+#include "com/path.hpp"
+
+#include <filesystem>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -25,6 +29,7 @@
 #include <cassert>
 #include <cstring>
 #include <limits>
+#include <sstream>
 
 #include "SDL_endian.h"
 
@@ -41,8 +46,55 @@ unsigned GetStreamSize(std::ifstream& ifs)
     return static_cast<unsigned>(length);
 }
 
+FileBufferFactory::FileBufferFactory()
+:
+    mDataPath{(std::filesystem::path{GetBakDirectory()} / "data").string()},
+    mSavePath{(std::filesystem::path{GetBakDirectory()} / "save").string()}
+{}
+
+FileBufferFactory& FileBufferFactory::Get()
+{
+    static FileBufferFactory factory{};
+    return factory;
+}
+
+void FileBufferFactory::SetDataPath(const std::string& dataPath)
+{
+    mDataPath = dataPath;
+}
+
+void FileBufferFactory::SetSavePath(const std::string& savePath)
+{
+    mSavePath = savePath;
+}
+
+
+FileBuffer FileBufferFactory::CreateDataBuffer(const std::string& path)
+{
+    // First look in the cwd
+    if (std::filesystem::exists(path))
+        return CreateFileBuffer(path);
+    else
+    {
+        const auto realPath = std::filesystem::path{mDataPath} / path;
+        return CreateFileBuffer(realPath.string());
+    }
+}
+
+FileBuffer FileBufferFactory::CreateSaveBuffer(const std::string& path)
+{
+    if (std::filesystem::exists(path))
+        return CreateFileBuffer(path);
+    else
+    {
+        const auto realPath = std::filesystem::path{mSavePath} / path;
+        return CreateFileBuffer(realPath.string());
+    }
+}
+
 FileBuffer FileBufferFactory::CreateFileBuffer(const std::string& path)
 {
+    Logging::LogInfo(__FUNCTION__) << "Opening: " << path << std::endl;
     std::ifstream in{};
     in.open(path, std::ios::in | std::ios::binary);
     if (!in.good())
@@ -63,81 +115,98 @@ FileBuffer::FileBuffer(
     std::uint32_t sz,
     std::uint32_t nb)
 :
-    buffer{buf},
-    current{cur},
-    size{sz},
-    nextbit{nb},
-    ownbuffer{false}
+    mBuffer{buf},
+    mCurrent{cur},
+    mSize{sz},
+    mNextBit{nb},
+    mOwnBuffer{false}
 {
 }
 
 FileBuffer::FileBuffer(const unsigned int n)
 :
-    buffer{std::invoke([n](){
+    mBuffer{std::invoke([n](){
         auto buf = new uint8_t[n];
         memset(buf, 0, n);
         return buf;
     })},
-    current{buffer},
-    size{n},
-    nextbit{0},
-    ownbuffer{true}
+    mCurrent{mBuffer},
+    mSize{n},
+    mNextBit{0},
+    mOwnBuffer{true}
 {
+}
+
+FileBuffer::FileBuffer(FileBuffer&& fb) noexcept
+{
+    (*this) = std::move(fb);
+}
+
+FileBuffer& FileBuffer::operator=(FileBuffer&& fb) noexcept
+{
+    fb.mOwnBuffer = false;
+
+    mBuffer = fb.mBuffer;
+    mCurrent = fb.mCurrent;
+    mSize = fb.mSize;
+    mNextBit = fb.mNextBit;
+    mOwnBuffer = true;
+    return *this;
 }
 
 FileBuffer::~FileBuffer()
 {
-    if (buffer && ownbuffer)
+    if (mBuffer && mOwnBuffer)
     {
-        delete[] buffer;
+        delete[] mBuffer;
     }
 }
 
 void
 FileBuffer::CopyFrom(FileBuffer *buf, const unsigned int n)
 {
-    if (buffer && n && (current + n <= buffer + size))
+    if (mBuffer && n && (mCurrent + n <= mBuffer + mSize))
     {
-        buf->GetData(current, n);
-        current += n;
+        buf->GetData(mCurrent, n);
+        mCurrent += n;
     }
 }
 
 void
 FileBuffer::CopyTo(FileBuffer *buf, const unsigned int n)
 {
-    if (buffer && n && (current + n <= buffer + size))
+    if (mBuffer && n && (mCurrent + n <= mBuffer + mSize))
     {
-        buf->PutData(current, n);
-        current += n;
+        buf->PutData(mCurrent, n);
+        mCurrent += n;
     }
 }
 
 void
 FileBuffer::Fill(FileBuffer *buf)
 {
-    if (buffer)
+    if (mBuffer)
     {
-        current = buffer;
-        buf->GetData(buffer, MIN(size, buf->GetSize()));
+        mCurrent = mBuffer;
+        buf->GetData(mBuffer, MIN(mSize, buf->GetSize()));
     }
 }
 
 FileBuffer FileBuffer::Find(std::uint32_t tag) const
 {
-    auto *search = buffer;
-    for (; search < (buffer + size - sizeof(std::uint32_t)); search++)
+    auto *search = mBuffer;
+    for (; search < (mBuffer + mSize - sizeof(std::uint32_t)); search++)
     {
         auto cur = *reinterpret_cast<std::uint32_t*>(search);
         if (cur == tag)
         {
             search += 4;
-            const auto bufferSize = *reinterpret_cast<std::uint32_t*>(search);
+            const auto mBufferSize = *reinterpret_cast<std::uint32_t*>(search);
             search += 4;
             return FileBuffer{
                 search,
                 search,
-                bufferSize,
+                mBufferSize,
                 0};
         }
 
@@ -153,8 +222,8 @@ FileBuffer::Load(std::ifstream &ifs)
 {
     if (ifs.is_open())
     {
-        current = buffer;
-        ifs.read((char *)buffer, size);
+        mCurrent = mBuffer;
+        ifs.read((char *)mBuffer, mSize);
         if (ifs.fail())
         {
             throw IOError(__FILE__, __LINE__);
@@ -171,8 +240,8 @@ FileBuffer::Save(std::ofstream &ofs)
 {
     if (ofs.is_open())
     {
-        current = buffer;
-        ofs.write((char *)buffer, size);
+        mCurrent = mBuffer;
+        ofs.write((char *)mBuffer, mSize);
         if (ofs.fail())
         {
             throw IOError(__FILE__, __LINE__);
@@ -189,10 +258,10 @@ FileBuffer::Save(std::ofstream &ofs, const unsigned int n)
 {
     if (ofs.is_open())
     {
-        if (n <= size)
+        if (n <= mSize)
         {
-            current = buffer;
-            ofs.write((char *)buffer, n);
+            mCurrent = mBuffer;
+            ofs.write((char *)mBuffer, n);
             if (ofs.fail())
             {
                 throw IOError(__FILE__, __LINE__);
@@ -228,10 +297,10 @@ FileBuffer::DumpAndSkip(const unsigned int n)
 void
 FileBuffer::Dump(std::ostream& os, const unsigned int n)
 {
-    uint8_t* tmp = current;
+    uint8_t* tmp = mCurrent;
     unsigned int count = 0;
     os << std::setbase(16) << std::setfill('0') << std::setw(8) << count << ": ";
-    while ((tmp < (buffer + size)) && ((tmp < (current + n)) || (n == 0)))
+    while ((tmp < (mBuffer + mSize)) && ((tmp < (mCurrent + n)) || (n == 0)))
     {
         os << std::setw(2) << (unsigned int)*tmp++ << " ";
         if ((++count & 0x1f) == 0)
@@ -249,28 +318,28 @@ FileBuffer::Dump(std::ostream& os, const unsigned int n)
 void
 FileBuffer::Seek(const unsigned int n)
 {
-    if ((current) && (n <= size))
+    if ((mCurrent) && (n <= mSize))
     {
-        current = buffer + n;
+        mCurrent = mBuffer + n;
     }
 }
 
 void
 FileBuffer::Skip(const int n)
 {
-    if ((current) && (current + n <= buffer + size))
+    if ((mCurrent) && (mCurrent + n <= mBuffer + mSize))
     {
-        current += n;
+        mCurrent += n;
     }
 }
 
 void
 FileBuffer::SkipBits()
 {
-    if (nextbit)
+    if (mNextBit)
     {
         Skip(1);
-        nextbit = 0;
+        mNextBit = 0;
     }
 }
 
@@ -373,7 +442,7 @@ FileBuffer::CompressLZSS(FileBuffer *result)
                 {
                     off = ptr - data;
                     len = 1;
-                    while ((curr + len < buffer + size) && (ptr[len] == curr[len]))
+                    while ((curr + len < mBuffer + mSize) && (ptr[len] == curr[len]))
                     {
                         len++;
                     }
@@ -696,49 +765,49 @@ FileBuffer::Decompress(FileBuffer *result, const unsigned int method)
 bool
 FileBuffer::AtEnd() const
 {
-    return (current >= buffer + size);
+    return (mCurrent >= mBuffer + mSize);
 }
 
 unsigned int
 FileBuffer::GetSize() const
 {
-    return size;
+    return mSize;
 }
 
 unsigned int
 FileBuffer::GetBytesDone() const
 {
-    return (current - buffer);
+    return (mCurrent - mBuffer);
 }
 
 unsigned int
 FileBuffer::GetBytesLeft() const
 {
-    return (buffer + size - current);
+    return (mBuffer + mSize - mCurrent);
 }
 
 uint8_t *
 FileBuffer::GetCurrent() const
 {
-    return current;
+    return mCurrent;
 }
 
 unsigned int
 FileBuffer::GetNextBit() const
 {
-    return nextbit;
+    return mNextBit;
 }
 
 void
 FileBuffer::Rewind()
 {
-    current = buffer;
+    mCurrent = mBuffer;
 }
 
 unsigned int
 FileBuffer::Tell()
 {
-    return current - buffer;
+    return mCurrent - mBuffer;
 }
 
 uint8_t
@@ -824,12 +893,12 @@ FileBuffer::GetSint32BE()
 std::string
 FileBuffer::GetString()
 {
-    if (current)
+    if (mCurrent)
     {
-        std::string s((char *)current);
-        if ((current + s.length() + 1) <= (buffer + size))
+        std::string s((char *)mCurrent);
+        if ((mCurrent + s.length() + 1) <= (mBuffer + mSize))
         {
-            current += s.length() + 1;
+            mCurrent += s.length() + 1;
             return s;
         }
         else
@@ -843,10 +912,10 @@ FileBuffer::GetString()
 std::string
 FileBuffer::GetString(const unsigned int len)
 {
-    if ((current) && (current + len <= buffer + size))
+    if ((mCurrent) && (mCurrent + len <= mBuffer + mSize))
     {
-        std::string s((char *)current);
-        current += len;
+        std::string s((char *)mCurrent);
+        mCurrent += len;
         return s;
     }
     else
@@ -860,17 +929,17 @@ void
 FileBuffer::GetData(void *data,
                     const unsigned int n)
 {
-    if ((current + n) <= (buffer + size))
+    if ((mCurrent + n) <= (mBuffer + mSize))
     {
-        memcpy(data, current, n);
-        current += n;
+        memcpy(data, mCurrent, n);
+        mCurrent += n;
     }
     else
     {
         std::cerr << "Requested: " << n << " but @" << std::hex 
-            << (current - buffer) << " size: " << std::dec << size
-            << " @: " << std::hex << (current + n) << " to "
-            << " @: " << std::hex << (buffer + size)
+            << (mCurrent - mBuffer) << " mSize: " << std::dec << mSize
+            << " @: " << std::hex << (mCurrent + n) << " to "
+            << " @: " << std::hex << (mBuffer + mSize)
             << std::endl;
         throw BufferEmpty(__FILE__, __LINE__);
     }
@@ -879,20 +948,20 @@ FileBuffer::GetData(void *data,
 unsigned int
 FileBuffer::GetBits(const unsigned int n)
 {
-    if (current + ((nextbit + n + 7)/8) <= buffer + size)
+    if (mCurrent + ((mNextBit + n + 7)/8) <= mBuffer + mSize)
     {
         unsigned int x = 0;
         for (unsigned int i = 0; i < n; i++)
         {
-            if (*current & (1 << nextbit))
+            if (*mCurrent & (1 << mNextBit))
             {
                 x += (1 << i);
             }
-            nextbit++;
-            if (nextbit > 7)
+            mNextBit++;
+            if (mNextBit > 7)
             {
-                current++;
-                nextbit = 0;
+                mCurrent++;
+                mNextBit = 0;
             }
         }
         return x;
@@ -976,10 +1045,10 @@ FileBuffer::PutSint32BE(const int32_t x)
 void
 FileBuffer::PutString(const std::string s)
 {
-    if ((current) && (current + s.length() + 1 <= buffer + size))
+    if ((mCurrent) && (mCurrent + s.length() + 1 <= mBuffer + mSize))
     {
-        strncpy((char *)current, s.c_str(), s.length() + 1);
-        current += s.length() + 1;
+        strncpy((char *)mCurrent, s.c_str(), s.length() + 1);
+        mCurrent += s.length() + 1;
     }
     else
     {
@@ -990,11 +1059,11 @@ FileBuffer::PutString(const std::string s)
 void
 FileBuffer::PutString(const std::string s, const unsigned int len)
 {
-    if ((current) && (current + len <= buffer + size))
+    if ((mCurrent) && (mCurrent + len <= mBuffer + mSize))
     {
-        memset(current, 0, len);
-        strncpy((char *)current, s.c_str(), len);
-        current += len;
+        memset(mCurrent, 0, len);
+        strncpy((char *)mCurrent, s.c_str(), len);
+        mCurrent += len;
     }
     else
     {
@@ -1005,10 +1074,10 @@ FileBuffer::PutString(const std::string s, const unsigned int len)
 void
 FileBuffer::PutData(void *data, const unsigned int n)
 {
-    if (current + n <= buffer + size)
+    if (mCurrent + n <= mBuffer + mSize)
     {
-        memcpy(current, data, n);
-        current += n;
+        memcpy(mCurrent, data, n);
+        mCurrent += n;
     }
     else
     {
@@ -1018,10 +1087,10 @@ FileBuffer::PutData(void *data, const unsigned int n)
 
 void FileBuffer::PutData(const uint8_t x, const unsigned int n)
 {
-    if (current + n <= buffer + size)
+    if (mCurrent + n <= mBuffer + mSize)
     {
-        memset(current, x, n);
-        current += n;
+        memset(mCurrent, x, n);
+        mCurrent += n;
     }
     else
     {
@@ -1031,23 +1100,23 @@ void FileBuffer::PutData(const uint8_t x, const unsigned int n)
 
 void FileBuffer::PutBits(const unsigned int x, const unsigned int n)
 {
-    if (current + ((nextbit + n + 7)/8) <= buffer + size)
+    if (mCurrent + ((mNextBit + n + 7)/8) <= mBuffer + mSize)
     {
         for (unsigned int i = 0; i < n; i++)
         {
             if (x & (1 << i))
             {
-                *current |= (1 << nextbit);
+                *mCurrent |= (1 << mNextBit);
             }
             else
             {
-                *current &= ~(1 << nextbit);
+                *mCurrent &= ~(1 << mNextBit);
             }
-            nextbit++;
-            if (nextbit > 7)
+            mNextBit++;
+            if (mNextBit > 7)
             {
-                current++;
-                nextbit = 0;
+                mCurrent++;
+                mNextBit = 0;
             }
         }
     }

@@ -4,3 +4,5 @@ data/*
 data
 compile_commands.json
 .cache
+.vs
+out

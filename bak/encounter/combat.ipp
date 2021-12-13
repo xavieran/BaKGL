@@ -28,10 +28,9 @@ const Combat& GenericCombatFactory<isTrap>::Get(unsigned i) const
 template <bool isTrap>
 void GenericCombatFactory<isTrap>::Load()
 {
-    auto fb = FileBufferFactory::CreateFileBuffer(
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(
         isTrap ? sTrapFilename : sCombatFilename);
 
-    auto store = DialogStore{};
     const auto logger = Logging::LogState::GetLogger("Combat");
 
     const auto count = fb.GetUint16LE();
@@ -85,15 +84,6 @@ void GenericCombatFactory<isTrap>::Load()
     
 
         logger.Spam() << "Index: " << i << " COMBAT #" << combatIndex << " ";
-        try
-        {
-            logger.Spam() << store.GetFirstText(store.GetSnippet(KeyTarget{entryDialog})) << "\n";
-        }
-        catch (const std::runtime_error& e)
-        {
-            // Only Key 133 is missing... on Combat #417
-            logger.Debug() << e.what() << "\n";
-        }
 
         mCombats.emplace_back(
             combatIndex,

@@ -31,7 +31,7 @@ GDSScene::GDSScene(
     mReference{hotspotRef},
     mGameState{gameState},
     mSceneHotspots{
-        FileBufferFactory::CreateFileBuffer(
+        FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
     mFlavourText{BAK::KeyTarget{0x00000}},
     mSpriteSheet{GetDrawInfo().mSpriteSheet},
@@ -74,7 +74,7 @@ GDSScene::GDSScene(
 
     SetDimensions(glm::vec2{x, y});
 
-    auto fb = FileBufferFactory::CreateFileBuffer(mReference.ToFilename());
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
 
     // Needed for repair shops...

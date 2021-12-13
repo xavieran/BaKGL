@@ -13,7 +13,7 @@ std::vector<GenericContainer> LoadFixedObjects(
     std::vector<GenericContainer> fixedObjects;
 
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
-    auto fb = FileBufferFactory::CreateFileBuffer("OBJFIXED.DAT");
+    auto fb = FileBufferFactory::Get().CreateDataBuffer("OBJFIXED.DAT");
 
     fb.DumpAndSkip(2);
 

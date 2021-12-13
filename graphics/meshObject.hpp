@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <unordered_map>
 
 
 namespace Graphics {
