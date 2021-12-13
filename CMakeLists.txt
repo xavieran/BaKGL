@@ -130,8 +130,13 @@ set(LINK_3D_LIBRARIES
     ${GLFW3_LIBRARY}
     )
 
-if (${CMAKE_SYSTEM} STREQUAL "Linux")
-    set(LINK_UNIX_LIBRARIES stdc++ m dl pthread)
+message ("System: ${CMAKE_SYSTEM}")
+if (UNIX)
+    set(LINK_UNIX_LIBRARIES
+        stdc++
+        m
+        dl
+        pthread)
 endif()
 
 # --- My project directories --- #

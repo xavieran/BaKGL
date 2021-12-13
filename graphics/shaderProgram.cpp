@@ -190,8 +190,6 @@ std::optional<std::string> ShaderProgram::FindFile(const std::string& shaderPath
         "C:\\Users\\xavieran\\Source\\Repos\\xavieran\\BaKGL\\shaders"
     };
 
-    Logging::LogInfo(__FUNCTION__) << "Home: " << home << std::endl;
-
     for (const auto& searchPath : searchPaths)
     {
         auto fullPath = std::filesystem::path{home} / searchPath / shaderPath;

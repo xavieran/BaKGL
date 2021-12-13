@@ -1,7 +1,7 @@
 add_executable (compile_shaders compile_shaders.cpp)
 
 target_link_libraries(compile_shaders
-    ${UNIX_LINKS}
+    ${LINK_UNIX_LIBRARIES}
     ${LINK_3D_LIBRARIES}
     com
     graphics

@@ -76,7 +76,7 @@ int main(int argc, char** argv)
         logger.Error() << "Failed to compile shaders: " << e.what() << std::endl;
         return -1;
     }
-    //
+
     logger.Info() << "Successfully compiled shaders" << std::endl;
 
     return 0;
