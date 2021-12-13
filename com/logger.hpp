@@ -85,7 +85,11 @@ private:
         const auto t = std::chrono::system_clock::now();
         const auto time = std::chrono::system_clock::to_time_t(t);
         auto gmt_time = tm{};
+#ifdef _MSC_VER
         gmtime_s(&gmt_time , &time);
+#else
+        gmtime_r(&time, &gmt_time);
+#endif
         auto ts = std::put_time(&gmt_time, sTimeFormat.c_str());
 
         return sOutput << ts << " " << LevelToString(level) << " [" << loggerName << "] ";
