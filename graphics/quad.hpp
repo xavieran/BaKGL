@@ -88,7 +88,7 @@ public:
         mVertices.emplace_back(vc);
     }
 
-    unsigned long GetNumVertices() const
+    std::size_t GetNumVertices() const
     {
         return mVertices.size();
     }

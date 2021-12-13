@@ -84,8 +84,9 @@ private:
     {
         const auto t = std::chrono::system_clock::now();
         const auto time = std::chrono::system_clock::to_time_t(t);
-        auto gmt_time = gmtime(&time);
-        auto ts = std::put_time(gmt_time, sTimeFormat.c_str());
+        auto gmt_time = tm{};
+        gmtime_s(&gmt_time , &time);
+        auto ts = std::put_time(&gmt_time, sTimeFormat.c_str());
 
         return sOutput << ts << " " << LevelToString(level) << " [" << loggerName << "] ";
     }

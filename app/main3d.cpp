@@ -334,7 +334,7 @@ int main(int argc, char** argv)
             lightCamera);
         renderer.EndDepthMapDraw();
 
-        glViewport(0, 0, width, height);
+        glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderer.DrawWithShadow(
             gameRunner.mSystems->GetRenderables(),

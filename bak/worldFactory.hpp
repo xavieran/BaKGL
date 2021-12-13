@@ -153,7 +153,6 @@ public:
                     mPush.emplace_back(false);
                 else if (GetName().substr(0, 6) == "church"
                     && (color == 191
-                    || color == 0
                     || color == 0))
                     mPush.emplace_back(false);
                 else if (GetName().substr(0, 6) == "ground")

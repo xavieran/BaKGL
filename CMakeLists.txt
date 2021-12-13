@@ -6,25 +6,32 @@ string(CONCAT CXX_IGNORES
     "-Wno-unused-variable "
     "-Wno-unused-parameter "
 #   "-Wno-unused-but-set-parameter "
-#   " -Wno-c++17-extensions "
+#   "-Wno-c++17-extensions "
     "-Wno-unused-private-field "
     "-Wno-unused-function "
     "-Wno-format-security "
     "-Wno-deprecated-enum-enum-conversion "
     )
 
-set(CXX_IGNORE ${CXX_IGNORES})
-set(CXX_FLAGS "-Wall -Wextra -Werror")
+
 if (MSVC)
-    set(CXX_IGNORE "")
-    set(CXX_FLAGS "")
+    set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302")
+    set(CXX_FLAGS "/W3 /WX /EHsc")
+    
+    set(CXX_USAN "")
+    set(CXX_ASAN "/fsanitize=address")
+else()
+    set(CXX_IGNORE ${CXX_IGNORES})
+    set(CXX_FLAGS "-Wall -Wextra -Werror")
+
+    # FileBuffer violates alignment pretty regularly. Will need to fix at some point
+    #set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
+    #set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
+    
+    set(CXX_USAN "")
+    set(CXX_ASAN "")
 endif()
 
-# FileBuffer violates alignment pretty regularly. Will need to fix at some point
-#set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
-#set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
-set(CXX_USAN "")
-set(CXX_ASAN "")
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")

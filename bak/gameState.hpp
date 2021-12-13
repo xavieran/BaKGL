@@ -427,7 +427,7 @@ public:
             return 0;
     }
 
-    unsigned GetEventStateBool(unsigned eventPtr) const
+    bool GetEventStateBool(unsigned eventPtr) const
     {
         return (GetEventState(eventPtr) & 0x1) == 1;
     }

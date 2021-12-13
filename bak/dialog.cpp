@@ -365,6 +365,7 @@ bool DialogStore::HasSnippet(Target target) const
     }
     catch (std::runtime_error& e)
     {
+        mLogger.Error() << __FUNCTION__ << " " << e.what() << std::endl;
         return false;
     }
 }

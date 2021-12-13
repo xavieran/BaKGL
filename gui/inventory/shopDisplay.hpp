@@ -85,7 +85,7 @@ public:
             mShopPage = 0;
     }
 
-    unsigned GetMaxPages()
+    std::size_t GetMaxPages()
     {
         ASSERT(mContainer);
         const auto nItems = mContainer->GetInventory().GetNumberItems();
