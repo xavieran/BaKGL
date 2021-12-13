@@ -12,8 +12,6 @@ add_executable(bakTest
     )
 
 target_link_libraries(bakTest
-    #stdc++
-    #m
     bak
     com
     gtest_main)
