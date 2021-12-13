@@ -105,8 +105,7 @@ struct ContainerDialog
 
 std::ostream& operator<<(std::ostream&, const ContainerDialog&);
 
-class GenericContainer : public IContainer
-{
+class GenericContainer final : public IContainer {
 public:
     GenericContainer(
         ContainerHeader header,

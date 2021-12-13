@@ -1,6 +1,7 @@
 # BaK GL
 
-![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/cmake.yml/badge.svg)
+![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
+![Clang 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
 Reimplementation of Betrayal at Krondor using OpenGL for true 3D graphics.
 

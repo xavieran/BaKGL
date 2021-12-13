@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
+
 project( BaKGL )
 
 # Project wide CXX flags
@@ -13,6 +14,7 @@ string(CONCAT CXX_IGNORES
     "-Wno-deprecated-enum-enum-conversion "
     )
 
+#set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if (MSVC)
     set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302")
