@@ -1,3 +1,5 @@
+enable_testing()
+
 add_library(gui
     button.hpp
     clickButton.hpp

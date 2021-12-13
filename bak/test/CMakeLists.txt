@@ -1,3 +1,7 @@
+enable_testing()
+
+include(GoogleTest)
+
 add_executable(bakTest
     characterTest.cpp
     keyContainerTest.cpp
@@ -14,4 +18,8 @@ target_link_libraries(bakTest
     com
     gtest_main)
 
-add_custom_target(testBak ALL COMMAND bakTest)
+gtest_discover_tests(bakTest
+    TEST_SUFFIX .bakTest
+)
+
+add_test(NAME testBak COMMAND bakTest)

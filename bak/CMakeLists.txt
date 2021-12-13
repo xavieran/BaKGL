@@ -1,3 +1,5 @@
+enable_testing()
+
 add_library(bak
     IContainer.hpp IContainer.cpp
     bard.hpp bard.cpp

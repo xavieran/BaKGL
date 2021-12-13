@@ -1,3 +1,4 @@
+enable_testing()
 
 add_library(graphics
     IGuiElement.hpp IGuiElement.cpp

@@ -35,6 +35,8 @@ else()
 endif()
 
 
+enable_testing()
+
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)
