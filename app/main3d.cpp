@@ -55,8 +55,9 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("Gui::StaticTTM");
 
     struct option options[] = {
-        {"save",required_argument,0,'s'},
-        {"zone",required_argument,0,'z'}
+        {"help", no_argument,       0, 'h'},
+        {"save", required_argument, 0, 's'},
+        {"zone", required_argument, 0, 'z'}
     };
     int optionIndex = 0;
     int opt;
@@ -68,9 +69,14 @@ int main(int argc, char** argv)
     BAK::GameData* gameData{nullptr};
 
 	bool noOptions = true;
-    while ((opt = getopt_long(argc, argv, "s:z:", options, &optionIndex)) != -1)
+    while ((opt = getopt_long(argc, argv, "hs:z:", options, &optionIndex)) != -1)
     {   
-        if (opt == 's')
+        if (opt == 'h')
+        {
+            std::cout << "Usage: " << argv[0] << " --save SAVE_FILE | --zone ZXX\n";
+            exit(0);
+        }
+        else if (opt == 's')
         {
 			noOptions = false;
             logger.Info() << "Loading save file: " << optarg << std::endl;
