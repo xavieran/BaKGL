@@ -4,6 +4,7 @@ add_library(xbak ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(xbak
     com
     ${SDL_LIBRARIES}
+    ${LINK_UNIX_LIBRARIES}
     #SDL_mixer 
     #SDL_sound
 )
@@ -31,6 +32,7 @@ foreach (XBAK_BIN IN LISTS XBAK_BINARIES)
     target_link_libraries(${XBAK_BIN}
         xbak
         ${SDL_LIBRARIES}
+        ${LINK_UNIX_LIBRARIES}
     )
 endforeach()
 
@@ -38,6 +40,7 @@ add_executable (xbak_main xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
 target_link_libraries(xbak_main
     xbak
     ${SDL_LIBRARIES}
+    ${LINK_UNIX_LIBRARIES}
     )
 
 set(CMAKE_CXX_CLANG_TIDY "")
