@@ -139,6 +139,14 @@ public:
         }
     }
 
+    BAK::GamePositionAndHeading GetLocation() const
+    {
+        if (mGameData)
+            return mGameData->mLocation.mLocation;
+
+        return BAK::GamePositionAndHeading{ glm::uvec2{10 * 64000, 15 * 64000}, 0 };
+    }
+
     auto GetZone() const
     {
         if (mGameData)

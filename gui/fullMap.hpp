@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
 #include "bak/fmap.hpp"
 #include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
@@ -47,6 +48,7 @@ public:
         mGuiManager{guiManager},
         mFont{font},
         mGameState{gameState},
+        mIcons{icons},
         mDialogScene{},
         mFMapXY{},
         mFMapTowns{},
@@ -56,8 +58,18 @@ public:
             mLayout.GetWidgetDimensions(sExitWidget),
             mFont,
             "#Exit",
+            // FIXME: This callback works by accident, rename it
             [this]{ mGuiManager.ExitCharacterPortrait(); }
         },
+        mPlayerLocation{
+            ImageTag{},
+            std::get<Graphics::SpriteSheetIndex>(icons.GetFullMapIcon(0)),
+            std::get<Graphics::TextureIndex>(icons.GetFullMapIcon(0)),
+            mFMapXY.GetTileCoords(BAK::ZoneNumber{1}, glm::uvec2{10, 15}),
+            std::get<glm::vec2>(icons.GetFullMapIcon(0)),
+            false
+        },  
+        mTowns{},
         mLogger{Logging::LogState::GetLogger("Gui::FullMap")}
     {
         mTowns.reserve(mFMapTowns.GetTowns().size());
@@ -76,14 +88,53 @@ public:
     void AddChildren()
     {
         AddChildBack(&mExitButton);
+        AddChildBack(&mPlayerLocation);
         for (auto& t : mTowns)
             AddChildBack(&t);
+    }
+
+    unsigned ClassifyAngle(std::uint16_t bakAngle)
+    {
+        constexpr auto unit= 0xffff / 8;
+        if (bakAngle < unit)
+        {
+            return 0;
+        }
+        else if (bakAngle < 2 * unit)
+        {
+            return 4;
+        }
+        else
+        {
+            return 8;
+        }
+    }
+
+    void UpdateLocation()
+    {
+        SetPlayerLocation(mGameState.GetZone(), mGameState.GetLocation());
+    }
+
+    void SetPlayerLocation(
+        BAK::ZoneNumber zone,
+        BAK::GamePositionAndHeading location)
+    {
+        const auto& [ss, ti, dims] = mIcons.GetFullMapIcon(ClassifyAngle(location.mHeading));
+        mPlayerLocation.SetSpriteSheet(ss);
+        mPlayerLocation.SetTexture(ti);
+        mPlayerLocation.SetDimensions(dims);
+
+        mPlayerLocation.SetCenter(
+            mFMapXY.GetTileCoords(
+                zone, 
+                BAK::GetTile(location.mPosition)));
     }
 
 private:
     IGuiManager& mGuiManager;
     const Font& mFont;
     BAK::GameState& mGameState;
+    const Icons& mIcons;
     NullDialogScene mDialogScene;
 
     BAK::FMapXY mFMapXY;
@@ -93,6 +144,7 @@ private:
 
     ClickButton mExitButton;
 
+    Widget mPlayerLocation;
     std::vector<TownLabel> mTowns;
 
     const Logging::Logger& mLogger;
