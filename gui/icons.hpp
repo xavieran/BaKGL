@@ -79,6 +79,9 @@ public:
             BAK::TextureFactory::AddToTextureStore(
                 textures, "INVLOCK.BMX", "OPTIONS.PAL");
 
+            mFullMapIconOffset = textures.size();
+            BAK::TextureFactory::AddToTextureStore(
+                textures, "FMAP_ICN.BMX", "FULLMAP.PAL");
 
             for (const auto& t : textures.GetTextures())
             {
@@ -179,6 +182,16 @@ public:
             mInventoryIconsDims[index]);
     }
 
+    IconInfo GetFullMapIcon(unsigned i) const
+    {
+        const auto index = i + mFullMapIconOffset;
+        ASSERT(index < mInventoryIconsDims.size());
+        return std::make_tuple(
+            mInventoryIconsSpriteSheet,
+            Graphics::TextureIndex{index},
+            mInventoryIconsDims[index]);
+    }
+
 private:
     Graphics::SpriteSheetIndex mButtonIconsSpriteSheet;
     unsigned mPressedOffset;
@@ -189,6 +202,7 @@ private:
     unsigned mCompassOffset;
     unsigned mInventoryMiscOffset;
     unsigned mInventoryLockOffset;
+    unsigned mFullMapIconOffset;
     std::vector<glm::vec2> mInventoryIconsDims;
 
     const Logging::Logger& mLogger;
