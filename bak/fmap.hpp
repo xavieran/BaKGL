@@ -58,6 +58,16 @@ private:
 
 struct Town
 {
+    Town(
+        std::string name,
+        std::uint16_t type,
+        glm::vec2 coord)
+    :
+        mName{name},
+        mType{type},
+        mCoord{coord}
+    {}
+
     std::string mName;
     std::uint16_t mType;
     glm::vec2 mCoord;
