@@ -6,7 +6,7 @@
 
 namespace BAK {
 
-std::vector<glm::vec<2, unsigned>> LoadZoneRef(const std::string& path)
+std::vector<glm::uvec2> LoadZoneRef(const std::string& path)
 {
     auto fb = FileBufferFactory::Get().CreateDataBuffer(path);
     const auto logger = Logging::LogState::GetLogger("LoadZoneRef");

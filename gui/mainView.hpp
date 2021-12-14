@@ -85,7 +85,7 @@ public:
                     std::get<Graphics::SpriteSheetIndex>(button),
                     std::get<Graphics::TextureIndex>(button),
                     std::get<Graphics::TextureIndex>(icons.GetPressedButton(widget.mImage)),
-                    []{},
+                    [this]{ mGuiManager.ShowFullMap(); },
                     []{});
                 mButtons.back().CenterImage(std::get<glm::vec2>(button));
             }

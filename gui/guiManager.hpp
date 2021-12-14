@@ -18,6 +18,7 @@
 #include "gui/inventory/inventoryScreen.hpp"
 #include "gui/lock/lockScreen.hpp"
 #include "gui/lock/moredhelScreen.hpp"
+#include "gui/fullMap.hpp"
 #include "gui/mainView.hpp"
 #include "gui/widget.hpp"
 
@@ -94,6 +95,13 @@ public:
             mGameState
         },
         mLockScreen{
+            *this,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetGameFont(),
+            mGameState
+        },
+        mFullMap{
             *this,
             mBackgrounds,
             mIcons,
@@ -302,6 +310,11 @@ public:
         }
     }
 
+    void ShowFullMap() override
+    {
+        mScreenStack.PushScreen(&mFullMap);
+    }
+
     void ExitLock() override
     {
         mCursor.PopCursor();
@@ -351,6 +364,7 @@ public:
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
     LockScreen mLockScreen;
+    FullMap mFullMap;
     MoredhelScreen mMoredhelScreen;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
