@@ -42,7 +42,8 @@ void ZoneFactory::Load()
             fb.GetUint8(), fb.GetUint8()};
         const auto offset = glm::vec<2, std::uint8_t>{
             fb.GetUint8(), fb.GetUint8()};
-        const auto heading = fb.GetUint16LE();
+        const auto heading = static_cast<std::uint16_t>(
+            fb.GetUint16LE() / 0xffu);
         const auto dialog = fb.GetUint32LE();
         ASSERT(fb.GetUint32LE() == 0);
         ASSERT(fb.GetUint16LE() == 0);

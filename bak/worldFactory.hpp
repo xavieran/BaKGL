@@ -201,6 +201,7 @@ public:
     auto GetScale() const { return mScale; }
     bool GetClickable() const
     {
+        return static_cast<unsigned>(mEntityType) > 5;
         for (std::string s : {
             "ground",
             "genmtn",

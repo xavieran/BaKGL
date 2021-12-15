@@ -108,7 +108,9 @@ int main(int argc, char** argv)
 		logger.Info() << "Loaded save: " << gameData->mName << "\n";
 		zoneLabel = BAK::ZoneLabel{ zone };
 		startPosition = BAK::ToGlCoord<float>(gameData->mLocation.mLocation.mPosition);
+		logger.Debug() << "BakSaveAngle: " << gameData->mLocation.mLocation.mHeading << "\n";
 		startHeading = BAK::ToGlAngle(gameData->mLocation.mLocation.mHeading);
+        logger.Debug() << "StartHeading:" << startHeading << "\n";
 	}
 
     auto guiScalar = 4.0f;

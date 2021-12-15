@@ -69,7 +69,8 @@ public:
                 teleport.mTargetLocation);
 
         if (teleport.mTargetGDSScene)
-            mGuiManager.TeleportToGDS(*teleport.mTargetGDSScene);
+            mGuiManager.TeleportToGDS(
+                *teleport.mTargetGDSScene);
     }
 
     void LoadZoneData(unsigned zone)
@@ -85,6 +86,11 @@ public:
     {
         LoadZoneData(targetZone);
         mCamera.SetGameLocation(targetLocation);
+        mGameState.SetLocation(
+            BAK::Location{
+                targetZone,
+                BAK::GetTile(targetLocation.mPosition),
+                mCamera.GetGameLocation()});
     }
 
     void LoadSystems()

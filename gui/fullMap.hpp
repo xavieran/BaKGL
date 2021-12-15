@@ -95,19 +95,8 @@ public:
 
     unsigned ClassifyAngle(std::uint16_t bakAngle)
     {
-        constexpr auto unit= 0xffff / 8;
-        if (bakAngle < unit)
-        {
-            return 0;
-        }
-        else if (bakAngle < 2 * unit)
-        {
-            return 4;
-        }
-        else
-        {
-            return 8;
-        }
+        constexpr auto unit = 0xff / 8;
+        return 4 * ((bakAngle / unit) % 8);
     }
 
     void UpdateLocation()

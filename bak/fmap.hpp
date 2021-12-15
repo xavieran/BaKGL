@@ -46,7 +46,10 @@ public:
     {
         const auto& tiles = mTiles[zone.mValue - 1];
         const auto it = std::find(tiles.begin(), tiles.end(), tile);
-        ASSERT(it != tiles.end());
+        // Obviously this should not happen, but since I haven't implemented clipping it can
+        if (it == tiles.end())
+            return glm::vec2{0, 0};
+        //ASSERT(it != tiles.end());
         const auto index = std::distance(tiles.begin(), it);
         return mTileCoords[zone.mValue - 1][index];
     }

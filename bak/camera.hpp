@@ -90,9 +90,7 @@ public:
     BAK::GameHeading GetHeading()
     {
         // Make sure to normalise this between 0 and 1
-        auto bakAngle = 0xff * ((mAngle.x - glm::pi<float>()) / (2.0f * glm::pi<float>()));
-        if (bakAngle < 0)
-            bakAngle += 0xff;
+        auto bakAngle = BAK::ToBakAngle(mAngle.x);
         Logging::LogDebug("Camera") << "angle: " << mAngle.x << " bak: " << bakAngle << "\n";
         return static_cast<std::uint16_t>(bakAngle);
     }
@@ -144,26 +142,34 @@ public:
 
     void RotateLeft()
     {
-        mAngle.x += mTurnSpeed * mDeltaTime;
-        mAngle.x = BAK::NormaliseRadians(mAngle.x);
+        SetAngle(
+            glm::vec2{
+                mAngle.x + mTurnSpeed * mDeltaTime,
+                mAngle.y});
     }
 
     void RotateRight()
     {
-        mAngle.x -= mTurnSpeed * mDeltaTime;
-        mAngle.x = BAK::NormaliseRadians(mAngle.x);
+        SetAngle(
+            glm::vec2{
+                mAngle.x - mTurnSpeed * mDeltaTime,
+                mAngle.y});
     }
 
     void RotateVerticalUp()
     {
-        mAngle.y += mTurnSpeed * mDeltaTime;
-        mAngle.y = BAK::NormaliseRadians(mAngle.y);
+        SetAngle(
+            glm::vec2{
+                mAngle.x,
+                mAngle.y + mTurnSpeed * mDeltaTime});
     }
 
     void RotateVerticalDown()
     {
-        mAngle.y -= mTurnSpeed * mDeltaTime;
-        mAngle.y = BAK::NormaliseRadians(mAngle.y);
+        SetAngle(
+            glm::vec2{
+                mAngle.x,
+                mAngle.y - mTurnSpeed * mDeltaTime});
     }
 
     glm::vec3 GetDirection() const
@@ -205,9 +211,7 @@ public:
 
     BAK::GameHeading GetGameAngle() const
     {
-        const auto multiplier = static_cast<float>(0xff);
-        return static_cast<BAK::GameHeading>(
-            multiplier * (mAngle.x / (2.0f * glm::pi<float>())));
+        return BAK::ToBakAngle(mAngle.x);
     }
 
     glm::mat4 GetViewMatrix() const

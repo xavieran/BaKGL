@@ -565,7 +565,8 @@ Location GameData::LoadLocation()
     unsigned ypos = mBuffer.GetUint32LE();
 
     mBuffer.DumpAndSkip(5);
-    std::uint16_t heading = mBuffer.GetUint16LE();
+    std::uint16_t heading = mBuffer.GetUint8();
+    mBuffer.DumpAndSkip(1);
 
     mLogger.Info() << "Tile: " << xtile << "," << ytile << std::endl;
     mLogger.Info() << "Pos: " << xpos << "," << ypos << std::endl;

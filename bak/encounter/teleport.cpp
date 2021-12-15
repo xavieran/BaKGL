@@ -42,7 +42,8 @@ void TeleportFactory::Load()
             fb.GetUint8(), fb.GetUint8()};
         const auto offset = glm::vec<2, std::uint8_t>{
             fb.GetUint8(), fb.GetUint8()};
-        const auto heading = fb.GetUint16LE();
+        const auto heading = static_cast<std::uint16_t>(
+            fb.GetUint16LE() / 0xffu);
         const auto hotspotNum = static_cast<std::uint8_t>(fb.GetUint16LE());
         const auto hotspotChar = MakeHotspotChar(static_cast<std::uint8_t>(fb.GetUint16LE()));
 

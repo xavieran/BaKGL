@@ -1,6 +1,8 @@
 #include "bak/coordinates.hpp"
 #include "bak/constants.hpp"
 
+#include "com/assert.hpp"
+
 namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading& pah)
@@ -38,6 +40,15 @@ glm::vec3 ToGlAngle(const Vector3D& angle)
         * 2.0f * glm::pi<float>();
 }
 
+BAK::GameHeading ToBakAngle(double angle)
+{
+    const auto multiplier = static_cast<double>(0xff);
+    const auto angleGreaterThanZero = angle + glm::pi<double>();
+    const auto bakAngle = multiplier * (angleGreaterThanZero / (2 * glm::pi<double>()));
+    ASSERT(bakAngle > 0);
+    return static_cast<BAK::GameHeading>(bakAngle);
+}
+
 double NormaliseRadians(double angle)
 {
     if (angle > glm::pi<double>())
@@ -53,7 +64,7 @@ glm::vec2 ToGlAngle(GameHeading heading)
     constexpr auto divider = static_cast<float>(0xff);
     const auto ratio = static_cast<float>(heading) / divider;
     const auto angle = ratio * 2.0f * glm::pi<float>();
-    return glm::vec2{angle + glm::pi<float>(), 0};
+    return glm::vec2{NormaliseRadians(angle + glm::pi<float>()), 0};
 }
 
 }

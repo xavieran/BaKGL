@@ -80,6 +80,8 @@ glm::vec<4, T> ToGlColor(const C& color)
         F(color.a)};
 }
 
+BAK::GameHeading ToBakAngle(double angle);
+
 double NormaliseRadians(double angle);
 
 }
