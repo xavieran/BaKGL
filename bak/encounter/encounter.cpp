@@ -218,7 +218,19 @@ EncounterT EncounterFactory::MakeEncounter(
     case EncounterType::Town:
         return mTowns.Get(encounterIndex, tile);
     case EncounterType::Trap:
-        return mTraps.Get(encounterIndex);
+        {
+            auto combat = mCombats.Get(encounterIndex);
+            const auto tilePos = tile * static_cast<unsigned>(64000);
+            combat.mNorthRetreat.mPosition += tilePos;
+            combat.mSouthRetreat.mPosition += tilePos;
+            combat.mWestRetreat.mPosition += tilePos;
+            combat.mEastRetreat.mPosition += tilePos;
+            for (auto& combatant : combat.mCombatants)
+            {
+                combatant.mLocation.mPosition += tilePos;
+            }
+            return combat;
+        }
     case EncounterType::Zone:
         return mZones.Get(encounterIndex);
     case EncounterType::Disable:
