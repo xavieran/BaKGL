@@ -2,11 +2,42 @@
 
 #include "bak/coordinates.hpp"
 #include "bak/dialogTarget.hpp"
+#include "bak/types.hpp"
 
 #include <optional>
 #include <vector>
 
 namespace BAK::Encounter {
+
+// From REQ_TE13.DAT:
+// Type (Monster type)
+// Movement Style
+// Where (location)
+// Width
+// Height
+// Radius
+// Road End 1
+// Road End 2
+
+struct CombatantData
+{
+    CombatantData(
+        std::uint16_t monster,
+        std::uint16_t movementType,
+        GamePositionAndHeading location)
+    :
+        mMonster{monster},
+        mMovementType{movementType},
+        mLocation{location}
+    {}
+
+    std::uint16_t mMonster;
+    std::uint16_t mMovementType;
+    GamePositionAndHeading mLocation;
+    // path...
+};
+
+std::ostream& operator<<(std::ostream&, const CombatantData&);
 
 // From REQ_TE12.DAT:
 // Combat Situation
@@ -18,6 +49,7 @@ namespace BAK::Encounter {
 // West Retreat
 // South Retreat
 // East Retreat
+
 
 class Combat
 {
@@ -31,7 +63,7 @@ public:
         GamePositionAndHeading westRetreat,
         GamePositionAndHeading southRetreat,
         GamePositionAndHeading eastRetreat,
-        std::vector<unsigned> combatants)
+        std::vector<CombatantData> combatants)
     :
         mCombatIndex{combatIndex},
         mEntryDialog{entryDialog},
@@ -41,7 +73,7 @@ public:
         mWestRetreat{westRetreat},
         mSouthRetreat{southRetreat},
         mEastRetreat{eastRetreat},
-        mCombatants{combatIndex}
+        mCombatants{combatants}
     {}
 
     unsigned mCombatIndex;
@@ -54,7 +86,7 @@ public:
     GamePositionAndHeading mSouthRetreat;
     GamePositionAndHeading mEastRetreat;
 
-    std::vector<unsigned> mCombatants;
+    std::vector<CombatantData> mCombatants;
     //bool mVisible;
 };
 

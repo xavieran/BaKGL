@@ -146,13 +146,13 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                mSystems->AddRenderable(
-                    Renderable{
-                        id,
-                        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                        enc.GetLocation(),
-                        glm::vec3{0.0},
-                        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                //mSystems->AddRenderable(
+                //    Renderable{
+                //        id,
+                //        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                //        enc.GetLocation(),
+                //        glm::vec3{0.0},
+                //        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
 
                 mSystems->AddIntersectable(
                     Intersectable{
@@ -161,6 +161,21 @@ public:
                             static_cast<double>(dims.x),
                             static_cast<double>(dims.y)},
                         enc.GetLocation()});
+
+                // Throw the enemies onto the map...
+                evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
+                    [&](const auto& combat){
+                        for (const auto& enemy : combat.mCombatants)
+                        {
+                            mSystems->AddRenderable(
+                                Renderable{
+                                    mSystems->GetNextItemId(),
+                                    mZoneData->mObjects.GetObject("enemy"),
+                                    BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
+                                    glm::vec3{0},
+                                    glm::vec3{1}});
+                        }
+                    });
 
                 mEncounters.emplace(id, &enc);
             }

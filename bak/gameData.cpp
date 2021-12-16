@@ -22,7 +22,7 @@ GameData::GameData(const std::string& save)
 
     mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
     //mLogger.Info() << mParty << "\n";
-    mLogger.Info() << mTime << "\n";
+    mLogger.Info() << mTime << std::hex << " " << mTime.mTime.mTime << std::dec << "\n";
     //LoadContainers(0x1);
     //LoadContainers(0x2);
     //LoadContainers(0x3);

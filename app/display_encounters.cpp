@@ -11,6 +11,7 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Info);
     
     const auto ef = BAK::Encounter::EncounterFactory{};
+
     for (unsigned zone = 1; zone < 12; zone++)
     {
         auto zoneLabel = BAK::ZoneLabel{zone};

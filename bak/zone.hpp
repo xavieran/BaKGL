@@ -43,6 +43,9 @@ public:
 
         const auto click = Graphics::Cuboid{1, 1, 50};
         mObjects.AddObject("clickable", click.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));
+
+        const auto enemy = Graphics::Cuboid{1, 1, 6};
+        mObjects.AddObject("enemy", enemy.ToMeshObject(glm::vec4{0.0, 1.0, 1.0, .8}));
     }
 
     

@@ -4,6 +4,13 @@
 
 namespace BAK::Encounter {
 
+std::ostream& operator<<(std::ostream& os, const CombatantData& comb)
+{
+    os << "{ Monster: " << comb.mMonster << ", MoveType: " << comb.mMovementType
+        << ", " << comb.mLocation << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const Combat& comb)
 {
     os << "Combat { #" << comb.mCombatIndex
@@ -14,7 +21,7 @@ std::ostream& operator<<(std::ostream& os, const Combat& comb)
         << " \nWest: " << comb.mWestRetreat
         << " \nSouth: " << comb.mSouthRetreat
         << " \nEast: " << comb.mEastRetreat
-        << " Combatants: [";
+        << " \nCombatants: [";
     for (const auto& combat : comb.mCombatants)
     {
         os << combat << ", ";

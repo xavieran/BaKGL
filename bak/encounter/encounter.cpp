@@ -196,10 +196,15 @@ EncounterT EncounterFactory::MakeEncounter(
     case EncounterType::Combat:
         {
             auto combat = mCombats.Get(encounterIndex);
-            combat.mNorthRetreat.mPosition += (tile * static_cast<unsigned>(64000));
-            combat.mSouthRetreat.mPosition += (tile * static_cast<unsigned>(64000));
-            combat.mWestRetreat.mPosition += (tile * static_cast<unsigned>(64000));
-            combat.mEastRetreat.mPosition += (tile * static_cast<unsigned>(64000));
+            const auto tilePos = tile * static_cast<unsigned>(64000);
+            combat.mNorthRetreat.mPosition += tilePos;
+            combat.mSouthRetreat.mPosition += tilePos;
+            combat.mWestRetreat.mPosition += tilePos;
+            combat.mEastRetreat.mPosition += tilePos;
+            for (auto& combatant : combat.mCombatants)
+            {
+                combatant.mLocation.mPosition += tilePos;
+            }
             return combat;
         }
     case EncounterType::Comment:

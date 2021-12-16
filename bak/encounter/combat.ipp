@@ -5,6 +5,7 @@
 
 #include "com/assert.hpp"
 #include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include "xbak/FileBuffer.h"
 
@@ -49,7 +50,7 @@ void GenericCombatFactory<isTrap>::Load()
         const auto GetPosAndHeading = [&fb]{
             const auto x = fb.GetUint32LE();
             const auto y = fb.GetUint32LE();
-            const auto heading = fb.GetUint16LE();
+            const auto heading = static_cast<std::uint16_t>(fb.GetUint16LE() >> 8);
             return GamePositionAndHeading{{x, y}, heading};
         };
 
@@ -68,22 +69,23 @@ void GenericCombatFactory<isTrap>::Load()
         const auto east  = GetPosAndHeading();
 
         const auto numEnemies = fb.GetUint8();
-        auto combatants = std::vector<unsigned>{};
+        auto combatants = std::vector<CombatantData>{};
 
         for (unsigned i = 0; i < numEnemies; i++)
         {
-            combatants.emplace_back(fb.GetUint8());
-            fb.Skip(47);
+            const auto monsterIndex = fb.GetUint16LE();
+            const auto movementType = fb.GetUint16LE();
+            const auto pos = GetPosAndHeading();
+            combatants.emplace_back(monsterIndex, movementType, pos);
+            fb.Skip(48 - 14);
         }
+
         constexpr unsigned maxCombatants = 7;
         for (unsigned i = 0; i < (maxCombatants - numEnemies); i++)
         {
             fb.Skip(48);
         }
         fb.Skip(2);
-    
-
-        logger.Spam() << "Index: " << i << " COMBAT #" << combatIndex << " ";
 
         mCombats.emplace_back(
             combatIndex,
@@ -95,6 +97,9 @@ void GenericCombatFactory<isTrap>::Load()
             south,
             east,
             combatants);
+
+        logger.Spam() << "Index: " << i << " COMBAT #" << combatIndex << " ";
+        logger.Spam() << mCombats.back() << "\n";
     }
 }
 
