@@ -2,6 +2,11 @@
 
 #include "bak/textureFactory.hpp"
 
+#include "com/string.hpp"
+
+#include "xbak/FileBuffer.h"
+#include "xbak/ImageResource.h"
+
 namespace BAK {
 
 ZoneTextureStore::ZoneTextureStore(
@@ -44,9 +49,36 @@ ZoneTextureStore::ZoneTextureStore(
         mTextures,
         terrain,
         palette);
-    mHorizonOffset = GetTextures().size();
-}
 
+    mHorizonOffset = GetTextures().size();
+
+    const auto monsters = MonsterNames{};
+    for (unsigned i = 0; i < monsters.size(); i ++)
+    {
+        auto prefix = monsters.GetMonsterAnimationFile(MonsterIndex{i});
+        if (prefix == "")
+            prefix = "ogr";
+        prefix = ToUpper(prefix);
+        prefix += "1.BMX";
+
+        auto images = ImageResource{};
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(prefix);
+        images.Load(&fb);
+
+        auto ss = std::stringstream{};
+        ss << "Z0";
+        if (monsters.GetUnknown3(MonsterIndex{i}) > 8)
+            ss << "1.PAL";
+        else
+            ss << +(monsters.GetUnknown3(MonsterIndex{i}) + 1)<< ".PAL";
+        auto pal = Palette{ss.str()};
+        TextureFactory::AddToTextureStore(
+            mTextures,
+            images,
+            pal,
+            0);
+    }
+}
 
 std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 {

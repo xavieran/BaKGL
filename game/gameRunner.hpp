@@ -8,6 +8,8 @@
 #include "bak/coordinates.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
+#include "bak/monster.hpp"
+#include "bak/types.hpp"
 #include "bak/zone.hpp"
 
 #include "gui/guiManager.hpp"
@@ -162,6 +164,7 @@ public:
                             static_cast<double>(dims.y)},
                         enc.GetLocation()});
 
+                const auto monsters = BAK::MonsterNames{};
                 // Throw the enemies onto the map...
                 evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
                     [&](const auto& combat){
@@ -170,7 +173,9 @@ public:
                             mSystems->AddRenderable(
                                 Renderable{
                                     mSystems->GetNextItemId(),
-                                    mZoneData->mObjects.GetObject("enemy"),
+                                    mZoneData->mObjects.GetObject(
+                                        monsters.GetMonsterAnimationFile(BAK::MonsterIndex{enemy.mMonster - 1u})),
+
                                     BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
                                     glm::vec3{0},
                                     glm::vec3{1}});

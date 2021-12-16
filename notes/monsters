@@ -1,0 +1,323 @@
+21:19:24.12 INFO  [CreateFileBuffer] Opening: /home/xavieran/bak/data/MNAMES.DAT
+21:19:24.12 SPAM  [MonsterNames] Loading keywords
+21:19:24.12 SPAM  [MonsterNames] Length: 64
+21:19:24.12 SPAM  [MonsterNames] I: 0 0
+21:19:24.12 SPAM  [MonsterNames] I: 1 0
+21:19:24.12 SPAM  [MonsterNames] I: 2 0
+21:19:24.12 SPAM  [MonsterNames] I: 3 0
+21:19:24.12 SPAM  [MonsterNames] I: 4 0
+21:19:24.12 SPAM  [MonsterNames] I: 5 0
+21:19:24.12 SPAM  [MonsterNames] I: 6 0
+21:19:24.12 SPAM  [MonsterNames] I: 7 0
+21:19:24.12 SPAM  [MonsterNames] I: 8 0
+21:19:24.12 SPAM  [MonsterNames] I: 9 0
+21:19:24.12 SPAM  [MonsterNames] I: 10 0
+21:19:24.12 SPAM  [MonsterNames] I: 11 0
+21:19:24.12 SPAM  [MonsterNames] I: 12 0
+21:19:24.12 SPAM  [MonsterNames] I: 13 0
+21:19:24.12 SPAM  [MonsterNames] I: 14 21
+21:19:24.12 SPAM  [MonsterNames] I: 15 28
+21:19:24.12 SPAM  [MonsterNames] I: 16 2d
+21:19:24.12 SPAM  [MonsterNames] I: 17 10
+21:19:24.12 SPAM  [MonsterNames] I: 18 36
+21:19:24.12 SPAM  [MonsterNames] I: 19 0
+21:19:24.12 SPAM  [MonsterNames] I: 20 40
+21:19:24.12 SPAM  [MonsterNames] I: 21 55
+21:19:24.12 SPAM  [MonsterNames] I: 22 62
+21:19:24.12 SPAM  [MonsterNames] I: 23 6c
+21:19:24.12 SPAM  [MonsterNames] I: 24 72
+21:19:24.12 SPAM  [MonsterNames] I: 25 7d
+21:19:24.12 SPAM  [MonsterNames] I: 26 8a
+21:19:24.12 SPAM  [MonsterNames] I: 27 96
+21:19:24.12 SPAM  [MonsterNames] I: 28 ae
+21:19:24.12 SPAM  [MonsterNames] I: 29 b8
+21:19:24.12 SPAM  [MonsterNames] I: 30 c3
+21:19:24.12 SPAM  [MonsterNames] I: 31 ce
+21:19:24.12 SPAM  [MonsterNames] I: 32 d9
+21:19:24.12 SPAM  [MonsterNames] I: 33 e4
+21:19:24.12 SPAM  [MonsterNames] I: 34 f2
+21:19:24.12 SPAM  [MonsterNames] I: 35 102
+21:19:24.12 SPAM  [MonsterNames] I: 36 112
+21:19:24.12 SPAM  [MonsterNames] I: 37 0
+21:19:24.12 SPAM  [MonsterNames] I: 38 120
+21:19:24.12 SPAM  [MonsterNames] I: 39 0
+21:19:24.12 SPAM  [MonsterNames] I: 40 129
+21:19:24.12 SPAM  [MonsterNames] I: 41 13a
+21:19:24.12 SPAM  [MonsterNames] I: 42 14b
+21:19:24.12 SPAM  [MonsterNames] I: 43 15c
+21:19:24.12 SPAM  [MonsterNames] I: 44 163
+21:19:24.12 SPAM  [MonsterNames] I: 45 167
+21:19:24.12 SPAM  [MonsterNames] I: 46 172
+21:19:24.12 SPAM  [MonsterNames] I: 47 179
+21:19:24.12 SPAM  [MonsterNames] I: 48 17f
+21:19:24.12 SPAM  [MonsterNames] I: 49 0
+21:19:24.12 SPAM  [MonsterNames] I: 50 185
+21:19:24.12 SPAM  [MonsterNames] I: 51 18b
+21:19:24.12 SPAM  [MonsterNames] I: 52 195
+21:19:24.12 SPAM  [MonsterNames] I: 53 19c
+21:19:24.12 SPAM  [MonsterNames] I: 54 1ab
+21:19:24.12 SPAM  [MonsterNames] I: 55 1ba
+21:19:24.12 SPAM  [MonsterNames] I: 56 1c2
+21:19:24.12 SPAM  [MonsterNames] I: 57 1c8
+21:19:24.12 SPAM  [MonsterNames] I: 58 0
+21:19:24.12 SPAM  [MonsterNames] I: 59 0
+21:19:24.12 SPAM  [MonsterNames] I: 60 1d5
+21:19:24.12 SPAM  [MonsterNames] I: 61 1df
+21:19:24.12 SPAM  [MonsterNames] I: 62 1ef
+21:19:24.12 SPAM  [MonsterNames] I: 63 288
+21:19:24.12 SPAM  [MonsterNames] 0 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 1 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 2 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 3 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 4 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 5 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 6 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 7 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 8 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 9 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 10 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 11 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 12 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 13 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 14 Gorath
+21:19:24.12 SPAM  [MonsterNames] 15 Owyn
+21:19:24.12 SPAM  [MonsterNames] 16 Locklear
+21:19:24.12 SPAM  [MonsterNames] 17 moredhel warrior
+21:19:24.12 SPAM  [MonsterNames] 18 Brak Nurr
+21:19:24.12 SPAM  [MonsterNames] 19 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 20 moredhel spellcaster
+21:19:24.12 SPAM  [MonsterNames] 21 Black Slayer
+21:19:24.12 SPAM  [MonsterNames] 22 Nighthawk
+21:19:24.12 SPAM  [MonsterNames] 23 rogue
+21:19:24.12 SPAM  [MonsterNames] 24 Pantathian
+21:19:24.12 SPAM  [MonsterNames] 25 Panth Tiandn
+21:19:24.12 SPAM  [MonsterNames] 26 Spellweaver
+21:19:24.12 SPAM  [MonsterNames] 27 Servitor of Lims-Kragma
+21:19:24.12 SPAM  [MonsterNames] 28 Tor Giant
+21:19:24.12 SPAM  [MonsterNames] 29 Rogue Mage
+21:19:24.12 SPAM  [MonsterNames] 30 Deep Giant
+21:19:24.12 SPAM  [MonsterNames] 31 Cave Giant
+21:19:24.12 SPAM  [MonsterNames] 32 Rime Giant
+21:19:24.12 SPAM  [MonsterNames] 33 Sentinel Ogre
+21:19:24.12 SPAM  [MonsterNames] 34 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 35 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 36 Highland Ogre
+21:19:24.12 SPAM  [MonsterNames] 37 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 38 scorpion
+21:19:24.12 SPAM  [MonsterNames] 39 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 40 Bulldrake Wyvern
+21:19:24.12 SPAM  [MonsterNames] 41 Grandsire Wyvern
+21:19:24.12 SPAM  [MonsterNames] 42 Hatchling Wyvern
+21:19:24.12 SPAM  [MonsterNames] 43 spider
+21:19:24.12 SPAM  [MonsterNames] 44 Pug
+21:19:24.12 SPAM  [MonsterNames] 45 beasthound
+21:19:24.12 SPAM  [MonsterNames] 46 Patrus
+21:19:24.12 SPAM  [MonsterNames] 47 troll
+21:19:24.12 SPAM  [MonsterNames] 48 Dread
+21:19:24.12 SPAM  [MonsterNames] 49 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 50 James
+21:19:24.12 SPAM  [MonsterNames] 51 Witch Hag
+21:19:24.12 SPAM  [MonsterNames] 52 goblin
+21:19:24.12 SPAM  [MonsterNames] 53 Wind Elemental
+21:19:24.12 SPAM  [MonsterNames] 54 Quegian pirate
+21:19:24.12 SPAM  [MonsterNames] 55 Rusalki
+21:19:24.12 SPAM  [MonsterNames] 56 Shade
+21:19:24.12 SPAM  [MonsterNames] 57 Nethermander
+21:19:24.12 SPAM  [MonsterNames] 58 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 59 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 60 Great One
+21:19:24.12 SPAM  [MonsterNames] 61 INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] 62 moredhel spellcaster
+21:19:24.12 SPAM  [MonsterNames] K: 0 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 1 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 2 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 3 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 4 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 5 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 6 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 7 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 8 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 9 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 10 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 11 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 12 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 13 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 14 : Gorath
+21:19:24.12 SPAM  [MonsterNames] K: 15 : Owyn
+21:19:24.12 SPAM  [MonsterNames] K: 16 : Locklear
+21:19:24.12 SPAM  [MonsterNames] K: 17 : moredhel warrior
+21:19:24.12 SPAM  [MonsterNames] K: 18 : Brak Nurr
+21:19:24.12 SPAM  [MonsterNames] K: 19 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 20 : moredhel spellcaster
+21:19:24.12 SPAM  [MonsterNames] K: 21 : Black Slayer
+21:19:24.12 SPAM  [MonsterNames] K: 22 : Nighthawk
+21:19:24.12 SPAM  [MonsterNames] K: 23 : rogue
+21:19:24.12 SPAM  [MonsterNames] K: 24 : Pantathian
+21:19:24.12 SPAM  [MonsterNames] K: 25 : Panth Tiandn
+21:19:24.12 SPAM  [MonsterNames] K: 26 : Spellweaver
+21:19:24.12 SPAM  [MonsterNames] K: 27 : Servitor of Lims-Kragma
+21:19:24.12 SPAM  [MonsterNames] K: 28 : Tor Giant
+21:19:24.12 SPAM  [MonsterNames] K: 29 : Rogue Mage
+21:19:24.12 SPAM  [MonsterNames] K: 30 : Deep Giant
+21:19:24.12 SPAM  [MonsterNames] K: 31 : Cave Giant
+21:19:24.12 SPAM  [MonsterNames] K: 32 : Rime Giant
+21:19:24.12 SPAM  [MonsterNames] K: 33 : Sentinel Ogre
+21:19:24.12 SPAM  [MonsterNames] K: 34 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 35 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 36 : Highland Ogre
+21:19:24.12 SPAM  [MonsterNames] K: 37 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 38 : scorpion
+21:19:24.12 SPAM  [MonsterNames] K: 39 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 40 : Bulldrake Wyvern
+21:19:24.12 SPAM  [MonsterNames] K: 41 : Grandsire Wyvern
+21:19:24.12 SPAM  [MonsterNames] K: 42 : Hatchling Wyvern
+21:19:24.12 SPAM  [MonsterNames] K: 43 : spider
+21:19:24.12 SPAM  [MonsterNames] K: 44 : Pug
+21:19:24.12 SPAM  [MonsterNames] K: 45 : beasthound
+21:19:24.12 SPAM  [MonsterNames] K: 46 : Patrus
+21:19:24.12 SPAM  [MonsterNames] K: 47 : troll
+21:19:24.12 SPAM  [MonsterNames] K: 48 : Dread
+21:19:24.12 SPAM  [MonsterNames] K: 49 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 50 : James
+21:19:24.12 SPAM  [MonsterNames] K: 51 : Witch Hag
+21:19:24.12 SPAM  [MonsterNames] K: 52 : goblin
+21:19:24.12 SPAM  [MonsterNames] K: 53 : Wind Elemental
+21:19:24.12 SPAM  [MonsterNames] K: 54 : Quegian pirate
+21:19:24.12 SPAM  [MonsterNames] K: 55 : Rusalki
+21:19:24.12 SPAM  [MonsterNames] K: 56 : Shade
+21:19:24.12 SPAM  [MonsterNames] K: 57 : Nethermander
+21:19:24.12 SPAM  [MonsterNames] K: 58 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 59 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 60 : Great One
+21:19:24.12 SPAM  [MonsterNames] K: 61 : INVALID MONSTER
+21:19:24.12 SPAM  [MonsterNames] K: 62 : moredhel spellcaster
+21:19:24.12 INFO  [CreateFileBuffer] Opening: /home/xavieran/bak/data/BNAMES.DAT
+21:19:24.12 SPAM  [MonsterNames] Loading keywords
+21:19:24.12 SPAM  [MonsterNames] Length: 64
+21:19:24.12 SPAM  [MonsterNames] I: 0 0
+21:19:24.12 SPAM  [MonsterNames] I: 1 0
+21:19:24.12 SPAM  [MonsterNames] I: 2 0
+21:19:24.12 SPAM  [MonsterNames] I: 3 0
+21:19:24.12 SPAM  [MonsterNames] I: 4 0
+21:19:24.12 SPAM  [MonsterNames] I: 5 0
+21:19:24.12 SPAM  [MonsterNames] I: 6 0
+21:19:24.12 SPAM  [MonsterNames] I: 7 0
+21:19:24.12 SPAM  [MonsterNames] I: 8 0
+21:19:24.12 SPAM  [MonsterNames] I: 9 0
+21:19:24.12 SPAM  [MonsterNames] I: 10 0
+21:19:24.12 SPAM  [MonsterNames] I: 11 0
+21:19:24.12 SPAM  [MonsterNames] I: 12 0
+21:19:24.12 SPAM  [MonsterNames] I: 13 0
+21:19:24.12 SPAM  [MonsterNames] I: 14 d
+21:19:24.12 SPAM  [MonsterNames] I: 15 15
+21:19:24.12 SPAM  [MonsterNames] I: 16 1d
+21:19:24.12 SPAM  [MonsterNames] I: 17 5
+21:19:24.12 SPAM  [MonsterNames] I: 18 25
+21:19:24.12 SPAM  [MonsterNames] I: 19 0
+21:19:24.12 SPAM  [MonsterNames] I: 20 2d
+21:19:24.12 SPAM  [MonsterNames] I: 21 35
+21:19:24.12 SPAM  [MonsterNames] I: 22 3d
+21:19:24.12 SPAM  [MonsterNames] I: 23 45
+21:19:24.12 SPAM  [MonsterNames] I: 24 4d
+21:19:24.12 SPAM  [MonsterNames] I: 25 55
+21:19:24.12 SPAM  [MonsterNames] I: 26 5d
+21:19:24.12 SPAM  [MonsterNames] I: 27 65
+21:19:24.12 SPAM  [MonsterNames] I: 28 6d
+21:19:24.12 SPAM  [MonsterNames] I: 29 75
+21:19:24.12 SPAM  [MonsterNames] I: 30 7d
+21:19:24.12 SPAM  [MonsterNames] I: 31 85
+21:19:24.12 SPAM  [MonsterNames] I: 32 8d
+21:19:24.12 SPAM  [MonsterNames] I: 33 95
+21:19:24.12 SPAM  [MonsterNames] I: 34 9d
+21:19:24.12 SPAM  [MonsterNames] I: 35 a5
+21:19:24.12 SPAM  [MonsterNames] I: 36 ad
+21:19:24.12 SPAM  [MonsterNames] I: 37 0
+21:19:24.12 SPAM  [MonsterNames] I: 38 b5
+21:19:24.12 SPAM  [MonsterNames] I: 39 0
+21:19:24.12 SPAM  [MonsterNames] I: 40 bd
+21:19:24.12 SPAM  [MonsterNames] I: 41 c5
+21:19:24.12 SPAM  [MonsterNames] I: 42 cd
+21:19:24.12 SPAM  [MonsterNames] I: 43 d5
+21:19:24.12 SPAM  [MonsterNames] I: 44 dd
+21:19:24.12 SPAM  [MonsterNames] I: 45 e5
+21:19:24.12 SPAM  [MonsterNames] I: 46 ed
+21:19:24.12 SPAM  [MonsterNames] I: 47 f5
+21:19:24.12 SPAM  [MonsterNames] I: 48 fd
+21:19:24.12 SPAM  [MonsterNames] I: 49 0
+21:19:24.12 SPAM  [MonsterNames] I: 50 105
+21:19:24.12 SPAM  [MonsterNames] I: 51 10d
+21:19:24.12 SPAM  [MonsterNames] I: 52 115
+21:19:24.12 SPAM  [MonsterNames] I: 53 11d
+21:19:24.12 SPAM  [MonsterNames] I: 54 125
+21:19:24.12 SPAM  [MonsterNames] I: 55 12d
+21:19:24.12 SPAM  [MonsterNames] I: 56 135
+21:19:24.12 SPAM  [MonsterNames] I: 57 13d
+21:19:24.12 SPAM  [MonsterNames] I: 58 0
+21:19:24.12 SPAM  [MonsterNames] I: 59 0
+21:19:24.12 SPAM  [MonsterNames] I: 60 145
+21:19:24.12 SPAM  [MonsterNames] I: 61 14d
+21:19:24.12 SPAM  [MonsterNames] I: 62 155
+21:19:24.12 SPAM  [MonsterNames] I: 63 1e1
+21:19:24.12 SPAM  [MonsterNames] 0  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 1  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 2  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 3  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 4  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 5  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 6  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 7  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 8  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 9  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 10  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 11  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 12  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 13  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 14 gor 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 15 own 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 16 lok 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 17 mor 1 2 3 2 
+21:19:24.12 SPAM  [MonsterNames] 18 brk 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 19  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 20 mor 1 2 4 1 
+21:19:24.12 SPAM  [MonsterNames] 21 bsy 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 22 nhk 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 23 rog 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 24 pan 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 25 pai 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 26 spl 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 27 ser 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 28 gnt 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 29 rog 1 2 4 3 
+21:19:24.12 SPAM  [MonsterNames] 30 gnt 1 2 3 4 
+21:19:24.12 SPAM  [MonsterNames] 31 gnt 1 2 3 5 
+21:19:24.12 SPAM  [MonsterNames] 32 gnt 1 2 3 6 
+21:19:24.12 SPAM  [MonsterNames] 33 ogr 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 34 ogr 1 2 4 255 
+21:19:24.12 SPAM  [MonsterNames] 35 ogr 1 2 3 7 
+21:19:24.12 SPAM  [MonsterNames] 36 ogr 1 2 4 7 
+21:19:24.12 SPAM  [MonsterNames] 37  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 38 scp 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 39  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 40 wyv 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 41 wyv 1 2 3 0 
+21:19:24.12 SPAM  [MonsterNames] 42 wyv 1 2 3 9 
+21:19:24.12 SPAM  [MonsterNames] 43 spi 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 44 pug 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 45 dog 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 46 pat 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 47 tro 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 48 dre 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 49  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 50 jim 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 51 wit 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 52 gob 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 53 air 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 54 que 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 55 rus 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 56 sha 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 57 nth 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 58  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 59  0 0 0 255 
+21:19:24.12 SPAM  [MonsterNames] 60 mak 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 61 nhk 1 2 3 255 
+21:19:24.12 SPAM  [MonsterNames] 62 mor 1 2 4 255 

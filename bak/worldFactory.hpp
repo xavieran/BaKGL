@@ -3,6 +3,7 @@
 #include "bak/constants.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/encounter/encounter.hpp"
+#include "bak/monster.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/zoneReference.hpp"
@@ -184,6 +185,49 @@ public:
             mPalettes.emplace_back(0x91);
             mColors.emplace_back(datInfo.sprite);
         }
+
+        ASSERT((mFaces.size() == mColors.size())
+            && (mFaces.size() == mPalettes.size())
+            && (mFaces.size() == mPush.size()));
+    }
+
+    ZoneItem(
+        unsigned i,
+        const BAK::MonsterNames& monsters,
+        const ZoneTextureStore& textureStore)
+    :
+        mName{monsters.GetMonsterAnimationFile(MonsterIndex{i})},
+        mEntityFlags{0},
+        mEntityType{EntityType::DEADBODY1},
+        mScale{1},
+        mSpriteIndex{i + textureStore.GetHorizonOffset()},
+        mColors{},
+        mVertices{},
+        mPalettes{},
+        mFaces{},
+        mPush{}
+    {
+        // Need this to set the right dimensions for the texture
+        const auto& tex = textureStore.GetTexture(mSpriteIndex);
+            
+        const auto spriteScale = 7.0f;
+        auto width  = static_cast<int>(static_cast<float>(tex.GetWidth()) * (spriteScale * .75));
+        auto height = tex.GetHeight() * spriteScale;
+        mVertices.emplace_back(-width, height, 0);
+        mVertices.emplace_back(width, height, 0);
+        mVertices.emplace_back(width, 0, 0);
+        mVertices.emplace_back(-width, 0, 0);
+
+        auto faces = std::vector<std::uint16_t>{};
+        faces.emplace_back(0);
+        faces.emplace_back(1);
+        faces.emplace_back(2);
+        faces.emplace_back(3);
+        mFaces.emplace_back(faces);
+        mPush.emplace_back(false);
+
+        mPalettes.emplace_back(0x91);
+        mColors.emplace_back(mSpriteIndex);
 
         ASSERT((mFaces.size() == mColors.size())
             && (mFaces.size() == mPalettes.size())

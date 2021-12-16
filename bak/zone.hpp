@@ -27,9 +27,21 @@ public:
         mObjects{}
     {
         for (auto& item : mZoneItems.GetItems())
-        mObjects.AddObject(
-            item.GetName(),
-            BAK::ZoneItemToMeshObject(item, mZoneTextures, mPalette));
+            mObjects.AddObject(
+                item.GetName(),
+                BAK::ZoneItemToMeshObject(item, mZoneTextures, mPalette));
+
+        const auto monsters = MonsterNames{};
+        for (unsigned i = 0; i < monsters.size(); i++)
+        {
+            mObjects.AddObject(
+                monsters.GetMonsterAnimationFile(MonsterIndex{i}),
+                BAK::ZoneItemToMeshObject(
+                    ZoneItem{i, monsters, mZoneTextures},
+                    mZoneTextures,
+                    mPalette));
+        }
+
 
         const auto cube = Graphics::Cuboid{1, 1, 50};
         mObjects.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));

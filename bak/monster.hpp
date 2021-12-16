@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/types.hpp"
+
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -33,6 +35,20 @@ public:
         std::uint8_t mUnknown2;
         std::uint8_t mUnknown3;
     };
+
+    const std::string& GetMonsterAnimationFile(MonsterIndex monster) const
+    {
+        ASSERT(monster.mValue < mMonsterPrefixes.size());
+        return mMonsterPrefixes[monster.mValue].mPrefix;
+    }
+
+    auto GetUnknown3(MonsterIndex monster) const
+    {
+        ASSERT(monster.mValue < mMonsterPrefixes.size());
+        return mMonsterPrefixes[monster.mValue].mUnknown3;
+    }
+
+    auto size() const { return mMonsterPrefixes.size(); }
 
 private:
     std::vector<std::string> mMonsterNames;

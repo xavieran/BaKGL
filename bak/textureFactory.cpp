@@ -22,119 +22,131 @@ namespace std {
 
 namespace BAK {
 
-    Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette)
+Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette)
+{
+    auto texture = Graphics::Texture::TextureType{};
+    const auto imageSize = image.GetWidth() * image.GetHeight();
+    texture.reserve(imageSize);
+
+    auto* pixels = image.GetPixels();
+
+    for (int i = 0; i < imageSize; i++)
     {
-        auto texture = Graphics::Texture::TextureType{};
-        const auto imageSize = image.GetWidth() * image.GetHeight();
-        texture.reserve(imageSize);
-
-        auto* pixels = image.GetPixels();
-
-        for (int i = 0; i < imageSize; i++)
-        {
-            texture.push_back(palette.GetColor(pixels[i]));
-        }
-
-        auto tex = Graphics::Texture{
-            texture,
-            static_cast<unsigned>(image.GetWidth()),
-            static_cast<unsigned>(image.GetHeight()) };
-
-        // For OpenGL
-        tex.Invert();
-
-        return tex;
+        texture.push_back(palette.GetColor(pixels[i]));
     }
 
-    Graphics::TextureStore TextureFactory::MakeTextureStore(
-        const ImageResource& images,
-        const BAK::Palette& palette)
-    {
-        auto store = Graphics::TextureStore{};
-        for (unsigned i = 0; i < images.GetNumImages(); i++)
-        {
-            store.AddTexture(
-                ImageToTexture(images.GetImage(i), palette));
-        }
+    auto tex = Graphics::Texture{
+        texture,
+        static_cast<unsigned>(image.GetWidth()),
+        static_cast<unsigned>(image.GetHeight()) };
 
-        return store;
-    }
+    // For OpenGL
+    tex.Invert();
 
-    Graphics::TextureStore TextureFactory::MakeTextureStore(
-        std::string_view bmx,
-        std::string_view pal)
-    {
-        const auto palette = BAK::Palette{ std::string{pal} };
-        ImageResource images;
-        {
-            auto fb = FileBufferFactory::Get().CreateDataBuffer(
-                std::string{ bmx });
-            images.Load(&fb);
-        }
+    return tex;
+}
 
-        return MakeTextureStore(images, palette);
-    }
-
-    void TextureFactory::AddToTextureStore(
-        Graphics::TextureStore& store,
-        const ImageResource& images,
-        const BAK::Palette& palette)
-    {
-        for (unsigned i = 0; i < images.GetNumImages(); i++)
-        {
-            store.AddTexture(
-                ImageToTexture(images.GetImage(i), palette));
-        }
-    }
-
-    void TextureFactory::AddToTextureStore(
-        Graphics::TextureStore& store,
-        std::string_view bmx,
-        std::string_view pal)
-    {
-        const auto palette = BAK::Palette{ std::string{pal} };
-
-        ImageResource images;
-        {
-            auto fb = FileBufferFactory::Get().CreateDataBuffer(
-                std::string{ bmx });
-            images.Load(&fb);
-        }
-
-        AddToTextureStore(
-            store,
-            images,
-            palette);
-    }
-
-
-    void TextureFactory::AddToTextureStore(
-        Graphics::TextureStore& store,
-        const ScreenResource& screen,
-        const BAK::Palette& palette)
+Graphics::TextureStore TextureFactory::MakeTextureStore(
+    const ImageResource& images,
+    const BAK::Palette& palette)
+{
+    auto store = Graphics::TextureStore{};
+    for (unsigned i = 0; i < images.GetNumImages(); i++)
     {
         store.AddTexture(
-            ImageToTexture(screen.GetImage(), palette));
+            ImageToTexture(images.GetImage(i), palette));
     }
 
-    void TextureFactory::AddScreenToTextureStore(
-        Graphics::TextureStore& store,
-        std::string_view scx,
-        std::string_view pal)
+    return store;
+}
+
+Graphics::TextureStore TextureFactory::MakeTextureStore(
+    std::string_view bmx,
+    std::string_view pal)
+{
+    const auto palette = BAK::Palette{ std::string{pal} };
+    ImageResource images;
     {
-        const auto palette = BAK::Palette{ std::string{pal} };
-        ScreenResource screen;
-        {
-            auto fb = FileBufferFactory::Get().CreateDataBuffer(
-                std::string{ scx });
-            screen.Load(&fb);
-        }
-
-        AddToTextureStore(
-            store,
-            screen,
-            palette);
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(
+            std::string{ bmx });
+        images.Load(&fb);
     }
+
+    return MakeTextureStore(images, palette);
+}
+
+void TextureFactory::AddToTextureStore(
+    Graphics::TextureStore& store,
+    const ImageResource& images,
+    const BAK::Palette& palette,
+    unsigned imageIndex)
+{
+    store.AddTexture(
+        ImageToTexture(
+            images.GetImage(imageIndex),
+            palette));
+}
+
+void TextureFactory::AddToTextureStore(
+    Graphics::TextureStore& store,
+    const ImageResource& images,
+    const BAK::Palette& palette)
+{
+    for (unsigned i = 0; i < images.GetNumImages(); i++)
+    {
+        store.AddTexture(
+            ImageToTexture(images.GetImage(i), palette));
+    }
+}
+
+void TextureFactory::AddToTextureStore(
+    Graphics::TextureStore& store,
+    std::string_view bmx,
+    std::string_view pal)
+{
+    const auto palette = BAK::Palette{ std::string{pal} };
+
+    ImageResource images;
+    {
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(
+            std::string{ bmx });
+        images.Load(&fb);
+    }
+
+    AddToTextureStore(
+        store,
+        images,
+        palette);
+}
+
+
+void TextureFactory::AddToTextureStore(
+    Graphics::TextureStore& store,
+    const ScreenResource& screen,
+    const BAK::Palette& palette)
+{
+    store.AddTexture(
+        ImageToTexture(screen.GetImage(), palette));
+}
+
+void TextureFactory::AddScreenToTextureStore(
+    Graphics::TextureStore& store,
+    std::string_view scx,
+    std::string_view pal)
+{
+    const auto palette = BAK::Palette{ std::string{pal} };
+    ScreenResource screen;
+    {
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(
+            std::string{ scx });
+        screen.Load(&fb);
+    }
+
+    AddToTextureStore(
+        store,
+        screen,
+        palette);
+}
 
 void TextureFactory::AddTerrainToTextureStore(
     Graphics::TextureStore& store,

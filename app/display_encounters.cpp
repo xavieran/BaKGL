@@ -2,14 +2,16 @@
 
 #include "bak/encounter/encounter.hpp"
 #include "bak/zoneReference.hpp"
+#include "bak/monster.hpp"
 
 #include "xbak/FileBuffer.h"
 
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Info);
+    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     
+    //BAK::MonsterNames{};
     const auto ef = BAK::Encounter::EncounterFactory{};
 
     for (unsigned zone = 1; zone < 12; zone++)

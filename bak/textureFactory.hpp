@@ -36,6 +36,12 @@ public:
 
     static void AddToTextureStore(
         Graphics::TextureStore&,
+        const ImageResource&,
+        const BAK::Palette&,
+        unsigned imageIndex);
+
+    static void AddToTextureStore(
+        Graphics::TextureStore&,
         const ScreenResource&,
         const BAK::Palette&);
 
