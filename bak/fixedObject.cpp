@@ -25,7 +25,7 @@ std::vector<GenericContainer> LoadFixedObjects(
         logger.Debug() << "Objects: " << objects << std::endl;
         for (unsigned i = 0; i < objects; i++)
         {
-            auto container = LoadGenericContainer(fb, false);
+            auto container = LoadGenericContainer<ContainerWorldLocationTag>(fb);
             logger.Debug() << "Obj no: " << i << std::endl;
             logger.Debug() << container << std::endl;
             if (container.GetHeader().GetZone().mValue == targetZone)

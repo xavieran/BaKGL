@@ -36,14 +36,6 @@ class GameData
 public:
 /*
  *
- * Locklear, Gorath, Owyn, Pug, James, Patrus
- *
- * Characters Start @0xdb
- * 0x9fd -> Indicates unseen character stat improvement (bit flags)
- * * 0x011a0 - Character Inventory Offsets Start???
- * 0x01383 - Combat Entity List Start
- * 0x039cb - Combat Entity List Start
- *
  * 0x04fb0 - Combat locations
  * Note: This is only populated if loaded by a tile
  * 0x52f0 - combat 1 location start
@@ -52,20 +44,6 @@ public:
  * 0x0913e - Events End??
  * @10 bytes each => 1678 combat locs?
  *
- * 0x0914b - Combat Stats Start 
- * 0x3070a - Combat Stats End
- *
- * 0x31340 - Combats Start
- * 
- * 0x3a7f0 - Character Inventory Start
- * 0x3aaf0 - Character Invenorty Start ???
- *
- * 0x3b621 - Start of Containers
- * 0x44c37 - End of Containers ???
- * 0x44cc9 - Start of Shops
- * 0x46043 End of shops
- * 0x46053 - Combat Inventory Start
- * 0x51720 - Combat Inventory End (1773)
  */
 
  /* 
@@ -288,12 +266,13 @@ public:
 
     std::vector<GenericContainer> LoadShops();
     std::vector<GenericContainer> LoadContainers(unsigned zone);
+    std::vector<GenericContainer> LoadCombatInventories();
 
     // Probably not chapter offsets.. ?
     void LoadChapterOffsetP();
     void LoadCombatEntityLists();
+    void LoadCombatGridLocations();
     void LoadCombatStats(unsigned offset, unsigned num);
-    void LoadCombatInventories(unsigned offset, unsigned number);
 
     std::string LoadSaveName();
 

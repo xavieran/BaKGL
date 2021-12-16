@@ -43,6 +43,7 @@ GameData::GameData(const std::string& save)
     //    sCombatInventoryOffset,
     //    sCombatInventoryCount);
     //LoadCombatStats(0x914b, 1698);
+    //LoadCombatGridLocations();
 }
 
 
@@ -650,9 +651,7 @@ std::vector<GenericContainer> GameData::LoadShops()
         const unsigned address = mBuffer.Tell();
         mLogger.Info() << " Container: " << i
             << " addr: " << std::hex << address << std::dec << std::endl;
-        auto container = LoadGenericContainer(
-            mBuffer,
-            true);
+        auto container = LoadGenericContainer<ContainerGDSLocationTag>(mBuffer);
         shops.emplace_back(std::move(container));
         mLogger.Info() << shops.back() << "\n";
     }
@@ -675,7 +674,7 @@ std::vector<GenericContainer> GameData::LoadContainers(unsigned zone)
         const unsigned address = mBuffer.Tell();
         mLogger.Info() << " Container: " << j
             << " addr: " << std::hex << address << std::dec << std::endl;
-        auto container = LoadGenericContainer(mBuffer, false);
+        auto container = LoadGenericContainer<ContainerWorldLocationTag>(mBuffer);
         containers.emplace_back(std::move(container));
         mLogger.Info() << containers.back() << "\n";
     }
@@ -769,32 +768,40 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
-void GameData::LoadCombatInventories(unsigned offset, unsigned number)
+void GameData::LoadCombatGridLocations()
+{
+    const auto initial = 3;
+    static constexpr auto sCombatGridLocationsOffset = 0x31349;
+    static constexpr auto sCombatGridLocationsCount = 2;
+    mLogger.Info() << "Loading Combat Grid Locations" << std::endl;
+    mBuffer.Seek(sCombatGridLocationsOffset + (initial * 22));
+    for (unsigned i = 0; i < sCombatGridLocationsCount; i++)
+    {
+        mBuffer.DumpAndSkip(2);
+        const auto monsterType = mBuffer.GetUint16LE();
+        const auto gridX = mBuffer.GetUint8();
+        const auto gridY = mBuffer.GetUint8();
+        mBuffer.DumpAndSkip(16);
+
+        mLogger.Info() << "Combat #" << i << " monster: " << monsterType <<
+            " grid: " << glm::uvec2{gridX, gridY} << "\n";
+    }
+}
+
+std::vector<GenericContainer> GameData::LoadCombatInventories()
 {
     mLogger.Info() << "Loading Combat Inventories" << std::endl;
-    auto combatInventoryLocation = offset;
-    auto numberCombatInventories = number;
-    mBuffer.Seek(combatInventoryLocation);
-    for (unsigned i = 0; i < numberCombatInventories; i++)
-    {
-        mBuffer.Dump(13);
-        auto x = mBuffer.Tell();
-        //ASSERT(mBuffer.GetUint8() == 0x64);
-        mBuffer.GetUint8(); // always 0x64 for combats
-        mBuffer.GetUint8();// == 0x0a);
-        mBuffer.DumpAndSkip(2);
-        auto combatantNo = mBuffer.GetUint16LE();
-        mBuffer.DumpAndSkip(2);
-        auto combatNo = mBuffer.GetUint16LE();
-        mBuffer.DumpAndSkip(2);
+    mBuffer.Seek(sCombatInventoryOffset);
+    std::vector<GenericContainer> containers{};
 
-        int unknown = mBuffer.GetUint8();
-        mLogger.Info() << "CombatInventory #" << i << " "
-            << std::hex << x << std::dec << " CBT: " << +combatNo 
-            << " PER: " << +combatantNo << " Unk: " << unknown << std::endl;
-        const auto inventory = LoadCharacterInventory(mBuffer.Tell());
-        mLogger.Info() << inventory << "\n";
+    for (unsigned i = 0; i < sCombatInventoryCount; i++)
+    {
+        auto container = LoadGenericContainer<ContainerCombatLocationTag>(mBuffer);
+        containers.emplace_back(std::move(container));
+        mLogger.Info() << containers.back() << "\n";
     }
+
+    return containers;
 }
 
 std::string GameData::LoadSaveName()

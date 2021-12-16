@@ -21,6 +21,12 @@ std::ostream& operator<<(std::ostream& os, const ContainerGDSLocation& loc)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const ContainerCombatLocation& loc)
+{
+    os << "CCL { arr: " << std::hex << loc.mUnknown << std::dec << " combat: " << loc.mCombat << " person: " << loc.mCombatant << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const ContainerLocation& loc)
 {
     return std::visit(
@@ -89,6 +95,22 @@ ContainerHeader::ContainerHeader(ContainerGDSLocationTag, FileBuffer& fb)
     mFlags        = fb.GetUint8();
 }
 
+ContainerHeader::ContainerHeader(ContainerCombatLocationTag, FileBuffer& fb)
+{
+    mAddress = fb.Tell();
+
+    mLocation = ContainerCombatLocation{
+        fb.GetArray<4>(),
+        fb.GetUint32LE(),
+        fb.GetUint32LE()};
+
+    mLocationType = fb.GetUint8();
+    ASSERT(mLocationType == 7);
+    mItems        = fb.GetUint8();
+    mCapacity     = fb.GetUint8();
+    mFlags        = fb.GetUint8();
+}
+
 ZoneNumber ContainerHeader::GetZone() const
 {
     ASSERT(std::holds_alternative<ContainerWorldLocation>(mLocation));
@@ -137,89 +159,6 @@ std::ostream& operator<<(std::ostream& os, const GenericContainer& gc)
     return os;
 }
 
-GenericContainer LoadGenericContainer(FileBuffer& fb, bool isGdsLocation)
-{
-    auto header = isGdsLocation
-        ? ContainerHeader{ContainerGDSLocationTag{}, fb}
-        : ContainerHeader{ContainerWorldLocationTag{}, fb};
 
-    auto lockData = std::optional<LockStats>{};
-    auto dialog = std::optional<ContainerDialog>{};
-    auto shopData = std::optional<ShopStats>{};
-    auto encounter = std::optional<ContainerEncounter>{};
-    auto lastAccessed = std::optional<Time>{};
-
-    auto inventory = LoadInventory(fb, header.mItems, header.mCapacity);
-
-    if (header.mFlags == 0x21)
-    {
-        // This is not actually correct interpretation
-        // for this property type
-        const auto contextVar = fb.GetUint8();
-        const auto dialogOrder = fb.GetUint8();
-        const auto dialogKey = KeyTarget{fb.GetUint32LE()};
-        dialog = ContainerDialog{contextVar, dialogOrder, dialogKey};
-    }
-    else
-    {
-        if (header.HasLock())
-        {
-            lockData = LoadLock(fb);
-        }
-        if (header.HasDialog())
-        {
-            const auto contextVar = fb.GetUint8();
-            const auto dialogOrder = fb.GetUint8();
-            const auto dialogKey = KeyTarget{fb.GetUint32LE()};
-            dialog = ContainerDialog{contextVar, dialogOrder, dialogKey};
-        }
-        if (header.HasShop())
-        {
-            shopData = LoadShop(fb);
-        }
-        if (header.HasEncounter())
-        {
-            const auto requireEventFlag = fb.GetUint16LE();
-            const auto setEventFlag = fb.GetUint16LE();
-            auto hotspotRef = std::optional<HotspotRef>{};
-            hotspotRef = HotspotRef{
-                fb.GetUint8(),
-                static_cast<char>(
-                    fb.GetUint8() + 0x40)};
-            if (hotspotRef->mGdsNumber == 0)
-                hotspotRef.reset();
-            auto encounterPos = std::optional<glm::uvec2>{};
-            const auto hasEncounter = fb.GetUint8();
-            const auto xOff = fb.GetUint8();
-            const auto yOff = fb.GetUint8();
-            if (hasEncounter != 0)
-            {
-                const auto encounterOff = glm::uvec2{xOff, yOff};
-                encounterPos = MakeGamePositionFromTileAndOffset(
-                    GetTile(header.GetPosition()),
-                    encounterOff);
-            }
-
-            encounter = ContainerEncounter{
-                requireEventFlag,
-                setEventFlag,
-                hotspotRef,
-                encounterPos};
-        }
-        if (header.HasTime())
-        {
-            lastAccessed = Time{fb.GetUint32LE()};
-        }
-    }
-
-    return GenericContainer{
-        header,
-        lockData,
-        dialog,
-        shopData,
-        encounter,
-        lastAccessed,
-        std::move(inventory)};
-}
 
 }

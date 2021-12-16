@@ -49,6 +49,7 @@ public:
         mZone{1},
         mContainers{},
         mGDSContainers{},
+        mCombatContainers{},
         mTextVariableStore{},
         mLogger{Logging::LogState::GetLogger("BAK::GameState")}
     {
@@ -60,6 +61,7 @@ public:
                     mGameData->LoadContainers(i + 1));
             }
             mGDSContainers = mGameData->LoadShops();
+            mCombatContainers = mGameData->LoadCombatInventories();
         }
     }
 
@@ -551,6 +553,9 @@ public:
             for (const auto& container : mGDSContainers)
                 BAK::Save(container, mGameData->GetFileBuffer());
 
+            for (const auto& container : mCombatContainers)
+                BAK::Save(container, mGameData->GetFileBuffer());
+
             for (const auto& zoneContainers : mContainers)
                 for (const auto& container : zoneContainers)
                     BAK::Save(container, mGameData->GetFileBuffer());
@@ -581,6 +586,7 @@ public:
     std::vector<
         std::vector<GenericContainer>> mContainers;
     std::vector<GenericContainer> mGDSContainers;
+    std::vector<GenericContainer> mCombatContainers;
     TextVariableStore mTextVariableStore;
     const Logging::Logger& mLogger;
 };
