@@ -35,4 +35,23 @@ const glm::vec4& Palette::GetColor(unsigned i) const
     return mColors[i];
 }
 
+ColorSwap::ColorSwap(const std::string& filename)
+:
+    mIndices{}
+{
+    mIndices.reserve(sSize);
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(filename);
+
+    for (unsigned i = 0; i < sSize; i++)
+    {
+        mIndices.emplace_back(fb.GetUint8());
+    }
+}
+
+const glm::vec4& ColorSwap::GetColor(unsigned i, const Palette& pal) const
+{
+    ASSERT(i < sSize);
+    return pal.GetColor(mIndices[i]);
+}
+
 }

@@ -20,20 +20,20 @@ public:
             std::uint8_t unknown0,
             std::uint8_t unknown1,
             std::uint8_t unknown2,
-            std::uint8_t unknown3)
+            std::uint8_t colorSwap)
         :
             mPrefix{prefix},
             mUnknown0{unknown0},
             mUnknown1{unknown1},
             mUnknown2{unknown2},
-            mUnknown3{unknown3}
+            mColorSwap{colorSwap}
         {}
 
         std::string mPrefix;
         std::uint8_t mUnknown0;
         std::uint8_t mUnknown1;
         std::uint8_t mUnknown2;
-        std::uint8_t mUnknown3;
+        std::uint8_t mColorSwap;
     };
 
     const std::string& GetMonsterAnimationFile(MonsterIndex monster) const
@@ -42,10 +42,10 @@ public:
         return mMonsterPrefixes[monster.mValue].mPrefix;
     }
 
-    auto GetUnknown3(MonsterIndex monster) const
+    auto GetColorSwap(MonsterIndex monster) const
     {
         ASSERT(monster.mValue < mMonsterPrefixes.size());
-        return mMonsterPrefixes[monster.mValue].mUnknown3;
+        return mMonsterPrefixes[monster.mValue].mColorSwap;
     }
 
     auto size() const { return mMonsterPrefixes.size(); }

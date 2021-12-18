@@ -65,13 +65,16 @@ ZoneTextureStore::ZoneTextureStore(
         auto fb = FileBufferFactory::Get().CreateDataBuffer(prefix);
         images.Load(&fb);
 
+        auto colorSwap = monsters.GetColorSwap(MonsterIndex{i});
+        if (colorSwap > 9)
+            colorSwap = 0;
+
         auto ss = std::stringstream{};
-        ss << "Z0";
-        if (monsters.GetUnknown3(MonsterIndex{i}) > 8)
-            ss << "1.PAL";
-        else
-            ss << +(monsters.GetUnknown3(MonsterIndex{i}) + 1)<< ".PAL";
-        auto pal = Palette{ss.str()};
+        ss << "CS";
+        ss << +colorSwap << ".DAT";
+        const auto cs = ColorSwap{ss.str()};
+        auto pal = Palette{Palette{"Z01.PAL"}, cs};
+
         TextureFactory::AddToTextureStore(
             mTextures,
             images,
