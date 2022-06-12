@@ -121,12 +121,18 @@ FetchContent_MakeAvailable(googletest)
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/SDL-1.2.15")
 
 find_package(SDL2 REQUIRED)
-# Required for SDL_mixer #include "SDL.h" doesn't work
+# Required for SDL_mixer or #include "SDL.h" doesn't work
 foreach (INCLUDE_DIR IN LISTS SDL2_INCLUDE_DIRS)
     include_directories(${INCLUDE_DIR})
 endforeach()
 
-if (NOT (TARGET SDL2::SDL2-static))
+if (NOT (TARGET SDL2::SDL2))
+    message("Didnt find SDL2::SDL2")
+else()
+    message("Found SDL2::SDL2")
+endif()
+
+if ((NOT (TARGET SDL2::SDL2-static)) and (TARGET SDL2::SDL2))
     add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
 endif()
 
