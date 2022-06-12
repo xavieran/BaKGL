@@ -120,17 +120,11 @@ FetchContent_MakeAvailable(googletest)
 # --- SDL 2  --- #
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/SDL-1.2.15")
 
-#FetchContent_Declare(
-#    SDL2
-#    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-#    GIT_TAG release-2.0.22
-#)
-#FetchContent_MakeAvailable(SDL2)
-#list(APPEND CMAKE_PREFIX_PATH "${SDL2_SOURCE_DIR}")
-
-# Unfortunately seems to be required or SDL_mixer #include "SDL.h" doesn't work
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_SOURCE_DIR}/include)
+# Required for SDL_mixer #include "SDL.h" doesn't work
+foreach (INCLUDE_DIR IN LISTS SDL2_INCLUDE_DIRS)
+    include_directories(${INCLUDE_DIR})
+endforeach()
 add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
 
 # --- SDL Sound --- #
