@@ -152,8 +152,8 @@ include_directories(${SDL_sound_SOURCE_DIR}/src)
 
 FetchContent_Declare(
     SDL2_mixer 
-    GIT_REPOSITORY https://github.com/xavieran/SDL_mixer.git
-    GIT_TAG 828c209e53d2d08415c0e4752e5eab53bf1b1a65
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+    GIT_TAG 4f49a777b35e0e025c18fed97c06ca4f09f93104
 )
 
 FetchContent_GetProperties(SDL2_mixer)

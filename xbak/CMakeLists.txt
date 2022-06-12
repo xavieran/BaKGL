@@ -5,6 +5,7 @@ target_link_libraries(xbak
     com
     SDL2
     SDL_sound
+    #{SDL_SOUND_LIBRARY}
     SDL2_mixer 
     ${LINK_UNIX_LIBRARIES}
 )
