@@ -126,13 +126,15 @@ FetchContent_Declare(
     GIT_TAG release-2.0.22
 )
 FetchContent_MakeAvailable(SDL2)
-list(APPEND CMAKE_PREFIX_PATH ":${SDL2_SOURCE_DIR}")
+list(APPEND CMAKE_PREFIX_PATH "${SDL2_SOURCE_DIR}")
 
 # Unfortunately seems to be required or SDL_mixer #include "SDL.h" doesn't work
 include_directories(${SDL2_SOURCE_DIR}/include)
 list(APPEND CMAKE_MODULE_PATH ${SDL2_SOURCE_DIR})
+foreach (PA IN LISTS CMAKE_PREFIX_PATH)
+    message ("CMAKE PFX PATH: " ${PA})
+endforeach()
 message ("CMAKE MOD PATH: " ${CMAKE_MODULE_PATH})
-message ("CMAKE PFX PATH: " ${CMAKE_PREFIX_PATH})
 
 # --- SDL Sound --- #
 FetchContent_Declare(
