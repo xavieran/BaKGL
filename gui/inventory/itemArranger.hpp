@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <optional>
 

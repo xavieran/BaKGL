@@ -23,7 +23,7 @@
 #include "config.h"
 #endif
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #include "Video.h"
 
@@ -48,7 +48,7 @@ class SDL_Video
             : public Video
 {
 private:
-    const SDL_VideoInfo *info;
+    const SDL_RendererInfo *info;
     SDL_Surface* window;
     SDL_Surface* windowBuffer;
     Surface hireslocolSurface;

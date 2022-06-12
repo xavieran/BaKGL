@@ -228,8 +228,7 @@ void TestApplication::PlaySound ( const unsigned int index )
     try
     {
         unsigned i = index;
-        //for (unsigned i = 0; i < 92; i++)S
-        for (unsigned k = 0; k < 1; k++)
+        for (unsigned i = 0; i < 92; i++)
         {
             try
             {
@@ -243,17 +242,17 @@ void TestApplication::PlaySound ( const unsigned int index )
                     continue;
                 }
 
-                for (const auto* s : data.sounds)
+                for (auto* s : data.sounds)
                 {
                     std::cout << "\tSound { type: " << s->GetType() << ", channel: " << s->GetChannel()
                         << ", format: " << GetFormat(s->GetFormat()) << "\n";
+                    unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( s->GetSamples() );
+                    media->GetClock()->StartTimer ( TMR_TEST_APP, ( i < 1000 ? 5000 : 30000 ) );
+                    media->WaitEventLoop();
+                    media->GetClock()->CancelTimer ( TMR_TEST_APP );
+                    std::cout << "Stopping sound : " << i << "\n";
+                    media->GetAudio()->StopSound ( channel );
                 }
-                unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( data.sounds[0]->GetSamples() );
-                media->GetClock()->StartTimer ( TMR_TEST_APP, ( i < 1000 ? 5000 : 30000 ) );
-                media->WaitEventLoop();
-                media->GetClock()->CancelTimer ( TMR_TEST_APP );
-                std::cout << "Stopping sound : " << i << "\n";
-                media->GetAudio()->StopSound ( channel );
             }
             catch (Exception& e)
             {

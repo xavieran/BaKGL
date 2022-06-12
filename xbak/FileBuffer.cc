@@ -31,7 +31,7 @@
 #include <limits>
 #include <sstream>
 
-#include "SDL_endian.h"
+#include <SDL2/SDL_endian.h>
 
 #include "Defines.h"
 #include "Exception.h"

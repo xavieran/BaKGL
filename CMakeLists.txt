@@ -52,15 +52,6 @@ set(
 
 # --- External Packages ---
 
-# --- SDL --- #
-list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/SDL-1.2.15")
-
-find_package(SDL REQUIRED)
-find_package(SDL_mixer REQUIRED)
-
-include_directories(${SDL_INCLUDE_DIR})
-include_directories(${SDL_mixer_INCLUDE_DIR})
-
 # --- OpenGL related packages --- #
 find_package(OpenGL REQUIRED)
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/freeglut")
@@ -126,6 +117,56 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+# --- SDL 2  --- #
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/SDL-1.2.15")
+
+FetchContent_Declare(
+    SDL2
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG release-2.0.22
+)
+FetchContent_MakeAvailable(SDL2)
+
+# Unfortunately seems to be required or SDL_mixer #include "SDL.h" doesn't work
+include_directories(${SDL2_SOURCE_DIR}/include)
+
+# --- SDL Sound --- #
+FetchContent_Declare(
+    SDL_sound
+    GIT_REPOSITORY https://github.com/icculus/SDL_sound.git
+    GIT_TAG 32ee23e2018378225eba2c2bca8c2264bdbd369f
+)
+
+FetchContent_GetProperties(SDL_sound)
+if(NOT SDL_sound_POPULATED)
+    FetchContent_Populate(SDL_sound)
+
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+    set(SDLSOUND_DECODER_MIDI TRUE)
+
+    add_subdirectory(${sdl_sound_SOURCE_DIR} ${sdl_sound_BINARY_DIR})
+endif()
+include_directories(${SDL_sound_SOURCE_DIR}/src)
+
+# --- SDL 2 Mixer --- #
+
+FetchContent_Declare(
+    SDL2_mixer 
+    GIT_REPOSITORY https://github.com/xavieran/SDL_mixer.git
+    GIT_TAG 828c209e53d2d08415c0e4752e5eab53bf1b1a65
+)
+
+FetchContent_GetProperties(SDL2_mixer)
+if(NOT SDL2_mixer_POPULATED)
+    FetchContent_Populate(SDL2_mixer)
+
+    set(SUPPORT_MID_TIMIDITY OFF)
+    set(SUPPORT_MID_FLUIDSYNTH ON)
+    set(BUILD_SHARED_LIBS OFF)
+
+    add_subdirectory(${sdl2_mixer_SOURCE_DIR} ${sdl2_mixer_BINARY_DIR})
+endif()
+
 # --- Common Link Libraries --- #
 set(LINK_3D_LIBRARIES 
     ${GLEW_LIBRARIES} 
@@ -140,6 +181,7 @@ if (UNIX)
         stdc++
         m
         dl
+        rt
         pthread)
 endif()
 

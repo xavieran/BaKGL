@@ -95,7 +95,7 @@ SDL_Toolkit::SDL_Toolkit()
 
 SDL_Toolkit::~SDL_Toolkit()
 {
-    SDL_WM_GrabInput(SDL_GRAB_OFF);
+    //SDL_WM_GrabInput(SDL_GRAB_OFF);
     if (joystick)
     {
         SDL_JoystickClose(joystick);
@@ -514,5 +514,5 @@ void
 SDL_Toolkit::SetPointerPosition(int x, int y)
 {
     int scaling = video->GetScaling();
-    SDL_WarpMouse(x * scaling, y * scaling);
+    //SDL_WarpMouse(x * scaling, y * scaling);
 }

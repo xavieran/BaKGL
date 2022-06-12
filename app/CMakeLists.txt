@@ -32,10 +32,9 @@ foreach (APP_BIN IN LISTS APP_BINARIES)
     target_link_libraries(${APP_BIN}
         ${LINK_UNIX_LIBRARIES}
         ${LINK_3D_LIBRARIES}
-        ${SDL_LIBRARIES}
+        #${SDL_LIBRARIES}
         ${APP_LIBS}
     )
-
 endforeach()
 
 

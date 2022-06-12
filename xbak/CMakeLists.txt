@@ -3,10 +3,10 @@ file(GLOB HEADER_FILES *.h)
 add_library(xbak ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(xbak
     com
-    ${SDL_LIBRARIES}
+    SDL2
+    SDL_sound
+    SDL2_mixer 
     ${LINK_UNIX_LIBRARIES}
-    #SDL_mixer 
-    #SDL_sound
 )
 
 # XBaK Executables
@@ -28,18 +28,16 @@ list(APPEND XBAK_BINARIES
 )
 
 foreach (XBAK_BIN IN LISTS XBAK_BINARIES)
-    add_executable (${XBAK_BIN} ${XBAK_BIN}.cc ${XBAK} ${SDL_INCLUDE_DIR} ${SDL_mixer_INCLUDE_DIR})
+    add_executable (${XBAK_BIN} ${XBAK_BIN}.cc ${XBAK})
     target_link_libraries(${XBAK_BIN}
         xbak
-        ${SDL_LIBRARIES}
         ${LINK_UNIX_LIBRARIES}
     )
 endforeach()
 
-add_executable (xbak_main xbak.cc ${XBAK} ${SDL_INCLUDE_DIR})
+add_executable (xbak_main xbak.cc ${XBAK})
 target_link_libraries(xbak_main
     xbak
-    ${SDL_LIBRARIES}
     ${LINK_UNIX_LIBRARIES}
     )
 

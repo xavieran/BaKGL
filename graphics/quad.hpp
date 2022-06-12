@@ -9,6 +9,8 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <algorithm>
+#include <functional>
+#include <vector>
 
 namespace Graphics {
 

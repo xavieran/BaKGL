@@ -26,7 +26,7 @@
 #include "config.h"
 #endif
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include "Clock.h"
 
 class SDL_Clock: public Clock

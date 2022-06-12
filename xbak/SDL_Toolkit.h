@@ -25,7 +25,7 @@
 #endif
 
 #include "MediaToolkit.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 class SDL_Toolkit
     : public MediaToolkit
