@@ -132,7 +132,7 @@ else()
     message("Found SDL2::SDL2")
 endif()
 
-if ((NOT (TARGET SDL2::SDL2-static)) and (TARGET SDL2::SDL2))
+if (NOT (TARGET SDL2::SDL2-static))
     add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
 endif()
 
