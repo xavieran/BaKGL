@@ -91,7 +91,6 @@ FetchContent_Declare(
 FetchContent_GetProperties(glfw)
 if(NOT glfw_POPULATED)
     FetchContent_Populate(glfw)
-    # set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build the GLFW shared libraries")
     set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
     set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
     set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
@@ -128,13 +127,14 @@ endforeach()
 
 if (NOT (TARGET SDL2::SDL2))
     message("Didnt find SDL2::SDL2")
+    add_library(SDL2::SDL2 ALIAS SDL2)
 else()
     message("Found SDL2::SDL2")
 endif()
 
 if (NOT (TARGET SDL2::SDL2-static))
     message ("Didnt find SDL2::SDL2-static")
-    #add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
+    add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
 else()
     message ("Found SDL2::SDL2-static")
 endif()
@@ -171,7 +171,7 @@ if(NOT SDL2_mixer_POPULATED)
 
     set(SUPPORT_MID_TIMIDITY OFF)
     set(SUPPORT_MID_FLUIDSYNTH ON)
-
+    set(BUILD_SHARED_LIBS OFF)
     add_subdirectory(${sdl2_mixer_SOURCE_DIR} ${sdl2_mixer_BINARY_DIR})
 endif()
 
