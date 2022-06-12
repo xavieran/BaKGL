@@ -125,6 +125,14 @@ foreach (INCLUDE_DIR IN LISTS SDL2_INCLUDE_DIRS)
     include_directories(${INCLUDE_DIR})
 endforeach()
 
+if(NOT TARGET SDL2::SDL2)
+    # SDL < 2.0.12
+    add_library(SDL2::SDL2 INTERFACE IMPORTED)
+    set_target_properties(SDL2::SDL2 PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR}
+        INTERFACE_LINK_LIBRARIES ${SDL2_LIBRARIES} ${SDL2_LIBRARY}
+    )
+endif()
 if (NOT (TARGET SDL2::SDL2))
     message("Didnt find SDL2::SDL2")
     add_library(SDL2::SDL2 ALIAS SDL2)
