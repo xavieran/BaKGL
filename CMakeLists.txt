@@ -133,7 +133,10 @@ else()
 endif()
 
 if (NOT (TARGET SDL2::SDL2-static))
-    add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
+    message ("Didnt find SDL2::SDL2-static")
+    #add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
+else()
+    message ("Found SDL2::SDL2-static")
 endif()
 
 # --- SDL Sound --- #
@@ -168,7 +171,6 @@ if(NOT SDL2_mixer_POPULATED)
 
     set(SUPPORT_MID_TIMIDITY OFF)
     set(SUPPORT_MID_FLUIDSYNTH ON)
-    set(BUILD_SHARED_LIBS OFF)
 
     add_subdirectory(${sdl2_mixer_SOURCE_DIR} ${sdl2_mixer_BINARY_DIR})
 endif()
