@@ -130,6 +130,7 @@ FetchContent_MakeAvailable(SDL2)
 # Unfortunately seems to be required or SDL_mixer #include "SDL.h" doesn't work
 include_directories(${SDL2_SOURCE_DIR}/include)
 list(APPEND CMAKE_MODULE_PATH ${SDL2_SOURCE_DIR})
+message ("CMAKE MOD PATH: " ${CMAKE_MODULE_PATH})
 
 # --- SDL Sound --- #
 FetchContent_Declare(
