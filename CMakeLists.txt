@@ -125,7 +125,10 @@ find_package(SDL2 REQUIRED)
 foreach (INCLUDE_DIR IN LISTS SDL2_INCLUDE_DIRS)
     include_directories(${INCLUDE_DIR})
 endforeach()
-add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
+
+if (NOT (TARGET SDL2::SDL2-static))
+    add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
+endif()
 
 # --- SDL Sound --- #
 FetchContent_Declare(
