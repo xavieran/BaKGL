@@ -10,6 +10,9 @@
 #include "bak/textVariableStore.hpp"
 #include "bak/types.hpp"
 
+#include "xbak/SDL_Toolkit.h"
+#include "xbak/SoundResource.h"
+
 #include "com/visit.hpp"
 
 namespace BAK {
@@ -311,6 +314,20 @@ public:
                     load.mSkill,
                     load.mTarget == 1); // best or worst skill
                 mSkillValue = value;
+            },
+            [&](const BAK::PlaySound& sound)
+            {
+                try
+                {
+                    mLogger.Debug() << "Playing sound: " << sound << "\n";
+                    SoundData data = SoundResource::GetInstance()->GetSoundData(sound.mSoundIndex);
+                    assert(data.sounds.size() > 0);
+                    unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( data.sounds[0]->GetSamples() );
+                }
+                catch (SDL_Exception& e)
+                {
+                    mLogger.Error() << e.What() << "\n";
+                }
             },
             [&](const auto& a){
                 mLogger.Debug() << "Doing nothing for: " << a << "\n";

@@ -126,7 +126,7 @@ struct DrawSprite
 
 std::ostream& operator<<(std::ostream&, const DrawSprite&);
 
-struct PlaySound
+struct PlaySoundS
 {
     std::uint16_t mSoundIndex;
 };

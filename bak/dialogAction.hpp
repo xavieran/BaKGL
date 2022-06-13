@@ -130,6 +130,13 @@ struct LoadSkillValue
     SkillType mSkill;
 };
 
+struct PlaySound
+{
+    std::uint16_t mSoundIndex;
+    std::uint16_t mFlag;
+    std::uint32_t mRest;
+};
+
 struct ElapseTime
 {
     Time mTime;
@@ -179,6 +186,7 @@ using DialogAction = std::variant<
     GainCondition,
     GainSkill,
     LoadSkillValue,
+    PlaySound,
     PushNextDialog,
     Teleport,
     UpdateCharacters,

@@ -18,6 +18,7 @@
  */
 
 #include <cstring>
+#include <iostream>
 
 #include "Exception.h"
 #include "Sound.h"
@@ -278,11 +279,12 @@ void Sound::GenerateMidi()
     buffer->Rewind();
 }
 
-void Sound::AddVoice(FileBuffer *buf)
+void Sound::AddVoice(FileBuffer *buf, unsigned id)
 {
     unsigned int code = buf->GetUint8();
     channel = code & 0x0f;
-    if (code == 0xfe)
+    std::cout << "Code: " << code << " channel: " << channel << "\n";
+    if (code == 0xfe || id < 1000)
     {
         format = SF_WAVE;
         CreateWaveSamples(buf);

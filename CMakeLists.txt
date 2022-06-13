@@ -125,26 +125,18 @@ foreach (INCLUDE_DIR IN LISTS SDL2_INCLUDE_DIRS)
     include_directories(${INCLUDE_DIR})
 endforeach()
 
+# Hack for SDL < 2.0.12
 if(NOT TARGET SDL2::SDL2)
-    # SDL < 2.0.12
     add_library(SDL2::SDL2 INTERFACE IMPORTED)
     set_target_properties(SDL2::SDL2 PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR}
         INTERFACE_LINK_LIBRARIES ${SDL2_LIBRARIES} ${SDL2_LIBRARY}
     )
 endif()
-if (NOT (TARGET SDL2::SDL2))
-    message("Didnt find SDL2::SDL2")
-    add_library(SDL2::SDL2 ALIAS SDL2)
-else()
-    message("Found SDL2::SDL2")
-endif()
 
 if (NOT (TARGET SDL2::SDL2-static))
-    message ("Didnt find SDL2::SDL2-static")
+    message ("Didnt find SDL2::SDL2-static, adding dummy target")
     add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
-else()
-    message ("Found SDL2::SDL2-static")
 endif()
 
 # --- SDL Sound --- #

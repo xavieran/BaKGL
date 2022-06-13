@@ -105,6 +105,13 @@ std::ostream& operator<<(std::ostream& os, const LoadSkillValue& action)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const PlaySound& action)
+{
+    os << "PlaySound { index: " << action.mSoundIndex
+        << " flag: " << action.mFlag << " " << action.mRest << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const SetPopupDimensions& action)
 {
     os << "SetPopupDimensions { pos: " << action.mPos << ", dims: " << action.mDims << "}";

@@ -228,7 +228,7 @@ void TestApplication::PlaySound ( const unsigned int index )
     try
     {
         unsigned i = index;
-        for (unsigned i = 0; i < 92; i++)
+        //for (unsigned i = 1000; i < 2000; i++)
         {
             try
             {
@@ -239,11 +239,13 @@ void TestApplication::PlaySound ( const unsigned int index )
                 if (data.sounds.size() == 0)
                 {
                     std::cout << "Sound is empty!\n";
-                    continue;
+                    return; //continue;
                 }
 
                 for (auto* s : data.sounds)
                 {
+                    try
+                    {
                     std::cout << "\tSound { type: " << s->GetType() << ", channel: " << s->GetChannel()
                         << ", format: " << GetFormat(s->GetFormat()) << "\n";
                     unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( s->GetSamples() );
@@ -252,6 +254,11 @@ void TestApplication::PlaySound ( const unsigned int index )
                     media->GetClock()->CancelTimer ( TMR_TEST_APP );
                     std::cout << "Stopping sound : " << i << "\n";
                     media->GetAudio()->StopSound ( channel );
+                    }
+                    catch (Exception& e)
+                    {
+                        e.Print ( "TestApplication::PlaySound" );
+                    }
                 }
             }
             catch (Exception& e)
