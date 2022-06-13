@@ -161,7 +161,7 @@ void SoundResource::Load(FileBuffer *buffer)
                         sndbuf->Seek(offsetVec[j]);
                         FileBuffer *samplebuf = new FileBuffer(sizeVec[j]);
                         samplebuf->Fill(sndbuf);
-                        sound->AddVoice(samplebuf, id);
+                        sound->AddVoice(samplebuf);
                         delete samplebuf;
                     }
                     sound->GenerateBuffer();

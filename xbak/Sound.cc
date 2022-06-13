@@ -279,12 +279,12 @@ void Sound::GenerateMidi()
     buffer->Rewind();
 }
 
-void Sound::AddVoice(FileBuffer *buf, unsigned id)
+void Sound::AddVoice(FileBuffer *buf)
 {
     unsigned int code = buf->GetUint8();
     channel = code & 0x0f;
     std::cout << "Code: " << code << " channel: " << channel << "\n";
-    if (code == 0xfe || id < 1000)
+    if (code == 0xfe)
     {
         format = SF_WAVE;
         CreateWaveSamples(buf);

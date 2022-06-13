@@ -25,6 +25,8 @@
 #include "TestApplication.h"
 #include "Text.h"
 #include "TextWidget.h"
+#include <ostream>
+#include <sstream>
 
 TestApplication* TestApplication::instance = 0;
 
@@ -248,12 +250,23 @@ void TestApplication::PlaySound ( const unsigned int index )
                     {
                     std::cout << "\tSound { type: " << s->GetType() << ", channel: " << s->GetChannel()
                         << ", format: " << GetFormat(s->GetFormat()) << "\n";
-                    unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( s->GetSamples() );
-                    media->GetClock()->StartTimer ( TMR_TEST_APP, ( i < 1000 ? 5000 : 30000 ) );
-                    media->WaitEventLoop();
-                    media->GetClock()->CancelTimer ( TMR_TEST_APP );
-                    std::cout << "Stopping sound : " << i << "\n";
-                    media->GetAudio()->StopSound ( channel );
+                    std::ofstream out{""};
+                    std::stringstream fname{""};
+                    fname << data.name << "_" << s->GetType() << ".MID";
+                    out.open(fname.str(), std::ios::out | std::ios::binary);
+
+                    std::cout << "Writing: " << fname.str() << std::endl;
+                    auto* fb = s->GetSamples();
+                    out.write(reinterpret_cast<char*>(fb->GetCurrent()), fb->GetBytesLeft());
+                    out.close();
+
+
+                    //unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( s->GetSamples() );
+                    //media->GetClock()->StartTimer ( TMR_TEST_APP, ( i < 1000 ? 5000 : 30000 ) );
+                    //media->WaitEventLoop();
+                    //media->GetClock()->CancelTimer ( TMR_TEST_APP );
+                    //std::cout << "Stopping sound : " << i << "\n";
+                    //media->GetAudio()->StopSound ( channel );
                     }
                     catch (Exception& e)
                     {

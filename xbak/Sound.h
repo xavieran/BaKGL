@@ -61,7 +61,7 @@ public:
     unsigned int GetChannel() const;
     SoundFormat GetFormat() const;
     FileBuffer * GetSamples();
-    void AddVoice ( FileBuffer *buf , unsigned);
+    void AddVoice ( FileBuffer *buf);
     void GenerateBuffer();
 };
 
