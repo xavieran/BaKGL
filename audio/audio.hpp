@@ -5,7 +5,7 @@
 #include "SDL_Audio.h"
 
 #include <SDL2/SDL.h>
-#include "SDL_mixer.h"
+#include "SDL_mixer_ext.h"
 
 #include <ostream>
 

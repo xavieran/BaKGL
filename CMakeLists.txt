@@ -70,17 +70,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/g-truc/glm
 )
 
-FetchContent_GetProperties(glm)
-if(NOT glm_POPULATED)
-    FetchContent_Populate(glm)
-
-    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
-    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-    set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
-
-    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
-endif()
+FetchContent_MakeAvailable(glm)
 
 # --- GLFW --- #
 FetchContent_Declare(
@@ -148,8 +138,8 @@ endif()
 
 FetchContent_Declare(
     SDLMixerX
-    GIT_REPOSITORY https://github.com/xavieran/SDL-Mixer-X
-    GIT_TAG df17474f073f7fac7f9dc64e48df6efb744dd081
+    GIT_REPOSITORY https://github.com/WohlSoft/SDL-Mixer-X
+    GIT_TAG f7d4549e98afd6436791a70c1cf9b79781895dc1
 )
 
 FetchContent_GetProperties(SDLMixerX)
