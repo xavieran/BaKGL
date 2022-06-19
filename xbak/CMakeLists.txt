@@ -1,11 +1,11 @@
 file(GLOB SOURCE_FILES *.cc)
 file(GLOB HEADER_FILES *.h)
 add_library(xbak ${SOURCE_FILES} ${HEADER_FILES})
+    
 target_link_libraries(xbak
     com
     SDL2
-    SDL2_sound-static
-    SDL2_mixer 
+    SDL2_mixer_ext_Static
     ${LINK_UNIX_LIBRARIES}
 )
 

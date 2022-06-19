@@ -139,41 +139,34 @@ if (NOT (TARGET SDL2::SDL2-static))
     add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
 endif()
 
-# --- SDL Sound --- #
-FetchContent_Declare(
-    SDL_sound
-    GIT_REPOSITORY https://github.com/icculus/SDL_sound.git
-    GIT_TAG 32ee23e2018378225eba2c2bca8c2264bdbd369f
-)
-
-FetchContent_GetProperties(SDL_sound)
-if(NOT SDL_sound_POPULATED)
-    FetchContent_Populate(SDL_sound)
-
-    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-    set(SDLSOUND_DECODER_MIDI TRUE)
-
-    add_subdirectory(${sdl_sound_SOURCE_DIR} ${sdl_sound_BINARY_DIR})
-endif()
-include_directories(${SDL_sound_SOURCE_DIR}/src)
-
-# --- SDL 2 Mixer --- #
+# --- SDL2 Mixer X--- #
 
 FetchContent_Declare(
-    SDL2_mixer 
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
-    GIT_TAG 4f49a777b35e0e025c18fed97c06ca4f09f93104
+    SDLMixerX
+    GIT_REPOSITORY https://github.com/xavieran/SDL-Mixer-X
+    GIT_TAG df17474f073f7fac7f9dc64e48df6efb744dd081
 )
 
-FetchContent_GetProperties(SDL2_mixer)
-if(NOT SDL2_mixer_POPULATED)
-    FetchContent_Populate(SDL2_mixer)
+FetchContent_GetProperties(SDLMixerX)
+if(NOT SDLMixerX_POPULATED)
+    FetchContent_Populate(SDLMixerX)
 
-    set(SUPPORT_MID_TIMIDITY OFF)
-    set(SUPPORT_MID_FLUIDSYNTH ON)
     set(BUILD_SHARED_LIBS OFF)
-    add_subdirectory(${sdl2_mixer_SOURCE_DIR} ${sdl2_mixer_BINARY_DIR})
+    set(MIXERX_ENABLE_GPL ON)
+    set(MIXERX_ENABLE_LGPL ON)
+    set(SDL_MIXER_X_STATIC ON)
+    set(USE_MIDI_ADLMIDI ON)
+    set(USE_MIDI_FLUIDSYNTH OFF)
+    set(USE_MIDI_FLUIDLITE OFF)
+    set(USE_MIDI_TIMIDITY OFF)
+    set(USE_MODPLUG OFF)
+    set(USE_XMP OFF)
+    set(USE_SYSTEM_SDL2 ON)
+    set(DOWNLOAD_AUDIO_CODECS_DEPENDENCY ON)
+    add_subdirectory(${sdlmixerx_SOURCE_DIR} ${sdlmixerx_BINARY_DIR})
 endif()
+include_directories(${SDLMixerX_SOURCE_DIR}/include)
+link_directories(${SDLMixerX_BINARY_DIR}/lib)
 
 # --- Common Link Libraries --- #
 set(LINK_3D_LIBRARIES 

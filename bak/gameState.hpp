@@ -320,9 +320,9 @@ public:
                 try
                 {
                     mLogger.Debug() << "Playing sound: " << sound << "\n";
-                    SoundData data = SoundResource::GetInstance()->GetSoundData(sound.mSoundIndex);
-                    assert(data.sounds.size() > 0);
-                    unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( data.sounds[0]->GetSamples() );
+                    //SoundData data = SoundResource::GetInstance()->GetSoundData(sound.mSoundIndex);
+                    //assert(data.sounds.size() > 0);
+                    //unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( data.sounds[0]->GetSamples() );
                 }
                 catch (SDL_Exception& e)
                 {
