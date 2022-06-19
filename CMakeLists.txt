@@ -139,6 +139,11 @@ if (NOT (TARGET SDL2::SDL2-static))
     add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
 endif()
 
+if(NOT TARGET SDL2::SDL2main)
+    message ("Didnt find SDL2::SDL2main, adding dummy target")
+    add_library(SDL2::SDL2main ALIAS SDL2::SDL2)
+endif()
+
 # --- SDL2 Mixer X--- #
 
 FetchContent_Declare(
@@ -158,7 +163,7 @@ if(NOT SDLMixerX_POPULATED)
     set(SDL_MIXER_X_STATIC ON)
     set(SDL_MIXER_X_SHARED OFF)
     set(USE_MIDI_ADLMIDI ON)
-    set(USE_MIDI_FLUIDSYNTH OFF)
+    set(USE_MIDI_FLUIDSYNTH ON)
     set(USE_MIDI_FLUIDLITE OFF)
     set(USE_MIDI_TIMIDITY OFF)
     set(USE_MODPLUG OFF)
@@ -192,6 +197,7 @@ endif()
 include_directories(".")
 
 add_subdirectory("app")
+add_subdirectory("audio")
 add_subdirectory("bak")
 add_subdirectory("com")
 add_subdirectory("graphics")
