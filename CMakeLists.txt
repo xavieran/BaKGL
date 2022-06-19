@@ -151,6 +151,7 @@ FetchContent_GetProperties(SDLMixerX)
 if(NOT SDLMixerX_POPULATED)
     FetchContent_Populate(SDLMixerX)
 
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
     set(BUILD_SHARED_LIBS OFF)
     set(MIXERX_ENABLE_GPL ON)
     set(MIXERX_ENABLE_LGPL ON)
