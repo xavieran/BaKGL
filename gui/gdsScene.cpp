@@ -1,5 +1,7 @@
 #include "gui/gdsScene.hpp"
 
+#include "audio/audio.hpp"
+
 #include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/money.hpp"
@@ -306,6 +308,23 @@ void GDSScene::DoBard()
     {
         const auto status = BAK::Bard::ClassifyBardAttempt(
             skill, shopStats.mBardingSkill);
+
+        switch (status)
+        {
+            case BAK::Bard::BardStatus::Failed:
+                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::BAD_BARD);
+                break;
+            case BAK::Bard::BardStatus::Poor:
+                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::POOR_BARD);
+                break;
+            case BAK::Bard::BardStatus::Good:
+                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::GOOD_BARD);
+                break;
+            case BAK::Bard::BardStatus::Best:
+                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::BEST_BARD);
+                break;
+        }
+
         const auto reward = BAK::Bard::GetReward(
             status,
             BAK::Sovereigns{shopStats.mBardingMaxReward},

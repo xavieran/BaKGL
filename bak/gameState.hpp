@@ -324,7 +324,7 @@ public:
                     mLogger.Debug() << "Playing sound: " << sound << "\n";
                     if (sound.mSoundIndex == 0)
                     {
-                        AudioA::AudioManager::Get().StopMusicTrack();
+                        //AudioA::AudioManager::Get().StopMusicTrack();
                     }
                     else if (sound.mSoundIndex < 134)
                     {

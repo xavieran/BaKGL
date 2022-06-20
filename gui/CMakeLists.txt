@@ -23,6 +23,7 @@ add_subdirectory(info)
 add_subdirectory(inventory)
 
 target_link_libraries(gui
+    audio
     bak
     com
     graphics

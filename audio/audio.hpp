@@ -5,7 +5,6 @@
 #include "com/visit.hpp"
 
 #include <SDL2/SDL.h>
-//#include <SDL2/SDL_Audio.h>
 #include "SDL_mixer_ext/SDL_mixer_ext.h"
 
 #include <ostream>
@@ -15,6 +14,12 @@ namespace AudioA {
 
 using SoundIndex = Bounded<StrongType<unsigned, struct SoundIndexTag>, 1, 134>;
 using MusicIndex = Bounded<StrongType<unsigned, struct MusicIndexTag>, 1001, 1063>;
+
+static constexpr auto PUZZLE_CHEST_THEME = MusicIndex{1003};
+static constexpr auto BAD_BARD  = MusicIndex{1008};
+static constexpr auto POOR_BARD = MusicIndex{1040};
+static constexpr auto GOOD_BARD = MusicIndex{1039};
+static constexpr auto BEST_BARD = MusicIndex{1007};
 
 class AudioManager
 {

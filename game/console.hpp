@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
 
@@ -75,7 +77,49 @@ struct Console : public std::streambuf
 
     }
 
-    // Console commands
+    void StopMusic(const std::vector<std::string>& words)
+    {
+        AudioA::AudioManager::Get().StopMusicTrack();
+    }
+
+    void PlayMusic(const std::vector<std::string>& words)
+    {
+        if (words.size() < 1)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: PLAY_MUSIC MUSIC_INDEX (%s)", ss.str().c_str());
+            return;
+        }
+
+        std::stringstream ss{};
+        ss << words[1];
+        unsigned music_index;
+        ss >> std::setbase(0) >> music_index;
+
+        AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{music_index});
+    }
+
+    void PlaySound(const std::vector<std::string>& words)
+    {
+        if (words.size() < 1)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: PLAY_SOUND SOUND_INDEX (%s)", ss.str().c_str());
+            return;
+        }
+
+        std::stringstream ss{};
+        ss << words[1];
+        unsigned sound_index;
+        ss >> std::setbase(0) >> sound_index;
+
+        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound_index});
+    }
+
     void SetEventState(const std::vector<std::string>& words)
     {
         if (words.size() < 2)
@@ -284,6 +328,15 @@ struct Console : public std::streambuf
 
         mCommands.push_back("SET_CHAPTER");
         mCommandActions.emplace_back([this](const auto& cmd){ SetChapter(cmd); });
+
+        mCommands.push_back("STOP_MUSIC");
+        mCommandActions.emplace_back([this](const auto& cmd){ StopMusic(cmd); });
+
+        mCommands.push_back("PLAY_SOUND");
+        mCommandActions.emplace_back([this](const auto& cmd){ PlaySound(cmd); });
+
+        mCommands.push_back("PLAY_MUSIC");
+        mCommandActions.emplace_back([this](const auto& cmd){ PlayMusic(cmd); });
 
         mCommands.push_back("HISTORY");
         mCommandActions.emplace_back([this](const auto& cmd)

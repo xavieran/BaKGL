@@ -283,7 +283,7 @@ void Sound::AddVoice(FileBuffer *buf)
 {
     unsigned int code = buf->GetUint8();
     channel = code & 0x0f;
-    std::cout << "Code: " << code << " channel: " << channel << "\n";
+    //std::cout << "Code: " << code << " channel: " << channel << "\n";
     if (code == 0xfe)
     {
         format = SF_WAVE;

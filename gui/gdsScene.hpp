@@ -34,6 +34,7 @@ public:
 
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
+    auto GetSong() const { return mSceneHotspots.mSong; }
 
 public:
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot);

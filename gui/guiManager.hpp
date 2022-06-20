@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
 #include "bak/IZoneLoader.hpp"
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
@@ -183,12 +185,20 @@ public:
                 static_cast<IGuiManager&>(*this)));
         mGuiScreens.push(std::move(finished));
         mScreenStack.PushScreen(mGdsScenes.back().get());
+        const auto song = mGdsScenes.back().get()->GetSong();
+        mLogger.Debug() << __FUNCTION__ << "Current song is: " << song << "\n";
+        if (song != 0)
+        {
+            // FIXME: This causes problems when entered via DO_TELEPORT
+            //AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{song});
+        }
     }
 
     void ExitGDSScene() override
     {
         mLogger.Debug() << "Exiting GDS Scene" << std::endl;
         RemoveGDSScene(true);
+        //AudioA::AudioManager::Get().StopMusicTrack();
     }
 
     void RemoveGDSScene(bool runFinished=false)
@@ -302,6 +312,7 @@ public:
         {
             mMoredhelScreen.SetContainer(container);
             mScreenStack.PushScreen(&mMoredhelScreen);
+            AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::PUZZLE_CHEST_THEME);
         }
         else
         {

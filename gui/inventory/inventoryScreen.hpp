@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
 #include "bak/IContainer.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/inventory.hpp"
@@ -34,6 +36,9 @@
 #include <variant>
 
 namespace Gui {
+
+static constexpr auto BUY_SOUND  = AudioA::SoundIndex{60};
+static constexpr auto DRAG_SOUND = AudioA::SoundIndex{61};
 
 class InventoryScreen :
     public Widget

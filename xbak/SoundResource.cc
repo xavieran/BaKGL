@@ -106,14 +106,14 @@ void SoundResource::Load(FileBuffer *buffer)
         }
         infbuf->Skip(2);
         unsigned int n = infbuf->GetUint16LE();
-        std::cout << "N: " << n << "\n";
+        //std::cout << "N: " << n << "\n";
         infbuf->Skip(1);
         ResourceTag tags;
         tags.Load(tagbuf);
-        for (const auto& [index, tag] : tags.GetTagMap())
-        {
-            std::cout << "Tags; " << index << " " << tag << "\n";
-        }
+        //for (const auto& [index, tag] : tags.GetTagMap())
+        //{
+        //    std::cout << "Tags; " << index << " " << tag << "\n";
+        //}
 
         for (unsigned int i = 0; i < n; i++)
         {
@@ -134,30 +134,30 @@ void SoundResource::Load(FileBuffer *buffer)
                 buffer->Skip(2);
                 const auto size = buffer->GetUint32LE();
                 FileBuffer *sndbuf = new FileBuffer(size - 2);
-                std::cout << "Reading: " << id << " " << name << " t: " << data.type << " sz: " << size << "\n";
+                //std::cout << "Reading: " << id << " " << name << " t: " << data.type << " sz: " << size << "\n";
                 buffer->Skip(2);
                 sndbuf->Fill(buffer);
                 buffer->Skip(-sndbuf->GetSize());
                 int code = buffer->GetUint8();
                 while (code != 0xff)
                 {
-                    std::cout << "MainCode: " << code << "\n";
+                    //std::cout << "MainCode: " << code << "\n";
                     Sound *sound = new Sound(code);
                     std::vector<unsigned int> offsetVec;
                     std::vector<unsigned int> sizeVec;
                     code = buffer->GetUint8();
-                    std::cout << "Delimiter: " << code << "\n";
+                    //std::cout << "Delimiter: " << code << "\n";
                     while (code != 0xff)
                     {
                         buffer->Skip(1);
                         offsetVec.push_back(buffer->GetUint16LE());
                         sizeVec.push_back(buffer->GetUint16LE());
                         code = buffer->GetUint8();
-                        std::cout << "Delimiter: " << code << "\n";
+                        //std::cout << "Delimiter: " << code << "\n";
                     }
                     for (unsigned int j = 0; j < offsetVec.size(); j++)
                     {
-                        std::cout << "Adding voice\n";
+                        //std::cout << "Adding voice\n";
                         sndbuf->Seek(offsetVec[j]);
                         FileBuffer *samplebuf = new FileBuffer(sizeVec[j]);
                         samplebuf->Fill(sndbuf);
@@ -189,7 +189,7 @@ void SoundResource::Load(FileBuffer *buffer)
 
     for (const auto& [index, data] : soundMap)
     {
-        std::cout << "Sound I: " << index << " data: " << data.name <<"\n";
+        //std::cout << "Sound I: " << index << " data: " << data.name <<"\n";
     }
 }
 

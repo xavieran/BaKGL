@@ -287,6 +287,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
 
             srcC.CheckPostConditions();
             dstC.CheckPostConditions();
+            AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
         }
         else
         {
@@ -310,6 +311,8 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
             GetCharacter(source)
                 .GetInventory()
                 .RemoveItem(slot.GetItemIndex());
+
+        AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
     }
     else
     {
@@ -318,7 +321,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
     }
 
-    mLogger.Debug() << __FUNCTION__ << "Source: " 
+    mLogger.Debug() << __FUNCTION__ << " Source: " 
         << GetCharacter(source).GetInventory() 
         << "\n" << "Dest: " << GetCharacter(dest).GetInventory() << "\n";
     GetCharacter(source).CheckPostConditions();
@@ -341,6 +344,7 @@ void InventoryScreen::TransferItemFromContainerToCharacter(
         mGameState.GetParty().AddItem(item);
         mContainer->GetInventory()
             .RemoveItem(slot.GetItemIndex());
+        AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
     }
     else if (GetCharacter(character).GiveItem(item))
     {
@@ -348,6 +352,7 @@ void InventoryScreen::TransferItemFromContainerToCharacter(
             mContainer->GetInventory().RemoveItem(item);
         else
             mContainer->GetInventory().RemoveItem(slot.GetItemIndex());
+        AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
     }
     else
     {
@@ -396,6 +401,8 @@ void InventoryScreen::BuyItem(
             ASSERT(result);
         }
         mGameState.GetParty().LoseMoney(price);
+
+        AudioA::AudioManager::Get().PlaySound(BUY_SOUND);
     }
 
     mNeedRefresh = true;

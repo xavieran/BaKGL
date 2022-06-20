@@ -12,6 +12,7 @@ AudioManager& AudioManager::Get()
 
 void AudioManager::ChangeMusicTrack(MusicIndex music)
 {
+    Logging::LogDebug("AudioManager") << "Changing track to: " << music << "\n";
     if (mCurrentMusicTrack && Mix_PlayingMusicStream(mCurrentMusicTrack))
     {
         Mix_FadeOutMusicStream(mCurrentMusicTrack, 1000);
@@ -23,6 +24,7 @@ void AudioManager::ChangeMusicTrack(MusicIndex music)
 
 void AudioManager::PlaySound(SoundIndex sound)
 {
+    Logging::LogDebug("AudioManager") << "Playing sound: " << sound << "\n";
     std::visit(overloaded{
         [](Mix_Music* music){
             Mix_PlayMusicStream(music, 1);
@@ -110,6 +112,9 @@ AudioManager::AudioManager()
     }
 
     Mix_VolumeMusic(sAudioVolume);
+    Mix_SetMidiPlayer(MIDI_ADLMIDI);
+    //Mix_SetMidiPlayer(MIDI_OPNMIDI);
+    //Mix_SetMidiPlayer(MIDI_Fluidsynth);
 }
 
 AudioManager::~AudioManager()
