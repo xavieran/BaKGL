@@ -71,7 +71,21 @@ public:
 
     constexpr Bounded(ConcreteType&&) noexcept = default;
     constexpr ConcreteType& operator=(ConcreteType&&) noexcept = default;
-
-
 };
+
+namespace std {
+
+template <
+    typename StrongT,
+    typename StrongT::UnderlyingType min,
+    typename StrongT::UnderlyingType max>
+struct hash<Bounded<StrongT, min, max>>
+{
+	std::size_t operator()(const Bounded<StrongT, min, max>& t) const noexcept
+	{
+		return std::hash<StrongT>{}(t);
+	}
+};
+
+}
 

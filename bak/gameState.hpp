@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
 #include "bak/container.hpp"
 #include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
@@ -320,9 +322,18 @@ public:
                 try
                 {
                     mLogger.Debug() << "Playing sound: " << sound << "\n";
-                    //SoundData data = SoundResource::GetInstance()->GetSoundData(sound.mSoundIndex);
-                    //assert(data.sounds.size() > 0);
-                    //unsigned int channel = MediaToolkit::GetInstance()->GetAudio()->PlaySound ( data.sounds[0]->GetSamples() );
+                    if (sound.mSoundIndex == 0)
+                    {
+                        AudioA::AudioManager::Get().StopMusicTrack();
+                    }
+                    else if (sound.mSoundIndex < 134)
+                    {
+                        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
+                    }
+                    else if (sound.mSoundIndex > 1000)
+                    {
+                        AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
+                    }
                 }
                 catch (SDL_Exception& e)
                 {

@@ -35,6 +35,11 @@ std::ostream& LogFatal(const std::string& loggerName)
     return LogState::Log(Logging::LogLevel::Fatal, loggerName);
 }
 
+std::ostream& LogError(const std::string& loggerName)
+{
+    return LogState::Log(Logging::LogLevel::Error, loggerName);
+}
+
 std::ostream& LogInfo(const std::string& loggerName)
 {
     return LogState::Log(Logging::LogLevel::Info, loggerName);

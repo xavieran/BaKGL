@@ -1,15 +1,20 @@
 #pragma once
 
 #include "com/logger.hpp"
-
-#include "SDL_Audio.h"
+#include "com/strongType.hpp"
+#include "com/visit.hpp"
 
 #include <SDL2/SDL.h>
-#include "SDL_mixer_ext.h"
+//#include <SDL2/SDL_Audio.h>
+#include "SDL_mixer_ext/SDL_mixer_ext.h"
 
 #include <ostream>
+#include <variant>
 
-namespace Audio {
+namespace AudioA {
+
+using SoundIndex = Bounded<StrongType<unsigned, struct SoundIndexTag>, 1, 134>;
+using MusicIndex = Bounded<StrongType<unsigned, struct MusicIndexTag>, 1001, 1063>;
 
 class AudioManager
 {
@@ -18,34 +23,31 @@ class AudioManager
     static constexpr auto sAudioChannels{MIX_DEFAULT_CHANNELS};
     static constexpr auto sAudioBuffers{4096};
     static constexpr auto sAudioVolume{MIX_MAX_VOLUME};
+    static constexpr auto sMusicTempo{0.9};
 
-    AudioManager()
-    {
-        if (SDL_Init(SDL_INIT_AUDIO) < 0)
-        {
-            Logging::LogDebug("Audio") << "Couldn't initialize SDL: "
-                << SDL_GetError() << std::endl;
-        }
+public:
+    static AudioManager& Get();
 
-        if (Mix_OpenAudio(sAudioRate, sAudioFormat, sAudioChannels, sAudioBuffers) < 0)
-        {
-            Logging::LogDebug("Audio") << "Couldn't initialize SDL: "
-                << SDL_GetError() << std::endl;
-        }
+    void ChangeMusicTrack(MusicIndex);
+    void PauseMusicTrack();
+    void PlayMusicTrack();
+    void StopMusicTrack();
 
-        Mix_VolumeMusic(sAudioVolume);
-    }
+    void PlaySound(SoundIndex);
 
-    ~AudioManager()
-    {
-        if (Mix_PlayingMusic())
-        {
-            Mix_FadeOutMusic(500);
-            SDL_Delay(500);
-            Mix_CloseAudio();
-            SDL_Quit();
-        }
-    }
+private:
+    using Sound = std::variant<Mix_Music*, Mix_Chunk*>;
+    Sound GetSound(SoundIndex);
+
+    Mix_Music* GetMusic(MusicIndex);
+
+    AudioManager();
+    ~AudioManager();
+
+    Mix_Music* mCurrentMusicTrack;
+    std::unordered_map<SoundIndex, Sound> mSoundData;
+    std::unordered_map<MusicIndex, Mix_Music*> mMusicData;
+    
 };
 
 }
