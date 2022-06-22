@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
 #include "bak/lock.hpp"
 #include "bak/IContainer.hpp"
 #include "bak/dialogSources.hpp"
@@ -40,6 +42,12 @@ class LockScreen :
 public:
     static constexpr auto sLayoutFile = "REQ_INV.DAT";
     static constexpr auto sBackground = "INVENTOR.SCX";
+
+    static constexpr auto sPickBrokeSound = AudioA::SoundIndex{0x5};
+    static constexpr auto sPickedLockSound = AudioA::SoundIndex{0x16};
+    static constexpr auto sUseKeySound = AudioA::SoundIndex{0x1e};
+    static constexpr auto sKeyBrokeSound  = AudioA::SoundIndex{0x2b};
+    static constexpr auto sOpenLockSound  = AudioA::SoundIndex{30};
 
     // Request offsets
     static constexpr auto mContainerTypeRequest = 3;
@@ -284,6 +292,7 @@ private:
         {
             if (BAK::CanPickLock(skill, lockRating))
             {
+                AudioA::AudioManager::Get().PlaySound(sPickedLockSound);
                 GetCharacter(*mSelectedCharacter)
                     .ImproveSkill(BAK::SkillType::Lockpick, 3, 2);
                 mGuiManager.AddAnimator(
@@ -315,6 +324,7 @@ private:
                     // Remove a picklock from inventory...
                     dialog = BAK::DialogSources::mPicklockBroken;
                     mGameState.GetParty().RemoveItem('P', 1);
+                    AudioA::AudioManager::Get().PlaySound(sPickBrokeSound);
                 }
                 else
                 {
@@ -324,8 +334,10 @@ private:
         }
         else
         {
+            AudioA::AudioManager::Get().PlaySound(sUseKeySound);
             if (BAK::TryOpenLockWithKey(item, lockRating))
             {
+                AudioA::AudioManager::Get().PlaySound(sOpenLockSound);
                 // succeeded..
                 ASSERT(BAK::GetLockIndex(lockRating));
                 mGameState.MarkLockSeen(*BAK::GetLockIndex(lockRating));
@@ -350,6 +362,7 @@ private:
                 {
                     mGameState.GetParty().RemoveItem(item.mItemIndex.mValue, 1);
                     dialog = BAK::DialogSources::mKeyBroken;
+                    AudioA::AudioManager::Get().PlaySound(sKeyBrokeSound);
                 }
                 else
                 {

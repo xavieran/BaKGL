@@ -82,6 +82,25 @@ struct Console : public std::streambuf
         AudioA::AudioManager::Get().StopMusicTrack();
     }
 
+    void SwitchMidiPlayer(const std::vector<std::string>& words)
+    {
+        if (words.size() < 1)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: SWITCH_MIDI_PLAYER MIDI_PLAYER [0, 1, 2] (%s)", ss.str().c_str());
+            return;
+        }
+
+        std::stringstream ss{};
+        ss << words[1];
+        unsigned midiPlayer;
+        ss >> std::setbase(0) >> midiPlayer;
+
+        AudioA::AudioManager::Get().SwitchMidiPlayer(static_cast<AudioA::MidiPlayer>(midiPlayer));
+    }
+
     void PlayMusic(const std::vector<std::string>& words)
     {
         if (words.size() < 1)
@@ -331,6 +350,9 @@ struct Console : public std::streambuf
 
         mCommands.push_back("STOP_MUSIC");
         mCommandActions.emplace_back([this](const auto& cmd){ StopMusic(cmd); });
+
+        mCommands.push_back("SWITCH_MIDI_PLAYER");
+        mCommandActions.emplace_back([this](const auto& cmd){ SwitchMidiPlayer(cmd); });
 
         mCommands.push_back("PLAY_SOUND");
         mCommandActions.emplace_back([this](const auto& cmd){ PlaySound(cmd); });

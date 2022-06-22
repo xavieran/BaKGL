@@ -352,6 +352,7 @@ void InventoryScreen::TransferItemFromContainerToCharacter(
             mContainer->GetInventory().RemoveItem(item);
         else
             mContainer->GetInventory().RemoveItem(slot.GetItemIndex());
+
         AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
     }
     else
@@ -370,6 +371,8 @@ void InventoryScreen::SellItem(
 
     GetCharacter(character).GetInventory()
         .RemoveItem(slot.GetItemIndex());
+
+    AudioA::AudioManager::Get().PlaySound(BUY_SOUND);
 
     mNeedRefresh = true;
 }

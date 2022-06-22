@@ -8,6 +8,7 @@
 #include "SDL_mixer_ext/SDL_mixer_ext.h"
 
 #include <ostream>
+#include <stack>
 #include <variant>
 
 namespace AudioA {
@@ -20,6 +21,13 @@ static constexpr auto BAD_BARD  = MusicIndex{1008};
 static constexpr auto POOR_BARD = MusicIndex{1040};
 static constexpr auto GOOD_BARD = MusicIndex{1039};
 static constexpr auto BEST_BARD = MusicIndex{1007};
+
+enum class MidiPlayer
+{
+    ADLMIDI = 0,
+    OPNMIDI = 1,
+    FluidSynth = 2
+};
 
 class AudioManager
 {
@@ -40,16 +48,23 @@ public:
 
     void PlaySound(SoundIndex);
 
+    void SwitchMidiPlayer(MidiPlayer);
+
 private:
     using Sound = std::variant<Mix_Music*, Mix_Chunk*>;
     Sound GetSound(SoundIndex);
 
     Mix_Music* GetMusic(MusicIndex);
 
+    static void RewindMusic(Mix_Music*, void*);
+
+    void ClearSounds();
+
     AudioManager();
     ~AudioManager();
 
     Mix_Music* mCurrentMusicTrack;
+    std::stack<Mix_Music*> mMusicStack;
     std::unordered_map<SoundIndex, Sound> mSoundData;
     std::unordered_map<MusicIndex, Mix_Music*> mMusicData;
     

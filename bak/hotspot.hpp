@@ -93,7 +93,7 @@ std::ostream& operator<<(std::ostream&, const Hotspot&);
 class SceneHotspots
 {
 public:
-    SceneHotspots(FileBuffer&&);
+    explicit SceneHotspots(FileBuffer&&);
 
     std::string mSceneTTM;
     std::string mSceneADS;

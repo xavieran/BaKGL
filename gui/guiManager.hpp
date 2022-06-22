@@ -8,6 +8,7 @@
 
 #include "com/assert.hpp"
 
+#include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 
 #include "gui/animatorStore.hpp"
@@ -125,10 +126,11 @@ public:
         mZoneLoader{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
     {
+        mGdsScenes.reserve(4);
         AddChildBack(&mScreenStack);
     }
 
-    virtual ScreenStack& GetScreenStack() override
+    ScreenStack& GetScreenStack() override
     {
         return mScreenStack;
     }
@@ -173,6 +175,7 @@ public:
     {
         mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         mCursor.PushCursor(0);
+
         mGdsScenes.emplace_back(
             std::make_unique<GDSScene>(
                 mCursor,
@@ -184,21 +187,19 @@ public:
                 mGameState,
                 static_cast<IGuiManager&>(*this)));
         mGuiScreens.push(std::move(finished));
-        mScreenStack.PushScreen(mGdsScenes.back().get());
-        const auto song = mGdsScenes.back().get()->GetSong();
-        mLogger.Debug() << __FUNCTION__ << "Current song is: " << song << "\n";
+        const auto song = mGdsScenes.back()->GetSong();
         if (song != 0)
         {
-            // FIXME: This causes problems when entered via DO_TELEPORT
-            //AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{song});
+            AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{song});
         }
+
+        mScreenStack.PushScreen(mGdsScenes.back().get());
     }
 
     void ExitGDSScene() override
     {
         mLogger.Debug() << "Exiting GDS Scene" << std::endl;
         RemoveGDSScene(true);
-        //AudioA::AudioManager::Get().StopMusicTrack();
     }
 
     void RemoveGDSScene(bool runFinished=false)
@@ -211,6 +212,16 @@ public:
             PopGuiScreen();
         mGdsScenes.pop_back();
         mLogger.Debug() << "Removed GDS Scene" << std::endl;
+        if (mGdsScenes.size() > 0
+            && mScreenStack.Top() == mGdsScenes.back().get())
+        {
+            AudioA::AudioManager::Get().ChangeMusicTrack(
+                AudioA::MusicIndex{mGdsScenes.back()->GetSong()});
+        }
+        else
+        {
+            AudioA::AudioManager::Get().StopMusicTrack();
+        }
     }
 
     void StartDialog(

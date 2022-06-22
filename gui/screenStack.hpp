@@ -60,6 +60,17 @@ public:
         PopChild();
     }
 
+    Widget* Top()
+    {
+        assert(mChildren.size() > 0);
+        return mChildren.back();
+    }
+
+    bool HasChildren()
+    {
+        return mChildren.size() > 0;
+    }
+
 private:
 
     const Logging::Logger& mLogger;

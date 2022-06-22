@@ -41,8 +41,8 @@ Sound I: 55 data: RUSTLE
 Sound I: 56 data: TORCH
 Sound I: 57 data: TRAPEXPL
 Sound I: 58 data: MCREATE
-Sound I: 59 data: MDETECT
-Sound I: 60 data: BUY
+Sound I: 59 data: MDETECT -- e.g. spyglass?
+Sound I: 60 data: BY
 Sound I: 61 data: DRAG
 Sound I: 62 data: BLESS
 Sound I: 63 data: HEAL

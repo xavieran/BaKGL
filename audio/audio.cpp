@@ -1,5 +1,6 @@
 #include "audio/audio.hpp"
 
+#include "SDL_mixer.h"
 #include "xbak/SoundResource.h"
 
 namespace AudioA {
@@ -15,11 +16,13 @@ void AudioManager::ChangeMusicTrack(MusicIndex music)
     Logging::LogDebug("AudioManager") << "Changing track to: " << music << "\n";
     if (mCurrentMusicTrack && Mix_PlayingMusicStream(mCurrentMusicTrack))
     {
-        Mix_FadeOutMusicStream(mCurrentMusicTrack, 1000);
+        Mix_CrossFadeMusicStream(mCurrentMusicTrack, GetMusic(music), -1, 1000, 0);
     }
-
+    else
+    {
+        Mix_FadeInMusicStream(GetMusic(music), -1, 1000);
+    }
     mCurrentMusicTrack = GetMusic(music);
-    Mix_PlayMusicStream(mCurrentMusicTrack, -1);
 }
 
 void AudioManager::PlaySound(SoundIndex sound)
@@ -28,6 +31,7 @@ void AudioManager::PlaySound(SoundIndex sound)
     std::visit(overloaded{
         [](Mix_Music* music){
             Mix_PlayMusicStream(music, 1);
+            Mix_HookMusicStreamFinished(music, &AudioManager::RewindMusic, nullptr);
         },
         [](Mix_Chunk* chunk){
             
@@ -35,11 +39,29 @@ void AudioManager::PlaySound(SoundIndex sound)
         GetSound(sound));
 }
 
+void AudioManager::RewindMusic(Mix_Music* music, void*)
+{
+    // This seems to be necessary for some midi snippets that e.g. 61 DRAG
+    // that stop playing back after they've been played once or twice...
+    //Mix_RewindMusicStream(music);
+    Mix_FreeMusic(music);
+    auto& soundData = Get().mSoundData;
+    soundData.erase(
+        std::find_if(
+            soundData.begin(),
+            soundData.end(),
+            [music](const auto& sound)
+            {
+                return std::holds_alternative<Mix_Music*>(sound.second) 
+                    && std::get<Mix_Music*>(sound.second) == music;
+            }));
+}
+
 void AudioManager::StopMusicTrack()
 {
     if (mCurrentMusicTrack)
     {
-        Mix_HaltMusicStream(mCurrentMusicTrack);
+        Mix_FadeOutMusicStream(mCurrentMusicTrack, 2000);
         mCurrentMusicTrack = nullptr;
     }
 }
@@ -55,7 +77,6 @@ Mix_Music* AudioManager::GetMusic(MusicIndex music)
         if (!rwops)
         {
             Logging::LogError("AudioManager") << SDL_GetError() << std::endl;
-            //throw;
         }
         Mix_Music* musicData = Mix_LoadMUS_RW(rwops, 0);
         if (!musicData)
@@ -82,7 +103,6 @@ AudioManager::Sound AudioManager::GetSound(SoundIndex sound)
         if (!rwops)
         {
             Logging::LogError("AudioManager") << SDL_GetError() << std::endl;
-            //throw;
         }
         Mix_Music* musicData = Mix_LoadMUS_RW(rwops, 0);
         if (!musicData)
@@ -113,19 +133,59 @@ AudioManager::AudioManager()
 
     Mix_VolumeMusic(sAudioVolume);
     Mix_SetMidiPlayer(MIDI_ADLMIDI);
-    //Mix_SetMidiPlayer(MIDI_OPNMIDI);
-    //Mix_SetMidiPlayer(MIDI_Fluidsynth);
+}
+
+void AudioManager::SwitchMidiPlayer(MidiPlayer midiPlayer)
+{
+    ClearSounds();
+
+    switch (midiPlayer)
+    {
+    case MidiPlayer::ADLMIDI:
+        Mix_SetMidiPlayer(MIDI_ADLMIDI);
+        break;
+    case MidiPlayer::OPNMIDI:
+        Mix_SetMidiPlayer(MIDI_OPNMIDI);
+        break;
+    case MidiPlayer::FluidSynth:
+        Mix_SetMidiPlayer(MIDI_Fluidsynth);
+        break;
+    default:
+        throw std::runtime_error("Invalid midi player type");
+    }
+}
+
+void AudioManager::ClearSounds()
+{
+    mCurrentMusicTrack = nullptr;
+
+    for (auto& [_, music] : mMusicData)
+    {
+        Mix_HaltMusicStream(music);
+        Mix_FreeMusic(music);
+    }
+    mMusicData.clear();
+
+    for (auto& [_, sound] : mSoundData)
+    {
+        std::visit(overloaded{
+            [](Mix_Music* music){
+                Mix_HaltMusicStream(music);
+                Mix_FreeMusic(music);
+            },
+            [](Mix_Chunk* chunk){
+                Mix_FreeChunk(chunk);
+            }},
+            sound);
+    }
+    mSoundData.clear();
 }
 
 AudioManager::~AudioManager()
 {
-    if (Mix_PlayingMusic())
-    {
-        Mix_FadeOutMusic(500);
-        SDL_Delay(500);
-        Mix_CloseAudio();
-        SDL_Quit();
-    }
+    ClearSounds();
+    Mix_CloseAudio();
+    SDL_Quit();
 }
 
 }

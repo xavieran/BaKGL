@@ -2,6 +2,8 @@
 
 #include "game/interactable/IInteractable.hpp"
 
+#include "audio/audio.hpp"
+
 #include "bak/IContainer.hpp"
 #include "bak/container.hpp"
 #include "bak/dialog.hpp"
@@ -24,6 +26,8 @@ private:
         DisarmedTrap,
         Exploded
     };
+
+    static constexpr auto sExploded = AudioA::SoundIndex{0x39};
 
 public:
     Chest(
@@ -78,6 +82,7 @@ public:
             {
                 ASSERT(chest.GetLock().mLockFlag == 1);
                 StartDialog(BAK::DialogSources::mOpenExplodedChest);
+                AudioA::AudioManager::Get().PlaySound(sExploded);
             }
             else
             {

@@ -35,6 +35,7 @@ GDSScene::GDSScene(
     mSceneHotspots{
         FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
+    mSong{mSceneHotspots.mSong},
     mFlavourText{BAK::KeyTarget{0x00000}},
     mSpriteSheet{GetDrawInfo().mSpriteSheet},
     mSpriteManager{spriteManager},
@@ -65,6 +66,7 @@ GDSScene::GDSScene(
     mKickedOut{false},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
+    mLogger.Debug() << "Song: " << mSong << "\n";
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(
         textures, "DIALOG.SCX", "OPTIONS.PAL");

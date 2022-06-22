@@ -34,7 +34,7 @@ public:
 
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
-    auto GetSong() const { return mSceneHotspots.mSong; }
+    auto GetSong() const { return mSong; }
 
 public:
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot);
@@ -48,6 +48,7 @@ public:
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;
     BAK::SceneHotspots mSceneHotspots;
+    unsigned mSong;
     BAK::Target mFlavourText;
 
     Graphics::SpriteSheetIndex mSpriteSheet;
