@@ -3,11 +3,18 @@
 ![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
-Reimplementation of Betrayal at Krondor using OpenGL for true 3D graphics.
-
-Main goals are to get the game running (graphics, world exploration, story, and eventually combat).
+Reimplementation of Betrayal at Krondor using OpenGL.
 
 Reuses much of the original work of xbak (http://xbak.sourceforge.net/) but I am rewriting/replacing xbak functionality as necessary.
+
+# Features
+* World exploration
+* Towns
+* Dialog
+* Event state tracking
+* Music and sound
+* Shops and inventory
+* World map
 
 # Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
@@ -50,6 +57,8 @@ $ main3d --save BetrayalAtKrondor/GAMES/TOWN.G06/SAVE02.GAM
 # Screenshots
 ![waterfall_ui](screenshots/waterfall_ui.png?raw=true "Waterfall near Tyr-Sog with UI")
 
-![waterfall](screenshots/waterfall.png?raw=true "Waterfall near Tyr-Sog")
+![northlands](screenshots/northlands.png?raw=true "Town in Northlands")
+
+![sumani](screenshots/sumani.png?raw=true "Lamut Inn")
 
 ![macmordain](screenshots/macmordain.png?raw=true "Mac Mordain Cadall")
