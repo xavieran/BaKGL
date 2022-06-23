@@ -50,8 +50,9 @@ public:
         }
         else
         {
-            ASSERT(it != mInventory.GetItems().end());
+            return false;
         }
+
         return true;
     }
 

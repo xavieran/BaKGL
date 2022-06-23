@@ -245,14 +245,13 @@ public:
     auto GetScale() const { return mScale; }
     bool GetClickable() const
     {
-        return static_cast<unsigned>(mEntityType) > 5;
+        //return static_cast<unsigned>(mEntityType) > 5;
         for (std::string s : {
             "ground",
             "genmtn",
             "zero",
             "one",
             "bridge",
-            "cryst", // this might not be true
             "fence",
             "tree",
             "db0",

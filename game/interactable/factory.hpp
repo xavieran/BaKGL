@@ -3,6 +3,7 @@
 #include "game/interactable/IInteractable.hpp"
 #include "game/interactable/building.hpp"
 #include "game/interactable/chest.hpp"
+#include "game/interactable/door.hpp"
 #include "game/interactable/generic.hpp"
 #include "game/interactable/ladder.hpp"
 #include "game/interactable/tomb.hpp"
@@ -48,6 +49,7 @@ enum class InteractableType
     Ladder      = 36,
 };
 
+std::string_view ToString(InteractableType);
 
 class InteractableFactory
 {
@@ -69,6 +71,8 @@ public:
         constexpr auto nonInteractables = 6;
         const auto interactableType = static_cast<InteractableType>(
                 static_cast<unsigned>(entity) - nonInteractables);
+
+        Logging::LogDebug(__FUNCTION__) << " Handling: " << ToString(interactableType) << "\n";
 
         const auto MakeGeneric = [this](BAK::Target dialog){
             return std::make_unique<Generic>(
@@ -103,6 +107,11 @@ public:
             return MakeGeneric(BAK::DialogSources::mBody);
         case InteractableType::Campfire:
             return MakeGeneric(BAK::DialogSources::mCampfire);
+        case InteractableType::Door:
+            return std::make_unique<Door>(
+                mGuiManager,
+                BAK::DialogSources::mUnknownObject,
+                [](auto){});
         case InteractableType::Corn:
             return MakeGeneric(BAK::DialogSources::mCorn);
         case InteractableType::CrystalTree:
@@ -135,8 +144,9 @@ public:
             return MakeGeneric(BAK::DialogSources::mUnknownObject);
         default:
             Logging::LogFatal(__FUNCTION__) << "Unhandled entity type: " 
-                << static_cast<unsigned>(entity) << std::endl;
-            ASSERT(false);
+                << static_cast<unsigned>(entity) << " interactableType: "
+                << ToString(interactableType) << std::endl;
+            //ASSERT(false);
             return MakeGeneric(BAK::DialogSources::mUnknownObject);
         }
     }

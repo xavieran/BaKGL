@@ -18,7 +18,7 @@ std::string ToUpper(std::string_view str)
 }
 
 std::vector<std::string> SplitString(
-    const std::string delim,
+    std::string delim,
     std::string input)
 {
     std::vector<std::string> words{};

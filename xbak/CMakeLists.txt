@@ -2,6 +2,7 @@ file(GLOB SOURCE_FILES *.cc)
 file(GLOB HEADER_FILES *.h)
 add_library(xbak ${SOURCE_FILES} ${HEADER_FILES})
     
+set_target_properties(xbak PROPERTIES CMAKE_CXX_CLANG_TIDY "")
 target_link_libraries(xbak
     com
     SDL2

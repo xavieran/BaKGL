@@ -15,6 +15,7 @@ string(CONCAT CXX_IGNORES
     )
 
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (MSVC)
     set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302")
@@ -43,7 +44,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")
 
-#set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=*,-llvmlibc-*,-modernize-use-trailing-return-type")
+#set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*")
 
 # --- Put all binaries in the root of the build dir ---
 set(
@@ -142,9 +143,13 @@ FetchContent_Declare(
     GIT_TAG f7d4549e98afd6436791a70c1cf9b79781895dc1
 )
 
+# This package spams installs...
+set(CMAKE_INSTALL_MESSAGE LAZY)
+
 FetchContent_GetProperties(SDLMixerX)
 if(NOT SDLMixerX_POPULATED)
     FetchContent_Populate(SDLMixerX)
+
 
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
     set(BUILD_SHARED_LIBS OFF)
@@ -190,6 +195,7 @@ add_subdirectory("app")
 add_subdirectory("audio")
 add_subdirectory("bak")
 add_subdirectory("com")
+add_subdirectory("game")
 add_subdirectory("graphics")
 add_subdirectory("gui")
 add_subdirectory("imgui")
