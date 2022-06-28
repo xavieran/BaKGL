@@ -8,6 +8,7 @@
 #include "SDL_mixer_ext/SDL_mixer_ext.h"
 
 #include <ostream>
+#include <queue>
 #include <stack>
 #include <variant>
 
@@ -38,6 +39,8 @@ class AudioManager
     static constexpr auto sAudioVolume{MIX_MAX_VOLUME};
     static constexpr auto sMusicTempo{0.9};
 
+    using Sound = std::variant<Mix_Music*, Mix_Chunk*>;
+
 public:
     static AudioManager& Get();
 
@@ -47,11 +50,11 @@ public:
     void StopMusicTrack();
 
     void PlaySound(SoundIndex);
+    void PlaySoundImpl(SoundIndex);
 
     void SwitchMidiPlayer(MidiPlayer);
 
 private:
-    using Sound = std::variant<Mix_Music*, Mix_Chunk*>;
     Sound GetSound(SoundIndex);
 
     Mix_Music* GetMusic(MusicIndex);
@@ -65,6 +68,9 @@ private:
 
     Mix_Music* mCurrentMusicTrack;
     std::stack<Mix_Music*> mMusicStack;
+    std::queue<SoundIndex> mSoundQueue;
+    bool mSoundPlaying;
+
     std::unordered_map<SoundIndex, Sound> mSoundData;
     std::unordered_map<MusicIndex, Mix_Music*> mMusicData;
     

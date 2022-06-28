@@ -11,23 +11,47 @@ AudioManager& AudioManager::Get()
     return audioManager;
 }
 
-void AudioManager::ChangeMusicTrack(MusicIndex music)
+void AudioManager::ChangeMusicTrack(MusicIndex musicI)
 {
-    Logging::LogDebug("AudioManager") << "Changing track to: " << music << "\n";
+    Logging::LogDebug("AudioManager") << "Changing track to: " << musicI << "\n";
+    auto* music = GetMusic(musicI);
+
+    if (music == mCurrentMusicTrack)
+        return;
+
+    const auto startTime = Mix_GetMusicLoopStartTime(music);
+    Logging::LogDebug("AudioManager") << "TRack has loop start time of : " << startTime << "\n";
+
     if (mCurrentMusicTrack && Mix_PlayingMusicStream(mCurrentMusicTrack))
     {
-        Mix_CrossFadeMusicStream(mCurrentMusicTrack, GetMusic(music), -1, 1000, 0);
+        Mix_CrossFadeMusicStream(mCurrentMusicTrack, music, -1, 1000, 0);
     }
     else
     {
-        Mix_FadeInMusicStream(GetMusic(music), -1, 1000);
+        Mix_FadeInMusicStream(music, -1, 1000);
     }
-    mCurrentMusicTrack = GetMusic(music);
+    mCurrentMusicTrack = music;
 }
 
 void AudioManager::PlaySound(SoundIndex sound)
 {
     Logging::LogDebug("AudioManager") << "Playing sound: " << sound << "\n";
+
+    if (!mSoundPlaying)
+    {
+        PlaySoundImpl(sound);
+    }
+    else
+    {
+        mSoundQueue.emplace(sound);
+    }
+}
+
+void AudioManager::PlaySoundImpl(SoundIndex sound)
+{
+    Logging::LogDebug("AudioManager") << "Playing sound\n";
+
+    mSoundPlaying = true;
     std::visit(overloaded{
         [](Mix_Music* music){
             Mix_PlayMusicStream(music, 1);
@@ -55,6 +79,15 @@ void AudioManager::RewindMusic(Mix_Music* music, void*)
                 return std::holds_alternative<Mix_Music*>(sound.second) 
                     && std::get<Mix_Music*>(sound.second) == music;
             }));
+
+    Get().mSoundPlaying = false;
+
+    if (!Get().mSoundQueue.empty())
+    {
+        auto sound = Get().mSoundQueue.front();
+        Get().mSoundQueue.pop();
+        Get().PlaySoundImpl(sound);
+    }
 }
 
 void AudioManager::StopMusicTrack()
@@ -118,6 +151,13 @@ AudioManager::Sound AudioManager::GetSound(SoundIndex sound)
 }
 
 AudioManager::AudioManager()
+:
+    mCurrentMusicTrack{nullptr},
+    mMusicStack{},
+    mSoundQueue{},
+    mSoundPlaying{},
+    mSoundData{},
+    mMusicData{}
 {
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {

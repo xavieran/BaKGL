@@ -129,14 +129,13 @@ public:
                                 250,
                                 item.GetLocation()});
                         mClickables.emplace(id, &item);
-                        mSystems->AddRenderable(
-                            Renderable{
-                                id,
-                                mZoneData->mObjects.GetObject("clickable"),
-                                item.GetLocation(),
-                                glm::vec3{1.0},
-                                glm::vec3{1.0}});
-
+                        //mSystems->AddRenderable(
+                        //    Renderable{
+                        //        id,
+                        //        mZoneData->mObjects.GetObject("clickable"),
+                        //        item.GetLocation(),
+                        //        glm::vec3{1.0},
+                        //        glm::vec3{1.0}});
                     }
                 }
             }
