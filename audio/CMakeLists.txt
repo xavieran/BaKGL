@@ -4,7 +4,7 @@ add_library(audio
 )
 
 target_link_libraries(audio
-    xbak
+    bak
     SDL2
     SDL2_mixer_ext_Static
 )

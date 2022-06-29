@@ -35,7 +35,7 @@ public:
     SoundData();
     ~SoundData();
     std::string name;
-    unsigned int type;
+    unsigned type;
     std::vector<Sound *> sounds;
 };
 

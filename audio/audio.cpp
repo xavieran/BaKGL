@@ -1,7 +1,8 @@
 #include "audio/audio.hpp"
 
+#include "bak/soundStore.hpp"
+
 #include "SDL_mixer.h"
-#include "xbak/SoundResource.h"
 
 namespace AudioA {
 
@@ -20,7 +21,6 @@ void AudioManager::ChangeMusicTrack(MusicIndex musicI)
         return;
 
     const auto startTime = Mix_GetMusicLoopStartTime(music);
-    Logging::LogDebug("AudioManager") << "TRack has loop start time of : " << startTime << "\n";
 
     if (mCurrentMusicTrack && Mix_PlayingMusicStream(mCurrentMusicTrack))
     {
@@ -103,9 +103,9 @@ Mix_Music* AudioManager::GetMusic(MusicIndex music)
 {
     if (!mMusicData.contains(music))
     {
-        auto& data = SoundResource::GetInstance()->GetSoundData(music.mValue);
-        ASSERT(data.sounds.size() > 0);
-        auto* fb = data.sounds[0]->GetSamples();
+        auto& data = BAK::SoundStore::Get().GetSoundData(music.mValue);
+        ASSERT(data.GetSounds().size() > 0);
+        auto* fb = data.GetSounds()[0].GetSamples();
         auto* rwops = SDL_RWFromMem(fb->GetCurrent(), fb->GetSize());
         if (!rwops)
         {
@@ -129,9 +129,9 @@ AudioManager::Sound AudioManager::GetSound(SoundIndex sound)
 {
     if (!mSoundData.contains(sound))
     {
-        auto& data = SoundResource::GetInstance()->GetSoundData(sound.mValue);
-        ASSERT(data.sounds.size() > 0);
-        auto* fb = data.sounds[0]->GetSamples();
+        auto& data = BAK::SoundStore::Get().GetSoundData(sound.mValue);
+        ASSERT(data.GetSounds().size() > 0);
+        auto* fb = data.GetSounds()[0].GetSamples();
         auto* rwops = SDL_RWFromMem(fb->GetCurrent(), fb->GetSize());
         if (!rwops)
         {

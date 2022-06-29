@@ -209,7 +209,6 @@ FileBuffer FileBuffer::Find(std::uint32_t tag) const
                 mBufferSize,
                 0};
         }
-
     }
 
     std::stringstream ss{};

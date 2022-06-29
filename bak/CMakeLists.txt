@@ -37,6 +37,8 @@ add_library(bak
     sceneData.hpp sceneData.cpp
     screens.hpp
     shop.hpp shop.cpp
+    sound.hpp sound.cpp
+    soundStore.hpp soundStore.cpp
     skills.hpp skills.cpp
     textureFactory.hpp textureFactory.cpp
     worldClock.hpp worldClock.cpp

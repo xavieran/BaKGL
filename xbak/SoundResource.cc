@@ -159,10 +159,9 @@ void SoundResource::Load(FileBuffer *buffer)
                     {
                         //std::cout << "Adding voice\n";
                         sndbuf->Seek(offsetVec[j]);
-                        FileBuffer *samplebuf = new FileBuffer(sizeVec[j]);
-                        samplebuf->Fill(sndbuf);
-                        sound->AddVoice(samplebuf);
-                        delete samplebuf;
+                        FileBuffer samplebuf{sizeVec[j]};
+                        samplebuf.Fill(sndbuf);
+                        sound->AddVoice(&samplebuf);
                     }
                     sound->GenerateBuffer();
                     data.sounds.push_back(sound);
