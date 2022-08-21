@@ -38,6 +38,7 @@ class AudioManager
     static constexpr auto sAudioBuffers{4096};
     static constexpr auto sAudioVolume{MIX_MAX_VOLUME};
     static constexpr auto sMusicTempo{0.9};
+    static constexpr auto sFadeOutTime{1500};
 
     using Sound = std::variant<Mix_Music*, Mix_Chunk*>;
 
@@ -45,6 +46,7 @@ public:
     static AudioManager& Get();
 
     void ChangeMusicTrack(MusicIndex);
+    void PopTrack();
     void PauseMusicTrack();
     void PlayMusicTrack();
     void StopMusicTrack();
@@ -55,6 +57,8 @@ public:
     void SwitchMidiPlayer(MidiPlayer);
 
 private:
+    void PlayTrack(Mix_Music* music);
+
     Sound GetSound(SoundIndex);
 
     Mix_Music* GetMusic(MusicIndex);

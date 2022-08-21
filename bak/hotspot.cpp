@@ -69,6 +69,7 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
     logger.Spam() << "Unknown data2: " << std::hex 
         << unknownData2 << std::dec << "\n";
     mSong = fb.GetUint16LE();
+    logger.Spam() << "Song : " << mSong << "\n";
     const auto unknownIndex = fb.GetUint16LE();
     logger.Spam() << "UnknownIndex: " << unknownIndex << "\n";
     // For all towns, scene index1.

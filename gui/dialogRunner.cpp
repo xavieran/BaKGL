@@ -1,5 +1,7 @@
 #include "gui/dialogRunner.hpp"
 
+#include "audio/audio.hpp"
+
 namespace Gui {
 
 DialogRunner::DialogRunner(
@@ -417,6 +419,7 @@ void DialogRunner::CompleteDialog()
     mCurrentTarget.reset();
     mRemainingText.clear();
     std::invoke(mFinished, GetLastChoice());
+    AudioA::AudioManager::Get().PopTrack();
     // reset last choice...?
 }
 

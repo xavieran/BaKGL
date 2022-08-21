@@ -82,7 +82,6 @@ public:
             {
                 ASSERT(chest.GetLock().mLockFlag == 1);
                 StartDialog(BAK::DialogSources::mOpenExplodedChest);
-                AudioA::AudioManager::Get().PlaySound(sExploded);
             }
             else
             {
@@ -199,6 +198,7 @@ public:
         mCurrentChest->GetLock().mTrapDamage = 0;
         StartDialog(BAK::KeyTarget{0xc0});
         mState = State::Exploded;
+        AudioA::AudioManager::Get().PlaySound(sExploded);
     }
 
     void ShowChestContents()

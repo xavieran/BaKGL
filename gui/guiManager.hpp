@@ -186,11 +186,20 @@ public:
                 mFontManager.GetGameFont(),
                 mGameState,
                 static_cast<IGuiManager&>(*this)));
-        mGuiScreens.push(std::move(finished));
+
         const auto song = mGdsScenes.back()->GetSong();
         if (song != 0)
         {
             AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{song});
+            mGuiScreens.push(GuiScreen{
+                [fin = std::move(finished)](){
+                    AudioA::AudioManager::Get().PopTrack();
+                    std::invoke(fin);
+            }});
+        }
+        else
+        {
+            mGuiScreens.push(finished);
         }
 
         mScreenStack.PushScreen(mGdsScenes.back().get());
@@ -212,16 +221,6 @@ public:
             PopGuiScreen();
         mGdsScenes.pop_back();
         mLogger.Debug() << "Removed GDS Scene" << std::endl;
-        if (mGdsScenes.size() > 0
-            && mScreenStack.Top() == mGdsScenes.back().get())
-        {
-            AudioA::AudioManager::Get().ChangeMusicTrack(
-                AudioA::MusicIndex{mGdsScenes.back()->GetSong()});
-        }
-        else
-        {
-            AudioA::AudioManager::Get().StopMusicTrack();
-        }
     }
 
     void StartDialog(

@@ -16,7 +16,13 @@ void AudioManager::ChangeMusicTrack(MusicIndex musicI)
 {
     Logging::LogDebug("AudioManager") << "Changing track to: " << musicI << "\n";
     auto* music = GetMusic(musicI);
+    mMusicStack.push(music);
 
+    PlayTrack(music);
+}
+
+void AudioManager::PlayTrack(Mix_Music* music)
+{
     if (music == mCurrentMusicTrack)
         return;
 
@@ -24,13 +30,33 @@ void AudioManager::ChangeMusicTrack(MusicIndex musicI)
 
     if (mCurrentMusicTrack && Mix_PlayingMusicStream(mCurrentMusicTrack))
     {
-        Mix_CrossFadeMusicStream(mCurrentMusicTrack, music, -1, 1000, 0);
+        Mix_CrossFadeMusicStream(mCurrentMusicTrack, music, -1, sFadeOutTime, 0);
     }
     else
     {
-        Mix_FadeInMusicStream(music, -1, 1000);
+        Mix_FadeInMusicStream(music, -1, sFadeOutTime);
     }
+
     mCurrentMusicTrack = music;
+}
+
+void AudioManager::PopTrack()
+{
+    if (mMusicStack.empty())
+        return;
+
+    if (mMusicStack.size() == 1)
+    {
+        auto* music = mMusicStack.top();
+        mMusicStack.pop();
+        mCurrentMusicTrack = nullptr;
+        Mix_FadeOutMusicStream(music, sFadeOutTime);
+    }
+    else
+    {
+        mMusicStack.pop();
+        PlayTrack(mMusicStack.top());
+    }
 }
 
 void AudioManager::PlaySound(SoundIndex sound)
