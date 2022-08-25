@@ -1,8 +1,14 @@
 #!/bin/bash
 
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo add-apt-repository ppa:savoury1/llvm-defaults-13
+# For gcc
+sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
+#sudo add-apt-repository "deb http://ppa.launchpad.net/ubuntu-toolchain-r/ppa/ubuntu kinetic main" gcc 12 is not available in 20.04...
+sudo apt-get install g++-11
 
-sudo apt-get update
+# For clang
+wget https://apt.llvm.org/llvm.sh
+chmod +x llvm.sh
+sudo ./llvm.sh 15 all
 
-sudo apt-get install clang-13 g++-11 freeglut3-dev libsdl2-dev libgl-dev libglew-dev libxinerama-dev libxcursor-dev libxi-dev libxrandr-dev libx11-dev libfluidsynth-dev
+# Other deps
+sudo apt-get install freeglut3-dev libsdl2-dev libgl-dev libglew-dev libxinerama-dev libxcursor-dev libxi-dev libxrandr-dev libx11-dev libfluidsynth-dev
