@@ -51,7 +51,8 @@ public:
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec2{0},
-            glm::vec2{320, 200}, true
+            glm::vec2{320, 200},
+            true
         },
         mGuiManager{guiManager},
         mFont{font},

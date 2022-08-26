@@ -40,8 +40,7 @@ namespace Gui {
 static constexpr auto BUY_SOUND  = AudioA::SoundIndex{60};
 static constexpr auto DRAG_SOUND = AudioA::SoundIndex{61};
 
-class InventoryScreen :
-    public Widget
+class InventoryScreen : public Widget
 {
 public:
     static constexpr auto sLayoutFile = "REQ_INV.DAT";

@@ -23,6 +23,7 @@
 #include "gui/lock/moredhelScreen.hpp"
 #include "gui/fullMap.hpp"
 #include "gui/mainView.hpp"
+#include "gui/mainMenuScreen.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -82,6 +83,7 @@ public:
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{*this, mBackgrounds, mIcons},
+        mMainMenu{*this, mBackgrounds, mFontManager.GetGameFont()},
         mInfoScreen{
             *this,
             mActors,
@@ -144,6 +146,12 @@ public:
     void EnterMainView()
     {
         mScreenStack.PushScreen(&mMainView);
+    }
+
+    void EnterMainMenu(bool gameRunning)
+    {
+        mScreenStack.PushScreen(&mMainMenu);
+        mMainMenu.EnterMainMenu(gameRunning);
     }
 
     void TeleportToGDS(
@@ -382,6 +390,7 @@ public:
     Graphics::SpriteManager& mSpriteManager;
 
     MainView mMainView;
+    MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
     LockScreen mLockScreen;

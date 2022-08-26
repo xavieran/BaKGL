@@ -11,6 +11,7 @@ add_library(gui
     hotspot.hpp
     label.hpp
     mainView.hpp
+    mainMenuScreen.hpp
     mouseEvent.hpp mouseEvent.cpp
     scene.hpp scene.cpp
     staticTTM.hpp staticTTM.cpp
