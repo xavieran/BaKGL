@@ -11,7 +11,7 @@
 #include "bak/gameState.hpp"
 
 #include "gui/IDialogScene.hpp"
-#include "gui/IGuanager.hpp"
+#include "gui/IGuiManager.hpp"
 
 namespace Game::Interactable {
 
