@@ -15,7 +15,6 @@
 
 #include "xbak/Exception.h"
 #include "xbak/FileBuffer.h"
-#include "xbak/ImageResource.h"
 #include "xbak/TableResource.h"
 #include "xbak/TileWorldResource.h"
 

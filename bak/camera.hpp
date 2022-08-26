@@ -90,8 +90,7 @@ public:
     BAK::GameHeading GetHeading()
     {
         // Make sure to normalise this between 0 and 1
-        auto bakAngle = BAK::ToBakAngle(mAngle.x);
-        Logging::LogDebug("Camera") << "angle: " << mAngle.x << " bak: " << bakAngle << "\n";
+        const auto bakAngle = BAK::ToBakAngle(mAngle.x);
         return static_cast<std::uint16_t>(bakAngle);
     }
 

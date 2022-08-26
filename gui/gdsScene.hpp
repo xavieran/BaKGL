@@ -67,6 +67,7 @@ public:
     std::optional<BAK::Hotspot> mPendingInn;
     bool mPendingContainer;
     std::optional<BAK::HotspotRef> mPendingGoto;
+    bool mPendingBard;
     // e.g. when you fail barding
     bool mKickedOut;
 

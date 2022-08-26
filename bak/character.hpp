@@ -273,7 +273,7 @@ public:
         return mSkills;
     }
 
-    void ImproveSkill(SkillType skill, unsigned skillChangeType, unsigned multiplier)
+    void ImproveSkill(SkillType skill, SkillChange skillChangeType, unsigned multiplier)
     {
         mSkills.ImproveSkill(skill, skillChangeType, multiplier);
         UpdateSkills();

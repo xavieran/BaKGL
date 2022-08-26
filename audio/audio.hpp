@@ -14,8 +14,12 @@
 
 namespace AudioA {
 
-using SoundIndex = Bounded<StrongType<unsigned, struct SoundIndexTag>, 1, 134>;
-using MusicIndex = Bounded<StrongType<unsigned, struct MusicIndexTag>, 1001, 1063>;
+static constexpr auto MIN_SOUND = 1;
+static constexpr auto MAX_SOUND = 134;
+static constexpr auto MIN_SONG = 1001;
+static constexpr auto MAX_SONG = 1063;
+using SoundIndex = Bounded<StrongType<unsigned, struct SoundIndexTag>, MIN_SOUND, MAX_SOUND>;
+using MusicIndex = Bounded<StrongType<unsigned, struct MusicIndexTag>, MIN_SONG, MAX_SONG>;
 
 static constexpr auto PUZZLE_CHEST_THEME = MusicIndex{1003};
 static constexpr auto BAD_BARD  = MusicIndex{1008};
@@ -77,6 +81,8 @@ private:
 
     std::unordered_map<SoundIndex, Sound> mSoundData;
     std::unordered_map<MusicIndex, Mix_Music*> mMusicData;
+
+    const Logging::Logger& mLogger;
     
 };
 

@@ -294,7 +294,7 @@ private:
             {
                 AudioA::AudioManager::Get().PlaySound(sPickedLockSound);
                 GetCharacter(*mSelectedCharacter)
-                    .ImproveSkill(BAK::SkillType::Lockpick, 3, 2);
+                    .ImproveSkill(BAK::SkillType::Lockpick, BAK::SkillChange::ExercisedSkill, 2);
                 mGuiManager.AddAnimator(
                     LinearAnimator{
                         .25,
@@ -315,7 +315,7 @@ private:
                 {
                     GetCharacter(*mSelectedCharacter).ImproveSkill(
                         BAK::SkillType::Lockpick,
-                        3,
+                        BAK::SkillChange::ExercisedSkill,
                         2);
                 }
 

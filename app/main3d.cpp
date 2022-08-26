@@ -53,6 +53,8 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("MeshObjectStore");
     Logging::LogState::Disable("Gui::StaticTTM");
+    //Logging::LogState::Disable("Gui::DialogRunner");
+    Logging::LogState::Disable("Gui::DialogDisplay");
 
     struct option options[] = {
         {"help", no_argument,       0, 'h'},

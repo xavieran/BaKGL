@@ -134,7 +134,7 @@ unsigned CalculateEffectiveSkillValue(
 void DoImproveSkill(
     SkillType skillType,
     Skill& skill,
-    unsigned skillChangeType,
+    SkillChange skillChangeType,
     unsigned multiplier,
     unsigned selectedSkillPool)
 {
@@ -146,7 +146,9 @@ void DoImproveSkill(
 
     int experienceChange = 0;
 
-    if (skillChangeType == 3)
+    switch (skillChangeType)
+    {
+    case SkillChange::ExercisedSkill:
     {
         // FIXME: double check this... obviously these
         // numbers can go negative for many of the vals
@@ -158,18 +160,16 @@ void DoImproveSkill(
 
         if (multiplier != 0)
             experienceChange *= multiplier;
-    }
-    else if (skillChangeType == 2)
-    {
+    } break;
+    case SkillChange::DifferenceOfSkill:
         experienceChange = (100 - skill.mTrueSkill) * multiplier;
-    }
-    else if (skillChangeType == 1)
-    {
+        break;
+    case SkillChange::FractionOfSkill:
         experienceChange = (skill.mTrueSkill * multiplier) / 100;
-    }
-    else
-    {
+        break;
+    case SkillChange::Direct:
         experienceChange = multiplier;
+        break;
     }
 
     // di + 0x58

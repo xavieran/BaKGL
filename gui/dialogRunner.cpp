@@ -40,6 +40,8 @@ DialogRunner::DialogRunner(
     mCurrentTarget{},
     mLastChoice{},
     mPendingZoneTeleport{},
+    mTargetStack{},
+    mStartedMusic{false},
     mRemainingText{""},
     mTextDims{0},
     mDialogDisplay{pos, dims, actors, bgs, fr, gameState},
@@ -145,6 +147,32 @@ void DialogRunner::EvaluateSnippetActions()
             [&](const BAK::Teleport& teleport){
                 mLogger.Debug() << "Teleporting to zoneIndex: " << teleport.mIndex << "\n";
                 mPendingZoneTeleport = teleport.mIndex;
+            },
+            [&](const BAK::PlaySound& sound)
+            {
+                try
+                {
+                    mLogger.Debug() << "Playing sound: " << sound << "\n";
+                    if (sound.mSoundIndex == 0)
+                    {
+                        // FIXME: Is this what 0 means?
+                        //AudioA::AudioManager::Get().StopMusicTrack();
+                    }
+                    else if (sound.mSoundIndex < AudioA::MAX_SOUND)
+                    {
+                        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
+                    }
+                    else if (sound.mSoundIndex >= AudioA::MIN_SONG)
+                    {
+                        AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
+                        // FIXME: Do we need a stack here?
+                        mStartedMusic = true;
+                    }
+                }
+                catch (SDL_Exception& e)
+                {
+                    mLogger.Error() << e.What() << "\n";
+                }
             },
             [&](const auto& a){
                 mGameState.EvaluateAction(BAK::DialogAction{action});
@@ -418,8 +446,12 @@ void DialogRunner::CompleteDialog()
     mDialogScene = nullptr;
     mCurrentTarget.reset();
     mRemainingText.clear();
+    if (mStartedMusic)
+    {
+        AudioA::AudioManager::Get().PopTrack();
+        mStartedMusic = false;
+    }
     std::invoke(mFinished, GetLastChoice());
-    AudioA::AudioManager::Get().PopTrack();
     // reset last choice...?
 }
 

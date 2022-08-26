@@ -61,8 +61,9 @@ GDSScene::GDSScene(
         font,
         gameState},
     mPendingInn{},
-    mPendingContainer{false},
+    mPendingContainer{},
     mPendingGoto{},
+    mPendingBard{},
     mKickedOut{false},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
@@ -254,6 +255,12 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 
 void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
 {
+    if (mPendingBard)
+    {
+        AudioA::AudioManager::Get().PopTrack();
+        mPendingBard = false;
+    }
+
     if (mPendingGoto)
     {
         mGuiManager.EnterGDSScene(*mPendingGoto, []{});
@@ -277,12 +284,15 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
         // actions will take place on destructed GDSScene
         return;
     }
+
     mLogger.Debug() << "Dialog finished, back to flavour text\n";
 
     if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
         mDialogDisplay.ShowFlavourText(mFlavourText);
+
     if (mStaticTTMs.size() > 1)
         mStaticTTMs.pop_back();
+
     DisplayNPCBackground();
 }
 
@@ -311,6 +321,7 @@ void GDSScene::DoBard()
         const auto status = BAK::Bard::ClassifyBardAttempt(
             skill, shopStats.mBardingSkill);
 
+        mPendingBard = true;
         switch (status)
         {
             case BAK::Bard::BardStatus::Failed:
@@ -343,7 +354,7 @@ void GDSScene::DoBard()
 
         mGameState.GetParty().ImproveSkillForAll(
             BAK::SkillType::Barding,
-            3,
+            BAK::SkillChange::ExercisedSkill,
             skillMultiplier);
 
         if (status == BAK::Bard::BardStatus::Failed)

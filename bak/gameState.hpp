@@ -1,7 +1,5 @@
 #pragma once
 
-#include "audio/audio.hpp"
-
 #include "bak/container.hpp"
 #include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
@@ -11,9 +9,6 @@
 #include "bak/save.hpp"
 #include "bak/textVariableStore.hpp"
 #include "bak/types.hpp"
-
-#include "xbak/SDL_Toolkit.h"
-#include "xbak/SoundResource.h"
 
 #include "com/visit.hpp"
 
@@ -295,7 +290,7 @@ public:
                 mLogger.Debug() << "Gaining skill: " << skill << "\n";
                 GetParty().ImproveSkillForAll(
                         skill.mSkill,
-                        0,
+                        SkillChange::Direct,
                         skill.mValue1 << 8);
             },
             [&](const BAK::GainCondition& cond)
@@ -316,29 +311,6 @@ public:
                     load.mSkill,
                     load.mTarget == 1); // best or worst skill
                 mSkillValue = value;
-            },
-            [&](const BAK::PlaySound& sound)
-            {
-                try
-                {
-                    mLogger.Debug() << "Playing sound: " << sound << "\n";
-                    if (sound.mSoundIndex == 0)
-                    {
-                        //AudioA::AudioManager::Get().StopMusicTrack();
-                    }
-                    else if (sound.mSoundIndex < 134)
-                    {
-                        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
-                    }
-                    else if (sound.mSoundIndex > 1000)
-                    {
-                        AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
-                    }
-                }
-                catch (SDL_Exception& e)
-                {
-                    mLogger.Error() << e.What() << "\n";
-                }
             },
             [&](const auto& a){
                 mLogger.Debug() << "Doing nothing for: " << a << "\n";

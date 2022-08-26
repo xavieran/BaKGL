@@ -14,9 +14,10 @@ AudioManager& AudioManager::Get()
 
 void AudioManager::ChangeMusicTrack(MusicIndex musicI)
 {
-    Logging::LogDebug("AudioManager") << "Changing track to: " << musicI << "\n";
     auto* music = GetMusic(musicI);
     mMusicStack.push(music);
+    mLogger.Debug() << "Changing track to: " << musicI
+        << " stack size: " << mMusicStack.size() << "\n";
 
     PlayTrack(music);
 }
@@ -43,10 +44,14 @@ void AudioManager::PlayTrack(Mix_Music* music)
 void AudioManager::PopTrack()
 {
     if (mMusicStack.empty())
+    {
+        mLogger.Debug() << "Popping music track, stack already empty\n";
         return;
+    }
 
     if (mMusicStack.size() == 1)
     {
+        mLogger.Debug() << "Popping music track, stack now empty\n";
         auto* music = mMusicStack.top();
         mMusicStack.pop();
         mCurrentMusicTrack = nullptr;
@@ -54,6 +59,7 @@ void AudioManager::PopTrack()
     }
     else
     {
+        mLogger.Debug() << "Popping music track, stack size: " << mMusicStack.size() << "\n";
         mMusicStack.pop();
         PlayTrack(mMusicStack.top());
     }
@@ -61,7 +67,7 @@ void AudioManager::PopTrack()
 
 void AudioManager::PlaySound(SoundIndex sound)
 {
-    Logging::LogDebug("AudioManager") << "Playing sound: " << sound << "\n";
+    mLogger.Debug() << "Queueing sound: " << sound << "\n";
 
     if (!mSoundPlaying)
     {
@@ -75,7 +81,7 @@ void AudioManager::PlaySound(SoundIndex sound)
 
 void AudioManager::PlaySoundImpl(SoundIndex sound)
 {
-    Logging::LogDebug("AudioManager") << "Playing sound\n";
+    mLogger.Debug()  << "Playing sound: " << sound << "\n";
 
     mSoundPlaying = true;
     std::visit(overloaded{
@@ -135,12 +141,12 @@ Mix_Music* AudioManager::GetMusic(MusicIndex music)
         auto* rwops = SDL_RWFromMem(fb->GetCurrent(), fb->GetSize());
         if (!rwops)
         {
-            Logging::LogError("AudioManager") << SDL_GetError() << std::endl;
+            mLogger.Error() << SDL_GetError() << std::endl;
         }
         Mix_Music* musicData = Mix_LoadMUS_RW(rwops, 0);
         if (!musicData)
         {
-            Logging::LogError("AudioManager") << Mix_GetError() << std::endl;
+            mLogger.Error() << Mix_GetError() << std::endl;
         }
 
         Mix_SetMusicTempo(musicData, sMusicTempo);
@@ -161,12 +167,12 @@ AudioManager::Sound AudioManager::GetSound(SoundIndex sound)
         auto* rwops = SDL_RWFromMem(fb->GetCurrent(), fb->GetSize());
         if (!rwops)
         {
-            Logging::LogError("AudioManager") << SDL_GetError() << std::endl;
+            mLogger.Error() << SDL_GetError() << std::endl;
         }
         Mix_Music* musicData = Mix_LoadMUS_RW(rwops, 0);
         if (!musicData)
         {
-            Logging::LogError("AudioManager") << Mix_GetError() << std::endl;
+            mLogger.Error() << Mix_GetError() << std::endl;
         }
 
         Mix_SetMusicTempo(musicData, sMusicTempo);
@@ -183,17 +189,18 @@ AudioManager::AudioManager()
     mSoundQueue{},
     mSoundPlaying{},
     mSoundData{},
-    mMusicData{}
+    mMusicData{},
+    mLogger{Logging::LogState::GetLogger("AudioManager")}
 {
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {
-        Logging::LogDebug("Audio") << "Couldn't initialize SDL: "
+        mLogger.Error() << "Couldn't initialize SDL: "
             << SDL_GetError() << std::endl;
     }
 
     if (Mix_OpenAudio(sAudioRate, sAudioFormat, sAudioChannels, sAudioBuffers) < 0)
     {
-        Logging::LogDebug("Audio") << "Couldn't initialize SDL: "
+        mLogger.Error() << "Couldn't initialize SDL: "
             << SDL_GetError() << std::endl;
     }
 

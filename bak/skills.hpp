@@ -1,6 +1,7 @@
 #pragma once
 
 #include "com/assert.hpp"
+#include "com/strongType.hpp"
 
 #include "bak/condition.hpp"
 
@@ -31,6 +32,14 @@ enum class SkillType
     Stealth     = 0xf,
     // FIXME: Need a better way to handle this this is the "GainHealth" GainSkill dialog action
     GainHealth
+};
+
+enum class SkillChange
+{
+    Direct = 0,
+    FractionOfSkill = 1,
+    DifferenceOfSkill = 2,
+    ExercisedSkill = 3
 };
 
 static constexpr auto sEffectiveSkillMin = std::array<std::uint16_t, 16>{
@@ -80,7 +89,7 @@ std::ostream& operator<<(std::ostream&, const Skill&);
 void DoImproveSkill(
     SkillType skillType,
     Skill& skill,
-    unsigned skillChangeType,
+    SkillChange skillChangeType,
     unsigned multiplier,
     unsigned selectedSkillPool);
 
@@ -133,8 +142,8 @@ struct Skills
     }
 
     void ImproveSkill(
-            BAK::SkillType skill, 
-            unsigned skillChangeType,
+            SkillType skill, 
+            SkillChange skillChangeType,
             unsigned multiplier)
     {
         // not quite right...

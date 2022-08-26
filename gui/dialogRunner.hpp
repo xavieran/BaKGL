@@ -139,6 +139,7 @@ private:
     std::optional<BAK::ChoiceIndex> mLastChoice;
     std::optional<BAK::TeleportIndex> mPendingZoneTeleport;
     std::stack<BAK::Target> mTargetStack;
+    bool mStartedMusic;
 
     std::string mRemainingText;
     glm::vec2 mTextDims;

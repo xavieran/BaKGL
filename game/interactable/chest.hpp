@@ -11,7 +11,7 @@
 #include "bak/gameState.hpp"
 
 #include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
+#include "gui/IGuanager.hpp"
 
 namespace Game::Interactable {
 
@@ -180,7 +180,10 @@ public:
         {
             mGameState.GetParty()
                 .GetCharacter(character)
-                .ImproveSkill(BAK::SkillType::Lockpick, 3, 2);
+                .ImproveSkill(
+                    BAK::SkillType::Lockpick,
+                    BAK::SkillChange::ExercisedSkill,
+                    2);
             lock.mLockFlag = 1;
             lock.mTrapDamage = 0;
             mState = State::DisarmedTrap;
