@@ -123,6 +123,8 @@ public:
     static constexpr auto mBardingGood = KeyTarget{0x5a};
     
     static constexpr auto mWordlockIntro     = KeyTarget{0xc};
+    static constexpr auto mCantOpenWorldock  = KeyTarget{0xd};
+    static constexpr auto mOpenedWordlock    = KeyTarget{0xe};
     static constexpr auto mOpenUnlockedBox   = KeyTarget{0xc2};
     static constexpr auto mOpenTrappedBox    = KeyTarget{0xbe};
     static constexpr auto mChooseUnlock      = KeyTarget{0x4f};

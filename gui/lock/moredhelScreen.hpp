@@ -63,7 +63,7 @@ public:
         mDialogScene{
             []{},
             []{},
-            [](const auto&){}
+            [](const auto&){ }
         },
         mFairyChest{},
         mLayout{sLayoutFile},
@@ -81,7 +81,7 @@ public:
             std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
             std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
             std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
-            [this]{ mGuiManager.ExitLock(); }, // do dialog 0xd (couldnt open moredhel chest)
+            [this]{ CantOpenLock(); },
             []{}
         },
         mLeftClasp{
@@ -225,7 +225,24 @@ private:
             });
 
         mGuiManager.StartDialog(
-            BAK::KeyTarget{0xe},
+            BAK::DialogSources::mOpenedWordlock,
+            false,
+            false,
+            &mDialogScene);
+    }
+
+    void CantOpenLock()
+    {
+        mUnlocked = false;
+        mDialogScene.SetDialogFinished(
+            [this](const auto&)
+            {
+                mGuiManager.ExitLock();
+                mDialogScene.ResetDialogFinished();
+            });
+
+        mGuiManager.StartDialog(
+            BAK::DialogSources::mCantOpenWorldock,
             false,
             false,
             &mDialogScene);

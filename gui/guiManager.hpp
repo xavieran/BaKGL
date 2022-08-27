@@ -325,17 +325,22 @@ public:
 
         mCursor.PushCursor(0);
 
-        mGuiScreens.push(finished);
         if (container->GetLock().IsFairyChest())
         {
             mMoredhelScreen.SetContainer(container);
             mScreenStack.PushScreen(&mMoredhelScreen);
             AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::PUZZLE_CHEST_THEME);
+            mGuiScreens.push(GuiScreen{
+                [fin = std::move(finished)](){
+                    AudioA::AudioManager::Get().PopTrack();
+                    std::invoke(fin);
+            }});
         }
         else
         {
             mLockScreen.SetContainer(container);
             mScreenStack.PushScreen(&mLockScreen);
+            mGuiScreens.push(finished);
         }
     }
 
