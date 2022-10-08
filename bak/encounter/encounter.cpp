@@ -72,10 +72,10 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
 }
 
 std::pair<
-    glm::vec<2, unsigned>,
-    glm::vec<2, unsigned>>
+    glm::uvec2,
+    glm::uvec2>
 CalculateLocationAndDims(
-    glm::vec<2, unsigned> tile,
+    glm::uvec2 tile,
     std::uint8_t l,
     std::uint8_t t,
     std::uint8_t r,
@@ -103,7 +103,7 @@ CalculateLocationAndDims(
     const auto location = GamePosition{
         left + width / 2,
         bottom + height / 2};
-    const auto dimensions = glm::vec<2, unsigned>{
+    const auto dimensions = glm::uvec2{
         width, height};
 
     return std::make_pair(location, dimensions);
@@ -114,7 +114,7 @@ std::vector<Encounter> LoadEncounters(
     const EncounterFactory& ef,
     FileBuffer& fb,
     Chapter chapter,
-    glm::vec<2, unsigned> tile,
+    glm::uvec2 tile,
     unsigned tileIndex)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadEncounter");
@@ -187,7 +187,7 @@ std::vector<Encounter> LoadEncounters(
 EncounterT EncounterFactory::MakeEncounter(
     EncounterType eType,
     unsigned encounterIndex,
-    glm::vec<2, unsigned> tile) const
+    glm::uvec2 tile) const
 {
     switch (eType)
     {
@@ -247,7 +247,7 @@ EncounterT EncounterFactory::MakeEncounter(
 EncounterStore::EncounterStore(
     const EncounterFactory& ef,
     FileBuffer& fb,
-    glm::vec<2, unsigned> tile,
+    glm::uvec2 tile,
     unsigned tileIndex)
 :
     mChapters{}

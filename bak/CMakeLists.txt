@@ -25,6 +25,7 @@ add_library(bak
     keyContainer.hpp keyContainer.cpp
     layout.hpp layout.cpp
     lock.hpp lock.cpp
+    model.hpp model.cpp
     money.hpp money.cpp
     monster.hpp monster.cpp
     party.hpp party.cpp

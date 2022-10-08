@@ -141,6 +141,7 @@ public:
             }
         }
 
+        const auto monsters = BAK::MonsterNames{};
         for (const auto& world : mZoneData->mWorldTiles.GetTiles())
         {
             for (const auto& enc : world.GetEncounters(mGameState.GetChapter()))
@@ -163,7 +164,6 @@ public:
                             static_cast<double>(dims.y)},
                         enc.GetLocation()});
 
-                const auto monsters = BAK::MonsterNames{};
                 // Throw the enemies onto the map...
                 evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
                     [&](const auto& combat){

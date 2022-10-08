@@ -12,18 +12,16 @@ std::vector<glm::uvec2> LoadZoneRef(const std::string& path)
     const auto logger = Logging::LogState::GetLogger("LoadZoneRef");
 
     const auto numberTiles = fb.GetUint8();
-    logger.Debug() << "Number of tiles: " << numberTiles << "\n";
+    logger.Spam() << "Number of tiles: " << numberTiles << "\n";
 
-    std::vector<glm::vec<2, unsigned>> tiles{};
+    std::vector<glm::uvec2> tiles{};
     tiles.reserve(numberTiles);
 
     for (unsigned i = 0; i < numberTiles; i++)
     {
         const auto& tile = tiles.emplace_back(
-            glm::vec<2, unsigned>{
-                fb.GetUint8(),
-                fb.GetUint8()});
-        logger.Debug() << std::hex << tile << " " << i << std::dec << "\n";
+            fb.LoadVector<std::uint8_t, 2>());
+        logger.Spam() << std::hex << tile << " " << i << std::dec << "\n";
     }
 
     return tiles;

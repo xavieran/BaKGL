@@ -62,7 +62,7 @@ public:
     EncounterT MakeEncounter(
         EncounterType,
         unsigned,
-        glm::vec<2, unsigned> tile) const;
+        glm::uvec2 tile) const;
 
 private:
     BackgroundFactory mBackgrounds;
@@ -82,9 +82,9 @@ public:
     Encounter(
         EncounterT encounter,
         EncounterIndex index,
-        glm::vec<2, unsigned> location,
-        glm::vec<2, unsigned> dims,
-        glm::vec<2, unsigned> tile,
+        glm::uvec2 location,
+        glm::uvec2 dims,
+        glm::uvec2 tile,
         unsigned tileIndex,
         unsigned saveAddress,
         unsigned saveAddress2,
@@ -129,9 +129,9 @@ public:
 
     EncounterT mEncounter;
     EncounterIndex mIndex;
-    glm::vec<2, unsigned> mLocation;
-    glm::vec<2, unsigned> mDimensions;
-    glm::vec<2, unsigned> mTile;
+    glm::uvec2 mLocation;
+    glm::uvec2 mDimensions;
+    glm::uvec2 mTile;
     unsigned mTileIndex;
 
     // Place in the save file that is checked
@@ -155,7 +155,7 @@ public:
     EncounterStore(
         const EncounterFactory&,
         FileBuffer& fb,
-        glm::vec<2, unsigned> tile,
+        glm::uvec2 tile,
         unsigned tileIndex);
     
     const std::vector<Encounter>& GetEncounters(
@@ -170,7 +170,7 @@ std::vector<Encounter> LoadEncounters(
     const EncounterFactory&,
     FileBuffer& fb,
     Chapter chapter,
-    glm::vec<2, unsigned> tile,
+    glm::uvec2 tile,
     unsigned tileIndex);
 
 }

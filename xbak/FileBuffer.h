@@ -20,9 +20,12 @@
 #ifndef FILE_BUFFER_H
 #define FILE_BUFFER_H
 
+#include <glm/glm.hpp>
+
 #include <array>
 #include <fstream>
 #include <string>
+#include <type_traits>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -112,8 +115,43 @@ class FileBuffer
         int32_t GetSint32LE();
         int32_t GetSint32BE();
 
+        template <typename T, bool littleEndian=true>
+            requires std::is_integral_v<T>
+        T Get()
+        {
+            if constexpr (std::is_same_v<T, std::uint8_t>)
+            {
+                return GetUint8();
+            }
+            else if constexpr (std::is_same_v<T, std::int8_t>)
+            {
+                return GetSint8();
+            }
+            else if constexpr (std::is_same_v<T, std::uint16_t>)
+            {
+                return littleEndian ? GetUint16LE() : GetUint16BE();
+            }
+            else if constexpr (std::is_same_v<T, std::int16_t>)
+            {
+                return littleEndian ? GetSint16LE() : GetSint16BE();
+            }
+            else if constexpr (std::is_same_v<T, std::uint32_t>)
+            {
+                return littleEndian ? GetUint32LE() : GetUint32BE();
+            }
+            else if constexpr (std::is_same_v<T, std::int32_t>)
+            {
+                return littleEndian ? GetSint32LE() : GetSint32BE();
+            }
+            else
+            {
+                static_assert(std::is_same_v<T, std::uint8_t>, "Unsupported integral type");
+                return T{};
+            }
+        }
+
         template <std::size_t N>
-        decltype(auto) GetArray()
+        auto GetArray()
         {
             std::array<std::uint8_t, N> arr{};
 
@@ -123,6 +161,17 @@ class FileBuffer
             }
 
             return arr; 
+        }
+
+        template <typename T, std::size_t N>
+        auto LoadVector()
+        {
+            glm::vec<N, T> tmp{};
+            for (unsigned i = 0; i < N; i++)
+            {
+                tmp[i] = Get<T>();
+            }
+            return tmp;
         }
 
         std::string GetString();

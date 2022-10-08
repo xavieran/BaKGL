@@ -158,6 +158,7 @@ int main(int argc, char** argv)
     };
 
     guiManager.EnterMainView();
+    //guiManager.EnterMainMenu(false);
 
     root.AddChildFront(&guiManager);
 
@@ -447,5 +448,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-
-

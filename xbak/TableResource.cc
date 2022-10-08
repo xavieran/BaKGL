@@ -180,7 +180,8 @@ TableResource::Load(FileBuffer *buffer)
         unsigned int appDataSize = appbuf->GetUint16LE();
         for (unsigned int i = 0; i< numAppItems; i++)
         {
-            appbuf->Skip(appDataSize);
+            std::cout << "AppBuf: " << i << "\n";
+            appbuf->DumpAndSkip(appDataSize);
         }
 
         unsigned int *gidOffset = new unsigned int [numMapItems];
@@ -244,14 +245,14 @@ TableResource::Load(FileBuffer *buffer)
 
             if (more)
             {
-                gidbuf->Skip(2);
+                gidbuf->DumpAndSkip(2);
                 //unsigned int n = gidbuf->GetUint16LE();
                 unsigned int n = gidbuf->GetUint8();
-                gidbuf->Skip(1);
+                gidbuf->DumpAndSkip(1);
 #ifdef DEBUG
                 std::cout << "n: " << n << std::endl;
 #endif
-                gidbuf->Skip(2);
+                gidbuf->DumpAndSkip(2);
                 for (unsigned int j = 0; j < n; j++)
                 {
                     int u = gidbuf->GetSint8();
@@ -259,8 +260,7 @@ TableResource::Load(FileBuffer *buffer)
                     int x = gidbuf->GetSint16LE();
                     int y = gidbuf->GetSint16LE();
 #ifdef DEBUG
-                    std::cout << std::hex << "uvxyH " << u << " " << v << " " << x << " " << y << std::dec;
-                    std::cout << " uvxy " << u << " " << v << " " << x << " " << y << std::endl; 
+                    std::cout << " uvxy " << u << ", " << v << " | " << x << ", " << y << " rat: " << x / (u != 0 ? u : 1) << ", " << y / (v != 0 ? v : 1) << std::endl; 
 #endif
                     item->textureCoords.push_back(new Vector2D(u, v));
                     item->otherCoords.push_back(new Vector2D(x, y));

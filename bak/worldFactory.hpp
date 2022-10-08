@@ -3,6 +3,7 @@
 #include "bak/constants.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/encounter/encounter.hpp"
+#include "bak/model.hpp"
 #include "bak/monster.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/textureFactory.hpp"
@@ -99,6 +100,39 @@ private:
 class ZoneItem
 {
 public:
+    ZoneItem(
+        const Model& model,
+        const ZoneTextureStore& textureStore)
+    :
+        ZoneItem{
+            model.mName,
+            std::invoke([&model]{
+                DatInfo item{};
+                item.entityFlags = model.mEntityFlags;
+                item.entityType = model.mEntityType;
+                item.terrainType = model.mTerrainType;
+                item.terrainClass = model.mScale;
+                item.sprite = model.mSprite;
+                item.min.SetX(model.mMin.x);
+                item.min.SetY(model.mMin.y);
+                item.min.SetZ(model.mMin.z);
+                item.max.SetX(model.mMax.x);
+                item.max.SetY(model.mMax.y);
+                item.max.SetZ(model.mMax.z);
+                for (const auto& v : model.mVertices)
+                {
+                    item.vertices.emplace_back(
+                        new Vector3D(v.x, v.y, v.z)
+                    );
+                }
+                item.faceColors = model.mFaceColors;
+                item.paletteSources = model.mPalettes;
+                item.faces = model.mFaces;
+                return item;
+            }),
+            textureStore}
+    {}
+
     ZoneItem(
         const std::string& name,
         const DatInfo& datInfo,
@@ -315,20 +349,19 @@ public:
         mZoneLabel{zoneLabel},
         mItems{}
     {
-        TableResource table{};
+        //TableResource table{};
 
         auto fb = FileBufferFactory::Get().CreateDataBuffer(
             mZoneLabel.GetTable());
-        table.Load(&fb);
+        //table.Load(&fb);
+        const auto models = LoadTBL(fb);
 
-        ASSERT(table.GetMapSize() == table.GetDatSize());
+        //ASSERT(table.GetMapSize() == table.GetDatSize());
 
-        for (unsigned i = 0; i < table.GetMapSize(); i++)
+        for (unsigned i = 0; i < models.size(); i++)
         {
-            ASSERT(table.GetDatItem(i) != nullptr);
             mItems.emplace_back(
-                table.GetMapItem(i),
-                *table.GetDatItem(i),
+                models[i],
                 textureStore);
         }
     }
