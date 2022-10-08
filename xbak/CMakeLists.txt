@@ -5,6 +5,7 @@ add_library(xbak ${SOURCE_FILES} ${HEADER_FILES})
 set_target_properties(xbak PROPERTIES CMAKE_CXX_CLANG_TIDY "")
 target_link_libraries(xbak
     com
+    glm
     SDL2
     SDL2_mixer_ext_Static
     ${LINK_UNIX_LIBRARIES}
