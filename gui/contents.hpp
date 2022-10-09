@@ -2,9 +2,6 @@
 
 #include "audio/audio.hpp"
 
-#include "bak/IContainer.hpp"
-#include "bak/textureFactory.hpp"
-
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"

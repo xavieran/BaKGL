@@ -16,7 +16,7 @@ class LinearAnimator
 {
 public:
     // every 10ms
-    static constexpr auto mTickFrequency = .02;
+    static constexpr auto mTickFrequency = .01;
 
     LinearAnimator(
         double duration,
@@ -28,7 +28,8 @@ public:
         mAlive{true},
         mAccumulatedTimeDelta{0},
         mDuration{duration},
-        mDelta{(end - begin) / static_cast<float>((duration / mTickFrequency))},
+        mTrueDuration{duration},
+        mDelta{(end - begin)},// / static_cast<float>((duration / mTickFrequency))},
         mCallback{std::move(callback)},
         mFinished{std::move(finished)}
     {
@@ -54,7 +55,7 @@ public:
         {
             Logging::LogSpam("Gui::LinearAnimator") << "Ticking : " << delta << "\n";
             mAccumulatedTimeDelta -= mTickFrequency;
-            finishEarly = mCallback(mDelta);
+            finishEarly = mCallback(mDelta * static_cast<float>(delta / mTrueDuration));//mDelta);
         }
 
         if (finishEarly || mDuration < 0)
@@ -72,6 +73,7 @@ private:
     bool mAlive;
     double mAccumulatedTimeDelta;
     double mDuration;
+    double mTrueDuration;
     glm::vec4 mDelta;
     std::function<bool(glm::vec4)> mCallback;
     std::function<void()> mFinished;

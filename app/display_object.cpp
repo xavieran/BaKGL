@@ -343,9 +343,6 @@ int main(int argc, char** argv)
             offset
         );
 
-
-
-
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();

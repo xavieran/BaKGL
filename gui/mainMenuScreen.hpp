@@ -103,7 +103,11 @@ public:
             mLayout.GetWidgetDimensions(sQuit),
             mFont,
             "#Quit to DOS",
-            []{ std::exit(0); }
+            [this]{ 
+                mGuiManager.DoFade(
+                    1.0,
+                    []{ std::exit(0); });
+            }
         },
         mCancel{
             mLayoutGameRunning.GetWidgetLocation(sCancel),
@@ -161,26 +165,34 @@ private:
 
     void ShowPreferences()
     {
-        mState = State::Preferences;
-        AddChildren();
+        mGuiManager.DoFade(1.0, [this]{
+            mState = State::Preferences;
+            AddChildren();
+        });
     }
 
     void ShowContents()
     {
-        mState = State::Contents;
-        AddChildren();
+        mGuiManager.DoFade(1.0, [this]{
+            mState = State::Contents;
+            AddChildren();
+        });
     }
 
     void ShowSave()
     {
-        mState = State::Save;
-        AddChildren();
+        mGuiManager.DoFade(1.0, [this]{
+            mState = State::Save;
+            AddChildren();
+        });
     }
 
     void BackToMainMenu()
     {
-        mState = State::MainMenu;
-        AddChildren();
+        mGuiManager.DoFade(1.0, [this]{
+            mState = State::MainMenu;
+            AddChildren();
+        });
     }
 
     void EnterMainView()

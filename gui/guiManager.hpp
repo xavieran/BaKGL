@@ -14,6 +14,7 @@
 #include "gui/animatorStore.hpp"
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
+#include "gui/fadeScreen.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/icons.hpp"
 #include "gui/fontManager.hpp"
@@ -121,6 +122,12 @@ public:
             mFontManager.GetPuzzleFont(),
             mGameState
         },
+        mFadeScreen{
+            *this,
+            [this]{ FadeInDone(); },
+            [this]{ FadeOutDone(); }
+        },
+        mFadeFunction{},
         mGdsScenes{},
         mDialogScene{nullptr},
         mGuiScreens{},
@@ -143,20 +150,31 @@ public:
         mZoneLoader = zoneLoader;
     }
 
+    void DoFade(double duration, std::function<void()>&& fadeFunction) override
+    {
+        mFadeFunction = std::move(fadeFunction);
+        AddChildBack(&mFadeScreen);
+        mFadeScreen.FadeIn(duration);
+    }
+
     void EnterMainView() override
     {
-        mScreenStack.PopScreen();
-        mScreenStack.PushScreen(&mMainView);
+        DoFade(1.0,[this]{
+            mScreenStack.PopScreen();
+            mScreenStack.PushScreen(&mMainView);
+        });
     }
 
     void EnterMainMenu(bool gameRunning) override
     {
-        if (gameRunning)
-        {
-            mScreenStack.PopScreen();
-        }
-        mScreenStack.PushScreen(&mMainMenu);
-        mMainMenu.EnterMainMenu(gameRunning);
+        DoFade(1.0, [this, gameRunning]{
+            if (gameRunning)
+            {
+                mScreenStack.PopScreen();
+            }
+            mScreenStack.PushScreen(&mMainMenu);
+            mMainMenu.EnterMainMenu(gameRunning);
+        });
     }
 
     void TeleportToGDS(
@@ -186,6 +204,7 @@ public:
         const BAK::HotspotRef& hotspot,
         std::function<void()>&& finished) override
     {
+        DoFade(1.0, [&, finished=std::move(finished)]() mutable {
         mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         mCursor.PushCursor(0);
 
@@ -216,6 +235,7 @@ public:
         }
 
         mScreenStack.PushScreen(mGdsScenes.back().get());
+        });
     }
 
     void ExitGDSScene() override
@@ -281,23 +301,29 @@ public:
 
     void ShowCharacterPortrait(BAK::ActiveCharIndex character) override
     {
-        mInfoScreen.SetSelectedCharacter(character);
-        mInfoScreen.UpdateCharacter();
-        mScreenStack.PushScreen(&mInfoScreen);
+        DoFade(1.0, [this, character]{
+            mInfoScreen.SetSelectedCharacter(character);
+            mInfoScreen.UpdateCharacter();
+            mScreenStack.PushScreen(&mInfoScreen);
+        });
     }
 
     void ExitCharacterPortrait() override
     {
-        mScreenStack.PopScreen();
+        DoFade(1.0, [this]{
+            mScreenStack.PopScreen();
+        });
     }
 
     void ShowInventory(BAK::ActiveCharIndex character) override
     {
-        mCursor.PushCursor(0);
-        mGuiScreens.push(GuiScreen{[](){}});
+        DoFade(1.0, [this, character]{
+            mCursor.PushCursor(0);
+            mGuiScreens.push(GuiScreen{[](){}});
 
-        mInventoryScreen.SetSelectedCharacter(character);
-        mScreenStack.PushScreen(&mInventoryScreen);
+            mInventoryScreen.SetSelectedCharacter(character);
+            mScreenStack.PushScreen(&mInventoryScreen);
+        });
     }
 
     void ShowContainer(BAK::IContainer* container) override
@@ -352,7 +378,9 @@ public:
 
     void ShowFullMap() override
     {
-        mScreenStack.PushScreen(&mFullMap);
+        DoFade(1.0, [this]{
+            mScreenStack.PushScreen(&mFullMap);
+        });
     }
 
     void ExitLock() override
@@ -387,6 +415,18 @@ public:
     }
 
 //private:
+    void FadeInDone()
+    {
+        ASSERT(mFadeFunction);
+        mFadeFunction();
+        mFadeScreen.FadeOut();
+    }
+
+    void FadeOutDone()
+    {
+        RemoveChild(&mFadeScreen);
+    }
+
     FontManager mFontManager;
     Actors mActors;
     Backgrounds mBackgrounds;
@@ -407,6 +447,8 @@ public:
     LockScreen mLockScreen;
     FullMap mFullMap;
     MoredhelScreen mMoredhelScreen;
+    FadeScreen mFadeScreen;
+    std::function<void()> mFadeFunction;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;

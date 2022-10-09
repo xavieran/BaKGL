@@ -283,6 +283,12 @@ std::vector<Model> LoadTBL(FileBuffer& fb)
     auto datbuf = fb.Find(TAG_DAT);
 
     const auto names = LoadModelNames(mapbuf);
+    std::stringstream ss{};
+    for (const auto& name : names)
+    {
+        ss << " " << name << ",";
+    }
+    logger.Info() << "Loading models: " << ss.str() << "\n";
     return LoadModels(datbuf, names);
 }
 

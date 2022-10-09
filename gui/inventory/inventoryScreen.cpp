@@ -51,7 +51,11 @@ InventoryScreen::InventoryScreen(
         std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
         std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
         std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
-        [this]{ mGuiManager.ExitInventory(); },
+        [this]{
+            mGuiManager.DoFade(
+                1.0,
+                [this]{ mGuiManager.ExitInventory(); });
+        },
         []{}
     },
     mGoldDisplay{
