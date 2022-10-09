@@ -318,6 +318,7 @@ int main(int argc, char** argv)
     console.mCamera = &camera;
     console.mGameRunner = &gameRunner;
     console.mGameState = &gameState;
+    console.ToggleLog();
 
     do
     {

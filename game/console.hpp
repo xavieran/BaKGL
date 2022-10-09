@@ -22,15 +22,34 @@ struct Console : public std::streambuf
     // for every << operator. Obviously that looks terrible.
     std::streamsize xsputn(const char_type* s, std::streamsize n)
     {
-        const auto str = std::string{s, static_cast<unsigned>(n)};
-        AddLog(str.c_str());
+        std::size_t from = 0;
+        for (unsigned i = 0; i < n; i++)
+        {
+            if (s[i] == '\n')
+            {
+                mStreamBuffer += std::string{s + i, i - from};
+                AddLog(mStreamBuffer.c_str());
+                mStreamBuffer.clear();
+                from = i;
+            }
+        }
+
+        if (from != static_cast<std::size_t>(n))
+        {
+            mStreamBuffer += std::string{s + from, n - from};
+        }
+
         return n;
     }
 
     int_type overflow(int_type c)
     {
-        const auto str = std::string{1, static_cast<char_type>(c)};
-        AddLog("%s", str.c_str());
+        mStreamBuffer += std::string{1, static_cast<char_type>(c)};
+        if (c == '\n')
+        {
+            AddLog(mStreamBuffer.c_str());
+            mStreamBuffer.clear();
+        }
         return c;
     }
 
@@ -315,7 +334,8 @@ struct Console : public std::streambuf
 
     Console()
     :
-        mStream{this}
+        mStream{this},
+        mStreamBuffer{}
     {
         ClearLog();
         memset(mInputBuf, 0, sizeof(mInputBuf));
@@ -723,12 +743,11 @@ struct Console : public std::streambuf
     bool                  mScrollToBottom;
     bool                  mStreamLog;
     std::ostream          mStream;
+    std::string mStreamBuffer;
 
     Camera*  mCamera;
     Game::GameRunner*  mGameRunner;
     BAK::GameState*  mGameState;
-
-
 };
 
 static void ShowConsole(bool* p_open)
