@@ -443,8 +443,6 @@ int main(int argc, char** argv)
 
     ImguiWrapper::Shutdown();
 
-    glfwTerminate();
-
     delete gameData;
 
     return 0;
