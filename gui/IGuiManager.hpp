@@ -14,6 +14,9 @@ namespace Gui {
 class IGuiManager
 {
 public:
+    virtual void EnterMainView() = 0;
+    virtual void EnterMainMenu(bool gameRunning) = 0;
+
     virtual void EnterGDSScene(
         const BAK::HotspotRef&,
         std::function<void()>&& finished) = 0;

@@ -157,8 +157,8 @@ int main(int argc, char** argv)
         gameState
     };
 
-    guiManager.EnterMainView();
-    //guiManager.EnterMainMenu(false);
+    //guiManager.EnterMainView();
+    guiManager.EnterMainMenu(false);
 
     root.AddChildFront(&guiManager);
 

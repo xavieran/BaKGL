@@ -1,108 +1,91 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
+#include "bak/IContainer.hpp"
 #include "bak/textureFactory.hpp"
 
-#include "graphics/texture.hpp"
-#include "graphics/sprites.hpp"
-
+#include "gui/IDialogScene.hpp"
+#include "gui/IGuiManager.hpp"
+#include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
-#include "gui/compass.hpp"
 #include "gui/clickButton.hpp"
+#include "gui/textBox.hpp"
 #include "gui/widget.hpp"
-#include "gui/scene.hpp"
-
-#include "xbak/RequestResource.h"
 
 #include <glm/glm.hpp>
 
-#include <iostream>
-#include <variant>
-
 namespace Gui {
 
-class GenericRequestScreen: public Widget
+class ContentsScreen: public Widget
 {
 public:
+    static constexpr auto sLayoutFile = "CONTENTS.DAT";
+    static constexpr auto sBackground = "CONT2.SCX";
 
-    GenericRequestScreen(
-        Graphics::SpriteManager& spriteManager,
-        std::string_view palette,
-        std::string_view request,
-        std::string_view screen)
+    static constexpr auto sExit = 9;
+
+    using LeaveContentsFn = std::function<void()>;
+
+    ContentsScreen(
+        IGuiManager& guiManager,
+        const Backgrounds& backgrounds,
+        const Font& font,
+        LeaveContentsFn&& leaveContentsFn)
     :
         Widget{
-            Graphics::DrawMode::Sprite,
-            spriteManager.AddSpriteSheet(),
-            Graphics::TextureIndex{0},
-            Graphics::ColorMode::Texture,
-            glm::vec4{1},
-            glm::vec2{0},
+            RectTag{},
+            glm::vec2{0, 0},
             glm::vec2{320, 200},
+            Color::black,
+            false 
+        },
+        mGuiManager{guiManager},
+        mFont{font},
+        mBackgrounds{backgrounds},
+        mLayout{sLayoutFile},
+        mLeaveContentsFn{std::move(leaveContentsFn)},
+        mFrame{
+            ImageTag{},
+            backgrounds.GetSpriteSheet(),
+            backgrounds.GetScreen(sBackground),
+            glm::vec2{0},
+            GetPositionInfo().mDimensions,
             true
         },
-        mSpriteSheet{GetDrawInfo().mSpriteSheet},
-        mButtons{},
-        mLogger{Logging::LogState::GetLogger("Gui::GenericRequestScreen")}
+        mExit{
+            mLayout.GetWidgetLocation(sExit),
+            mLayout.GetWidgetDimensions(sExit),
+            mFont,
+            "#Exit",
+            [this]{ std::invoke(mLeaveContentsFn); }
+        },
+        mLogger{Logging::LogState::GetLogger("Gui::ContentsScreen")}
     {
-        auto textures = Graphics::TextureStore{};
-        BAK::TextureFactory::AddScreenToTextureStore(
-            textures, screen, palette);
-
-        const auto normalOffset = textures.size();
-
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "BICONS1.BMX", palette);
-
-        const auto pressedOffset = textures.size();
-
-        BAK::TextureFactory::AddToTextureStore(
-            textures, "BICONS2.BMX", palette);
-
-        RequestResource requestRes{};
-        {
-            auto fb = FileBufferFactory::CreateDataBuffer(
-                std::string{request});
-            requestRes.Load(&fb);
-        }
-
-        mButtons.reserve(requestRes.GetSize());
-
-        for (unsigned i = 0; i < requestRes.GetSize(); i++)
-        {
-            auto data = requestRes.GetRequestData(i);
-            mLogger.Debug() << data << "\n";
-            switch (data.widget)
-            {
-            case REQ_IMAGEBUTTON:
-            {
-                int x = data.xpos + requestRes.GetRectangle().GetXPos() + requestRes.GetXOff();
-                int y = data.ypos + requestRes.GetRectangle().GetYPos() + requestRes.GetYOff();
-
-                mButtons.emplace_back(
-                    glm::vec2{x, y},
-                    glm::vec2{data.width, data.height},
-                    mSpriteSheet,
-                    Graphics::TextureIndex{static_cast<unsigned>(data.image + normalOffset)},
-                    Graphics::TextureIndex{static_cast<unsigned>(data.image + pressedOffset)},
-                    []{},
-                    []{});
-            }
-                break;
-            default:
-                mLogger.Info() << "Unhandled: " << i << "\n";
-                break;
-            }
-        }
-
-        for (auto& button : mButtons)
-            AddChildBack(&button);
-
-        spriteManager.GetSpriteSheet(mSpriteSheet).LoadTexturesGL(textures);
+        AddChildren();
     }
 
 private:
-    Graphics::SpriteSheetIndex mSpriteSheet;
-    std::vector<ClickButtonImage> mButtons;
+    void AddChildren()
+    {
+        ClearChildren();
+
+        AddChildBack(&mFrame);
+
+        mExit.SetPosition(mLayout.GetWidgetLocation(sExit));
+
+        AddChildBack(&mExit);
+    }
+
+    IGuiManager& mGuiManager;
+    const Font& mFont;
+    const Backgrounds& mBackgrounds;
+
+    BAK::Layout mLayout;
+    LeaveContentsFn mLeaveContentsFn;
+
+    Widget mFrame;
+    ClickButton mExit;
 
     const Logging::Logger& mLogger;
 };

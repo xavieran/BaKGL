@@ -143,13 +143,18 @@ public:
         mZoneLoader = zoneLoader;
     }
 
-    void EnterMainView()
+    void EnterMainView() override
     {
+        mScreenStack.PopScreen();
         mScreenStack.PushScreen(&mMainView);
     }
 
-    void EnterMainMenu(bool gameRunning)
+    void EnterMainMenu(bool gameRunning) override
     {
+        if (gameRunning)
+        {
+            mScreenStack.PopScreen();
+        }
         mScreenStack.PushScreen(&mMainMenu);
         mMainMenu.EnterMainMenu(gameRunning);
     }

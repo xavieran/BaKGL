@@ -5,12 +5,14 @@
 #include "bak/IContainer.hpp"
 #include "bak/textureFactory.hpp"
 
-
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
+#include "gui/contents.hpp"
+#include "gui/preferencesScreen.hpp"
+#include "gui/saveScreen.hpp"
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
 
@@ -66,35 +68,35 @@ public:
             mLayout.GetWidgetDimensions(sStartNew),
             mFont,
             "#Start New Game",
-            []{ }
+            [this]{ EnterMainView(); }
         },
         mRestore{
             mLayout.GetWidgetLocation(sRestore),
             mLayout.GetWidgetDimensions(sRestore),
             mFont,
             "#Restore Game",
-            []{ }
+            [this]{ ShowSave(); }
         },
         mSaveGame{
             mLayoutGameRunning.GetWidgetLocation(sSaveGame),
             mLayoutGameRunning.GetWidgetDimensions(sSaveGame),
             mFont,
             "#Save Game",
-            []{ }
+            [this]{ ShowSave(); }
         },
         mPreferences{
             mLayout.GetWidgetLocation(sPreferences),
             mLayout.GetWidgetDimensions(sPreferences),
             mFont,
             "#Preferences",
-            []{ }
+            [this]{ ShowPreferences(); }
         },
         mContents{
             mLayout.GetWidgetLocation(sContents),
             mLayout.GetWidgetDimensions(sContents),
             mFont,
             "#Contents",
-            []{ }
+            [this]{ ShowContents(); }
         },
         mQuit{
             mLayout.GetWidgetLocation(sQuit),
@@ -108,8 +110,27 @@ public:
             mLayoutGameRunning.GetWidgetDimensions(sCancel),
             mFont,
             "#Cancel",
-            []{ }
+            [this]{ EnterMainView(); }
         },
+        mPreferencesScreen{
+            guiManager,
+            backgrounds,
+            font,
+            [this]{ BackToMainMenu(); }
+        },
+        mContentsScreen{
+            guiManager,
+            backgrounds,
+            font,
+            [this]{ BackToMainMenu(); }
+        },
+        mSaveScreen{
+            guiManager,
+            backgrounds,
+            font,
+            [this]{ BackToMainMenu(); }
+        },
+        mState{State::MainMenu},
         mGameRunning{false},
         mLogger{Logging::LogState::GetLogger("Gui::MainMenuScreen")}
     {
@@ -124,16 +145,73 @@ public:
         AudioA::AudioManager::Get().ChangeMusicTrack(sMainMenuSong);
     }
 
-    void ExitMainMenu()
+    [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override
     {
-        AudioA::AudioManager::Get().PopTrack();
+        return Widget::OnMouseEvent(event) || true;
     }
 
 private:
+    enum class State
+    {
+        MainMenu,
+        Preferences,
+        Save,
+        Contents
+    };
+
+    void ShowPreferences()
+    {
+        mState = State::Preferences;
+        AddChildren();
+    }
+
+    void ShowContents()
+    {
+        mState = State::Contents;
+        AddChildren();
+    }
+
+    void ShowSave()
+    {
+        mState = State::Save;
+        AddChildren();
+    }
+
+    void BackToMainMenu()
+    {
+        mState = State::MainMenu;
+        AddChildren();
+    }
+
+    void EnterMainView()
+    {
+        AudioA::AudioManager::Get().PopTrack();
+        mGuiManager.EnterMainView();
+    }
+
     void AddChildren()
     {
         ClearChildren();
 
+        switch (mState)
+        {
+            case State::MainMenu:
+                AddMainMenu();
+                break;
+            case State::Preferences:
+                AddPreferences();
+                break;
+            case State::Contents:
+                AddContents();
+                break;
+            case State::Save:
+                AddSave();
+                break;
+        }
+    }
+
+    void AddMainMenu()
+    {
         AddChildBack(&mFrame);
 
         if (mGameRunning)
@@ -167,6 +245,21 @@ private:
         AddChildBack(&mQuit);
     }
 
+    void AddPreferences()
+    {
+        AddChildBack(&mPreferencesScreen);
+    }
+
+    void AddContents()
+    {
+        AddChildBack(&mContentsScreen);
+    }
+
+    void AddSave()
+    {
+        AddChildBack(&mSaveScreen);
+    }
+
     IGuiManager& mGuiManager;
     const Font& mFont;
     const Backgrounds& mBackgrounds;
@@ -183,6 +276,11 @@ private:
     ClickButton mQuit;
     ClickButton mCancel;
 
+    PreferencesScreen mPreferencesScreen;
+    ContentsScreen mContentsScreen;
+    SaveScreen mSaveScreen;
+
+    State mState;
     bool mGameRunning;
 
     const Logging::Logger& mLogger;

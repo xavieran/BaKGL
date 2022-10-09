@@ -41,6 +41,7 @@ public:
         for (const auto& [scx, pal] : {
             std::make_pair("ENCAMP.SCX", "OPTIONS.PAL"),
             std::make_pair("FRAME.SCX", "OPTIONS.PAL"),
+            std::make_pair("CONTENTS.SCX", "CONTENTS.PAL"),
             std::make_pair("CONT2.SCX", "CONTENTS.PAL"),
             std::make_pair("FULLMAP.SCX", "FULLMAP.PAL"),
             std::make_pair("DIALOG.SCX", "INVENTOR.PAL"),
@@ -68,8 +69,7 @@ public:
     Graphics::TextureIndex GetScreen(const std::string& scx) const
     {
         ASSERT(mScxToSprite.contains(scx));
-        const auto ti = *mScxToSprite.find(scx);
-        return ti.second;
+        return mScxToSprite.find(scx)->second;
     }
 
 private:

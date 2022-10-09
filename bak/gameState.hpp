@@ -55,14 +55,23 @@ public:
     {
         if (mGameData != nullptr)
         {
-            for (unsigned i = 0; i < 12; i++)
-            {
-                mContainers.emplace_back(
-                    mGameData->LoadContainers(i + 1));
-            }
-            mGDSContainers = mGameData->LoadShops();
-            mCombatContainers = mGameData->LoadCombatInventories();
+            LoadGameData(mGameData);
         }
+    }
+
+    void LoadGameData(GameData* gameData)
+    {
+        ASSERT(gameData);
+        mGameData = gameData;
+        mGDSContainers.clear();
+        mCombatContainers.clear();
+        mContainers.clear();
+        for (unsigned i = 0; i < 12; i++)
+        {
+            mContainers.emplace_back(mGameData->LoadContainers(i + 1));
+        }
+        mGDSContainers = mGameData->LoadShops();
+        mCombatContainers = mGameData->LoadCombatInventories();
     }
 
     const Party& GetParty() const
@@ -101,7 +110,8 @@ public:
     {
         if (mGameData)
             mGameData->mChapter = chapter;
-        else mChapter = chapter;
+        else
+            mChapter = chapter;
     }
 
     Chapter GetChapter() const

@@ -35,6 +35,12 @@ class MainView : public Widget
 public:
     static constexpr auto sLayoutFile = "REQ_MAIN.DAT";
 
+    static constexpr auto sSnapToRoad = 4;
+    static constexpr auto sFullMap = 5;
+    static constexpr auto sCast = 6;
+    static constexpr auto sBookmark = 7;
+    static constexpr auto sCamp = 8;
+    static constexpr auto sMainMenu = 9;
     static constexpr auto sCharacterWidgetBegin = 10;
 
     MainView(
@@ -85,7 +91,7 @@ public:
                     std::get<Graphics::SpriteSheetIndex>(button),
                     std::get<Graphics::TextureIndex>(button),
                     std::get<Graphics::TextureIndex>(icons.GetPressedButton(widget.mImage)),
-                    [this]{ mGuiManager.ShowFullMap(); },
+                    [this, buttonIndex=i]{ HandleButton(buttonIndex); },
                     []{});
                 mButtons.back().CenterImage(std::get<glm::vec2>(button));
             }
@@ -113,6 +119,27 @@ public:
 
         for (auto& character : mCharacters)
             AddChildBack(&character);
+    }
+
+    void HandleButton(unsigned buttonIndex)
+    {
+        switch (buttonIndex)
+        {
+        case sCast:
+            break;
+        case sCamp:
+            break;
+        case sFullMap:
+            mGuiManager.ShowFullMap();
+            break;
+        case sBookmark:
+            break;
+        case sMainMenu:
+            mGuiManager.EnterMainMenu(true);
+            break;
+        default:
+            break;
+        }
     }
 
     void UpdatePartyMembers(const BAK::GameState& gameState)
