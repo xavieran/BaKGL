@@ -228,6 +228,7 @@ public:
     {
         mScreenStack.PopChild();
         mCursor.PopCursor();
+        mCursor.PopCursor();
         if (runFinished)
             PopAndRunGuiScreen();
         else

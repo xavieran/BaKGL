@@ -61,7 +61,7 @@ public:
             std::make_pair(
                 mSprites.GetDimensions(cursor),
                 cursor));
-        mLogger.Spam() << "Pushed Cursor: " << cursor << "\n";
+        mLogger.Info() << "Pushed Cursor: " << cursor << "\n";
         UpdateCursor();
     }
 
@@ -69,7 +69,7 @@ public:
     {
         // We should always have at least one cursor
         ASSERT(mCursors.size() >= 2);
-        mLogger.Spam() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
+        mLogger.Info() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
         mCursors.pop();
         UpdateCursor();
     }
@@ -102,6 +102,23 @@ private:
         const auto & [dimensions, texture] = GetCursor();
         mDrawInfo.mTexture = Graphics::TextureIndex{texture};
         mPositionInfo.mDimensions = dimensions;
+
+        std::stringstream ss{};
+        std::stack<std::pair<Dimensions, CursorIndex>> cursors{};
+        while (!mCursors.empty())
+        {
+            auto tmp = mCursors.top();
+            mCursors.pop();
+            cursors.push(tmp);
+            ss << " " << tmp.second << ",";
+        }
+        mLogger.Info() << " Stack: " << ss.str() << std::endl;
+        while (!cursors.empty())
+        {
+            auto tmp = cursors.top();
+            cursors.pop();
+            mCursors.push(tmp);
+        }
     }
 
     std::stack<std::pair<Dimensions, CursorIndex>> mCursors;

@@ -7,9 +7,11 @@
 #include <SDL2/SDL.h>
 #include "SDL_mixer_ext/SDL_mixer_ext.h"
 
+#include <chrono>
 #include <ostream>
 #include <queue>
 #include <stack>
+#include <thread>
 #include <variant>
 
 namespace AudioA {
@@ -81,6 +83,9 @@ private:
 
     std::unordered_map<SoundIndex, Sound> mSoundData;
     std::unordered_map<MusicIndex, Mix_Music*> mMusicData;
+
+    bool mRunning;
+    std::thread mQueuePlayThread;
 
     const Logging::Logger& mLogger;
     

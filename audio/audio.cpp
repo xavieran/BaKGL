@@ -68,15 +68,7 @@ void AudioManager::PopTrack()
 void AudioManager::PlaySound(SoundIndex sound)
 {
     mLogger.Debug() << "Queueing sound: " << sound << "\n";
-
-    if (!mSoundPlaying)
-    {
-        PlaySoundImpl(sound);
-    }
-    else
-    {
-        mSoundQueue.emplace(sound);
-    }
+    mSoundQueue.emplace(sound);
 }
 
 void AudioManager::PlaySoundImpl(SoundIndex sound)
@@ -113,13 +105,6 @@ void AudioManager::RewindMusic(Mix_Music* music, void*)
             }));
 
     Get().mSoundPlaying = false;
-
-    if (!Get().mSoundQueue.empty())
-    {
-        auto sound = Get().mSoundQueue.front();
-        Get().mSoundQueue.pop();
-        Get().PlaySoundImpl(sound);
-    }
 }
 
 void AudioManager::StopMusicTrack()
@@ -190,6 +175,21 @@ AudioManager::AudioManager()
     mSoundPlaying{},
     mSoundData{},
     mMusicData{},
+    mRunning{true},
+    mQueuePlayThread{[this]{
+        using namespace std::chrono_literals;
+        while (mRunning)
+        {
+            if (!mSoundPlaying && !mSoundQueue.empty())
+            {
+                std::this_thread::sleep_for(1ms);
+                auto sound = Get().mSoundQueue.front();
+                Get().mSoundQueue.pop();
+                Get().PlaySoundImpl(sound);
+            }
+            std::this_thread::sleep_for(10ms);
+        }
+    }},
     mLogger{Logging::LogState::GetLogger("AudioManager")}
 {
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
@@ -257,6 +257,8 @@ void AudioManager::ClearSounds()
 AudioManager::~AudioManager()
 {
     ClearSounds();
+    mRunning = false;
+    mQueuePlayThread.join();
     Mix_CloseAudio();
     SDL_Quit();
 }
