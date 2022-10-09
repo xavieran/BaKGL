@@ -179,6 +179,12 @@ void Widget::AddChildBack(Widget* widget)
         static_cast<Graphics::IGuiElement*>(widget));
 }
 
+bool Widget::HaveChild(Widget* elem)
+{
+    return std::find(mChildren.begin(), mChildren.end(), elem)
+        != mChildren.end();
+}
+
 void Widget::RemoveChild(Widget* elem)
 {
     elem->SetParent(nullptr);

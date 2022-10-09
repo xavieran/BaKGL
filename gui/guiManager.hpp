@@ -152,9 +152,12 @@ public:
 
     void DoFade(double duration, std::function<void()>&& fadeFunction) override
     {
-        mFadeFunction = std::move(fadeFunction);
-        AddChildBack(&mFadeScreen);
-        mFadeScreen.FadeIn(duration);
+        if (!HaveChild(&mFadeScreen))
+        {
+            mFadeFunction = std::move(fadeFunction);
+            AddChildBack(&mFadeScreen);
+            mFadeScreen.FadeIn(duration);
+        }
     }
 
     void EnterMainView() override

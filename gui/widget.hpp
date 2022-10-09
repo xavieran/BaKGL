@@ -67,6 +67,7 @@ public:
 
     void AddChildFront(Widget* widget);
     void AddChildBack(Widget* widget);
+    bool HaveChild(Widget* widget);
     void RemoveChild(Widget* elem);
     void PopChild();
     void ClearChildren();
