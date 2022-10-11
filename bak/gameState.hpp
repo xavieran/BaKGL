@@ -246,6 +246,18 @@ public:
         return true;
     }
 
+    void SetCharacterTextVariables()
+    {
+        // FIXME: There is more to setting the characters than this...
+        if (GetParty().GetNumCharacters() > 0)
+        {
+            mTextVariableStore.SetTextVariable(4, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
+            mTextVariableStore.SetTextVariable(3, GetParty().GetCharacter(ActiveCharIndex{1}).GetName());
+            if (GetParty().GetNumCharacters() > 2)
+                mTextVariableStore.SetTextVariable(5, GetParty().GetCharacter(ActiveCharIndex{2}).GetName());
+        }
+    }
+
     void EvaluateAction(const DialogAction& action)
     {
         std::visit(overloaded{

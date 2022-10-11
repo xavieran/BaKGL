@@ -24,13 +24,6 @@ public:
         mLogger{Logging::LogState::GetLogger("BAK::TextVariableStore")}
     {}
 
-    std::string MakeVariableName(unsigned variable)
-    {
-        std::stringstream ss{};
-        ss << "@" << variable;
-        return ss.str();
-    }
-
     void Clear()
     {
         mTextVariables.clear();
@@ -72,6 +65,13 @@ public:
     }
 
 private:
+    std::string MakeVariableName(unsigned variable)
+    {
+        std::stringstream ss{};
+        ss << "@" << variable;
+        return ss.str();
+    }
+
     std::unordered_map<std::string, std::string> mTextVariables;
     std::string mSelectedCharacter;
 

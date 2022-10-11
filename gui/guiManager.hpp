@@ -162,6 +162,7 @@ public:
 
     void EnterMainView() override
     {
+        mMainView.UpdatePartyMembers(mGameState);
         DoFade(1.0,[this]{
             mScreenStack.PopScreen();
             mScreenStack.PushScreen(&mMainView);

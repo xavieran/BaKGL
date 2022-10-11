@@ -268,6 +268,11 @@ public:
         }
     }
 
+    const std::string& GetName() const
+    {
+        return mName;
+    }
+
     const Skills& GetSkills() const
     {
         return mSkills;

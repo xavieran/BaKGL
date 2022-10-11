@@ -65,8 +65,7 @@ int main(int argc, char** argv)
     int opt;
 
     BAK::ZoneLabel zoneLabel{1};
-    glm::vec<3, float> startPosition{0.0f, 0.0f, 0.0f};
-    glm::vec<2, float> startHeading{3.14f, 0.0f};
+    std::optional<std::string> saveName{};
     
     BAK::GameData* gameData{nullptr};
 
@@ -82,16 +81,7 @@ int main(int argc, char** argv)
         {
 			noOptions = false;
             logger.Info() << "Loading save file: " << optarg << std::endl;
-
-            std::string saveFile = optarg;
-            gameData = new BAK::GameData(saveFile);
-            const auto zone = gameData->mLocation.mZone;
-            logger.Info() << "Loaded save: " << gameData->mName << "\n";
-
-            zoneLabel = BAK::ZoneLabel{zone};
-            startPosition = BAK::ToGlCoord<float>(gameData->mLocation.mLocation.mPosition);
-            startHeading = BAK::ToGlAngle(gameData->mLocation.mLocation.mHeading);
-            logger.Info() << "StartHeading: " << startHeading << "\n";
+            saveName = optarg;
         }
         else if (opt == 'z')
         {
@@ -105,14 +95,7 @@ int main(int argc, char** argv)
 	if (noOptions)
 	{
 		logger.Info() << "Attempting to load default save 'NEW_GAME.GAM'\n";
-		gameData = new BAK::GameData("NEW_GAME.GAM");
-		const auto zone = gameData->mLocation.mZone;
-		logger.Info() << "Loaded save: " << gameData->mName << "\n";
-		zoneLabel = BAK::ZoneLabel{ zone };
-		startPosition = BAK::ToGlCoord<float>(gameData->mLocation.mLocation.mPosition);
-		logger.Debug() << "BakSaveAngle: " << gameData->mLocation.mLocation.mHeading << "\n";
-		startHeading = BAK::ToGlAngle(gameData->mLocation.mLocation.mHeading);
-        logger.Debug() << "StartHeading:" << startHeading << "\n";
+		saveName = "NEW_GAME.GAM";
 	}
 
     auto guiScalar = 4.0f;
@@ -149,7 +132,7 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
         
-    auto gameState = BAK::GameState{gameData};
+    auto gameState = BAK::GameState{nullptr};
 
     auto guiManager = Gui::GuiManager{
         root.GetCursor(),
@@ -157,10 +140,8 @@ int main(int argc, char** argv)
         gameState
     };
 
-    //guiManager.EnterMainView();
-    guiManager.EnterMainMenu(false);
-
     root.AddChildFront(&guiManager);
+    guiManager.EnterMainMenu(false);
 
     Camera lightCamera{
         static_cast<unsigned>(width),
@@ -177,7 +158,6 @@ int main(int argc, char** argv)
     Camera* cameraPtr = &camera;
 
     guiManager.mMainView.SetHeading(camera.GetHeading());
-    guiManager.mMainView.UpdatePartyMembers(gameState);
 
     // OpenGL 3D Renderer
     constexpr auto sShadowDim = 4096;
@@ -195,15 +175,18 @@ int main(int argc, char** argv)
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
-    gameRunner.LoadZoneData(zoneLabel.GetZoneNumber());
-
-    if (startPosition == glm::vec<3, float>{0,0,0})
-        startPosition = gameRunner.mZoneData->mWorldTiles.GetTiles().front().GetCenter();
-
-    startPosition.y = 100;
-
-    camera.SetPosition(startPosition);
-    camera.SetAngle(startHeading);
+    if (saveName)
+    {
+        gameRunner.LoadGame(*saveName);
+    }
+    else
+    {
+        gameRunner.LoadZoneData(zoneLabel.GetZoneNumber());
+        auto position = gameRunner.mZoneData->mWorldTiles
+                .GetTiles().front().GetCenter();
+        position.y = 100;
+        camera.SetPosition(position);
+    }
 
     Graphics::Light light{
         glm::vec3{.2, -1, 0},

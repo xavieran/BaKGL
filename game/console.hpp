@@ -139,6 +139,21 @@ struct Console : public std::streambuf
         AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{music_index});
     }
 
+    void LoadGame(const std::vector<std::string>& words)
+    {
+        if (words.size() < 1)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: LOAD_GAME SAVE_PATH (%s)", ss.str().c_str());
+            return;
+        }
+
+        ASSERT(mGameRunner);
+        mGameRunner->LoadGame(words[1]);
+    }
+
     void PlaySound(const std::vector<std::string>& words)
     {
         if (words.size() < 1)
@@ -373,6 +388,9 @@ struct Console : public std::streambuf
 
         mCommands.push_back("SWITCH_MIDI_PLAYER");
         mCommandActions.emplace_back([this](const auto& cmd){ SwitchMidiPlayer(cmd); });
+
+        mCommands.push_back("LOAD_GAME");
+        mCommandActions.emplace_back([this](const auto& cmd){ LoadGame(cmd); });
 
         mCommands.push_back("PLAY_SOUND");
         mCommandActions.emplace_back([this](const auto& cmd){ PlaySound(cmd); });

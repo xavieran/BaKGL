@@ -85,6 +85,8 @@ void DialogRunner::BeginDialog(
 
     ASSERT(!IsActive());
 
+    mGameState.SetCharacterTextVariables();
+
     if (isTooltip)
         mDialogState.ActivateTooltip();
     else

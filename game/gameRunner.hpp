@@ -14,7 +14,6 @@
 
 #include "gui/guiManager.hpp"
 
-
 namespace Game {
 
 class GameRunner : public BAK::IZoneLoader
@@ -39,6 +38,7 @@ public:
             [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
             [&](const auto&){ }
         },
+        mGameData{nullptr},
         mZoneData{nullptr},
         mActiveEncounter{nullptr},
         mActiveClickable{nullptr},
@@ -75,24 +75,31 @@ public:
                 *teleport.mTargetGDSScene);
     }
 
+    void LoadGame(std::string savePath)
+    {
+        mGameData = std::make_unique<BAK::GameData>(savePath);
+        mGameState.LoadGameData(mGameData.get());
+        LoadZoneData(mGameState.GetZone().mValue);
+    }
+
     void LoadZoneData(unsigned zone)
     {
         mZoneData = std::make_unique<BAK::Zone>(zone);
-        LoadSystems();
         mLoadRenderer(*mZoneData);
+        LoadSystems();
+        mCamera.SetGameLocation(mGameState.GetLocation());
     }
 
     void DoTransition(
         unsigned targetZone,
         BAK::GamePositionAndHeading targetLocation)
     {
-        LoadZoneData(targetZone);
-        mCamera.SetGameLocation(targetLocation);
         mGameState.SetLocation(
             BAK::Location{
                 targetZone,
                 BAK::GetTile(targetLocation.mPosition),
-                mCamera.GetGameLocation()});
+                targetLocation});
+        LoadZoneData(targetZone);
     }
 
     void LoadSystems()
@@ -458,6 +465,7 @@ public:
     std::unique_ptr<IInteractable> mCurrentInteractable;
     Gui::DynamicDialogScene mDynamicDialogScene;
 
+    std::unique_ptr<BAK::GameData> mGameData;
     std::unique_ptr<BAK::Zone> mZoneData;
 
     const BAK::Encounter::Encounter* mActiveEncounter;

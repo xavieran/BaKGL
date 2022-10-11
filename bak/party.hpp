@@ -15,6 +15,11 @@ namespace BAK {
 class Party
 {
 public:
+    std::size_t GetNumCharacters() const
+    {
+        return mActiveCharacters.size();
+    }
+
     const Character& GetCharacter(CharIndex i) const
     {
         //ASSERT(mCharacters.size() == sMaxCharacters);
