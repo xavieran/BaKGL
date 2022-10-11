@@ -207,7 +207,7 @@ public:
         const BAK::HotspotRef& hotspot,
         std::function<void()>&& finished) override
     {
-        DoFade(1.0, [&, finished=std::move(finished)]() mutable {
+        DoFade(1.0, [this, hotspot=hotspot, finished=std::move(finished)]() mutable {
         mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         mCursor.PushCursor(0);
 
@@ -304,7 +304,7 @@ public:
 
     void ShowCharacterPortrait(BAK::ActiveCharIndex character) override
     {
-        DoFade(1.0, [this, character]{
+        DoFade(.8, [this, character]{
             mInfoScreen.SetSelectedCharacter(character);
             mInfoScreen.UpdateCharacter();
             mScreenStack.PushScreen(&mInfoScreen);
@@ -313,14 +313,14 @@ public:
 
     void ExitCharacterPortrait() override
     {
-        DoFade(1.0, [this]{
+        DoFade(.8, [this]{
             mScreenStack.PopScreen();
         });
     }
 
     void ShowInventory(BAK::ActiveCharIndex character) override
     {
-        DoFade(1.0, [this, character]{
+        DoFade(.8, [this, character]{
             mCursor.PushCursor(0);
             mGuiScreens.push(GuiScreen{[](){}});
 
@@ -381,7 +381,7 @@ public:
 
     void ShowFullMap() override
     {
-        DoFade(1.0, [this]{
+        DoFade(.8, [this]{
             mScreenStack.PushScreen(&mFullMap);
         });
     }
