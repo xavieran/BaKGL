@@ -86,7 +86,7 @@ public:
             if (Within(pos))
             {
                 mWithinWidget = true;
-                Logging::LogInfo("Gui::Hotspot") << " EnteredFrom( "  << mHighlightCursor << " )\n";
+                Logging::LogSpam("Gui::Hotspot") << " EnteredFrom( "  << mHighlightCursor << " )\n";
                 mCursor.PushCursor(mHighlightCursor);
             }
             else
@@ -99,7 +99,7 @@ public:
             // Mouse entered widget
             if (Within(pos) && !(*mWithinWidget))
             {
-                Logging::LogInfo("Gui::Hotspot") << " Entered( "  << mHighlightCursor << " )\n";
+                Logging::LogSpam("Gui::Hotspot") << " Entered( "  << mHighlightCursor << " )\n";
                 mWithinWidget = true;
                 mCursor.PushCursor(mHighlightCursor);
             }

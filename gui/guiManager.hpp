@@ -144,6 +144,13 @@ public:
         return mScreenStack;
     }
 
+    void LoadGame(std::string save) override
+    {
+        ASSERT(mZoneLoader);
+        mZoneLoader->LoadGame(save);
+        EnterMainView();
+    }
+
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader)
     {
         ASSERT(zoneLoader);

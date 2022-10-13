@@ -75,14 +75,14 @@ public:
             mLayout.GetWidgetDimensions(sRestore),
             mFont,
             "#Restore Game",
-            [this]{ ShowSave(); }
+            [this]{ ShowSaveOrLoad(false); }
         },
         mSaveGame{
             mLayoutGameRunning.GetWidgetLocation(sSaveGame),
             mLayoutGameRunning.GetWidgetDimensions(sSaveGame),
             mFont,
             "#Save Game",
-            [this]{ ShowSave(); }
+            [this]{ ShowSaveOrLoad(true); }
         },
         mPreferences{
             mLayout.GetWidgetLocation(sPreferences),
@@ -129,10 +129,10 @@ public:
             [this]{ BackToMainMenu(); }
         },
         mSaveScreen{
-            guiManager,
             backgrounds,
             font,
-            [this]{ BackToMainMenu(); }
+            [this]{ BackToMainMenu(); },
+            [this](const auto& file){ mGuiManager.LoadGame(file); }
         },
         mState{State::MainMenu},
         mGameRunning{false},
@@ -179,10 +179,11 @@ private:
         });
     }
 
-    void ShowSave()
+    void ShowSaveOrLoad(bool isSave)
     {
-        mGuiManager.DoFade(1.0, [this]{
+        mGuiManager.DoFade(1.0, [this, isSave]{
             mState = State::Save;
+            mSaveScreen.SetSaveOrLoad(isSave);
             AddChildren();
         });
     }

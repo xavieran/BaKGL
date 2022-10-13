@@ -40,6 +40,8 @@ public:
 
     virtual void AddAnimator(LinearAnimator&&) = 0;
     virtual ScreenStack& GetScreenStack() = 0;
+
+    virtual void LoadGame(std::string) = 0;
 };
 
 }
