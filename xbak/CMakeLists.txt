@@ -1,15 +1,5 @@
 file(GLOB SOURCE_FILES *.cc)
 file(GLOB HEADER_FILES *.h)
-add_library(xbak ${SOURCE_FILES} ${HEADER_FILES})
-    
-set_target_properties(xbak PROPERTIES CMAKE_CXX_CLANG_TIDY "")
-target_link_libraries(xbak
-    com
-    glm
-    SDL2
-    SDL2_mixer_ext_Static
-    ${LINK_UNIX_LIBRARIES}
-)
 
 # XBaK Executables
 list(APPEND XBAK_BINARIES
@@ -28,6 +18,27 @@ list(APPEND XBAK_BINARIES
     dumpwld
     resourcedemo
 )
+
+foreach (XBAK_BIN IN LISTS XBAK_BINARIES)
+    file(GLOB REMOVES "${XBAK_BIN}.cc")
+    list(REMOVE_ITEM SOURCE_FILES REMOVES)
+endforeach()
+
+foreach (FIL IN LISTS SOURCE_FILES)
+    message("File" "${FIL}")
+endforeach()
+
+add_library(xbak ${SOURCE_FILES} ${HEADER_FILES})
+    
+set_target_properties(xbak PROPERTIES CMAKE_CXX_CLANG_TIDY "")
+target_link_libraries(xbak
+    com
+    glm
+    SDL2
+    SDL2_mixer_ext_Static
+    ${LINK_UNIX_LIBRARIES}
+)
+
 
 foreach (XBAK_BIN IN LISTS XBAK_BINARIES)
     add_executable (${XBAK_BIN} ${XBAK_BIN}.cc ${XBAK})
