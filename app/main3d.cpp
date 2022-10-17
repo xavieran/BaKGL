@@ -38,6 +38,8 @@ extern "C" {
 #include <memory>
 #include <sstream>
 
+#undef main
+
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");

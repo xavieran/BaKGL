@@ -47,11 +47,11 @@ DatInfo::DatInfo()
 
 DatInfo::~DatInfo()
 {
-    for (std::vector<Vector3D*>::iterator it = vertices.begin(); it != vertices.end(); ++it)
-    {
-        delete (*it);
-    }
-    vertices.clear();
+    //for (std::vector<Vector3D*>::iterator it = vertices.begin(); it != vertices.end(); ++it)
+    //{
+    //    delete (*it);
+    //}
+    //vertices.clear();
 }
 
 GidInfo::GidInfo()
