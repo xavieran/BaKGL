@@ -36,6 +36,7 @@ public:
 
     SaveScreen(
         const Backgrounds& backgrounds,
+        const Icons& icons,
         const Font& font,
         LeaveSaveFn&& leaveSaveFn,
         LoadSaveFn&& loadSaveFn)
@@ -73,10 +74,12 @@ public:
         mDirectories{
             glm::vec2{20, 30},
             glm::vec2{100, 110},
+            icons,
             20u, 1.0f, true},
         mFiles{
             glm::vec2{130, 30},
             glm::vec2{160, 110},
+            icons,
             20u, 1.0f, true},
         mRmDirectory{
             mLayout.GetWidgetLocation(sRmDirectory),
@@ -180,7 +183,7 @@ private:
         for (const auto& dir : mSaveDirs)
         {
             mDirectories.GetChild().AddWidget(
-                glm::vec2{},
+                glm::vec2{16, 0},
                 glm::vec2{80, 18},
                 mFont,
                 (index == mSelectedDirectory ? "#" : "") + dir.mName,
@@ -194,7 +197,7 @@ private:
         for (auto save : mSaveDirs.at(mSelectedDirectory).mSaves)
         {
             mFiles.GetChild().AddWidget(
-                glm::vec2{},
+                glm::vec2{16, 0},
                 glm::vec2{160, 18},
                 mFont,
                 (index == mSelectedSave ? "#" : "") + save.mName,

@@ -84,7 +84,7 @@ public:
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{*this, mBackgrounds, mIcons},
-        mMainMenu{*this, mBackgrounds, mFontManager.GetGameFont()},
+        mMainMenu{*this, mBackgrounds, mIcons, mFontManager.GetGameFont()},
         mInfoScreen{
             *this,
             mActors,

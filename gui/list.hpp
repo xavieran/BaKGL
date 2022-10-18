@@ -41,7 +41,7 @@ public:
     void AddWidget(Args&&... args)
     {
         auto& widget = mElements.emplace_back(std::forward<Args>(args)...);
-        widget.SetPosition(mEnd);
+        widget.SetPosition(widget.GetPositionInfo().mPosition + mEnd);
         mEnd += widget.GetPositionInfo().mDimensions * mMultiplier;
         mEnd += mSpacing * mMultiplier;
 

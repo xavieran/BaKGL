@@ -41,6 +41,7 @@ public:
     MainMenuScreen(
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
+        const Icons& icons,
         const Font& font)
     :
         Widget{
@@ -130,6 +131,7 @@ public:
         },
         mSaveScreen{
             backgrounds,
+            icons,
             font,
             [this]{ BackToMainMenu(); },
             [this](const auto& file){
