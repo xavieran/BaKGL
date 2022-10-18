@@ -6,6 +6,7 @@
 #include "gui/colors.hpp"
 #include "gui/list.hpp"
 #include "gui/clickButton.hpp"
+#include "gui/scrollView.hpp"
 #include "gui/textBox.hpp"
 #include "gui/widget.hpp"
 
@@ -62,15 +63,21 @@ public:
             true
         },
         mDirectoryLabel{
-            glm::vec2{20, 20},
+            glm::vec2{22, 20},
             glm::vec2{80, 16}
         },
         mFilesLabel{
-            glm::vec2{120, 20},
+            glm::vec2{132, 20},
             glm::vec2{40, 16}
         },
-        mDirectories{20, 1.0, true},
-        mFiles{20, 1.0, true},
+        mDirectories{
+            glm::vec2{20, 30},
+            glm::vec2{100, 110},
+            20u, 1.0f, true},
+        mFiles{
+            glm::vec2{130, 30},
+            glm::vec2{160, 110},
+            20u, 1.0f, true},
         mRmDirectory{
             mLayout.GetWidgetLocation(sRmDirectory),
             mLayout.GetWidgetDimensions(sRmDirectory),
@@ -168,34 +175,34 @@ private:
 
         AddChildBack(&mFrame);
 
-        mDirectories.ClearWidgets();
+        mDirectories.GetChild().ClearWidgets();
         std::size_t index = 0;
         for (const auto& dir : mSaveDirs)
         {
-            mDirectories.AddWidget(
+            mDirectories.GetChild().AddWidget(
                 glm::vec2{},
-                glm::vec2{120, 18},
+                glm::vec2{80, 18},
                 mFont,
-                dir.mName,
-                [this, i=index++]{ DirectorySelected(i); }
+                (index == mSelectedDirectory ? "#" : "") + dir.mName,
+                [this, i=index]{ DirectorySelected(i); }
             );
+            index++;
         }
 
-        mFiles.ClearWidgets();
+        mFiles.GetChild().ClearWidgets();
         index = 0;
         for (auto save : mSaveDirs.at(mSelectedDirectory).mSaves)
         {
-            mFiles.AddWidget(
+            mFiles.GetChild().AddWidget(
                 glm::vec2{},
-                glm::vec2{200, 18},
+                glm::vec2{160, 18},
                 mFont,
-                save.mName,
-                [this, i=index++]{ SaveSelected(i); }
+                (index == mSelectedSave ? "#" : "") + save.mName,
+                [this, i=index]{ SaveSelected(i); }
             );
+            index++;
         }
 
-        mFiles.SetPosition(glm::vec2{120, 40});
-        mDirectories.SetPosition(glm::vec2{20, 40});
         AddChildBack(&mDirectories);
         AddChildBack(&mFiles);
         AddChildBack(&mDirectoryLabel);
@@ -233,8 +240,8 @@ private:
     Widget mFrame;
     TextBox mDirectoryLabel;
     TextBox mFilesLabel;
-    List<ClickButton> mDirectories;
-    List<ClickButton> mFiles;
+    ScrollView<List<ClickButton>> mDirectories;
+    ScrollView<List<ClickButton>> mFiles;
     ClickButton mRmDirectory;
     ClickButton mRmFile;
     ClickButton mSave;

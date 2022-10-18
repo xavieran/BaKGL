@@ -103,4 +103,7 @@ protected:
     bool mActive;
 };
 
+template <typename T>
+concept ImplementsWidget = std::derived_from<T, Widget>;
+
 }

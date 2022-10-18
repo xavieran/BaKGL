@@ -10,9 +10,6 @@
 
 namespace Gui {
 
-template <typename T>
-concept ImplementsWidget = std::derived_from<T, Widget>;
-
 template <ImplementsWidget T>
 class List : public Widget
 {

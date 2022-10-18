@@ -132,7 +132,10 @@ public:
             backgrounds,
             font,
             [this]{ BackToMainMenu(); },
-            [this](const auto& file){ mGuiManager.LoadGame(file); }
+            [this](const auto& file){
+                mState = State::MainMenu;
+                mGuiManager.LoadGame(file);
+            }
         },
         mState{State::MainMenu},
         mGameRunning{false},
