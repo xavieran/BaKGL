@@ -110,7 +110,6 @@ FetchContent_MakeAvailable(googletest)
 
 # --- SDL 2  --- #
 list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\SDL2-2.0.22")
-#list(APPEND CMAKE_MODULE_PATH "C:/Program Files/Common Files/MSVC/SDL2-2.0.22")
 
 find_package(SDL2 REQUIRED)
 
