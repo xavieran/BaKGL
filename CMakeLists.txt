@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
+message ("CMAKE VERSION: " "${CMAKE_VERSION}")
 
 project( BaKGL )
 
@@ -108,20 +109,22 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # --- SDL 2  --- #
-list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/SDL-1.2.15")
+list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\SDL2-2.0.22")
 
 find_package(SDL2 REQUIRED)
+
 # Required for SDL_mixer or #include "SDL.h" doesn't work
 foreach (INCLUDE_DIR IN LISTS SDL2_INCLUDE_DIRS)
     include_directories(${INCLUDE_DIR})
+    message("SDL DIR: " ${INCLUDE_DIR})
 endforeach()
-
+message ("LIB: " ${SDL2_LIBRARIES})
 # Hack for SDL < 2.0.12
 if(NOT TARGET SDL2::SDL2)
     add_library(SDL2::SDL2 INTERFACE IMPORTED)
     set_target_properties(SDL2::SDL2 PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR}
-        INTERFACE_LINK_LIBRARIES ${SDL2_LIBRARIES} ${SDL2_LIBRARY}
+        INTERFACE_INCLUDE_DIRECTORIES "${SDL2_INCLUDE_DIRS}" "${SDL2_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES "${SDL2_LIBRARIES}" "${SDL2_LIBRARY}"
     )
 endif()
 
@@ -146,10 +149,13 @@ FetchContent_Declare(
 # This package spams installs...
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
+# For limpg123 find at http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win64.exe
+list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\yasm")
+
+
 FetchContent_GetProperties(SDLMixerX)
 if(NOT SDLMixerX_POPULATED)
     FetchContent_Populate(SDLMixerX)
-
 
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
     set(BUILD_SHARED_LIBS OFF)
@@ -162,6 +168,7 @@ if(NOT SDLMixerX_POPULATED)
     set(USE_MIDI_FLUIDLITE OFF)
     set(USE_MIDI_TIMIDITY OFF)
     set(USE_MODPLUG OFF)
+    set(USE_MP3_MPG123 OFF)
     set(USE_XMP OFF)
     set(USE_SYSTEM_SDL2 ON)
     set(DOWNLOAD_AUDIO_CODECS_DEPENDENCY ON)

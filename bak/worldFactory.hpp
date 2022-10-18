@@ -119,6 +119,7 @@ public:
                 item.max.SetX(model.mMax.x);
                 item.max.SetY(model.mMax.y);
                 item.max.SetZ(model.mMax.z);
+                item.vertices = {};
                 for (const auto& v : model.mVertices)
                 {
                     item.vertices.emplace_back(

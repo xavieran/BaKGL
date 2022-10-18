@@ -17,9 +17,6 @@ struct Console : public std::streambuf
 {
     using ConsoleCommand = std::function<void(const std::vector<std::string>&)>;
 
-    // This is the streambuf implementation.
-    // FIXME: This doesn't quite work because it adds a new log line
-    // for every << operator. Obviously that looks terrible.
     std::streamsize xsputn(const char_type* s, std::streamsize n)
     {
         std::size_t from = 0;
@@ -27,7 +24,7 @@ struct Console : public std::streambuf
         {
             if (s[i] == '\n')
             {
-                mStreamBuffer += std::string{s + i, i - from};
+                mStreamBuffer += std::string{s + from, i - from};
                 AddLog(mStreamBuffer.c_str());
                 mStreamBuffer.clear();
                 from = i;
