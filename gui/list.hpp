@@ -47,6 +47,7 @@ public:
         mEnd += widget.GetPositionInfo().mDimensions * mMultiplier;
         mEnd += mSpacing * mMultiplier;
         AddChildren();
+        SetDimensions(mEnd + glm::vec2{widget.GetPositionInfo().mDimensions.x, 0});
     }
 
     void ClearWidgets()
@@ -54,6 +55,7 @@ public:
         ClearChildren();
         mElements.clear();
         mEnd = glm::vec2{0, 0};
+        SetDimensions(mEnd);
     }
 
 private:

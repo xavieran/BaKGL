@@ -295,6 +295,7 @@ int main(int argc, char** argv)
 
     glfwSetCursorPos(window.get(), width/2, height/2);
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    //glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_MULTISAMPLE);  
 

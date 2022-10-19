@@ -76,9 +76,10 @@ public:
     void SetCenter(glm::vec2 pos);
     glm::vec2 GetCenter() const;
     glm::vec2 GetTopLeft() const;
+    glm::vec2 GetDimensions() const;
     void SetPosition(glm::vec2 pos);
     void AdjustPosition(glm::vec2 adj);
-    void SetDimensions(glm::vec2 dims);
+    virtual void SetDimensions(glm::vec2 dims);
 
     void SetSpriteSheet(Graphics::SpriteSheetIndex);
     void SetTexture(Graphics::TextureIndex);

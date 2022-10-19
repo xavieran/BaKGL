@@ -75,12 +75,16 @@ public:
             glm::vec2{20, 30},
             glm::vec2{100, 110},
             icons,
-            40u, 1.0f, true},
+            false,
+            true,
+            40u, 0.0f, true},
         mFiles{
             glm::vec2{130, 30},
             glm::vec2{160, 110},
             icons,
-            40u, 1.0f, true},
+            false,
+            true,
+            40u, 0.0f, true},
         mRmDirectory{
             mLayout.GetWidgetLocation(sRmDirectory),
             mLayout.GetWidgetDimensions(sRmDirectory),
@@ -184,8 +188,8 @@ private:
         for (const auto& dir : mSaveDirs)
         {
             mDirectories.GetChild().AddWidget(
-                glm::vec2{16, 0},
-                glm::vec2{80, 18},
+                glm::vec2{0, 0},
+                glm::vec2{mDirectories.GetDimensions().x - 16, 15},
                 mFont,
                 (index == mSelectedDirectory ? "#" : "") + dir.mName,
                 [this, i=index]{ DirectorySelected(i); }
@@ -196,10 +200,9 @@ private:
         index = 0;
         for (auto save : mSaveDirs.at(mSelectedDirectory).mSaves)
         {
-            mLogger.Info() << " SaveName: " << save.mName << std::endl;
             mFiles.GetChild().AddWidget(
-                glm::vec2{16, 0},
-                glm::vec2{160, 18},
+                glm::vec2{0, 0},
+                glm::vec2{mFiles.GetDimensions().x - 16, 15},
                 mFont,
                 (index == mSelectedSave ? "#" : "") + save.mName,
                 [this, i=index]{ SaveSelected(i); }
