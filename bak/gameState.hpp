@@ -217,13 +217,22 @@ public:
                 return character.mCharacterIndex.mValue + 1;
             }
         }
-        else if (actor == 0xf0)
+        else if (actor == 0xf0 || actor == 0xf4)
         {
             const auto& character = GetParty().GetCharacter(ActiveCharIndex{0});
             return character.mCharacterIndex.mValue + 1;
         }
-        // WRONG! f4 same as text variable 4...
-        else if (actor > 0xf0)
+        else if (actor == 0xf3)
+        {
+            const auto& character = GetParty().GetCharacter(ActiveCharIndex{1});
+            return character.mCharacterIndex.mValue + 1;
+        }
+        else if (actor == 0xf5)
+        {
+            const auto& character = GetParty().GetCharacter(ActiveCharIndex{2});
+            return character.mCharacterIndex.mValue + 1;
+        }
+        else if (actor > 0xf5)
         {
             return actor & 0xf;
         }

@@ -75,12 +75,12 @@ public:
             glm::vec2{20, 30},
             glm::vec2{100, 110},
             icons,
-            20u, 1.0f, true},
+            40u, 1.0f, true},
         mFiles{
             glm::vec2{130, 30},
             glm::vec2{160, 110},
             icons,
-            20u, 1.0f, true},
+            40u, 1.0f, true},
         mRmDirectory{
             mLayout.GetWidgetLocation(sRmDirectory),
             mLayout.GetWidgetDimensions(sRmDirectory),
@@ -135,7 +135,6 @@ public:
         if (mNeedRefresh)
         {
             RefreshGui();
-            mNeedRefresh = false;
         }
 
         return handled;
@@ -169,16 +168,18 @@ private:
 
     void RefreshGui()
     {
+        mNeedRefresh = false;
         AddChildren();
     }
 
     void AddChildren()
     {
+        mDirectories.GetChild().ClearWidgets();
+        mFiles.GetChild().ClearWidgets();
         ClearChildren();
 
         AddChildBack(&mFrame);
 
-        mDirectories.GetChild().ClearWidgets();
         std::size_t index = 0;
         for (const auto& dir : mSaveDirs)
         {
@@ -192,10 +193,10 @@ private:
             index++;
         }
 
-        mFiles.GetChild().ClearWidgets();
         index = 0;
         for (auto save : mSaveDirs.at(mSelectedDirectory).mSaves)
         {
+            mLogger.Info() << " SaveName: " << save.mName << std::endl;
             mFiles.GetChild().AddWidget(
                 glm::vec2{16, 0},
                 glm::vec2{160, 18},

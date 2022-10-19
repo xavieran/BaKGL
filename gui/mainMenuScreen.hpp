@@ -136,6 +136,7 @@ public:
             [this]{ BackToMainMenu(); },
             [this](const auto& file){
                 mState = State::MainMenu;
+                AudioA::AudioManager::Get().PopTrack();
                 mGuiManager.LoadGame(file);
             }
         },

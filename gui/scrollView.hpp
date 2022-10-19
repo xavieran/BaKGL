@@ -62,6 +62,7 @@ public:
             [this](const auto& p){
                 return Within(p.mValue);
             }}, event);
+
         if (isWithin)
         {
             return Widget::OnMouseEvent(event);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "com/demangle.hpp"
+
 #include <array>
 #include <iomanip>
 #include <ostream>
@@ -47,6 +49,16 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& o)
         os << "[[" << *o << "]]";
     else
         os << "[[null]]";
+    return os;
+}
+
+template <typename T>
+concept NotScalar = (!std::is_scalar_v<T>);
+
+template <NotScalar T>
+std::ostream& operator<<(std::ostream& os, T* ptr)
+{
+    os << com::demangle(typeid(ptr).name()) << "[" << std::hex << reinterpret_cast<int*>(ptr) << std::dec << "]";
     return os;
 }
 

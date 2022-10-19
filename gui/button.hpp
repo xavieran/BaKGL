@@ -41,8 +41,8 @@ public:
         }
     {
         // Top Right edge
-        this->AddChildBack(&mTopRightEdge);
-        this->AddChildBack(&mCenter);
+        AddChildBack(&mTopRightEdge);
+        AddChildBack(&mCenter);
     }
 
     Widget mTopRightEdge;
