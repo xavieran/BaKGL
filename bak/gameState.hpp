@@ -226,7 +226,7 @@ public:
             const auto& character = GetParty().GetCharacter(ActiveCharIndex{0});
             return character.mCharacterIndex.mValue + 1;
         }
-        else if (actor == 0xf3)
+        else if (actor == 0xf3 || actor == 0xf1)
         {
             const auto& character = GetParty().GetCharacter(ActiveCharIndex{1});
             return character.mCharacterIndex.mValue + 1;
@@ -264,6 +264,7 @@ public:
         // FIXME: There is more to setting the characters than this...
         if (GetParty().GetNumCharacters() > 0)
         {
+            mTextVariableStore.SetTextVariable(0, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
             mTextVariableStore.SetTextVariable(4, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
             mTextVariableStore.SetTextVariable(3, GetParty().GetCharacter(ActiveCharIndex{1}).GetName());
             if (GetParty().GetNumCharacters() > 2)
@@ -281,11 +282,11 @@ public:
             },
             [&](const BAK::SetTextVariable& set)
             {
-                if (set.mWhat == 0x7)
+                if (set.mWhat == 0x7 || set.mWhat == 0xc || set.mWhat == 0xf)
                 {
                     mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
                 }
-                if (set.mWhat == 0xd)
+                else if (set.mWhat == 0xd || set.mWhat == 0xe)
                 {
                     const auto character = GetRandomNumber(1, GetParty().GetNumCharacters() - 1);
                     mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{character}).GetName());
