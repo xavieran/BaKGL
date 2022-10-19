@@ -63,24 +63,28 @@ public:
             GetPositionInfo().mDimensions,
             true
         },
+        mRestoreLabel{
+            glm::vec2{132, 12},
+            glm::vec2{80, 16}
+        },
         mDirectoryLabel{
-            glm::vec2{22, 20},
+            glm::vec2{22, 30},
             glm::vec2{80, 16}
         },
         mFilesLabel{
-            glm::vec2{132, 20},
+            glm::vec2{132, 30},
             glm::vec2{40, 16}
         },
         mDirectories{
-            glm::vec2{20, 30},
-            glm::vec2{100, 110},
+            glm::vec2{20, 40},
+            glm::vec2{100, 100},
             icons,
             false,
             true,
             40u, 0.0f, true},
         mFiles{
-            glm::vec2{130, 30},
-            glm::vec2{160, 110},
+            glm::vec2{130, 40},
+            glm::vec2{160, 100},
             icons,
             false,
             true,
@@ -129,7 +133,8 @@ public:
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
     {
         mDirectoryLabel.AddText(mFont, "Directories");
-        mFilesLabel.AddText(mFont, "Files");
+        mFilesLabel.AddText(mFont, "Games");
+        mRestoreLabel.AddText(mFont, "#Restore Game");
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
@@ -229,11 +234,13 @@ private:
             AddChildBack(&mRmDirectory);
             AddChildBack(&mRmFile);
             AddChildBack(&mSave);
+            AddChildBack(&mRestoreLabel);
         }
         else
         {
             mCancel.SetPosition(mLayoutRestore.GetWidgetLocation(sCancel - sLoadOffset));
             AddChildBack(&mRestore);
+            AddChildBack(&mRestoreLabel);
         }
     }
 
@@ -247,6 +254,7 @@ private:
 
     bool mIsSave;
     Widget mFrame;
+    TextBox mRestoreLabel;
     TextBox mDirectoryLabel;
     TextBox mFilesLabel;
     ScrollView<List<ClickButton>> mDirectories;
