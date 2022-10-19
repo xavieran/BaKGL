@@ -29,6 +29,11 @@ std::ostream& operator<<(std::ostream& os, const MouseMove& event)
     return os << "MouseMove {" << event.mValue << "}";
 }
 
+std::ostream& operator<<(std::ostream& os, const MouseScroll& event)
+{
+    return os << "MouseScroll {" << event.mValue << "}";
+}
+
 std::ostream& operator<<(std::ostream& os, const MouseEvent& event)
 {
     return std::visit([&](const auto& e) -> std::ostream&

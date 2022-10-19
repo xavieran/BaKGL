@@ -281,6 +281,14 @@ int main(int argc, char** argv)
         }
     );
 
+    inputHandler.BindMouseScroll(
+        [&](auto pos)
+        {
+            root.OnMouseEvent(
+                Gui::MouseScroll{guiScaleInv * pos});
+        }
+    );
+
     double currentTime = 0;
     double lastTime = 0;
     float deltaTime = 0;

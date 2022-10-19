@@ -37,12 +37,19 @@ struct MouseMove
     glm::vec2 mValue;
 };
 
+struct MouseScroll
+{
+    bool operator==(const MouseScroll&) const = default;
+    glm::vec2 mValue;
+};
+
 using MouseEvent = std::variant<
     LeftMousePress,
     LeftMouseRelease,
     RightMousePress,
     RightMouseRelease,
-    MouseMove>;
+    MouseMove,
+    MouseScroll>;
 
 std::ostream& operator<<(std::ostream& os, const MouseEvent&);
 

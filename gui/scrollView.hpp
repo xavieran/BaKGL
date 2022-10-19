@@ -27,6 +27,7 @@ public:
             dims,
             true 
         },
+        mLastMousePos{0},
         mChild{std::forward<Args>(childArgs)...},
         mUp{
             glm::vec2{},
@@ -58,12 +59,19 @@ public:
 
     bool OnMouseEvent(const MouseEvent& event)
     {
-        const auto isWithin = std::visit(overloaded{
-            [this](const auto& p){
-                return Within(p.mValue);
-            }}, event);
+        // ... track mouse position
+        if (std::holds_alternative<MouseMove>(event))
+        {
+            mLastMousePos = GetValue(event);
+        }
 
-        if (isWithin)
+        if (Within(mLastMousePos) &&
+            std::holds_alternative<MouseScroll>(event))
+        {
+            mChild.AdjustPosition(GetValue(event) * 16.f);
+            return true;
+        }
+        else if (Within(GetValue(event)))
         {
             return Widget::OnMouseEvent(event);
         }
@@ -74,12 +82,12 @@ public:
 private:
     void ScrollUp()
     {
-        mChild.AdjustPosition(glm::vec2{0, 10});
+        mChild.AdjustPosition(glm::vec2{0, 16});
     }
 
     void ScrollDown()
     {
-        mChild.AdjustPosition(glm::vec2{0, -10});
+        mChild.AdjustPosition(glm::vec2{0, -16});
     }
 
     void AddChildren()
@@ -90,6 +98,8 @@ private:
         AddChildBack(&mDown);
     }
 
+    // Ideally we'd just track the cursor..?
+    glm::vec2 mLastMousePos;
     T mChild;
     ClickButtonImage mUp;
     ClickButtonImage mDown;

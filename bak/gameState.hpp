@@ -10,6 +10,7 @@
 #include "bak/textVariableStore.hpp"
 #include "bak/types.hpp"
 
+#include "com/random.hpp"
 #include "com/visit.hpp"
 
 namespace BAK {
@@ -277,9 +278,20 @@ public:
             },
             [&](const BAK::SetTextVariable& set)
             {
-                if (set.mWhat == 0x11)
+                if (set.mWhat == 0x7)
                 {
-                    mTextVariableStore.SetTextVariable(set.mWhich, "Active Character");
+                    mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
+                }
+                if (set.mWhat == 0xd)
+                {
+                    const auto character = GetRandomNumber(1, GetParty().GetNumCharacters() - 1);
+                    mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{character}).GetName());
+                }
+                else if (set.mWhat == 0x11)
+                {
+                    mTextVariableStore.SetTextVariable(
+                        set.mWhich,
+                        "Opponent");
                 }
                 else if (set.mWhat == 0x12)
                 {
