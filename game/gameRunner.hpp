@@ -75,7 +75,7 @@ public:
                 *teleport.mTargetGDSScene);
     }
 
-    void LoadGame(std::string savePath)
+    void LoadGame(std::string savePath) override
     {
         mGameData = std::make_unique<BAK::GameData>(savePath);
         mGameState.LoadGameData(mGameData.get());
