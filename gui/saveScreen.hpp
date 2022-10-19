@@ -196,6 +196,7 @@ private:
             );
             index++;
         }
+        mDirectories.ResetScroll();
 
         index = 0;
         for (auto save : mSaveDirs.at(mSelectedDirectory).mSaves)
@@ -209,6 +210,7 @@ private:
             );
             index++;
         }
+        mFiles.ResetScroll();
 
         AddChildBack(&mDirectories);
         AddChildBack(&mFiles);

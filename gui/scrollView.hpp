@@ -75,6 +75,13 @@ public:
 
         return false;
     }
+    
+    void ResetScroll()
+    {
+        mScrollBar.SetScale(std::min(GetDimensions().y / mChild.GetDimensions().y, 1.0f));
+        mChild.SetPosition(glm::vec2{});
+        mScrollBar.SetBarPosition(0);
+    }
 
 private:
     void Scroll(glm::vec2 adjustment)
@@ -95,8 +102,6 @@ private:
                 newPosition = glm::vec2{newPosition.x, dimDiff};
             }
         }
-
-        mScrollBar.SetScale(std::min(GetDimensions().y / mChild.GetDimensions().y, 1.0f));
 
         // No need for scrolling if the child fits in the scroll view
         if (mChild.GetDimensions().y < GetDimensions().y) return;

@@ -21,6 +21,7 @@ public:
 class SaveDirectory
 {
 public:
+    unsigned mIndex;
     std::string mName;
     std::vector<SaveFile> mSaves;
 };

@@ -62,7 +62,7 @@ public:
             std::get<Graphics::SpriteSheetIndex>(icons.GetButton(1)),
             std::get<Graphics::TextureIndex>(icons.GetButton(1)),
             std::get<Graphics::TextureIndex>(icons.GetPressedButton(1)),
-            []{ }, //Scroll(glm::vec2{0, -1}); },
+            []{}, //Scroll(glm::vec2{0, -1}); },
             []{}
         },
         mLogger{Logging::LogState::GetLogger("Gui::ScrollBar")}
@@ -75,7 +75,7 @@ public:
         mScale = scale;
         mHandle.SetDimensions(
             glm::vec2{mHandle.GetDimensions().x,
-                mBar.GetDimensions().y * mScale});
+                (mBar.GetDimensions().y - sMarginPixels * 2) * mScale});
     }
 
     bool OnMouseEvent(const MouseEvent& event)
