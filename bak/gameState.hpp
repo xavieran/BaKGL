@@ -73,6 +73,7 @@ public:
         }
         mGDSContainers = mGameData->LoadShops();
         mCombatContainers = mGameData->LoadCombatInventories();
+        mZone = ZoneNumber{mGameData->mLocation.mZone};
     }
 
     const Party& GetParty() const
@@ -163,7 +164,9 @@ public:
     auto GetZone() const
     {
         if (mGameData)
+        {
             return ZoneNumber{mGameData->mLocation.mZone};
+        }
         return mZone;
     }
 

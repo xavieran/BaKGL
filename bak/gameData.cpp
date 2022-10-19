@@ -559,7 +559,7 @@ Location GameData::LoadLocation()
 
     unsigned zone = mBuffer.GetUint8();
     ASSERT(zone < 12);
-    mLogger.Info() << "Zone:" << zone << std::endl;
+    mLogger.Info() << "LOADED: Zone:" << zone << std::endl;
 
     unsigned xtile = mBuffer.GetUint8();
     unsigned ytile = mBuffer.GetUint8();
