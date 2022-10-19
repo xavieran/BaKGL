@@ -84,7 +84,7 @@ public:
         mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{*this, mBackgrounds, mIcons},
-        mMainMenu{*this, mBackgrounds, mFontManager.GetGameFont()},
+        mMainMenu{*this, mBackgrounds, mIcons, mFontManager.GetGameFont()},
         mInfoScreen{
             *this,
             mActors,
@@ -142,6 +142,13 @@ public:
     ScreenStack& GetScreenStack() override
     {
         return mScreenStack;
+    }
+
+    void LoadGame(std::string save) override
+    {
+        ASSERT(mZoneLoader);
+        mZoneLoader->LoadGame(save);
+        EnterMainView();
     }
 
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader)

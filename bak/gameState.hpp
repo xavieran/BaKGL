@@ -10,6 +10,7 @@
 #include "bak/textVariableStore.hpp"
 #include "bak/types.hpp"
 
+#include "com/random.hpp"
 #include "com/visit.hpp"
 
 namespace BAK {
@@ -72,6 +73,7 @@ public:
         }
         mGDSContainers = mGameData->LoadShops();
         mCombatContainers = mGameData->LoadCombatInventories();
+        mZone = ZoneNumber{mGameData->mLocation.mZone};
     }
 
     const Party& GetParty() const
@@ -162,7 +164,9 @@ public:
     auto GetZone() const
     {
         if (mGameData)
+        {
             return ZoneNumber{mGameData->mLocation.mZone};
+        }
         return mZone;
     }
 
@@ -217,13 +221,22 @@ public:
                 return character.mCharacterIndex.mValue + 1;
             }
         }
-        else if (actor == 0xf0)
+        else if (actor == 0xf0 || actor == 0xf4)
         {
             const auto& character = GetParty().GetCharacter(ActiveCharIndex{0});
             return character.mCharacterIndex.mValue + 1;
         }
-        // WRONG! f4 same as text variable 4...
-        else if (actor > 0xf0)
+        else if (actor == 0xf3)
+        {
+            const auto& character = GetParty().GetCharacter(ActiveCharIndex{1});
+            return character.mCharacterIndex.mValue + 1;
+        }
+        else if (actor == 0xf5)
+        {
+            const auto& character = GetParty().GetCharacter(ActiveCharIndex{2});
+            return character.mCharacterIndex.mValue + 1;
+        }
+        else if (actor > 0xf5)
         {
             return actor & 0xf;
         }
@@ -268,9 +281,20 @@ public:
             },
             [&](const BAK::SetTextVariable& set)
             {
-                if (set.mWhat == 0x11)
+                if (set.mWhat == 0x7)
                 {
-                    mTextVariableStore.SetTextVariable(set.mWhich, "Active Character");
+                    mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
+                }
+                if (set.mWhat == 0xd)
+                {
+                    const auto character = GetRandomNumber(1, GetParty().GetNumCharacters() - 1);
+                    mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{character}).GetName());
+                }
+                else if (set.mWhat == 0x11)
+                {
+                    mTextVariableStore.SetTextVariable(
+                        set.mWhich,
+                        "Opponent");
                 }
                 else if (set.mWhat == 0x12)
                 {

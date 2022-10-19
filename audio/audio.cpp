@@ -205,7 +205,9 @@ AudioManager::AudioManager()
     }
 
     Mix_VolumeMusic(sAudioVolume);
-    Mix_SetMidiPlayer(MIDI_ADLMIDI);
+    //Mix_SetMidiPlayer(MIDI_ADLMIDI);
+    Mix_SetMidiPlayer(MIDI_OPNMIDI);
+    //Mix_SetMidiPlayer(MIDI_Fluidsynth);
 }
 
 void AudioManager::SwitchMidiPlayer(MidiPlayer midiPlayer)
@@ -252,6 +254,10 @@ void AudioManager::ClearSounds()
             sound);
     }
     mSoundData.clear();
+
+    while (!mMusicStack.empty()) mMusicStack.pop();
+
+    mSoundPlaying = false;
 }
 
 AudioManager::~AudioManager()

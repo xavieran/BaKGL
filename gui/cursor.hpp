@@ -61,7 +61,7 @@ public:
             std::make_pair(
                 mSprites.GetDimensions(cursor),
                 cursor));
-        mLogger.Info() << "Pushed Cursor: " << cursor << "\n";
+        mLogger.Spam() << "Pushed Cursor: " << cursor << "\n";
         UpdateCursor();
     }
 
@@ -112,7 +112,7 @@ private:
             cursors.push(tmp);
             ss << " " << tmp.second << ",";
         }
-        mLogger.Info() << " Stack: " << ss.str() << std::endl;
+        mLogger.Spam() << " Stack: " << ss.str() << std::endl;
         while (!cursors.empty())
         {
             auto tmp = cursors.top();

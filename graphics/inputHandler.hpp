@@ -31,16 +31,19 @@ public:
         MouseCallback&& pressed,
         MouseCallback&& released);
     void BindMouseMotion(MouseCallback&& moved);
+    void BindMouseScroll(MouseCallback&& scrolled);
 
     void HandleInput(GLFWwindow* window);
     void HandleMouseInput(GLFWwindow* window);
     void HandleKeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void HandleMouseCallback(GLFWwindow* window, int button, int action, int mods);
     void HandleMouseMotionCallback(GLFWwindow* window, double xpos, double ypos);
+    void HandleMouseScrollCallback(GLFWwindow* window, double xpos, double ypos);
 
 private:
     static void MouseAction(GLFWwindow* window, int button, int action, int mods);
     static void MouseMotionAction(GLFWwindow* window, double xpos, double ypos);
+    static void MouseScrollAction(GLFWwindow* window, double xpos, double ypos);
     static void KeyboardAction(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     static InputHandler* sHandler;
@@ -50,6 +53,7 @@ private:
     std::unordered_map<int, KeyCallback> mKeyBindings;
     std::unordered_map<int, std::pair<MouseCallback, MouseCallback>> mMouseBindings;
     MouseCallback mMouseMovedBinding;
+    MouseCallback mMouseScrolledBinding;
 };
 
 }

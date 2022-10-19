@@ -34,6 +34,7 @@ add_library(bak
     random.hpp random.cpp
     resourceNames.hpp
     save.hpp save.cpp
+    saveFile.hpp saveFile.cpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
     screens.hpp

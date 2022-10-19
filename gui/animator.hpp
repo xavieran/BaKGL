@@ -29,20 +29,16 @@ public:
         mAccumulatedTimeDelta{0},
         mDuration{duration},
         mTrueDuration{duration},
-        mDelta{(end - begin)},// / static_cast<float>((duration / mTickFrequency))},
+        mDelta{(end - begin)},
         mCallback{std::move(callback)},
         mFinished{std::move(finished)}
     {
         ASSERT(mCallback);
         ASSERT(mFinished);
-        Logging::LogDebug("Gui::LinearAnimator") 
-            << "Constructed @" << this << "\n";
     }
 
     ~LinearAnimator()
     {
-        Logging::LogDebug("Gui::LinearAnimator") 
-            << "Destructed @" << this << "\n";
     }
 
     void OnTimeDelta(double delta)
@@ -53,15 +49,12 @@ public:
         bool finishEarly = false;
         if (mAccumulatedTimeDelta > mTickFrequency)
         {
-            Logging::LogSpam("Gui::LinearAnimator") << "Ticking : " << delta << "\n";
             mAccumulatedTimeDelta -= mTickFrequency;
             finishEarly = mCallback(mDelta * static_cast<float>(delta / mTrueDuration));//mDelta);
         }
 
         if (finishEarly || mDuration < 0)
         {
-            Logging::LogDebug("Gui::LinearAnimator") 
-                << "Marking dead: " << this << "\n";
             mAlive = false;
             mFinished();
         }

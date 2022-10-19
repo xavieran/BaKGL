@@ -2,24 +2,6 @@
 
 #include <random>
 
-
-// FIXME: Random shuffle is actually deprecated
-#ifdef _MSC_VER
-namespace std {
-    template< class RandomIt >
-    void random_shuffle(RandomIt first, RandomIt last)
-    {
-        typename std::iterator_traits<RandomIt>::difference_type i, n;
-        n = last - first;
-        for (i = n - 1; i > 0; --i) {
-            using std::swap;
-            swap(first[i], first[std::rand() % (i + 1)]);
-        }
-    }
-}
-#endif
-
-
 namespace BAK {
 
 Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette)
@@ -170,7 +152,11 @@ void TextureFactory::AddTerrainToTextureStore(
             image.push_back(color);
         }
         if (offset == 70)
-            std::random_shuffle(image.begin(), image.end());
+        {
+            std::random_device rd;
+            std::mt19937 g(rd());
+            std::shuffle(image.begin(), image.end(), g);
+        }
 
         startOff += offset;
         

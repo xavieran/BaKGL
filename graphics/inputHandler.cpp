@@ -11,7 +11,8 @@ InputHandler::InputHandler() noexcept
     mHandleInput{true},
     mKeyBindings{},
     mMouseBindings{},
-    mMouseMovedBinding{}
+    mMouseMovedBinding{},
+    mMouseScrolledBinding{}
 {}
 
 void InputHandler::BindMouseToWindow(GLFWwindow* window, InputHandler& handler)
@@ -19,6 +20,7 @@ void InputHandler::BindMouseToWindow(GLFWwindow* window, InputHandler& handler)
     sHandler = &handler;
     glfwSetMouseButtonCallback(window, InputHandler::MouseAction);
     glfwSetCursorPosCallback(window, InputHandler::MouseMotionAction);
+    glfwSetScrollCallback(window, InputHandler::MouseScrollAction);
 }
 
 void InputHandler::BindKeyboardToWindow(GLFWwindow* window, InputHandler& handler)
@@ -43,6 +45,11 @@ void InputHandler::BindMouse(int button, MouseCallback&& pressed, MouseCallback&
 void InputHandler::BindMouseMotion(MouseCallback&& moved)
 {
     mMouseMovedBinding = std::move(moved);
+}
+
+void InputHandler::BindMouseScroll(MouseCallback&& scrolled)
+{
+    mMouseScrolledBinding = std::move(scrolled);
 }
 
 void InputHandler::HandleInput(GLFWwindow* window)
@@ -88,6 +95,12 @@ void InputHandler::HandleMouseMotionCallback(GLFWwindow* window, double xpos, do
         std::invoke(mMouseMovedBinding, glm::vec2{xpos, ypos});
 }
 
+void InputHandler::HandleMouseScrollCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (mMouseScrolledBinding)
+        std::invoke(mMouseScrolledBinding, glm::vec2{xpos, ypos});
+}
+
 void InputHandler::HandleKeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (mHandleInput)
@@ -131,6 +144,12 @@ void InputHandler::MouseMotionAction(GLFWwindow* window, double xpos, double ypo
 {
     ASSERT(sHandler);
     sHandler->HandleMouseMotionCallback(window, xpos, ypos);
+}
+
+void InputHandler::MouseScrollAction(GLFWwindow* window, double xpos, double ypos)
+{
+    ASSERT(sHandler);
+    sHandler->HandleMouseScrollCallback(window, xpos, ypos);
 }
 
 void InputHandler::KeyboardAction(GLFWwindow* window, int key, int scancode, int action, int mods)

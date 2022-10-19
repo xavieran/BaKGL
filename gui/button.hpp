@@ -41,8 +41,15 @@ public:
         }
     {
         // Top Right edge
-        this->AddChildBack(&mTopRightEdge);
-        this->AddChildBack(&mCenter);
+        AddChildBack(&mTopRightEdge);
+        AddChildBack(&mCenter);
+    }
+
+    void SetDimensions(glm::vec2 dims) override
+    {
+        Widget::SetDimensions(dims);
+        mTopRightEdge.SetDimensions(dims - glm::vec2{1});
+        mCenter.SetDimensions(dims - glm::vec2{2});
     }
 
     Widget mTopRightEdge;

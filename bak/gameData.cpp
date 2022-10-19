@@ -1,4 +1,5 @@
 #include "bak/gameData.hpp"
+#include "bak/save.hpp"
 
 #include "bak/container.hpp"
 #include "bak/inventory.hpp"
@@ -12,7 +13,7 @@ GameData::GameData(const std::string& save)
 :
     mBuffer{FileBufferFactory::Get().CreateSaveBuffer(save)},
     mLogger{Logging::LogState::GetLogger("GameData")},
-    mName{LoadSaveName()},
+    mName{LoadSaveName(mBuffer)},
     mObjects{},
     mChapter{LoadChapter()},
     mLocation{LoadLocation()},
@@ -558,7 +559,7 @@ Location GameData::LoadLocation()
 
     unsigned zone = mBuffer.GetUint8();
     ASSERT(zone < 12);
-    mLogger.Info() << "Zone:" << zone << std::endl;
+    mLogger.Info() << "LOADED: Zone:" << zone << std::endl;
 
     unsigned xtile = mBuffer.GetUint8();
     unsigned ytile = mBuffer.GetUint8();
@@ -802,12 +803,6 @@ std::vector<GenericContainer> GameData::LoadCombatInventories()
     }
 
     return containers;
-}
-
-std::string GameData::LoadSaveName()
-{
-    mBuffer.Seek(0);
-    return mBuffer.GetString(30);
 }
 
 }

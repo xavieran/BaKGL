@@ -103,14 +103,13 @@ public:
             Color::buttonPressed,
             Color::buttonShadow,
             Color::buttonHighlight},
+        mButtonPressed{false},
         mText{
             glm::vec2{3, 2},
-            dims},
-        mButton{}
+            dims}
     {
         SetText(label);
-        mButton.emplace_back(&mNormal);
-        mButton.emplace_back(&mText);
+        AddChildren();
     }
 
     void SetText(std::string_view label)
@@ -124,14 +123,9 @@ public:
                 textPos.y});
     }
 
-    const std::vector<Graphics::IGuiElement*>& GetChildren() const override
-    {
-        return mButton;
-    }
-
     bool OnMouseEvent(const MouseEvent& event) override
     {
-        std::visit(overloaded{
+        const bool dirty = std::visit(overloaded{
             [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
             [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
             [this](const MouseMove& p){ return MouseMoved(p.mValue); },
@@ -139,15 +133,21 @@ public:
             },
             event);
 
-        return ClickButtonBase::OnMouseEvent(event);
+        const bool handled = ClickButtonBase::OnMouseEvent(event);
+
+        if (dirty)
+        {
+            AddChildren();
+        }
+
+        return handled;
     }
 
     bool LeftMousePressed(glm::vec2 click)
     {
-        ASSERT(mButton.size() >= 1);
         if (Within(click))
         {
-            mButton[0] = &mPressed;
+            return UpdateState(true);
         }
 
         return false;
@@ -155,30 +155,50 @@ public:
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        ASSERT(mButton.size() >= 1);
-        mButton[0] = &mNormal;
-        return false;
+        return UpdateState(false);
     }
 
     bool MouseMoved(glm::vec2 pos)
     {
         if (!Within(pos))
         {
-            ASSERT(mButton.size() >= 1);
-            mButton[0] = &mNormal;
+            return UpdateState(false);
         }
 
         return false;
     }
 
 private:
+    void AddChildren()
+    {
+        ClearChildren();
+        if (mButtonPressed)
+        {
+            AddChildBack(&mPressed);
+        }
+        else
+        {
+            AddChildBack(&mNormal);
+        }
+
+        AddChildBack(&mText);
+    }
+
+    bool UpdateState(bool newState)
+    {
+        const bool tmp = mButtonPressed;
+        mButtonPressed = newState;
+        return mButtonPressed != tmp;
+    }
+
     const Font& mFont;
 
     Button mNormal;
     Button mPressed;
+    bool mButtonPressed;
     TextBox mText;
     
-    std::vector<Graphics::IGuiElement*> mButton;
+    //std::vector<Graphics::IGuiElement*> mButton;
 };
 
 class ClickButtonImage : public ClickButtonBase

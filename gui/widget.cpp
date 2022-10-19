@@ -236,6 +236,11 @@ glm::vec2 Widget::GetTopLeft() const
     return mPositionInfo.mPosition;
 }
 
+glm::vec2 Widget::GetDimensions() const
+{
+    return mPositionInfo.mDimensions;
+}
+
 void Widget::SetPosition(glm::vec2 pos)
 {
     mPositionInfo.mPosition = pos;

@@ -1,7 +1,5 @@
 #include "com/path.hpp"
 
-#include <filesystem>
-
 std::string GetHomeDirectory()
 {
 #ifdef _MSC_VER
@@ -17,8 +15,12 @@ std::string GetHomeDirectory()
     return std::string{home};
 }
 
+std::filesystem::path GetBakDirectoryPath()
+{
+    return std::filesystem::path{GetHomeDirectory()} / "bak";
+}
+
 std::string GetBakDirectory()
 {
-    const auto path = std::filesystem::path{GetHomeDirectory()} / "bak";
-    return path.string();
+    return GetBakDirectoryPath().string();
 }

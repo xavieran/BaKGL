@@ -281,12 +281,21 @@ int main(int argc, char** argv)
         }
     );
 
+    inputHandler.BindMouseScroll(
+        [&](auto pos)
+        {
+            root.OnMouseEvent(
+                Gui::MouseScroll{guiScaleInv * pos});
+        }
+    );
+
     double currentTime = 0;
     double lastTime = 0;
     float deltaTime = 0;
 
     glfwSetCursorPos(window.get(), width/2, height/2);
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    //glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_MULTISAMPLE);  
 

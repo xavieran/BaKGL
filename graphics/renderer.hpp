@@ -135,14 +135,14 @@ public:
         const auto modelMatrixId = shader.GetUniformLocation("M");
         const auto viewMatrixId = shader.GetUniformLocation("V");
 
-        auto viewMatrix = camera.GetViewMatrix();
+        const auto& viewMatrix = camera.GetViewMatrix();
         glm::mat4 MVP;
 
         for (const auto& item : renderables)
         {
             if (glm::distance(camera.GetPosition(), item.GetLocation()) > 128000.0) continue;
             const auto [offset, length] = item.GetObject();
-            auto modelMatrix = item.GetModelMatrix();
+            const auto& modelMatrix = item.GetModelMatrix();
 
             MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
 

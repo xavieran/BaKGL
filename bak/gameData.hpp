@@ -11,6 +11,7 @@
 #include "bak/money.hpp"
 #include "bak/party.hpp"
 #include "bak/resourceNames.hpp"
+#include "bak/saveFile.hpp"
 #include "bak/skills.hpp"
 #include "bak/types.hpp"
 #include "bak/worldClock.hpp"
@@ -273,8 +274,6 @@ public:
     void LoadCombatEntityLists();
     void LoadCombatGridLocations();
     void LoadCombatStats(unsigned offset, unsigned num);
-
-    std::string LoadSaveName();
 
     mutable FileBuffer mBuffer;
     Logging::Logger mLogger;

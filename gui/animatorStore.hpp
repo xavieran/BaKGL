@@ -4,7 +4,7 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
-#include <gui/animator.hpp>
+#include "gui/animator.hpp"
 
 #include <glm/glm.hpp>
 
@@ -26,7 +26,7 @@ public:
     void AddAnimator(Args&&... args)
     {
         mAnimators.emplace_back(std::forward<Args>(args)...);
-        mLogger.Debug() << "Added animator @" << &mAnimators.back() << "\n";
+        mLogger.Spam() << "Added animator @" << &mAnimators.back() << "\n";
     }
 
     void OnTimeDelta(double delta)
