@@ -230,7 +230,6 @@ private:
             mSave.SetPosition(mLayout.GetWidgetLocation(sSave));
             mCancel.SetPosition(mLayout.GetWidgetLocation(sCancel));
 
-            AddChildBack(&mDirectories);
             AddChildBack(&mRmDirectory);
             AddChildBack(&mRmFile);
             AddChildBack(&mSave);
