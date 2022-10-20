@@ -35,6 +35,8 @@ class MainView : public Widget
 public:
     static constexpr auto sLayoutFile = "REQ_MAIN.DAT";
 
+    static constexpr auto sForward = 2;
+    static constexpr auto sBackward = 1;
     static constexpr auto sSnapToRoad = 4;
     static constexpr auto sFullMap = 5;
     static constexpr auto sCast = 6;
@@ -93,7 +95,14 @@ public:
                     std::get<Graphics::TextureIndex>(icons.GetPressedButton(widget.mImage)),
                     [this, buttonIndex=i]{ HandleButton(buttonIndex); },
                     []{});
+
                 mButtons.back().CenterImage(std::get<glm::vec2>(button));
+                // Not sure why the dims aren't right to begin with for these buttons
+                if (i == sForward || i == sBackward)
+                {
+                    mButtons.back().AdjustPosition(
+                        glm::vec2{-mButtons.back().GetDimensions().x / 4 + 1.5, 0});
+                }
             }
                 break;
             default:
