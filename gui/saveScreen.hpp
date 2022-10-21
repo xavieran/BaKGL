@@ -124,7 +124,8 @@ public:
             "#Cancel",
             [this]{ std::invoke(mLeaveSaveFn); }
         },
-        mRefreshScrolls{false},
+        mRefreshDirectories{false},
+        mRefreshSaves{false},
         mSelectedDirectory{0},
         mSelectedSave{0},
         mSaveDirs{
@@ -154,6 +155,8 @@ public:
     {
         mIsSave = isSave;
         RefreshGui();
+        mRefreshSaves = true;
+        mRefreshDirectories = true;
     }
 
 private:
@@ -168,7 +171,7 @@ private:
         mSelectedDirectory = i;
         mSelectedSave = 0;
         mNeedRefresh = true;
-        mRefreshScrolls = true;
+        mRefreshSaves = true;
     }
 
     void SaveSelected(std::size_t i)
@@ -245,11 +248,15 @@ private:
         // Only refresh this when the directory changes
         // otherwises the scroll view will pop back to the top
         // when we click on a save
-        if (mRefreshScrolls)
+        if (mRefreshSaves)
+        {
+            mFiles.ResetScroll();
+            mRefreshSaves = false;
+        }
+        if (mRefreshDirectories)
         {
             mDirectories.ResetScroll();
-            mFiles.ResetScroll();
-            mRefreshScrolls = false;
+            mRefreshDirectories = false;
         }
     }
 
@@ -274,7 +281,8 @@ private:
     ClickButton mRestore;
     ClickButton mCancel;
 
-    bool mRefreshScrolls;
+    bool mRefreshDirectories;
+    bool mRefreshSaves;
     std::size_t mSelectedDirectory;
     std::size_t mSelectedSave;
     std::vector<BAK::SaveDirectory> mSaveDirs;
