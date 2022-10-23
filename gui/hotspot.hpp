@@ -106,7 +106,7 @@ public:
             // Mouse exited widget
             else if (!Within(pos) && *mWithinWidget)
             {
-                Logging::LogInfo("Gui::Hotspot") << " Exited ( "  << mHighlightCursor << " )\n";
+                Logging::LogSpam("Gui::Hotspot") << " Exited ( "  << mHighlightCursor << " )\n";
                 mWithinWidget = false;
                 mCursor.PopCursor();
             }

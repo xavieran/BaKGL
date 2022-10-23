@@ -69,7 +69,7 @@ public:
     {
         // We should always have at least one cursor
         ASSERT(mCursors.size() >= 2);
-        mLogger.Info() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
+        mLogger.Spam() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
         mCursors.pop();
         UpdateCursor();
     }

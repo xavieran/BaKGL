@@ -13,7 +13,8 @@ struct ShopStats
     std::uint8_t mSellFactor;
     std::uint8_t mMaxDiscount;
     std::uint8_t mBuyFactor;
-    std::uint16_t mHaggle;
+    std::uint8_t mHaggle1;
+    std::uint8_t mHaggle2;
     std::uint8_t mBardingSkill;
     std::uint8_t mBardingReward;
     std::uint8_t mBardingMaxReward;

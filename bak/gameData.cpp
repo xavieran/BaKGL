@@ -38,7 +38,7 @@ GameData::GameData(const std::string& save)
     //LoadContainers(0xc);
     //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
     //    << mBuffer.Tell() << std::dec << "\n";
-    //LoadShops();
+    LoadShops();
     //LoadCombatEntityLists();
     //LoadCombatInventories(
     //    sCombatInventoryOffset,
@@ -617,7 +617,8 @@ ShopStats GameData::LoadShop()
     const auto sellFactor = mBuffer.GetUint8();
     const auto maxDiscount = mBuffer.GetUint8();
     const auto buyFactor = mBuffer.GetUint8();
-    const auto haggle = mBuffer.GetUint16LE();
+    const auto haggle1 = mBuffer.GetUint8();
+    const auto haggle2 = mBuffer.GetUint8();
     const auto bardingSkill = mBuffer.GetUint8();
     const auto bardingReward = mBuffer.GetUint8();
     const auto bardingMaxReward = mBuffer.GetUint8();
@@ -631,7 +632,8 @@ ShopStats GameData::LoadShop()
         sellFactor,
         maxDiscount,
         buyFactor,
-        haggle,
+        haggle1,
+        haggle2,
         bardingSkill,
         bardingReward,
         bardingMaxReward,
