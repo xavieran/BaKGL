@@ -44,6 +44,8 @@ public:
     void DialogFinished(const std::optional<BAK::ChoiceIndex>&) override;
     void EnterContainer();
     void DoBard();
+    void HandleItemSelected(BAK::ActiveCharIndex, BAK::InventoryIndex);
+
 
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;
@@ -70,6 +72,8 @@ public:
     bool mPendingBard;
     // e.g. when you fail barding
     bool mKickedOut;
+    bool mPendingTemple;
+    bool mPendingTeleport;
 
     static constexpr auto mMaxSceneNesting = 4;
 

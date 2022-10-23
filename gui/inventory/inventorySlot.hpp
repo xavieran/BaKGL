@@ -169,6 +169,11 @@ public:
         }
     }
 
+    bool IsSelected() const
+    {
+        return mIsSelected;
+    }
+
 protected:
     void AddItem(bool snapToTop)
     {

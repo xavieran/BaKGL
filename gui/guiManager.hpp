@@ -331,6 +331,7 @@ public:
         DoFade(.8, [this, character]{
             mCursor.PushCursor(0);
             mGuiScreens.push(GuiScreen{[](){}});
+            mInventoryScreen.SetSelectionMode(false);
 
             mInventoryScreen.SetSelectedCharacter(character);
             mScreenStack.PushScreen(&mInventoryScreen);
@@ -340,22 +341,46 @@ public:
     void ShowContainer(BAK::IContainer* container) override
     {
         mCursor.PushCursor(0);
+        ASSERT(container);
         ASSERT(container->GetInventory().GetCapacity() > 0);
 
         mGuiScreens.push(GuiScreen{[&](){
             mInventoryScreen.ClearContainer();
         }});
 
+        mInventoryScreen.SetSelectionMode(false);
         mInventoryScreen.SetContainer(container);
         mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
         mScreenStack.PushScreen(&mInventoryScreen);
     }
 
+    void SelectItem(std::function<void(BAK::ActiveCharIndex, BAK::InventoryIndex)>&& itemSelected) override
+    {
+        mCursor.PushCursor(0);
+
+        mGuiScreens.push(GuiScreen{[&, selected=std::move(itemSelected)]() mutable {
+            mLogger.Debug() << __FUNCTION__ << " SelectItem\n";
+            ASSERT(mInventoryScreen.GetSelectedCharacter());
+            ASSERT(mInventoryScreen.GetSelectedItem());
+            selected(
+                *mInventoryScreen.GetSelectedCharacter(),
+                *mInventoryScreen.GetSelectedItem());
+        }});
+
+        mInventoryScreen.SetSelectionMode(true);
+        mLogger.Debug() << __FUNCTION__ << " Pushing select item\n";
+        mScreenStack.PushScreen(&mInventoryScreen);
+    }
+
     void ExitInventory() override
     {
-        mCursor.PopCursor();
-        PopAndRunGuiScreen();
-        mScreenStack.PopScreen();
+        mLogger.Debug() << __FUNCTION__ << " BEGIN" << std::endl;
+        DoFade(1.0, [this]{ 
+            mCursor.PopCursor();
+            mScreenStack.PopScreen();
+            PopAndRunGuiScreen();
+            mLogger.Debug() << __FUNCTION__ << " ExitInventory" << std::endl;
+        });
     }
 
     void ShowLock(

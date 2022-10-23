@@ -67,6 +67,8 @@ public:
     void SetSelectedCharacter(
         BAK::ActiveCharIndex character);
 
+    void SetSelectionMode(bool);
+
     void ClearContainer();
     void SetContainer(BAK::IContainer* container);
 
@@ -74,6 +76,8 @@ public:
     bool OnMouseEvent(const MouseEvent& event) override;
     void PropagateUp(const DragEvent& event) override;
 
+    std::optional<BAK::ActiveCharIndex> GetSelectedCharacter() const;
+    std::optional<BAK::InventoryIndex> GetSelectedItem() const;
 private:
     auto& GetCharacter(BAK::ActiveCharIndex i)
     {
@@ -166,6 +170,9 @@ private:
     void AddChildren();
     
     void CheckExclusivity();
+
+    void HandleItemSelected();
+
     
 private:
     IGuiManager& mGuiManager;
@@ -206,6 +213,8 @@ private:
 
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mDisplayContainer;
+    bool mItemSelectionMode;
+    std::optional<BAK::InventoryIndex> mSelectedItem;
     BAK::IContainer* mContainer;
     bool mNeedRefresh;
 

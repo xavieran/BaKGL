@@ -52,9 +52,7 @@ InventoryScreen::InventoryScreen(
         std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
         std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
         [this]{
-            mGuiManager.DoFade(
-                1.0,
-                [this]{ mGuiManager.ExitInventory(); });
+            mGuiManager.ExitInventory();
         },
         []{}
     },
@@ -124,6 +122,8 @@ InventoryScreen::InventoryScreen(
     },
     mSelectedCharacter{},
     mDisplayContainer{false},
+    mItemSelectionMode{false},
+    mSelectedItem{},
     mContainer{nullptr},
     mNeedRefresh{false},
     mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
@@ -135,6 +135,7 @@ InventoryScreen::InventoryScreen(
 void InventoryScreen::SetSelectedCharacter(
     BAK::ActiveCharIndex character)
 {
+    mSelectedItem = std::nullopt;
     ShowCharacter(character);
     RefreshGui();
 }
@@ -182,6 +183,12 @@ bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
     {
         RefreshGui();
         mNeedRefresh = false;
+    }
+
+    if (std::holds_alternative<LeftMousePress>(event)
+        && mItemSelectionMode)
+    {
+        HandleItemSelected();
     }
 
     return handled;
@@ -254,6 +261,12 @@ void InventoryScreen::ShowCharacter(BAK::ActiveCharIndex character)
     mDisplayContainer = false;
     mSelectedCharacter = character;
     mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
+}
+
+void InventoryScreen::SetSelectionMode(bool mode)
+{
+    SetSelectedCharacter(BAK::ActiveCharIndex{0});
+    mItemSelectionMode = mode;
 }
 
 void InventoryScreen::TransferItemFromCharacterToCharacter(
@@ -1003,6 +1016,44 @@ void InventoryScreen::AddChildren()
 void InventoryScreen::CheckExclusivity()
 {
     ASSERT(bool{mSelectedCharacter} ^ mDisplayContainer);
+}
+
+void InventoryScreen::HandleItemSelected()
+{
+    const auto checkItem = [&](auto& item) -> bool
+    {
+        if (item.IsSelected())
+        {
+            mSelectedItem = item.GetItemIndex();
+            mGuiManager.ExitInventory();
+            return true;
+        }
+        return false;
+    };
+
+    for (auto& item : mInventoryItems)
+    {
+        if (checkItem(item)) return;
+    }
+
+    if (mWeapon.HasItem() && checkItem(mWeapon.GetInventorySlot()))
+        return;
+
+    if (mArmor.HasItem() && checkItem(mArmor.GetInventorySlot()))
+        return;
+
+    if (mCrossbow.HasItem() && checkItem(mCrossbow.GetInventorySlot()))
+        return;
+}
+
+std::optional<BAK::InventoryIndex> InventoryScreen::GetSelectedItem() const
+{
+    return mSelectedItem;
+}
+
+std::optional<BAK::ActiveCharIndex> InventoryScreen::GetSelectedCharacter() const
+{
+    return mSelectedCharacter;
 }
 
 }

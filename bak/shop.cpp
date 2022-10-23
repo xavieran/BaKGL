@@ -27,6 +27,26 @@ std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
     return os;
 }
 
+std::uint8_t ShopStats::GetTempleBlessFixedCost() const
+{
+    return mSellFactor;
+}
+
+std::uint8_t ShopStats::GetTempleBlessPercent() const
+{
+    return mMaxDiscount;
+}
+
+Modifier ShopStats::GetTempleBlessType() const
+{
+    return static_cast<Modifier>(4 + mBuyFactor);
+}
+
+std::uint8_t ShopStats::GetTempleHealFactor() const
+{
+    return mHaggle1;
+}
+
 ShopStats LoadShop(FileBuffer& fb)
 {
     const auto templeNumber     = fb.GetUint8();

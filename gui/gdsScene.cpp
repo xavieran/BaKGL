@@ -5,6 +5,7 @@
 #include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/money.hpp"
+#include "bak/temple.hpp"
 
 #include "com/assert.hpp"
 
@@ -65,6 +66,8 @@ GDSScene::GDSScene(
     mPendingGoto{},
     mPendingBard{},
     mKickedOut{false},
+    mPendingTemple{},
+    mPendingTeleport{},
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
     mLogger.Debug() << "Song: " << mSong << "\n";
@@ -182,10 +185,12 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     {
         mGameState.SetDialogContext(mSceneHotspots.mTempleIndex);
         StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+        mPendingTemple = true;
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
     {
         StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
+        mPendingTeleport = true;
     }
     else if (hotspot.mAction == BAK::HotspotAction::SHOP
         || hotspot.mAction == BAK::HotspotAction::BARMAID
@@ -253,7 +258,7 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
     mGuiManager.StartDialog(target, isTooltip, false, this);
 }
 
-void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
+void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
     if (mPendingBard)
     {
@@ -284,8 +289,20 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
         // actions will take place on destructed GDSScene
         return;
     }
+    else if (mPendingTemple)
+    {
+        if (choice && *choice == BAK::ChoiceIndex{271})
+        {
+            mGuiManager.SelectItem(
+                [this](auto charIndex, auto item){
+                    HandleItemSelected(charIndex, item); });
+        }
+    }
+    else if (mPendingTeleport)
+    {
+    }
 
-    mLogger.Debug() << "Dialog finished, back to flavour text\n";
+    mLogger.Debug() << "Dialog finished with choice: " << choice << " , back to flavour text\n";
 
     if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
         mDialogDisplay.ShowFlavourText(mFlavourText);
@@ -359,8 +376,39 @@ void GDSScene::DoBard()
 
         if (status == BAK::Bard::BardStatus::Failed)
             mKickedOut = true;
+
         mGameState.SetItemValue(reward);
         StartDialog(GetDialog(status), false);
+    }
+}
+
+void GDSScene::HandleItemSelected(BAK::ActiveCharIndex charIndex, BAK::InventoryIndex itemIndex)
+{
+    auto& character = mGameState.GetParty().GetCharacter(charIndex);
+    auto& item = character.GetInventory().GetAtIndex(itemIndex);
+    mPendingTemple = false;
+
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    ASSERT(container && container->IsShop());
+    auto& shopStats = container->GetShop();
+
+    mGameState.SetActiveCharacter(character.GetIndex());
+    mGameState.SetInventoryItem(item);
+    mGameState.SetItemValue(BAK::Temple::CalculateBlessPrice(item, shopStats));
+
+    if (BAK::Temple::IsBlessed(item))
+    {
+        StartDialog(BAK::DialogSources::mBlessDialogItemAlreadyBlessed, false);
+    }
+    else if (!BAK::Temple::CanBlessItem(item))
+    {
+        StartDialog(BAK::DialogSources::mBlessDialogCantBlessItem, false);
+    //    BAK::Temple::BlessItem(item, shopStats);
+
+    }
+    else
+    {
+        StartDialog(BAK::DialogSources::mBlessDialogCost, false);
     }
 }
 

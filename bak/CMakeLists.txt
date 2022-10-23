@@ -42,6 +42,7 @@ add_library(bak
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
     skills.hpp skills.cpp
+    temple.hpp temple.cpp
     textureFactory.hpp textureFactory.cpp
     worldClock.hpp worldClock.cpp
     worldFactory.hpp worldFactory.cpp

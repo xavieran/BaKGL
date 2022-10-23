@@ -103,9 +103,9 @@ public:
     static constexpr auto mHealDialogCost = 0x13d66d;
     static constexpr auto mHealDialogPostHealing = 0x13d66e;
 
-    static constexpr auto mBlessDialogItemAlreadyBlessed = 0x13d66f;
-    static constexpr auto mBlessDialogCost = 0x13d670;
-    static constexpr auto mBlessDialogCantBlessItem = 0x13d671;
+    static constexpr auto mBlessDialogItemAlreadyBlessed = KeyTarget{0x13d66f};
+    static constexpr auto mBlessDialogCost = KeyTarget{0x13d670};
+    static constexpr auto mBlessDialogCantBlessItem = KeyTarget{0x13d671};
 
     static constexpr auto mTempleDialog = KeyTarget{0x13d668};
     static constexpr auto mTeleportDialog = KeyTarget{0x13d663};
