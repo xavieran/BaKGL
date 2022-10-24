@@ -153,11 +153,13 @@ public:
         const auto dialogFrame = std::invoke([ds1, ds2, ds3, act]{
             if (act != 0x0)
                 return DialogFrame::LowerArea;
+            else if (ds1 == 0x06)
+                return DialogFrame::Fullscreen;
             else if (ds1 == 0x05)
                 return DialogFrame::ActionAreaInventory;
             else if (ds1 == 0x03 || ds1 == 0x04)
                 return DialogFrame::LowerArea;
-            else if (ds1 == 0x02 || ds3 == 0x02 || ds2 == 0x14)
+            else if (ds1 == 0x02 || ds2 == 0x14 || ds3 == 0x02 || ds2 == 0x10)
                 return DialogFrame::ActionArea;
             else
                 return DialogFrame::Fullscreen;
@@ -228,12 +230,13 @@ private:
         case DialogFrame::Fullscreen:
         {
             AddChildBack(&mFullscreenFrame);
-            return mFullscreenTextBox.AddText(
+            auto [charPos, remaining] = mFullscreenTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mFullscreenTextBox.GetTopLeft(), std::move(remaining));
         } break;
         case DialogFrame::ActionAreaInventory: [[fallthrough]];
         case DialogFrame::ActionArea:
@@ -252,22 +255,24 @@ private:
                 mActionAreaFrame.SetDimensions({295, 121});
                 mActionAreaTextBox.SetDimensions({295, 121});
             }
-            return mActionAreaTextBox.AddText(
+            auto [charPos, remaining] = mActionAreaTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mActionAreaFrame.GetTopLeft(), std::move(remaining));
         } break;
         case DialogFrame::LowerArea:
         {
             AddChildBack(&mLowerFrame);
-            return mLowerTextBox.AddText(
+            auto [charPos, remaining] = mLowerTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mLowerTextBox.GetTopLeft(), std::move(remaining));
         } break;
         default:
             throw std::runtime_error("Invalid DialogArea");

@@ -11,6 +11,7 @@
 #include "gui/dialogDisplay.hpp"
 #include "gui/hotspot.hpp"
 #include "gui/staticTTM.hpp"
+#include "gui/temple.hpp"
 #include "gui/widget.hpp"
 
 namespace Gui {
@@ -74,6 +75,8 @@ public:
     bool mKickedOut;
     bool mPendingTemple;
     bool mPendingTeleport;
+    
+    Temple mTemple;
 
     static constexpr auto mMaxSceneNesting = 4;
 

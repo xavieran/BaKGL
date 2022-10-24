@@ -68,6 +68,10 @@ GDSScene::GDSScene(
     mKickedOut{false},
     mPendingTemple{},
     mPendingTeleport{},
+    mTemple{
+        mGameState,
+        mGuiManager
+    },
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
     mLogger.Debug() << "Song: " << mSong << "\n";
@@ -183,9 +187,15 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
-        mGameState.SetDialogContext(mSceneHotspots.mTempleIndex);
-        StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
-        mPendingTemple = true;
+        //mGameState.SetDialogContext(mSceneHotspots.mTempleIndex);
+        //StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+        //mPendingTemple = true;
+        auto* container = mGameState.GetContainerForGDSScene(mReference);
+        ASSERT(container);
+        mTemple.EnterTemple(
+            BAK::KeyTarget{hotspot.mActionArg3},
+            mSceneHotspots.mTempleIndex, 
+            container->GetShop());
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
     {

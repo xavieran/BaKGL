@@ -348,6 +348,7 @@ public:
             for (auto& w : mText)
                 w.AdjustPosition(
                     glm::vec2{0, verticalAdjustment});
+            charPos.y += verticalAdjustment;
         }
 
         if (centerHorizontal)
