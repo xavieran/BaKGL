@@ -65,7 +65,7 @@ TEST_F(SkillTestFixture, CalculateEffectiveSkillValueTest)
 
     auto expectedSkillValues = std::vector<unsigned>{};
     for (unsigned i = 0; i < 16; i++)
-        expectedSkillValues.emplace_back(mSkills.mSkills[i].mTrueSkill);
+        expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
 
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
@@ -92,7 +92,7 @@ TEST_F(SkillTestFixture, ConditionNonDrunkTest)
     // Sickness doesn't affect stats...
     auto expectedSkillValues = std::vector<unsigned>{};
     for (unsigned i = 0; i < 16; i++)
-        expectedSkillValues.emplace_back(mSkills.mSkills[i].mTrueSkill);
+        expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
 
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
@@ -136,7 +136,7 @@ TEST_F(SkillTestFixture, ConditionHealingTest)
 
     auto expectedSkillValues = std::vector<unsigned>{};
     for (unsigned i = 0; i < 16; i++)
-        expectedSkillValues.emplace_back(mSkills.mSkills[i].mTrueSkill);
+        expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
 
     EXPECT_EQ(skillValues, expectedSkillValues);
 }

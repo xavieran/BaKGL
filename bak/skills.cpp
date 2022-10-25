@@ -213,4 +213,87 @@ void DoImproveSkill(
         << ToString(skillType) << " " << skill << "\n";
 }
 
+Skills::Skills(const SkillArray& skills, unsigned pool)
+:
+    mSkills{skills},
+    mSelectedSkillPool{pool}
+{}
+const Skill& Skills::GetSkill(BAK::SkillType skill) const
+{
+    const auto i = static_cast<unsigned>(skill);
+    ASSERT(i < sSkills);
+    return mSkills[i];
+}
+
+Skill& Skills::GetSkill(BAK::SkillType skill)
+{
+    const auto i = static_cast<unsigned>(skill);
+    ASSERT(i < sSkills);
+    return mSkills[i];
+}
+
+void Skills::SetSkill(BAK::SkillType skillType, const Skill& skill)
+{
+    const auto i = static_cast<unsigned>(skillType);
+    mSkills[i] = skill;
+}
+
+void Skills::SetSelectedSkillPool(unsigned pool)
+{
+    mSelectedSkillPool = pool;
+}
+
+void Skills::ToggleSkill(BAK::SkillType skillType)
+{
+    auto& skill = GetSkill(skillType);
+    skill.mSelected = !skill.mSelected;
+    mSelectedSkillPool = CalculateSelectedSkillPool();
+}
+
+void Skills::ClearUnseenImprovements()
+{
+    for (auto& skill : mSkills)
+        skill.mUnseenImprovement = false;
+}
+
+std::uint8_t Skills::CalculateSelectedSkillPool() const
+{
+    const unsigned skillsSelected = std::accumulate(
+        mSkills.begin(), mSkills.end(),
+        0,
+        [](const auto sum, const auto& elem){
+            return sum + static_cast<unsigned>(elem.mSelected);
+        });
+
+    return skillsSelected > 0 
+        ? sTotalSelectedSkillPool / skillsSelected
+        : 0;
+}
+
+void Skills::ImproveSkill(
+    SkillType skill, 
+    SkillChange skillChangeType,
+    unsigned multiplier)
+{
+    // not quite right...
+    if (skill == SkillType::GainHealth)
+    {
+        skill = SkillType::Health;
+        auto& s = GetSkill(skill);
+        s.mMax += multiplier; 
+        s.mTrueSkill += multiplier;
+        s.mCurrent += multiplier;
+        s.mUnseenImprovement = true;
+    }
+    else
+    {
+        DoImproveSkill(
+            skill,
+            GetSkill(skill),
+            skillChangeType,
+            multiplier,
+            mSelectedSkillPool);
+    }
+}
+
 }

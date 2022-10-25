@@ -478,7 +478,7 @@ std::vector<Character> GameData::LoadCharacters()
             const auto selected = ReadSkillSelected(character, i);
             const auto unseenIprovement = ReadSkillUnseenImprovement(character, i);
 
-            skills.mSkills[i] = Skill{
+            skills.SetSkill(static_cast<SkillType>(i), Skill{
                 max,
                 trueSkill,
                 current,
@@ -486,12 +486,12 @@ std::vector<Character> GameData::LoadCharacters()
                 modifier,
                 selected,
                 unseenIprovement
-            };
+            });
 
             mBuffer.Seek(pos);
         }
 
-        skills.mSelectedSkillPool = skills.CalculateSelectedSkillPool();
+        skills.SetSelectedSkillPool(skills.CalculateSelectedSkillPool());
 
         auto unknown2 = mBuffer.GetArray<7>();
         mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";

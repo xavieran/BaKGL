@@ -96,12 +96,12 @@ public:
 
     static constexpr auto mInnDialog  = KeyTarget{0x13d672};
 
-    static constexpr auto mHealDialogTooltips = 0x13d66a;
-    static constexpr auto mHealDialogCantHealNotSick = 0x13d66b;
-    static constexpr auto mHealDialogCantHealNotSickEnough = 0x13d673;
-    static constexpr auto mHealDialogCantAfford = 0x13d66c;
-    static constexpr auto mHealDialogCost = 0x13d66d;
-    static constexpr auto mHealDialogPostHealing = 0x13d66e;
+    static constexpr auto mHealDialogTooltips = KeyTarget{0x13d66a};
+    static constexpr auto mHealDialogCantHealNotSick = KeyTarget{0x13d66b};
+    static constexpr auto mHealDialogCantHealNotSickEnough = KeyTarget{0x13d673};
+    static constexpr auto mHealDialogCantAfford = KeyTarget{0x13d66c};
+    static constexpr auto mHealDialogCost = KeyTarget{0x13d66d};
+    static constexpr auto mHealDialogPostHealing = KeyTarget{0x13d66e};
 
     static constexpr auto mBlessDialogItemAlreadyBlessed = KeyTarget{0x13d66f};
     static constexpr auto mBlessDialogCost = KeyTarget{0x13d670};

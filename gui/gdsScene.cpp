@@ -187,11 +187,9 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
-        //mGameState.SetDialogContext(mSceneHotspots.mTempleIndex);
-        //StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
-        //mPendingTemple = true;
         auto* container = mGameState.GetContainerForGDSScene(mReference);
         ASSERT(container);
+        mDialogDisplay.ClearChildren();
         mTemple.EnterTemple(
             BAK::KeyTarget{hotspot.mActionArg3},
             mSceneHotspots.mTempleIndex, 
@@ -301,12 +299,6 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     }
     else if (mPendingTemple)
     {
-        if (choice && *choice == BAK::ChoiceIndex{271})
-        {
-            mGuiManager.SelectItem(
-                [this](auto charIndex, auto item){
-                    HandleItemSelected(charIndex, item); });
-        }
     }
     else if (mPendingTeleport)
     {

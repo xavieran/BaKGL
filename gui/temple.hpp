@@ -37,6 +37,7 @@ public:
         mGameState{gameState},
         mGuiManager{guiManager},
         mShopStats{nullptr},
+        mTarget{BAK::KeyTarget{0}},
         mLogger{Logging::LogState::GetLogger("Gui::Temple")}
     {}
     
@@ -49,6 +50,7 @@ public:
         BAK::ShopStats& shopStats)
     {
         mShopStats = &shopStats;
+        mTarget = keyTarget;
         mState = State::Idle;
         mGameState.SetDialogContext(templeIndex);
         mGuiManager.StartDialog(keyTarget, false, false, this);
@@ -56,15 +58,21 @@ public:
 
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
     {
+        mLogger.Info() << " Choice: " << choice << "\n";
         if (mState == State::Idle)
         {
             if (choice)
             { 
+                // (269, #Talk),(272, #Cure),(271, #Bless),(268, #Done)
+
                 if (*choice == BAK::ChoiceIndex{269})
                 {
+                    StartDialog(mTarget);
                 }
                 else if (*choice == BAK::ChoiceIndex{272})
                 {
+                    mState = State::Cure;
+                    StartDialog(BAK::DialogSources::mHealDialogCantHealNotSick);
                 }
                 else if (*choice == BAK::ChoiceIndex{271})
                 {
@@ -77,12 +85,22 @@ public:
                 }
             }
         }
+        else if (mState == State::Cure)
+        {
+            mState = State::Idle;
+            StartDialog(mTarget);
+        }
     }
 
     void DisplayNPCBackground() override { }
     void DisplayPlayerBackground() override { }
 
 private:
+    void StartDialog(BAK::KeyTarget keyTarget)
+    {
+        mGuiManager.StartDialog(keyTarget, false, false, this);
+    }
+
     void HandleItemSelected(BAK::ActiveCharIndex charIndex, BAK::InventoryIndex itemIndex)
     {
         ASSERT(mShopStats);
@@ -96,11 +114,11 @@ private:
 
         if (BAK::Temple::IsBlessed(item))
         {
-            mGuiManager.StartDialog(BAK::DialogSources::mBlessDialogItemAlreadyBlessed, false, false, this);
+            StartDialog(BAK::DialogSources::mBlessDialogItemAlreadyBlessed);
         }
         else if (!BAK::Temple::CanBlessItem(item))
         {
-            mGuiManager.StartDialog(BAK::DialogSources::mBlessDialogCantBlessItem, false, false, this);
+            StartDialog(BAK::DialogSources::mBlessDialogCantBlessItem);
         //    BAK::Temple::BlessItem(item, shopStats);
 
         }
@@ -115,6 +133,7 @@ private:
     IGuiManager& mGuiManager;
 
     BAK::ShopStats* mShopStats;
+    BAK::KeyTarget mTarget;
 
     const Logging::Logger& mLogger;
 };
