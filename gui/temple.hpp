@@ -25,7 +25,9 @@ class Temple : public IDialogScene
         Idle,
         Talk,
         Cure,
-        Bless
+        Bless,
+        BlessChosen,
+        BlessAlreadyBlessed,
     };
 
 public:
@@ -36,6 +38,7 @@ public:
         mState{State::Idle},
         mGameState{gameState},
         mGuiManager{guiManager},
+        mItem{nullptr},
         mShopStats{nullptr},
         mTarget{BAK::KeyTarget{0}},
         mLogger{Logging::LogState::GetLogger("Gui::Temple")}
@@ -85,6 +88,16 @@ public:
                 }
             }
         }
+        else if (mState == State::BlessChosen)
+        {
+            ASSERT(choice);
+            HandleBlessChoice(*choice);
+        }
+        else if (mState == State::BlessAlreadyBlessed)
+        {
+            ASSERT(choice);
+            HandleUnblessChoice(*choice);
+        }
         else if (mState == State::Cure)
         {
             mState = State::Idle;
@@ -101,12 +114,35 @@ private:
         mGuiManager.StartDialog(keyTarget, false, false, this);
     }
 
+    void HandleBlessChoice(BAK::ChoiceIndex choice)
+    {
+        ASSERT(mItem);
+        const auto cost = BAK::Temple::CalculateBlessPrice(*mItem, *mShopStats);
+        if (choice == BAK::ChoiceIndex{260} && mGameState.GetMoney() > cost)
+        {
+            mLogger.Info() << __FUNCTION__ << " Blessing item\n";
+            mGameState.GetParty().LoseMoney(cost);
+            BAK::Temple::BlessItem(*mItem, *mShopStats);
+        }
+    }
+
+    void HandleUnblessChoice(BAK::ChoiceIndex choice)
+    {
+        ASSERT(mItem);
+        if (choice == BAK::ChoiceIndex{256})
+        {
+            mLogger.Info() << __FUNCTION__ << " Unblessing item\n";
+            BAK::Temple::RemoveBlessing(*mItem);
+        }
+    }
+
     void HandleItemSelected(BAK::ActiveCharIndex charIndex, BAK::InventoryIndex itemIndex)
     {
         ASSERT(mShopStats);
 
         auto& character = mGameState.GetParty().GetCharacter(charIndex);
         auto& item = character.GetInventory().GetAtIndex(itemIndex);
+        mItem = &item;
 
         mGameState.SetActiveCharacter(character.GetIndex());
         mGameState.SetInventoryItem(item);
@@ -114,17 +150,17 @@ private:
 
         if (BAK::Temple::IsBlessed(item))
         {
+            mState = State::BlessAlreadyBlessed;
             StartDialog(BAK::DialogSources::mBlessDialogItemAlreadyBlessed);
         }
         else if (!BAK::Temple::CanBlessItem(item))
         {
             StartDialog(BAK::DialogSources::mBlessDialogCantBlessItem);
-        //    BAK::Temple::BlessItem(item, shopStats);
-
         }
         else
         {
-            mGuiManager.StartDialog(BAK::DialogSources::mBlessDialogCost, false, false, this);
+            mState = State::BlessChosen;
+            StartDialog(BAK::DialogSources::mBlessDialogCost);
         }
     }
 
@@ -132,6 +168,7 @@ private:
     BAK::GameState& mGameState;
     IGuiManager& mGuiManager;
 
+    BAK::InventoryItem* mItem;
     BAK::ShopStats* mShopStats;
     BAK::KeyTarget mTarget;
 

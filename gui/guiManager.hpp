@@ -360,11 +360,13 @@ public:
 
         mGuiScreens.push(GuiScreen{[&, selected=std::move(itemSelected)]() mutable {
             mLogger.Debug() << __FUNCTION__ << " SelectItem\n";
-            ASSERT(mInventoryScreen.GetSelectedCharacter());
-            ASSERT(mInventoryScreen.GetSelectedItem());
-            selected(
-                *mInventoryScreen.GetSelectedCharacter(),
-                *mInventoryScreen.GetSelectedItem());
+            if (mInventoryScreen.GetSelectedItem())
+            {
+                ASSERT(mInventoryScreen.GetSelectedCharacter());
+                selected(
+                    *mInventoryScreen.GetSelectedCharacter(),
+                    *mInventoryScreen.GetSelectedItem());
+            }
         }});
 
         mInventoryScreen.SetSelectionMode(true);

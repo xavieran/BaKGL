@@ -173,7 +173,6 @@ private:
 
     void HandleItemSelected();
 
-    
 private:
     IGuiManager& mGuiManager;
     const Font& mFont;

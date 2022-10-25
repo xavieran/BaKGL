@@ -5,7 +5,7 @@
 #include "bak/shop.hpp"
 #include "bak/types.hpp"
 
-namespace BAK::Temple{
+namespace BAK::Temple {
 
 bool CanBlessItem(const BAK::InventoryItem& item);
 bool IsBlessed(const BAK::InventoryItem& item);

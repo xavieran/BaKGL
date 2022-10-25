@@ -110,11 +110,11 @@ public:
     static constexpr auto mTempleDialog = KeyTarget{0x13d668};
     static constexpr auto mTeleportDialog = KeyTarget{0x13d663};
     static constexpr auto mTeleportDialogIntro = KeyTarget{0x13d65d};
-    static constexpr auto mTeleportDialogCantAfford = 0x13d65e;
-    static constexpr auto mTeleportDialogNoDestinations = 0x13d65f;
-    static constexpr auto mTeleportDialogPostTeleport = 0x13d660;
-    static constexpr auto mTeleportDialogCancel = 0x13d661;
-    static constexpr auto mTeleportDialogTeleportedToSameTemple = 0x13d674;
+    static constexpr auto mTeleportDialogCantAfford = KeyTarget{0x13d65e};
+    static constexpr auto mTeleportDialogNoDestinations = KeyTarget{0x13d65f};
+    static constexpr auto mTeleportDialogPostTeleport = KeyTarget{0x13d660};
+    static constexpr auto mTeleportDialogCancel = KeyTarget{0x13d661};
+    static constexpr auto mTeleportDialogTeleportedToSameTemple = KeyTarget{0x13d674};
 
     static constexpr auto mBardingAlreadyDone = KeyTarget{0x47};
     static constexpr auto mBardingBad  = KeyTarget{0x49};

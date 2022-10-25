@@ -1033,7 +1033,8 @@ void InventoryScreen::HandleItemSelected()
 
     for (auto& item : mInventoryItems)
     {
-        if (checkItem(item)) return;
+        if (checkItem(item))
+            return;
     }
 
     if (mWeapon.HasItem() && checkItem(mWeapon.GetInventorySlot()))
