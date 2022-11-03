@@ -123,6 +123,7 @@ InventoryScreen::InventoryScreen(
     mSelectedCharacter{},
     mDisplayContainer{false},
     mItemSelectionMode{false},
+    mItemSelectionCallback{nullptr},
     mSelectedItem{},
     mContainer{nullptr},
     mNeedRefresh{false},
@@ -176,6 +177,12 @@ bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
 {
     const bool handled = Widget::OnMouseEvent(event);
 
+    if (std::holds_alternative<LeftMousePress>(event)
+        && mItemSelectionMode)
+    {
+        HandleItemSelected();
+    }
+
     // Don't refresh things until we have finished
     // processing this event. This prevents deleting
     // children that are about to handle it.
@@ -183,12 +190,6 @@ bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
     {
         RefreshGui();
         mNeedRefresh = false;
-    }
-
-    if (std::holds_alternative<LeftMousePress>(event)
-        && mItemSelectionMode)
-    {
-        HandleItemSelected();
     }
 
     return handled;
@@ -263,10 +264,11 @@ void InventoryScreen::ShowCharacter(BAK::ActiveCharIndex character)
     mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
 }
 
-void InventoryScreen::SetSelectionMode(bool mode)
+void InventoryScreen::SetSelectionMode(bool mode, std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected)
 {
     SetSelectedCharacter(BAK::ActiveCharIndex{0});
     mItemSelectionMode = mode;
+    mItemSelectionCallback = std::move(itemSelected);
 }
 
 void InventoryScreen::TransferItemFromCharacterToCharacter(
@@ -1025,7 +1027,8 @@ void InventoryScreen::HandleItemSelected()
         if (item.IsSelected())
         {
             mSelectedItem = item.GetItemIndex();
-            mGuiManager.ExitInventory();
+            ASSERT(mItemSelectionCallback);
+            mItemSelectionCallback(GetSelectedItem());
             return true;
         }
         return false;
@@ -1047,14 +1050,14 @@ void InventoryScreen::HandleItemSelected()
         return;
 }
 
-std::optional<BAK::InventoryIndex> InventoryScreen::GetSelectedItem() const
+std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>> InventoryScreen::GetSelectedItem() const
 {
-    return mSelectedItem;
-}
+    if (mSelectedItem && mSelectedCharacter)
+    {
+        return std::make_pair(*mSelectedCharacter, *mSelectedItem);
+    }
 
-std::optional<BAK::ActiveCharIndex> InventoryScreen::GetSelectedCharacter() const
-{
-    return mSelectedCharacter;
+    return std::nullopt;
 }
 
 }

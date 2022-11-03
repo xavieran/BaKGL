@@ -331,7 +331,7 @@ public:
         DoFade(.8, [this, character]{
             mCursor.PushCursor(0);
             mGuiScreens.push(GuiScreen{[](){}});
-            mInventoryScreen.SetSelectionMode(false);
+            mInventoryScreen.SetSelectionMode(false, nullptr);
 
             mInventoryScreen.SetSelectedCharacter(character);
             mScreenStack.PushScreen(&mInventoryScreen);
@@ -348,28 +348,22 @@ public:
             mInventoryScreen.ClearContainer();
         }});
 
-        mInventoryScreen.SetSelectionMode(false);
+        mInventoryScreen.SetSelectionMode(false, nullptr);
         mInventoryScreen.SetContainer(container);
         mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
         mScreenStack.PushScreen(&mInventoryScreen);
     }
 
-    void SelectItem(std::function<void(BAK::ActiveCharIndex, BAK::InventoryIndex)>&& itemSelected) override
+    void SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected) override
     {
         mCursor.PushCursor(0);
 
-        mGuiScreens.push(GuiScreen{[&, selected=std::move(itemSelected)]() mutable {
-            mLogger.Debug() << __FUNCTION__ << " SelectItem\n";
-            if (mInventoryScreen.GetSelectedItem())
-            {
-                ASSERT(mInventoryScreen.GetSelectedCharacter());
-                selected(
-                    *mInventoryScreen.GetSelectedCharacter(),
-                    *mInventoryScreen.GetSelectedItem());
-            }
+        mGuiScreens.push(GuiScreen{[&, selected=itemSelected]() mutable {
+                mLogger.Debug() << __FUNCTION__ << " SelectItem\n";
+                selected(std::nullopt);
         }});
 
-        mInventoryScreen.SetSelectionMode(true);
+        mInventoryScreen.SetSelectionMode(true, std::move(itemSelected));
         mLogger.Debug() << __FUNCTION__ << " Pushing select item\n";
         mScreenStack.PushScreen(&mInventoryScreen);
     }

@@ -103,7 +103,7 @@ public:
             glm::vec2{320 - 30*2, 135}
         },
         mActionAreaTextBox{
-            glm::vec2{4, 4},
+            glm::vec2{6, 6},
             glm::vec2{290, 103}
         },
         mLowerTextBox{
@@ -246,14 +246,14 @@ private:
             {
                 mActionAreaFrame.SetPosition({13, 11});
                 mActionAreaFrame.SetDimensions({295, 101});
-                mActionAreaTextBox.SetDimensions({295, 101});
+                mActionAreaTextBox.SetDimensions({288, 97});
             }
             // Inventory style is a bit bigger..
             else
             {
                 mActionAreaFrame.SetPosition({12, 11});
                 mActionAreaFrame.SetDimensions({295, 121});
-                mActionAreaTextBox.SetDimensions({295, 121});
+                mActionAreaTextBox.SetDimensions({288, 118});
             }
             auto [charPos, remaining] = mActionAreaTextBox.AddText(
                 mFont,

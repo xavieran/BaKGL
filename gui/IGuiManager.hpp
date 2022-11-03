@@ -30,7 +30,7 @@ public:
 
     virtual void ShowInventory(BAK::ActiveCharIndex) = 0;
     virtual void ShowContainer(BAK::IContainer*) = 0;
-    virtual void SelectItem(std::function<void(BAK::ActiveCharIndex, BAK::InventoryIndex)>&&) = 0;
+    virtual void SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&&) = 0;
     virtual void ExitInventory() = 0;
 
     virtual void ShowLock(BAK::IContainer*, std::function<void()>&& finished) = 0;

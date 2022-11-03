@@ -22,6 +22,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::ElapseTime: return os << "ElapseTime";
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
         case DialogResult::Teleport: return os << "Teleport";
+        case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
         case DialogResult::UpdateCharacters: return os << "UpdateCharacters";
         case DialogResult::LearnSpell: return os << "LearnSpell";
         default: return os << "(" << static_cast<unsigned>(d) << ")";
@@ -121,6 +122,13 @@ std::ostream& operator<<(std::ostream& os, const SetPopupDimensions& action)
 std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
 {
     os << "PushNextDialog {" << action.mTarget
+        << " rest[" << std::hex << action.mRest << std::dec << "]}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const SetEndOfDialogState& action)
+{
+    os << "SetEndOfDialogState{" << action.mState
         << " rest[" << std::hex << action.mRest << std::dec << "]}";
     return os;
 }

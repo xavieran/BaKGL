@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <optional>
 #include <utility>
 #include <variant>
 
@@ -67,7 +68,7 @@ public:
     void SetSelectedCharacter(
         BAK::ActiveCharIndex character);
 
-    void SetSelectionMode(bool);
+    void SetSelectionMode(bool, std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&&);
 
     void ClearContainer();
     void SetContainer(BAK::IContainer* container);
@@ -76,8 +77,7 @@ public:
     bool OnMouseEvent(const MouseEvent& event) override;
     void PropagateUp(const DragEvent& event) override;
 
-    std::optional<BAK::ActiveCharIndex> GetSelectedCharacter() const;
-    std::optional<BAK::InventoryIndex> GetSelectedItem() const;
+    std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>> GetSelectedItem() const;
 private:
     auto& GetCharacter(BAK::ActiveCharIndex i)
     {
@@ -213,6 +213,7 @@ private:
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mDisplayContainer;
     bool mItemSelectionMode;
+    std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)> mItemSelectionCallback;
     std::optional<BAK::InventoryIndex> mSelectedItem;
     BAK::IContainer* mContainer;
     bool mNeedRefresh;

@@ -74,17 +74,35 @@ public:
                 }
                 else if (*choice == BAK::ChoiceIndex{272})
                 {
-                    mState = State::Cure;
-                    StartDialog(BAK::DialogSources::mHealDialogCantHealNotSick);
+                    if (mGameState.GetEndOfDialogState() != -1)
+                    {
+                        mState = State::Cure;
+                        StartDialog(BAK::DialogSources::mHealDialogCantHealNotSick);
+                    }
+                    else
+                    {
+                        mState = State::Idle;
+                        StartDialog(mTarget);
+                    }
                 }
                 else if (*choice == BAK::ChoiceIndex{271})
                 {
-                    mGuiManager.SelectItem(
-                        [this](auto charIndex, auto item){
-                            HandleItemSelected(charIndex, item); });
+                    mLogger.Debug() << "End of dialog state: " << mGameState.GetEndOfDialogState() << "\n";
+                    if (mGameState.GetEndOfDialogState() != -1)
+                    {
+                        mState = State::Bless;
+                        mGuiManager.SelectItem(
+                            [this](auto item){ HandleItemSelected(item); });
+                    }
+                    else
+                    {
+                        mState = State::Idle;
+                        StartDialog(mTarget);
+                    }
                 }
                 else if (*choice == BAK::ChoiceIndex{268})
                 {
+                    // Exit...
                 }
             }
         }
@@ -122,6 +140,10 @@ private:
         {
             mLogger.Info() << __FUNCTION__ << " Blessing item\n";
             mGameState.GetParty().LoseMoney(cost);
+            if (BAK::Temple::IsBlessed(*mItem))
+            {
+                BAK::Temple::RemoveBlessing(*mItem);
+            }
             BAK::Temple::BlessItem(*mItem, *mShopStats);
         }
     }
@@ -132,13 +154,23 @@ private:
         if (choice == BAK::ChoiceIndex{256})
         {
             mLogger.Info() << __FUNCTION__ << " Unblessing item\n";
-            BAK::Temple::RemoveBlessing(*mItem);
+            mState = State::BlessChosen;
+            StartDialog(BAK::DialogSources::mBlessDialogCost);
         }
     }
 
-    void HandleItemSelected(BAK::ActiveCharIndex charIndex, BAK::InventoryIndex itemIndex)
+    void HandleItemSelected(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>> selectedItem)
     {
         ASSERT(mShopStats);
+
+        if (!selectedItem)
+        {
+            mState = State::Idle;
+            StartDialog(mTarget);
+            return;
+        }
+
+        const auto [charIndex, itemIndex] = *selectedItem;
 
         auto& character = mGameState.GetParty().GetCharacter(charIndex);
         auto& item = character.GetInventory().GetAtIndex(itemIndex);

@@ -38,6 +38,7 @@ enum class DialogResult
     LearnSpell = 0x13,
     // Teleport to another location? e.g. sewer dialog 231861
     Teleport = 0x14,
+    SetEndOfDialogState = 0x15, // ??
     // 18 - seems to remove/move mney at a chapter transition
     // 17 - maybe moves party members around? e.g. at chapter transition
 };
@@ -162,6 +163,12 @@ struct Teleport
     TeleportIndex mIndex;
 };
 
+struct SetEndOfDialogState
+{
+    std::int16_t mState;
+    std::array<std::uint8_t, 6> mRest;
+};
+
 struct UnknownAction
 {
     UnknownAction(
@@ -190,6 +197,7 @@ using DialogAction = std::variant<
     PushNextDialog,
     Teleport,
     UpdateCharacters,
+    SetEndOfDialogState,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);

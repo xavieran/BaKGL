@@ -66,7 +66,6 @@ GDSScene::GDSScene(
     mPendingGoto{},
     mPendingBard{},
     mKickedOut{false},
-    mPendingTemple{},
     mPendingTeleport{},
     mTemple{
         mGameState,
@@ -189,7 +188,6 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     {
         auto* container = mGameState.GetContainerForGDSScene(mReference);
         ASSERT(container);
-        mDialogDisplay.ClearChildren();
         mTemple.EnterTemple(
             BAK::KeyTarget{hotspot.mActionArg3},
             mSceneHotspots.mTempleIndex, 
@@ -297,9 +295,6 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
         // actions will take place on destructed GDSScene
         return;
     }
-    else if (mPendingTemple)
-    {
-    }
     else if (mPendingTeleport)
     {
     }
@@ -381,36 +376,6 @@ void GDSScene::DoBard()
 
         mGameState.SetItemValue(reward);
         StartDialog(GetDialog(status), false);
-    }
-}
-
-void GDSScene::HandleItemSelected(BAK::ActiveCharIndex charIndex, BAK::InventoryIndex itemIndex)
-{
-    auto& character = mGameState.GetParty().GetCharacter(charIndex);
-    auto& item = character.GetInventory().GetAtIndex(itemIndex);
-    mPendingTemple = false;
-
-    auto* container = mGameState.GetContainerForGDSScene(mReference);
-    ASSERT(container && container->IsShop());
-    auto& shopStats = container->GetShop();
-
-    mGameState.SetActiveCharacter(character.GetIndex());
-    mGameState.SetInventoryItem(item);
-    mGameState.SetItemValue(BAK::Temple::CalculateBlessPrice(item, shopStats));
-
-    if (BAK::Temple::IsBlessed(item))
-    {
-        StartDialog(BAK::DialogSources::mBlessDialogItemAlreadyBlessed, false);
-    }
-    else if (!BAK::Temple::CanBlessItem(item))
-    {
-        StartDialog(BAK::DialogSources::mBlessDialogCantBlessItem, false);
-    //    BAK::Temple::BlessItem(item, shopStats);
-
-    }
-    else
-    {
-        StartDialog(BAK::DialogSources::mBlessDialogCost, false);
     }
 }
 

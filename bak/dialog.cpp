@@ -241,6 +241,15 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     glm::vec2{posX, posY},
                     glm::vec2{dimsX, dimsY}});
         }
+        else if (dr == DialogResult::SetEndOfDialogState)
+        {
+            const auto state = fb.GetSint16LE();
+            const auto rest = fb.GetArray<6>();
+            mActions.emplace_back(
+                SetEndOfDialogState{
+                    state,
+                    rest});
+        }
         else if (dr == DialogResult::PlaySound)
         {
             const auto soundIndex = fb.GetUint16LE();

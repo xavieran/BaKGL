@@ -48,6 +48,7 @@ public:
         mSelectedItem{},
         mChapter{7},
         mZone{1},
+        mEndOfDialogState{0},
         mContainers{},
         mGDSContainers{},
         mCombatContainers{},
@@ -92,6 +93,11 @@ public:
             return mGameData->mParty;
         }
         return mParty;
+    }
+
+    std::int16_t GetEndOfDialogState() const
+    {
+        return mEndOfDialogState;
     }
 
     GameData& GetGameData()
@@ -261,6 +267,8 @@ public:
 
     void SetCharacterTextVariables()
     {
+        mEndOfDialogState = 0x0;
+
         // FIXME: There is more to setting the characters than this...
         if (GetParty().GetNumCharacters() > 0)
         {
@@ -350,6 +358,11 @@ public:
                     party.mCharacters[c.mValue].mConditions.IncreaseCondition(
                         cond.mCondition, cond.mValue1);
                 }
+            },
+            [&](const BAK::SetEndOfDialogState& state)
+            {
+                mLogger.Debug() << "Setting end of dialog state: " << state << "\n";
+                mEndOfDialogState = state.mState;
             },
             [&](const BAK::LoadSkillValue& load)
             {
@@ -630,6 +643,7 @@ public:
     std::optional<InventoryItem> mSelectedItem;
     Chapter mChapter;
     ZoneNumber mZone;
+    std::int16_t mEndOfDialogState;
     std::vector<
         std::vector<GenericContainer>> mContainers;
     std::vector<GenericContainer> mGDSContainers;
