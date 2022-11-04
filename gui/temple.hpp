@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
 #include "bak/hotspot.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/money.hpp"
@@ -145,6 +147,7 @@ private:
                 BAK::Temple::RemoveBlessing(*mItem);
             }
             BAK::Temple::BlessItem(*mItem, *mShopStats);
+            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0x3e});
         }
     }
 

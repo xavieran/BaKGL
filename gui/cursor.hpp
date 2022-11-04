@@ -67,11 +67,17 @@ public:
 
     void PopCursor()
     {
-        // We should always have at least one cursor
-        ASSERT(mCursors.size() >= 2);
-        mLogger.Spam() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
-        mCursors.pop();
-        UpdateCursor();
+        if (mCursors.size() < 2)
+        {
+            // This probably isn't an error...
+            mLogger.Error() << "Only have one cursor, not popping it!\n";
+        }
+        else
+        {
+            mLogger.Spam() << "Popped Cursor: " << std::get<unsigned>(mCursors.top()) << "\n";
+            mCursors.pop();
+            UpdateCursor();
+        }
     }
 
     void Hide()

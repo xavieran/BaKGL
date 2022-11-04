@@ -272,7 +272,8 @@ private:
                 centeredX,
                 centeredY,
                 isBold);
-            return std::make_pair<glm::vec2, std::string_view>(charPos + mLowerTextBox.GetTopLeft(), std::move(remaining));
+            // the subtraction of 10 is a hack to stop the buttons getting displayed half off the bottom of the screen... not ideal
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mLowerFrame.GetTopLeft() - glm::vec2{0, 10}, std::move(remaining));
         } break;
         default:
             throw std::runtime_error("Invalid DialogArea");
