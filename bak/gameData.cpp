@@ -220,6 +220,16 @@ void GameData::ClearUnseenImprovements(unsigned character)
     }
 }
 
+bool GameData::ReadTempleSeen(unsigned temple) const
+{
+    return ReadEventBool(sTempleSeenFlag + temple);
+}
+
+void GameData::SetTempleSeen(unsigned temple)
+{
+    SetEventFlagTrue(sTempleSeenFlag + temple);
+}
+
 // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
 // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
 bool GameData::CheckActive(

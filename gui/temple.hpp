@@ -195,6 +195,14 @@ private:
         else
         {
             mState = State::BlessChosen;
+            if (mItem->IsItemType(BAK::ItemType::Sword))
+            {
+                mGameState.SetDialogContext(0);
+            }
+            else
+            {
+                mGameState.SetDialogContext(1);
+            }
             StartDialog(BAK::DialogSources::mBlessDialogCost);
         }
     }

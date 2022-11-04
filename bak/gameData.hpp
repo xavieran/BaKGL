@@ -79,7 +79,7 @@ public:
     // Single bit indicators for event state tracking 
     // In the code this offset is 0x440a in the game -> diff of 0x3d28
     static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
-    static constexpr auto sGameComplexEventRecordOffset = 0xb09; // -> 0xadc
+    static constexpr auto sGameComplexEventRecordOffset = 0xb09;
 
     static constexpr auto sConversationChoiceMarkedFlag = 0x1d4c;
     static constexpr auto sConversationOptionInhibitedFlag = 0x1a2c;
@@ -90,6 +90,8 @@ public:
     static constexpr auto sSkillImprovementEventFlag = 0x18ce;
 
     static constexpr auto sLockHasBeenSeenFlag = 0x1c5c;
+
+    static constexpr auto sTempleSeenFlag = 0x1950;
 
     static constexpr auto sCombatEntityListCount  = 700;
     static constexpr auto sCombatEntityListOffset = 0x1383;
@@ -171,6 +173,9 @@ public:
 
     std::uint8_t ReadSelectedSkillPool(unsigned character) const;
     void SetSelectedSkillPool(unsigned character, std::uint8_t value);
+
+    bool ReadTempleSeen(unsigned temple) const;
+    void SetTempleSeen(unsigned temple);
 
     // Called by
     // * checkBlockTriggered

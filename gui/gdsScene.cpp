@@ -142,6 +142,17 @@ GDSScene::GDSScene(
     mLogger.Debug() << "Constructed @" << std::hex << this << std::dec << "\n";
 }
 
+void GDSScene::SetTempleSeen()
+{
+    for (const auto hotspot : mSceneHotspots.mHotspots)
+    {
+        if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
+        {
+            mGameState.SetTempleSeen(mSceneHotspots.mTempleIndex);
+        }
+    }
+}
+
 void GDSScene::DisplayNPCBackground()
 {
     mFrame.ClearChildren();

@@ -33,6 +33,7 @@ public:
     GDSScene(const GDSScene&) = delete;
     GDSScene& operator=(const GDSScene&) = delete;
 
+    void SetTempleSeen();
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
     auto GetSong() const { return mSong; }

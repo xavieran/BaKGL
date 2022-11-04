@@ -553,6 +553,18 @@ public:
             mGameData->SetEventDialogAction(setFlag);
     }
 
+    void SetTempleSeen(unsigned temple)
+    {
+        if (mGameData)
+            mGameData->SetTempleSeen(temple);
+    }
+
+    void GetTempleSeen(unsigned temple)
+    {
+        if (mGameData)
+            mGameData->ReadTempleSeen(temple);
+    }
+
     bool CheckEncounterActive(const Encounter::Encounter& encounter)
     {
          if (!mGameData) return true;
