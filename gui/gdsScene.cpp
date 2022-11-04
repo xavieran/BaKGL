@@ -308,6 +308,8 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     }
     else if (mPendingTeleport)
     {
+        mPendingTeleport = false;
+        mGuiManager.ShowTeleport(mSceneHotspots.mTempleIndex);
     }
 
     mLogger.Debug() << "Dialog finished with choice: " << choice << " , back to flavour text\n";

@@ -15,16 +15,17 @@
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
+#include "gui/fontManager.hpp"
+#include "gui/fullMap.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/icons.hpp"
-#include "gui/fontManager.hpp"
 #include "gui/info/infoScreen.hpp"
 #include "gui/inventory/inventoryScreen.hpp"
 #include "gui/lock/lockScreen.hpp"
 #include "gui/lock/moredhelScreen.hpp"
-#include "gui/fullMap.hpp"
-#include "gui/mainView.hpp"
 #include "gui/mainMenuScreen.hpp"
+#include "gui/mainView.hpp"
+#include "gui/teleportScreen.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -120,6 +121,13 @@ public:
             mIcons,
             mFontManager.GetAlienFont(),
             mFontManager.GetPuzzleFont(),
+            mGameState
+        },
+        mTeleportScreen{
+            *this,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetGameFont(),
             mGameState
         },
         mFadeScreen{
@@ -416,6 +424,14 @@ public:
         });
     }
 
+    void ShowTeleport(unsigned sourceTemple) override
+    {
+        mTeleportScreen.SetSourceTemple(sourceTemple);
+        DoFade(.8, [this]{
+            mScreenStack.PushScreen(&mTeleportScreen);
+        });
+    }
+
     void ExitLock() override
     {
         mCursor.PopCursor();
@@ -480,6 +496,7 @@ public:
     LockScreen mLockScreen;
     FullMap mFullMap;
     MoredhelScreen mMoredhelScreen;
+    TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
     std::function<void()> mFadeFunction;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
