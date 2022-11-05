@@ -174,6 +174,11 @@ public:
         return mIsSelected;
     }
 
+    void ResetSelected()
+    {
+        mIsSelected = false;
+    }
+
 protected:
     void AddItem(bool snapToTop)
     {

@@ -110,8 +110,8 @@ public:
         }
         else if (mState == State::BlessChosen)
         {
-            ASSERT(choice);
-            HandleBlessChoice(*choice);
+            if (choice)
+                HandleBlessChoice(*choice);
         }
         else if (mState == State::BlessAlreadyBlessed)
         {

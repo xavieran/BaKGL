@@ -181,12 +181,16 @@ bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
         && mItemSelectionMode)
     {
         HandleItemSelected();
+        mNeedRefresh = true;
     }
 
     // Don't refresh things until we have finished
     // processing this event. This prevents deleting
     // children that are about to handle it.
-    if (mNeedRefresh)
+    if (mNeedRefresh 
+        // dirty hack :(
+        // probably want some callback to force a refresh instead of this...
+        || mItemSelectionMode) 
     {
         RefreshGui();
         mNeedRefresh = false;
@@ -1029,6 +1033,7 @@ void InventoryScreen::HandleItemSelected()
             mSelectedItem = item.GetItemIndex();
             ASSERT(mItemSelectionCallback);
             mItemSelectionCallback(GetSelectedItem());
+            item.ResetSelected();
             return true;
         }
         return false;

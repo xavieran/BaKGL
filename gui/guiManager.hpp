@@ -428,6 +428,7 @@ public:
     {
         mTeleportScreen.SetSourceTemple(sourceTemple);
         DoFade(.8, [this]{
+            mCursor.PopCursor();
             mScreenStack.PushScreen(&mTeleportScreen);
         });
     }
