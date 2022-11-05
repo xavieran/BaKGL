@@ -4,11 +4,15 @@
 #include "com/visit.hpp"
 
 #include "gui/widget.hpp"
+#include "gui/highlightable.hpp"
+#include "gui/clickable.hpp"
 #include "gui/icons.hpp"
 
 #include <functional>
 
 namespace Gui {
+
+namespace detail {
 
 class TeleportDest : public Widget
 {
@@ -19,8 +23,7 @@ public:
     TeleportDest(
         const Icons& icons,
         glm::vec2 pos,
-        std::function<void(bool)>&& selected,
-        std::function<void()>&& pressed)
+        std::function<void(bool)>&& selected)
     :
         Widget{
             ImageTag{},
@@ -31,10 +34,8 @@ public:
             false
         },
         mIcons{icons},
-        mWithinWidget{},
         mSelected{},
-        mCallback{selected},
-        mPressed{pressed}
+        mCallback{selected}
     {
     }
 
@@ -52,81 +53,36 @@ public:
 
     bool OnMouseEvent(const MouseEvent& event) override
     {
-        return std::visit(overloaded{
-            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
-            [this](const LeftMousePress& p){ return MousePressed(p.mValue); },
-            [](const auto& p){ return false; }
-            },
-            event);
-    }
-
-    // FIXME: Refactor this with townLabel and hotspot
-    bool MouseMoved(glm::vec2 pos)
-    {
-        if (mSelected)
-            return false;
-
-        if (!mWithinWidget)
-        {
-            if (Within(pos))
-            {
-                Entered();
-                mWithinWidget = true;
-            }
-            else
-            {
-                Exited();
-                mWithinWidget = false;
-            }
-        }
-        else
-        {
-            // Mouse entered widget
-            if (Within(pos) && !(*mWithinWidget))
-            {
-                Entered();
-                mWithinWidget = true;
-            }
-            // Mouse exited widget
-            else if (!Within(pos) && *mWithinWidget)
-            {
-                Exited();
-                mWithinWidget = false;
-            }
-        }
-
-        return false;
-    }
-
-    // Use Clickable here..
-    bool MousePressed(glm::vec2 pos)
-    {
-        if (Within(pos))
-        {
-            mPressed();
-            return true;
-        }
         return false;
     }
 
 protected:
     void Entered()
     {
+        if (mSelected) return;
         SetTexture(std::get<Graphics::TextureIndex>(mIcons.GetTeleportIcon(sHighlightedIcon)));
         mCallback(true);
     }
 
     void Exited()
     {
+        if (mSelected) return;
         SetTexture(std::get<Graphics::TextureIndex>(mIcons.GetTeleportIcon(sNormalIcon)));
         mCallback(false);
     }
 
     const Icons& mIcons;
-    std::optional<bool> mWithinWidget;
     bool mSelected;
     std::function<void(bool)> mCallback;
-    std::function<void()> mPressed;
 };
+
+}
+
+using TeleportDest = Highlightable<
+    Clickable<
+        detail::TeleportDest,
+        LeftMousePress,
+        std::function<void()>>,
+    true>;
 
 }

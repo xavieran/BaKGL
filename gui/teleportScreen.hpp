@@ -1,17 +1,16 @@
 #pragma once
 
-#include "bak/coordinates.hpp"
-#include "bak/fmap.hpp"
+#include "audio/audio.hpp"
+
+#include "bak/dialogSources.hpp"
 #include "bak/layout.hpp"
-#include "bak/textureFactory.hpp"
+#include "bak/temple.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
-#include "gui/clickButton.hpp"
-#include "gui/townLabel.hpp"
 #include "gui/teleportDest.hpp"
 #include "gui/widget.hpp"
 
@@ -23,8 +22,15 @@
 
 namespace Gui {
 
-class TeleportScreen : public Widget
+class TeleportScreen : public Widget, public IDialogScene
 {
+    enum class State
+    {
+        Idle,
+        Teleported,
+        Cancelled
+    };
+
 public:
     static constexpr auto sLayoutFile = "REQ_TELE.DAT";
 
@@ -53,8 +59,10 @@ public:
         mIcons{icons},
         mDialogScene{},
         mLayout{sLayoutFile},
+        mState{State::Idle},
         mSource{},
         mHighlightedDest{},
+        mChosenDest{},
         mTeleportWord{
             ImageTag{},
             std::get<Graphics::SpriteSheetIndex>(icons.GetTeleportIcon(12)),
@@ -112,8 +120,10 @@ public:
             mLayout.GetWidgetDimensions(sCancelWidget),
             mFont,
             "#Cancel",
-            // FIXME: This callback works by accident, rename it
-            [this]{ mGuiManager.ExitCharacterPortrait(); }
+            [this]{ 
+                mState = State::Cancelled;
+                mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogCancel, false, false, this);
+            }
         },
         mTeleportDests{},
         mLogger{Logging::LogState::GetLogger("Gui::TeleportScreen")}
@@ -123,27 +133,48 @@ public:
         for (unsigned i = 0; i < mLayout.GetSize() - 1; i++)
         {
             mTeleportDests.emplace_back(
+                [this, i=i]{
+                    HandleTempleClicked(i + 1);
+                },
                 icons,
                 mLayout.GetWidgetLocation(i),
                 [this, i=i](bool selected){
                     HandleTempleHighlighted(i + 1, selected);
-                },
-                [this, i=i]{
-                    HandleTempleClicked(i + 1);
                 }
             );
         }
 
         mTeleportFromText.AddText(mFont, "From:", true);
-        mTeleportToText.AddText(mFont, "To:\n#Temple of Ishap", true);
-        mCostText.AddText(mFont, "Cost: #112 sovereigns");
+        mTeleportToText.AddText(mFont, "To:", true);
+        mCostText.AddText(mFont, "Cost: ");
         mMapSnippet.AddChildBack(&mMap);
 
         AddChildren();
     }
 
+    void DisplayNPCBackground() override {}
+    void DisplayPlayerBackground() override {}
+
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
+    {
+        mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
+        if (mState == State::Cancelled)
+        {
+            mGuiManager.DoFade(.8, [this]{
+                mGuiManager.ExitSimpleScreen();
+            });
+        }
+        else if (mState == State::Teleported)
+        {
+            ASSERT(mChosenDest);
+            mGuiManager.ExitSimpleScreen();
+            mGuiManager.DoTeleport(BAK::TeleportIndex{*mChosenDest - 1});
+        }
+    }
+
     void SetSourceTemple(unsigned sourceTemple)
     {
+        mChosenDest = std::nullopt;
         for (unsigned i = 0; i < mTeleportDests.size(); i++)
         {
             if (sourceTemple - 1 == i)
@@ -158,23 +189,45 @@ public:
         }
     }
 
+private:
     void HandleTempleClicked(unsigned templeNumber)
     {
-        mLogger.Debug() << "Clicked temple: " << templeNumber << "\n";
+        mLogger.Debug() << "Clicked temple: " << templeNumber << " " << mSource << "\n";
+        if (templeNumber == mSource + 1)
+        {
+            mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportedToSameTemple, false, false, this);
+        }
+        else
+        {
+            const auto cost = BAK::Temple::CalculateTeleportCost(mSource + 1, templeNumber);
+            if (cost < mGameState.GetMoney())
+            {
+                mGameState.GetParty().LoseMoney(cost);
+                mState = State::Teleported;
+                mChosenDest = templeNumber;
+                AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0xc});
+                mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogPostTeleport, false, false, this);
+            }
+            else
+            {
+                mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogCantAfford, false, false, this);
+            }
+        }
     }
 
     void HandleTempleHighlighted(unsigned templeNumber, bool selected)
     {
-        mLogger.Debug() << "Entered temple: " << templeNumber << " " << selected << "\n";
         if (selected)
         {
             mHighlightedDest = templeNumber;
             mTeleportToText.AddText(mFont, MakeTempleString("To:", templeNumber), true);
+            mCostText.AddText(mFont, MakeCostString(templeNumber));
             mTeleportTo.SetTexture(std::get<Graphics::TextureIndex>(mIcons.GetTeleportIcon(templeNumber - 1)));
         }
         else
         {
             mTeleportToText.AddText(mFont, "To:", true);
+            mCostText.AddText(mFont, "Cost: ");
             mHighlightedDest.reset();
         }
 
@@ -185,6 +238,13 @@ public:
     {
         std::stringstream ss{};
         ss << prefix << "\n#" << mLayout.GetWidget(templeNumber - 1).mLabel;
+        return ss.str();
+    }
+
+    std::string MakeCostString(unsigned templeNumber)
+    {
+        std::stringstream ss{};
+        ss << "Cost: " << BAK::ToShopDialogString(BAK::Temple::CalculateTeleportCost(mSource + 1, templeNumber));
         return ss.str();
     }
 
@@ -224,8 +284,10 @@ private:
 
     BAK::Layout mLayout;
 
+    State mState;
     unsigned mSource;
     std::optional<unsigned> mHighlightedDest;
+    std::optional<unsigned> mChosenDest;
 
     Widget mTeleportWord;
     TextBox mTeleportFromText;

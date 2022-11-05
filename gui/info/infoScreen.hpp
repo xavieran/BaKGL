@@ -65,7 +65,7 @@ public:
             mLayout.GetWidgetDimensions(sExitWidget),
             mFont,
             "#Exit",
-            [this]{ mGuiManager.ExitCharacterPortrait(); }
+            [this]{ mGuiManager.DoFade(0.8, [this]{ mGuiManager.ExitSimpleScreen(); }); }
         },
         mPortrait{
             mLayout.GetWidgetLocation(sPortraitWidget),

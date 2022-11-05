@@ -13,4 +13,6 @@ Royals CalculateBlessPrice(const BAK::InventoryItem& item, const ShopStats& shop
 void BlessItem(BAK::InventoryItem& item, const ShopStats& shop);
 void RemoveBlessing(BAK::InventoryItem& item);
 
+Royals CalculateTeleportCost(unsigned source, unsigned dest);
+
 }

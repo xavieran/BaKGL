@@ -266,15 +266,17 @@ public:
 
     void RemoveGDSScene(bool runFinished=false)
     {
-        mScreenStack.PopChild();
+        ASSERT(!mGdsScenes.empty());
+        mLogger.Debug() << __FUNCTION__ << " Widgets: " << mScreenStack.GetChildren() << "\n";
+        mScreenStack.PopScreen();
         mCursor.PopCursor();
         mCursor.PopCursor();
         if (runFinished)
             PopAndRunGuiScreen();
         else
             PopGuiScreen();
+        mLogger.Debug() << "Removed GDS Scene: " << mGdsScenes.back() << std::endl;
         mGdsScenes.pop_back();
-        mLogger.Debug() << "Removed GDS Scene" << std::endl;
     }
 
     void StartDialog(
@@ -309,14 +311,21 @@ public:
         const auto teleport = mDialogRunner.GetAndResetPendingTeleport();
         if (teleport)
         {
-            mLogger.Info() << "Teleporting to teleport index: " << *teleport << "\n";
-            // Clear all stacked GDS scenes
-            while (!mGdsScenes.empty())
-                RemoveGDSScene();
-
-            if (mZoneLoader)
-                mZoneLoader->DoTeleport(*teleport);
+            DoTeleport(*teleport);
         }
+    }
+
+    void DoTeleport(BAK::TeleportIndex teleport) override
+    {
+        mLogger.Info() << "Teleporting to teleport index: " << teleport << "\n";
+        // Clear all stacked GDS scenes
+        while (!mGdsScenes.empty())
+            RemoveGDSScene();
+
+        mLogger.Debug() << __FUNCTION__ << "Widgets: " << GetChildren() << "\n";
+        if (mZoneLoader)
+            mZoneLoader->DoTeleport(teleport);
+        mLogger.Debug() << "Finished teleporting Widgets: " << GetChildren() << "\n";
     }
 
     void ShowCharacterPortrait(BAK::ActiveCharIndex character) override
@@ -328,11 +337,9 @@ public:
         });
     }
 
-    void ExitCharacterPortrait() override
+    void ExitSimpleScreen() override
     {
-        DoFade(.8, [this]{
-            mScreenStack.PopScreen();
-        });
+        mScreenStack.PopScreen();
     }
 
     void ShowInventory(BAK::ActiveCharIndex character) override

@@ -26,7 +26,7 @@ public:
     virtual void StartDialog(BAK::Target, bool tooltip, bool drawWorldFrame, IDialogScene*) = 0;
 
     virtual void ShowCharacterPortrait(BAK::ActiveCharIndex) = 0;
-    virtual void ExitCharacterPortrait() = 0;
+    virtual void ExitSimpleScreen() = 0;
 
     virtual void ShowInventory(BAK::ActiveCharIndex) = 0;
     virtual void ShowContainer(BAK::IContainer*) = 0;
@@ -44,6 +44,7 @@ public:
     virtual ScreenStack& GetScreenStack() = 0;
 
     virtual void LoadGame(std::string) = 0;
+    virtual void DoTeleport(BAK::TeleportIndex) = 0;
 };
 
 }

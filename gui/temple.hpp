@@ -69,7 +69,6 @@ public:
             if (choice)
             { 
                 // (269, #Talk),(272, #Cure),(271, #Bless),(268, #Done)
-
                 if (*choice == BAK::ChoiceIndex{269})
                 {
                     StartDialog(mTarget);

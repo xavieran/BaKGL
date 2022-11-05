@@ -426,7 +426,7 @@ public:
     {
         // RunDialog addr: 23d1
         const auto state = GetEventState(choice.mEventPointer);
-        mLogger.Debug() << __FUNCTION__ << "Choice: " << choice 
+        mLogger.Debug() << __FUNCTION__ << " : " << choice 
             << " S: [" << std::hex << +state << std::dec << "]\n";
 
         // Probably want to put this logic somewhere else...

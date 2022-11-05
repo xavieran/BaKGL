@@ -51,6 +51,7 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadEncounter");
+    Logging::LogState::Disable("LoadFixedObjects");
     Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("MeshObjectStore");

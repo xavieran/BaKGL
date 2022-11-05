@@ -65,14 +65,19 @@ public:
     void DoTeleport(BAK::TeleportIndex teleIndex) override
     {
         const auto& teleport = mTeleportFactory.Get(teleIndex.mValue);
+        mLogger.Debug() << "Teleporting to: " << teleport << "\n";
         if (teleport.mTargetZone)
+        {
             DoTransition(
                 teleport.mTargetZone->mValue,
                 teleport.mTargetLocation);
+        }
 
         if (teleport.mTargetGDSScene)
+        {
             mGuiManager.TeleportToGDS(
                 *teleport.mTargetGDSScene);
+        }
     }
 
     void LoadGame(std::string savePath) override
@@ -99,6 +104,7 @@ public:
                 targetZone,
                 BAK::GetTile(targetLocation.mPosition),
                 targetLocation});
+
         LoadZoneData(targetZone);
     }
 
