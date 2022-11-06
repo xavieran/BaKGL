@@ -91,6 +91,7 @@ public:
 
     static constexpr auto sLockHasBeenSeenFlag = 0x1c5c;
 
+    static constexpr auto sConditionBasedFlag = 0x1c98;
     static constexpr auto sTempleSeenFlag = 0x1950;
 
     static constexpr auto sCombatEntityListCount  = 700;

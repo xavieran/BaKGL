@@ -15,4 +15,7 @@ void RemoveBlessing(BAK::InventoryItem& item);
 
 Royals CalculateTeleportCost(unsigned source, unsigned dest);
 
+// Temple Cure - 
+// In general, cure all conditions, set healing to 20% (or leave as is?)
+// Temple of Sung - cure and set healing to 100%
 }
