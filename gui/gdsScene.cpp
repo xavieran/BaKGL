@@ -169,7 +169,8 @@ void GDSScene::DisplayPlayerBackground()
 
 void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 { 
-    mLogger.Debug() << "Hotspot: " << hotspot << "\n";
+    mLogger.Debug() << "Hotspot: " << hotspot << "\n"
+        << "Tele: " << mPendingTeleport << "\n";;
 
     if (hotspot.mAction == BAK::HotspotAction::DIALOG)
     {
@@ -263,8 +264,6 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 
 void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
 {
-    // FIXME: There's a crash here if someone left clicks after having right clicked
-    // Left click should clear the hotspot active flag...
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
     StartDialog(hotspot.mTooltip, true);
 }
@@ -309,7 +308,15 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     else if (mPendingTeleport)
     {
         mPendingTeleport = false;
-        mGuiManager.ShowTeleport(mSceneHotspots.mTempleIndex);
+        
+        if (mGameState.GetMoreThanOneTempleSeen())
+        {
+            mGuiManager.ShowTeleport(mSceneHotspots.mTempleIndex);
+        }
+        else
+        {
+            StartDialog(BAK::DialogSources::mTeleportDialogNoDestinations, false);
+        }
     }
 
     mLogger.Debug() << "Dialog finished with choice: " << choice << " , back to flavour text\n";

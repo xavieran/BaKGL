@@ -559,10 +559,25 @@ public:
             mGameData->SetTempleSeen(temple);
     }
 
-    void GetTempleSeen(unsigned temple)
+    bool GetTempleSeen(unsigned temple) const
     {
         if (mGameData)
-            mGameData->ReadTempleSeen(temple);
+            return mGameData->ReadTempleSeen(temple);
+        return true;
+    }
+
+    bool GetMoreThanOneTempleSeen() const
+    {
+        if (mGameData)
+        {
+            unsigned templesSeen = 0;
+            for (unsigned i = 1; i < 13; i++)
+            {
+                templesSeen += GetTempleSeen(i);
+            }
+            return templesSeen > 1;
+        }
+        return true;
     }
 
     bool CheckEncounterActive(const Encounter::Encounter& encounter)

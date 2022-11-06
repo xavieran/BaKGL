@@ -35,6 +35,7 @@ public:
         },
         mIcons{icons},
         mSelected{},
+        mCanReach{},
         mCallback{selected}
     {
     }
@@ -56,6 +57,16 @@ public:
         return false;
     }
 
+    bool IsCanReach() const
+    {
+        return mCanReach;
+    }
+
+    void SetCanReach(bool canReach)
+    {
+        mCanReach = canReach;
+    }
+
 protected:
     void Entered()
     {
@@ -73,6 +84,7 @@ protected:
 
     const Icons& mIcons;
     bool mSelected;
+    bool mCanReach;
     std::function<void(bool)> mCallback;
 };
 

@@ -121,8 +121,11 @@ public:
             mFont,
             "#Cancel",
             [this]{ 
-                mState = State::Cancelled;
-                mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogCancel, false, false, this);
+                if (mState != State::Cancelled)
+                {
+                    mState = State::Cancelled;
+                    mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogCancel, false, false, this);
+                }
             }
         },
         mTeleportDests{},
@@ -174,6 +177,7 @@ public:
 
     void SetSourceTemple(unsigned sourceTemple)
     {
+        mState = State::Idle;
         mChosenDest = std::nullopt;
         for (unsigned i = 0; i < mTeleportDests.size(); i++)
         {
@@ -186,13 +190,16 @@ public:
             {
                 mTeleportDests.at(i).SetUnselected();
             }
+
+            mTeleportDests.at(i).SetCanReach(mGameState.GetTempleSeen(i + 1));
         }
+
+        AddChildren();
     }
 
 private:
     void HandleTempleClicked(unsigned templeNumber)
     {
-        mLogger.Debug() << "Clicked temple: " << templeNumber << " " << mSource << "\n";
         if (templeNumber == mSource + 1)
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportedToSameTemple, false, false, this);
@@ -269,7 +276,8 @@ private:
 
         for (auto& dst : mTeleportDests)
         {
-            AddChildBack(&dst);
+            if (dst.IsCanReach())
+                AddChildBack(&dst);
         }
 
         AddChildBack(&mCancelButton);

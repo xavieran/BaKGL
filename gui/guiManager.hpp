@@ -147,6 +147,19 @@ public:
         AddChildBack(&mScreenStack);
     }
 
+
+    [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override
+    {
+        if (HaveChild(&mFadeScreen))
+        {
+            return true;
+        }
+        else
+        {
+            return Widget::OnMouseEvent(event);
+        }
+    }
+
     ScreenStack& GetScreenStack() override
     {
         return mScreenStack;
