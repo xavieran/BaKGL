@@ -157,6 +157,8 @@ public:
     static constexpr auto mStump         = KeyTarget{0xba};
     static constexpr auto mTrappedAnimal = KeyTarget{0xab};
     static constexpr auto mWell          = KeyTarget{0xbc};
+
+    static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
 };
 
 }

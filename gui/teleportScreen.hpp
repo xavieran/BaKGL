@@ -57,7 +57,6 @@ public:
         mFont{font},
         mGameState{gameState},
         mIcons{icons},
-        mDialogScene{},
         mLayout{sLayoutFile},
         mState{State::Idle},
         mSource{},
@@ -171,6 +170,8 @@ public:
         {
             ASSERT(mChosenDest);
             mGuiManager.ExitSimpleScreen();
+            // This is probably a hack, likely need to fix this for other teleport things..
+            AudioA::AudioManager::Get().PopTrack();
             mGuiManager.DoTeleport(BAK::TeleportIndex{*mChosenDest - 1});
         }
     }
@@ -288,7 +289,6 @@ private:
     const Font& mFont;
     BAK::GameState& mGameState;
     const Icons& mIcons;
-    NullDialogScene mDialogScene;
 
     BAK::Layout mLayout;
 

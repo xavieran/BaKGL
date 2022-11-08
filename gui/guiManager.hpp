@@ -12,6 +12,7 @@
 #include "gui/IGuiManager.hpp"
 
 #include "gui/animatorStore.hpp"
+#include "gui/cureScreen.hpp"
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
@@ -101,6 +102,14 @@ public:
             mFontManager.GetGameFont(),
             mGameState
         },
+        mCureScreen{
+            *this,
+            mActors,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetGameFont(),
+            mGameState
+        },
         mLockScreen{
             *this,
             mBackgrounds,
@@ -180,6 +189,7 @@ public:
 
     void DoFade(double duration, std::function<void()>&& fadeFunction) override
     {
+        ASSERT(!HaveChild(&mFadeScreen));
         if (!HaveChild(&mFadeScreen))
         {
             mFadeFunction = std::move(fadeFunction);
@@ -216,9 +226,12 @@ public:
         // When teleporting we need to add the "root" GDS scene to the stack
         // because it won't have been there...
         if (hotspot.mGdsNumber < 12 && hotspot.mGdsChar != 'A')
-            EnterGDSScene(
-                BAK::HotspotRef{hotspot.mGdsNumber, 'A'},
-                []{});
+        {
+            const auto rootScene = BAK::HotspotRef{hotspot.mGdsNumber, 'A'};
+            mLogger.Debug() << "Teleporting to root first: " << rootScene << "\n";
+            EnterGDSScene(rootScene, []{});
+        }
+        mLogger.Debug() << "Teleporting to child: " << hotspot << "\n";
         EnterGDSScene(hotspot, []{});
     }
 
@@ -236,7 +249,6 @@ public:
         const BAK::HotspotRef& hotspot,
         std::function<void()>&& finished) override
     {
-        DoFade(1.0, [this, hotspot=hotspot, finished=std::move(finished)]() mutable {
         mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         mCursor.PushCursor(0);
 
@@ -268,7 +280,6 @@ public:
         }
 
         mScreenStack.PushScreen(mGdsScenes.back().get());
-        });
     }
 
     void ExitGDSScene() override
@@ -444,6 +455,14 @@ public:
         });
     }
 
+    void ShowCureScreen() override
+    {
+        DoFade(.8, [this]{
+            mCureScreen.EnterScreen();
+            mScreenStack.PushScreen(&mCureScreen);
+        });
+    }
+
     void ShowTeleport(unsigned sourceTemple) override
     {
         mTeleportScreen.SetSourceTemple(sourceTemple);
@@ -514,6 +533,7 @@ public:
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
+    CureScreen mCureScreen;
     LockScreen mLockScreen;
     FullMap mFullMap;
     MoredhelScreen mMoredhelScreen;

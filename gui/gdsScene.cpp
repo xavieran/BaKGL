@@ -257,7 +257,9 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         }
         else
         {
-            mGuiManager.EnterGDSScene(hotspotRef, []{});
+            mGuiManager.DoFade(.8, [this, hotspotRef]{
+                mGuiManager.EnterGDSScene(hotspotRef, []{});
+            });
         }
     }
 }
@@ -284,7 +286,9 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 
     if (mPendingGoto)
     {
-        mGuiManager.EnterGDSScene(*mPendingGoto, []{});
+        mGuiManager.DoFade(.8, [this, pendingGoto=*mPendingGoto]{
+            mGuiManager.EnterGDSScene(pendingGoto, []{});
+        });
         mPendingGoto.reset();
     }
     else if (mPendingInn)

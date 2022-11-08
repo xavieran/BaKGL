@@ -106,6 +106,12 @@ public:
         return *mGameData;
     }
 
+    void SetActiveCharacter(ActiveCharIndex character)
+    {
+        mTextVariableStore.SetActiveCharacter(
+            GetParty().GetCharacter(character).mName);
+    }
+
     void SetActiveCharacter(CharIndex character)
     {
         mTextVariableStore.SetActiveCharacter(

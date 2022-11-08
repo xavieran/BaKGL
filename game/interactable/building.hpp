@@ -179,9 +179,11 @@ public:
         {
             // Do GDS
             mState = State::Idle;
-            mGuiManager.EnterGDSScene(
-                *mCurrentBuilding->GetEncounter().mHotspotRef,
-                []{});
+            mGuiManager.DoFade(.8, [this]{
+                mGuiManager.EnterGDSScene(
+                    *mCurrentBuilding->GetEncounter().mHotspotRef,
+                    []{});
+                });
         }
         else
         {

@@ -1,23 +1,20 @@
 #pragma once
 
+#include "audio/audio.hpp"
+
 #include "bak/dialogSources.hpp"
 #include "bak/layout.hpp"
-#include "bak/textureFactory.hpp"
-
-#include "gui/info/portrait.hpp"
-#include "gui/info/ratings.hpp"
-#include "gui/info/skills.hpp"
+#include "bak/temple.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
-#include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/icons.hpp"
+#include "gui/info/portrait.hpp"
+#include "gui/info/ratings.hpp"
 #include "gui/colors.hpp"
-#include "gui/clickButton.hpp"
+#include "gui/teleportDest.hpp"
 #include "gui/widget.hpp"
-
-#include "xbak/RequestResource.h"
 
 #include <glm/glm.hpp>
 
@@ -27,16 +24,20 @@
 
 namespace Gui {
 
-class InfoScreen : public Widget
+class CureScreen : public Widget, public IDialogScene
 {
 public:
-    static constexpr auto sLayoutFile = "REQ_INFO.DAT";
-    static constexpr auto sSkillRightClickDialog = BAK::KeyTarget{0x143};
+    static constexpr auto sLayoutFile = "REQ_HEAL.DAT";
+    static constexpr auto sInfoLayoutFile = "REQ_INFO.DAT";
+    static constexpr auto sScreen = "OPTIONS1.SCX";
+
+    static constexpr auto sCurePlayer = 0;
+    static constexpr auto sNextPlayer = 1;
+    static constexpr auto sDone = 2;
 
     static constexpr auto sPortraitWidget = 0;
-    static constexpr auto sExitWidget = 1;
 
-    InfoScreen(
+    CureScreen(
         IGuiManager& guiManager,
         const Actors& actors,
         const Backgrounds& backgrounds,
@@ -47,7 +48,7 @@ public:
         Widget{
             Graphics::DrawMode::Sprite,
             backgrounds.GetSpriteSheet(),
-            backgrounds.GetScreen("OPTIONS1.SCX"),
+            backgrounds.GetScreen(sScreen),
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec2{0},
@@ -57,19 +58,13 @@ public:
         mGuiManager{guiManager},
         mFont{font},
         mGameState{gameState},
-        mDialogScene{},
-        mSelectedCharacter{0},
+        mIcons{icons},
         mLayout{sLayoutFile},
-        mExitButton{
-            mLayout.GetWidgetLocation(sExitWidget),
-            mLayout.GetWidgetDimensions(sExitWidget),
-            mFont,
-            "#Exit",
-            [this]{ mGuiManager.DoFade(0.8, [this]{ mGuiManager.ExitSimpleScreen(); }); }
-        },
+        mInfoLayout{sInfoLayoutFile},
+        mSelectedCharacter{BAK::ActiveCharIndex{0}},
         mPortrait{
-            mLayout.GetWidgetLocation(sPortraitWidget),
-            mLayout.GetWidgetDimensions(sPortraitWidget),
+            mInfoLayout.GetWidgetLocation(sPortraitWidget),
+            mInfoLayout.GetWidgetDimensions(sPortraitWidget),
             actors,
             mFont,
             std::get<Graphics::SpriteSheetIndex>(icons.GetStippledBorderVertical()),
@@ -82,10 +77,9 @@ public:
                     .GetParty()
                     .GetCharacter(BAK::ActiveCharIndex{mSelectedCharacter})
                     .GetIndex();
-
                 mGameState.SetDialogContext(character.mValue);
                 mGuiManager.StartDialog(
-                    BAK::DialogSources::mCharacterFlavourDialog, false, false, &mDialogScene);
+                    BAK::DialogSources::mCharacterFlavourDialog, false, false, this);
             }
         },
         mRatings{
@@ -97,29 +91,61 @@ public:
             std::get<Graphics::TextureIndex>(icons.GetStippledBorderHorizontal()),
             std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical())
         },
-        mSkills{
-            glm::vec2{15, 100},
-            glm::vec2{200,200},
-            std::get<Graphics::SpriteSheetIndex>(icons.GetInventoryIcon(120)),
-            std::get<Graphics::TextureIndex>(icons.GetInventoryIcon(120)),
-            mLayout,
-            [this](auto skill){
-                ToggleSkill(skill);
-            },
-            [this](){
-                mGuiManager.StartDialog(
-                    sSkillRightClickDialog, false, false, &mDialogScene);
+        mCureText{
+            glm::vec2{30, 108},
+            glm::vec2{80, 40}
+        },
+        mCureButton{
+            mLayout.GetWidgetLocation(sCurePlayer),
+            mLayout.GetWidgetDimensions(sCurePlayer) + glm::vec2{0, 1},
+            mFont,
+            "#Cure Player",
+            [this]{ 
+                CureCharacter();
             }
         },
-        mLogger{Logging::LogState::GetLogger("Gui::InfoScreen")}
+        mNextPlayerButton{
+            mLayout.GetWidgetLocation(sNextPlayer),
+            mLayout.GetWidgetDimensions(sNextPlayer) + glm::vec2{0, 1},
+            mFont,
+            "#Next Player",
+            [this]{ 
+                AdvanceCharacter();
+            }
+        },
+        mDoneButton{
+            mLayout.GetWidgetLocation(sDone),
+            mLayout.GetWidgetDimensions(sDone) + glm::vec2{0, 1},
+            mFont,
+            "#Done",
+            [this]{ 
+                mGuiManager.ExitSimpleScreen();
+            }
+        },
+        mLogger{Logging::LogState::GetLogger("Gui::CureScreen")}
     {
         AddChildren();
     }
 
-    void SetSelectedCharacter(BAK::ActiveCharIndex character)
+    void DisplayNPCBackground() override {}
+    void DisplayPlayerBackground() override {}
+
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
     {
-        mSelectedCharacter = character;
-        mGameState.GetParty().GetCharacter(character).UpdateSkills();
+    }
+
+    void EnterScreen()
+    {
+        UpdateCharacter();
+    }
+
+private:
+    void CureCharacter()
+    {
+        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0xc});
+        mGameState.SetActiveCharacter(mSelectedCharacter);
+        //mGuiManager.StartDialog(BAK::DialogSources::mHealDialogPostHealing, false, false, this);
+        mGuiManager.StartDialog(BAK::DialogSources::mHealDialogCost, false, false, this);
     }
 
     void AdvanceCharacter()
@@ -129,46 +155,46 @@ public:
         UpdateCharacter();
     }
 
+    void SetSelectedCharacter(BAK::ActiveCharIndex character)
+    {
+        mSelectedCharacter = character;
+    }
+
     void UpdateCharacter()
     {
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
-        mSkills.UpdateSkills(mFont, character.mSkills);
         mPortrait.SetCharacter(character.GetIndex(), character.mName);
         mRatings.SetCharacter(character.mSkills, character.mConditions);
-        character.mSkills.ClearUnseenImprovements();
-    }
-
-    void ToggleSkill(BAK::SkillType skill)
-    {
-        mLogger.Debug() << "Toggle Skill: " << BAK::ToString(skill) << "\n";
-        mGameState
-            .GetParty()
-            .GetCharacter(mSelectedCharacter)
-            .mSkills.ToggleSkill(skill);
-        UpdateCharacter();
     }
 
     void AddChildren()
     {
-        AddChildBack(&mExitButton);
-        AddChildBack(&mSkills);
+        ClearChildren();
+
         AddChildBack(&mPortrait);
         AddChildBack(&mRatings);
+        AddChildBack(&mCureText);
+        AddChildBack(&mCureButton);
+        AddChildBack(&mNextPlayerButton);
+        AddChildBack(&mDoneButton);
     }
 
 private:
     IGuiManager& mGuiManager;
     const Font& mFont;
     BAK::GameState& mGameState;
-    NullDialogScene mDialogScene;
-    BAK::ActiveCharIndex mSelectedCharacter;
+    const Icons& mIcons;
 
     BAK::Layout mLayout;
+    BAK::Layout mInfoLayout;
 
-    ClickButton mExitButton;
+    BAK::ActiveCharIndex mSelectedCharacter;
     Portrait mPortrait;
     Ratings mRatings;
-    Skills mSkills;
+    TextBox mCureText;
+    ClickButton mCureButton;
+    ClickButton mNextPlayerButton;
+    ClickButton mDoneButton;
 
     const Logging::Logger& mLogger;
 };

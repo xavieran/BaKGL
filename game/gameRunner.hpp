@@ -315,15 +315,17 @@ public:
                 ASSERT(choice);
                 if (choice->mValue == BAK::Keywords::sYesIndex)
                 {
-                    mGuiManager.EnterGDSScene(
-                        gds.mHotspot, 
-                        [&, exitDialog=gds.mExitDialog](){
-                            mGuiManager.StartDialog(
-                                exitDialog,
-                                false,
-                                false,
-                                &mDynamicDialogScene);
-                            });
+                    mGuiManager.DoFade(.8, [this, gds=gds]{
+                        mGuiManager.EnterGDSScene(
+                            gds.mHotspot, 
+                            [&, exitDialog=gds.mExitDialog](){
+                                mGuiManager.StartDialog(
+                                    exitDialog,
+                                    false,
+                                    false,
+                                    &mDynamicDialogScene);
+                                });
+                    });
                 }
 
                 // FIXME: Move this into the if block so we only

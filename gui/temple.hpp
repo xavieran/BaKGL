@@ -78,7 +78,8 @@ public:
                     if (mGameState.GetEndOfDialogState() != -1)
                     {
                         mState = State::Cure;
-                        StartDialog(BAK::DialogSources::mHealDialogCantHealNotSick);
+                        mGuiManager.ShowCureScreen();
+                        //StartDialog(BAK::DialogSources::mHealDialogCantHealNotSick);
                     }
                     else
                     {
