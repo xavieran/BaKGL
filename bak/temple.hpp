@@ -1,11 +1,15 @@
 #pragma once
 
 #include "bak/dialog.hpp"
+#include "bak/condition.hpp"
 #include "bak/money.hpp"
 #include "bak/shop.hpp"
 #include "bak/types.hpp"
 
 namespace BAK::Temple {
+
+static constexpr auto sTempleOfSung = 4;
+static constexpr auto sChapelOfIshap = 12;
 
 bool CanBlessItem(const BAK::InventoryItem& item);
 bool IsBlessed(const BAK::InventoryItem& item);
@@ -15,7 +19,7 @@ void RemoveBlessing(BAK::InventoryItem& item);
 
 Royals CalculateTeleportCost(unsigned source, unsigned dest);
 
-// Temple Cure - 
-// In general, cure all conditions, set healing to 20% (or leave as is?)
-// Temple of Sung - cure and set healing to 100%
+Royals CalculateCureCost(unsigned cureFactor, bool isTempleOfSung, Skills&, const Conditions&);
+void CureCharacter(Skills&, Conditions&, bool isTempleOfSung);
+
 }

@@ -62,6 +62,8 @@ public:
         mLayout{sLayoutFile},
         mInfoLayout{sInfoLayoutFile},
         mSelectedCharacter{BAK::ActiveCharIndex{0}},
+        mTempleNumber{BAK::Temple::sTempleOfSung},
+        mCost{BAK::Royals{0}},
         mPortrait{
             mInfoLayout.GetWidgetLocation(sPortraitWidget),
             mInfoLayout.GetWidgetDimensions(sPortraitWidget),
@@ -144,8 +146,10 @@ private:
     {
         AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0xc});
         mGameState.SetActiveCharacter(mSelectedCharacter);
-        //mGuiManager.StartDialog(BAK::DialogSources::mHealDialogPostHealing, false, false, this);
-        mGuiManager.StartDialog(BAK::DialogSources::mHealDialogCost, false, false, this);
+        mGuiManager.StartDialog(BAK::DialogSources::mHealDialogPostHealing, false, false, this);
+        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
+        BAK::Temple::CureCharacter(character.mSkills, character.mConditions, mTempleNumber == BAK::Temple::sTempleOfSung);
+        //mGuiManager.StartDialog(BAK::DialogSources::mHealDialogCost, false, false, this);
     }
 
     void AdvanceCharacter()
@@ -165,6 +169,12 @@ private:
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
         mPortrait.SetCharacter(character.GetIndex(), character.mName);
         mRatings.SetCharacter(character.mSkills, character.mConditions);
+        mCost = BAK::Temple::CalculateCureCost(
+            1,
+            mTempleNumber == BAK::Temple::sTempleOfSung,
+            character.mSkills,
+            character.mConditions);
+        mGameState.SetItemValue(mCost);
     }
 
     void AddChildren()
@@ -189,6 +199,8 @@ private:
     BAK::Layout mInfoLayout;
 
     BAK::ActiveCharIndex mSelectedCharacter;
+    unsigned mTempleNumber;
+    BAK::Royals mCost;
     Portrait mPortrait;
     Ratings mRatings;
     TextBox mCureText;

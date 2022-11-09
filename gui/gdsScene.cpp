@@ -207,8 +207,17 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
     {
-        StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
-        mPendingTeleport = true;
+        if (mGameState.GetChapter() == BAK::Chapter{6}
+            && mSceneHotspots.mTempleIndex == BAK::Temple::sChapelOfIshap
+            && !mGameState.GetEventStateBool(BAK::GameData::sPantathiansEventFlag))
+        {
+            mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossSource, false, false, this);
+        }
+        else
+        {
+            StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
+            mPendingTeleport = true;
+        }
     }
     else if (hotspot.mAction == BAK::HotspotAction::SHOP
         || hotspot.mAction == BAK::HotspotAction::BARMAID

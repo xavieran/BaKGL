@@ -60,7 +60,8 @@ TEST_F(SkillTestFixture, CalculateEffectiveSkillValueTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{};
@@ -86,7 +87,8 @@ TEST_F(SkillTestFixture, ConditionNonDrunkTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     // Sickness doesn't affect stats...
@@ -108,7 +110,8 @@ TEST_F(SkillTestFixture, ConditionDrunkTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{
@@ -131,7 +134,8 @@ TEST_F(SkillTestFixture, ConditionHealingTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{};
@@ -156,7 +160,8 @@ TEST_F(SkillTestFixture, LowHealthTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{
@@ -189,7 +194,8 @@ TEST_F(SkillTestFixture, LowHealthAndDrunkAndModifierTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{

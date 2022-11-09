@@ -1,4 +1,5 @@
 #include "bak/temple.hpp"
+#include "bak/skills.hpp"
 
 namespace BAK::Temple {
 
@@ -56,6 +57,55 @@ Royals CalculateTeleportCost(unsigned source, unsigned dest)
         {88, 70, 105, 99, 70, 102,  89, 128, 102, 151,  63,   0}
     };
     return GetRoyals(Sovereigns{costMatrix[source - 1][dest - 1]});
+}
+
+Royals CalculateCureCost(unsigned cureFactor, bool isTempleOfSung, Skills& skills, const Conditions& conditions)
+{
+    static constexpr unsigned conditionCost[7] = {
+        4, 10, 10, 3, 0, 2, 30
+    };
+
+    unsigned totalCost = 0;
+    for (unsigned i = 0; i < Conditions::sNumConditions; i++)
+    {
+        const auto cond = conditions.GetCondition(static_cast<Condition>(i));
+        if (i != static_cast<unsigned>(Condition::Healing))
+            const auto cost = cond.Get() * conditionCost[i] + 10;
+    }
+
+    totalCost = (totalCost * cureFactor) / 100;
+
+    if (isTempleOfSung)
+    {
+        totalCost += CalculateEffectiveSkillValue(
+            SkillType::TotalHealth,
+            skills,
+            conditions,
+            SkillRead::MaxSkill);
+        totalCost -= CalculateEffectiveSkillValue(
+            SkillType::TotalHealth,
+            skills,
+            conditions,
+            SkillRead::Current);
+    }
+
+    return Royals{totalCost};
+}
+
+void CureCharacter(Skills& skills, Conditions& conditions, bool isTempleOfSung)
+{
+    for (unsigned i = 0; i < Conditions::sNumConditions; i++)
+    {
+        const auto cond = static_cast<Condition>(i);
+        const auto amount = cond == Condition::Healing ? 20 : -100;
+        conditions.AdjustCondition(cond, amount);
+    }
+    
+    if (isTempleOfSung)
+    {
+        DoAdjustHealth(skills, 100, 0x7fff);
+        conditions.AdjustCondition(Condition::Healing, 100);
+    }
 }
 
 }

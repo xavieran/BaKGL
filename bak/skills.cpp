@@ -24,7 +24,7 @@ std::string_view ToString(SkillType s)
     case SkillType::Lockpick: return "Lockpick";
     case SkillType::Scouting: return "Scouting";
     case SkillType::Stealth: return "Stealth";
-    case SkillType::GainHealth: return "GainHealth";
+    case SkillType::TotalHealth: return "TotalHealth";
     default: return "UnknownSkillType";
     }
 }
@@ -56,11 +56,36 @@ std::ostream& operator<<(std::ostream& os, const Skills& s)
 unsigned CalculateEffectiveSkillValue(
     SkillType skillType,
     Skills& skills,
-    const Conditions& conditions)
+    const Conditions& conditions,
+    SkillRead skillRead)
 {
+    if (skillType == SkillType::TotalHealth)
+    {
+        const auto health = CalculateEffectiveSkillValue(
+            SkillType::Health,
+            skills,
+            conditions,
+            SkillRead::Current);
+        const auto stamina = CalculateEffectiveSkillValue(
+            SkillType::Stamina,
+            skills,
+            conditions,
+            SkillRead::Current);
+        return health + stamina;
+    }
+
     const auto skillIndex = static_cast<unsigned>(skillType);
     auto& skill = skills.GetSkill(skillType);
 
+    if (skillRead == SkillRead::MaxSkill)
+    {
+        return skill.mMax;
+    }
+    else if (skillRead == SkillRead::TrueSkill)
+    {
+        return skill.mTrueSkill;
+    }
+    
     int skillCurrent = skill.mTrueSkill;
 
     if (skill.mModifier != 0)
@@ -98,7 +123,7 @@ unsigned CalculateEffectiveSkillValue(
     }
 
     const auto skillHealthEffect = sSkillHealthEffect[skillIndex];
-    if (skillHealthEffect != 0)
+    if (skillHealthEffect != 0 && skillRead != SkillRead::NoHealthEffect)
     {
         const auto& health = skills.GetSkill(SkillType::Health);
         auto trueHealth = health.mTrueSkill;
@@ -213,6 +238,73 @@ void DoImproveSkill(
         << ToString(skillType) << " " << skill << "\n";
 }
 
+signed DoAdjustHealth(
+    Skills& skills,
+    signed healthChangePercent,
+    signed multiplier)
+{
+    auto& healthSkill = skills.GetSkill(SkillType::Health);
+    auto& staminaSkill = skills.GetSkill(SkillType::Stamina);
+
+    auto currentHealthAndStamina = healthSkill.mCurrent + staminaSkill.mCurrent;
+    auto maxHealthAndStamina = healthSkill.mTrueSkill + staminaSkill.mTrueSkill;
+
+    auto healthChange = (maxHealthAndStamina * healthChangePercent) / 0x64;
+
+    // ovr131:03A3
+    bool isPlayerCharacter{};
+    if (isPlayerCharacter)
+    {
+        auto someCondition = 0;
+        if (someCondition != 0)
+        {
+            healthChange = (((0x64 - someCondition) * 0x1E) / 0x64) + 1;
+        }
+    }
+
+    // ovr131:03c7
+    if (multiplier <= 0)
+    {
+        // ovr131:03f4
+        currentHealthAndStamina += multiplier / 0x100;
+        if (currentHealthAndStamina <= 0)
+        {
+            currentHealthAndStamina = 0;
+            if (isPlayerCharacter)
+            {
+                // AdjustCondition(NearDeath, 100%);
+            }
+        }
+    }
+    else
+    {
+        // ovr131:03ce
+        if (currentHealthAndStamina < healthChange)
+        {
+            currentHealthAndStamina += (multiplier / 0x100);
+            if (currentHealthAndStamina > healthChange)
+            {
+                currentHealthAndStamina = healthChange;
+            }
+        }
+    }
+
+    // ovr131:042b
+
+    if (healthSkill.mTrueSkill >= currentHealthAndStamina)
+    {
+        staminaSkill.mCurrent = 0;
+        healthSkill.mCurrent = currentHealthAndStamina;
+    }
+    else
+    {
+        staminaSkill.mCurrent = currentHealthAndStamina - healthSkill.mTrueSkill;
+        healthSkill.mCurrent = healthSkill.mTrueSkill;
+    }
+
+    return currentHealthAndStamina;
+}
+
 Skills::Skills(const SkillArray& skills, unsigned pool)
 :
     mSkills{skills},
@@ -276,14 +368,9 @@ void Skills::ImproveSkill(
     unsigned multiplier)
 {
     // not quite right...
-    if (skill == SkillType::GainHealth)
+    if (skill == SkillType::TotalHealth)
     {
-        skill = SkillType::Health;
-        auto& s = GetSkill(skill);
-        s.mMax += multiplier; 
-        s.mTrueSkill += multiplier;
-        s.mCurrent += multiplier;
-        s.mUnseenImprovement = true;
+        DoAdjustHealth(*this, static_cast<unsigned>(skillChangeType), multiplier);
     }
     else
     {

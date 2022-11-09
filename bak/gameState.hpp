@@ -498,7 +498,9 @@ public:
     unsigned GetEventState(unsigned eventPtr) const
     {
         if (mGameData != nullptr)
+        {
             return mGameData->ReadEvent(eventPtr);
+        }
         else
             return 0;
     }

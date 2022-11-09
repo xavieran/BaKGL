@@ -115,6 +115,8 @@ public:
     static constexpr auto mTeleportDialogPostTeleport = KeyTarget{0x13d660};
     static constexpr auto mTeleportDialogCancel = KeyTarget{0x13d661};
     static constexpr auto mTeleportDialogTeleportedToSameTemple = KeyTarget{0x13d674};
+    static constexpr auto mTeleportDialogTeleportBlockedMalacsCrossDest= KeyTarget{0x493fd};
+    static constexpr auto mTeleportDialogTeleportBlockedMalacsCrossSource= KeyTarget{0x493fe};
 
     static constexpr auto mBardingAlreadyDone = KeyTarget{0x47};
     static constexpr auto mBardingBad  = KeyTarget{0x49};

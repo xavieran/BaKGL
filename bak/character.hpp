@@ -290,7 +290,8 @@ public:
         return CalculateEffectiveSkillValue(
             skill,
             mSkills,
-            mConditions);
+            mConditions,
+            SkillRead::Current);
     }
 
     void UpdateSkills()

@@ -30,8 +30,7 @@ enum class SkillType
     Lockpick    = 0xd,
     Scouting    = 0xe,
     Stealth     = 0xf,
-    // FIXME: Need a better way to handle this this is the "GainHealth" GainSkill dialog action
-    GainHealth
+    TotalHealth = 0x10
 };
 
 enum class SkillChange
@@ -40,6 +39,14 @@ enum class SkillChange
     FractionOfSkill = 1,
     DifferenceOfSkill = 2,
     ExercisedSkill = 3
+};
+
+enum class SkillRead
+{
+    Current = 0,
+    MaxSkill = 1,
+    TrueSkill = 3,
+    NoHealthEffect = 4
 };
 
 static constexpr auto sEffectiveSkillMin = std::array<std::uint16_t, 16>{
@@ -91,7 +98,8 @@ class Skills;
 unsigned CalculateEffectiveSkillValue(
     SkillType,
     Skills&,
-    const Conditions&);
+    const Conditions&,
+    SkillRead);
 
 void DoImproveSkill(
     SkillType skillType,
@@ -99,6 +107,11 @@ void DoImproveSkill(
     SkillChange skillChangeType,
     unsigned multiplier,
     unsigned selectedSkillPool);
+
+signed DoAdjustHealth(
+    Skills& skills,
+    signed healthChangePercent,
+    signed multiplier);
 
 class Skills
 {

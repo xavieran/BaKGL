@@ -33,7 +33,6 @@ class TeleportScreen : public Widget, public IDialogScene
 
 public:
     static constexpr auto sLayoutFile = "REQ_TELE.DAT";
-
     static constexpr auto sCancelWidget = 12;
 
     TeleportScreen(
@@ -201,9 +200,16 @@ public:
 private:
     void HandleTempleClicked(unsigned templeNumber)
     {
+
         if (templeNumber == mSource + 1)
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportedToSameTemple, false, false, this);
+        }
+        else if (mGameState.GetChapter() == BAK::Chapter{6}
+            && templeNumber == BAK::Temple::sChapelOfIshap
+            && !mGameState.GetEventStateBool(BAK::GameData::sPantathiansEventFlag))
+        {
+            mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossDest, false, false, this);
         }
         else
         {

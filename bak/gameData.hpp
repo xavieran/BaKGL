@@ -93,6 +93,7 @@ public:
 
     static constexpr auto sConditionBasedFlag = 0x1c98;
     static constexpr auto sTempleSeenFlag = 0x1950;
+    static constexpr auto sPantathiansEventFlag = 0x1ed4;
 
     static constexpr auto sCombatEntityListCount  = 700;
     static constexpr auto sCombatEntityListOffset = 0x1383;
