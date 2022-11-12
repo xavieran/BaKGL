@@ -7,6 +7,7 @@
 #include "com/assert.hpp"
 #include "com/visit.hpp"
 
+#include "gui/IDialogDisplay.hpp"
 #include "gui/IDialogScene.hpp"
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
@@ -28,7 +29,7 @@ enum class DialogFrame
     LowerArea = 3
 };
 
-class DialogDisplay : public Widget
+class DialogDisplay : public Widget, IDialogDisplay
 {
 public:
     DialogDisplay(
@@ -120,11 +121,6 @@ public:
         mActionAreaFrame.AddChildBack(&mActionAreaTextBox);
     }
 
-    void Clear()
-    {
-        ClearChildren();
-    }
-
     void DisplayPlayer(IDialogScene& dialogScene, unsigned act)
     {
         const auto actor = mGameState.GetActor(act);
@@ -134,7 +130,7 @@ public:
             + " asked about:#");
     }
 
-    auto DisplaySnippet(
+    std::pair<glm::vec2, std::string> DisplaySnippet(
         IDialogScene& dialogScene,
         const BAK::DialogSnippet& snippet,
         std::string_view remainingText)
@@ -208,8 +204,13 @@ public:
         AddLabel(label);
     }
 
+    void Clear()
+    {
+        ClearChildren();
+    }
+
 private:
-    void AddLabel(std::string_view text)
+        void AddLabel(std::string_view text)
     {
         mLabel.SetText(text);
         mLabel.SetCenter(mCenter);

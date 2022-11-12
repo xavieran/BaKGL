@@ -250,6 +250,8 @@ signed DoAdjustHealth(
     auto maxHealthAndStamina = healthSkill.mTrueSkill + staminaSkill.mTrueSkill;
 
     auto healthChange = (maxHealthAndStamina * healthChangePercent) / 0x64;
+    Logging::LogDebug(__FUNCTION__) << " Current: " << currentHealthAndStamina << " Max: " << maxHealthAndStamina << "\n";
+    Logging::LogDebug(__FUNCTION__) << " HealthChange: " << healthChange << "\n";
 
     // ovr131:03A3
     bool isPlayerCharacter{};
@@ -267,9 +269,11 @@ signed DoAdjustHealth(
     {
         // ovr131:03f4
         currentHealthAndStamina += multiplier / 0x100;
+        Logging::LogDebug(__FUNCTION__) << " Current: " << currentHealthAndStamina << "\n";
         if (currentHealthAndStamina <= 0)
         {
             currentHealthAndStamina = 0;
+            Logging::LogDebug(__FUNCTION__) << " NearDeath\n";
             if (isPlayerCharacter)
             {
                 // AdjustCondition(NearDeath, 100%);
@@ -289,17 +293,20 @@ signed DoAdjustHealth(
         }
     }
 
+    Logging::LogDebug(__FUNCTION__) << " Final health: " << currentHealthAndStamina << "\n";
     // ovr131:042b
 
     if (healthSkill.mTrueSkill >= currentHealthAndStamina)
     {
         staminaSkill.mCurrent = 0;
         healthSkill.mCurrent = currentHealthAndStamina;
+        Logging::LogDebug(__FUNCTION__) << " No stamina left\n";
     }
     else
     {
         staminaSkill.mCurrent = currentHealthAndStamina - healthSkill.mTrueSkill;
         healthSkill.mCurrent = healthSkill.mTrueSkill;
+        Logging::LogDebug(__FUNCTION__) << " Some stamina left\n";
     }
 
     return currentHealthAndStamina;

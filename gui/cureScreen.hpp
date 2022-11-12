@@ -94,8 +94,8 @@ public:
             std::get<Graphics::TextureIndex>(icons.GetStippledBorderVertical())
         },
         mCureText{
-            glm::vec2{30, 108},
-            glm::vec2{80, 40}
+            glm::vec2{34, 94},
+            glm::vec2{240, 80}
         },
         mCureButton{
             mLayout.GetWidgetLocation(sCurePlayer),
@@ -149,7 +149,6 @@ private:
         mGuiManager.StartDialog(BAK::DialogSources::mHealDialogPostHealing, false, false, this);
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
         BAK::Temple::CureCharacter(character.mSkills, character.mConditions, mTempleNumber == BAK::Temple::sTempleOfSung);
-        //mGuiManager.StartDialog(BAK::DialogSources::mHealDialogCost, false, false, this);
     }
 
     void AdvanceCharacter()
@@ -175,6 +174,14 @@ private:
             character.mSkills,
             character.mConditions);
         mGameState.SetItemValue(mCost);
+        
+        // FIXME: This is awful...
+        const auto text = BAK::DialogStore::Get().GetSnippet(BAK::DialogSources::mHealDialogCost);
+        mGameState.SetActiveCharacter(mSelectedCharacter);
+        mGameState.SetCharacterTextVariables();
+        // For some reason the dialog action sets text variable 1 for cost but the dialog uses 0 for cost.
+        mGameState.GetTextVariableStore().SetTextVariable(0, BAK::ToShopDialogString(mCost));
+        mCureText.AddText(mFont, mGameState.GetTextVariableStore().SubstituteVariables(std::string{text.GetText()}), false, false, true);
     }
 
     void AddChildren()

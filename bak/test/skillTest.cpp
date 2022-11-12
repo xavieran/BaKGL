@@ -44,7 +44,8 @@ struct SkillTestFixture : public ::testing::Test
 protected:
     void SetUp() override
     {
-        Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
+        //Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
+        Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     }
 
     Skills mSkills;
@@ -255,6 +256,14 @@ TEST_F(SkillTestFixture, ImproveSkillFromDialogTest)
     EXPECT_EQ(skill.mTrueSkill, 31);
     EXPECT_EQ(skill.mExperience, 128);
     EXPECT_EQ(skill.mUnseenImprovement, true);
+}
+
+TEST_F(SkillTestFixture, DoAdjustHealth)
+{
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{45, 45, 25, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mCurrent, 25);
+    DoAdjustHealth(mSkills, -10, 0x7fff);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mCurrent, 22);
 }
 
 }

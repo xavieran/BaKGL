@@ -119,6 +119,7 @@ public:
     }
     
     const TextVariableStore& GetTextVariableStore() const { return mTextVariableStore; }
+    TextVariableStore& GetTextVariableStore() { return mTextVariableStore; }
 
     void SetChapter(Chapter chapter)
     {
@@ -296,6 +297,7 @@ public:
             },
             [&](const BAK::SetTextVariable& set)
             {
+                mLogger.Debug() << "Setting text variable: " << BAK::DialogAction{set} << "\n";
                 if (set.mWhat == 0x7 || set.mWhat == 0xc || set.mWhat == 0xf)
                 {
                     mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
@@ -324,6 +326,12 @@ public:
                         set.mWhich,
                         ToShopDialogString(mItemValue));
                 }
+                else if (set.mWhat == 0x19)
+                {
+                    mTextVariableStore.SetTextVariable(
+                        set.mWhich,
+                        ToShopDialogString(mItemValue));
+                }
                 else if (set.mWhat == 0x1c)
                 {
                     mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
@@ -345,9 +353,12 @@ public:
             {
                 // FIXME: Implement if this skill only improves for one character
                 // Refer to dala blessing (13 @ 0xfd8c)
+                // who == 6 => apply gain to selected character (ref gamestate)
                 // who == 2 => apply gain to selected character (ref gamestate)
                 // who == 1 => apply gain to all characters
                 // Ref label: RunDialog_GainSkillAction for actual code
+                // If Skill == TotalHealth: 
+                // mValue 1 and mValue 2 refer to the upper and lower bounds of change
                 mLogger.Debug() << "Gaining skill: " << skill << "\n";
                 GetParty().ImproveSkillForAll(
                         skill.mSkill,
