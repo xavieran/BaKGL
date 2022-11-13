@@ -67,7 +67,9 @@ public:
         mCanReach = canReach;
     }
 
-protected:
+//protected: would be great if concept could enforce
+// existence of protected members...
+public:
     void Entered()
     {
         if (mSelected) return;

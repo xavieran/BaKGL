@@ -127,18 +127,19 @@ GDSScene::GDSScene(
         if (isActive)
         {
             mHotspots.emplace_back(
-                cursor,
-                mFont,
-                hs.mTopLeft,
-                hs.mDimensions,
-                hs.mHotspot,
-                hs.mKeyword - 1, // cursor index
                 [this, hs](){
                     HandleHotspotLeftClicked(hs);
                 },
                 [this, hs](){
                     HandleHotspotRightClicked(hs);
-                });
+                },
+                cursor,
+                mFont,
+                hs.mTopLeft,
+                hs.mDimensions,
+                hs.mHotspot,
+                hs.mKeyword - 1 // cursor index
+             );
             AddChildBack(&mHotspots.back());
         }
     }

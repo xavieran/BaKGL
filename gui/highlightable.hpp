@@ -16,14 +16,22 @@
 
 namespace Gui {
 
+template<typename T>
+concept HighlightableWidget = requires(T a)
+{
+    a.Entered();
+    a.Exited();
+};
+
 template <typename Base, bool HandleBaseFirst>
+    requires ImplementsWidget<Base> && HighlightableWidget<Base>
 class Highlightable : public Base
 {
 public:
     template <typename ...Args>
     Highlightable(Args&&... args)
     :
-        Base{std::forward<Args>(args)...},
+        Base(std::forward<Args>(args)...),
         mWithinWidget{}
     {
     }

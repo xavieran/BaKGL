@@ -15,6 +15,7 @@
 namespace Gui {
 
 template <typename Base, typename EventT, typename Functor>
+    requires ImplementsWidget<Base>
 class Clickable : public Base
 {
 public:
