@@ -69,6 +69,7 @@ GDSScene::GDSScene(
     mPendingBard{},
     mKickedOut{false},
     mPendingTeleport{},
+    mPendingDialog{},
     mTemple{
         mGameState,
         mGuiManager
@@ -153,13 +154,24 @@ GDSScene::GDSScene(
 
 void GDSScene::SetTempleSeen()
 {
+}
+
+void GDSScene::EnterGDSScene()
+{
+    unsigned count = 0;
     for (const auto hotspot : mSceneHotspots.mHotspots)
     {
-        if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
+        if (hotspot.IsActive(mGameState) && hotspot.mAction == BAK::HotspotAction::TELEPORT)
         {
             mGameState.SetTempleSeen(mSceneHotspots.mTempleIndex);
         }
+        if (hotspot.IsActive(mGameState) && hotspot.EvaluateImmediately())
+        {
+            count++;
+            HandleHotspotLeftClicked(hotspot);
+        }
     }
+    ASSERT(count <= 1);
 }
 
 void GDSScene::DisplayNPCBackground()
@@ -199,6 +211,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
             DisplayNPCBackground();
         }
 
+        mPendingDialog = true;
         StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
     }
     else if (hotspot.mAction == BAK::HotspotAction::EXIT)
@@ -313,7 +326,16 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
         mPendingBard = false;
     }
 
-    if (mPendingGoto)
+    if (mPendingDialog)
+    {
+        mPendingDialog = false;
+        if (mGameState.GetEndOfDialogState() == -4)
+        {
+            mGuiManager.ExitGDSScene();
+            return;
+        }
+    }
+    else if (mPendingGoto)
     {
         mGuiManager.DoFade(.8, [this, pendingGoto=*mPendingGoto]{
             mGuiManager.EnterGDSScene(pendingGoto, []{});

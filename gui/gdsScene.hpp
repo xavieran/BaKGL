@@ -35,6 +35,7 @@ public:
     GDSScene& operator=(const GDSScene&) = delete;
 
     void SetTempleSeen();
+    void EnterGDSScene();
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
     auto GetSong() const { return mSong; }
@@ -76,6 +77,7 @@ public:
     // e.g. when you fail barding
     bool mKickedOut;
     bool mPendingTeleport;
+    bool mPendingDialog;
     
     Temple mTemple;
     Repair mRepair;

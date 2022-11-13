@@ -263,7 +263,6 @@ public:
                 mGameState,
                 static_cast<IGuiManager&>(*this)));
 
-        mGdsScenes.back()->SetTempleSeen();
         const auto song = mGdsScenes.back()->GetSong();
         if (song != 0)
         {
@@ -280,6 +279,7 @@ public:
         }
 
         mScreenStack.PushScreen(mGdsScenes.back().get());
+        mGdsScenes.back()->EnterGDSScene();
     }
 
     void ExitGDSScene() override
