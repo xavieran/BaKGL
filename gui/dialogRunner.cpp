@@ -415,7 +415,9 @@ bool DialogRunner::RunDialog()
         const auto nextTarget = GetNextTarget();
         mLogger.Debug() << "Curr: " << mCurrentTarget 
             << " Next Target: " << nextTarget << "\n";
-        if (!nextTarget)
+        if (!nextTarget 
+            || (std::holds_alternative<BAK::KeyTarget>(*nextTarget) 
+            && std::get<BAK::KeyTarget>(*nextTarget) == BAK::KeyTarget{0x0}))
         {
             CompleteDialog();
             return false;

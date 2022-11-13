@@ -86,11 +86,11 @@ public:
     static constexpr auto mShopWontBuyItem           = KeyTarget{0x1b7759};
     static constexpr auto mEmptyPopup                = KeyTarget{0x1b7768};
     static constexpr auto mScrollDescriptions        = KeyTarget{0x1b7761};
-    static constexpr auto mRepairShopDialog          = KeyTarget{0x1b7763};
+    static constexpr auto mRepairShopCost            = KeyTarget{0x1b7763};
     static constexpr auto mRepairShopCantRepairItem  = KeyTarget{0x1b7764};
-    static constexpr auto mRepairShopItemDoesntNeedRepair = 0x1b7765;
-    static constexpr auto mShopBeginRepairDialog = 0x1b7766;
-    static constexpr auto mShopRepairDialogTooltip = 0x1b7767;
+    static constexpr auto mRepairShopItemDoesntNeedRepair = KeyTarget{0x1b7765};
+    static constexpr auto mShopBeginRepairDialog = KeyTarget{0x1b7766};
+    static constexpr auto mShopRepairDialogTooltip = KeyTarget{0x1b7767};
     static constexpr auto mLockKnown  = KeyTarget{0x1b776a};
     static constexpr auto mLockDialog = KeyTarget{0x1b776b};
 

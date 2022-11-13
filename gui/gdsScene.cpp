@@ -62,12 +62,17 @@ GDSScene::GDSScene(
         font,
         gameState},
     mPendingInn{},
+    mPendingRepair{},
     mPendingContainer{},
     mPendingGoto{},
     mPendingBard{},
     mKickedOut{false},
     mPendingTeleport{},
     mTemple{
+        mGameState,
+        mGuiManager
+    },
+    mRepair{
         mGameState,
         mGuiManager
     },
@@ -236,7 +241,18 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::REPAIR)
     {
-        StartDialog(BAK::DialogSources::mRepairShopDialog, false);
+        if (hotspot.mActionArg3 != 0)
+        {
+            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+
+            auto* container = mGameState.GetContainerForGDSScene(mReference);
+            mLogger.Debug() << container->GetShop() << "\n";
+            mPendingRepair = true;
+        }
+        else
+        {
+            ASSERT(false);
+        }
     }
     else if (hotspot.mAction == BAK::HotspotAction::INN)
     {
@@ -309,6 +325,15 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
         mPendingContainer = false;
         EnterContainer();
+    }
+    else if (mPendingRepair)
+    {
+        mPendingRepair = false;
+        if (choice && choice->mValue == BAK::Keywords::sYesIndex)
+        {
+            auto* container = mGameState.GetContainerForGDSScene(mReference);
+            mRepair.EnterRepair(container->GetShop());
+        }
     }
     else if (mKickedOut)
     {
