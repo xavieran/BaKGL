@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/money.hpp"
+#include "bak/objectInfo.hpp"
 #include "bak/inventoryItem.hpp"
 
 #include "xbak/FileBuffer.h"
@@ -13,7 +14,8 @@ struct ShopStats
     std::uint8_t mSellFactor;
     std::uint8_t mMaxDiscount;
     std::uint8_t mBuyFactor;
-    std::uint16_t mHaggle;
+    std::uint8_t mHaggle1;
+    std::uint8_t mHaggle2;
     std::uint8_t mBardingSkill;
     std::uint8_t mBardingReward;
     std::uint8_t mBardingMaxReward;
@@ -21,6 +23,11 @@ struct ShopStats
     std::uint8_t mRepairTypes;
     std::uint8_t mRepairFactor;
     std::uint16_t mCategories;
+
+    std::uint8_t GetTempleBlessFixedCost() const;
+    std::uint8_t GetTempleBlessPercent() const;
+    Modifier GetTempleBlessType() const;
+    std::uint8_t GetTempleHealFactor() const;
 };
 
 std::ostream& operator<<(std::ostream&, const ShopStats&);

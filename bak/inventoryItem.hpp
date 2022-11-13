@@ -125,9 +125,19 @@ public:
             || IsKey();
     }
 
-    bool HasModifier(Modifier mod)
+    bool HasModifier(Modifier mod) const
     {
         return CheckBitSet(mModifiers, mod);
+    }
+
+    void SetModifier(Modifier mod)
+    {
+        mModifiers = SetBit(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(mod), true);
+    }
+
+    void UnsetModifier(Modifier mod)
+    {
+        mModifiers = SetBit(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(mod), false);
     }
 
     std::vector<Modifier> GetModifiers() const

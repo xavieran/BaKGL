@@ -225,12 +225,13 @@ public:
     {
         for (unsigned i = sSelectableSkillsOffset; i < BAK::Skills::sSkills; i++)
         {
+            const auto skill = skills.GetSkill(static_cast<BAK::SkillType>(i));
             mSkills[i - sSelectableSkillsOffset].UpdateValue(
                 font,
                 static_cast<BAK::SkillType>(i),
-                skills.mSkills[i].mCurrent,
-                skills.mSkills[i].mSelected,
-                skills.mSkills[i].mUnseenImprovement);
+                skill.mCurrent,
+                skill.mSelected,
+                skill.mUnseenImprovement);
         }
     }
 

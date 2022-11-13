@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <optional>
 #include <utility>
 #include <variant>
 
@@ -67,6 +68,8 @@ public:
     void SetSelectedCharacter(
         BAK::ActiveCharIndex character);
 
+    void SetSelectionMode(bool, std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&&);
+
     void ClearContainer();
     void SetContainer(BAK::IContainer* container);
 
@@ -74,6 +77,7 @@ public:
     bool OnMouseEvent(const MouseEvent& event) override;
     void PropagateUp(const DragEvent& event) override;
 
+    std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>> GetSelectedItem() const;
 private:
     auto& GetCharacter(BAK::ActiveCharIndex i)
     {
@@ -166,7 +170,9 @@ private:
     void AddChildren();
     
     void CheckExclusivity();
-    
+
+    void HandleItemSelected();
+
 private:
     IGuiManager& mGuiManager;
     const Font& mFont;
@@ -206,6 +212,9 @@ private:
 
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mDisplayContainer;
+    bool mItemSelectionMode;
+    std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)> mItemSelectionCallback;
+    std::optional<BAK::InventoryIndex> mSelectedItem;
     BAK::IContainer* mContainer;
     bool mNeedRefresh;
 

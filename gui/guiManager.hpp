@@ -12,19 +12,21 @@
 #include "gui/IGuiManager.hpp"
 
 #include "gui/animatorStore.hpp"
+#include "gui/cureScreen.hpp"
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
+#include "gui/fontManager.hpp"
+#include "gui/fullMap.hpp"
 #include "gui/gdsScene.hpp"
 #include "gui/icons.hpp"
-#include "gui/fontManager.hpp"
 #include "gui/info/infoScreen.hpp"
 #include "gui/inventory/inventoryScreen.hpp"
 #include "gui/lock/lockScreen.hpp"
 #include "gui/lock/moredhelScreen.hpp"
-#include "gui/fullMap.hpp"
-#include "gui/mainView.hpp"
 #include "gui/mainMenuScreen.hpp"
+#include "gui/mainView.hpp"
+#include "gui/teleportScreen.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -100,6 +102,14 @@ public:
             mFontManager.GetGameFont(),
             mGameState
         },
+        mCureScreen{
+            *this,
+            mActors,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetGameFont(),
+            mGameState
+        },
         mLockScreen{
             *this,
             mBackgrounds,
@@ -122,6 +132,13 @@ public:
             mFontManager.GetPuzzleFont(),
             mGameState
         },
+        mTeleportScreen{
+            *this,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetGameFont(),
+            mGameState
+        },
         mFadeScreen{
             *this,
             [this]{ FadeInDone(); },
@@ -137,6 +154,19 @@ public:
     {
         mGdsScenes.reserve(4);
         AddChildBack(&mScreenStack);
+    }
+
+
+    [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override
+    {
+        if (HaveChild(&mFadeScreen))
+        {
+            return true;
+        }
+        else
+        {
+            return Widget::OnMouseEvent(event);
+        }
     }
 
     ScreenStack& GetScreenStack() override
@@ -159,6 +189,7 @@ public:
 
     void DoFade(double duration, std::function<void()>&& fadeFunction) override
     {
+        ASSERT(!HaveChild(&mFadeScreen));
         if (!HaveChild(&mFadeScreen))
         {
             mFadeFunction = std::move(fadeFunction);
@@ -195,9 +226,12 @@ public:
         // When teleporting we need to add the "root" GDS scene to the stack
         // because it won't have been there...
         if (hotspot.mGdsNumber < 12 && hotspot.mGdsChar != 'A')
-            EnterGDSScene(
-                BAK::HotspotRef{hotspot.mGdsNumber, 'A'},
-                []{});
+        {
+            const auto rootScene = BAK::HotspotRef{hotspot.mGdsNumber, 'A'};
+            mLogger.Debug() << "Teleporting to root first: " << rootScene << "\n";
+            EnterGDSScene(rootScene, []{});
+        }
+        mLogger.Debug() << "Teleporting to child: " << hotspot << "\n";
         EnterGDSScene(hotspot, []{});
     }
 
@@ -215,7 +249,6 @@ public:
         const BAK::HotspotRef& hotspot,
         std::function<void()>&& finished) override
     {
-        DoFade(1.0, [this, hotspot=hotspot, finished=std::move(finished)]() mutable {
         mLogger.Debug() << __FUNCTION__ << ":" << hotspot << "\n";
         mCursor.PushCursor(0);
 
@@ -230,6 +263,7 @@ public:
                 mGameState,
                 static_cast<IGuiManager&>(*this)));
 
+        mGdsScenes.back()->SetTempleSeen();
         const auto song = mGdsScenes.back()->GetSong();
         if (song != 0)
         {
@@ -246,7 +280,6 @@ public:
         }
 
         mScreenStack.PushScreen(mGdsScenes.back().get());
-        });
     }
 
     void ExitGDSScene() override
@@ -257,15 +290,17 @@ public:
 
     void RemoveGDSScene(bool runFinished=false)
     {
-        mScreenStack.PopChild();
+        ASSERT(!mGdsScenes.empty());
+        mLogger.Debug() << __FUNCTION__ << " Widgets: " << mScreenStack.GetChildren() << "\n";
+        mScreenStack.PopScreen();
         mCursor.PopCursor();
         mCursor.PopCursor();
         if (runFinished)
             PopAndRunGuiScreen();
         else
             PopGuiScreen();
+        mLogger.Debug() << "Removed GDS Scene: " << mGdsScenes.back() << std::endl;
         mGdsScenes.pop_back();
-        mLogger.Debug() << "Removed GDS Scene" << std::endl;
     }
 
     void StartDialog(
@@ -300,14 +335,21 @@ public:
         const auto teleport = mDialogRunner.GetAndResetPendingTeleport();
         if (teleport)
         {
-            mLogger.Info() << "Teleporting to teleport index: " << *teleport << "\n";
-            // Clear all stacked GDS scenes
-            while (!mGdsScenes.empty())
-                RemoveGDSScene();
-
-            if (mZoneLoader)
-                mZoneLoader->DoTeleport(*teleport);
+            DoTeleport(*teleport);
         }
+    }
+
+    void DoTeleport(BAK::TeleportIndex teleport) override
+    {
+        mLogger.Info() << "Teleporting to teleport index: " << teleport << "\n";
+        // Clear all stacked GDS scenes
+        while (!mGdsScenes.empty())
+            RemoveGDSScene();
+
+        mLogger.Debug() << __FUNCTION__ << "Widgets: " << GetChildren() << "\n";
+        if (mZoneLoader)
+            mZoneLoader->DoTeleport(teleport);
+        mLogger.Debug() << "Finished teleporting Widgets: " << GetChildren() << "\n";
     }
 
     void ShowCharacterPortrait(BAK::ActiveCharIndex character) override
@@ -319,11 +361,9 @@ public:
         });
     }
 
-    void ExitCharacterPortrait() override
+    void ExitSimpleScreen() override
     {
-        DoFade(.8, [this]{
-            mScreenStack.PopScreen();
-        });
+        mScreenStack.PopScreen();
     }
 
     void ShowInventory(BAK::ActiveCharIndex character) override
@@ -331,6 +371,7 @@ public:
         DoFade(.8, [this, character]{
             mCursor.PushCursor(0);
             mGuiScreens.push(GuiScreen{[](){}});
+            mInventoryScreen.SetSelectionMode(false, nullptr);
 
             mInventoryScreen.SetSelectedCharacter(character);
             mScreenStack.PushScreen(&mInventoryScreen);
@@ -340,22 +381,42 @@ public:
     void ShowContainer(BAK::IContainer* container) override
     {
         mCursor.PushCursor(0);
+        ASSERT(container);
         ASSERT(container->GetInventory().GetCapacity() > 0);
 
         mGuiScreens.push(GuiScreen{[&](){
             mInventoryScreen.ClearContainer();
         }});
 
+        mInventoryScreen.SetSelectionMode(false, nullptr);
         mInventoryScreen.SetContainer(container);
         mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
         mScreenStack.PushScreen(&mInventoryScreen);
     }
 
+    void SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected) override
+    {
+        mCursor.PushCursor(0);
+
+        mGuiScreens.push(GuiScreen{[&, selected=itemSelected]() mutable {
+                mLogger.Debug() << __FUNCTION__ << " SelectItem\n";
+                selected(std::nullopt);
+        }});
+
+        mInventoryScreen.SetSelectionMode(true, std::move(itemSelected));
+        mLogger.Debug() << __FUNCTION__ << " Pushing select item\n";
+        mScreenStack.PushScreen(&mInventoryScreen);
+    }
+
     void ExitInventory() override
     {
-        mCursor.PopCursor();
-        PopAndRunGuiScreen();
-        mScreenStack.PopScreen();
+        mLogger.Debug() << __FUNCTION__ << " BEGIN" << std::endl;
+        DoFade(1.0, [this]{ 
+            mCursor.PopCursor();
+            mScreenStack.PopScreen();
+            PopAndRunGuiScreen();
+            mLogger.Debug() << __FUNCTION__ << " ExitInventory" << std::endl;
+        });
     }
 
     void ShowLock(
@@ -391,6 +452,26 @@ public:
     {
         DoFade(.8, [this]{
             mScreenStack.PushScreen(&mFullMap);
+        });
+    }
+
+    void ShowCureScreen(
+        unsigned templeNumber,
+        unsigned cureFactor,
+        std::function<void()>&& finished) override
+    {
+        DoFade(.8, [this, templeNumber, cureFactor, finished=std::move(finished)]() mutable {
+            mCureScreen.EnterScreen(templeNumber, cureFactor, std::move(finished));
+            mScreenStack.PushScreen(&mCureScreen);
+        });
+    }
+
+    void ShowTeleport(unsigned sourceTemple) override
+    {
+        mTeleportScreen.SetSourceTemple(sourceTemple);
+        DoFade(.8, [this]{
+            mCursor.PopCursor();
+            mScreenStack.PushScreen(&mTeleportScreen);
         });
     }
 
@@ -455,9 +536,11 @@ public:
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
+    CureScreen mCureScreen;
     LockScreen mLockScreen;
     FullMap mFullMap;
     MoredhelScreen mMoredhelScreen;
+    TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
     std::function<void()> mFadeFunction;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;

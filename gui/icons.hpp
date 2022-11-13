@@ -83,6 +83,10 @@ public:
             BAK::TextureFactory::AddToTextureStore(
                 textures, "FMAP_ICN.BMX", "FULLMAP.PAL");
 
+            mTeleportIconOffset = textures.size();
+            BAK::TextureFactory::AddToTextureStore(
+                textures, "TELEPORT.BMX", "TELEPORT.PAL");
+
             for (const auto& t : textures.GetTextures())
             {
                 const auto [w, h] = t.GetDims();
@@ -192,6 +196,16 @@ public:
             mInventoryIconsDims[index]);
     }
 
+    IconInfo GetTeleportIcon(unsigned i) const
+    {
+        const auto index = i + mTeleportIconOffset;
+        ASSERT(index < mInventoryIconsDims.size());
+        return std::make_tuple(
+            mInventoryIconsSpriteSheet,
+            Graphics::TextureIndex{index},
+            mInventoryIconsDims[index]);
+    }
+
 private:
     Graphics::SpriteSheetIndex mButtonIconsSpriteSheet;
     unsigned mPressedOffset;
@@ -203,6 +217,7 @@ private:
     unsigned mInventoryMiscOffset;
     unsigned mInventoryLockOffset;
     unsigned mFullMapIconOffset;
+    unsigned mTeleportIconOffset;
     std::vector<glm::vec2> mInventoryIconsDims;
 
     const Logging::Logger& mLogger;

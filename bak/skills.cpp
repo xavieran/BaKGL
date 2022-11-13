@@ -24,7 +24,7 @@ std::string_view ToString(SkillType s)
     case SkillType::Lockpick: return "Lockpick";
     case SkillType::Scouting: return "Scouting";
     case SkillType::Stealth: return "Stealth";
-    case SkillType::GainHealth: return "GainHealth";
+    case SkillType::TotalHealth: return "TotalHealth";
     default: return "UnknownSkillType";
     }
 }
@@ -56,11 +56,36 @@ std::ostream& operator<<(std::ostream& os, const Skills& s)
 unsigned CalculateEffectiveSkillValue(
     SkillType skillType,
     Skills& skills,
-    const Conditions& conditions)
+    const Conditions& conditions,
+    SkillRead skillRead)
 {
+    if (skillType == SkillType::TotalHealth)
+    {
+        const auto health = CalculateEffectiveSkillValue(
+            SkillType::Health,
+            skills,
+            conditions,
+            SkillRead::Current);
+        const auto stamina = CalculateEffectiveSkillValue(
+            SkillType::Stamina,
+            skills,
+            conditions,
+            SkillRead::Current);
+        return health + stamina;
+    }
+
     const auto skillIndex = static_cast<unsigned>(skillType);
     auto& skill = skills.GetSkill(skillType);
 
+    if (skillRead == SkillRead::MaxSkill)
+    {
+        return skill.mMax;
+    }
+    else if (skillRead == SkillRead::TrueSkill)
+    {
+        return skill.mTrueSkill;
+    }
+    
     int skillCurrent = skill.mTrueSkill;
 
     if (skill.mModifier != 0)
@@ -98,7 +123,7 @@ unsigned CalculateEffectiveSkillValue(
     }
 
     const auto skillHealthEffect = sSkillHealthEffect[skillIndex];
-    if (skillHealthEffect != 0)
+    if (skillHealthEffect != 0 && skillRead != SkillRead::NoHealthEffect)
     {
         const auto& health = skills.GetSkill(SkillType::Health);
         auto trueHealth = health.mTrueSkill;
@@ -211,6 +236,160 @@ void DoImproveSkill(
 
     Logging::LogDebug(__FUNCTION__) << "SkillImproved: " 
         << ToString(skillType) << " " << skill << "\n";
+}
+
+signed DoAdjustHealth(
+    Skills& skills,
+    Conditions& conditions,
+    signed healthChangePercent,
+    signed multiplier)
+{
+    auto& healthSkill = skills.GetSkill(SkillType::Health);
+    auto& staminaSkill = skills.GetSkill(SkillType::Stamina);
+
+    auto currentHealthAndStamina = healthSkill.mTrueSkill + staminaSkill.mTrueSkill;
+    auto maxHealthAndStamina = healthSkill.mMax + staminaSkill.mMax;
+
+    auto healthChange = (maxHealthAndStamina * healthChangePercent) / 0x64;
+    Logging::LogDebug(__FUNCTION__) << " Current: " << currentHealthAndStamina << " Max: " << maxHealthAndStamina << "\n";
+    Logging::LogDebug(__FUNCTION__) << " HealthChange: " << healthChange << "\n";
+
+    // ovr131:03A3
+    bool isPlayerCharacter{true};
+    if (isPlayerCharacter)
+    {
+        // Near death inhibits healing
+        const auto nearDeath = conditions.GetCondition(Condition::NearDeath).Get();
+        if (nearDeath != 0)
+        {
+            healthChange = (((0x64 - nearDeath) * 0x1E) / 0x64) + 1;
+        }
+    }
+
+    // ovr131:03c7
+    if (multiplier <= 0)
+    {
+        // ovr131:03f4
+        currentHealthAndStamina += multiplier / 0x100;
+        Logging::LogDebug(__FUNCTION__) << " Current: " << currentHealthAndStamina << "\n";
+        if (currentHealthAndStamina <= 0)
+        {
+            currentHealthAndStamina = 0;
+            Logging::LogDebug(__FUNCTION__) << " NearDeath\n";
+            if (isPlayerCharacter)
+            {
+                conditions.AdjustCondition(skills, Condition::NearDeath, 100);
+            }
+        }
+    }
+    else
+    {
+        // ovr131:03ce
+        if (currentHealthAndStamina < healthChange)
+        {
+            currentHealthAndStamina += (multiplier / 0x100);
+            if (currentHealthAndStamina > healthChange)
+            {
+                currentHealthAndStamina = healthChange;
+            }
+        }
+    }
+
+    Logging::LogDebug(__FUNCTION__) << " Final health: " << currentHealthAndStamina << "\n";
+    // ovr131:042b
+
+    if (healthSkill.mMax >= currentHealthAndStamina)
+    {
+        staminaSkill.mTrueSkill = 0;
+        healthSkill.mTrueSkill = currentHealthAndStamina;
+        Logging::LogDebug(__FUNCTION__) << " No stamina left\n";
+    }
+    else
+    {
+        staminaSkill.mTrueSkill = currentHealthAndStamina - healthSkill.mMax;
+        healthSkill.mTrueSkill = healthSkill.mMax;
+        Logging::LogDebug(__FUNCTION__) << " Some stamina left\n";
+    }
+
+    return currentHealthAndStamina;
+}
+
+Skills::Skills(const SkillArray& skills, unsigned pool)
+:
+    mSkills{skills},
+    mSelectedSkillPool{pool}
+{}
+const Skill& Skills::GetSkill(BAK::SkillType skill) const
+{
+    const auto i = static_cast<unsigned>(skill);
+    ASSERT(i < sSkills);
+    return mSkills[i];
+}
+
+Skill& Skills::GetSkill(BAK::SkillType skill)
+{
+    const auto i = static_cast<unsigned>(skill);
+    ASSERT(i < sSkills);
+    return mSkills[i];
+}
+
+void Skills::SetSkill(BAK::SkillType skillType, const Skill& skill)
+{
+    const auto i = static_cast<unsigned>(skillType);
+    mSkills[i] = skill;
+}
+
+void Skills::SetSelectedSkillPool(unsigned pool)
+{
+    mSelectedSkillPool = pool;
+}
+
+void Skills::ToggleSkill(BAK::SkillType skillType)
+{
+    auto& skill = GetSkill(skillType);
+    skill.mSelected = !skill.mSelected;
+    mSelectedSkillPool = CalculateSelectedSkillPool();
+}
+
+void Skills::ClearUnseenImprovements()
+{
+    for (auto& skill : mSkills)
+        skill.mUnseenImprovement = false;
+}
+
+std::uint8_t Skills::CalculateSelectedSkillPool() const
+{
+    const unsigned skillsSelected = std::accumulate(
+        mSkills.begin(), mSkills.end(),
+        0,
+        [](const auto sum, const auto& elem){
+            return sum + static_cast<unsigned>(elem.mSelected);
+        });
+
+    return skillsSelected > 0 
+        ? sTotalSelectedSkillPool / skillsSelected
+        : 0;
+}
+
+void Skills::ImproveSkill(
+    SkillType skill, 
+    SkillChange skillChangeType,
+    unsigned multiplier)
+{
+    if (skill == SkillType::TotalHealth)
+    {
+        auto x = Conditions{};
+        DoAdjustHealth(*this, x, static_cast<unsigned>(skillChangeType), multiplier);
+    }
+    else
+    {
+        DoImproveSkill(
+            skill,
+            GetSkill(skill),
+            skillChangeType,
+            multiplier,
+            mSelectedSkillPool);
+    }
 }
 
 }

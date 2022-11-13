@@ -30,8 +30,7 @@ enum class SkillType
     Lockpick    = 0xd,
     Scouting    = 0xe,
     Stealth     = 0xf,
-    // FIXME: Need a better way to handle this this is the "GainHealth" GainSkill dialog action
-    GainHealth
+    TotalHealth = 0x10
 };
 
 enum class SkillChange
@@ -40,6 +39,14 @@ enum class SkillChange
     FractionOfSkill = 1,
     DifferenceOfSkill = 2,
     ExercisedSkill = 3
+};
+
+enum class SkillRead
+{
+    Current = 0,
+    MaxSkill = 1,
+    TrueSkill = 3,
+    NoHealthEffect = 4
 };
 
 static constexpr auto sEffectiveSkillMin = std::array<std::uint16_t, 16>{
@@ -86,6 +93,14 @@ struct Skill
 
 std::ostream& operator<<(std::ostream&, const Skill&);
 
+class Skills;
+
+unsigned CalculateEffectiveSkillValue(
+    SkillType,
+    Skills&,
+    const Conditions&,
+    SkillRead);
+
 void DoImproveSkill(
     SkillType skillType,
     Skill& skill,
@@ -93,86 +108,48 @@ void DoImproveSkill(
     unsigned multiplier,
     unsigned selectedSkillPool);
 
-struct Skills
+signed DoAdjustHealth(
+    Skills& skills,
+    Conditions& conditions,
+    signed healthChangePercent,
+    signed multiplier);
+
+class Skills
 {
+public:
     static constexpr auto sSkills = 16;
     using SkillArray = std::array<Skill, sSkills>;
-    SkillArray mSkills;
-    unsigned mSelectedSkillPool;
 
-    const Skill& GetSkill(BAK::SkillType skill) const
-    {
-        const auto i = static_cast<unsigned>(skill);
-        ASSERT(i < sSkills);
-        return mSkills[i];
-    }
+    Skills(const SkillArray&, unsigned);
 
-    Skill& GetSkill(BAK::SkillType skill)
-    {
-        const auto i = static_cast<unsigned>(skill);
-        ASSERT(i < sSkills);
-        return mSkills[i];
-    }
+    Skills() = default;
+    Skills(const Skills&) = default;
+    Skills& operator=(const Skills&) = default;
+    Skills(Skills&&) = default;
+    Skills& operator=(Skills&&) = default;
+
+    const Skill& GetSkill(SkillType skill) const;
+    Skill& GetSkill(SkillType skill);
+    void SetSkill(BAK::SkillType skillType, const Skill& skill);
+    void SetSelectedSkillPool(unsigned);
     
-    void ToggleSkill(BAK::SkillType skillType)
-    {
-        auto& skill = GetSkill(skillType);
-        skill.mSelected = !skill.mSelected;
-        mSelectedSkillPool = CalculateSelectedSkillPool();
-    }
+    void ToggleSkill(BAK::SkillType skillType);
 
-    void ClearUnseenImprovements()
-    {
-        for (auto& skill : mSkills)
-            skill.mUnseenImprovement = false;
-    }
+    void ClearUnseenImprovements();
 
-    std::uint8_t CalculateSelectedSkillPool() const
-    {
-        const unsigned skillsSelected = std::accumulate(
-            mSkills.begin(), mSkills.end(),
-            0,
-            [](const auto sum, const auto& elem){
-                return sum + static_cast<unsigned>(elem.mSelected);
-            });
-
-        return skillsSelected > 0 
-            ? sTotalSelectedSkillPool / skillsSelected
-            : 0;
-    }
+    std::uint8_t CalculateSelectedSkillPool() const;
 
     void ImproveSkill(
-            SkillType skill, 
-            SkillChange skillChangeType,
-            unsigned multiplier)
-    {
-        // not quite right...
-        if (skill == SkillType::GainHealth)
-        {
-            skill = SkillType::Health;
-            auto& s = GetSkill(skill);
-            s.mMax += multiplier; 
-            s.mTrueSkill += multiplier;
-            s.mCurrent += multiplier;
-            s.mUnseenImprovement = true;
-        }
-        else
-        {
-            DoImproveSkill(
-                skill,
-                GetSkill(skill),
-                skillChangeType,
-                multiplier,
-                mSelectedSkillPool);
-        }
-    }
+        SkillType skill, 
+        SkillChange skillChangeType,
+        unsigned multiplier);
+
+    friend std::ostream& operator<<(std::ostream&, const Skills&);
+private:
+    SkillArray mSkills;
+    unsigned mSelectedSkillPool;
 };
 
 std::ostream& operator<<(std::ostream&, const Skills&);
-
-unsigned CalculateEffectiveSkillValue(
-    SkillType,
-    Skills&,
-    const Conditions&);
 
 }

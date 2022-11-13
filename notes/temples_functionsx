@@ -1,0 +1,30 @@
+15:11:45.10 INFO  [GameData]  Container: 83 addr: 45e71
+Killian
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70A} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 1 sellFactor/fixedBlsCost: 25 maxDiscount/blessPcnt: 75 buyFactor/blessType: 1 haggle1: 41 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 1f4 [Armor,Other,Rations,Gemstones,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 84 addr: 45e91
+Ishap
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70B} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 2 sellFactor/fixedBlsCost: 25 maxDiscount/blessPcnt: 70 buyFactor/blessType: 2 haggle1: 37 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 190 [Other,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 85 addr: 45eb1
+Silban
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70C} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 3 sellFactor/fixedBlsCost: 30 maxDiscount/blessPcnt: 80 buyFactor/blessType: 1 haggle1: 32 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 1f4 [Armor,Other,Rations,Gemstones,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 86 addr: 45ed1
+Sung
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70D} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 4 sellFactor/fixedBlsCost: 25 maxDiscount/blessPcnt: 75 buyFactor/blessType: 1 haggle1: 14 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 1c2 [Key,Gemstones,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 87 addr: 45ef1
+Lims-Kragma
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70E} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 5 sellFactor/fixedBlsCost: 20 maxDiscount/blessPcnt: 60 buyFactor/blessType: 3 haggle1: 96 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 1f4 [Armor,Other,Rations,Gemstones,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 88 addr: 45f11
+Ruthia
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70F} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 6 sellFactor/fixedBlsCost: 25 maxDiscount/blessPcnt: 75 buyFactor/blessType: 2 haggle1: 32 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 190 [Other,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 89 addr: 45f31
+Banat
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70G} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 7 sellFactor/fixedBlsCost: 40 maxDiscount/blessPcnt: 90 buyFactor/blessType: 2 haggle1: 50 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 258 [NonSaleable,Other,Gemstones,Sword]}}
+15:11:45.10 INFO  [GameData]  Container: 90 addr: 45f51
+Kahooli
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70H} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 8 sellFactor/fixedBlsCost: 25 maxDiscount/blessPcnt: 70 buyFactor/blessType: 3 haggle1: 41 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 1f4 [Armor,Other,Rations,Gemstones,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 91 addr: 45f71
+Dala
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70I} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 9 sellFactor/fixedBlsCost: 15 maxDiscount/blessPcnt: 60 buyFactor/blessType: 3 haggle1: 32 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 1f4 [Armor,Other,Rations,Gemstones,Combat,Crossbow]}}
+15:11:45.10 INFO  [GameData]  Container: 92 addr: 45f91
+Tith
+15:11:45.10 INFO  [GameData] GenericContainer{ ContainerHeader {CGL { arr: 0f 0a 00 00 loc: 70J} LocType: 6 Items: 0 Capacity: 0 Flags: 4}ShopStats { templeNumber: 10 sellFactor/fixedBlsCost: 25 maxDiscount/blessPcnt: 70 buyFactor/blessType: 3 haggle1: 41 haggle2: a bardingSkill: 0 bardingReward: 0 bardingMaxReward: 0 unknown: 00 00 00 repairTypes: 0 repairFactor: 0 categories: 1f4 [Armor,Other,Rations,Gemstones,Combat,Crossbow]}}

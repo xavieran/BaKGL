@@ -15,6 +15,8 @@ add_library(gui
     mouseEvent.hpp mouseEvent.cpp
     scene.hpp scene.cpp
     staticTTM.hpp staticTTM.cpp
+    teleportScreen.hpp
+    teleportDest.hpp
     textBox.hpp
     widget.hpp widget.cpp
     window.hpp

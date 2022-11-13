@@ -143,7 +143,6 @@ private:
         DialogSnippet> mSnippetMap;
 
     const Logging::Logger& mLogger;
-
 };
 
 }

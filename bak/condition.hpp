@@ -10,6 +10,8 @@
 
 namespace BAK {
 
+class Skills;
+
 enum class Condition
 {
     Sick      = 0,
@@ -40,26 +42,14 @@ public:
     static constexpr auto sNumConditions = 7;
     std::array<ConditionValue, sNumConditions> mConditions;
 
-    bool NoConditions() const
-    {
-        for (const auto cond : mConditions)
-            if (cond != 0) return false;
-        return true;
-    }
+    bool NoConditions() const;
 
-    const ConditionValue& GetCondition(BAK::Condition cond) const
-    {
-        const auto i = static_cast<unsigned>(cond);
-        ASSERT(i < sNumConditions);
-        return mConditions[i];
-    }
+    const ConditionValue& GetCondition(BAK::Condition cond) const;
 
-    void IncreaseCondition(BAK::Condition cond, signed value)
-    {
-        const auto i = static_cast<unsigned>(cond);
-        ASSERT(i < sNumConditions);
-        mConditions[i] += value;
-    }
+    void IncreaseCondition(BAK::Condition cond, signed value);
+
+    void AdjustCondition(Skills&, BAK::Condition, signed amount);
+    void SetCondition(BAK::Condition cond, std::uint8_t amount);
 };
 
 std::ostream& operator<<(std::ostream&, const Conditions&);

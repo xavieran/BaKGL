@@ -154,9 +154,9 @@ public:
     void SetSaveOrLoad(bool isSave)
     {
         mIsSave = isSave;
-        RefreshGui();
         mRefreshSaves = true;
         mRefreshDirectories = true;
+        RefreshGui();
     }
 
 private:

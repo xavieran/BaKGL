@@ -10,10 +10,11 @@ namespace BAK {
 std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
 {
     os << std::dec << "ShopStats { templeNumber: " << +shop.mTempleNumber
-        << " sellFactor: " << +shop.mSellFactor
-        << " maxDiscount: " << +shop.mMaxDiscount
-        << " buyFactor: " << +shop.mBuyFactor
-        << " haggle: " << std::hex << shop.mHaggle << std::dec
+        << " sellFactor/fixedBlsCost: " << +shop.mSellFactor
+        << " maxDiscount/blessPcnt: " << +shop.mMaxDiscount
+        << " buyFactor/blessType: " << +shop.mBuyFactor
+        << " haggle1: " << std::hex << +shop.mHaggle1 << std::dec
+        << " haggle2: " << std::hex << +shop.mHaggle2 << std::dec
         << " bardingSkill: " << +shop.mBardingSkill
         << " bardingReward: " << +shop.mBardingReward
         << " bardingMaxReward: " << +shop.mBardingMaxReward
@@ -26,13 +27,34 @@ std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
     return os;
 }
 
+std::uint8_t ShopStats::GetTempleBlessFixedCost() const
+{
+    return mSellFactor;
+}
+
+std::uint8_t ShopStats::GetTempleBlessPercent() const
+{
+    return mMaxDiscount;
+}
+
+Modifier ShopStats::GetTempleBlessType() const
+{
+    return static_cast<Modifier>(4 + mBuyFactor);
+}
+
+std::uint8_t ShopStats::GetTempleHealFactor() const
+{
+    return mHaggle1;
+}
+
 ShopStats LoadShop(FileBuffer& fb)
 {
     const auto templeNumber     = fb.GetUint8();
     const auto sellFactor       = fb.GetUint8();
     const auto maxDiscount      = fb.GetUint8();
     const auto buyFactor        = fb.GetUint8();
-    const auto haggle           = fb.GetUint16LE();
+    const auto haggle1          = fb.GetUint8();
+    const auto haggle2          = fb.GetUint8();
     const auto bardingSkill     = fb.GetUint8();
     const auto bardingReward    = fb.GetUint8();
     const auto bardingMaxReward = fb.GetUint8();
@@ -46,7 +68,8 @@ ShopStats LoadShop(FileBuffer& fb)
         sellFactor,
         maxDiscount,
         buyFactor,
-        haggle,
+        haggle1,
+        haggle2,
         bardingSkill,
         bardingReward,
         bardingMaxReward,

@@ -65,14 +65,19 @@ public:
     void DoTeleport(BAK::TeleportIndex teleIndex) override
     {
         const auto& teleport = mTeleportFactory.Get(teleIndex.mValue);
+        mLogger.Debug() << "Teleporting to: " << teleport << "\n";
         if (teleport.mTargetZone)
+        {
             DoTransition(
                 teleport.mTargetZone->mValue,
                 teleport.mTargetLocation);
+        }
 
         if (teleport.mTargetGDSScene)
+        {
             mGuiManager.TeleportToGDS(
                 *teleport.mTargetGDSScene);
+        }
     }
 
     void LoadGame(std::string savePath) override
@@ -99,6 +104,7 @@ public:
                 targetZone,
                 BAK::GetTile(targetLocation.mPosition),
                 targetLocation});
+
         LoadZoneData(targetZone);
     }
 
@@ -309,15 +315,17 @@ public:
                 ASSERT(choice);
                 if (choice->mValue == BAK::Keywords::sYesIndex)
                 {
-                    mGuiManager.EnterGDSScene(
-                        gds.mHotspot, 
-                        [&, exitDialog=gds.mExitDialog](){
-                            mGuiManager.StartDialog(
-                                exitDialog,
-                                false,
-                                false,
-                                &mDynamicDialogScene);
-                            });
+                    mGuiManager.DoFade(.8, [this, gds=gds]{
+                        mGuiManager.EnterGDSScene(
+                            gds.mHotspot, 
+                            [&, exitDialog=gds.mExitDialog](){
+                                mGuiManager.StartDialog(
+                                    exitDialog,
+                                    false,
+                                    false,
+                                    &mDynamicDialogScene);
+                                });
+                    });
                 }
 
                 // FIXME: Move this into the if block so we only

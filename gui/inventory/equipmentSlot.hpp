@@ -70,6 +70,16 @@ public:
         AddChildBack(&mBlank);
     }
 
+    bool HasItem() const
+    {
+        return bool{mItem};
+    }
+
+    InventorySlot& GetInventorySlot()
+    {
+        return *mItem;
+    }
+
 private:
     std::optional<DraggableItem> mItem;
     Widget mBlank;

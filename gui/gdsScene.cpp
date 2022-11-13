@@ -5,6 +5,7 @@
 #include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/money.hpp"
+#include "bak/temple.hpp"
 
 #include "com/assert.hpp"
 
@@ -65,6 +66,11 @@ GDSScene::GDSScene(
     mPendingGoto{},
     mPendingBard{},
     mKickedOut{false},
+    mPendingTeleport{},
+    mTemple{
+        mGameState,
+        mGuiManager
+    },
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
     mLogger.Debug() << "Song: " << mSong << "\n";
@@ -136,6 +142,17 @@ GDSScene::GDSScene(
     mLogger.Debug() << "Constructed @" << std::hex << this << std::dec << "\n";
 }
 
+void GDSScene::SetTempleSeen()
+{
+    for (const auto hotspot : mSceneHotspots.mHotspots)
+    {
+        if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
+        {
+            mGameState.SetTempleSeen(mSceneHotspots.mTempleIndex);
+        }
+    }
+}
+
 void GDSScene::DisplayNPCBackground()
 {
     mFrame.ClearChildren();
@@ -152,7 +169,8 @@ void GDSScene::DisplayPlayerBackground()
 
 void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 { 
-    mLogger.Debug() << "Hotspot: " << hotspot << "\n";
+    mLogger.Debug() << "Hotspot: " << hotspot << "\n"
+        << "Tele: " << mPendingTeleport << "\n";;
 
     if (hotspot.mAction == BAK::HotspotAction::DIALOG)
     {
@@ -180,12 +198,26 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
-        mGameState.SetDialogContext(mSceneHotspots.mTempleIndex);
-        StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+        auto* container = mGameState.GetContainerForGDSScene(mReference);
+        ASSERT(container);
+        mTemple.EnterTemple(
+            BAK::KeyTarget{hotspot.mActionArg3},
+            mSceneHotspots.mTempleIndex, 
+            container->GetShop());
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
     {
-        StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
+        if (mGameState.GetChapter() == BAK::Chapter{6}
+            && mSceneHotspots.mTempleIndex == BAK::Temple::sChapelOfIshap
+            && !mGameState.GetEventStateBool(BAK::GameData::sPantathiansEventFlag))
+        {
+            mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossSource, false, false, this);
+        }
+        else
+        {
+            StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
+            mPendingTeleport = true;
+        }
     }
     else if (hotspot.mAction == BAK::HotspotAction::SHOP
         || hotspot.mAction == BAK::HotspotAction::BARMAID
@@ -234,15 +266,15 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         }
         else
         {
-            mGuiManager.EnterGDSScene(hotspotRef, []{});
+            mGuiManager.DoFade(.8, [this, hotspotRef]{
+                mGuiManager.EnterGDSScene(hotspotRef, []{});
+            });
         }
     }
 }
 
 void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
 {
-    // FIXME: There's a crash here if someone left clicks after having right clicked
-    // Left click should clear the hotspot active flag...
     mLogger.Debug() << "Hotspot: " << hotspot << "\n";
     StartDialog(hotspot.mTooltip, true);
 }
@@ -253,7 +285,7 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
     mGuiManager.StartDialog(target, isTooltip, false, this);
 }
 
-void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
+void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
     if (mPendingBard)
     {
@@ -263,7 +295,9 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
 
     if (mPendingGoto)
     {
-        mGuiManager.EnterGDSScene(*mPendingGoto, []{});
+        mGuiManager.DoFade(.8, [this, pendingGoto=*mPendingGoto]{
+            mGuiManager.EnterGDSScene(pendingGoto, []{});
+        });
         mPendingGoto.reset();
     }
     else if (mPendingInn)
@@ -284,8 +318,21 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
         // actions will take place on destructed GDSScene
         return;
     }
+    else if (mPendingTeleport)
+    {
+        mPendingTeleport = false;
+        
+        if (mGameState.GetMoreThanOneTempleSeen())
+        {
+            mGuiManager.ShowTeleport(mSceneHotspots.mTempleIndex);
+        }
+        else
+        {
+            StartDialog(BAK::DialogSources::mTeleportDialogNoDestinations, false);
+        }
+    }
 
-    mLogger.Debug() << "Dialog finished, back to flavour text\n";
+    mLogger.Debug() << "Dialog finished with choice: " << choice << " , back to flavour text\n";
 
     if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
         mDialogDisplay.ShowFlavourText(mFlavourText);
@@ -359,6 +406,7 @@ void GDSScene::DoBard()
 
         if (status == BAK::Bard::BardStatus::Failed)
             mKickedOut = true;
+
         mGameState.SetItemValue(reward);
         StartDialog(GetDialog(status), false);
     }

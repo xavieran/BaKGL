@@ -52,9 +52,7 @@ InventoryScreen::InventoryScreen(
         std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
         std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
         [this]{
-            mGuiManager.DoFade(
-                1.0,
-                [this]{ mGuiManager.ExitInventory(); });
+            mGuiManager.ExitInventory();
         },
         []{}
     },
@@ -124,6 +122,9 @@ InventoryScreen::InventoryScreen(
     },
     mSelectedCharacter{},
     mDisplayContainer{false},
+    mItemSelectionMode{false},
+    mItemSelectionCallback{nullptr},
+    mSelectedItem{},
     mContainer{nullptr},
     mNeedRefresh{false},
     mLogger{Logging::LogState::GetLogger("Gui::InventoryScreen")}
@@ -135,6 +136,7 @@ InventoryScreen::InventoryScreen(
 void InventoryScreen::SetSelectedCharacter(
     BAK::ActiveCharIndex character)
 {
+    mSelectedItem = std::nullopt;
     ShowCharacter(character);
     RefreshGui();
 }
@@ -175,10 +177,20 @@ bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
 {
     const bool handled = Widget::OnMouseEvent(event);
 
+    if (std::holds_alternative<LeftMousePress>(event)
+        && mItemSelectionMode)
+    {
+        HandleItemSelected();
+        mNeedRefresh = true;
+    }
+
     // Don't refresh things until we have finished
     // processing this event. This prevents deleting
     // children that are about to handle it.
-    if (mNeedRefresh)
+    if (mNeedRefresh 
+        // dirty hack :(
+        // probably want some callback to force a refresh instead of this...
+        || mItemSelectionMode) 
     {
         RefreshGui();
         mNeedRefresh = false;
@@ -254,6 +266,13 @@ void InventoryScreen::ShowCharacter(BAK::ActiveCharIndex character)
     mDisplayContainer = false;
     mSelectedCharacter = character;
     mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
+}
+
+void InventoryScreen::SetSelectionMode(bool mode, std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected)
+{
+    SetSelectedCharacter(BAK::ActiveCharIndex{0});
+    mItemSelectionMode = mode;
+    mItemSelectionCallback = std::move(itemSelected);
 }
 
 void InventoryScreen::TransferItemFromCharacterToCharacter(
@@ -1003,6 +1022,47 @@ void InventoryScreen::AddChildren()
 void InventoryScreen::CheckExclusivity()
 {
     ASSERT(bool{mSelectedCharacter} ^ mDisplayContainer);
+}
+
+void InventoryScreen::HandleItemSelected()
+{
+    const auto checkItem = [&](auto& item) -> bool
+    {
+        if (item.IsSelected())
+        {
+            mSelectedItem = item.GetItemIndex();
+            ASSERT(mItemSelectionCallback);
+            mItemSelectionCallback(GetSelectedItem());
+            item.ResetSelected();
+            return true;
+        }
+        return false;
+    };
+
+    for (auto& item : mInventoryItems)
+    {
+        if (checkItem(item))
+            return;
+    }
+
+    if (mWeapon.HasItem() && checkItem(mWeapon.GetInventorySlot()))
+        return;
+
+    if (mArmor.HasItem() && checkItem(mArmor.GetInventorySlot()))
+        return;
+
+    if (mCrossbow.HasItem() && checkItem(mCrossbow.GetInventorySlot()))
+        return;
+}
+
+std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>> InventoryScreen::GetSelectedItem() const
+{
+    if (mSelectedItem && mSelectedCharacter)
+    {
+        return std::make_pair(*mSelectedCharacter, *mSelectedItem);
+    }
+
+    return std::nullopt;
 }
 
 }

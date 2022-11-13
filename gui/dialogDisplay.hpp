@@ -7,6 +7,7 @@
 #include "com/assert.hpp"
 #include "com/visit.hpp"
 
+#include "gui/IDialogDisplay.hpp"
 #include "gui/IDialogScene.hpp"
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
@@ -28,7 +29,7 @@ enum class DialogFrame
     LowerArea = 3
 };
 
-class DialogDisplay : public Widget
+class DialogDisplay : public Widget, IDialogDisplay
 {
 public:
     DialogDisplay(
@@ -103,7 +104,7 @@ public:
             glm::vec2{320 - 30*2, 135}
         },
         mActionAreaTextBox{
-            glm::vec2{4, 4},
+            glm::vec2{6, 6},
             glm::vec2{290, 103}
         },
         mLowerTextBox{
@@ -120,11 +121,6 @@ public:
         mActionAreaFrame.AddChildBack(&mActionAreaTextBox);
     }
 
-    void Clear()
-    {
-        ClearChildren();
-    }
-
     void DisplayPlayer(IDialogScene& dialogScene, unsigned act)
     {
         const auto actor = mGameState.GetActor(act);
@@ -134,7 +130,7 @@ public:
             + " asked about:#");
     }
 
-    auto DisplaySnippet(
+    std::pair<glm::vec2, std::string> DisplaySnippet(
         IDialogScene& dialogScene,
         const BAK::DialogSnippet& snippet,
         std::string_view remainingText)
@@ -153,11 +149,13 @@ public:
         const auto dialogFrame = std::invoke([ds1, ds2, ds3, act]{
             if (act != 0x0)
                 return DialogFrame::LowerArea;
+            else if (ds1 == 0x06)
+                return DialogFrame::Fullscreen;
             else if (ds1 == 0x05)
                 return DialogFrame::ActionAreaInventory;
             else if (ds1 == 0x03 || ds1 == 0x04)
                 return DialogFrame::LowerArea;
-            else if (ds1 == 0x02 || ds3 == 0x02 || ds2 == 0x14)
+            else if (ds1 == 0x02 || ds2 == 0x14 || ds3 == 0x02 || ds2 == 0x10)
                 return DialogFrame::ActionArea;
             else
                 return DialogFrame::Fullscreen;
@@ -206,8 +204,13 @@ public:
         AddLabel(label);
     }
 
+    void Clear()
+    {
+        ClearChildren();
+    }
+
 private:
-    void AddLabel(std::string_view text)
+        void AddLabel(std::string_view text)
     {
         mLabel.SetText(text);
         mLabel.SetCenter(mCenter);
@@ -228,12 +231,13 @@ private:
         case DialogFrame::Fullscreen:
         {
             AddChildBack(&mFullscreenFrame);
-            return mFullscreenTextBox.AddText(
+            auto [charPos, remaining] = mFullscreenTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mFullscreenTextBox.GetTopLeft(), std::move(remaining));
         } break;
         case DialogFrame::ActionAreaInventory: [[fallthrough]];
         case DialogFrame::ActionArea:
@@ -243,31 +247,34 @@ private:
             {
                 mActionAreaFrame.SetPosition({13, 11});
                 mActionAreaFrame.SetDimensions({295, 101});
-                mActionAreaTextBox.SetDimensions({295, 101});
+                mActionAreaTextBox.SetDimensions({288, 97});
             }
             // Inventory style is a bit bigger..
             else
             {
                 mActionAreaFrame.SetPosition({12, 11});
                 mActionAreaFrame.SetDimensions({295, 121});
-                mActionAreaTextBox.SetDimensions({295, 121});
+                mActionAreaTextBox.SetDimensions({288, 118});
             }
-            return mActionAreaTextBox.AddText(
+            auto [charPos, remaining] = mActionAreaTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mActionAreaFrame.GetTopLeft(), std::move(remaining));
         } break;
         case DialogFrame::LowerArea:
         {
             AddChildBack(&mLowerFrame);
-            return mLowerTextBox.AddText(
+            auto [charPos, remaining] = mLowerTextBox.AddText(
                 mFont,
                 text,
                 centeredX,
                 centeredY,
                 isBold);
+            // the subtraction of 10 is a hack to stop the buttons getting displayed half off the bottom of the screen... not ideal
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mLowerFrame.GetTopLeft() - glm::vec2{0, 10}, std::move(remaining));
         } break;
         default:
             throw std::runtime_error("Invalid DialogArea");

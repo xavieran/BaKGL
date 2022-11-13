@@ -9,6 +9,7 @@ add_executable(bakTest
     inventoryTest.cpp
     partyTest.cpp
     skillTest.cpp
+    templeTest.cpp
     )
 
 target_link_libraries(bakTest

@@ -48,6 +48,7 @@ public:
         mSelectedItem{},
         mChapter{7},
         mZone{1},
+        mEndOfDialogState{0},
         mContainers{},
         mGDSContainers{},
         mCombatContainers{},
@@ -94,10 +95,21 @@ public:
         return mParty;
     }
 
+    std::int16_t GetEndOfDialogState() const
+    {
+        return mEndOfDialogState;
+    }
+
     GameData& GetGameData()
     {
         ASSERT(mGameData);
         return *mGameData;
+    }
+
+    void SetActiveCharacter(ActiveCharIndex character)
+    {
+        mTextVariableStore.SetActiveCharacter(
+            GetParty().GetCharacter(character).mName);
     }
 
     void SetActiveCharacter(CharIndex character)
@@ -107,6 +119,7 @@ public:
     }
     
     const TextVariableStore& GetTextVariableStore() const { return mTextVariableStore; }
+    TextVariableStore& GetTextVariableStore() { return mTextVariableStore; }
 
     void SetChapter(Chapter chapter)
     {
@@ -261,6 +274,8 @@ public:
 
     void SetCharacterTextVariables()
     {
+        mEndOfDialogState = 0x0;
+
         // FIXME: There is more to setting the characters than this...
         if (GetParty().GetNumCharacters() > 0)
         {
@@ -282,6 +297,7 @@ public:
             },
             [&](const BAK::SetTextVariable& set)
             {
+                mLogger.Debug() << "Setting text variable: " << BAK::DialogAction{set} << "\n";
                 if (set.mWhat == 0x7 || set.mWhat == 0xc || set.mWhat == 0xf)
                 {
                     mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
@@ -310,6 +326,12 @@ public:
                         set.mWhich,
                         ToShopDialogString(mItemValue));
                 }
+                else if (set.mWhat == 0x19)
+                {
+                    mTextVariableStore.SetTextVariable(
+                        set.mWhich,
+                        ToShopDialogString(mItemValue));
+                }
                 else if (set.mWhat == 0x1c)
                 {
                     mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
@@ -331,14 +353,17 @@ public:
             {
                 // FIXME: Implement if this skill only improves for one character
                 // Refer to dala blessing (13 @ 0xfd8c)
+                // who == 6 => apply gain to selected character (ref gamestate)
                 // who == 2 => apply gain to selected character (ref gamestate)
                 // who == 1 => apply gain to all characters
                 // Ref label: RunDialog_GainSkillAction for actual code
+                // If Skill == TotalHealth: 
+                // mValue 1 and mValue 2 refer to the upper and lower bounds of change
                 mLogger.Debug() << "Gaining skill: " << skill << "\n";
                 GetParty().ImproveSkillForAll(
                         skill.mSkill,
                         SkillChange::Direct,
-                        skill.mValue1 << 8);
+                        skill.mValue1);
             },
             [&](const BAK::GainCondition& cond)
             {
@@ -350,6 +375,16 @@ public:
                     party.mCharacters[c.mValue].mConditions.IncreaseCondition(
                         cond.mCondition, cond.mValue1);
                 }
+            },
+            [&](const BAK::SetState& state)
+            {
+                mLogger.Debug() << "Setting state: " << state << "\n";
+                SetEventValue(state.mEventPtr, 1);
+            },
+            [&](const BAK::SetEndOfDialogState& state)
+            {
+                mLogger.Debug() << "Setting end of dialog state: " << state << "\n";
+                mEndOfDialogState = state.mState;
             },
             [&](const BAK::LoadSkillValue& load)
             {
@@ -413,7 +448,7 @@ public:
     {
         // RunDialog addr: 23d1
         const auto state = GetEventState(choice.mEventPointer);
-        mLogger.Debug() << __FUNCTION__ << "Choice: " << choice 
+        mLogger.Debug() << __FUNCTION__ << " : " << choice 
             << " S: [" << std::hex << +state << std::dec << "]\n";
 
         // Probably want to put this logic somewhere else...
@@ -479,7 +514,9 @@ public:
     unsigned GetEventState(unsigned eventPtr) const
     {
         if (mGameData != nullptr)
+        {
             return mGameData->ReadEvent(eventPtr);
+        }
         else
             return 0;
     }
@@ -538,6 +575,33 @@ public:
     {
         if (mGameData)
             mGameData->SetEventDialogAction(setFlag);
+    }
+
+    void SetTempleSeen(unsigned temple)
+    {
+        if (mGameData)
+            mGameData->SetTempleSeen(temple);
+    }
+
+    bool GetTempleSeen(unsigned temple) const
+    {
+        if (mGameData)
+            return mGameData->ReadTempleSeen(temple);
+        return true;
+    }
+
+    bool GetMoreThanOneTempleSeen() const
+    {
+        if (mGameData)
+        {
+            unsigned templesSeen = 0;
+            for (unsigned i = 1; i < 13; i++)
+            {
+                templesSeen += GetTempleSeen(i);
+            }
+            return templesSeen > 1;
+        }
+        return true;
     }
 
     bool CheckEncounterActive(const Encounter::Encounter& encounter)
@@ -630,6 +694,7 @@ public:
     std::optional<InventoryItem> mSelectedItem;
     Chapter mChapter;
     ZoneNumber mZone;
+    std::int16_t mEndOfDialogState;
     std::vector<
         std::vector<GenericContainer>> mContainers;
     std::vector<GenericContainer> mGDSContainers;

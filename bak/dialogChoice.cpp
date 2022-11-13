@@ -113,7 +113,7 @@ std::ostream& operator<<(std::ostream& os, const Choice& c)
 
 std::ostream& operator<<(std::ostream& os, const DialogChoice& d)
 {
-    os << d.mChoice << " : " << std::hex << d.mTarget << std::dec;
+    os << "DialogChoice{" << d.mChoice << " : " << std::hex << d.mTarget << std::dec << "}";
     return os;
 }
 

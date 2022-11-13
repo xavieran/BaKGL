@@ -1,0 +1,18 @@
+encampDialog
+ovrl:250
+handleGameTimeSomthing
+handleGameTimeChange???
+* Adjusts condition
+handleGameTimeIncreased
+* heals, progresses conditions
+
+Trials to run:
+0. No conditions, low health, low stamina - See the change
+1. Starving - see how it increases
+2. Drunk 100% - see how it is reduced with camping
+3. Sick - see if it is reduced by camping
+4. Posioned - see how it increases and affects health and progressed to near death
+5. Plagued - check effect same as poisoned
+6. Near Death - what effect does it have?
+7. All the above with healing @100%
+8. Healing by itself, see reduction

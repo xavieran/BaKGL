@@ -58,8 +58,7 @@ public:
             mLayout.GetWidgetDimensions(sExitWidget),
             mFont,
             "#Exit",
-            // FIXME: This callback works by accident, rename it
-            [this]{ mGuiManager.ExitCharacterPortrait(); }
+            [this]{ mGuiManager.DoFade(.8, [this]{mGuiManager.ExitSimpleScreen(); }); }
         },
         mPlayerLocation{
             ImageTag{},

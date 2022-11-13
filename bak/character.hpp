@@ -290,8 +290,21 @@ public:
         return CalculateEffectiveSkillValue(
             skill,
             mSkills,
-            mConditions);
+            mConditions,
+            SkillRead::Current);
     }
+
+    unsigned GetMaxSkill(SkillType skill) const
+    {
+        mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        return CalculateEffectiveSkillValue(
+            skill,
+            mSkills,
+            mConditions,
+            SkillRead::MaxSkill);
+    }
+
+    const Conditions& GetConditions() const { return mConditions; }
 
     void UpdateSkills()
     {

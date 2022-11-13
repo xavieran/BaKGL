@@ -11,6 +11,7 @@
 #include "gui/dialogDisplay.hpp"
 #include "gui/hotspot.hpp"
 #include "gui/staticTTM.hpp"
+#include "gui/temple.hpp"
 #include "gui/widget.hpp"
 
 namespace Gui {
@@ -32,6 +33,7 @@ public:
     GDSScene(const GDSScene&) = delete;
     GDSScene& operator=(const GDSScene&) = delete;
 
+    void SetTempleSeen();
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
     auto GetSong() const { return mSong; }
@@ -70,6 +72,9 @@ public:
     bool mPendingBard;
     // e.g. when you fail barding
     bool mKickedOut;
+    bool mPendingTeleport;
+    
+    Temple mTemple;
 
     static constexpr auto mMaxSceneNesting = 4;
 

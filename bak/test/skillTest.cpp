@@ -44,7 +44,8 @@ struct SkillTestFixture : public ::testing::Test
 protected:
     void SetUp() override
     {
-        Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
+        //Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
+        Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     }
 
     Skills mSkills;
@@ -60,12 +61,13 @@ TEST_F(SkillTestFixture, CalculateEffectiveSkillValueTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{};
     for (unsigned i = 0; i < 16; i++)
-        expectedSkillValues.emplace_back(mSkills.mSkills[i].mTrueSkill);
+        expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
 
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
@@ -86,13 +88,14 @@ TEST_F(SkillTestFixture, ConditionNonDrunkTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     // Sickness doesn't affect stats...
     auto expectedSkillValues = std::vector<unsigned>{};
     for (unsigned i = 0; i < 16; i++)
-        expectedSkillValues.emplace_back(mSkills.mSkills[i].mTrueSkill);
+        expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
 
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
@@ -108,7 +111,8 @@ TEST_F(SkillTestFixture, ConditionDrunkTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{
@@ -131,12 +135,13 @@ TEST_F(SkillTestFixture, ConditionHealingTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{};
     for (unsigned i = 0; i < 16; i++)
-        expectedSkillValues.emplace_back(mSkills.mSkills[i].mTrueSkill);
+        expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
 
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
@@ -156,7 +161,8 @@ TEST_F(SkillTestFixture, LowHealthTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{
@@ -189,7 +195,8 @@ TEST_F(SkillTestFixture, LowHealthAndDrunkAndModifierTest)
             CalculateEffectiveSkillValue(
                 static_cast<BAK::SkillType>(i),
                 mSkills,
-                mConditions));
+                mConditions,
+                SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{
@@ -249,6 +256,57 @@ TEST_F(SkillTestFixture, ImproveSkillFromDialogTest)
     EXPECT_EQ(skill.mTrueSkill, 31);
     EXPECT_EQ(skill.mExperience, 128);
     EXPECT_EQ(skill.mUnseenImprovement, true);
+}
+
+TEST_F(SkillTestFixture, DoAdjustHealth_FullHeal)
+{
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 1, 1, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0, 0, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 1);
+    DoAdjustHealth(mSkills, mConditions, 100, 0x7fff);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x28);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x2d);
+}
+
+TEST_F(SkillTestFixture, DoAdjustHealth_FullHealWithNearDeath)
+{
+    mConditions.IncreaseCondition(BAK::Condition::NearDeath, 100);
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 0x0, 0x0, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0x0, 0x0, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
+    DoAdjustHealth(mSkills, mConditions, 100, 0x7fff);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x1);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
+}
+
+TEST_F(SkillTestFixture, DoAdjustHealth_ReduceHealth)
+{
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 0x28, 0x28, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0x28, 0x28, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x28);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x28);
+
+    // Percentage is irrelevant when reducing health...
+    DoAdjustHealth(mSkills, mConditions, 0, -1 * (0x2d << 8));
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x23);
+
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
+}
+
+TEST_F(SkillTestFixture, DoAdjustHealth_ReduceHealthToNearDeath)
+{
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 0x28, 0x28, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0x28, 0x28, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x28);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x28);
+
+    // Percentage is irrelevant when reducing health...
+    DoAdjustHealth(mSkills, mConditions, 0, -1 * (0xff << 8));
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x0);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x0);
+    EXPECT_EQ(mConditions.GetCondition(Condition::NearDeath).Get(), 100);
 }
 
 }

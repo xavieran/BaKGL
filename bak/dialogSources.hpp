@@ -96,25 +96,27 @@ public:
 
     static constexpr auto mInnDialog  = KeyTarget{0x13d672};
 
-    static constexpr auto mHealDialogTooltips = 0x13d66a;
-    static constexpr auto mHealDialogCantHealNotSick = 0x13d66b;
-    static constexpr auto mHealDialogCantHealNotSickEnough = 0x13d673;
-    static constexpr auto mHealDialogCantAfford = 0x13d66c;
-    static constexpr auto mHealDialogCost = 0x13d66d;
-    static constexpr auto mHealDialogPostHealing = 0x13d66e;
+    static constexpr auto mHealDialogTooltips = KeyTarget{0x13d66a};
+    static constexpr auto mHealDialogCantHealNotSick = KeyTarget{0x13d66b};
+    static constexpr auto mHealDialogCantHealNotSickEnough = KeyTarget{0x13d673};
+    static constexpr auto mHealDialogCantAfford = KeyTarget{0x13d66c};
+    static constexpr auto mHealDialogCost = KeyTarget{0x13d66d};
+    static constexpr auto mHealDialogPostHealing = KeyTarget{0x13d66e};
 
-    static constexpr auto mBlessDialogItemAlreadyBlessed = 0x13d66f;
-    static constexpr auto mBlessDialogCost = 0x13d670;
-    static constexpr auto mBlessDialogCantBlessItem = 0x13d671;
+    static constexpr auto mBlessDialogItemAlreadyBlessed = KeyTarget{0x13d66f};
+    static constexpr auto mBlessDialogCost = KeyTarget{0x13d670};
+    static constexpr auto mBlessDialogCantBlessItem = KeyTarget{0x13d671};
 
     static constexpr auto mTempleDialog = KeyTarget{0x13d668};
     static constexpr auto mTeleportDialog = KeyTarget{0x13d663};
     static constexpr auto mTeleportDialogIntro = KeyTarget{0x13d65d};
-    static constexpr auto mTeleportDialogCantAfford = 0x13d65e;
-    static constexpr auto mTeleportDialogNoDestinations = 0x13d65f;
-    static constexpr auto mTeleportDialogPostTeleport = 0x13d660;
-    static constexpr auto mTeleportDialogCancel = 0x13d661;
-    static constexpr auto mTeleportDialogTeleportedToSameTemple = 0x13d674;
+    static constexpr auto mTeleportDialogCantAfford = KeyTarget{0x13d65e};
+    static constexpr auto mTeleportDialogNoDestinations = KeyTarget{0x13d65f};
+    static constexpr auto mTeleportDialogPostTeleport = KeyTarget{0x13d660};
+    static constexpr auto mTeleportDialogCancel = KeyTarget{0x13d661};
+    static constexpr auto mTeleportDialogTeleportedToSameTemple = KeyTarget{0x13d674};
+    static constexpr auto mTeleportDialogTeleportBlockedMalacsCrossDest= KeyTarget{0x493fd};
+    static constexpr auto mTeleportDialogTeleportBlockedMalacsCrossSource= KeyTarget{0x493fe};
 
     static constexpr auto mBardingAlreadyDone = KeyTarget{0x47};
     static constexpr auto mBardingBad  = KeyTarget{0x49};
@@ -157,6 +159,8 @@ public:
     static constexpr auto mStump         = KeyTarget{0xba};
     static constexpr auto mTrappedAnimal = KeyTarget{0xab};
     static constexpr auto mWell          = KeyTarget{0xbc};
+
+    static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
 };
 
 }

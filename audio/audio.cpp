@@ -6,6 +6,49 @@
 
 namespace AudioA {
 
+AudioManager::AudioManager()
+:
+    mCurrentMusicTrack{nullptr},
+    mMusicStack{},
+    mSoundQueue{},
+    mSoundPlaying{},
+    mSoundData{},
+    mMusicData{},
+    mRunning{true},
+    mQueuePlayThread{[this]{
+        using namespace std::chrono_literals;
+        while (mRunning)
+        {
+            if (!mSoundPlaying && !mSoundQueue.empty())
+            {
+                std::this_thread::sleep_for(1ms);
+                auto sound = Get().mSoundQueue.front();
+                Get().mSoundQueue.pop();
+                Get().PlaySoundImpl(sound);
+            }
+            std::this_thread::sleep_for(10ms);
+        }
+    }},
+    mLogger{Logging::LogState::GetLogger("AudioManager")}
+{
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        mLogger.Error() << "Couldn't initialize SDL: "
+            << SDL_GetError() << std::endl;
+    }
+
+    if (Mix_OpenAudio(sAudioRate, sAudioFormat, sAudioChannels, sAudioBuffers) < 0)
+    {
+        mLogger.Error() << "Couldn't initialize SDL: "
+            << SDL_GetError() << std::endl;
+    }
+
+    Mix_VolumeMusic(sAudioVolume);
+    //Mix_SetMidiPlayer(MIDI_ADLMIDI);
+    Mix_SetMidiPlayer(MIDI_OPNMIDI);
+    //Mix_SetMidiPlayer(MIDI_Fluidsynth);
+}
+
 AudioManager& AudioManager::Get()
 {
     static AudioManager audioManager{};
@@ -165,49 +208,6 @@ AudioManager::Sound AudioManager::GetSound(SoundIndex sound)
     }
 
     return mSoundData[sound];
-}
-
-AudioManager::AudioManager()
-:
-    mCurrentMusicTrack{nullptr},
-    mMusicStack{},
-    mSoundQueue{},
-    mSoundPlaying{},
-    mSoundData{},
-    mMusicData{},
-    mRunning{true},
-    mQueuePlayThread{[this]{
-        using namespace std::chrono_literals;
-        while (mRunning)
-        {
-            if (!mSoundPlaying && !mSoundQueue.empty())
-            {
-                std::this_thread::sleep_for(1ms);
-                auto sound = Get().mSoundQueue.front();
-                Get().mSoundQueue.pop();
-                Get().PlaySoundImpl(sound);
-            }
-            std::this_thread::sleep_for(10ms);
-        }
-    }},
-    mLogger{Logging::LogState::GetLogger("AudioManager")}
-{
-    if (SDL_Init(SDL_INIT_AUDIO) < 0)
-    {
-        mLogger.Error() << "Couldn't initialize SDL: "
-            << SDL_GetError() << std::endl;
-    }
-
-    if (Mix_OpenAudio(sAudioRate, sAudioFormat, sAudioChannels, sAudioBuffers) < 0)
-    {
-        mLogger.Error() << "Couldn't initialize SDL: "
-            << SDL_GetError() << std::endl;
-    }
-
-    Mix_VolumeMusic(sAudioVolume);
-    //Mix_SetMidiPlayer(MIDI_ADLMIDI);
-    Mix_SetMidiPlayer(MIDI_OPNMIDI);
-    //Mix_SetMidiPlayer(MIDI_Fluidsynth);
 }
 
 void AudioManager::SwitchMidiPlayer(MidiPlayer midiPlayer)

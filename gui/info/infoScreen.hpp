@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/dialogSources.hpp"
 #include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 
@@ -31,7 +32,6 @@ class InfoScreen : public Widget
 public:
     static constexpr auto sLayoutFile = "REQ_INFO.DAT";
     static constexpr auto sSkillRightClickDialog = BAK::KeyTarget{0x143};
-    static constexpr auto sCharacterFlavourDialog = BAK::KeyTarget{0x69};
 
     static constexpr auto sPortraitWidget = 0;
     static constexpr auto sExitWidget = 1;
@@ -65,7 +65,7 @@ public:
             mLayout.GetWidgetDimensions(sExitWidget),
             mFont,
             "#Exit",
-            [this]{ mGuiManager.ExitCharacterPortrait(); }
+            [this]{ mGuiManager.DoFade(0.8, [this]{ mGuiManager.ExitSimpleScreen(); }); }
         },
         mPortrait{
             mLayout.GetWidgetLocation(sPortraitWidget),
@@ -85,7 +85,7 @@ public:
 
                 mGameState.SetDialogContext(character.mValue);
                 mGuiManager.StartDialog(
-                    sCharacterFlavourDialog, false, false, &mDialogScene);
+                    BAK::DialogSources::mCharacterFlavourDialog, false, false, &mDialogScene);
             }
         },
         mRatings{
@@ -134,7 +134,7 @@ public:
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
         mSkills.UpdateSkills(mFont, character.mSkills);
         mPortrait.SetCharacter(character.GetIndex(), character.mName);
-        mRatings.SetCharacter(character.mSkills, character.mConditions);
+        mRatings.SetCharacter(character);
         character.mSkills.ClearUnseenImprovements();
     }
 

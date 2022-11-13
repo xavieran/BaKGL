@@ -137,18 +137,10 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         {
             const auto flag = fb.GetUint16LE();
             const auto skill = static_cast<SkillType>(fb.GetUint16LE());
-            const auto val0 = fb.GetSint8();
-            const auto val1 = fb.GetSint8();
-            const auto val2 = fb.GetSint8();
-            const auto val3 = fb.GetSint8();
+            const auto val0 = fb.GetSint16LE();
+            const auto val1 = fb.GetSint16LE();
             mActions.emplace_back(
-                GainSkill{
-                    flag,
-                    skill,
-                    val0,
-                    val1,
-                    val2,
-                    val3});
+                GainSkill{flag, skill, val0, val1});
         }
         else if (dr == DialogResult::LoadSkillValue)
         {
@@ -240,6 +232,24 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                 SetPopupDimensions{
                     glm::vec2{posX, posY},
                     glm::vec2{dimsX, dimsY}});
+        }
+        else if (dr == DialogResult::SetState)
+        {
+            const auto state = fb.GetUint16LE();
+            const auto unk0 = fb.GetUint16LE();
+            const auto unk1 = fb.GetUint16LE();
+            const auto unk2 = fb.GetUint16LE();
+            mActions.emplace_back(
+                SetState{state, unk0, unk1, unk2});
+        }
+        else if (dr == DialogResult::SetEndOfDialogState)
+        {
+            const auto state = fb.GetSint16LE();
+            const auto rest = fb.GetArray<6>();
+            mActions.emplace_back(
+                SetEndOfDialogState{
+                    state,
+                    rest});
         }
         else if (dr == DialogResult::PlaySound)
         {
