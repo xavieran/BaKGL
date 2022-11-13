@@ -121,9 +121,10 @@ GDSScene::GDSScene(
     mHotspots.reserve(mSceneHotspots.mHotspots.size());
     for (const auto& hs : mSceneHotspots.mHotspots)
     {
-        if (hs.IsActive(mGameState))
+        const auto isActive = hs.IsActive(mGameState);
+        mLogger.Debug() << "Checked HS: " << hs.mHotspot << " " << isActive << "\n";
+        if (isActive)
         {
-
             mHotspots.emplace_back(
                 cursor,
                 mFont,
