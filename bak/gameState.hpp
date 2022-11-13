@@ -513,6 +513,10 @@ public:
 
     unsigned GetEventState(unsigned eventPtr) const
     {
+        if (eventPtr == static_cast<unsigned>(ActiveStateFlag::Chapter))
+        {
+            return GetChapter().mValue;
+        }
         if (mGameData != nullptr)
         {
             return mGameData->ReadEvent(eventPtr);

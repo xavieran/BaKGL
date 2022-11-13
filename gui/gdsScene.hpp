@@ -48,6 +48,7 @@ public:
     void EnterContainer();
     void DoBard();
 
+    const Font& mFont;
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;
     BAK::SceneHotspots mSceneHotspots;

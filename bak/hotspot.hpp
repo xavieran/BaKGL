@@ -77,9 +77,20 @@ struct Hotspot
     KeyTarget mDialog;
 
     // Yes but there is more to it - e.g. Sarth
-    bool IsActive(Chapter chapter) const
+    bool IsActive(GameState& gameState) const
     {
-        return (mUnknown0 ^ 0xffff) & (1 << (chapter.mValue - 1));
+        // ovr148:86D test mUnknown0, 0x8000???
+
+        const auto state = mDialog.mValue & 0xffff;
+        const auto expectedVal = (mDialog.mValue >> 16) & 0xffff;
+        Logging::LogDebug(__FUNCTION__) << "Unk2: " << mUnknown2 << " Eq: " <<
+            (mUnknown2 == 1) << " GS: " << std::hex << state << " st: " << 
+            gameState.GetEventState(state) << " exp: " << expectedVal << " Unk0: " << mUnknown0 << "\n";
+        if (mUnknown2 != 0 && state != 0)
+        {
+            return gameState.GetEventState(state) == expectedVal;
+        }
+        return (mUnknown0 ^ 0xffff) & (1 << (gameState.GetChapter().mValue - 1));
     }
     
     std::uint16_t mUnknown0;

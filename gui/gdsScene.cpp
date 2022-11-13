@@ -31,6 +31,7 @@ GDSScene::GDSScene(
         glm::vec2{1},
         false
     },
+    mFont{font},
     mReference{hotspotRef},
     mGameState{gameState},
     mSceneHotspots{
@@ -120,13 +121,15 @@ GDSScene::GDSScene(
     mHotspots.reserve(mSceneHotspots.mHotspots.size());
     for (const auto& hs : mSceneHotspots.mHotspots)
     {
-        if (hs.IsActive(mGameState.GetChapter()))
+        if (hs.IsActive(mGameState))
         {
 
             mHotspots.emplace_back(
                 cursor,
+                mFont,
                 hs.mTopLeft,
                 hs.mDimensions,
+                hs.mHotspot,
                 hs.mKeyword - 1, // cursor index
                 [this, hs](){
                     HandleHotspotLeftClicked(hs);
