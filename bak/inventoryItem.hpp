@@ -75,6 +75,16 @@ public:
         mStatus = SetItemStatus(mStatus, ItemStatus::Equipped, state);
     }
 
+    void SetRepairable(bool state)
+    {
+        mStatus = SetItemStatus(mStatus, ItemStatus::Repairable, state);
+    }
+
+    void SetCondition(unsigned condition)
+    {
+        mCondition = condition;
+    }
+
     void SetQuantity(unsigned quantity)
     {
         ASSERT(!IsStackable() || (IsStackable() && quantity <= GetObject().mStackSize));
@@ -147,6 +157,11 @@ public:
             if (CheckBitSet(mModifiers, i))
                 mods.emplace_back(static_cast<Modifier>(i));
         return mods;
+    }
+
+    ItemIndex GetItemIndex() const
+    {
+        return mItemIndex;
     }
 
     GameObject const* mObject;

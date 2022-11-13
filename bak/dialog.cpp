@@ -68,6 +68,7 @@ std::string_view Keywords::GetNPCName(unsigned i) const
 
 DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
 {
+    const auto offset = fb.Tell();
     mDisplayStyle        = fb.GetUint8();
     mActor               = fb.GetUint16LE();
     mDisplayStyle2       = fb.GetUint8();
@@ -87,6 +88,15 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             return OffsetTarget{dialogFile, rawTarget};
     };
 
+    // DIRTY HACK BUT THE GAME IS WEIRD
+    // This choice seems to be missing on the repair dialog (0x1b7763)
+    // dont think this will work with anything but english translation
+    if (dialogFile == 18 && offset == 0x185b2)
+    {
+        // Manually add "CantAfford" choice here
+        mChoices.emplace_back(0x7533, 0x1, 0xffff, KeyTarget{0});
+    }
+
     for (i = 0; i < choices; i++)
     {
         const auto state   = fb.GetUint16LE();
@@ -97,6 +107,7 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         if (offset != 0)
             mChoices.emplace_back(state, choice0, choice1, target);
     }
+
 
     for (i = 0; i < actions; i++)
     {

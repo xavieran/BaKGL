@@ -1,5 +1,7 @@
 #include "bak/shop.hpp"
 
+#include "bak/objectInfo.hpp"
+#include "bak/itemNumbers.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -25,6 +27,11 @@ std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
         << " [" << GetCategories(shop.mCategories) << "]}";
 
     return os;
+}
+
+std::uint8_t ShopStats::GetRepairFactor() const
+{
+    return mRepairFactor;
 }
 
 std::uint8_t ShopStats::GetTempleBlessFixedCost() const
@@ -105,6 +112,48 @@ Royals GetBuyPrice (const BAK::InventoryItem& item, const ShopStats& stats)
     return price;
 }
 
+bool CanRepair(const InventoryItem& item, const ShopStats& stats)
+{
+    if (item.IsItemType(ItemType::Crossbow))
+    {
+        return stats.mRepairTypes & 0x4;
+    }
+    else if (item.IsItemType(ItemType::Sword))
+    {
+        return stats.mRepairTypes & 0x1;
+    }
+    else if (item.IsItemType(ItemType::Armor))
+    {
+        return stats.mRepairTypes & 0x2;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+Royals CalculateRepairCost(const InventoryItem& item, const ShopStats& stats)
+{
+    if (item.IsItemType(ItemType::Crossbow))
+    {
+        if (item.GetItemIndex() == BAK::sBessyMauler)
+            return Royals{800};
+        else
+            return Royals{400};
+    }
+    else
+    {
+        const auto value = item.GetObject().mValue;
+        return Royals{(value * stats.GetRepairFactor() * (100 - item.GetCondition())) / 10000};
+    }
+}
+
+void RepairItem(InventoryItem& item)
+{
+    item.SetCondition(100);
+    item.SetRepairable(false);
+}
+
 double GetItemQuantityMultiple(const BAK::InventoryItem& item)
 {
     if (item.IsStackable() || item.IsChargeBased())
@@ -121,5 +170,6 @@ double GetItemQuantityMultiple(const BAK::InventoryItem& item)
         return 1.0;
     }
 }
+
 
 }

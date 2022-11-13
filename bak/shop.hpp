@@ -24,6 +24,7 @@ struct ShopStats
     std::uint8_t mRepairFactor;
     std::uint16_t mCategories;
 
+    std::uint8_t GetRepairFactor() const;
     std::uint8_t GetTempleBlessFixedCost() const;
     std::uint8_t GetTempleBlessPercent() const;
     Modifier GetTempleBlessType() const;
@@ -40,7 +41,9 @@ namespace BAK::Shop {
 
 Royals GetSellPrice(const InventoryItem&, const ShopStats&);
 Royals GetBuyPrice (const InventoryItem&, const ShopStats&);
+bool CanRepair(const InventoryItem&, const ShopStats&);
 Royals CalculateRepairCost(const InventoryItem&, const ShopStats&);
+void RepairItem(InventoryItem& item);
 
 double GetItemQuantityMultiple(const InventoryItem&);
 

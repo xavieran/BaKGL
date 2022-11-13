@@ -12,6 +12,7 @@
 #include "gui/hotspot.hpp"
 #include "gui/staticTTM.hpp"
 #include "gui/temple.hpp"
+#include "gui/repair.hpp"
 #include "gui/widget.hpp"
 
 namespace Gui {
@@ -67,6 +68,7 @@ public:
     DialogDisplay mDialogDisplay;
 
     std::optional<BAK::Hotspot> mPendingInn;
+    bool mPendingRepair;
     bool mPendingContainer;
     std::optional<BAK::HotspotRef> mPendingGoto;
     bool mPendingBard;
@@ -75,6 +77,7 @@ public:
     bool mPendingTeleport;
     
     Temple mTemple;
+    Repair mRepair;
 
     static constexpr auto mMaxSceneNesting = 4;
 
