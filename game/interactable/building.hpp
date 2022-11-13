@@ -9,6 +9,8 @@
 #include "bak/gameState.hpp"
 #include "bak/itemNumbers.hpp"
 
+#include "com/logger.hpp"
+
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 
@@ -60,11 +62,13 @@ public:
         {
             // Skip dialog
             mState = State::SkipFirstDialog;
+            Logging::LogDebug("Building") << "State: SkipFirstDialog\n";
             TryDoEncounter();
         }
         else
         {
             mState = State::DoFirstDialog;
+            Logging::LogDebug("Building") << "State: DoFirstDialog\n";
             StartDialog(mCurrentBuilding->GetDialog().mDialog);
         }
     }
@@ -99,6 +103,7 @@ public:
 
         if (mState == State::DoFirstDialog)
         {
+            Logging::LogDebug("Building") << "State: DoneFirstDialog: \n";
             TryDoEncounter();
             return;
         }
@@ -119,11 +124,14 @@ public:
         }
         else if (mState == State::ShowInventory)
         {
+            Logging::LogDebug("Building") << "State: ShowInv\n";
             TryDoInventory();
         }
         else if (mState == State::TryDoGDS)
         {
-            if (!choice || choice->mValue == BAK::Keywords::sYesIndex)
+            Logging::LogDebug("Building") << "State: TryDoGDS\n";
+            if ((!choice || choice->mValue == BAK::Keywords::sYesIndex)
+                && mGameState.GetEndOfDialogState() != -1)
                 TryDoGDS();
             else
                 mState = State::Idle;
