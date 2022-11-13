@@ -93,6 +93,11 @@ struct Hotspot
         return (mUnknown0 ^ 0xffff) & (1 << (gameState.GetChapter().mValue - 1));
     }
     
+    bool EvaluateImmediately() const
+    {
+        return (mUnknown0 & 0x8000) != 0;
+    }
+
     std::uint16_t mUnknown0;
     std::uint32_t mUnknown1;
     std::uint16_t mUnknown2;
