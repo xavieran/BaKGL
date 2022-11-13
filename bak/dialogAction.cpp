@@ -128,8 +128,8 @@ std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
 
 std::ostream& operator<<(std::ostream& os, const SetState& action)
 {
-    os << "SetState{" << action.mEventPtr << " unk0: " << std::hex << action.mUnknown0
-        << " unk1: " << action.mUnknown1 << " unk2: " << action.mUnknown2 << "\n";
+    os << "SetState{" << std::hex << action.mEventPtr << " unk0: " << action.mUnknown0
+        << " unk1: " << action.mUnknown1 << " unk2: " << action.mUnknown2 << std::dec << "\n";
     return os;
 }
 
