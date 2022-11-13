@@ -455,10 +455,13 @@ public:
         });
     }
 
-    void ShowCureScreen() override
+    void ShowCureScreen(
+        unsigned templeNumber,
+        unsigned cureFactor,
+        std::function<void()>&& finished) override
     {
-        DoFade(.8, [this]{
-            mCureScreen.EnterScreen();
+        DoFade(.8, [this, templeNumber, cureFactor, finished=std::move(finished)]() mutable {
+            mCureScreen.EnterScreen(templeNumber, cureFactor, std::move(finished));
             mScreenStack.PushScreen(&mCureScreen);
         });
     }

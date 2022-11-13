@@ -64,6 +64,7 @@ public:
         mSelectedCharacter{BAK::ActiveCharIndex{0}},
         mTempleNumber{BAK::Temple::sTempleOfSung},
         mCureFactor{65},
+        mFinished{nullptr},
         mCost{BAK::Royals{0}},
         mPortrait{
             mInfoLayout.GetWidgetLocation(sPortraitWidget),
@@ -123,6 +124,8 @@ public:
             "#Done",
             [this]{ 
                 mGuiManager.ExitSimpleScreen();
+                ASSERT(mFinished);
+                mFinished();
             }
         },
         mLogger{Logging::LogState::GetLogger("Gui::CureScreen")}
@@ -135,27 +138,54 @@ public:
 
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
     {
+        AdvanceCharacter();
     }
 
-    void EnterScreen()
+    void EnterScreen(unsigned templeNumber, unsigned cureFactor, std::function<void()>&& finished)
     {
-        UpdateCharacter();
+        mFinished = finished;
+        ASSERT(mFinished);
+        mTempleNumber = templeNumber;
+        mCureFactor = cureFactor;
+        mSelectedCharacter = BAK::ActiveCharIndex{0};
+        AdvanceCharacter();
     }
 
 private:
     void CureCharacter()
     {
-        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0xc});
-        mGameState.SetActiveCharacter(mSelectedCharacter);
-        mGuiManager.StartDialog(BAK::DialogSources::mHealDialogPostHealing, false, false, this);
-        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
-        BAK::Temple::CureCharacter(character.mSkills, character.mConditions, mTempleNumber == BAK::Temple::sTempleOfSung);
+        if (mCost.mValue > mGameState.GetMoney().mValue)
+        {
+            mGuiManager.StartDialog(BAK::DialogSources::mHealDialogCantAfford, false, false, this);
+        }
+        else
+        {
+            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0xc});
+            mGameState.SetActiveCharacter(mSelectedCharacter);
+            mGuiManager.StartDialog(BAK::DialogSources::mHealDialogPostHealing, false, false, this);
+            auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
+            BAK::Temple::CureCharacter(character.mSkills, character.mConditions, mTempleNumber == BAK::Temple::sTempleOfSung);
+        }
     }
 
     void AdvanceCharacter()
     {
+        const auto startCharacter = mSelectedCharacter;
         SetSelectedCharacter(
             mGameState.GetParty().NextActiveCharacter(mSelectedCharacter));
+        while (CalculateCureCost().mValue == 0
+            && mSelectedCharacter != startCharacter)
+        {
+            SetSelectedCharacter(
+                mGameState.GetParty().NextActiveCharacter(mSelectedCharacter));
+        }
+
+        if (mSelectedCharacter == startCharacter && CalculateCureCost().mValue == 0)
+        {
+            mGuiManager.ExitSimpleScreen();
+            mFinished();
+        }
+
         UpdateCharacter();
     }
 
@@ -164,25 +194,32 @@ private:
         mSelectedCharacter = character;
     }
 
-    void UpdateCharacter()
+    BAK::Royals CalculateCureCost()
     {
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
-        mPortrait.SetCharacter(character.GetIndex(), character.mName);
-        mRatings.SetCharacter(character.mSkills, character.mConditions);
-        mCost = BAK::Temple::CalculateCureCost(
+        return BAK::Temple::CalculateCureCost(
             mCureFactor,
             mTempleNumber == BAK::Temple::sTempleOfSung,
             character.mSkills,
             character.mConditions);
+    }
+
+    void UpdateCharacter()
+    {
+        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
+        mPortrait.SetCharacter(character.GetIndex(), character.mName);
+        mRatings.SetCharacter(character);
+        mCost = CalculateCureCost();
         mGameState.SetItemValue(mCost);
-        
-        // FIXME: This is awful...
-        const auto text = BAK::DialogStore::Get().GetSnippet(BAK::DialogSources::mHealDialogCost);
+
+        // FIXME: This is awful... would be nice to generically deal with text vars
+        const auto snip = BAK::DialogStore::Get().GetSnippet(BAK::DialogSources::mHealDialogCost);
         mGameState.SetActiveCharacter(mSelectedCharacter);
         mGameState.SetCharacterTextVariables();
         // For some reason the dialog action sets text variable 1 for cost but the dialog uses 0 for cost.
         mGameState.GetTextVariableStore().SetTextVariable(0, BAK::ToShopDialogString(mCost));
-        mCureText.AddText(mFont, mGameState.GetTextVariableStore().SubstituteVariables(std::string{text.GetText()}), false, false, true);
+        mCureText.AddText(mFont, mGameState.GetTextVariableStore()
+            .SubstituteVariables(std::string{snip.GetText()}), false, false, true);
     }
 
     void AddChildren()
@@ -209,6 +246,7 @@ private:
     BAK::ActiveCharIndex mSelectedCharacter;
     unsigned mTempleNumber;
     unsigned mCureFactor;
+    std::function<void()> mFinished;
     BAK::Royals mCost;
     Portrait mPortrait;
     Ratings mRatings;

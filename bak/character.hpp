@@ -294,6 +294,18 @@ public:
             SkillRead::Current);
     }
 
+    unsigned GetMaxSkill(SkillType skill) const
+    {
+        mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        return CalculateEffectiveSkillValue(
+            skill,
+            mSkills,
+            mConditions,
+            SkillRead::MaxSkill);
+    }
+
+    const Conditions& GetConditions() const { return mConditions; }
+
     void UpdateSkills()
     {
         for (unsigned i = 0; i < BAK::Skills::sSkills; i++)

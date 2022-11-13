@@ -43,6 +43,7 @@ public:
         mItem{nullptr},
         mShopStats{nullptr},
         mTarget{BAK::KeyTarget{0}},
+        mTempleNumber{0},
         mLogger{Logging::LogState::GetLogger("Gui::Temple")}
     {}
     
@@ -57,6 +58,7 @@ public:
         mShopStats = &shopStats;
         mTarget = keyTarget;
         mState = State::Idle;
+        mTempleNumber = templeIndex;
         mGameState.SetDialogContext(templeIndex);
         mGuiManager.StartDialog(keyTarget, false, false, this);
     }
@@ -77,9 +79,36 @@ public:
                 {
                     if (mGameState.GetEndOfDialogState() != -1)
                     {
+                        bool canHeal = false;
+                        for (unsigned i = 0; i < mGameState.GetParty().GetNumCharacters(); i++)
+                        {
+                            const auto& character = mGameState.GetParty().GetCharacter(BAK::ActiveCharIndex{i});
+                            const auto cureCost = BAK::Temple::CalculateCureCost(
+                                mShopStats->GetTempleHealFactor(),
+                                mTempleNumber == BAK::Temple::sTempleOfSung,
+                                character.mSkills,
+                                character.GetConditions());
+                            if (cureCost.mValue != 0)
+                            {
+                                canHeal = true;
+                            }
+                        }
                         mState = State::Cure;
-                        mGuiManager.ShowCureScreen();
-                        //StartDialog(BAK::DialogSources::mHealDialogCantHealNotSick);
+                        if (canHeal)
+                        {
+                            mGuiManager.ShowCureScreen(
+                                mTempleNumber,
+                                mShopStats->GetTempleHealFactor(),
+                                [this](){
+                                    DialogFinished(std::nullopt); });
+                        }
+                        else
+                        {
+                            StartDialog(
+                                mTempleNumber == BAK::Temple::sTempleOfSung
+                                    ? BAK::DialogSources::mHealDialogCantHealNotSick
+                                    : BAK::DialogSources::mHealDialogCantHealNotSickEnough);
+                        }
                     }
                     else
                     {
@@ -214,6 +243,7 @@ private:
     BAK::InventoryItem* mItem;
     BAK::ShopStats* mShopStats;
     BAK::KeyTarget mTarget;
+    unsigned mTempleNumber;
 
     const Logging::Logger& mLogger;
 };

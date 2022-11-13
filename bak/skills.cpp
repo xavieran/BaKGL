@@ -278,7 +278,7 @@ signed DoAdjustHealth(
             Logging::LogDebug(__FUNCTION__) << " NearDeath\n";
             if (isPlayerCharacter)
             {
-                // AdjustCondition(NearDeath, 100%);
+                conditions.AdjustCondition(skills, Condition::NearDeath, 100);
             }
         }
     }

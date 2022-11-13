@@ -295,4 +295,18 @@ TEST_F(SkillTestFixture, DoAdjustHealth_ReduceHealth)
     EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
 }
 
+TEST_F(SkillTestFixture, DoAdjustHealth_ReduceHealthToNearDeath)
+{
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 0x28, 0x28, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0x28, 0x28, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x28);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x28);
+
+    // Percentage is irrelevant when reducing health...
+    DoAdjustHealth(mSkills, mConditions, 0, -1 * (0xff << 8));
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x0);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x0);
+    EXPECT_EQ(mConditions.GetCondition(Condition::NearDeath).Get(), 100);
+}
+
 }

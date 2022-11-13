@@ -126,6 +126,6 @@ TEST_F(TempleTestFixture, CalculateCureCost)
 
     EXPECT_EQ(
         Temple::CalculateCureCost(65, false, skills, conditions),
-        Royals{1989});
+        Royals{1956});
 }
 }

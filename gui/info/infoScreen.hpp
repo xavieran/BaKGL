@@ -134,7 +134,7 @@ public:
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
         mSkills.UpdateSkills(mFont, character.mSkills);
         mPortrait.SetCharacter(character.GetIndex(), character.mName);
-        mRatings.SetCharacter(character.mSkills, character.mConditions);
+        mRatings.SetCharacter(character);
         character.mSkills.ClearUnseenImprovements();
     }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/skills.hpp"
 
@@ -95,44 +96,49 @@ public:
     }
 
     void SetCharacter(
-        const BAK::Skills& skills,
-        const BAK::Conditions& conditions)
+        const BAK::Character& character)
     {
         {
             std::stringstream ss{};
             ss << "\xf6Ratings: \n";
-            const auto& health = skills.GetSkill(BAK::SkillType::Health);
-            if (health.mUnseenImprovement) ss << "\xf5";
-            else ss << "\xf6";
-            ss << "  Health      " << +health.mCurrent << " of " << +health.mMax << "\n";
-            const auto& stamina = skills.GetSkill(BAK::SkillType::Stamina);
-            if (stamina.mUnseenImprovement) ss << "\xf5";
-            else ss << "\xf6";
-            ss << "  Stamina    " << +stamina.mCurrent << " of " << +stamina.mMax << "\n";
-            const auto& speed = skills.GetSkill(BAK::SkillType::Speed);
-            if (speed.mUnseenImprovement) ss << "\xf5";
-            else ss << "\xf6";
-            ss << "  Speed       " << +speed.mCurrent << "\n";
-            const auto& strength = skills.GetSkill(BAK::SkillType::Strength);
-            if (strength.mUnseenImprovement) ss << "\xf5";
-            else ss << "\xf6";
-            ss << "  Strength    " << +strength.mCurrent << "\n";
+            const auto health = character.GetSkill(BAK::SkillType::Health);
+            const auto maxHealth = character.GetMaxSkill(BAK::SkillType::Health);
+            //if (health.mUnseenImprovement) ss << "\xf5";
+            //else ss << "\xf6";
+            ss << "\xf6";
+            ss << "  Health      " << health << " of " << maxHealth << "\n";
+            const auto stamina = character.GetSkill(BAK::SkillType::Stamina);
+            const auto maxStamina = character.GetMaxSkill(BAK::SkillType::Stamina);
+            //if (stamina.mUnseenImprovement) ss << "\xf5";
+            //else ss << "\xf6";
+            ss << "\xf6";
+            ss << "  Stamina    " << stamina << " of " << maxStamina << "\n";
+            const auto speed = character.GetSkill(BAK::SkillType::Speed);
+            //if (speed.mUnseenImprovement) ss << "\xf5";
+            //else ss << "\xf6";
+            ss << "\xf6";
+            ss << "  Speed       " << +speed << "\n";
+            const auto strength = character.GetSkill(BAK::SkillType::Strength);
+            //if (strength.mUnseenImprovement) ss << "\xf5";
+            //else ss << "\xf6";
+            ss << "\xf6";
+            ss << "  Strength    " << strength << "\n";
             mLogger.Debug() << ss.str();
             mRatingsText.AddText(mFont, ss.str());
         }
         {
             std::stringstream ss{};
             ss << "\xf6" "Condition: \n";
-            if (conditions.NoConditions())
+            if (character.GetConditions().NoConditions())
             {
                 ss << "\xf6  Normal";
             }
             else
             {
-                for (unsigned i = 0; i < conditions.sNumConditions; i++)
+                for (unsigned i = 0; i < character.GetConditions().sNumConditions; i++)
                 {
                     const auto type = static_cast<BAK::Condition>(i);
-                    const auto value = conditions.GetCondition(type);
+                    const auto value = character.GetConditions().GetCondition(type);
                     if (value != 0)
                     {
                         ss << "\xf5  " << BAK::ToString(type) << " (" << value << "%)\n";

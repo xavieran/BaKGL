@@ -53,7 +53,12 @@ void Conditions::IncreaseCondition(BAK::Condition cond, signed value)
     mConditions[i] += value;
 }
 
-void Conditions::AdjustCondition(BAK::Condition cond, signed amount)
+void Conditions::SetCondition(BAK::Condition cond, std::uint8_t amount)
+{
+    mConditions[static_cast<std::uint8_t>(cond)] = ConditionValue{amount};
+}
+
+void Conditions::AdjustCondition(Skills& skills, BAK::Condition cond, signed amount)
 {
     const auto currentValue = GetCondition(cond).Get();
     auto newValue = currentValue + amount;
@@ -66,7 +71,7 @@ void Conditions::AdjustCondition(BAK::Condition cond, signed amount)
         newValue = 0;
     }
 
-    //SetCondition(cond, newValue);
+    SetCondition(cond, newValue);
 
     const bool inCombat = false;
 
@@ -97,17 +102,15 @@ void Conditions::AdjustCondition(BAK::Condition cond, signed amount)
         //}
         if (amount > 0)
         {
-            //ClearAllConditionsExceptNearDeath
+            for (unsigned i = 0; i < Conditions::sNumConditions - 1; i++)
+            {
+                SetCondition(static_cast<Condition>(i), 0);
+            }
             //ClearAllConditionStatesExceptNearDeath
-            //SetHealthToZero
-            //SetStaminaToZero
+            //skills.GetSkill(Skill::Health).mTrueSkill = 0;
+            //skills.GetSkill(Skill::Stamina).mTrueSkill = 0;
             // Near death condition will inhibit this health increase...
-            //ChangeHealth(
-            //    character,
-            //    0x10, // health
-            //    0x7fff, // multiplier
-            //    0x64, // skillChangeType (percent health change)
-            //);
+            //DoAdjustHealth(skills, *this, 0x64, 0x7fff);
         }
     }
 }

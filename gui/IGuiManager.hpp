@@ -35,8 +35,11 @@ public:
 
     virtual void ShowLock(BAK::IContainer*, std::function<void()>&& finished) = 0;
     virtual void ShowFullMap() = 0;
-    virtual void ShowCureScreen() = 0;
     virtual void ShowTeleport(unsigned sourceTemple) = 0;
+    virtual void ShowCureScreen(
+        unsigned templeNumber,
+        unsigned cureFactor,
+        std::function<void()>&& finished) = 0;
     virtual void ExitLock() = 0;
     virtual bool IsLockOpened() const = 0;
     virtual bool IsWordLockOpened() const = 0;

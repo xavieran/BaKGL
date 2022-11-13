@@ -10,6 +10,8 @@
 
 namespace BAK {
 
+class Skills;
+
 enum class Condition
 {
     Sick      = 0,
@@ -46,7 +48,8 @@ public:
 
     void IncreaseCondition(BAK::Condition cond, signed value);
 
-    void AdjustCondition(BAK::Condition cond, signed amount);
+    void AdjustCondition(Skills&, BAK::Condition, signed amount);
+    void SetCondition(BAK::Condition cond, std::uint8_t amount);
 };
 
 std::ostream& operator<<(std::ostream&, const Conditions&);
