@@ -23,6 +23,7 @@ enum class DialogResult
     Unknown5        = 0x05,
     // For popup dialogs sets the dimensions of the dialog
     SetPopupDimensions = 0x06,
+    SpecialAction = 0x07,
     // e.g. sickness when visiting orno (2f4e8c)
     GainCondition = 0x08,
     GainSkill  = 0x09,
@@ -31,6 +32,7 @@ enum class DialogResult
     LoadSkillValue = 0x0a,
     PlaySound  = 0x0c, // See RunDialog: 0x14aa
     ElapseTime = 0x0d,
+    SetState = 0x0e,
     // Push this Key/Offset to the dialog queue
     // i.e. when the current dialog is finished, we enter this dialog
     PushNextDialog = 0x10,
@@ -119,10 +121,8 @@ struct GainSkill
     std::uint16_t mFlag;
     SkillType mSkill;
     // These may be different and I'm not sure on their meaning when different
-    std::int8_t mValue0;
-    std::int8_t mValue1;
-    std::int8_t mValue2;
-    std::int8_t mValue3;
+    std::int16_t mValue0;
+    std::int16_t mValue1;
 };
 
 struct LoadSkillValue
@@ -163,6 +163,15 @@ struct Teleport
     TeleportIndex mIndex;
 };
 
+struct SetState
+{
+    std::uint16_t mEventPtr;
+    std::uint16_t mUnknown0;
+    std::uint16_t mUnknown1;
+    std::uint16_t mUnknown2;
+};
+
+
 struct SetEndOfDialogState
 {
     std::int16_t mState;
@@ -194,6 +203,7 @@ using DialogAction = std::variant<
     GainSkill,
     LoadSkillValue,
     PlaySound,
+    SetState,
     PushNextDialog,
     Teleport,
     UpdateCharacters,

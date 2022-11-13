@@ -470,7 +470,7 @@ std::vector<Character> GameData::LoadCharacters()
         mLogger.Spam() << "Name: " << name << "@" 
             << std::hex << mBuffer.Tell() << std::dec << "\n";
 
-        auto unknown = mBuffer.GetArray<2>();
+        auto characterNameOffset = mBuffer.GetArray<2>();
         auto spells = mBuffer.GetArray<6>();
 
         auto skills = Skills{};
@@ -503,6 +503,7 @@ std::vector<Character> GameData::LoadCharacters()
 
         skills.SetSelectedSkillPool(skills.CalculateSelectedSkillPool());
 
+        //bool characterIndex = mBuffer.GetUint8() != 0;
         auto unknown2 = mBuffer.GetArray<7>();
         mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";
         // Load inventory
@@ -516,7 +517,7 @@ std::vector<Character> GameData::LoadCharacters()
             name,
             skills,
             spells,
-            unknown,
+            characterNameOffset,
             unknown2,
             conditions,
             std::move(inventory));

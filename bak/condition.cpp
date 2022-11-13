@@ -101,6 +101,7 @@ void Conditions::AdjustCondition(BAK::Condition cond, signed amount)
             //ClearAllConditionStatesExceptNearDeath
             //SetHealthToZero
             //SetStaminaToZero
+            // Near death condition will inhibit this health increase...
             //ChangeHealth(
             //    character,
             //    0x10, // health

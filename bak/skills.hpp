@@ -110,6 +110,7 @@ void DoImproveSkill(
 
 signed DoAdjustHealth(
     Skills& skills,
+    Conditions& conditions,
     signed healthChangePercent,
     signed multiplier);
 

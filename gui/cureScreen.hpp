@@ -63,6 +63,7 @@ public:
         mInfoLayout{sInfoLayoutFile},
         mSelectedCharacter{BAK::ActiveCharIndex{0}},
         mTempleNumber{BAK::Temple::sTempleOfSung},
+        mCureFactor{65},
         mCost{BAK::Royals{0}},
         mPortrait{
             mInfoLayout.GetWidgetLocation(sPortraitWidget),
@@ -169,7 +170,7 @@ private:
         mPortrait.SetCharacter(character.GetIndex(), character.mName);
         mRatings.SetCharacter(character.mSkills, character.mConditions);
         mCost = BAK::Temple::CalculateCureCost(
-            1,
+            mCureFactor,
             mTempleNumber == BAK::Temple::sTempleOfSung,
             character.mSkills,
             character.mConditions);
@@ -207,6 +208,7 @@ private:
 
     BAK::ActiveCharIndex mSelectedCharacter;
     unsigned mTempleNumber;
+    unsigned mCureFactor;
     BAK::Royals mCost;
     Portrait mPortrait;
     Ratings mRatings;

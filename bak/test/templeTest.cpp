@@ -118,4 +118,14 @@ TEST_F(TempleTestFixture, CalculateBlessPrice)
         Royals{7750});
 }
 
+TEST_F(TempleTestFixture, CalculateCureCost)
+{
+    auto conditions = Conditions{};
+    auto skills = Skills{};
+    conditions.IncreaseCondition(BAK::Condition::NearDeath, 100);
+
+    EXPECT_EQ(
+        Temple::CalculateCureCost(65, false, skills, conditions),
+        Royals{1989});
+}
 }

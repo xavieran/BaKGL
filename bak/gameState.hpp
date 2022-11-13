@@ -363,7 +363,7 @@ public:
                 GetParty().ImproveSkillForAll(
                         skill.mSkill,
                         SkillChange::Direct,
-                        skill.mValue1 << 8);
+                        skill.mValue1);
             },
             [&](const BAK::GainCondition& cond)
             {
@@ -375,6 +375,11 @@ public:
                     party.mCharacters[c.mValue].mConditions.IncreaseCondition(
                         cond.mCondition, cond.mValue1);
                 }
+            },
+            [&](const BAK::SetState& state)
+            {
+                mLogger.Debug() << "Setting state: " << state << "\n";
+                SetEventValue(state.mEventPtr, 1);
             },
             [&](const BAK::SetEndOfDialogState& state)
             {

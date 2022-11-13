@@ -258,12 +258,41 @@ TEST_F(SkillTestFixture, ImproveSkillFromDialogTest)
     EXPECT_EQ(skill.mUnseenImprovement, true);
 }
 
-TEST_F(SkillTestFixture, DoAdjustHealth)
+TEST_F(SkillTestFixture, DoAdjustHealth_FullHeal)
 {
-    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{45, 45, 25, 0, 0, false, false});
-    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mCurrent, 25);
-    DoAdjustHealth(mSkills, -10, 0x7fff);
-    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mCurrent, 22);
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 1, 1, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0, 0, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 1);
+    DoAdjustHealth(mSkills, mConditions, 100, 0x7fff);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x28);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x2d);
+}
+
+TEST_F(SkillTestFixture, DoAdjustHealth_FullHealWithNearDeath)
+{
+    mConditions.IncreaseCondition(BAK::Condition::NearDeath, 100);
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 0x0, 0x0, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0x0, 0x0, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
+    DoAdjustHealth(mSkills, mConditions, 100, 0x7fff);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x1);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
+}
+
+TEST_F(SkillTestFixture, DoAdjustHealth_ReduceHealth)
+{
+    mSkills.SetSkill(BAK::SkillType::Health, Skill{0x28, 0x28, 0x28, 0, 0, false, false});
+    mSkills.SetSkill(BAK::SkillType::Stamina, Skill{0x2d, 0x28, 0x28, 0, 0, false, false});
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0x28);
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x28);
+
+    // Percentage is irrelevant when reducing health...
+    DoAdjustHealth(mSkills, mConditions, 0, -1 * (0x2d << 8));
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Health).mTrueSkill, 0x23);
+
+    EXPECT_EQ(mSkills.GetSkill(SkillType::Stamina).mTrueSkill, 0);
 }
 
 }

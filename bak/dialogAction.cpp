@@ -15,6 +15,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::LoseItem: return os << "LoseItem";
         case DialogResult::SetFlag: return os << "SetFlag";
         case DialogResult::Unknown5: return os << "Unknown[5]";
+        case DialogResult::SpecialAction: return os << "SpecialAction";
         case DialogResult::GainCondition: return os << "GainCondition";
         case DialogResult::GainSkill: return os << "GainSkill";
         case DialogResult::LoadSkillValue: return os << "LoadSkillValue";
@@ -22,6 +23,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::ElapseTime: return os << "ElapseTime";
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
         case DialogResult::Teleport: return os << "Teleport";
+        case DialogResult::SetState: return os << "SetState";
         case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
         case DialogResult::UpdateCharacters: return os << "UpdateCharacters";
         case DialogResult::LearnSpell: return os << "LearnSpell";
@@ -93,9 +95,7 @@ std::ostream& operator<<(std::ostream& os, const GainSkill& cond)
 {
     os << "GainSkill{ who: " << cond.mFlag << " " << ToString(cond.mSkill)
         << " [" << +cond.mValue0 
-        << ", " << +cond.mValue1 
-        << ", " << +cond.mValue2 
-        << ", " << +cond.mValue3 << "]}";
+        << ", " << +cond.mValue1 << "]}";
     return os;
 }
 
@@ -123,6 +123,13 @@ std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
 {
     os << "PushNextDialog {" << action.mTarget
         << " rest[" << std::hex << action.mRest << std::dec << "]}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const SetState& action)
+{
+    os << "SetState{" << action.mEventPtr << " unk0: " << std::hex << action.mUnknown0
+        << " unk1: " << action.mUnknown1 << " unk2: " << action.mUnknown2 << "\n";
     return os;
 }
 

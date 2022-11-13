@@ -240,27 +240,29 @@ void DoImproveSkill(
 
 signed DoAdjustHealth(
     Skills& skills,
+    Conditions& conditions,
     signed healthChangePercent,
     signed multiplier)
 {
     auto& healthSkill = skills.GetSkill(SkillType::Health);
     auto& staminaSkill = skills.GetSkill(SkillType::Stamina);
 
-    auto currentHealthAndStamina = healthSkill.mCurrent + staminaSkill.mCurrent;
-    auto maxHealthAndStamina = healthSkill.mTrueSkill + staminaSkill.mTrueSkill;
+    auto currentHealthAndStamina = healthSkill.mTrueSkill + staminaSkill.mTrueSkill;
+    auto maxHealthAndStamina = healthSkill.mMax + staminaSkill.mMax;
 
     auto healthChange = (maxHealthAndStamina * healthChangePercent) / 0x64;
     Logging::LogDebug(__FUNCTION__) << " Current: " << currentHealthAndStamina << " Max: " << maxHealthAndStamina << "\n";
     Logging::LogDebug(__FUNCTION__) << " HealthChange: " << healthChange << "\n";
 
     // ovr131:03A3
-    bool isPlayerCharacter{};
+    bool isPlayerCharacter{true};
     if (isPlayerCharacter)
     {
-        auto someCondition = 0;
-        if (someCondition != 0)
+        // Near death inhibits healing
+        const auto nearDeath = conditions.GetCondition(Condition::NearDeath).Get();
+        if (nearDeath != 0)
         {
-            healthChange = (((0x64 - someCondition) * 0x1E) / 0x64) + 1;
+            healthChange = (((0x64 - nearDeath) * 0x1E) / 0x64) + 1;
         }
     }
 
@@ -296,16 +298,16 @@ signed DoAdjustHealth(
     Logging::LogDebug(__FUNCTION__) << " Final health: " << currentHealthAndStamina << "\n";
     // ovr131:042b
 
-    if (healthSkill.mTrueSkill >= currentHealthAndStamina)
+    if (healthSkill.mMax >= currentHealthAndStamina)
     {
-        staminaSkill.mCurrent = 0;
-        healthSkill.mCurrent = currentHealthAndStamina;
+        staminaSkill.mTrueSkill = 0;
+        healthSkill.mTrueSkill = currentHealthAndStamina;
         Logging::LogDebug(__FUNCTION__) << " No stamina left\n";
     }
     else
     {
-        staminaSkill.mCurrent = currentHealthAndStamina - healthSkill.mTrueSkill;
-        healthSkill.mCurrent = healthSkill.mTrueSkill;
+        staminaSkill.mTrueSkill = currentHealthAndStamina - healthSkill.mMax;
+        healthSkill.mTrueSkill = healthSkill.mMax;
         Logging::LogDebug(__FUNCTION__) << " Some stamina left\n";
     }
 
@@ -374,10 +376,10 @@ void Skills::ImproveSkill(
     SkillChange skillChangeType,
     unsigned multiplier)
 {
-    // not quite right...
     if (skill == SkillType::TotalHealth)
     {
-        DoAdjustHealth(*this, static_cast<unsigned>(skillChangeType), multiplier);
+        auto x = Conditions{};
+        DoAdjustHealth(*this, x, static_cast<unsigned>(skillChangeType), multiplier);
     }
     else
     {

@@ -70,7 +70,7 @@ Royals CalculateCureCost(unsigned cureFactor, bool isTempleOfSung, Skills& skill
     {
         const auto cond = conditions.GetCondition(static_cast<Condition>(i));
         if (i != static_cast<unsigned>(Condition::Healing))
-            const auto cost = cond.Get() * conditionCost[i] + 10;
+            totalCost += (cond.Get() * conditionCost[i]) + 10;
     }
 
     totalCost = (totalCost * cureFactor) / 100;
@@ -103,7 +103,7 @@ void CureCharacter(Skills& skills, Conditions& conditions, bool isTempleOfSung)
     
     if (isTempleOfSung)
     {
-        DoAdjustHealth(skills, 100, 0x7fff);
+        DoAdjustHealth(skills, conditions, 100, 0x7fff);
         conditions.AdjustCondition(Condition::Healing, 100);
     }
 }
