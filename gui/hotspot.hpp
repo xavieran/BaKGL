@@ -16,28 +16,39 @@ class Hotspot : public Widget
 public:
     Hotspot(
         Cursor& cursor,
+        const Font& font,
         glm::vec2 pos,
         glm::vec2 dims,
+        unsigned id,
         unsigned highlightCursor,
         std::function<void()>&& onLeftMousePress,
         std::function<void()>&& onRightMousePress)
     :
         Widget{
             RectTag{},
-            //Color::debug,
             // Filthy hack - make these a little smaller
             // because some of them overlap which breaks the cursor
             pos + glm::vec2{2},
             dims - glm::vec2{3},
+            //Color::debug,
             glm::vec4{0},
             true
         },
         mCursor{cursor},
         mHighlightCursor{highlightCursor},
+        mText{
+            glm::vec2{0},
+            glm::vec2{50, 16}
+        },
         mLeftPressed{std::move(onLeftMousePress)},
         mRightPressed{std::move(onRightMousePress)},
         mWithinWidget{}
     {
+        //std::stringstream ss{};
+        //ss << id;
+        //mText.AddText(font, ss.str());
+
+        //AddChildBack(&mText);
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
@@ -118,6 +129,7 @@ public:
 private:
     Cursor& mCursor;
     unsigned mHighlightCursor;
+    TextBox mText;
 
     std::function<void()> mLeftPressed;
     std::function<void()> mRightPressed;
