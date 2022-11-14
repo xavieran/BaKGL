@@ -244,6 +244,14 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     glm::vec2{posX, posY},
                     glm::vec2{dimsX, dimsY}});
         }
+        else if (dr == DialogResult::HealCharacters)
+        {
+            const auto who = fb.GetUint16LE();
+            const auto howMuch = fb.GetUint16LE();
+            fb.GetUint16LE();
+            fb.GetUint16LE();
+            mActions.emplace_back(HealCharacters{who, howMuch});
+        }
         else if (dr == DialogResult::SetState)
         {
             const auto state = fb.GetUint16LE();

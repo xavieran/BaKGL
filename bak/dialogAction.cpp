@@ -24,6 +24,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
         case DialogResult::Teleport: return os << "Teleport";
         case DialogResult::SetState: return os << "SetState";
+        case DialogResult::HealCharacters: return os << "HealCharacters";
         case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
         case DialogResult::UpdateCharacters: return os << "UpdateCharacters";
         case DialogResult::LearnSpell: return os << "LearnSpell";
@@ -93,7 +94,7 @@ std::ostream& operator<<(std::ostream& os, const GainCondition& cond)
 
 std::ostream& operator<<(std::ostream& os, const GainSkill& cond)
 {
-    os << "GainSkill{ who: " << cond.mFlag << " " << ToString(cond.mSkill)
+    os << "GainSkill{ who: " << cond.mWho << " " << ToString(cond.mSkill)
         << " [" << +cond.mValue0 
         << ", " << +cond.mValue1 << "]}";
     return os;
@@ -130,6 +131,13 @@ std::ostream& operator<<(std::ostream& os, const SetState& action)
 {
     os << "SetState{" << std::hex << action.mEventPtr << " unk0: " << action.mUnknown0
         << " unk1: " << action.mUnknown1 << " unk2: " << action.mUnknown2 << std::dec << "\n";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const HealCharacters& action)
+{
+    os << "HealCharacters{who: " << action.mWho
+        << " howMuch: " << action.mHowMuch << "}";
     return os;
 }
 

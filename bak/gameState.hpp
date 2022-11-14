@@ -360,10 +360,36 @@ public:
                 // If Skill == TotalHealth: 
                 // mValue 1 and mValue 2 refer to the upper and lower bounds of change
                 mLogger.Debug() << "Gaining skill: " << skill << "\n";
-                GetParty().ImproveSkillForAll(
-                        skill.mSkill,
-                        SkillChange::Direct,
-                        skill.mValue1);
+                if (skill.mWho <= 1)
+                {
+                    GetParty().ImproveSkillForAll(
+                            skill.mSkill,
+                            SkillChange::Direct,
+                            skill.mValue1);
+                }
+                // 3, 4 -> Owyn & Gorath when talking to Calin
+                // 3, 4, -> Locklear and James when talking to Martin
+                // 5 -> Owyn when talking to Cullich
+                // 6 -> Party leader
+                //  0  1  2  3  4  5  6  7 
+                // 00 00 00 02 01 02 00 01 00 Chapter 1
+                // 00 00 02 FF FF 02 04 01 00 Chapter 2
+                // 00 00 02 FF FF 02 04 01 00 Chapter 3
+                // 00 00 02 FF FF 02 01 01 00 Chapter 4
+                // 00 00 05 FF FF 05 04 00 00 Chapter 5
+                // 00 00 02 FF FF 02 00 01 00 Chapter 6
+                // use this to figure out who is who...
+                // This is generated semi-randomly from the active characters list
+                else if (skill.mWho == 6) // 1,2,3,4,5,6, (condition -- 1,2,6,7)
+                {
+                    GetParty().GetCharacter(ActiveCharIndex{0})
+                        .ImproveSkill(skill.mSkill, SkillChange::Direct, skill.mValue1);
+                }
+                else if (skill.mWho == 2)
+                {
+                    GetParty().GetCharacter(ActiveCharIndex{0})
+                        .ImproveSkill(skill.mSkill, SkillChange::Direct, skill.mValue1);
+                }
             },
             [&](const BAK::GainCondition& cond)
             {

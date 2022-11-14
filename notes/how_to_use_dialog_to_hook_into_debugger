@@ -15,3 +15,8 @@ e.g. for picklocking
 >bp overl2:210
 
 heal: 3be6, heal ovrl: 47a0
+
+2b50:4df0 -> character list for dialogs...
+who is magician, soldier, etc.
+
+bpm 2b50:4df2

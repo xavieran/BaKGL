@@ -37,6 +37,7 @@ enum class DialogResult
     // i.e. when the current dialog is finished, we enter this dialog
     PushNextDialog = 0x10,
     UpdateCharacters = 0x11,
+    HealCharacters   = 0x12,
     LearnSpell = 0x13,
     // Teleport to another location? e.g. sewer dialog 231861
     Teleport = 0x14,
@@ -118,7 +119,7 @@ struct GainCondition
 
 struct GainSkill
 {
-    std::uint16_t mFlag;
+    std::uint16_t mWho;
     SkillType mSkill;
     // These may be different and I'm not sure on their meaning when different
     std::int16_t mValue0;
@@ -171,6 +172,11 @@ struct SetState
     std::uint16_t mUnknown2;
 };
 
+struct HealCharacters
+{
+    std::uint16_t mWho;
+    std::uint16_t mHowMuch;
+};
 
 struct SetEndOfDialogState
 {
@@ -202,6 +208,7 @@ using DialogAction = std::variant<
     GainCondition,
     GainSkill,
     LoadSkillValue,
+    HealCharacters,
     PlaySound,
     SetState,
     PushNextDialog,
