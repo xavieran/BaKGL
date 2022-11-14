@@ -23,7 +23,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::ElapseTime: return os << "ElapseTime";
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
         case DialogResult::Teleport: return os << "Teleport";
-        case DialogResult::SetState: return os << "SetState";
+        case DialogResult::SetTimeExpiringState: return os << "SetTimeExpiringState";
         case DialogResult::HealCharacters: return os << "HealCharacters";
         case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
         case DialogResult::UpdateCharacters: return os << "UpdateCharacters";
@@ -127,10 +127,10 @@ std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const SetState& action)
+std::ostream& operator<<(std::ostream& os, const SetTimeExpiringState& action)
 {
-    os << "SetState{" << std::hex << action.mEventPtr << " unk0: " << action.mUnknown0
-        << " unk1: " << action.mUnknown1 << " unk2: " << action.mUnknown2 << std::dec << "\n";
+    os << "SetTimeExpiringState{" << std::hex << action.mEventPtr << " unk0: " << action.mUnknown0
+        << " TimeToExpire: " << action.mTimeToExpire << "}";
     return os;
 }
 

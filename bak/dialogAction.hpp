@@ -32,7 +32,7 @@ enum class DialogResult
     LoadSkillValue = 0x0a,
     PlaySound  = 0x0c, // See RunDialog: 0x14aa
     ElapseTime = 0x0d,
-    SetState = 0x0e,
+    SetTimeExpiringState = 0x0e,
     // Push this Key/Offset to the dialog queue
     // i.e. when the current dialog is finished, we enter this dialog
     PushNextDialog = 0x10,
@@ -164,12 +164,11 @@ struct Teleport
     TeleportIndex mIndex;
 };
 
-struct SetState
+struct SetTimeExpiringState
 {
     std::uint16_t mEventPtr;
     std::uint16_t mUnknown0;
-    std::uint16_t mUnknown1;
-    std::uint16_t mUnknown2;
+    Time mTimeToExpire;
 };
 
 struct HealCharacters
@@ -210,7 +209,7 @@ using DialogAction = std::variant<
     LoadSkillValue,
     HealCharacters,
     PlaySound,
-    SetState,
+    SetTimeExpiringState,
     PushNextDialog,
     Teleport,
     UpdateCharacters,

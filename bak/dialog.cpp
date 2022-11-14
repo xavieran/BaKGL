@@ -252,14 +252,13 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             fb.GetUint16LE();
             mActions.emplace_back(HealCharacters{who, howMuch});
         }
-        else if (dr == DialogResult::SetState)
+        else if (dr == DialogResult::SetTimeExpiringState)
         {
             const auto state = fb.GetUint16LE();
             const auto unk0 = fb.GetUint16LE();
-            const auto unk1 = fb.GetUint16LE();
-            const auto unk2 = fb.GetUint16LE();
+            const auto time = Time{fb.GetUint32LE()};
             mActions.emplace_back(
-                SetState{state, unk0, unk1, unk2});
+                SetTimeExpiringState{state, unk0, time});
         }
         else if (dr == DialogResult::SetEndOfDialogState)
         {

@@ -402,9 +402,9 @@ public:
                         cond.mCondition, cond.mValue1);
                 }
             },
-            [&](const BAK::SetState& state)
+            [&](const BAK::SetTimeExpiringState& state)
             {
-                mLogger.Debug() << "Setting state: " << state << "\n";
+                mLogger.Debug() << "Setting time expiring state: " << state << "\n";
                 SetEventValue(state.mEventPtr, 1);
             },
             [&](const BAK::SetEndOfDialogState& state)

@@ -40,7 +40,7 @@ struct Time
         return mTime * 2;
     }
 
-        std::uint32_t mTime;
+    std::uint32_t mTime;
 
 };
 
