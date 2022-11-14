@@ -230,6 +230,23 @@ void GameData::SetTempleSeen(unsigned temple)
     SetEventFlagTrue(sTempleSeenFlag + temple);
 }
 
+void GameData::SetTimeExpiringState(
+    unsigned number,
+    unsigned eventPtr,
+    unsigned flag,
+    Time time)
+{
+    // DialogAction value is always 4, flag is always 0x40
+    // ItemExpiring value is always 1, flag is always 0x80
+    // 0x80 adds 
+    unsigned index = 0;
+    mBuffer.Seek(sTimeExpiringEventRecordOffset + index);
+    mBuffer.PutUint8(number);
+    mBuffer.PutUint8(flag);
+    mBuffer.PutUint16LE(eventPtr);
+    mBuffer.PutUint32LE(time.mTime);
+}
+
 // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
 // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
 bool GameData::CheckActive(

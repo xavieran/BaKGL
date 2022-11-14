@@ -76,6 +76,7 @@ public:
     static constexpr auto sCharacterStatusOffset  = 0x330;
     static constexpr auto sCharacterPotionOffset  = 0x350;
 
+    static constexpr auto sTimeExpiringEventRecordOffset = 0x618; // (0x4340)
     // Single bit indicators for event state tracking 
     // In the code this offset is 0x440a in the game -> diff of 0x3d28
     static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
@@ -178,6 +179,12 @@ public:
 
     bool ReadTempleSeen(unsigned temple) const;
     void SetTempleSeen(unsigned temple);
+
+    void SetTimeExpiringState(
+        unsigned number,
+        unsigned eventPtr,
+        unsigned flag,
+        Time time);
 
     // Called by
     // * checkBlockTriggered

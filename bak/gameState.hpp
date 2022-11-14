@@ -406,6 +406,8 @@ public:
             {
                 mLogger.Debug() << "Setting time expiring state: " << state << "\n";
                 SetEventValue(state.mEventPtr, 1);
+                if (mGameData)
+                    mGameData->SetTimeExpiringState(4, state.mEventPtr, 0x40, state.mTimeToExpire);
             },
             [&](const BAK::SetEndOfDialogState& state)
             {
