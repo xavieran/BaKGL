@@ -129,6 +129,7 @@ std::ostream& operator<<(std::ostream& os, const GameObject& go)
         << " swing (" << go.mStrengthSwing << ", " << go.mAccuracySwing << ")"
         << " thrust (" << go.mStrengthThrust << ", " << go.mAccuracyThrust << ")"
         << " size: " << go.mImageSize << " " << ToString(go.mRace) << " " << ToString(go.mType)
+        << " useSound: " << go.mUseSound << " times: " << go.mSoundPlayTimes
         << " stackSize: " << go.mStackSize << " defaultStackSize: " << go.mDefaultStackSize
         << " eff (" << std::hex << go.mEffectMask << ", " << std::dec << go.mEffect
         << " ) potionPower: " << go.mPotionPowerOrBookChance
@@ -158,7 +159,8 @@ ObjectIndex::ObjectIndex()
         const auto accuracyThrust = fb.GetSint16LE();
         const auto optionalImageIndex = fb.GetUint16LE();
         const auto imageSize = fb.GetUint16LE();
-        const auto unknown3 = fb.GetArray<2>();
+        const auto useSound = fb.GetUint8();
+        const auto soundPlayTimes = fb.GetUint8();
         const auto stackSize = fb.GetUint8();
         const auto defaultStackSize = fb.GetUint8();
         const auto race = fb.GetUint16LE();
@@ -174,8 +176,8 @@ ObjectIndex::ObjectIndex()
         const auto dullFactor1 = fb.GetUint16LE();
         const auto minimumCondition = fb.GetUint16LE();
 
-        logger.Debug() << i << std::hex << " Unknown: " << unknown << "|"
-            << unknown2 << "|" << unknown3 << "|" << unknown4 << "|"
+        logger.Spam() << i << std::hex << " Unknown0: " << unknown << "|2 "
+            << unknown2 << "|4 " << unknown4 << "|5 "
             << unknown5 << "|" << name << std::dec << "\n";
 
         mObjects[i] = GameObject{
@@ -189,6 +191,8 @@ ObjectIndex::ObjectIndex()
             accuracyThrust,
             optionalImageIndex != 0 ? optionalImageIndex : i,
             imageSize,
+            useSound,
+            soundPlayTimes,
             stackSize,
             defaultStackSize,
             static_cast<RacialModifier>(race),

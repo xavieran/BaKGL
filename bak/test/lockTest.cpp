@@ -15,7 +15,7 @@ struct LockTestFixture : public ::testing::Test
             "Key",
             1, 1, 1,
             1, 1, 1, 1,
-            0, 1, 0, 0,
+            0, 1, 0, 0, 0, 0,
             RacialModifier::None,
             ItemType::Key,
             0, 0, 0, 0, 0,

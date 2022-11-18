@@ -103,6 +103,8 @@ struct GameObject
     int mAccuracyThrust;
     unsigned mImageIndex;
     unsigned mImageSize;
+    unsigned mUseSound;
+    unsigned mSoundPlayTimes;
     unsigned mStackSize;
     unsigned mDefaultStackSize;
     RacialModifier mRace;
