@@ -179,6 +179,12 @@ public:
 
     bool GiveItem(const InventoryItem& item) override
     {
+        if (mShop && !mInventory.CanAddContainer(item))
+        {
+            // Remove the earliest added item
+            mInventory.RemoveItem(BAK::InventoryIndex(mInventory.GetCapacity() - 6));
+        }
+
         mInventory.AddItem(item);
         return true;
     }
