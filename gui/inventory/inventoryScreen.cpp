@@ -449,7 +449,7 @@ void InventoryScreen::TransferItemToShop(
         return;
     }
 
-    if (true) // mShopScreen.CanBuyItem(slot.GetItem());
+    if (mShopScreen.CanBuyItem(slot.GetItem()))
     {
         mGameState.SetItemValue(mShopScreen.GetBuyPrice(slot.GetItem()));
         StartDialog(BAK::DialogSources::mSellItemDialog);
@@ -465,10 +465,14 @@ void InventoryScreen::TransferItemToShop(
                 mDialogScene.ResetDialogFinished();
             });
     }
+    else if (false) // Shop has no room for item, what triggers this??
+    {
+        mGameState.SetDialogContext(0xa);
+        StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
+    }
     else
     {
-        mGameState.SetDialogContext(0xb);
-        StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
+        StartDialog(BAK::DialogSources::mShopWontBuyItem);
     }
 }
 

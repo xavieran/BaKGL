@@ -46,6 +46,37 @@ std::string_view ToString(RacialModifier m)
     }
 }
 
+std::string_view ToString(SaleCategory i)
+{
+    switch (i)
+    {
+    case SaleCategory::Jewellery: return "Jewellery";
+    case SaleCategory::Utility: return "Utility";
+    case SaleCategory::Rations: return "Rations";
+    case SaleCategory::PreciousGems: return "PreciousGems";
+    case SaleCategory::Keys: return "Keys";
+    case SaleCategory::QuestItem: return "QuestItem";
+    case SaleCategory::Sword: return "Sword";
+    case SaleCategory::CrossbowRelated: return "CrossbowRelated";
+    case SaleCategory::Armor: return "Armor";
+    case SaleCategory::UsableMundaneItem: return "UsableMundaneItem";
+    case SaleCategory::UsableMagicalItem: return "UsableMagicalItem";
+    case SaleCategory::Staff: return "Staff";
+    case SaleCategory::Scroll: return "Scroll";
+    case SaleCategory::BookOrNote: return "BookOrNote";
+    case SaleCategory::Potions: return "Potions";
+    case SaleCategory::Modifier: return "Modifier";
+    case SaleCategory::All: return "All";
+    default: return "UnknownSaleCategory";
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, SaleCategory cat)
+{
+    os << ToString(cat);
+    return os;
+}
+
 std::string_view ToString(ItemCategory i)
 {
     switch (i)
@@ -76,13 +107,20 @@ std::ostream& operator<<(std::ostream& os, ItemCategory cat)
     return os;
 }
 
-std::vector<ItemCategory> GetCategories(std::uint16_t value)
+std::vector<SaleCategory> GetCategories(std::uint16_t value)
 {
-    auto categories = std::vector<ItemCategory>{};
-    for (std::uint16_t cat = 0; cat < 16; cat++)
+    auto categories = std::vector<SaleCategory>{};
+    if (value == 0xffff)
     {
-        if (((1 << cat) & value) != 0)
-            categories.emplace_back(static_cast<ItemCategory>(cat));
+        categories.emplace_back(SaleCategory::All);
+    }
+    else
+    {
+        for (std::uint16_t cat = 0; cat < 16; cat++)
+        {
+            if (((1 << cat) & value) != 0)
+                categories.emplace_back(static_cast<SaleCategory>(1 << cat));
+        }
     }
     return categories;
 }
@@ -129,6 +167,8 @@ std::ostream& operator<<(std::ostream& os, const GameObject& go)
         << " swing (" << go.mStrengthSwing << ", " << go.mAccuracySwing << ")"
         << " thrust (" << go.mStrengthThrust << ", " << go.mAccuracyThrust << ")"
         << " size: " << go.mImageSize << " " << ToString(go.mRace) << " " << ToString(go.mType)
+        << " Cat: (" << std::hex << go.mCategories << std::dec
+        << ")[" << GetCategories(go.mCategories) << "]"
         << " useSound: " << go.mUseSound << " times: " << go.mSoundPlayTimes
         << " stackSize: " << go.mStackSize << " defaultStackSize: " << go.mDefaultStackSize
         << " eff (" << std::hex << go.mEffectMask << ", " << std::dec << go.mEffect
@@ -145,7 +185,6 @@ ObjectIndex::ObjectIndex()
     auto fb = FileBufferFactory::Get().CreateDataBuffer("OBJINFO.DAT");
     for (unsigned i = 0; i < sObjectCount; i++)
     {
-        fb.Dump(logger.Debug(), 30);
         const auto name = fb.GetString(30);
         logger.Debug() << "ItemOff: " << std::hex << fb.Tell() << std::dec << "\n";
         const auto unknown = fb.GetArray<2>();
@@ -164,7 +203,7 @@ ObjectIndex::ObjectIndex()
         const auto stackSize = fb.GetUint8();
         const auto defaultStackSize = fb.GetUint8();
         const auto race = fb.GetUint16LE();
-        const auto unknown4 = fb.GetArray<2>();
+        const auto categories = fb.GetUint16LE();
         const auto type = fb.GetUint16LE();
         const auto effectMask = fb.GetUint16LE();
         const auto effect = fb.GetSint16LE();
@@ -176,8 +215,8 @@ ObjectIndex::ObjectIndex()
         const auto dullFactor1 = fb.GetUint16LE();
         const auto minimumCondition = fb.GetUint16LE();
 
-        logger.Spam() << i << std::hex << " Unknown0: " << unknown << "|2 "
-            << unknown2 << "|4 " << unknown4 << "|5 "
+        logger.Debug() << i << std::hex << " Unknown0: " << unknown << "|2 "
+            << unknown2 << "|5 "
             << unknown5 << "|" << name << std::dec << "\n";
 
         mObjects[i] = GameObject{
@@ -196,6 +235,7 @@ ObjectIndex::ObjectIndex()
             stackSize,
             defaultStackSize,
             static_cast<RacialModifier>(race),
+            categories,
             static_cast<ItemType>(type),
             effectMask,
             effect,

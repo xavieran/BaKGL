@@ -121,6 +121,8 @@ std::ostream& operator<<(std::ostream&, const ContainerDialog&);
 
 class GenericContainer final : public IContainer {
 public:
+    static constexpr auto sTypicalShopBuffer = 6;
+
     GenericContainer(
         ContainerHeader header,
         std::optional<LockStats> lock,
@@ -179,6 +181,12 @@ public:
 
     bool GiveItem(const InventoryItem& item) override
     {
+        if (mShop && !mInventory.CanAddContainer(item))
+        {
+            // Remove the earliest added item
+            mInventory.RemoveItem(BAK::InventoryIndex(mInventory.GetCapacity() - sTypicalShopBuffer));
+        }
+
         mInventory.AddItem(item);
         return true;
     }

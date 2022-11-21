@@ -680,11 +680,11 @@ std::vector<GenericContainer> GameData::LoadShops()
     for (unsigned i = 0; i < sShopsCount; i++)
     {
         const unsigned address = mBuffer.Tell();
-        mLogger.Spam() << " Container: " << i
+        mLogger.Debug() << " Container: " << i
             << " addr: " << std::hex << address << std::dec << std::endl;
         auto container = LoadGenericContainer<ContainerGDSLocationTag>(mBuffer);
         shops.emplace_back(std::move(container));
-        mLogger.Spam() << shops.back() << "\n";
+        mLogger.Debug() << shops.back() << "\n";
     }
 
     return shops;
