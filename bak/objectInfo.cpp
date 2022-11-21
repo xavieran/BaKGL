@@ -167,7 +167,8 @@ std::ostream& operator<<(std::ostream& os, const GameObject& go)
         << " swing (" << go.mStrengthSwing << ", " << go.mAccuracySwing << ")"
         << " thrust (" << go.mStrengthThrust << ", " << go.mAccuracyThrust << ")"
         << " size: " << go.mImageSize << " " << ToString(go.mRace) << " " << ToString(go.mType)
-        << " " << GetCategories(go.mCategories)
+        << " Cat: (" << std::hex << go.mCategories << std::dec
+        << ")[" << GetCategories(go.mCategories) << "]"
         << " useSound: " << go.mUseSound << " times: " << go.mSoundPlayTimes
         << " stackSize: " << go.mStackSize << " defaultStackSize: " << go.mDefaultStackSize
         << " eff (" << std::hex << go.mEffectMask << ", " << std::dec << go.mEffect
