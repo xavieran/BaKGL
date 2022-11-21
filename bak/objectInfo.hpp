@@ -34,6 +34,30 @@ enum class RacialModifier
 
 std::string_view ToString(RacialModifier);
 
+enum class SaleCategory : std::uint16_t
+{
+    Jewellery         = 0x0000,
+    Utility           = 0x0001,
+    Rations           = 0x0002,
+    PreciousGems      = 0x0004,
+    Keys              = 0x0008,
+    All               = 0x0010, // I put this here...
+    QuestItem         = 0x0020,
+    UsableMundaneItem = 0x0040,
+    Sword             = 0x0080,
+    CrossbowRelated   = 0x0100,
+    Armor             = 0x0200,
+    UsableMagicalItem = 0x0400,
+    Staff             = 0x0800,
+    Scroll            = 0x1000,
+    BookOrNote        = 0x2000,
+    Potions           = 0x4000,
+    Modifier          = 0x8000
+};
+
+std::string_view ToString(SaleCategory);
+std::ostream& operator<<(std::ostream& os, SaleCategory cat);
+
 enum class ItemCategory : std::uint16_t
 {
     Inn,     // ale and brandy, etc.
@@ -57,7 +81,7 @@ enum class ItemCategory : std::uint16_t
 std::string_view ToString(ItemCategory);
 std::ostream& operator<<(std::ostream& os, ItemCategory cat);
 
-std::vector<ItemCategory> GetCategories(std::uint16_t);
+std::vector<SaleCategory> GetCategories(std::uint16_t);
 
 enum class ItemType
 {
@@ -108,6 +132,7 @@ struct GameObject
     unsigned mStackSize;
     unsigned mDefaultStackSize;
     RacialModifier mRace;
+    std::uint16_t mCategories;
     ItemType mType;
     std::uint16_t mEffectMask;
     std::int16_t mEffect;

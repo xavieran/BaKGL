@@ -19,6 +19,7 @@ struct TempleTestFixture : public ::testing::Test
             5, -5, 12, 10,
             4, 4, 0, 0, 0, 0,
             RacialModifier::None,
+            0,
             ItemType::Other,
             0, 0, 0, 0, 0,
             0, 0, 0}
@@ -29,6 +30,7 @@ struct TempleTestFixture : public ::testing::Test
             71, 0, 49, 10,
             28, 2, 0, 0, 0, 0,
             RacialModifier::Human,
+            0,
             ItemType::Sword,
             0, 0, 0, 0, 0,
             3, 3, 50}
@@ -39,6 +41,7 @@ struct TempleTestFixture : public ::testing::Test
             1, 1, 1, 1,
             0, 4, 0, 0, 0, 0,
             RacialModifier::None,
+            0,
             ItemType::Armor,
             0, 0, 0, 0, 0,
             0, 0, 0}

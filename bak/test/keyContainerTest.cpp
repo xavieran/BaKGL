@@ -20,6 +20,7 @@ struct KeyTestFixture : public ::testing::Test
             1, 1, 1, 1,
             0, 1, 0, 0, 0, 0,
             RacialModifier::None,
+            0,
             ItemType::Key,
             0, 0, 0, 0, 0,
             0, 0, 0}
@@ -31,6 +32,7 @@ struct KeyTestFixture : public ::testing::Test
             1, 1, 1, 1,
             0, 2, 0, 0, 0, 0,
             RacialModifier::None,
+            0,
             ItemType::Key,
             0, 0, 0, 0, 0,
             0, 0, 0}
@@ -42,6 +44,7 @@ struct KeyTestFixture : public ::testing::Test
             1, 1, 1, 1,
             0, 2, 0, 0, 0, 0,
             RacialModifier::None,
+            0,
             ItemType::Other,
             0, 0, 0, 0, 0,
             0, 0, 0}

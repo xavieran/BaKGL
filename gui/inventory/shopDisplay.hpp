@@ -96,7 +96,7 @@ public:
 
     BAK::Royals GetSellPrice(
         BAK::InventoryIndex itemIndex,
-        unsigned amount)
+        unsigned amount) const
     {
         ASSERT(mContainer);
         auto item = mContainer->GetInventory().GetAtIndex(itemIndex);
@@ -104,10 +104,16 @@ public:
         return BAK::Shop::GetSellPrice(item, mContainer->GetShop());
     }
 
-    BAK::Royals GetBuyPrice(const BAK::InventoryItem& item)
+    BAK::Royals GetBuyPrice(const BAK::InventoryItem& item) const
     {
         ASSERT(mContainer);
         return BAK::Shop::GetBuyPrice(item, mContainer->GetShop());
+    }
+
+    bool CanBuyItem(const BAK::InventoryItem& item) const
+    {
+        return mContainer->GetInventory().HaveItem(item) ||
+            (item.GetObject().mCategories & mContainer->GetShop().mCategories) != 0x0000;
     }
 
 private:
