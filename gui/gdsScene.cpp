@@ -62,14 +62,10 @@ GDSScene::GDSScene(
         backgrounds,
         font,
         gameState},
+    mState{State::Idle},
     mPendingInn{},
-    mPendingRepair{},
-    mPendingContainer{},
     mPendingGoto{},
-    mPendingBard{},
     mKickedOut{false},
-    mPendingTeleport{},
-    mPendingDialog{},
     mTemple{
         mGameState,
         mGuiManager
@@ -192,7 +188,7 @@ void GDSScene::DisplayPlayerBackground()
 void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 { 
     mLogger.Debug() << "Hotspot: " << hotspot << "\n"
-        << "Tele: " << mPendingTeleport << "\n";;
+        << "Tele: " << (mState == State::Teleport) << "\n";;
 
     if (hotspot.mAction == BAK::HotspotAction::DIALOG)
     {
@@ -212,7 +208,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
             DisplayNPCBackground();
         }
 
-        mPendingDialog = true;
+        mState = State::Dialog;
         StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
     }
     else if (hotspot.mAction == BAK::HotspotAction::EXIT)
@@ -239,7 +235,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         else
         {
             StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
-            mPendingTeleport = true;
+            mState = State::Teleport;
         }
     }
     else if (hotspot.mAction == BAK::HotspotAction::SHOP
@@ -250,7 +246,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         if (hotspot.mActionArg3 != 0)
         {
             StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
-            mPendingContainer = true;
+            mState = State::Container;
         }
         else
         {
@@ -265,7 +261,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
 
             auto* container = mGameState.GetContainerForGDSScene(mReference);
             mLogger.Debug() << container->GetShop() << "\n";
-            mPendingRepair = true;
+            mState = State::Repair;
         }
         else
         {
@@ -277,6 +273,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         if (hotspot.mActionArg3 != 0)
         {
             StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+            mState = State::Inn;
             mPendingInn = hotspot;
         }
         else
@@ -295,6 +292,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         hotspotRef.mGdsChar = BAK::MakeHotspotChar(hotspot.mActionArg1);
         if (dialog != BAK::KeyTarget{0} && dialog != BAK::KeyTarget{0x10000})
         {
+            mState = State::Goto;
             mPendingGoto = hotspotRef;
             StartDialog(dialog, false);
         }
@@ -321,59 +319,38 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 
 void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
-    if (mPendingBard)
+    if (mState == State::Bard)
     {
         AudioA::AudioManager::Get().PopTrack();
-        mPendingBard = false;
     }
 
-    if (mPendingDialog)
+    if (mKickedOut)
     {
-        mPendingDialog = false;
-        if (mGameState.GetEndOfDialogState() == -4)
+        mKickedOut = false;
+        mGuiManager.ExitGDSScene();
+        mState = State::Idle;
+        // Return immediately or the following 
+        // actions will take place on destructed GDSScene
+        return;
+    }
+    else if (mState == State::Inn)
+    {
+        if (mGameState.GetEndOfDialogState() != -1)
         {
-            mGuiManager.ExitGDSScene();
-            return;
+            StartDialog(BAK::DialogSources::mInnDialog, false);
         }
-    }
-    else if (mPendingGoto)
-    {
-        mGuiManager.DoFade(.8, [this, pendingGoto=*mPendingGoto]{
-            mGuiManager.EnterGDSScene(pendingGoto, []{});
-        });
-        mPendingGoto.reset();
-    }
-    else if (mPendingInn)
-    {
-        StartDialog(BAK::DialogSources::mInnDialog, false);
         mPendingInn.reset();
     }
-    else if (mPendingContainer)
+    else if (mState == State::Repair)
     {
-        mPendingContainer = false;
-        EnterContainer();
-    }
-    else if (mPendingRepair)
-    {
-        mPendingRepair = false;
         if (choice && choice->mValue == BAK::Keywords::sYesIndex)
         {
             auto* container = mGameState.GetContainerForGDSScene(mReference);
             mRepair.EnterRepair(container->GetShop());
         }
     }
-    else if (mKickedOut)
+    else if (mState == State::Teleport)
     {
-        mKickedOut = false;
-        mGuiManager.ExitGDSScene();
-        // Return immediately or the following 
-        // actions will take place on destructed GDSScene
-        return;
-    }
-    else if (mPendingTeleport)
-    {
-        mPendingTeleport = false;
-        
         if (mGameState.GetMoreThanOneTempleSeen())
         {
             mGuiManager.ShowTeleport(mSceneHotspots.mTempleIndex);
@@ -383,6 +360,31 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
             StartDialog(BAK::DialogSources::mTeleportDialogNoDestinations, false);
         }
     }
+    else if (mState == State::Container)
+    {
+        EnterContainer();
+    }
+    else if (mState == State::Goto)
+    {
+        if (mGameState.GetEndOfDialogState() != -1)
+        {
+            mGuiManager.DoFade(.8, [this, pendingGoto=*mPendingGoto]{
+                mGuiManager.EnterGDSScene(pendingGoto, []{});
+            });
+        }
+        mPendingGoto.reset();
+    }
+    else if (mState == State::Dialog)
+    {
+        if (mGameState.GetEndOfDialogState() == -4)
+        {
+            mGuiManager.ExitGDSScene();
+            mState = State::Idle;
+            return;
+        }
+    }
+
+    mState = State::Idle;
 
     mLogger.Debug() << "Dialog finished with choice: " << choice << " , back to flavour text\n";
 
@@ -420,7 +422,7 @@ void GDSScene::DoBard()
         const auto status = BAK::Bard::ClassifyBardAttempt(
             skill, shopStats.mBardingSkill);
 
-        mPendingBard = true;
+        mState = State::Bard;
         switch (status)
         {
             case BAK::Bard::BardStatus::Failed:

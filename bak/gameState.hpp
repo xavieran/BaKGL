@@ -463,6 +463,11 @@ public:
         {
             return true;
         }
+        else if (choice.mState == BAK::ActiveStateFlag::GameTime
+            && 1 == choice.mExpectedValue)//GetTime() == choice.mExpectedValue)
+        {
+            return true;
+        }
         else if (choice.mState == BAK::ActiveStateFlag::Shop
             && GetShopType() == choice.mExpectedValue)
         {

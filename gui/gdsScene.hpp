@@ -41,6 +41,18 @@ public:
     auto GetSong() const { return mSong; }
 
 public:
+    enum class State
+    {
+        Idle,
+        Inn,
+        Repair,
+        Container,
+        Goto,
+        Bard,
+        Teleport,
+        Dialog
+    };
+
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot);
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot);
 
@@ -69,15 +81,11 @@ public:
     IGuiManager& mGuiManager;
     DialogDisplay mDialogDisplay;
 
+    State mState;
     std::optional<BAK::Hotspot> mPendingInn;
-    bool mPendingRepair;
-    bool mPendingContainer;
     std::optional<BAK::HotspotRef> mPendingGoto;
-    bool mPendingBard;
     // e.g. when you fail barding
     bool mKickedOut;
-    bool mPendingTeleport;
-    bool mPendingDialog;
     
     Temple mTemple;
     Repair mRepair;
