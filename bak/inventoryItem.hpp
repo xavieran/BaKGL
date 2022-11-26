@@ -142,12 +142,12 @@ public:
 
     void SetModifier(Modifier mod)
     {
-        mModifiers = SetBit(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(mod), true);
+        mModifiers = SetBit(mModifiers, static_cast<std::uint8_t>(mod), true);
     }
 
     void UnsetModifier(Modifier mod)
     {
-        mModifiers = SetBit(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(mod), false);
+        mModifiers = SetBit(mModifiers, static_cast<std::uint8_t>(mod), false);
     }
 
     std::vector<Modifier> GetModifiers() const
