@@ -526,9 +526,10 @@ void InventoryScreen::HaggleItem(
     ASSERT(mContainer);
 
     mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
-    auto item = slot.GetItem();
+    const auto item = slot.GetItem();
     if (item.GetItemIndex() == BAK::sScroll)
     {
+        mDialogScene.ResetDialogFinished();
         StartDialog(BAK::DialogSources::mCantHaggleScroll);
         return;
     }
@@ -553,7 +554,6 @@ void InventoryScreen::HaggleItem(
 
     if (result && value == BAK::sUnpurchaseablePrice)
     {
-        mLogger.Debug() << " Item unavailable!\n";
         mDialogScene.ResetDialogFinished();
         StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
         mNeedRefresh = true;
