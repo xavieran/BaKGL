@@ -82,7 +82,8 @@ InventoryScreen::InventoryScreen(
         mIcons,
         mFont,
         [this](const auto& item){
-            ShowItemDescription(item);
+            //ShowItemDescription(item);
+            ShowDesc(item);
         }
     },
     mShopScreen{
@@ -91,8 +92,15 @@ InventoryScreen::InventoryScreen(
         mIcons,
         mFont,
         [this](const auto& item){
-            ShowItemDescription(item);
+            ShowDesc(item);
+            //ShowItemDescription(item);
         }
+    },
+    mDetails{
+        glm::vec2{},
+        glm::vec2{},
+        mIcons,
+        mFont
     },
     mWeapon{
         [this](auto& item){
@@ -778,8 +786,33 @@ void InventoryScreen::AdvanceNextPage()
     }
 }
 
+void InventoryScreen::ShowDesc(const BAK::InventoryItem& item)
+{
+    //unsigned context = 0;
+    //auto dialog = BAK::KeyTarget{0};
+    //// FIXME: Probably want to put this logic elsewhere...
+    //if (item.GetObject().mType == BAK::ItemType::Scroll)
+    //{
+    //    context = item.GetCondition();
+    //    dialog = BAK::DialogSources::GetScrollDescription();
+    //}
+    //else
+    //{
+    //    context = item.mItemIndex.mValue;
+    //    dialog = BAK::DialogSources::GetItemDescription();
+    //}
+
+    //mGameState.SetDialogContext(context);
+    //StartDialog(dialog);
+    mDetails.AddItem(item);
+    AddChildBack(&mDetails);
+}
+
 void InventoryScreen::ShowItemDescription(const BAK::InventoryItem& item)
 {
+    mDetails.AddItem(item);
+    AddChildBack(&mDetails);
+    return;
     unsigned context = 0;
     auto dialog = BAK::KeyTarget{0};
     // FIXME: Probably want to put this logic elsewhere...

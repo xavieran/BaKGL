@@ -10,6 +10,7 @@
 #include "bak/textureFactory.hpp"
 
 #include "gui/inventory/containerDisplay.hpp"
+#include "gui/inventory/details.hpp"
 #include "gui/inventory/equipmentSlot.hpp"
 #include "gui/inventory/inventorySlot.hpp"
 #include "gui/inventory/itemArranger.hpp"
@@ -162,6 +163,7 @@ private:
     
     void AdvanceNextPage();
     
+    void ShowDesc(const BAK::InventoryItem& item);
     void ShowItemDescription(const BAK::InventoryItem& item);
 
     void HighlightValidDrops(const InventorySlot& slot);
@@ -208,6 +210,7 @@ private:
 
     using ItemEndpointEquipmentSlot = ItemEndpoint<EquipmentSlot>;
 
+    Details mDetails;
     ItemEndpointEquipmentSlot mWeapon;
     ItemEndpointEquipmentSlot mCrossbow;
     ItemEndpointEquipmentSlot mArmor;

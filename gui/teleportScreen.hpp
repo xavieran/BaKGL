@@ -191,7 +191,7 @@ public:
                 mTeleportDests.at(i).SetUnselected();
             }
 
-            mTeleportDests.at(i).SetCanReach(mGameState.GetTempleSeen(i + 1));
+            mTeleportDests.at(i).SetCanReach(true);//mGameState.GetTempleSeen(i + 1));
         }
 
         AddChildren();
