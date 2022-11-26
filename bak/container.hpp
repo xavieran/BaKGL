@@ -4,6 +4,7 @@
 
 #include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
+#include "bak/shop.hpp"
 #include "bak/hotspotRef.hpp"
 #include "bak/inventory.hpp"
 #include "bak/types.hpp"
@@ -159,7 +160,7 @@ public:
 
     bool HasShop() const { return bool{mShop}; }
     ShopStats& GetShop() override { ASSERT(mShop); return *mShop; }
-    const ShopStats& GetShop() const { ASSERT(mShop); return *mShop; }
+    const ShopStats& GetShop() const override { ASSERT(mShop); return *mShop; }
 
     bool HasEncounter() const { return bool{mEncounter}; }
     ContainerEncounter& GetEncounter() { ASSERT(mEncounter); return *mEncounter; }

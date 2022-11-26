@@ -26,6 +26,8 @@ public:
     GameState(
         GameData* gameData)
     :
+        mDialogCharacter{},
+        mActiveCharacter{CharIndex{0}},
         mGameData{gameData},
         mParty{
             Royals{1000},
@@ -108,12 +110,14 @@ public:
 
     void SetActiveCharacter(ActiveCharIndex character)
     {
+        mActiveCharacter = GetParty().GetCharacter(character).mCharacterIndex;
         mTextVariableStore.SetActiveCharacter(
             GetParty().GetCharacter(character).mName);
     }
 
     void SetActiveCharacter(CharIndex character)
     {
+        mActiveCharacter = character;
         mTextVariableStore.SetActiveCharacter(
             GetParty().GetCharacter(character).mName);
     }
@@ -306,6 +310,12 @@ public:
                 {
                     const auto character = GetRandomNumber(1, GetParty().GetNumCharacters() - 1);
                     mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{character}).GetName());
+                }
+                else if (set.mWhat == 0xb)
+                {
+                    mTextVariableStore.SetTextVariable(
+                        set.mWhich,
+                        GetParty().GetCharacter(mActiveCharacter).GetName());
                 }
                 else if (set.mWhat == 0x11)
                 {
@@ -721,6 +731,7 @@ public:
     }
 
     std::optional<CharIndex> mDialogCharacter;
+    CharIndex mActiveCharacter;
 
     GameData* mGameData;
     Party mParty;

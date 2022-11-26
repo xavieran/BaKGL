@@ -2,11 +2,12 @@
 
 #include "bak/inventory.hpp"
 #include "bak/lock.hpp"
-#include "bak/shop.hpp"
 
 #include <string_view>
 
 namespace BAK {
+
+struct ShopStats;
 
 enum class ContainerType
 {
@@ -39,6 +40,7 @@ public:
     virtual bool RemoveItem(const InventoryItem&) = 0;
     virtual ContainerType GetContainerType() const = 0;
     virtual ShopStats& GetShop() = 0;
+    virtual const ShopStats& GetShop() const = 0;
     virtual LockStats& GetLock() = 0;
     bool IsShop() const;
     bool HasLock() const;

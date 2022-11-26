@@ -7,6 +7,8 @@ namespace BAK {
 using Sovereigns = StrongType<unsigned, struct SovereignsTag>;
 using Royals = StrongType<unsigned, struct RoyalsTag>;
 
+static constexpr Royals sUnpurchaseablePrice{0xffffffff};
+
 Sovereigns GetSovereigns(Royals);
 Royals GetRoyals(Sovereigns sovereigns);
 Royals GetRemainingRoyals(Royals);

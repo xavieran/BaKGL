@@ -108,6 +108,12 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             mChoices.emplace_back(state, choice0, choice1, target);
     }
 
+    if (dialogFile == 18 && offset == 0x1665f)
+    {
+        // Manually add "Haggle" choice here
+        mChoices.emplace_back(0x106, 0x1, 0xffff, KeyTarget{0});
+        mChoices.emplace_back(0x105, 0x1, 0xffff, KeyTarget{0});
+    }
 
     for (i = 0; i < actions; i++)
     {

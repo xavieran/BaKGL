@@ -137,6 +137,7 @@ public:
     }
 
     ShopStats& GetShop() override { ASSERT(false); return *reinterpret_cast<ShopStats*>(this);}
+    const ShopStats& GetShop() const override { ASSERT(false); return *reinterpret_cast<const ShopStats*>(this);}
     LockStats& GetLock() override { ASSERT(false); return *reinterpret_cast<LockStats*>(this); }
     /* Character Getters */
 

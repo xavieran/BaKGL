@@ -1,10 +1,12 @@
 #include "bak/shop.hpp"
 
 #include "bak/objectInfo.hpp"
+#include "bak/IContainer.hpp"
 #include "bak/itemNumbers.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace BAK {
@@ -15,8 +17,8 @@ std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
         << " sellFactor/fixedBlsCost: " << +shop.mSellFactor
         << " maxDiscount/blessPcnt: " << +shop.mMaxDiscount
         << " buyFactor/blessType: " << +shop.mBuyFactor
-        << " haggle1: " << std::hex << +shop.mHaggle1 << std::dec
-        << " haggle2: " << std::hex << +shop.mHaggle2 << std::dec
+        << " haggleDifficulty: " << std::hex << +shop.mHaggleDifficulty << std::dec
+        << " haggleAnnoyanceFactor: " << std::hex << +shop.mHaggleAnnoyanceFactor << std::dec
         << " bardingSkill: " << +shop.mBardingSkill
         << " bardingReward: " << +shop.mBardingReward
         << " bardingMaxReward: " << +shop.mBardingMaxReward
@@ -51,7 +53,7 @@ Modifier ShopStats::GetTempleBlessType() const
 
 std::uint8_t ShopStats::GetTempleHealFactor() const
 {
-    return mHaggle1;
+    return mHaggleDifficulty;
 }
 
 ShopStats LoadShop(FileBuffer& fb)
@@ -91,15 +93,17 @@ ShopStats LoadShop(FileBuffer& fb)
 
 namespace BAK::Shop {
 
-Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats)
+Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats, Royals discount)
 {
     // FIXME: Add blessing value change
     // Add Scroll exception
     // Add Armor exception
     const auto sellFactor = static_cast<double>(100 + stats.mSellFactor) / 100.0;
     const auto baseValue = static_cast<double>(item.GetObject().mValue);
-    const auto itemQuantity = GetItemQuantityMultiple(item);
-    const auto value = sellFactor * baseValue * itemQuantity;
+    const auto shopBasicValue = std::clamp(
+        sellFactor * baseValue - discount.mValue,
+        1.0, sellFactor * baseValue);
+    const auto value = shopBasicValue * GetItemQuantityMultiple(item);
     const auto money = Royals{static_cast<unsigned>(std::round(value))};
     return money;
 }
@@ -107,7 +111,7 @@ Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats)
 Royals GetBuyPrice (const BAK::InventoryItem& item, const ShopStats& stats)
 {
     const auto buyFactor = static_cast<double>(stats.mBuyFactor) / 100.0;
-    const auto sellPrice = static_cast<double>(GetSellPrice(item, stats).mValue);
+    const auto sellPrice = static_cast<double>(GetSellPrice(item, stats, Royals{0}).mValue);
     const auto price = Royals{static_cast<unsigned>(std::round(buyFactor * sellPrice))};
     return price;
 }
@@ -171,5 +175,10 @@ double GetItemQuantityMultiple(const BAK::InventoryItem& item)
     }
 }
 
+bool CanBuyItem(const BAK::InventoryItem& item, const BAK::IContainer& shop)
+{
+    return shop.GetInventory().HaveItem(item) ||
+        (item.GetObject().mCategories & shop.GetShop().mCategories) != 0x0000;
+}
 
 }

@@ -2,6 +2,7 @@
 
 #include "bak/money.hpp"
 #include "bak/objectInfo.hpp"
+#include "bak/IContainer.hpp"
 #include "bak/inventoryItem.hpp"
 
 #include "xbak/FileBuffer.h"
@@ -14,8 +15,8 @@ struct ShopStats
     std::uint8_t mSellFactor;
     std::uint8_t mMaxDiscount;
     std::uint8_t mBuyFactor;
-    std::uint8_t mHaggle1;
-    std::uint8_t mHaggle2;
+    std::uint8_t mHaggleDifficulty;
+    std::uint8_t mHaggleAnnoyanceFactor;
     std::uint8_t mBardingSkill;
     std::uint8_t mBardingReward;
     std::uint8_t mBardingMaxReward;
@@ -39,12 +40,12 @@ ShopStats LoadShop(FileBuffer& fb);
 
 namespace BAK::Shop {
 
-Royals GetSellPrice(const InventoryItem&, const ShopStats&);
+bool CanBuyItem(const BAK::InventoryItem& item, const BAK::IContainer& shop);
+Royals GetSellPrice(const InventoryItem&, const ShopStats&, Royals discount);
 Royals GetBuyPrice (const InventoryItem&, const ShopStats&);
 bool CanRepair(const InventoryItem&, const ShopStats&);
 Royals CalculateRepairCost(const InventoryItem&, const ShopStats&);
 void RepairItem(InventoryItem& item);
 
 double GetItemQuantityMultiple(const InventoryItem&);
-
 }
