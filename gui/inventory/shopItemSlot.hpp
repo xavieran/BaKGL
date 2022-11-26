@@ -78,8 +78,6 @@ public:
 
         ss << "\n" << ToShopString(
             mAvailable ? mSellPrice : BAK::sUnpurchaseablePrice);
-        Logging::LogDebug("ShopItemSlot") << "Updating desc for : " << item << 
-            "avail: " << GetAvailable() << " String: " << ss.str() << "\n";
 
         // First calculate text dims, trim the textbox to that size,
         // then add the text again, centered

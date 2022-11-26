@@ -560,7 +560,6 @@ void InventoryScreen::HaggleItem(
     }
     else
     {
-
         StartDialog(BAK::DialogSources::mSucceedHaggle);
         mDialogScene.SetDialogFinished(
             [this, &slot, character](const auto& choice)
