@@ -413,9 +413,7 @@ void InventoryScreen::BuyItem(
 
     auto item = slot.GetItem();
     item.SetQuantity(amount);
-    const auto price = mShopScreen.GetSellPrice(
-        slot.GetItemIndex(),
-        amount);
+    const auto price = mShopScreen.GetSellPrice(slot.GetItemIndex(), amount);
     if (mGameState.GetParty().GetGold().mValue >= price.mValue)
     {
         ASSERT(GetCharacter(character).CanAddItem(item));
@@ -486,6 +484,15 @@ void InventoryScreen::TransferItemFromShopToCharacter(
     unsigned amount)
 {
     ASSERT(mContainer);
+    const auto itemIndex = slot.GetItem().GetItemIndex();
+    if ((itemIndex == BAK::sBrandy || itemIndex == BAK::sAle)
+        && mGameState.GetParty().GetCharacter(character)
+            .GetConditions().GetCondition(BAK::Condition::Drunk).Get() >= 100)
+    {
+        StartDialog(BAK::DialogSources::mCantBuyTooDrunk);
+        return;
+    }
+
     if (GetCharacter(character).CanAddItem(slot.GetItem()))
     {
         const auto sellPrice = mShopScreen.GetSellPrice(slot.GetItemIndex(), amount);

@@ -84,6 +84,7 @@ public:
     static constexpr auto mCantAffordItem            = KeyTarget{0x1b7758};
     static constexpr auto mShopWontBuyItem           = KeyTarget{0x1b7759};
     static constexpr auto mCantHaggleScroll          = KeyTarget{0x1b775f};
+    static constexpr auto mCantBuyTooDrunk           = KeyTarget{0x1b775c};
     static constexpr auto mEmptyPopup                = KeyTarget{0x1b7768};
     static constexpr auto mScrollDescriptions        = KeyTarget{0x1b7761};
     static constexpr auto mRepairShopCost            = KeyTarget{0x1b7763};
