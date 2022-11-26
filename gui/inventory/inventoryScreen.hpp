@@ -121,6 +121,10 @@ private:
         bool share,
         unsigned amount);
 
+    void HaggleItem(
+        InventorySlot& slot,
+        BAK::ActiveCharIndex character);
+
     void TransferItemToShop(
         InventorySlot& slot,
         BAK::ActiveCharIndex character);

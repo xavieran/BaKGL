@@ -68,7 +68,6 @@ public:
     static constexpr auto mCantDiscardOnlyWeapon = KeyTarget{0x1b774e};
     static constexpr auto mCantDropFlamingTorch  = 0x1b775d;
     static constexpr auto mCantRepairItem        = 0x1b775e;
-    static constexpr auto mCantHaggleScroll      = 0x1b775f;
     static constexpr auto mCantConsumeMorePoition = 0x1b7760;
     static constexpr auto mLitTorchInNapthaCaverns = 0x1b776e;
     static constexpr auto mInventoryInterfaceTooltips = 0x1b775a;
@@ -84,6 +83,8 @@ public:
     static constexpr auto mBuyItemDialog             = KeyTarget{0x1b7757};
     static constexpr auto mCantAffordItem            = KeyTarget{0x1b7758};
     static constexpr auto mShopWontBuyItem           = KeyTarget{0x1b7759};
+    static constexpr auto mCantHaggleScroll          = KeyTarget{0x1b775f};
+    static constexpr auto mCantBuyTooDrunk           = KeyTarget{0x1b775c};
     static constexpr auto mEmptyPopup                = KeyTarget{0x1b7768};
     static constexpr auto mScrollDescriptions        = KeyTarget{0x1b7761};
     static constexpr auto mRepairShopCost            = KeyTarget{0x1b7763};

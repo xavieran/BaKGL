@@ -34,6 +34,7 @@ public:
         BAK::InventoryIndex itemIndex,
         const BAK::InventoryItem& item,
         BAK::Royals sellPrice,
+        bool available,
         std::function<void()>&& showItemDescription)
     :
         InventorySlot{
@@ -45,6 +46,7 @@ public:
             item,
             std::move(showItemDescription)
         },
+        mAvailable{available},
         mSellPrice{sellPrice},
         mDescription{
             glm::vec2{0, 0},
@@ -54,6 +56,11 @@ public:
         ClearChildren();
         UpdateDescription(font, item);
         AddChildren();
+    }
+
+    bool GetAvailable() const
+    {
+        return mAvailable;
     }
 
     void UpdateDescription(
@@ -69,7 +76,8 @@ public:
         else if (item.IsConditionBased())
             ss << " ("  << +item.mCondition << "%)";
 
-        ss << "\n#" << ToShopString(mSellPrice);
+        ss << "\n" << ToShopString(
+            mAvailable ? mSellPrice : BAK::sUnpurchaseablePrice);
 
         // First calculate text dims, trim the textbox to that size,
         // then add the text again, centered
@@ -94,6 +102,7 @@ private:
         AddChildBack(&mDescription);
     }
     
+    bool mAvailable;
     BAK::Royals mSellPrice;
     TextBox mDescription;
 };

@@ -31,10 +31,15 @@ std::string ToString(Royals money)
 
 std::string ToShopString(Royals money)
 {
+    if (money == sUnpurchaseablePrice)
+    {
+        return "Unavailable";
+    }
+
     const auto sovereigns = BAK::GetSovereigns(money);
     const auto royals = BAK::GetRemainingRoyals(money);
     std::stringstream ss{};
-    ss << "#" ;
+    ss << "" ;
     if (sovereigns.mValue != 0) ss << sovereigns << " gold";
     if (royals.mValue != 0) ss << " " << royals << " silver";
     return ss.str();

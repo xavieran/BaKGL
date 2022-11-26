@@ -44,7 +44,7 @@ public:
 
     void SetDialogFinished(std::function<void(const std::optional<BAK::ChoiceIndex>&)>&& fn)
     {
-        mDialogFinished = fn;
+        mDialogFinished = std::move(fn);
     }
 
     void ResetDialogFinished()

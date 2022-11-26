@@ -18,6 +18,7 @@ add_library(bak
     font.hpp font.cpp
     gameData.hpp gameData.cpp
     gameState.hpp
+    haggle.hpp haggle.cpp
     hotspot.hpp hotspot.cpp
     hotspotRef.hpp hotspotRef.cpp
     inventory.hpp inventory.cpp

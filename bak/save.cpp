@@ -54,8 +54,8 @@ void Save(const GenericContainer& gc, FileBuffer& fb)
         fb.PutUint8(shop.mSellFactor);
         fb.PutUint8(shop.mMaxDiscount);
         fb.PutUint8(shop.mBuyFactor);
-        fb.PutUint8(shop.mHaggle1);
-        fb.PutUint8(shop.mHaggle2);
+        fb.PutUint8(shop.mHaggleDifficulty);
+        fb.PutUint8(shop.mHaggleAnnoyanceFactor);
         fb.PutUint8(shop.mBardingSkill);
         fb.PutUint8(shop.mBardingReward);
         fb.PutUint8(shop.mBardingMaxReward);

@@ -1,5 +1,8 @@
 #include "gui/inventory/inventoryScreen.hpp"
 
+#include "bak/haggle.hpp"
+#include "bak/itemNumbers.hpp"
+
 namespace Gui {
 
 InventoryScreen::InventoryScreen(
@@ -410,9 +413,7 @@ void InventoryScreen::BuyItem(
 
     auto item = slot.GetItem();
     item.SetQuantity(amount);
-    const auto price = mShopScreen.GetSellPrice(
-        slot.GetItemIndex(),
-        amount);
+    const auto price = mShopScreen.GetSellPrice(slot.GetItemIndex(), amount);
     if (mGameState.GetParty().GetGold().mValue >= price.mValue)
     {
         ASSERT(GetCharacter(character).CanAddItem(item));
@@ -483,29 +484,97 @@ void InventoryScreen::TransferItemFromShopToCharacter(
     unsigned amount)
 {
     ASSERT(mContainer);
+    const auto itemIndex = slot.GetItem().GetItemIndex();
+    if ((itemIndex == BAK::sBrandy || itemIndex == BAK::sAle)
+        && mGameState.GetParty().GetCharacter(character)
+            .GetConditions().GetCondition(BAK::Condition::Drunk).Get() >= 100)
+    {
+        StartDialog(BAK::DialogSources::mCantBuyTooDrunk);
+        return;
+    }
+
     if (GetCharacter(character).CanAddItem(slot.GetItem()))
     {
-        mGameState.SetItemValue(
-            mShopScreen.GetSellPrice(slot.GetItemIndex(),
-            amount));
+        const auto sellPrice = mShopScreen.GetSellPrice(slot.GetItemIndex(), amount);
+        if (sellPrice == BAK::sUnpurchaseablePrice)
+        {
+            return;
+        }
+
+        mGameState.SetItemValue(sellPrice);
         StartDialog(BAK::DialogSources::mBuyItemDialog);
 
         mDialogScene.SetDialogFinished(
             [this, &slot, character, share, amount](const auto& choice)
             {
                 ASSERT(choice);
-                // FIXME: Add haggling...
                 if (choice->mValue == 0x104)
                 {
                     BuyItem(slot, character, share, amount);
+                    mDialogScene.ResetDialogFinished();
                 }
-                mDialogScene.ResetDialogFinished();
+                else if (choice->mValue == 0x106)
+                {
+                    HaggleItem(slot, character);
+                }
             });
     }
     else
     {
         mGameState.SetDialogContext(0xb);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
+    }
+}
+
+void InventoryScreen::HaggleItem(
+    InventorySlot& slot,
+    BAK::ActiveCharIndex character)
+{
+    ASSERT(mContainer);
+
+    mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
+    const auto item = slot.GetItem();
+    if (item.GetItemIndex() == BAK::sScroll)
+    {
+        mDialogScene.ResetDialogFinished();
+        StartDialog(BAK::DialogSources::mCantHaggleScroll);
+        return;
+    }
+
+    const auto result = BAK::Haggle::TryHaggle(
+        mGameState.GetParty(),
+        character,
+        mContainer->GetShop(),
+        item.GetItemIndex(),
+        mShopScreen.GetDiscount(slot.GetItemIndex()).mValue);
+
+    if (!result)
+    {
+        mDialogScene.ResetDialogFinished();
+        StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
+        mNeedRefresh = true;
+        return;
+    }
+
+    const auto value = BAK::Royals{*result};
+    mShopScreen.SetItemDiscount(slot.GetItemIndex(), value);
+
+    if (result && value == BAK::sUnpurchaseablePrice)
+    {
+        mDialogScene.ResetDialogFinished();
+        StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
+        mNeedRefresh = true;
+    }
+    else
+    {
+        StartDialog(BAK::DialogSources::mSucceedHaggle);
+        mDialogScene.SetDialogFinished(
+            [this, &slot, character](const auto& choice)
+            {
+                SplitStackBeforeTransferItemToCharacter(slot, character);
+            });
+        // So that the slot reference above is not invalid
+        mNeedRefresh = false;
     }
 }
 
@@ -529,11 +598,14 @@ void InventoryScreen::TransferItemToCharacter(
     {
         if (mContainer->IsShop())
         {
-            TransferItemFromShopToCharacter(
-                slot,
-                character,
-                share,
-                amount);
+            if (dynamic_cast<ShopItemSlot&>(slot).GetAvailable())
+            {
+                TransferItemFromShopToCharacter(
+                    slot,
+                    character,
+                    share,
+                    amount);
+            }
         }
         else
         {
@@ -738,8 +810,11 @@ void InventoryScreen::HighlightValidDrops(const InventorySlot& slot)
                     || item.IsItemType(BAK::ItemType::Staff));
             const auto giveable = GetCharacter(person)
                 .CanAddItem(slot.GetItem());
-            if ((mustSwap && (GetCharacter(person).CanSwapItem(item)))
-                || (giveable && !mustSwap))
+            const auto isAvailableShopItem = !mContainer->IsShop() || (mContainer->IsShop()
+                && dynamic_cast<const ShopItemSlot&>(slot).GetAvailable());
+            if (isAvailableShopItem 
+                && ((mustSwap && (GetCharacter(person).CanSwapItem(item)))
+                || (giveable && !mustSwap)))
             {
                 mCharacters[person.mValue].SetColor(glm::vec4{.0, .05, .0, 1}); 
                 mCharacters[person.mValue].SetColorMode(Graphics::ColorMode::TintColor);
