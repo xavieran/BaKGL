@@ -56,6 +56,7 @@ public:
         mIcons{icons},
         mShopPage{0},
         mInventoryItems{},
+        mDiscount{},
         mContainer{nullptr},
         mShowDescription{std::move(showDescription)},
         mLogger{Logging::LogState::GetLogger("Gui::ShopDisplay")}
@@ -98,10 +99,9 @@ public:
         unsigned amount)
     {
         ASSERT(mContainer);
-        ASSERT(itemIndex.mValue < mDiscount.size());
         auto item = mContainer->GetInventory().GetAtIndex(itemIndex);
         item.mCondition = amount;
-        return BAK::Shop::GetSellPrice(item, mContainer->GetShop(), mDiscount[itemIndex.mValue]);
+        return BAK::Shop::GetSellPrice(item, mContainer->GetShop(), mDiscount[item.GetItemIndex()]);
     }
 
     BAK::Royals GetBuyPrice(const BAK::InventoryItem& item) const
@@ -119,14 +119,16 @@ public:
     void SetItemDiscount(BAK::InventoryIndex itemIndex, BAK::Royals discount)
     {
         mLogger.Debug() << " Setting discount to: " << discount << "\n";
-        ASSERT(itemIndex.mValue < mDiscount.size());
-        mDiscount[itemIndex.mValue] = discount;
+        ASSERT(mContainer);
+        const auto& item = mContainer->GetInventory().GetAtIndex(itemIndex);
+        mDiscount[item.GetItemIndex()] = discount;
     }
 
     BAK::Royals GetDiscount(BAK::InventoryIndex itemIndex)
     {
-        ASSERT(itemIndex.mValue < mDiscount.size());
-        return mDiscount[itemIndex.mValue];
+        ASSERT(mContainer);
+        const auto& item = mContainer->GetInventory().GetAtIndex(itemIndex);
+        return mDiscount[item.GetItemIndex()];
     }
 
 private:
@@ -140,8 +142,6 @@ private:
     {
         mDiscount.clear();
         const auto& inventory = mContainer->GetInventory();
-        const auto numItems = inventory.GetItems().size();
-        mDiscount = decltype(mDiscount)(numItems);
     }
 
     void UpdateInventoryContents()
@@ -189,8 +189,7 @@ private:
                 true,
                 [&](auto invIndex, const auto& item, const auto itemPos, const auto dims)
                 {
-                    ASSERT(invIndex.mValue < mDiscount.size());
-                    const auto discount = mDiscount[invIndex.mValue];
+                    const auto discount = mDiscount[item.GetItemIndex()];
                     mInventoryItems.emplace_back(
                         itemPos,
                         dims,
@@ -219,7 +218,7 @@ private:
 
     unsigned mShopPage;
     std::vector<DraggableShopItem> mInventoryItems;
-    std::vector<BAK::Royals> mDiscount;
+    std::unordered_map<BAK::ItemIndex, BAK::Royals> mDiscount;
 
     BAK::IContainer* mContainer;
 

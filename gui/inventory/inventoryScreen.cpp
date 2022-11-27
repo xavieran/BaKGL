@@ -598,7 +598,9 @@ void InventoryScreen::TransferItemToCharacter(
     {
         if (mContainer->IsShop())
         {
-            if (dynamic_cast<ShopItemSlot&>(slot).GetAvailable())
+            const auto* shopItem = dynamic_cast<const ShopItemSlot*>(&slot);
+            ASSERT(shopItem);
+            if (shopItem->GetAvailable())
             {
                 TransferItemFromShopToCharacter(
                     slot,
@@ -810,8 +812,14 @@ void InventoryScreen::HighlightValidDrops(const InventorySlot& slot)
                     || item.IsItemType(BAK::ItemType::Staff));
             const auto giveable = GetCharacter(person)
                 .CanAddItem(slot.GetItem());
-            const auto isAvailableShopItem = !mContainer->IsShop() || (mContainer->IsShop()
-                && dynamic_cast<const ShopItemSlot&>(slot).GetAvailable());
+            const auto* shopItem = dynamic_cast<const ShopItemSlot*>(&slot);
+            if (mContainer->IsShop() && mDisplayContainer)
+            {
+                ASSERT(shopItem);
+            }
+            const auto isAvailableShopItem = (!mDisplayContainer || !mContainer->IsShop()) || (mContainer->IsShop()
+                && mDisplayContainer
+                && shopItem->GetAvailable());
             if (isAvailableShopItem 
                 && ((mustSwap && (GetCharacter(person).CanSwapItem(item)))
                 || (giveable && !mustSwap)))
