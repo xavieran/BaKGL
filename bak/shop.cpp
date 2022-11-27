@@ -112,8 +112,12 @@ Royals GetBuyPrice (const BAK::InventoryItem& item, const ShopStats& stats)
 {
     const auto buyFactor = static_cast<double>(stats.mBuyFactor) / 100.0;
     const auto sellPrice = static_cast<double>(GetSellPrice(item, stats, Royals{0}).mValue);
-    const auto price = Royals{static_cast<unsigned>(std::round(buyFactor * sellPrice))};
-    return price;
+    auto buyPrice = static_cast<unsigned>(std::round(buyFactor * sellPrice));
+    if (item.IsItemType(BAK::ItemType::Armor))
+    {
+        buyPrice >>= 1;
+    }
+    return Royals{buyPrice};
 }
 
 bool CanRepair(const InventoryItem& item, const ShopStats& stats)
