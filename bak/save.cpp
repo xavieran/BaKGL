@@ -13,10 +13,10 @@ void Save(const Inventory& inv, FileBuffer& fb)
     for (; i < itemCount; i++)
     {
         const auto& item = inv.GetAtIndex(InventoryIndex{i});
-        fb.PutUint8(item.mItemIndex.mValue);
+        fb.PutUint8(item.GetItemIndex().mValue);
         fb.PutUint8(item.GetCondition());
-        fb.PutUint8(item.mStatus);
-        fb.PutUint8(item.mModifiers);
+        fb.PutUint8(item.GetStatus());
+        fb.PutUint8(item.GetModifierMask());
     }
 
     for (; i < capacity; i++)

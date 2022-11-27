@@ -159,7 +159,7 @@ public:
         if (item.DisplayNumber())
         {
             std::stringstream ss{};
-            ss << "#" << +item.mCondition << 
+            ss << "#" << +item.GetCondition() << 
                 (item.DisplayCondition()  ? "%" : "");
             const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
             const auto& dims = GetPositionInfo().mDimensions;

@@ -125,11 +125,11 @@ void ShowContainerGui(
         ImGui::TableNextColumn();
         ss.str(""); ss << item.GetObject().mName; ImGui::Text(ss.str().c_str());
         ImGui::TableNextColumn();
-        ss.str(""); ss << +item.mCondition; ImGui::Text(ss.str().c_str());
+        ss.str(""); ss << +item.GetCondition(); ImGui::Text(ss.str().c_str());
         ImGui::TableNextColumn();
-        ss.str(""); ss << +item.mStatus; ImGui::Text(ss.str().c_str());
+        ss.str(""); ss << +item.GetStatus(); ImGui::Text(ss.str().c_str());
         ImGui::TableNextRow();
-        ss.str(""); ss << +item.mModifiers; ImGui::Text(ss.str().c_str());
+        ss.str(""); ss << +item.GetModifierMask(); ImGui::Text(ss.str().c_str());
         ImGui::TableNextRow();
     }
     ImGui::EndTable();

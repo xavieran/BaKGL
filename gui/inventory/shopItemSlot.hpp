@@ -72,9 +72,9 @@ public:
         std::stringstream ss{};
         ss << "#" << item.GetObject().mName;
         if (item.IsStackable() || item.IsChargeBased() || item.IsQuantityBased())
-            ss << " ("  << +item.mCondition << ")";
+            ss << " ("  << +item.GetQuantity() << ")";
         else if (item.IsConditionBased())
-            ss << " ("  << +item.mCondition << "%)";
+            ss << " ("  << +item.GetCondition() << "%)";
 
         ss << "\n" << ToShopString(
             mAvailable ? mSellPrice : BAK::sUnpurchaseablePrice);

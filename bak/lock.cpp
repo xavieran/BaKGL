@@ -78,13 +78,13 @@ bool TryOpenLockWithKey(const BAK::InventoryItem& item, unsigned lockRating)
 {
     const auto lockIndex = GetLockIndex(lockRating);
     return lockIndex 
-        && (GetCorrespondingKey(*lockIndex) == item.mItemIndex);
+        && (GetCorrespondingKey(*lockIndex) == item.GetItemIndex());
 }
 
 bool WouldKeyBreak(const InventoryItem& item, unsigned lockRating)
 {
     // Special keys should never break
-    return !TryOpenLockWithKey(item, lockRating) && GetKeyRating(item.mItemIndex) <= 100;
+    return !TryOpenLockWithKey(item, lockRating) && GetKeyRating(item.GetItemIndex()) <= 100;
 }
 
 unsigned DescribeLock(unsigned picklockSkill, unsigned lockRating)
@@ -110,7 +110,7 @@ unsigned GetRandomMod100()
 bool KeyBroken(const InventoryItem& item, unsigned skill, unsigned lockRating)
 {
     // Returns e.g. 0x32 for peasants key...
-    const auto keyRating = GetKeyRating(item.mItemIndex);
+    const auto keyRating = GetKeyRating(item.GetItemIndex());
     // from the disassembly... looks reasonable
     const auto diff = 100 - keyRating;
     const auto skillDiv3 = skill / 3;

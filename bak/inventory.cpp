@@ -25,8 +25,8 @@ bool Inventory::HasIncompleteStack(const InventoryItem& item) const
         mItems.begin(), mItems.end(),
         [&item](const auto& elem){
             const auto stackSize = elem.GetObject().mStackSize;
-            return (elem.mItemIndex == item.mItemIndex)
-                && (elem.mCondition != elem.GetObject().mStackSize);
+            return (elem.GetItemIndex() == item.GetItemIndex())
+                && (elem.GetQuantity() != elem.GetObject().mStackSize);
         });
 
     return it != mItems.end();
@@ -72,12 +72,12 @@ bool Inventory::HaveItem(const InventoryItem& item) const
     const auto it = std::find_if(
         mItems.begin(), mItems.end(),
         [item](const auto& elem){
-            return item.mItemIndex == elem.mItemIndex;
+            return item.GetItemIndex() == elem.GetItemIndex();
         });
 
     if (it != mItems.end() && item.IsStackable())
     {
-        return it->mCondition >= item.mCondition;
+        return it->GetCondition() >= item.GetCondition();
     }
 
     return it != mItems.end();
@@ -94,14 +94,13 @@ void Inventory::AddItem(const InventoryItem& item)
         ASSERT(it != mItems.end());
 
         const auto amountToStack = item.GetObject().mStackSize - it->GetQuantity();
-        it->mCondition += std::min(
-            item.GetQuantity(),
-            amountToStack);
+        const auto additionalQuantity = std::min(item.GetQuantity(), amountToStack);
+        it->SetQuantity(it->GetQuantity() + additionalQuantity);
 
         if (item.GetQuantity() > amountToStack)
         {
             auto newItem = item;
-            newItem.SetQuantity(item.GetQuantity() - amountToStack);
+            newItem.SetCondition(item.GetQuantity() - amountToStack);
             mItems.emplace_back(newItem);
          }
     }
@@ -138,7 +137,7 @@ bool Inventory::RemoveItem(const InventoryItem& item)
                 remainingToRemove,
                 it->GetQuantity());
 
-            it->mCondition -= amountToRemove;
+            it->SetQuantity(it->GetQuantity() - amountToRemove);
             remainingToRemove -= amountToRemove;
 
             if (it->GetQuantity() == 0)

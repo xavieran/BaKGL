@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/objectInfo.hpp"
+#include "bak/itemNumbers.hpp"
 #include "bak/types.hpp"
 
 #include "com/bits.hpp"
@@ -40,8 +41,12 @@ public:
 
     const GameObject& GetObject() const { ASSERT(mObject); return *mObject; }
 
+    auto GetItemIndex() const { return mItemIndex; }
     auto GetQuantity() const { return mCondition; }
+    auto GetScroll() const { return mCondition; }
     auto GetCondition() const { return mCondition; }
+    auto GetStatus() const { return mStatus; }
+    auto GetModifierMask() const { return mModifiers; }
 
     bool IsEquipped() const
     {
@@ -66,8 +71,7 @@ public:
 
     bool IsKey() const
     {
-        return GetObject().mType == ItemType::Key 
-            || mItemIndex.mValue == 'P';
+        return IsItemType(ItemType::Key) || mItemIndex == BAK::sPicklock;
     }
 
     void SetEquipped(bool state)
@@ -159,11 +163,8 @@ public:
         return mods;
     }
 
-    ItemIndex GetItemIndex() const
-    {
-        return mItemIndex;
-    }
 
+private:
     GameObject const* mObject;
     ItemIndex mItemIndex;
     unsigned mCondition;

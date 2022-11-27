@@ -122,7 +122,7 @@ public:
     void AddItem(const InventoryItem& item)
     {
         if (item.IsMoney())
-            GainItem(0, item.mItemIndex.mValue, item.GetQuantity());
+            GainItem(0, item.GetItemIndex().mValue, item.GetQuantity());
         else if (item.IsKey())
             mKeys.GiveItem(item);
     }

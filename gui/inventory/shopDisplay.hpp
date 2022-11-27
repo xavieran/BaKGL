@@ -100,7 +100,7 @@ public:
     {
         ASSERT(mContainer);
         auto item = mContainer->GetInventory().GetAtIndex(itemIndex);
-        item.mCondition = amount;
+        item.SetQuantity(amount);
         return BAK::Shop::GetSellPrice(item, mContainer->GetShop(), mDiscount[item.GetItemIndex()]);
     }
 

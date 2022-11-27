@@ -33,8 +33,8 @@ InventoryItem::InventoryItem(
 
 std::ostream& operator<<(std::ostream& os, const InventoryItem& i)
 {
-    os << i.GetObject().mName << " #" << i.mItemIndex << " pct/qty: " << 
-        +i.mCondition << " status: " << +i.mStatus << " mods: [" << i.GetModifiers() 
+    os << i.GetObject().mName << " #" << i.GetItemIndex() << " pct/qty: " << 
+        +i.GetCondition() << " status: " << +i.GetStatus() << " mods: [" << i.GetModifiers() 
         << "] IsEquipped: " << i.IsEquipped() << "\n";
     return os;
 }

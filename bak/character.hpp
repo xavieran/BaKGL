@@ -5,6 +5,7 @@
 #include "bak/IContainer.hpp"
 
 #include "bak/condition.hpp"
+#include "bak/itemNumbers.hpp"
 #include "bak/skills.hpp"
 #include "bak/types.hpp"
 #include "bak/inventory.hpp"
@@ -46,31 +47,32 @@ public:
 
     bool CanSwapItem(const InventoryItem& ref) const
     {
-        return (ref.GetObject().mType == BAK::ItemType::Sword && IsSwordsman())
-            || (ref.GetObject().mType == BAK::ItemType::Staff && IsSpellcaster());
+        return (ref.IsItemType(BAK::ItemType::Sword) && IsSwordsman())
+            || (ref.IsItemType(BAK::ItemType::Staff) && IsSpellcaster());
     }
 
     bool CanAddItem(const InventoryItem& ref) const override
     {
         auto item = ref;
+        const auto itemIndex = ref.GetItemIndex();
         // Day's rations are equivalent to 1 of normal rations
-        if (ref.mItemIndex == ItemIndex{134})
+        if (itemIndex == BAK::sDayRations)
         {
-            item = InventoryItemFactory::MakeItem(ItemIndex{72}, 1);
+            item = InventoryItemFactory::MakeItem(BAK::sRations, 1);
         }
 
         if (mInventory.CanAddCharacter(item) > 0)
             return true;
-        else if (item.GetObject().mType == ItemType::Staff
+        else if (item.IsItemType(ItemType::Staff)
             && HasEmptyStaffSlot())
             return true;
-        else if (item.GetObject().mType == ItemType::Sword
+        else if (item.IsItemType(ItemType::Sword)
             && HasEmptySwordSlot())
             return true;
-        else if (item.GetObject().mType == ItemType::Crossbow
+        else if (item.IsItemType(ItemType::Crossbow)
             && HasEmptyCrossbowSlot())
             return true;
-        else if (item.GetObject().mType == ItemType::Armor
+        else if (item.IsItemType(ItemType::Armor)
             && HasEmptyArmorSlot())
             return true;
         else
@@ -80,6 +82,7 @@ public:
     bool GiveItem(const InventoryItem& ref) override
     {
         auto item = ref;
+        const auto itemIndex = ref.GetItemIndex();
 
         bool equipped = false;
         if (CanReplaceEquippableItem(item.GetObject().mType)
@@ -95,14 +98,14 @@ public:
         }
 
         // Day's rations are equivalent to 1 of normal rations
-        if (ref.mItemIndex == ItemIndex{134})
+        if (itemIndex == BAK::sDayRations)
         {
-            item = InventoryItemFactory::MakeItem(ItemIndex{72}, 1);
+            item = InventoryItemFactory::MakeItem(BAK::sRations, 1);
         }
         // Quegian brandy
-        else if (ref.mItemIndex == ItemIndex{135}
-            || ref.mItemIndex == ItemIndex{136}
-            || ref.mItemIndex == ItemIndex{137})
+        else if (itemIndex == BAK::sBrandy
+            || itemIndex == BAK::sKeg
+            || itemIndex == BAK::sAle)
         {
             mConditions.IncreaseCondition(
                 static_cast<Condition>(ref.GetObject().mEffectMask),
@@ -203,7 +206,7 @@ public:
             return;
         }
 
-        if (item.GetObject().mType == slot)
+        if (item.IsItemType(slot))
         {
             item.SetEquipped(true);
             if (equipped != mInventory.GetItems().end())
@@ -231,8 +234,7 @@ public:
             unsigned staffCount = 0;
             for (const auto& item : GetInventory().GetItems())
             {
-                if (item.GetObject().mType == ItemType::Staff
-                    && item.IsEquipped())
+                if (item.IsItemType(ItemType::Staff) && item.IsEquipped())
                 {
                     staffCount++;
                 }
@@ -247,8 +249,7 @@ public:
             unsigned swordCount = 0;
             for (const auto& item : GetInventory().GetItems())
             {
-                if (item.GetObject().mType == ItemType::Sword
-                    && item.IsEquipped())
+                if (item.IsItemType(ItemType::Sword) && item.IsEquipped())
                 {
                     swordCount++;
                 }
@@ -258,8 +259,7 @@ public:
             unsigned crossbowCount = 0;
             for (const auto& item : GetInventory().GetItems())
             {
-                if (item.GetObject().mType == ItemType::Crossbow
-                    && item.IsEquipped())
+                if (item.IsItemType(ItemType::Crossbow) && item.IsEquipped())
                 {
                     crossbowCount++;
                 }

@@ -19,7 +19,7 @@ public:
 
     bool CanAddItem(const InventoryItem& item) const override
     {
-        return item.GetObject().mType == ItemType::Key;
+        return item.IsItemType(ItemType::Key);
     }
 
     bool GiveItem(const InventoryItem& item) override
@@ -27,7 +27,7 @@ public:
         ASSERT(item.IsKey());
         auto it = mInventory.FindItem(item);
         if (it != mInventory.GetItems().end())
-            it->mCondition++;
+            it->SetQuantity(it->GetQuantity() + 1);
         else
             mInventory.AddItem(item);
         return true;

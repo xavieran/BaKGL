@@ -63,7 +63,7 @@ public:
         return std::find_if(
             mItems.begin(), mItems.end(),
             [&item](const auto& elem){
-                return elem.mItemIndex == item.mItemIndex;
+                return elem.GetItemIndex() == item.GetItemIndex();
             });
     }
 
@@ -72,7 +72,7 @@ public:
         return std::find_if(
             mItems.begin(), mItems.end(),
             [&item](const auto& elem){
-                return elem.mItemIndex == item.mItemIndex;
+                return elem.GetItemIndex() == item.GetItemIndex();
             });
     }
 
@@ -89,7 +89,7 @@ public:
 
         for (std::size_t i = 0; i < mItems.size(); i++)
         {
-            if (mItems[i].mItemIndex == item.mItemIndex)
+            if (mItems[i].GetItemIndex() == item.GetItemIndex())
                 items.emplace_back(i, std::ref(mItems[i]));
         }
 
@@ -120,8 +120,7 @@ public:
         return std::find_if(
             mItems.begin(), mItems.end(),
             [&slot](const auto& elem){
-                return elem.GetObject().mType == slot
-                    && elem.IsEquipped();
+                return elem.IsItemType(slot) && elem.IsEquipped();
             });
     }
 
@@ -130,8 +129,7 @@ public:
         return std::find_if(
             mItems.begin(), mItems.end(),
             [&slot](const auto& elem){
-                return elem.GetObject().mType == slot
-                    && elem.IsEquipped();
+                return elem.IsItemType(slot) && elem.IsEquipped();
             });
     }
     

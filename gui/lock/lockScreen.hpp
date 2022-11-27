@@ -4,6 +4,7 @@
 
 #include "bak/lock.hpp"
 #include "bak/IContainer.hpp"
+#include "bak/itemNumbers.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/inventory.hpp"
 #include "bak/layout.hpp"
@@ -288,7 +289,7 @@ private:
             .GetSkill(BAK::SkillType::Lockpick);
         const auto lockRating = mContainer->GetLock().mRating;
 
-        if (item.mItemIndex == BAK::ItemIndex{'P'}) // Picklock
+        if (item.GetItemIndex() == BAK::sPicklock)
         {
             if (BAK::CanPickLock(skill, lockRating))
             {
@@ -360,7 +361,7 @@ private:
                 if (BAK::WouldKeyBreak(item, lockRating)
                     && BAK::KeyBroken(item, skill, lockRating))
                 {
-                    mGameState.GetParty().RemoveItem(item.mItemIndex.mValue, 1);
+                    mGameState.GetParty().RemoveItem(item.GetItemIndex().mValue, 1);
                     dialog = BAK::DialogSources::mKeyBroken;
                     AudioA::AudioManager::Get().PlaySound(sKeyBrokeSound);
                 }
@@ -406,14 +407,14 @@ private:
         unsigned context = 0;
         auto dialog = BAK::KeyTarget{0};
         // FIXME: Probably want to put this logic elsewhere...
-        if (item.GetObject().mType == BAK::ItemType::Scroll)
+        if (item.IsItemType(BAK::ItemType::Scroll))
         {
-            context = item.mCondition;
+            context = item.GetScroll();
             dialog = BAK::DialogSources::GetScrollDescription();
         }
         else
         {
-            context = item.mItemIndex.mValue;
+            context = item.GetItemIndex().mValue;
             dialog = BAK::DialogSources::GetItemDescription();
         }
 

@@ -783,14 +783,14 @@ void InventoryScreen::ShowItemDescription(const BAK::InventoryItem& item)
     unsigned context = 0;
     auto dialog = BAK::KeyTarget{0};
     // FIXME: Probably want to put this logic elsewhere...
-    if (item.GetObject().mType == BAK::ItemType::Scroll)
+    if (item.IsItemType(BAK::ItemType::Scroll))
     {
-        context = item.GetCondition();
+        context = item.GetScroll();
         dialog = BAK::DialogSources::GetScrollDescription();
     }
     else
     {
-        context = item.mItemIndex.mValue;
+        context = item.GetItemIndex().mValue;
         dialog = BAK::DialogSources::GetItemDescription();
     }
 
@@ -956,14 +956,14 @@ void InventoryScreen::UpdateInventoryContents()
     {
         ASSERT(itemPtr);
         const auto& item = *itemPtr;
-        const auto& [ss, ti, _] = mIcons.GetInventoryIcon(item.mItemIndex.mValue);
+        const auto& [ss, ti, _] = mIcons.GetInventoryIcon(item.GetItemIndex().mValue);
 
-        if ((item.GetObject().mType == BAK::ItemType::Sword
-            || item.GetObject().mType == BAK::ItemType::Staff)
+        if ((item.IsItemType(BAK::ItemType::Sword)
+            || item.IsItemType(BAK::ItemType::Staff))
             && item.IsEquipped())
         {
             auto scale = slotDims * glm::vec2{2, 1};
-            if (item.GetObject().mType == BAK::ItemType::Staff)
+            if (item.IsItemType(BAK::ItemType::Staff))
             {
                 scale = scale * glm::vec2{1, 2};
                 mWeapon.SetDimensions({80, 58});
@@ -987,7 +987,7 @@ void InventoryScreen::UpdateInventoryContents()
             continue;
         }
 
-        if (item.GetObject().mType == BAK::ItemType::Crossbow
+        if (item.IsItemType(BAK::ItemType::Crossbow)
             && item.IsEquipped())
         {
             mCrossbow.AddItem(
@@ -1004,7 +1004,7 @@ void InventoryScreen::UpdateInventoryContents()
             continue;
         }
 
-        if (item.GetObject().mType == BAK::ItemType::Armor
+        if (item.IsItemType(BAK::ItemType::Armor)
             && item.IsEquipped())
         {
             mArmor.AddItem(
