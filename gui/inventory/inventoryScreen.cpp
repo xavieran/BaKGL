@@ -824,7 +824,8 @@ void InventoryScreen::ShowItemDescription(const BAK::InventoryItem& item)
     else
     {
         context = item.GetItemIndex().mValue;
-        dialog = BAK::DialogSources::GetItemDescription();
+        dialog = BAK::DialogSources::GetScrollDescription();
+        //dialog = BAK::DialogSources::GetItemDescription();
     }
 
     mGameState.SetDialogContext(context);

@@ -17,9 +17,11 @@ public:
         return KeyTarget{mFairyChestKey + chest};
     }
 
-    static KeyTarget GetItemDescription()
+    static std::string_view GetItemDescription(unsigned itemIndex)
     {
-        return KeyTarget{mItemDescription};
+        const auto& items = DialogStore::Get().GetSnippet(mItemDescription).GetChoices();
+        ASSERT(itemIndex - 1 < items.size());
+        return DialogStore::Get().GetSnippet(items[itemIndex - 1].mTarget).GetText();
     }
 
     static KeyTarget GetScrollDescription()
@@ -41,7 +43,7 @@ public:
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;
 
-    static constexpr auto mItemDescription  = 0x1b7741;
+    static constexpr auto mItemDescription  = KeyTarget{0x1b7741};
     static constexpr auto mItemUseSucessful = 0x1b7742;
     static constexpr auto mItemUseFailure   = 0x1b7743;
     static constexpr auto mHealthPotionDialog = 0x1b7744;

@@ -414,8 +414,10 @@ private:
         }
         else
         {
+            //FIXME
             context = item.GetItemIndex().mValue;
-            dialog = BAK::DialogSources::GetItemDescription();
+            dialog = BAK::DialogSources::GetScrollDescription();
+            //dialog = BAK::DialogSources::GetItemDescription();
         }
 
         mGameState.SetDialogContext(context);

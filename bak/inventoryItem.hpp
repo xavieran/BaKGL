@@ -53,9 +53,14 @@ public:
         return CheckItemStatus(mStatus, ItemStatus::Equipped);
     }
 
+    bool IsBroken() const
+    {
+        return CheckItemStatus(mStatus, ItemStatus::Broken);
+    }
+
     bool IsRepairable() const
     {
-        return CheckItemStatus(mStatus, ItemStatus::Repairable);
+        return !IsBroken() && CheckItemStatus(mStatus, ItemStatus::Repairable);
     }
 
     bool IsPoisoned() const
