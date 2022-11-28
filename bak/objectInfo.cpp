@@ -16,10 +16,10 @@ std::string_view ToString(Modifier m)
     switch (m)
     {
     case Modifier::Flaming: return "Flaming";
-    case Modifier::SteelFire: return "SteelFire";
-    case Modifier::Frost: return "Frost";
-    case Modifier::BrownOil: return "BrownOil";
-    case Modifier::BlueOil: return "BlueOil";
+    case Modifier::SteelFire: return "Steelfired";
+    case Modifier::Frost: return "Frosted";
+    case Modifier::Enhancement1: return "Enhanced #1";
+    case Modifier::Enhancement2: return "Enhanced #2";
     case Modifier::Blessing1: return "Blessing1";
     case Modifier::Blessing2: return "Blessing2";
     case Modifier::Blessing3: return "Blessing3";

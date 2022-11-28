@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/dialogSources.hpp"
+#include "bak/gameState.hpp"
 #include "bak/inventoryItem.hpp"
 
 #include "gui/icons.hpp"
@@ -22,7 +23,8 @@ public:
         glm::vec2 pos,
         glm::vec2 dims,
         const Icons& icons,
-        const Font& font)
+        const Font& font,
+        std::function<void()>&& finished)
     :
         Widget{
             RectTag{},
@@ -47,14 +49,14 @@ public:
         },
         mDescriptionBackground{
             glm::vec2{98, 0},
-            glm::vec2{188, 120},
+            glm::vec2{196, 121},
             Color::buttonBackground,
             Color::buttonHighlight,
             Color::buttonShadow
         },
         mDescriptionText{
-            glm::vec2{98, 0},
-            glm::vec2{188, 120}
+            glm::vec2{104, 0},
+            glm::vec2{182, 120}
         },
         mMoreInfo{
             glm::vec2{8, 6 + 28 + 58 + 2 + 12},
@@ -62,11 +64,32 @@ public:
             mFont,
             "#More Info",
             [this]{ ShowMoreInfo(); }
-        }
+        },
+        mHasMoreInfo{},
+        mShowingMoreInfo{},
+        mMoreInfoDescription{""},
+        mDescription{""},
+        mFinished{std::move(finished)}
     {
     }
 
-    void AddItem(const BAK::InventoryItem& item)
+    bool OnMouseEvent(const MouseEvent& event)
+    {
+        const auto handled = Widget::OnMouseEvent(event);
+        if (!handled)
+        {
+            return std::visit(overloaded{
+                [this](const LeftMousePress& p){ return MousePressed(); },
+                [this](const RightMousePress& p){ return MousePressed(); },
+                [](const auto& p){ return true; }
+                },
+                event);
+        }
+
+        return true;
+    } 
+
+    void AddItem(const BAK::InventoryItem& item, BAK::GameState& gameState)
     {
         const auto [ss, ti, dims] = mIcons.GetInventoryIcon(item.GetObject().mImageIndex);
         mItem.SetImage(ss, ti, dims);
@@ -75,14 +98,26 @@ public:
         {
             std::stringstream ss{};
             ss << "#" << item.GetObject().mName << "\n";
-            ss << "Condition: " << item.GetCondition() << "%";
+            if (item.DisplayNumber())
+            {
+                if (item.DisplayCondition())
+                {
+                    ss << "Condition: " << item.GetCondition() << "%";
+                }
+                else
+                {
+                    ss << "Amount: " << item.GetCondition();
+                }
+            }
             mName.AddText(mFont, ss.str(), true);
             Logging::LogDebug(__FUNCTION__) << " Name: " << ss.str() << "\n";
         }
 
-        const auto description = std::string{BAK::DialogSources::GetItemDescription(item.GetItemIndex().mValue)};
+        mDescription = gameState.GetTextVariableStore()
+            .SubstituteVariables(std::string{BAK::DialogSources::GetItemDescription(item.GetItemIndex().mValue)});
 
-        mDescriptionText.AddText(mFont, description, true, true, true);
+        mDescriptionText.AddText(mFont, mDescription, true, true);
+        mShowingMoreInfo = false;
 
         {
             std::stringstream ss{};
@@ -106,15 +141,25 @@ public:
                 comma = true;
                 ss << "Repairable";
             }
-            if (item.IsPoisoned())
-            {
-                if (comma) ss << ", ";
-                comma = true;
-                ss << "Poisoned";
-            }
 
-            Logging::LogDebug(__FUNCTION__) << " Status: " << ss.str();
-            mStatusText.AddText(mFont, ss.str(), true, true);
+            if (item.IsItemType(BAK::ItemType::Sword)
+                || item.IsItemType(BAK::ItemType::Armor)
+                || item.IsItemType(BAK::ItemType::Crossbow)
+                || item.IsItemType(BAK::ItemType::Staff)
+                || (item.IsItemType(BAK::ItemType::Unspecified)
+                    && ((item.GetObject().mCategories 
+                        & static_cast<std::uint16_t>(BAK::SaleCategory::CrossbowRelated)) != 0)))
+            {
+                Logging::LogDebug(__FUNCTION__) << " Status: " << ss.str();
+                mStatusText.AddText(mFont, ss.str(), true, true);
+                mHasMoreInfo = true;
+
+                mMoreInfoDescription = MakeMoreInfo(item);
+            }
+            else
+            {
+                mHasMoreInfo = false;
+            }
         }
 
         AddChildren();
@@ -123,6 +168,83 @@ public:
 private:
     void ShowMoreInfo()
     {
+        if (mShowingMoreInfo)
+        {
+            mDescriptionText.AddText(mFont, mDescription, true, true);
+            mShowingMoreInfo = false;
+        }
+        else
+        {
+            mDescriptionText.AddText(mFont, mMoreInfoDescription, false, true);
+            mShowingMoreInfo = true;
+        }
+    }
+
+    std::string MakeMoreInfo(const BAK::InventoryItem& item)
+    {
+        std::stringstream ss{};
+        const auto& object = item.GetObject();
+        const auto GetMods = [&]{
+            if (item.HasModifier(BAK::Modifier::Flaming)) return "Flaming";
+            if (item.HasModifier(BAK::Modifier::SteelFire)) return "Steelfired";
+            if (item.HasModifier(BAK::Modifier::Frost)) return "Frosted";
+            if (item.HasModifier(BAK::Modifier::Enhancement1)) return "Enhanced 1";
+            if (item.HasModifier(BAK::Modifier::Enhancement2)) return "Enhanced 2";
+            if (item.IsPoisoned()) return "Poisoned";
+            return "None";
+        };
+
+        const auto GetBlessing = [&]{
+            if (item.HasModifier(BAK::Modifier::Blessing1)) return "Blessing 1";
+            if (item.HasModifier(BAK::Modifier::Blessing2)) return "Blessing 2";
+            if (item.HasModifier(BAK::Modifier::Blessing3)) return "Blessing 3";
+            return "None";
+        };
+
+        if (item.IsItemType(BAK::ItemType::Armor))
+        {
+            ss << "Armor Mod:   #" << object.mAccuracySwing << "%#\n\n";
+            ss << "Resistances: #" << GetMods() << "#\n";
+            ss << "Bless Type:  #" << GetBlessing() << "#\n\n";
+            ss << "Racial Mod:  #" << BAK::ToString(object.mRace) << "#\n";
+        }
+        else if (item.IsItemType(BAK::ItemType::Sword))
+        {
+            ss << "             #" << "Thrust  Swing#\n";
+            ss << "Base Dmg:    #" << object.mStrengthThrust << "+Strength " << object.mStrengthSwing << "+Strength#\n";
+            ss << "Accuracy:    #" << object.mAccuracyThrust << "+Skill " << object.mAccuracySwing << "+Skill#\n\n";
+            ss << "Active Mods: #" << GetMods() << "#\n";
+            ss << "Bless Type:  #" << GetBlessing() << "#\n\n";
+            ss << "Racial Mod:  #" << BAK::ToString(object.mRace) << "#\n";
+        }
+        else if (item.IsItemType(BAK::ItemType::Staff))
+        {
+            ss << "             #" << "Thrust  Swing#\n";
+            ss << "Base Dmg:    #" << object.mStrengthThrust << "+Strength " << object.mStrengthSwing << "+Strength#\n";
+            ss << "Accuracy:    #" << object.mAccuracyThrust << "+Skill " << object.mAccuracySwing << "+Skill#\n\n";
+            ss << "Racial Mod:  #" << BAK::ToString(object.mRace) << "#\n";
+        }
+        else if (item.IsItemType(BAK::ItemType::Crossbow))
+        {
+            ss << "Base Damage: #" << object.mStrengthSwing << "+Quarrel#\n";
+            ss << "Accuracy:    #" << object.mAccuracySwing<< "+Quarrel+Skill#\n\n";
+            ss << "Racial Mod:  #" << BAK::ToString(object.mRace) << "#\n";
+        }
+        else if (item.IsItemType(BAK::ItemType::Unspecified)
+            && ((object.mCategories & static_cast<std::uint16_t>(BAK::SaleCategory::CrossbowRelated)) != 0))
+        {
+            ss << "Base Damage: #" << object.mStrengthSwing << "#\n";
+            ss << "Accuracy:    #" << object.mAccuracySwing << "+Skill#\n\n";
+            ss << "Racial Mod:  #" << BAK::ToString(object.mRace) << "#\n";
+        }
+        return ss.str();
+    }
+
+    bool MousePressed()
+    {
+        ASSERT(mFinished);
+        std::invoke(mFinished);
+        return true;
     }
 
     void AddChildren()
@@ -133,7 +255,8 @@ private:
         AddChildBack(&mDescriptionBackground);
         AddChildBack(&mDescriptionText);
         AddChildBack(&mStatusText);
-        AddChildBack(&mMoreInfo);
+        if (mHasMoreInfo)
+            AddChildBack(&mMoreInfo);
     }
 
     const Icons& mIcons;
@@ -144,6 +267,11 @@ private:
     Button mDescriptionBackground;
     TextBox mDescriptionText;
     ClickButton mMoreInfo;
+    bool mHasMoreInfo;
+    bool mShowingMoreInfo;
+    std::string mMoreInfoDescription;
+    std::string mDescription;
+    std::function<void()> mFinished;
 };
 
 }

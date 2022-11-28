@@ -96,6 +96,8 @@ private:
 
     void RefreshGui();
 
+    void ExitDetails();
+
     void SetContainerTypeImage(unsigned containerType);
     void ShowContainer();
     void ShowCharacter(BAK::ActiveCharIndex character);
@@ -220,6 +222,7 @@ private:
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mDisplayContainer;
     bool mItemSelectionMode;
+    bool mDisplayDetails;
     std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)> mItemSelectionCallback;
     std::optional<BAK::InventoryIndex> mSelectedItem;
     BAK::IContainer* mContainer;

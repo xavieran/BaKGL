@@ -10,14 +10,14 @@ namespace BAK {
 
 enum class Modifier
 {
-    Flaming = 0,
-    SteelFire = 1,
-    Frost     = 2,
-    BrownOil  = 3,
-    BlueOil   = 4,
-    Blessing1 = 5,
-    Blessing2 = 6,
-    Blessing3 = 7
+    Flaming      = 0,
+    SteelFire    = 1,
+    Frost        = 2,
+    Enhancement1 = 3,
+    Enhancement2 = 4,
+    Blessing1    = 5,
+    Blessing2    = 6,
+    Blessing3    = 7
 };
 
 std::string_view ToString(Modifier);

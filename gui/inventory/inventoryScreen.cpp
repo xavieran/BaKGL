@@ -100,7 +100,8 @@ InventoryScreen::InventoryScreen(
         glm::vec2{},
         glm::vec2{},
         mIcons,
-        mFont
+        mFont,
+        [this]{ ExitDetails(); }
     },
     mWeapon{
         [this](auto& item){
@@ -187,6 +188,8 @@ void InventoryScreen::SetContainer(BAK::IContainer* container)
 bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
 {
     const bool handled = Widget::OnMouseEvent(event);
+    {
+    }
 
     if (std::holds_alternative<LeftMousePress>(event)
         && mItemSelectionMode)
@@ -257,6 +260,12 @@ void InventoryScreen::RefreshGui()
         UpdateInventoryContents();
 
     AddChildren();
+}
+
+void InventoryScreen::ExitDetails()
+{
+    mDisplayDetails = false;
+    mNeedRefresh = true;
 }
 
 void InventoryScreen::SetContainerTypeImage(unsigned containerType)
@@ -804,14 +813,18 @@ void InventoryScreen::ShowDesc(const BAK::InventoryItem& item)
 
     //mGameState.SetDialogContext(context);
     //StartDialog(dialog);
-    mDetails.AddItem(item);
-    AddChildBack(&mDetails);
+    mDetails.AddItem(item, mGameState);
+    mDisplayDetails = true;
+    mNeedRefresh = true;
+    //AddChildBack(&mDetails);
 }
 
 void InventoryScreen::ShowItemDescription(const BAK::InventoryItem& item)
 {
-    mDetails.AddItem(item);
-    AddChildBack(&mDetails);
+    mDetails.AddItem(item, mGameState);
+    //AddChildBack(&mDetails);
+    mDisplayDetails = true;
+    mNeedRefresh = true;
     return;
     unsigned context = 0;
     auto dialog = BAK::KeyTarget{0};
@@ -1103,6 +1116,12 @@ void InventoryScreen::UpdateInventoryContents()
 void InventoryScreen::AddChildren()
 {
     AddChildBack(&mFrame);
+
+    if (mDisplayDetails)
+    {
+        AddChildBack(&mDetails);
+    }
+
     AddChildBack(&mExit);
     AddChildBack(&mGoldDisplay);
 
@@ -1112,6 +1131,9 @@ void InventoryScreen::AddChildren()
     {
         AddChildBack(&character);
     }
+
+    if (mDisplayDetails)
+        return;
 
     if (mSelectedCharacter && !mDisplayContainer)
     {

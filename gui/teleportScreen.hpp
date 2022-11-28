@@ -178,6 +178,7 @@ public:
     void SetSourceTemple(unsigned sourceTemple)
     {
         mState = State::Idle;
+        mSource = sourceTemple;
         mChosenDest = std::nullopt;
         for (unsigned i = 0; i < mTeleportDests.size(); i++)
         {
@@ -200,8 +201,7 @@ public:
 private:
     void HandleTempleClicked(unsigned templeNumber)
     {
-
-        if (templeNumber == mSource + 1)
+        if (templeNumber == mSource)
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportedToSameTemple, false, false, this);
         }
@@ -213,7 +213,7 @@ private:
         }
         else
         {
-            const auto cost = BAK::Temple::CalculateTeleportCost(mSource + 1, templeNumber);
+            const auto cost = BAK::Temple::CalculateTeleportCost(mSource, templeNumber);
             if (cost < mGameState.GetMoney())
             {
                 mGameState.GetParty().LoseMoney(cost);
@@ -258,7 +258,7 @@ private:
     std::string MakeCostString(unsigned templeNumber)
     {
         std::stringstream ss{};
-        ss << "Cost: " << BAK::ToShopDialogString(BAK::Temple::CalculateTeleportCost(mSource + 1, templeNumber));
+        ss << "Cost: " << BAK::ToShopDialogString(BAK::Temple::CalculateTeleportCost(mSource, templeNumber));
         return ss.str();
     }
 
