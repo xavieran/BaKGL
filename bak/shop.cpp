@@ -160,6 +160,7 @@ void RepairItem(InventoryItem& item)
 {
     item.SetCondition(100);
     item.SetRepairable(false);
+    item.SetBroken(false);
 }
 
 double GetItemQuantityMultiple(const BAK::InventoryItem& item)

@@ -58,6 +58,11 @@ public:
         return CheckItemStatus(mStatus, ItemStatus::Repairable);
     }
 
+    bool IsBroken() const
+    {
+        return CheckItemStatus(mStatus, ItemStatus::Broken);
+    }
+
     bool IsPoisoned() const
     {
         return CheckItemStatus(mStatus, ItemStatus::Poisoned);
@@ -82,6 +87,11 @@ public:
     void SetRepairable(bool state)
     {
         mStatus = SetItemStatus(mStatus, ItemStatus::Repairable, state);
+    }
+
+    void SetBroken(bool state)
+    {
+        mStatus = SetItemStatus(mStatus, ItemStatus::Broken, state);
     }
 
     void SetCondition(unsigned condition)
