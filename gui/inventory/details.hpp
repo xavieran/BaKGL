@@ -142,13 +142,7 @@ public:
                 ss << "Repairable";
             }
 
-            if (item.IsItemType(BAK::ItemType::Sword)
-                || item.IsItemType(BAK::ItemType::Armor)
-                || item.IsItemType(BAK::ItemType::Crossbow)
-                || item.IsItemType(BAK::ItemType::Staff)
-                || (item.IsItemType(BAK::ItemType::Unspecified)
-                    && ((item.GetObject().mCategories 
-                        & static_cast<std::uint16_t>(BAK::SaleCategory::CrossbowRelated)) != 0)))
+            if (HasMoreInfo(item))
             {
                 Logging::LogDebug(__FUNCTION__) << " Status: " << ss.str();
                 mStatusText.AddText(mFont, ss.str(), true, true);
@@ -166,6 +160,22 @@ public:
     }
 
 private:
+    bool HasMoreInfo(const BAK::InventoryItem& item)
+    {
+        const auto isQuarrel = item.IsItemType(BAK::ItemType::Unspecified)
+            && ((item.GetObject().mCategories 
+                & static_cast<std::uint16_t>(BAK::SaleCategory::CrossbowRelated)) != 0);
+
+        return item.IsItemType(BAK::ItemType::Sword)
+            || item.IsItemType(BAK::ItemType::Armor)
+            || item.IsItemType(BAK::ItemType::Crossbow)
+            || item.IsItemType(BAK::ItemType::Staff)
+            || item.IsItemType(BAK::ItemType::ArmorOil)
+            || item.IsItemType(BAK::ItemType::SpecialOil)
+            || item.IsItemType(BAK::ItemType::WeaponOil)
+            || isQuarrel;
+    }
+
     void ShowMoreInfo()
     {
         if (mShowingMoreInfo)
@@ -188,16 +198,23 @@ private:
             if (item.HasModifier(BAK::Modifier::Flaming)) return "Flaming";
             if (item.HasModifier(BAK::Modifier::SteelFire)) return "Steelfired";
             if (item.HasModifier(BAK::Modifier::Frost)) return "Frosted";
-            if (item.HasModifier(BAK::Modifier::Enhancement1)) return "Enhanced 1";
-            if (item.HasModifier(BAK::Modifier::Enhancement2)) return "Enhanced 2";
+            if (item.HasModifier(BAK::Modifier::Enhancement1)) return "Enhanced";
+            if (item.HasModifier(BAK::Modifier::Enhancement2)) return "Enhanced";
             if (item.IsPoisoned()) return "Poisoned";
+            const auto effect = object.mEffectMask >> 8;
+            if (CheckBitSet(effect, BAK::Modifier::Flaming)) return "Flame";
+            if (CheckBitSet(effect, BAK::Modifier::SteelFire)) return "Steelfire";
+            if (CheckBitSet(effect, BAK::Modifier::Frost)) return "Frost";
+            if (CheckBitSet(effect, BAK::Modifier::Enhancement1)) return "Enhancement";
+            if (CheckBitSet(effect, BAK::Modifier::Enhancement2)) return "Enhancement";
+            if (CheckBitSet(object.mEffectMask, BAK::ItemStatus::Poisoned)) return "Poison";
             return "None";
         };
 
         const auto GetBlessing = [&]{
-            if (item.HasModifier(BAK::Modifier::Blessing1)) return "Blessing 1";
-            if (item.HasModifier(BAK::Modifier::Blessing2)) return "Blessing 2";
-            if (item.HasModifier(BAK::Modifier::Blessing3)) return "Blessing 3";
+            if (item.HasModifier(BAK::Modifier::Blessing1)) return "No. 1 (+5%)";
+            if (item.HasModifier(BAK::Modifier::Blessing2)) return "No. 2 (+10%)";
+            if (item.HasModifier(BAK::Modifier::Blessing3)) return "No. 3 (+15%)";
             return "None";
         };
 
@@ -236,6 +253,12 @@ private:
             ss << "Base Damage: #" << object.mStrengthSwing << "#\n";
             ss << "Accuracy:    #" << object.mAccuracySwing << "+Skill#\n\n";
             ss << "Racial Mod:  #" << BAK::ToString(object.mRace) << "#\n";
+        }
+        else if (item.IsItemType(BAK::ItemType::WeaponOil)
+            || item.IsItemType(BAK::ItemType::ArmorOil)
+            || item.IsItemType(BAK::ItemType::SpecialOil))
+        {
+            ss << "Modifier: #" << GetMods() << "#\n";
         }
         return ss.str();
     }
