@@ -125,6 +125,11 @@ public:
         return HasFlag(ItemFlags::QuantityBased);
     }
 
+    bool IsSkillModifier() const
+    {
+        return GetObject().mModifierMask != 0;
+    }
+
     bool IsItemType(BAK::ItemType type) const
     {
         return GetObject().mType == type;

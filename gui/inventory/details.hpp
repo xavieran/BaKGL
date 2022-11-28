@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/dialogSources.hpp"
+#include "bak/spells.hpp"
 #include "bak/gameState.hpp"
 #include "bak/inventoryItem.hpp"
 
@@ -59,8 +60,8 @@ public:
             glm::vec2{182, 120}
         },
         mMoreInfo{
-            glm::vec2{8, 6 + 28 + 58 + 2 + 12},
-            glm::vec2{80, 12},
+            glm::vec2{8, 5 + 28 + 58 + 12},
+            glm::vec2{80, 14},
             mFont,
             "#More Info",
             [this]{ ShowMoreInfo(); }
@@ -113,8 +114,18 @@ public:
             Logging::LogDebug(__FUNCTION__) << " Name: " << ss.str() << "\n";
         }
 
-        mDescription = gameState.GetTextVariableStore()
-            .SubstituteVariables(std::string{BAK::DialogSources::GetItemDescription(item.GetItemIndex().mValue)});
+        if (item.IsItemType(BAK::ItemType::Scroll))
+        {
+            mDescription = gameState.GetTextVariableStore()
+                .SubstituteVariables(
+                    std::string{BAK::DialogSources::GetScrollDescription(item.GetScroll())});
+        }
+        else
+        {
+            mDescription = gameState.GetTextVariableStore()
+                .SubstituteVariables(
+                    std::string{BAK::DialogSources::GetItemDescription(item.GetItemIndex().mValue)});
+        }
 
         mDescriptionText.AddText(mFont, mDescription, true, true);
         mShowingMoreInfo = false;
@@ -173,6 +184,7 @@ private:
             || item.IsItemType(BAK::ItemType::ArmorOil)
             || item.IsItemType(BAK::ItemType::SpecialOil)
             || item.IsItemType(BAK::ItemType::WeaponOil)
+            || (item.IsSkillModifier() && item.IsEquipped())
             || isQuarrel;
     }
 
@@ -259,6 +271,10 @@ private:
             || item.IsItemType(BAK::ItemType::SpecialOil))
         {
             ss << "Modifier: #" << GetMods() << "#\n";
+        }
+        else if (item.IsSkillModifier())
+        {
+            ss << "#Affecting player statistics\n";
         }
         return ss.str();
     }

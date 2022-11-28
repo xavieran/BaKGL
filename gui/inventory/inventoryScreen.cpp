@@ -82,8 +82,7 @@ InventoryScreen::InventoryScreen(
         mIcons,
         mFont,
         [this](const auto& item){
-            //ShowItemDescription(item);
-            ShowDesc(item);
+            ShowItemDescription(item);
         }
     },
     mShopScreen{
@@ -92,8 +91,7 @@ InventoryScreen::InventoryScreen(
         mIcons,
         mFont,
         [this](const auto& item){
-            ShowDesc(item);
-            //ShowItemDescription(item);
+            ShowItemDescription(item);
         }
     },
     mDetails{
@@ -795,54 +793,11 @@ void InventoryScreen::AdvanceNextPage()
     }
 }
 
-void InventoryScreen::ShowDesc(const BAK::InventoryItem& item)
-{
-    //unsigned context = 0;
-    //auto dialog = BAK::KeyTarget{0};
-    //// FIXME: Probably want to put this logic elsewhere...
-    //if (item.GetObject().mType == BAK::ItemType::Scroll)
-    //{
-    //    context = item.GetCondition();
-    //    dialog = BAK::DialogSources::GetScrollDescription();
-    //}
-    //else
-    //{
-    //    context = item.mItemIndex.mValue;
-    //    dialog = BAK::DialogSources::GetItemDescription();
-    //}
-
-    //mGameState.SetDialogContext(context);
-    //StartDialog(dialog);
-    mDetails.AddItem(item, mGameState);
-    mDisplayDetails = true;
-    mNeedRefresh = true;
-    //AddChildBack(&mDetails);
-}
-
 void InventoryScreen::ShowItemDescription(const BAK::InventoryItem& item)
 {
     mDetails.AddItem(item, mGameState);
-    //AddChildBack(&mDetails);
     mDisplayDetails = true;
     mNeedRefresh = true;
-    return;
-    unsigned context = 0;
-    auto dialog = BAK::KeyTarget{0};
-    // FIXME: Probably want to put this logic elsewhere...
-    if (item.IsItemType(BAK::ItemType::Scroll))
-    {
-        context = item.GetScroll();
-        dialog = BAK::DialogSources::GetScrollDescription();
-    }
-    else
-    {
-        context = item.GetItemIndex().mValue;
-        dialog = BAK::DialogSources::GetScrollDescription();
-        //dialog = BAK::DialogSources::GetItemDescription();
-    }
-
-    mGameState.SetDialogContext(context);
-    StartDialog(dialog);
 }
 
 void InventoryScreen::HighlightValidDrops(const InventorySlot& slot)

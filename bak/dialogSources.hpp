@@ -24,9 +24,11 @@ public:
         return DialogStore::Get().GetSnippet(items[itemIndex - 1].mTarget).GetText();
     }
 
-    static KeyTarget GetScrollDescription()
+    static std::string_view GetScrollDescription(unsigned scrollIndex)
     {
-        return KeyTarget{mScrollDescriptions};
+        const auto& spells = DialogStore::Get().GetSnippet(mScrollDescriptions).GetChoices();
+        ASSERT(scrollIndex < spells.size());
+        return DialogStore::Get().GetSnippet(spells[scrollIndex - 1].mTarget).GetText();
     }
 
     static KeyTarget GetItemUseText(unsigned itemIndex)

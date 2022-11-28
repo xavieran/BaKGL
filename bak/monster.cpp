@@ -19,7 +19,7 @@ MonsterNames::MonsterNames()
     const auto& logger = Logging::LogState::GetLogger("MonsterNames");
     {
         auto fb = FileBufferFactory::Get().CreateDataBuffer("MNAMES.DAT");
-        auto monsters = fb.GetUint32LE();
+        const auto monsters = fb.GetUint32LE();
         logger.Spam() << "Loading keywords" << "\n";
         logger.Spam() << "Length: " << monsters << "\n";
 

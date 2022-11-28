@@ -165,7 +165,6 @@ private:
     
     void AdvanceNextPage();
     
-    void ShowDesc(const BAK::InventoryItem& item);
     void ShowItemDescription(const BAK::InventoryItem& item);
 
     void HighlightValidDrops(const InventorySlot& slot);

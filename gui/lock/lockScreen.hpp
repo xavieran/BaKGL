@@ -14,6 +14,7 @@
 #include "gui/lock/lock.hpp"
 
 #include "gui/inventory/containerDisplay.hpp"
+#include "gui/inventory/details.hpp"
 #include "gui/inventory/inventorySlot.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -108,6 +109,14 @@ public:
             mLayout.GetWidgetLocation(mGoldRequest),
             mLayout.GetWidgetDimensions(mGoldRequest),
         },
+        mDetails{
+            glm::vec2{},
+            glm::vec2{},
+            mIcons,
+            mFont,
+            [this]{ ExitDetails(); }
+        },
+        mDisplayDetails{},
         mLock{
             [this](){ ShowLockDescription(); },
             [this](const auto& item){ AttemptLock(item); },
@@ -404,28 +413,15 @@ private:
 
     void ShowItemDescription(const BAK::InventoryItem& item)
     {
-        unsigned context = 0;
-        auto dialog = BAK::KeyTarget{0};
-        // FIXME: Probably want to put this logic elsewhere...
-        if (item.IsItemType(BAK::ItemType::Scroll))
-        {
-            context = item.GetScroll();
-            dialog = BAK::DialogSources::GetScrollDescription();
-        }
-        else
-        {
-            //FIXME
-            context = item.GetItemIndex().mValue;
-            dialog = BAK::DialogSources::GetScrollDescription();
-            //dialog = BAK::DialogSources::GetItemDescription();
-        }
+        mDetails.AddItem(item, mGameState);
+        mDisplayDetails = true;
+        AddChildren();
+    }
 
-        mGameState.SetDialogContext(context);
-        mGuiManager.StartDialog(
-            dialog,
-            false,
-            false,
-            &mDialogScene);
+    void ExitDetails()
+    {
+        mDisplayDetails = false;
+        AddChildren();
     }
 
     void UpdatePartyMembers()
@@ -482,7 +478,13 @@ private:
 
     void AddChildren()
     {
+        ClearChildren();
+
         AddChildBack(&mFrame);
+
+        if (mDisplayDetails)
+            AddChildBack(&mDetails);
+
         AddChildBack(&mExit);
         AddChildBack(&mGoldDisplay);
 
@@ -519,6 +521,8 @@ private:
     ClickButtonImage mExit;
     TextBox mGoldDisplay;
     
+    Details mDetails;
+    bool mDisplayDetails;
     Clickable<
         ItemEndpoint<Lock>,
         RightMousePress,

@@ -2,6 +2,7 @@
 
 #include "bak/dialogSources.hpp"
 #include "bak/inventory.hpp"
+#include "bak/spells.hpp"
 #include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 
@@ -161,6 +162,17 @@ public:
             std::stringstream ss{};
             ss << "#" << +item.GetCondition() << 
                 (item.DisplayCondition()  ? "%" : "");
+            const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
+            const auto& dims = GetPositionInfo().mDimensions;
+            mQuantity.SetPosition(
+                dims - textDims 
+                + glm::vec2{4, 2});
+        }
+        else if (item.IsItemType(BAK::ItemType::Scroll))
+        {
+            BAK::SpellInfo spells{};
+            std::stringstream ss{};
+            ss << "#" << spells.GetSpellName(item.GetScroll());
             const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
             const auto& dims = GetPositionInfo().mDimensions;
             mQuantity.SetPosition(
