@@ -860,7 +860,7 @@ void InventoryScreen::HighlightValidDrops(const InventorySlot& slot)
             const auto giveable = GetCharacter(person)
                 .CanAddItem(slot.GetItem());
             const auto* shopItem = dynamic_cast<const ShopItemSlot*>(&slot);
-            if (mContainer->IsShop() && mDisplayContainer)
+            if (mDisplayContainer && mContainer && mContainer->IsShop())
             {
                 ASSERT(shopItem);
             }

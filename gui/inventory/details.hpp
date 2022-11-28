@@ -124,16 +124,16 @@ public:
             bool comma{};
             ss << "#";
 
-            if (item.IsBroken())
+            if (item.IsEquipped())
             {
                 comma = true;
-                ss << "Broken";
+                ss << "Using";
             }
-            if (item.IsEquipped())
+            if (item.IsBroken())
             {
                 if (comma) ss << ", ";
                 comma = true;
-                ss << "Using";
+                ss << "Broken";
             }
             if (item.IsRepairable())
             {
