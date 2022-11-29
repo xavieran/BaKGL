@@ -94,6 +94,13 @@ InventoryScreen::InventoryScreen(
             ShowItemDescription(item);
         }
     },
+    mDetails{
+        glm::vec2{},
+        glm::vec2{},
+        mIcons,
+        mFont,
+        [this]{ ExitDetails(); }
+    },
     mWeapon{
         [this](auto& item){
             MoveItemToEquipmentSlot(item, BAK::ItemType::Sword); },
@@ -179,6 +186,8 @@ void InventoryScreen::SetContainer(BAK::IContainer* container)
 bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
 {
     const bool handled = Widget::OnMouseEvent(event);
+    {
+    }
 
     if (std::holds_alternative<LeftMousePress>(event)
         && mItemSelectionMode)
@@ -249,6 +258,12 @@ void InventoryScreen::RefreshGui()
         UpdateInventoryContents();
 
     AddChildren();
+}
+
+void InventoryScreen::ExitDetails()
+{
+    mDisplayDetails = false;
+    mNeedRefresh = true;
 }
 
 void InventoryScreen::SetContainerTypeImage(unsigned containerType)
@@ -780,22 +795,9 @@ void InventoryScreen::AdvanceNextPage()
 
 void InventoryScreen::ShowItemDescription(const BAK::InventoryItem& item)
 {
-    unsigned context = 0;
-    auto dialog = BAK::KeyTarget{0};
-    // FIXME: Probably want to put this logic elsewhere...
-    if (item.IsItemType(BAK::ItemType::Scroll))
-    {
-        context = item.GetScroll();
-        dialog = BAK::DialogSources::GetScrollDescription();
-    }
-    else
-    {
-        context = item.GetItemIndex().mValue;
-        dialog = BAK::DialogSources::GetItemDescription();
-    }
-
-    mGameState.SetDialogContext(context);
-    StartDialog(dialog);
+    mDetails.AddItem(item, mGameState);
+    mDisplayDetails = true;
+    mNeedRefresh = true;
 }
 
 void InventoryScreen::HighlightValidDrops(const InventorySlot& slot)
@@ -1069,6 +1071,12 @@ void InventoryScreen::UpdateInventoryContents()
 void InventoryScreen::AddChildren()
 {
     AddChildBack(&mFrame);
+
+    if (mDisplayDetails)
+    {
+        AddChildBack(&mDetails);
+    }
+
     AddChildBack(&mExit);
     AddChildBack(&mGoldDisplay);
 
@@ -1078,6 +1086,9 @@ void InventoryScreen::AddChildren()
     {
         AddChildBack(&character);
     }
+
+    if (mDisplayDetails)
+        return;
 
     if (mSelectedCharacter && !mDisplayContainer)
     {

@@ -16,10 +16,10 @@ std::string_view ToString(Modifier m)
     switch (m)
     {
     case Modifier::Flaming: return "Flaming";
-    case Modifier::SteelFire: return "SteelFire";
-    case Modifier::Frost: return "Frost";
-    case Modifier::BrownOil: return "BrownOil";
-    case Modifier::BlueOil: return "BlueOil";
+    case Modifier::SteelFire: return "Steelfired";
+    case Modifier::Frost: return "Frosted";
+    case Modifier::Enhancement1: return "Enhanced #1";
+    case Modifier::Enhancement2: return "Enhanced #2";
     case Modifier::Blessing1: return "Blessing1";
     case Modifier::Blessing2: return "Blessing2";
     case Modifier::Blessing3: return "Blessing3";
@@ -162,7 +162,7 @@ std::string_view ToString(ItemType i)
 std::ostream& operator<<(std::ostream& os, const GameObject& go)
 {
     os << "Object: { " << go.mName << std::hex << " fl: " << go.mFlags << std::dec
-        << " itm: " << go.mImageIndex
+        << " imgIndex: " << go.mImageIndex
         << " lvl: " << go.mLevel << " val: " << go.mValue
         << " swing (" << go.mStrengthSwing << ", " << go.mAccuracySwing << ")"
         << " thrust (" << go.mStrengthThrust << ", " << go.mAccuracyThrust << ")"
@@ -215,10 +215,6 @@ ObjectIndex::ObjectIndex()
         const auto dullFactor1 = fb.GetUint16LE();
         const auto minimumCondition = fb.GetUint16LE();
 
-        logger.Debug() << i << std::hex << " Unknown0: " << unknown << "|2 "
-            << unknown2 << "|5 "
-            << unknown5 << "|" << name << std::dec << "\n";
-
         mObjects[i] = GameObject{
             name,
             flags,
@@ -245,7 +241,11 @@ ObjectIndex::ObjectIndex()
             dullFactor0,
             dullFactor1,
             minimumCondition};
-        logger.Debug() << mObjects[i] << "\n";
+
+        logger.Debug() << i << std::hex << " Unknown0: " << unknown << "|2 "
+            << unknown2 << "|5 "
+            << unknown5 << "|" << name << std::dec << "\n";
+        logger.Debug() << "ItmIndex:" << i << " " << mObjects[i] << "\n";
     }
 }
     
@@ -275,9 +275,9 @@ std::ostream& ShowRow(std::ostream& os, const GameObject& go)
             ", " << std::setw(2) << go.mAccuracySwing << ")"
         << "\t(" << std::setw(2) << go.mStrengthThrust << 
             ", " << std::setw(2) << go.mAccuracyThrust << ")"
-        << "\t" << go.mImageSize << "\t" << ToString(go.mRace) << "\t" << ToString(go.mType)
-        << "\t(" << std::hex << go.mEffectMask << ", " << std::dec << go.mEffect << ")"
-        << "\t(" << std::hex << go.mModifierMask << ", " << std::dec << go.mModifier << ")\t";
+        << "\t" << go.mImageSize //<< "\t" << ToString(go.mRace) << "\t" << ToString(go.mType)
+        << "\t(" << std::hex << go.mEffectMask << ", " << go.mEffect << ")"
+        << "\t(" << std::hex << go.mModifierMask << ", " << go.mModifier << std::dec << ")\t";
     return os;
 }
 
@@ -286,7 +286,7 @@ std::ostream& operator<<(std::ostream& os, const ObjectIndex& oi)
     std::stringstream ss{};
     ss << std::setw(30) << std::setfill(' ');
     ss << "Name";
-    os << "Number\t" << ss.str() << "\t\tFlags\tLevel\tValue\tSwing\t\tThrust\t\tSize\tRace\tType\tEffect\tModifier\t\n";
+    os << "Number\t" << ss.str() << "\t\tFlags\tLevel\tValue\tSwing\t\tThrust\t\tSize\tEffect\tModifier\t\n";
     for(unsigned i = 0; i < oi.sObjectCount; i++)
     {
         std::stringstream ss{};

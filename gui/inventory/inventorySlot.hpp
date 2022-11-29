@@ -2,6 +2,7 @@
 
 #include "bak/dialogSources.hpp"
 #include "bak/inventory.hpp"
+#include "bak/spells.hpp"
 #include "bak/layout.hpp"
 #include "bak/textureFactory.hpp"
 

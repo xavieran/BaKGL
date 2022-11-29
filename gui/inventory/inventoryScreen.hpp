@@ -10,6 +10,7 @@
 #include "bak/textureFactory.hpp"
 
 #include "gui/inventory/containerDisplay.hpp"
+#include "gui/inventory/details.hpp"
 #include "gui/inventory/equipmentSlot.hpp"
 #include "gui/inventory/inventorySlot.hpp"
 #include "gui/inventory/itemArranger.hpp"
@@ -94,6 +95,8 @@ private:
     }
 
     void RefreshGui();
+
+    void ExitDetails();
 
     void SetContainerTypeImage(unsigned containerType);
     void ShowContainer();
@@ -208,6 +211,7 @@ private:
 
     using ItemEndpointEquipmentSlot = ItemEndpoint<EquipmentSlot>;
 
+    Details mDetails;
     ItemEndpointEquipmentSlot mWeapon;
     ItemEndpointEquipmentSlot mCrossbow;
     ItemEndpointEquipmentSlot mArmor;
@@ -217,6 +221,7 @@ private:
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mDisplayContainer;
     bool mItemSelectionMode;
+    bool mDisplayDetails;
     std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)> mItemSelectionCallback;
     std::optional<BAK::InventoryIndex> mSelectedItem;
     BAK::IContainer* mContainer;

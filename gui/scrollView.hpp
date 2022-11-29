@@ -60,6 +60,7 @@ public:
         if (std::holds_alternative<MouseMove>(event))
         {
             mLastMousePos = GetValue(event);
+            return Widget::OnMouseEvent(event);
         }
 
         if (Within(mLastMousePos) &&

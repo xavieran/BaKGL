@@ -70,7 +70,17 @@ public:
         ASSERT(item.GetObject().mValue >= 0);
 
         std::stringstream ss{};
-        ss << "#" << item.GetObject().mName;
+        ss << "#";
+        if (item.IsItemType(BAK::ItemType::Scroll))
+        {
+            BAK::SpellInfo spells{};
+            ss << std::string{spells.GetSpellName(item.GetScroll())};
+        }
+        else
+        {
+            ss << item.GetObject().mName;
+        }
+
         if (item.IsStackable() || item.IsChargeBased() || item.IsQuantityBased())
             ss << " ("  << +item.GetQuantity() << ")";
         else if (item.IsConditionBased())

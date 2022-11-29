@@ -17,14 +17,24 @@ public:
         return KeyTarget{mFairyChestKey + chest};
     }
 
-    static KeyTarget GetItemDescription()
+    static std::string_view GetItemDescription(unsigned itemIndex)
     {
-        return KeyTarget{mItemDescription};
+        const auto& items = DialogStore::Get().GetSnippet(mItemDescription).GetChoices();
+        const auto it = std::find_if(items.begin(), items.end(), [&](const auto& a){
+            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
+            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == itemIndex;} );
+        ASSERT(it != items.end());
+        return DialogStore::Get().GetSnippet(it->mTarget).GetText();
     }
 
-    static KeyTarget GetScrollDescription()
+    static std::string_view GetScrollDescription(unsigned scrollIndex)
     {
-        return KeyTarget{mScrollDescriptions};
+        const auto& scrolls = DialogStore::Get().GetSnippet(mScrollDescriptions).GetChoices();
+        const auto it = std::find_if(scrolls.begin(), scrolls.end(), [&](const auto& a){
+            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
+            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == scrollIndex;} );
+        ASSERT(it != scrolls.end());
+        return DialogStore::Get().GetSnippet(it->mTarget).GetText();
     }
 
     static KeyTarget GetItemUseText(unsigned itemIndex)
@@ -41,7 +51,7 @@ public:
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;
 
-    static constexpr auto mItemDescription  = 0x1b7741;
+    static constexpr auto mItemDescription  = KeyTarget{0x1b7741};
     static constexpr auto mItemUseSucessful = 0x1b7742;
     static constexpr auto mItemUseFailure   = 0x1b7743;
     static constexpr auto mHealthPotionDialog = 0x1b7744;

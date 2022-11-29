@@ -1,0 +1,556 @@
+11:48:15.11 INFO  [CreateFileBuffer] Opening: OBJINFO.DAT
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 0 Unknown0: 00 00|2 00 00|5 00 00|
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: {  fl: 0 itm: 0 lvl: 0 val: 0 swing (0, 0) thrust (0, 0) size: 0 None Unspecified Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 6e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 1 Unknown0: 00 00|2 00 00|5 00 00|Crystal Staff
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Crystal Staff fl: 1000 itm: 1 lvl: 1 val: 0 swing (5, -5) thrust (12, 10) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: be
+11:48:15.11 DEBUG [BAK::ObjectIndex] 2 Unknown0: 00 00|2 00 00|5 00 00|Lightning Staff
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Lightning Staff fl: 2080 itm: 2 lvl: 1 val: 10000 swing (7, 10) thrust (0, 20) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 40 defaultStackSize: 40 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 10e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 3 Unknown0: 00 00|2 00 00|5 00 00|Wooden Staff
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Wooden Staff fl: 0 itm: 3 lvl: 1 val: 50 swing (3, 0) thrust (-7, 15) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 15e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 4 Unknown0: 00 00|2 00 00|5 00 00|Staff of Macros
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Staff of Macros fl: 2080 itm: 4 lvl: 8 val: 20000 swing (25, 15) thrust (10, 25) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 50 defaultStackSize: 50 eff (0, 0 ) potionPower: 0 mod (80, 20) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1ae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 5 Unknown0: 00 00|2 0d 00|5 00 00|Amulet of the Upright Man
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Amulet of the Upright Man fl: 0 itm: 5 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (2000, 15) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1fe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 6 Unknown0: 00 00|2 00 00|5 00 00|Ring of Prandur
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Ring of Prandur fl: 2080 itm: 6 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Light Cat: (400)[UsableMagicalItem] useSound: 58 times: 0 stackSize: 10 defaultStackSize: 10 eff (18, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 24e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 7 Unknown0: 00 00|2 00 00|5 00 00|Brass Spyglass
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Brass Spyglass fl: 102 itm: 7 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 29e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 8 Unknown0: 00 00|2 00 00|5 00 00|Cup of Rlnn Skr
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Cup of Rlnn Skr fl: 180 itm: 8 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 2ee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 9 Unknown0: 00 00|2 00 00|5 00 00|Eliaem's Heart
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Eliaem's Heart fl: 20c0 itm: 9 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 6 defaultStackSize: 6 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 33e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 10 Unknown0: 00 00|2 00 00|5 00 00|Glory Hand
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Glory Hand fl: 40 itm: 10 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 38e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 11 Unknown0: 00 00|2 07 00|5 00 00|Horn of Algon Kokoon
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Horn of Algon Kokoon fl: 20c0 itm: 11 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 12 defaultStackSize: 6 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 3de
+11:48:15.11 DEBUG [BAK::ObjectIndex] 12 Unknown0: 00 00|2 00 00|5 00 00|Idol of Lassur
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Idol of Lassur fl: 2040 itm: 12 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 8 defaultStackSize: 8 eff (0, 0 ) potionPower: 0 mod (fff0, -20) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 42e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 13 Unknown0: 00 00|2 00 00|5 00 00|Infinity Pool
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Infinity Pool fl: 20c0 itm: 13 lvl: 1 val: 6000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 10 defaultStackSize: 10 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 47e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 14 Unknown0: 00 00|2 00 00|5 00 00|Raw Manna
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Raw Manna fl: 8880 itm: 14 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 20 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 4ce
+11:48:15.11 DEBUG [BAK::ObjectIndex] 15 Unknown0: 00 00|2 00 00|5 00 00|Roric's Seal
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Roric's Seal fl: 20c0 itm: 15 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 10 defaultStackSize: 10 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 51e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 16 Unknown0: 00 00|2 00 00|5 00 00|Shell
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Shell fl: 0 itm: 16 lvl: 2 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 56e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 17 Unknown0: 00 00|2 00 00|5 00 00|Wyvern's Egg
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Wyvern's Egg fl: 0 itm: 17 lvl: 1 val: 300 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 5be
+11:48:15.11 DEBUG [BAK::ObjectIndex] 18 Unknown0: 80 1f|2 00 00|5 00 00|Broadsword
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Broadsword fl: 1008 itm: 18 lvl: 1 val: 120 swing (7, -5) thrust (0, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 100 df1: 6 minCond: 10}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 60e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 19 Unknown0: 80 1f|2 05 00|5 00 00|Galon 'Griefmaker'
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Galon 'Griefmaker' fl: 1008 itm: 19 lvl: 1 val: 3500 swing (42, 5) thrust (29, 15) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 50 df1: 3 minCond: 50}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 65e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 20 Unknown0: 80 1f|2 00 00|5 00 00|Goblin Sticker
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Goblin Sticker fl: 1008 itm: 20 lvl: 1 val: 3000 swing (29, 0) thrust (15, 10) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 60 df1: 3 minCond: 40}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 6ae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 21 Unknown0: 80 1f|2 00 00|5 00 00|Greatsword
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Greatsword fl: 1008 itm: 21 lvl: 1 val: 6000 swing (52, 0) thrust (36, 10) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 40 df1: 3 minCond: 60}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 6fe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 22 Unknown0: 80 1f|2 06 00|5 00 00|Guarda Revanche
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Guarda Revanche fl: 1008 itm: 22 lvl: 1 val: 20000 swing (140, 30) thrust (90, 45) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 1 minCond: 100}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 74e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 23 Unknown0: 00 00|2 00 00|5 00 00|Exotic sword
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Exotic sword fl: 0 itm: 23 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 2 Elf Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 79e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 24 Unknown0: 80 1f|2 00 00|5 00 00|Keshian Tapir
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Keshian Tapir fl: 1008 itm: 24 lvl: 1 val: 3750 swing (45, -5) thrust (20, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 60 df1: 2 minCond: 30}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 7ee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 25 Unknown0: 80 1f|2 08 00|5 00 00|Moredhel Lamprey
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Moredhel Lamprey fl: 1008 itm: 25 lvl: 1 val: 500 swing (15, -5) thrust (3, 5) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 80 df1: 5 minCond: 20}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 83e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 26 Unknown0: 80 1f|2 00 00|5 00 00|Rapier
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Rapier fl: 1008 itm: 26 lvl: 1 val: 2500 swing (10, -5) thrust (25, 20) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 90 df1: 6 minCond: 10}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 88e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 27 Unknown0: 80 1f|2 08 00|5 00 00|Sword of Kinnur
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Sword of Kinnur fl: 1008 itm: 27 lvl: 1 val: 3500 swing (33, 0) thrust (25, 15) size: 2 Dwarf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 50 df1: 5 minCond: 30}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 8de
+11:48:15.11 DEBUG [BAK::ObjectIndex] 28 Unknown0: 80 1f|2 08 00|5 00 00|Sword of Lims-Kragma
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Sword of Lims-Kragma fl: 1008 itm: 28 lvl: 1 val: 10000 swing (71, 0) thrust (49, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 30 df1: 3 minCond: 50}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 92e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 29 Unknown0: 80 1f|2 0a 00|5 00 00|Two-Handed Broadsword
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Two-Handed Broadsword fl: 1008 itm: 29 lvl: 1 val: 1500 swing (21, 0) thrust (8, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 70 df1: 5 minCond: 25}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 97e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 30 Unknown0: 00 00|2 05 00|5 00 00|Light Crossbow
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Light Crossbow fl: 1008 itm: 30 lvl: 1 val: 500 swing (7, 0) thrust (0, 0) size: 2 Human Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 100 df1: 9 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 9ce
+11:48:15.11 DEBUG [BAK::ObjectIndex] 31 Unknown0: 00 00|2 06 00|5 00 00|Medium Crossbow
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Medium Crossbow fl: 1008 itm: 31 lvl: 3 val: 1250 swing (15, 5) thrust (0, 0) size: 2 Human Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 70 df1: 6 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: a1e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 32 Unknown0: 00 00|2 00 00|5 00 00|Bessy Mauler
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Bessy Mauler fl: 1008 itm: 32 lvl: 5 val: 10000 swing (75, -10) thrust (0, 0) size: 2 Human Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 30 df1: 4 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: a6e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 33 Unknown0: 00 00|2 0d 00|5 00 00|Tsurani Light Crossbow
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Tsurani Light Crossbow fl: 1008 itm: 33 lvl: 1 val: 3000 swing (20, -5) thrust (0, 0) size: 2 Tsurani Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 80 df1: 7 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: abe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 34 Unknown0: 00 00|2 0d 00|5 00 00|Tsurani Heavy Crossbow
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Tsurani Heavy Crossbow fl: 1008 itm: 34 lvl: 1 val: 5000 swing (40, 0) thrust (0, 0) size: 2 Tsurani Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 50 df1: 7 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: b0e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 35 Unknown0: 00 00|2 05 00|5 00 00|Elven Crossbow
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Elven Crossbow fl: 1008 itm: 35 lvl: 1 val: 7250 swing (25, 25) thrust (0, 0) size: 2 Elf Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 45 df1: 6 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: b5e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 36 Unknown0: 00 00|2 00 00|5 00 00|Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Quarrels fl: 8800 itm: 36 lvl: 1 val: 120 swing (3, 0) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: bae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 37 Unknown0: 00 00|2 00 00|5 00 00|Elven Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Elven Quarrels fl: 8800 itm: 37 lvl: 1 val: 1750 swing (9, 15) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: bfe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 38 Unknown0: 00 00|2 00 00|5 00 00|Tsurani Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Tsurani Quarrels fl: 8800 itm: 38 lvl: 1 val: 500 swing (7, -5) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: c4e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 39 Unknown0: 00 00|2 08 00|5 00 00|Poisoned Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Poisoned Quarrels fl: 8800 itm: 39 lvl: 1 val: 650 swing (7, -5) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: c9e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 40 Unknown0: 00 00|2 08 00|5 00 00|Poisoned Elven Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Poisoned Elven Quarrels fl: 8800 itm: 40 lvl: 1 val: 2250 swing (15, 10) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: cee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 41 Unknown0: 00 00|2 08 00|5 00 00|Poisoned Tsurani Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Poisoned Tsurani Quarrels fl: 8800 itm: 41 lvl: 1 val: 1000 swing (14, -10) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: d3e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 42 Unknown0: 00 00|2 07 00|5 00 00|Flaming Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Flaming Quarrels fl: 8800 itm: 42 lvl: 1 val: 3000 swing (25, -10) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: d8e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 43 Unknown0: 00 00|2 09 00|5 00 00|Enchanted Quarrels
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Enchanted Quarrels fl: 8800 itm: 43 lvl: 1 val: 4000 swing (30, 20) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: dde
+11:48:15.11 DEBUG [BAK::ObjectIndex] 44 Unknown0: 80 1f|2 0c 00|5 00 00|Dragon Plate Armor
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Dragon Plate Armor fl: 1008 itm: 44 lvl: 1 val: 12500 swing (0, 55) thrust (0, 0) size: 4 Human Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 40 df1: 2 minCond: 50}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: e2e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 45 Unknown0: 80 1f|2 08 00|5 00 00|Euliliko Armor
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Euliliko Armor fl: 1008 itm: 45 lvl: 1 val: 4750 swing (0, 30) thrust (0, 0) size: 4 Tsurani Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 60 df1: 4 minCond: 30}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: e7e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 46 Unknown0: 80 1f|2 05 00|5 00 00|Elven Armor
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Elven Armor fl: 1008 itm: 46 lvl: 1 val: 2250 swing (0, 25) thrust (0, 0) size: 4 Elf Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 70 df1: 5 minCond: 20}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: ece
+11:48:15.11 DEBUG [BAK::ObjectIndex] 47 Unknown0: 80 1f|2 0a 00|5 00 00|Grey Tower Plate
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Grey Tower Plate fl: 100a itm: 47 lvl: 1 val: 6250 swing (0, 40) thrust (0, 0) size: 4 Dwarf Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 50 df1: 3 minCond: 40}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: f1e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 48 Unknown0: 80 1f|2 10 00|5 00 00|Standard Kingdom Armor
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Standard Kingdom Armor fl: 1008 itm: 48 lvl: 1 val: 450 swing (0, 15) thrust (0, 0) size: 4 Human Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 95 df1: 6 minCond: 10}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: f6e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 49 Unknown0: 80 1f|2 07 00|5 00 00|Valheru Armor
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Valheru Armor fl: 1008 itm: 49 lvl: 1 val: 0 swing (0, 70) thrust (0, 0) size: 4 Elf Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 10 df1: 1 minCond: 60}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: fbe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 50 Unknown0: 00 00|2 00 00|5 00 00|Potio Noxum
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Potio Noxum fl: 2850 itm: 50 lvl: 1 val: 550 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (40)[UsableMundaneItem] useSound: 0 times: 0 stackSize: 8 defaultStackSize: 2 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 100e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 51 Unknown0: 00 00|2 00 00|5 00 00|Powder Bag
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Powder Bag fl: 2850 itm: 51 lvl: 1 val: 700 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (40)[UsableMundaneItem] useSound: 0 times: 0 stackSize: 12 defaultStackSize: 6 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 105e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 52 Unknown0: 00 00|2 00 00|5 00 00|Tuning Fork
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Tuning Fork fl: 2040 itm: 52 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (40)[UsableMundaneItem] useSound: 0 times: 0 stackSize: 60 defaultStackSize: 60 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 10ae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 53 Unknown0: 00 00|2 00 00|5 00 00|Gold Sovereigns
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Gold Sovereigns fl: 8000 itm: 53 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (0)[] useSound: 0 times: 0 stackSize: 255 defaultStackSize: 255 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 10fe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 54 Unknown0: 00 00|2 00 00|5 00 00|Silver Royals
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Silver Royals fl: 8000 itm: 54 lvl: 1 val: 1 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (0)[] useSound: 0 times: 0 stackSize: 255 defaultStackSize: 255 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 114e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 55 Unknown0: 00 00|2 00 00|5 00 00|Diamonds
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Diamonds fl: 1000 itm: 55 lvl: 1 val: 30000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 119e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 56 Unknown0: 00 00|2 00 00|5 00 00|Emeralds
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Emeralds fl: 1000 itm: 56 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 11ee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 57 Unknown0: 00 00|2 00 00|5 00 00|Rubies
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Rubies fl: 1000 itm: 57 lvl: 1 val: 7500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 123e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 58 Unknown0: 00 00|2 00 00|5 00 00|Shell
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Shell fl: 1000 itm: 58 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (7)[Utility,Rations,PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 128e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 59 Unknown0: 00 00|2 08 00|5 00 00|Moredhel Brooch
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Moredhel Brooch fl: 1000 itm: 59 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 12de
+11:48:15.11 DEBUG [BAK::ObjectIndex] 60 Unknown0: 00 00|2 00 00|5 00 00|Bag of Grain
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Bag of Grain fl: 1000 itm: 60 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 4 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 132e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 61 Unknown0: 00 00|2 00 00|5 00 00|Peasant's Key
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Peasant's Key fl: 0 itm: 61 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 137e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 62 Unknown0: 00 00|2 00 00|5 00 00|Virtue Key
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Virtue Key fl: 0 itm: 62 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 13ce
+11:48:15.11 DEBUG [BAK::ObjectIndex] 63 Unknown0: 00 00|2 00 00|5 00 00|Key of Lineages
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Key of Lineages fl: 0 itm: 63 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 141e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 64 Unknown0: 00 00|2 00 00|5 00 00|Cellar Key
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Cellar Key fl: 0 itm: 64 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 146e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 65 Unknown0: 00 00|2 00 00|5 00 00|Nivek's Key
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Nivek's Key fl: 0 itm: 65 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 14be
+11:48:15.11 DEBUG [BAK::ObjectIndex] 66 Unknown0: 00 00|2 00 00|5 00 00|Interdictor Key
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Interdictor Key fl: 0 itm: 66 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 150e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 67 Unknown0: 00 00|2 00 00|5 00 00|Noble's Passkey
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Noble's Passkey fl: 0 itm: 67 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 155e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 68 Unknown0: 00 00|2 00 00|5 00 00|Guilder's Passkey
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Guilder's Passkey fl: 0 itm: 68 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 15ae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 69 Unknown0: 00 00|2 00 00|5 00 00|Guildis Thorn
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Guildis Thorn fl: 0 itm: 69 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 15fe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 70 Unknown0: 00 00|2 07 00|5 00 00|Ward of Ralen-Sheb
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Ward of Ralen-Sheb fl: 0 itm: 70 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 164e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 71 Unknown0: 00 00|2 09 00|5 00 00|Royal Key of Krondor
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Royal Key of Krondor fl: 0 itm: 71 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 169e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 72 Unknown0: 00 00|2 00 00|5 00 00|Rations
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Rations fl: 8800 itm: 72 lvl: 1 val: 70 swing (0, 0) thrust (0, 0) size: 1 None Ration Cat: (2)[Rations] useSound: 0 times: 0 stackSize: 14 defaultStackSize: 14 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 16ee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 73 Unknown0: 00 00|2 07 00|5 00 00|Rations (Poisoned)
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Rations (Poisoned) fl: 8800 itm: 73 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Ration Cat: (2)[Rations] useSound: 0 times: 0 stackSize: 14 defaultStackSize: 7 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 173e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 74 Unknown0: 00 00|2 07 00|5 00 00|Rations (Spoiled)
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Rations (Spoiled) fl: 8800 itm: 74 lvl: 1 val: 7 swing (0, 0) thrust (0, 0) size: 1 None Ration Cat: (2)[Rations] useSound: 0 times: 0 stackSize: 14 defaultStackSize: 7 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 178e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 75 Unknown0: 00 00|2 09 00|5 00 00|Armorer's Hammer
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Armorer's Hammer fl: 2110 itm: 75 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Tool Cat: (1)[Utility] useSound: 65 times: 2 stackSize: 30 defaultStackSize: 30 eff (4, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 17de
+11:48:15.11 DEBUG [BAK::ObjectIndex] 76 Unknown0: 00 00|2 00 00|5 00 00|Heavy Bowstring
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Heavy Bowstring fl: 20 itm: 76 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Bowstring Cat: (101)[Utility,CrossbowRelated] useSound: 22 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 182e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 77 Unknown0: 00 00|2 00 00|5 00 00|Light Bowstring
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Light Bowstring fl: 20 itm: 77 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Bowstring Cat: (101)[Utility,CrossbowRelated] useSound: 22 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 187e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 78 Unknown0: 00 00|2 00 00|5 00 00|Herbal Pack
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Herbal Pack fl: 2810 itm: 78 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Container Cat: (4000)[Potions] useSound: 18 times: 0 stackSize: 20 defaultStackSize: 8 eff (4, 100 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 18ce
+11:48:15.11 DEBUG [BAK::ObjectIndex] 79 Unknown0: 00 00|2 00 00|5 00 00|Ale Cask
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Ale Cask fl: 2002 itm: 79 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Container Cat: (1)[Utility] useSound: 64 times: 0 stackSize: 8 defaultStackSize: 8 eff (3, 25 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 191e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 80 Unknown0: 00 00|2 00 00|5 00 00|Picklocks
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Picklocks fl: 8800 itm: 80 lvl: 1 val: 350 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 36 defaultStackSize: 4 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 196e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 81 Unknown0: 00 00|2 00 00|5 00 00|Practice Lute
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Practice Lute fl: 2110 itm: 81 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 2 None Other Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 40 defaultStackSize: 40 eff (0, 0 ) potionPower: 0 mod (800, 1) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 19be
+11:48:15.11 DEBUG [BAK::ObjectIndex] 82 Unknown0: 00 00|2 00 00|5 00 00|Rope
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Rope fl: 2810 itm: 82 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 20 defaultStackSize: 4 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1a0e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 83 Unknown0: 00 00|2 00 00|5 00 00|Shovel
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Shovel fl: 2010 itm: 83 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1a5e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 84 Unknown0: 00 00|2 00 00|5 00 00|Torch
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Torch fl: 2810 itm: 84 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Light Cat: (1)[Utility] useSound: 56 times: 0 stackSize: 25 defaultStackSize: 3 eff (8, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1aae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 85 Unknown0: 00 00|2 00 00|5 00 00|Whetstone
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Whetstone fl: 2110 itm: 85 lvl: 1 val: 20 swing (0, 0) thrust (0, 0) size: 1 None Tool Cat: (1)[Utility] useSound: 19 times: 1 stackSize: 20 defaultStackSize: 20 eff (1, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1afe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 86 Unknown0: 00 00|2 00 00|5 00 00|Aventurine
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Aventurine fl: 2910 itm: 86 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Tool Cat: (1)[Utility] useSound: 19 times: 0 stackSize: 12 defaultStackSize: 6 eff (2, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1b4e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 87 Unknown0: 00 00|2 00 00|5 00 00|Burial Cloth
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Burial Cloth fl: 0 itm: 87 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1b9e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 88 Unknown0: 00 00|2 0b 00|5 00 00|Ring of the Golden Way
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Ring of the Golden Way fl: 0 itm: 88 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (4000, 15) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1bee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 89 Unknown0: 00 00|2 00 00|5 00 00|Vapor Mask
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Vapor Mask fl: 0 itm: 89 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1c3e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 90 Unknown0: 00 00|2 00 00|5 00 00|Weedwalkers
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Weedwalkers fl: 0 itm: 90 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (8000, 30) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1c8e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 91 Unknown0: 00 00|2 00 00|5 00 00|Catapult gear
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Catapult gear fl: 2 itm: 91 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1cde
+11:48:15.11 DEBUG [BAK::ObjectIndex] 92 Unknown0: 00 00|2 00 00|5 00 00|Geomancy Stones
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Geomancy Stones fl: 2 itm: 92 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 2 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1d2e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 93 Unknown0: 00 00|2 08 00|5 00 00|Glazer's Guild Seal
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Glazer's Guild Seal fl: 2 itm: 93 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1d7e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 94 Unknown0: 00 00|2 00 00|5 00 00|Hellfire Trap
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Hellfire Trap fl: 2 itm: 94 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1dce
+11:48:15.11 DEBUG [BAK::ObjectIndex] 95 Unknown0: 00 00|2 00 00|5 00 00|IronJaw Trap
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { IronJaw Trap fl: 2 itm: 95 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1e1e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 96 Unknown0: 00 00|2 00 00|5 00 00|River Trap
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { River Trap fl: 2 itm: 96 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1e6e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 97 Unknown0: 00 00|2 00 00|5 00 00|Knights Piece
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Knights Piece fl: 2 itm: 97 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1ebe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 98 Unknown0: 00 00|2 00 00|5 00 00|Lecture Ticket
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Lecture Ticket fl: 2 itm: 98 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1f0e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 99 Unknown0: 00 00|2 00 00|5 00 00|Leather Leggings
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Leather Leggings fl: 2 itm: 99 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1f5e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 100 Unknown0: 00 00|2 00 00|5 00 00|Skeletal Hand
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Skeletal Hand fl: 2 itm: 100 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1fae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 101 Unknown0: 00 00|2 00 00|5 00 00|Waani
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Waani fl: 2 itm: 101 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 1ffe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 102 Unknown0: 00 00|2 00 00|5 00 00|Wooden Chest
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Wooden Chest fl: 2100 itm: 102 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 24 defaultStackSize: 24 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 204e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 103 Unknown0: 00 00|2 00 00|5 00 00|Althafain's Icer
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Althafain's Icer fl: 2010 itm: 103 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 8 eff (400, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 209e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 104 Unknown0: 00 00|2 00 00|5 00 00|Clerical Oilcloth
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Clerical Oilcloth fl: 2010 itm: 104 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 4 eff (800, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 20ee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 105 Unknown0: 00 00|2 00 00|5 00 00|Coltari Poison
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Coltari Poison fl: 2810 itm: 105 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 6 eff (80, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 213e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 106 Unknown0: 00 00|2 00 00|5 00 00|Dragon Stone
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Dragon Stone fl: 2010 itm: 106 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 218e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 107 Unknown0: 00 00|2 00 00|5 00 00|Flame Root Oil
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Flame Root Oil fl: 2810 itm: 107 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 6 eff (400, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 21de
+11:48:15.11 DEBUG [BAK::ObjectIndex] 108 Unknown0: 00 00|2 09 00|5 00 00|Killian's Root Oil
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Killian's Root Oil fl: 2810 itm: 108 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 6 eff (1000, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 222e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 109 Unknown0: 00 00|2 00 00|5 00 00|Naphtha
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Naphtha fl: 2810 itm: 109 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 18 defaultStackSize: 6 eff (200, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 227e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 110 Unknown0: 00 00|2 00 00|5 00 00|Sarigsbane
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Sarigsbane fl: 2010 itm: 110 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 8 eff (1800, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 22ce
+11:48:15.11 DEBUG [BAK::ObjectIndex] 111 Unknown0: 00 00|2 00 00|5 00 00|Silver Spider
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Silver Spider fl: 2 itm: 111 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 0 defaultStackSize: 0 eff (80, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 231e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 112 Unknown0: 00 00|2 00 00|5 00 00|Silverthorn
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Silverthorn fl: 2810 itm: 112 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 8 eff (80, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 236e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 113 Unknown0: 00 00|2 0b 00|5 00 00|Silverthorn Anti-Venom
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Silverthorn Anti-Venom fl: 2810 itm: 113 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 8 eff (80, -8065 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 23be
+11:48:15.11 DEBUG [BAK::ObjectIndex] 114 Unknown0: 00 00|2 00 00|5 08 00|Dalatail Milk
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Dalatail Milk fl: 2810 itm: 114 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 20 defaultStackSize: 8 eff (200, 16 ) potionPower: 25 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 240e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 115 Unknown0: 00 00|2 09 00|5 08 00|Fadamor's Formula
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Fadamor's Formula fl: 2810 itm: 115 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 8 ) potionPower: 10 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 245e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 116 Unknown0: 00 00|2 08 00|5 08 00|Lewton's Concentrate
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Lewton's Concentrate fl: 2890 itm: 116 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 128 ) potionPower: 30 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 24ae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 117 Unknown0: 00 00|2 00 00|5 08 00|Redweed Brew
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Redweed Brew fl: 2810 itm: 117 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 64 ) potionPower: 20 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 24fe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 118 Unknown0: 00 00|2 00 00|5 08 00|Truesight Tea
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Truesight Tea fl: 2a10 itm: 118 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 32 ) potionPower: 25 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 254e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 119 Unknown0: 00 00|2 00 00|5 00 00|Restoratives
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Restoratives fl: 2810 itm: 119 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Restoratives Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 24 defaultStackSize: 12 eff (6, 2 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 259e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 120 Unknown0: 00 00|2 00 00|5 00 00|Note
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Note fl: 4102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 25ee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 121 Unknown0: 00 00|2 00 00|5 00 00|Great One's Note
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Great One's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 263e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 122 Unknown0: 00 00|2 13 00|5 00 00|Mitchel Waylander's Note
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Mitchel Waylander's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 268e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 123 Unknown0: 00 00|2 00 00|5 00 00|Navon's Note
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Navon's Note fl: 102 itm: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 26de
+11:48:15.11 DEBUG [BAK::ObjectIndex] 124 Unknown0: 00 00|2 00 00|5 00 00|Abbot's Journal
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Abbot's Journal fl: 102 itm: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 272e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 125 Unknown0: 00 00|2 00 00|5 00 00|Lorgan's Journal
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Lorgan's Journal fl: 102 itm: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 277e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 126 Unknown0: 00 00|2 10 00|5 01 00|Accts of Shamata Garrison
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Accts of Shamata Garrison fl: 2100 itm: 122 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (100, 5 ) potionPower: 20 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 27ce
+11:48:15.11 DEBUG [BAK::ObjectIndex] 127 Unknown0: 00 00|2 0d 00|5 01 00|Chapel's Rmur n Whepuns
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Chapel's Rmur n Whepuns fl: 2100 itm: 122 lvl: 1 val: 3500 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (600, 3 ) potionPower: 15 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 281e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 128 Unknown0: 00 00|2 07 00|5 01 00|Dorcas' Treatise
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Dorcas' Treatise fl: 2100 itm: 122 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (80, 5 ) potionPower: 18 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 286e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 129 Unknown0: 00 00|2 07 00|5 01 00|Kalem's Dialectic
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Kalem's Dialectic fl: 2100 itm: 122 lvl: 1 val: 2250 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (20, 5 ) potionPower: 20 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 28be
+11:48:15.11 DEBUG [BAK::ObjectIndex] 130 Unknown0: 00 00|2 09 00|5 01 00|Psalms of Dala
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Psalms of Dala fl: 2100 itm: 122 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (10, 4 ) potionPower: 20 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 290e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 131 Unknown0: 00 00|2 0d 00|5 01 00|Strategies of Trading
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Strategies of Trading fl: 2100 itm: 122 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (1000, 10 ) potionPower: 25 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 295e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 132 Unknown0: 00 00|2 0d 00|5 01 00|Thiful's Bird Migrations
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Thiful's Bird Migrations fl: 2100 itm: 122 lvl: 1 val: 4000 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (fff0, 5 ) potionPower: 8 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 29ae
+11:48:15.11 DEBUG [BAK::ObjectIndex] 133 Unknown0: 00 00|2 00 00|5 00 00|Magical Scroll
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Magical Scroll fl: 41a0 itm: 124 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Scroll Cat: (1000)[Scroll] useSound: 56 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 29fe
+11:48:15.11 DEBUG [BAK::ObjectIndex] 134 Unknown0: 00 00|2 00 00|5 00 00|Days Rations
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Days Rations fl: 0 itm: 125 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (48, 1 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 2a4e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 135 Unknown0: 00 00|2 00 00|5 00 00|Quegian Brandy
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Quegian Brandy fl: 0 itm: 126 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 64 times: 2 stackSize: 0 defaultStackSize: 0 eff (3, 18 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 2a9e
+11:48:15.11 DEBUG [BAK::ObjectIndex] 136 Unknown0: 00 00|2 00 00|5 00 00|Ale
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Ale fl: 0 itm: 127 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 64 times: 2 stackSize: 0 defaultStackSize: 0 eff (3, 12 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 DEBUG [BAK::ObjectIndex] ItemOff: 2aee
+11:48:15.11 DEBUG [BAK::ObjectIndex] 137 Unknown0: 00 00|2 00 00|5 00 00|Keshian Ale
+11:48:15.11 DEBUG [BAK::ObjectIndex] Object: { Keshian Ale fl: 0 itm: 127 lvl: 1 val: 30 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 64 times: 2 stackSize: 0 defaultStackSize: 0 eff (3, 28 ) potionPower: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
+11:48:15.11 INFO  [main] Loading fixed objects from zone: s
+11:48:15.11 INFO  [main] 
+Number	                          Name		Flags	Level	Value	Swing		Thrust		Size	Race	Type	Effect	Modifier	
+000 (00)	                              	0000	0000	00000	(00, 00)	(00, 00)	0	None	Unspecified	(0, 0)	(0, 0)	
+001 (01)	                 Crystal Staff	1000	0001	00000	(05, -5)	(12, 10)	4	Human	Staff	(0, 0)	(0, 0)	
+002 (02)	               Lightning Staff	2080	0001	10000	(07, 10)	(00, 20)	4	Human	Staff	(0, 0)	(0, 0)	
+003 (03)	                  Wooden Staff	0000	0001	00050	(03, 00)	(-7, 15)	4	Human	Staff	(0, 0)	(0, 0)	
+004 (04)	               Staff of Macros	2080	0008	20000	(25, 15)	(10, 25)	4	Human	Staff	(0, 0)	(80, 20)	
+005 (05)	     Amulet of the Upright Man	0000	0001	02500	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(2000, 15)	
+006 (06)	               Ring of Prandur	2080	0001	00500	(00, 00)	(00, 00)	1	None	Light	(18, 0)	(0, 0)	
+007 (07)	                Brass Spyglass	0102	0003	00000	(00, 00)	(00, 00)	1	None	Other	(0, 0)	(0, 0)	
+008 (08)	               Cup of Rlnn Skr	0180	0001	00000	(00, 00)	(00, 00)	1	None	Other	(0, 0)	(0, 0)	
+009 (09)	                Eliaem's Heart	20c0	0001	10000	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(0, 0)	
+010 (0a)	                    Glory Hand	0040	0001	01000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+011 (0b)	          Horn of Algon Kokoon	20c0	0001	10000	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(0, 0)	
+012 (0c)	                Idol of Lassur	2040	0001	00000	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(fff0, -20)	
+013 (0d)	                 Infinity Pool	20c0	0001	06000	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(0, 0)	
+014 (0e)	                     Raw Manna	8880	0001	00000	(00, 00)	(00, 00)	1	None	Other	(0, 0)	(0, 0)	
+015 (0f)	                  Roric's Seal	20c0	0001	00000	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(0, 0)	
+016 (10)	                         Shell	0000	0002	00100	(00, 00)	(00, 00)	1	None	Other	(0, 0)	(0, 0)	
+017 (11)	                  Wyvern's Egg	0000	0001	00300	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+018 (12)	                    Broadsword	1008	0001	00120	(07, -5)	(00, 10)	2	Human	Sword	(0, 0)	(0, 0)	
+019 (13)	            Galon 'Griefmaker'	1008	0001	03500	(42, 05)	(29, 15)	2	Elf	Sword	(0, 0)	(0, 0)	
+020 (14)	                Goblin Sticker	1008	0001	03000	(29, 00)	(15, 10)	2	Elf	Sword	(0, 0)	(0, 0)	
+021 (15)	                    Greatsword	1008	0001	06000	(52, 00)	(36, 10)	2	Elf	Sword	(0, 0)	(0, 0)	
+022 (16)	               Guarda Revanche	1008	0001	20000	(140, 30)	(90, 45)	2	Elf	Sword	(0, 0)	(0, 0)	
+023 (17)	                  Exotic sword	0000	0003	00000	(00, 00)	(00, 00)	2	Elf	Unspecified	(0, 0)	(0, 0)	
+024 (18)	                 Keshian Tapir	1008	0001	03750	(45, -5)	(20, 10)	2	Human	Sword	(0, 0)	(0, 0)	
+025 (19)	              Moredhel Lamprey	1008	0001	00500	(15, -5)	(03, 05)	2	Elf	Sword	(0, 0)	(0, 0)	
+026 (1a)	                        Rapier	1008	0001	02500	(10, -5)	(25, 20)	2	Elf	Sword	(0, 0)	(0, 0)	
+027 (1b)	               Sword of Kinnur	1008	0001	03500	(33, 00)	(25, 15)	2	Dwarf	Sword	(0, 0)	(0, 0)	
+028 (1c)	          Sword of Lims-Kragma	1008	0001	10000	(71, 00)	(49, 10)	2	Human	Sword	(0, 0)	(0, 0)	
+029 (1d)	         Two-Handed Broadsword	1008	0001	01500	(21, 00)	(08, 10)	2	Human	Sword	(0, 0)	(0, 0)	
+030 (1e)	                Light Crossbow	1008	0001	00500	(07, 00)	(00, 00)	2	Human	Crossbow	(0, 0)	(0, 0)	
+031 (1f)	               Medium Crossbow	1008	0003	01250	(15, 05)	(00, 00)	2	Human	Crossbow	(0, 0)	(0, 0)	
+032 (20)	                  Bessy Mauler	1008	0005	10000	(75, -10)	(00, 00)	2	Human	Crossbow	(0, 0)	(0, 0)	
+033 (21)	        Tsurani Light Crossbow	1008	0001	03000	(20, -5)	(00, 00)	2	Tsurani	Crossbow	(0, 0)	(0, 0)	
+034 (22)	        Tsurani Heavy Crossbow	1008	0001	05000	(40, 00)	(00, 00)	2	Tsurani	Crossbow	(0, 0)	(0, 0)	
+035 (23)	                Elven Crossbow	1008	0001	07250	(25, 25)	(00, 00)	2	Elf	Crossbow	(0, 0)	(0, 0)	
+036 (24)	                      Quarrels	8800	0001	00120	(03, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+037 (25)	                Elven Quarrels	8800	0001	01750	(09, 15)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+038 (26)	              Tsurani Quarrels	8800	0001	00500	(07, -5)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+039 (27)	             Poisoned Quarrels	8800	0001	00650	(07, -5)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+040 (28)	       Poisoned Elven Quarrels	8800	0001	02250	(15, 10)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+041 (29)	     Poisoned Tsurani Quarrels	8800	0001	01000	(14, -10)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+042 (2a)	              Flaming Quarrels	8800	0001	03000	(25, -10)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+043 (2b)	            Enchanted Quarrels	8800	0001	04000	(30, 20)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+044 (2c)	            Dragon Plate Armor	1008	0001	12500	(00, 55)	(00, 00)	4	Human	Armor	(0, 0)	(0, 0)	
+045 (2d)	                Euliliko Armor	1008	0001	04750	(00, 30)	(00, 00)	4	Tsurani	Armor	(0, 0)	(0, 0)	
+046 (2e)	                   Elven Armor	1008	0001	02250	(00, 25)	(00, 00)	4	Elf	Armor	(0, 0)	(0, 0)	
+047 (2f)	              Grey Tower Plate	100a	0001	06250	(00, 40)	(00, 00)	4	Dwarf	Armor	(0, 0)	(0, 0)	
+048 (30)	        Standard Kingdom Armor	1008	0001	00450	(00, 15)	(00, 00)	4	Human	Armor	(0, 0)	(0, 0)	
+049 (31)	                 Valheru Armor	1008	0001	00000	(00, 70)	(00, 00)	4	Elf	Armor	(0, 0)	(0, 0)	
+050 (32)	                   Potio Noxum	2850	0001	00550	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(0, 0)	
+051 (33)	                    Powder Bag	2850	0001	00700	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(0, 0)	
+052 (34)	                   Tuning Fork	2040	0001	00250	(00, 00)	(00, 00)	1	None	Ingredient	(0, 0)	(0, 0)	
+053 (35)	               Gold Sovereigns	8000	0001	00010	(00, 00)	(00, 00)	1	None	Other	(0, 0)	(0, 0)	
+054 (36)	                 Silver Royals	8000	0001	00001	(00, 00)	(00, 00)	1	None	Other	(0, 0)	(0, 0)	
+055 (37)	                      Diamonds	1000	0001	30000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+056 (38)	                      Emeralds	1000	0001	10000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+057 (39)	                        Rubies	1000	0001	07500	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+058 (3a)	                         Shell	1000	0001	00100	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+059 (3b)	               Moredhel Brooch	1000	0001	02500	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+060 (3c)	                  Bag of Grain	1000	0001	00500	(00, 00)	(00, 00)	4	None	Unspecified	(0, 0)	(0, 0)	
+061 (3d)	                 Peasant's Key	0000	0001	00010	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+062 (3e)	                    Virtue Key	0000	0001	02000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+063 (3f)	               Key of Lineages	0000	0001	02000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+064 (40)	                    Cellar Key	0000	0001	00000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+065 (41)	                   Nivek's Key	0000	0001	00000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+066 (42)	               Interdictor Key	0000	0001	03000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+067 (43)	               Noble's Passkey	0000	0001	00750	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+068 (44)	             Guilder's Passkey	0000	0001	00250	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+069 (45)	                 Guildis Thorn	0000	0001	01000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+070 (46)	            Ward of Ralen-Sheb	0000	0001	00000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+071 (47)	          Royal Key of Krondor	0000	0001	00000	(00, 00)	(00, 00)	1	None	Key	(0, 0)	(0, 0)	
+072 (48)	                       Rations	8800	0001	00070	(00, 00)	(00, 00)	1	None	Ration	(0, 0)	(0, 0)	
+073 (49)	            Rations (Poisoned)	8800	0001	00010	(00, 00)	(00, 00)	1	None	Ration	(0, 0)	(0, 0)	
+074 (4a)	             Rations (Spoiled)	8800	0001	00007	(00, 00)	(00, 00)	1	None	Ration	(0, 0)	(0, 0)	
+075 (4b)	              Armorer's Hammer	2110	0001	00200	(00, 00)	(00, 00)	1	None	Tool	(4, 0)	(0, 0)	
+076 (4c)	               Heavy Bowstring	0020	0001	00400	(00, 00)	(00, 00)	1	None	Bowstring	(0, 0)	(0, 0)	
+077 (4d)	               Light Bowstring	0020	0001	00200	(00, 00)	(00, 00)	1	None	Bowstring	(0, 0)	(0, 0)	
+078 (4e)	                   Herbal Pack	2810	0001	00100	(00, 00)	(00, 00)	1	None	Container	(4, 100)	(0, 0)	
+079 (4f)	                      Ale Cask	2002	0001	00400	(00, 00)	(00, 00)	1	None	Container	(3, 25)	(0, 0)	
+080 (50)	                     Picklocks	8800	0001	00350	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+081 (51)	                 Practice Lute	2110	0001	00500	(00, 00)	(00, 00)	2	None	Other	(0, 0)	(800, 1)	
+082 (52)	                          Rope	2810	0001	00050	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+083 (53)	                        Shovel	2010	0001	00050	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+084 (54)	                         Torch	2810	0001	00010	(00, 00)	(00, 00)	1	None	Light	(8, 0)	(0, 0)	
+085 (55)	                     Whetstone	2110	0001	00020	(00, 00)	(00, 00)	1	None	Tool	(1, 0)	(0, 0)	
+086 (56)	                    Aventurine	2910	0001	00100	(00, 00)	(00, 00)	1	None	Tool	(2, 0)	(0, 0)	
+087 (57)	                  Burial Cloth	0000	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+088 (58)	        Ring of the Golden Way	0000	0001	01250	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(4000, 15)	
+089 (59)	                    Vapor Mask	0000	0001	00200	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+090 (5a)	                   Weedwalkers	0000	0001	01500	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(8000, 30)	
+091 (5b)	                 Catapult gear	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+092 (5c)	               Geomancy Stones	0002	0001	00000	(00, 00)	(00, 00)	2	None	Unspecified	(0, 0)	(0, 0)	
+093 (5d)	           Glazer's Guild Seal	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+094 (5e)	                 Hellfire Trap	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+095 (5f)	                  IronJaw Trap	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+096 (60)	                    River Trap	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+097 (61)	                 Knights Piece	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+098 (62)	                Lecture Ticket	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+099 (63)	              Leather Leggings	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+100 (64)	                 Skeletal Hand	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+101 (65)	                         Waani	0002	0001	00000	(00, 00)	(00, 00)	1	None	Unspecified	(0, 0)	(0, 0)	
+102 (66)	                  Wooden Chest	2100	0001	00000	(00, 00)	(00, 00)	1	None	Other	(0, 0)	(0, 0)	
+103 (67)	              Althafain's Icer	2010	0001	01750	(00, 00)	(00, 00)	1	None	WeaponOil	(400, -8065)	(0, 0)	
+104 (68)	             Clerical Oilcloth	2010	0001	02000	(00, 00)	(00, 00)	1	None	SpecialOil	(800, -8065)	(0, 0)	
+105 (69)	                Coltari Poison	2810	0001	00250	(00, 00)	(00, 00)	1	None	WeaponOil	(80, 0)	(0, 0)	
+106 (6a)	                  Dragon Stone	2010	0001	01000	(00, 00)	(00, 00)	1	None	ArmorOil	(200, -8065)	(0, 0)	
+107 (6b)	                Flame Root Oil	2810	0001	00750	(00, 00)	(00, 00)	1	None	ArmorOil	(400, -8065)	(0, 0)	
+108 (6c)	            Killian's Root Oil	2810	0001	01750	(00, 00)	(00, 00)	1	None	SpecialOil	(1000, -8065)	(0, 0)	
+109 (6d)	                       Naphtha	2810	0001	01250	(00, 00)	(00, 00)	1	None	WeaponOil	(200, -8065)	(0, 0)	
+110 (6e)	                    Sarigsbane	2010	0001	01500	(00, 00)	(00, 00)	1	None	ArmorOil	(1800, -8065)	(0, 0)	
+111 (6f)	                 Silver Spider	0002	0001	00000	(00, 00)	(00, 00)	1	None	WeaponOil	(80, -8065)	(0, 0)	
+112 (70)	                   Silverthorn	2810	0001	01750	(00, 00)	(00, 00)	1	None	WeaponOil	(80, -8065)	(0, 0)	
+113 (71)	        Silverthorn Anti-Venom	2810	0001	02000	(00, 00)	(00, 00)	1	None	ArmorOil	(80, -8065)	(0, 0)	
+114 (72)	                 Dalatail Milk	2810	0001	01000	(00, 00)	(00, 00)	1	None	Potion	(200, 16)	(0, 0)	
+115 (73)	             Fadamor's Formula	2810	0001	01500	(00, 00)	(00, 00)	1	None	Potion	(200, 8)	(0, 0)	
+116 (74)	          Lewton's Concentrate	2890	0001	00750	(00, 00)	(00, 00)	1	None	Potion	(200, 128)	(0, 0)	
+117 (75)	                  Redweed Brew	2810	0001	01750	(00, 00)	(00, 00)	1	None	Potion	(200, 64)	(0, 0)	
+118 (76)	                 Truesight Tea	2a10	0001	01000	(00, 00)	(00, 00)	1	None	Potion	(200, 32)	(0, 0)	
+119 (77)	                  Restoratives	2810	0001	00500	(00, 00)	(00, 00)	1	None	Restoratives	(6, 2)	(0, 0)	
+120 (78)	                          Note	4102	0001	00000	(00, 00)	(00, 00)	1	None	Note	(0, 0)	(0, 0)	
+121 (79)	              Great One's Note	0102	0001	00000	(00, 00)	(00, 00)	1	None	Note	(0, 0)	(0, 0)	
+122 (7a)	      Mitchel Waylander's Note	0102	0001	00000	(00, 00)	(00, 00)	1	None	Note	(0, 0)	(0, 0)	
+123 (7b)	                  Navon's Note	0102	0001	00000	(00, 00)	(00, 00)	1	None	Note	(0, 0)	(0, 0)	
+124 (7c)	               Abbot's Journal	0102	0001	00000	(00, 00)	(00, 00)	1	None	Note	(0, 0)	(0, 0)	
+125 (7d)	              Lorgan's Journal	0102	0001	00000	(00, 00)	(00, 00)	1	None	Note	(0, 0)	(0, 0)	
+126 (7e)	     Accts of Shamata Garrison	2100	0001	01500	(00, 00)	(00, 00)	1	None	Book	(100, 5)	(0, 0)	
+127 (7f)	       Chapel's Rmur n Whepuns	2100	0001	03500	(00, 00)	(00, 00)	1	None	Book	(600, 3)	(0, 0)	
+128 (80)	              Dorcas' Treatise	2100	0001	03000	(00, 00)	(00, 00)	1	None	Book	(80, 5)	(0, 0)	
+129 (81)	             Kalem's Dialectic	2100	0001	02250	(00, 00)	(00, 00)	1	None	Book	(20, 5)	(0, 0)	
+130 (82)	                Psalms of Dala	2100	0001	02000	(00, 00)	(00, 00)	1	None	Book	(10, 4)	(0, 0)	
+131 (83)	         Strategies of Trading	2100	0001	01250	(00, 00)	(00, 00)	1	None	Book	(1000, 10)	(0, 0)	
+132 (84)	      Thiful's Bird Migrations	2100	0001	04000	(00, 00)	(00, 00)	1	None	Book	(fff0, 5)	(0, 0)	
+133 (85)	                Magical Scroll	41a0	0001	00000	(00, 00)	(00, 00)	1	None	Scroll	(0, 0)	(0, 0)	
+134 (86)	                  Days Rations	0000	0001	00010	(00, 00)	(00, 00)	1	Human	Food	(48, 1)	(0, 0)	
+135 (87)	                Quegian Brandy	0000	0001	00050	(00, 00)	(00, 00)	1	Human	Food	(3, 18)	(0, 0)	
+136 (88)	                           Ale	0000	0001	00010	(00, 00)	(00, 00)	1	Human	Food	(3, 12)	(0, 0)	
+137 (89)	                   Keshian Ale	0000	0001	00030	(00, 00)	(00, 00)	1	Human	Food	(3, 28)	(0, 0)	

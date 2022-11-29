@@ -53,9 +53,14 @@ public:
         return CheckItemStatus(mStatus, ItemStatus::Equipped);
     }
 
+    bool IsBroken() const
+    {
+        return CheckItemStatus(mStatus, ItemStatus::Broken);
+    }
+
     bool IsRepairable() const
     {
-        return CheckItemStatus(mStatus, ItemStatus::Repairable);
+        return CheckItemStatus(mStatus, ItemStatus::Repairable) && !IsBroken();
     }
 
     bool IsBroken() const
@@ -128,6 +133,11 @@ public:
     bool IsQuantityBased() const
     {
         return HasFlag(ItemFlags::QuantityBased);
+    }
+
+    bool IsSkillModifier() const
+    {
+        return GetObject().mModifierMask != 0;
     }
 
     bool IsItemType(BAK::ItemType type) const
