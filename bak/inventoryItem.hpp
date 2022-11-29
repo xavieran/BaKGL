@@ -60,7 +60,7 @@ public:
 
     bool IsRepairable() const
     {
-        return !IsBroken() && CheckItemStatus(mStatus, ItemStatus::Repairable);
+        return CheckItemStatus(mStatus, ItemStatus::Repairable) && !IsBroken();
     }
 
     bool IsPoisoned() const
