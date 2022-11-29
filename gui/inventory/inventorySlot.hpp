@@ -168,17 +168,6 @@ public:
                 dims - textDims 
                 + glm::vec2{4, 2});
         }
-        else if (item.IsItemType(BAK::ItemType::Scroll))
-        {
-            BAK::SpellInfo spells{};
-            std::stringstream ss{};
-            ss << "#" << spells.GetSpellName(item.GetScroll());
-            const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
-            const auto& dims = GetPositionInfo().mDimensions;
-            mQuantity.SetPosition(
-                dims - textDims 
-                + glm::vec2{4, 2});
-        }
     }
 
     bool IsSelected() const

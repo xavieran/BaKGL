@@ -1,6 +1,7 @@
 #pragma once
 
 #include "com/assert.hpp"
+#include "com/logger.hpp"
 
 #include "xbak/FileBuffer.h"
 
@@ -27,13 +28,16 @@ public:
 
         for (unsigned i = 0; i < spells; i++)
         {
-            mSpellNames.emplace_back(fb.GetString());
+            auto name = fb.GetString();
+            Logging::LogDebug(__FUNCTION__) << "Spell: " << i << " " << name <<"\n";
+            mSpellNames.emplace_back(std::move(name));
         }
     }
 
     std::string_view GetSpellName(unsigned spellIndex) const
     {
         ASSERT(spellIndex < mSpellNames.size());
+        Logging::LogDebug(__FUNCTION__) << "Spell: " << spellIndex << " " << mSpellNames[spellIndex] <<"\n";
         return mSpellNames[spellIndex];
     }
 
