@@ -1,4 +1,5 @@
 #include "bak/fixedObject.hpp"
+#include "bak/objectInfo.hpp"
 
 #include "com/logger.hpp"
 
@@ -13,13 +14,16 @@ int main(int argc, char** argv)
 
     logger.Info() << "Loading fixed objects from zone: " << zone << std::endl;
 
-    const auto obj = BAK::LoadFixedObjects(std::atoi(zone.c_str()));
+    logger.Info() << "\n" << BAK::GetObjectIndex();
 
-    for (const auto& o : obj)
-    {
-        logger.Info() << o << "\n";
-    }
-    logger.Info() << "Done\n";
+    //BAK::LoadFixedObjects(std::atoi(zone.c_str()));
+    //const auto obj = BAK::LoadFixedObjects(std::atoi(zone.c_str()));
+
+    //for (const auto& o : obj)
+    //{
+    //    logger.Info() << o << "\n";
+    //}
+    //logger.Info() << "Done\n";
 
     return 0;
 }

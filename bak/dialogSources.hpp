@@ -20,15 +20,21 @@ public:
     static std::string_view GetItemDescription(unsigned itemIndex)
     {
         const auto& items = DialogStore::Get().GetSnippet(mItemDescription).GetChoices();
-        ASSERT(itemIndex - 1 < items.size());
-        return DialogStore::Get().GetSnippet(items[itemIndex - 1].mTarget).GetText();
+        const auto it = std::find_if(items.begin(), items.end(), [&](const auto& a){
+            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
+            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == itemIndex;} );
+        ASSERT(it != items.end());
+        return DialogStore::Get().GetSnippet(it->mTarget).GetText();
     }
 
     static std::string_view GetScrollDescription(unsigned scrollIndex)
     {
-        const auto& spells = DialogStore::Get().GetSnippet(mScrollDescriptions).GetChoices();
-        ASSERT(scrollIndex < spells.size());
-        return DialogStore::Get().GetSnippet(spells[scrollIndex - 1].mTarget).GetText();
+        const auto& scrolls = DialogStore::Get().GetSnippet(mScrollDescriptions).GetChoices();
+        const auto it = std::find_if(scrolls.begin(), scrolls.end(), [&](const auto& a){
+            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
+            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == scrollIndex;} );
+        ASSERT(it != scrolls.end());
+        return DialogStore::Get().GetSnippet(it->mTarget).GetText();
     }
 
     static KeyTarget GetItemUseText(unsigned itemIndex)
