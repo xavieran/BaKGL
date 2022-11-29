@@ -485,6 +485,7 @@ private:
         if (mDisplayDetails)
             AddChildBack(&mDetails);
 
+
         AddChildBack(&mExit);
         AddChildBack(&mGoldDisplay);
 
@@ -492,6 +493,9 @@ private:
 
         for (auto& character : mCharacters)
             AddChildBack(&character);
+
+        if (mDisplayDetails)
+            return;
 
         AddChildBack(&mLock);
         AddChildBack(&mContainerScreen);

@@ -82,7 +82,7 @@ public:
             if (GetCharacter(character).GetInventory().HaveItem(item))
                 return true;
 
-        return false;
+        return mKeys.GetInventory().HaveItem(item);
     }
 
     void GainMoney(Royals royals)
