@@ -124,7 +124,7 @@ public:
         {
             mDescription = gameState.GetTextVariableStore()
                 .SubstituteVariables(
-                    std::string{BAK::DialogSources::GetItemDescription(item.GetObject().mImageIndex)});
+                    std::string{BAK::DialogSources::GetItemDescription(item.GetItemIndex().mValue)});
         }
 
         mDescriptionText.AddText(mFont, mDescription, true, true);
