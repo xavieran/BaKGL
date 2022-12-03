@@ -135,7 +135,7 @@ public:
             }
             else
             {
-                for (unsigned i = 0; i < character.GetConditions().sNumConditions; i++)
+                for (unsigned i = 0; i < static_cast<unsigned>(character.GetConditions().sNumConditions); i++)
                 {
                     const auto type = static_cast<BAK::Condition>(i);
                     const auto value = character.GetConditions().GetCondition(type);
