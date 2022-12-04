@@ -180,6 +180,11 @@ public:
         return CheckBitSet(mModifiers, mod);
     }
 
+    void ClearTemporaryModifiers()
+    {
+        mModifiers = mModifiers & 0b1110'0000;
+    }
+
     void SetModifier(Modifier mod)
     {
         mModifiers = SetBit(mModifiers, static_cast<std::uint8_t>(mod), true);

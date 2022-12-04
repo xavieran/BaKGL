@@ -790,11 +790,20 @@ void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex
 {
     ASSERT(mSelectedCharacter);
     auto& character = GetCharacter(*mSelectedCharacter) ;
-    [[maybe_unused]] const auto result = BAK::ApplyItemTo(character, sourceItemSlot.GetItemIndex(), targetItemIndex);
+    const auto result = BAK::ApplyItemTo(character, sourceItemSlot.GetItemIndex(), targetItemIndex);
 
     character.CheckPostConditions();
-
     mNeedRefresh = true;
+
+    if (result.mUseSound)
+    {
+        const auto [sound, times] = *result.mUseSound;
+        for (unsigned i = 0; i < (times + 1); i++)
+        {
+            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
+        }
+    }
+    StartDialog(result.mDialog);
 }
 
 void InventoryScreen::AdvanceNextPage()

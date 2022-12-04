@@ -19,22 +19,14 @@ public:
 
     static std::string_view GetItemDescription(unsigned itemIndex)
     {
-        const auto& items = DialogStore::Get().GetSnippet(mItemDescription).GetChoices();
-        const auto it = std::find_if(items.begin(), items.end(), [&](const auto& a){
-            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
-            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == itemIndex;} );
-        ASSERT(it != items.end());
-        return DialogStore::Get().GetSnippet(it->mTarget).GetText();
+        return DialogStore::Get().GetSnippet(
+            GetChoiceResult(mItemDescription, itemIndex)).GetText();
     }
 
     static std::string_view GetScrollDescription(unsigned scrollIndex)
     {
-        const auto& scrolls = DialogStore::Get().GetSnippet(mScrollDescriptions).GetChoices();
-        const auto it = std::find_if(scrolls.begin(), scrolls.end(), [&](const auto& a){
-            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
-            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == scrollIndex;} );
-        ASSERT(it != scrolls.end());
-        return DialogStore::Get().GetSnippet(it->mTarget).GetText();
+        return DialogStore::Get().GetSnippet(
+            GetChoiceResult(mScrollDescriptions, scrollIndex)).GetText();
     }
 
     static KeyTarget GetItemUseText(unsigned itemIndex)
@@ -49,11 +41,21 @@ public:
         return KeyTarget{mSpyNoteContents};
     }
 
+    static Target GetChoiceResult(KeyTarget dialog, unsigned index)
+    {
+        const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
+        const auto it = std::find_if(choices.begin(), choices.end(), [&](const auto& a){
+            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
+            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == index ;} );
+        ASSERT(it != choices.end());
+        return it->mTarget;
+    }
+
     static constexpr auto mFairyChestKey    = 0x19f0a0;
 
     static constexpr auto mItemDescription  = KeyTarget{0x1b7741};
-    static constexpr auto mItemUseSucessful = 0x1b7742;
-    static constexpr auto mItemUseFailure   = 0x1b7743;
+    static constexpr auto mItemUseSucessful = KeyTarget{0x1b7742};
+    static constexpr auto mItemUseFailure   = KeyTarget{0x1b7743};
     static constexpr auto mHealthPotionDialog = 0x1b7744;
     static constexpr auto mConsumeAntiVenom   = 0x1b776f;
     static constexpr auto mNoSpaceForNewItem  = 0x1b775b;

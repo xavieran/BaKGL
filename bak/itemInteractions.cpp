@@ -1,5 +1,6 @@
 #include "bak/itemInteractions.hpp"
 
+#include "bak/dialogSources.hpp"
 #include "bak/skills.hpp"
 
 #include "com/logger.hpp"
@@ -14,31 +15,46 @@ ItemUseResult ApplyItemTo(
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
     if (sourceItem.IsRepairItem() 
-        && targetItem.IsItemType(static_cast<ItemType>(sourceItem.GetObject().mEffectMask))
-        && targetItem.IsRepairable())
+        && targetItem.IsItemType(static_cast<ItemType>(sourceItem.GetObject().mEffectMask)))
     {
         Logging::LogDebug(__FUNCTION__) << " Repair " << targetItem << " with " << sourceItem << "\n";
-        RepairItem(character, sourceItemIndex, targetItemIndex);
+        return RepairItem(character, sourceItemIndex, targetItemIndex);
     }
     else if (sourceItem.IsItemModifier()
         && targetItem.IsModifiableBy(sourceItem.GetObject().mType))
     {
-        Logging::LogDebug(__FUNCTION__) << " Apply Modifier " << targetItem << " with " << sourceItem << "\n";
+        const auto mod = ToModifier(sourceItem.GetObject().mEffectMask);
+        Logging::LogDebug(__FUNCTION__) << " Apply Modifier " << targetItem << " with " << sourceItem << "\n" << mod << "\n";
         character.RemoveItem(sourceItemIndex, 1);
-        targetItem.SetModifier(static_cast<Modifier>(sourceItem.GetObject().mEffectMask));
+        targetItem.ClearTemporaryModifiers();
+        targetItem.SetModifier(mod);
+
+        return ItemUseResult{
+            std::make_pair(sourceItem.GetObject().mUseSound, sourceItem.GetObject().mSoundPlayTimes),
+            DialogSources::GetChoiceResult(
+                DialogSources::mItemUseSucessful,
+                sourceItem.GetItemIndex().mValue)};
     }
     else
     {
         Logging::LogDebug(__FUNCTION__) << " DO NOTHING " << targetItem << " with " << sourceItem << "\n";
     }
 
-    return ItemUseResult{};
+    return ItemUseResult{
+        std::nullopt,
+        DialogSources::GetChoiceResult(
+            DialogSources::mItemUseFailure,
+            sourceItem.GetItemIndex().mValue)};
 }
 
 ItemUseResult RepairItem(Character& character, InventoryIndex sourceItemIndex, InventoryIndex targetItemIndex)
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
+
+    if (!targetItem.IsRepairable())
+    {
+    }
 
     const auto whichSkill = targetItem.IsItemType(ItemType::Armor)
         ? SkillType::Armorcraft
@@ -55,7 +71,10 @@ ItemUseResult RepairItem(Character& character, InventoryIndex sourceItemIndex, I
     targetItem.SetCondition(finalCondition);
     targetItem.SetRepairable(false);
     character.RemoveItem(sourceItemIndex, 1);
-    return ItemUseResult{};
+
+    return ItemUseResult{
+        std::make_pair(sourceItem.GetObject().mUseSound, sourceItem.GetObject().mSoundPlayTimes),
+        KeyTarget{0}};
 }
 
 }

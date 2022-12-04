@@ -23,6 +23,8 @@ enum class Modifier
 std::string_view ToString(Modifier);
 std::ostream& operator<<(std::ostream& os, Modifier);
 
+Modifier ToModifier(unsigned modifierMask);
+
 enum class RacialModifier
 {
     None,
