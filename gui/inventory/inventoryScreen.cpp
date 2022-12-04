@@ -2,6 +2,7 @@
 
 #include "bak/haggle.hpp"
 #include "bak/itemNumbers.hpp"
+#include "bak/itemInteractions.hpp"
 
 namespace Gui {
 
@@ -679,23 +680,33 @@ void InventoryScreen::MoveItemToEquipmentSlot(
     BAK::ItemType slot)
 {
     ASSERT(mSelectedCharacter);
+    auto& character = GetCharacter(*mSelectedCharacter) ;
 
     mLogger.Debug() << "Move item to equipment slot: " 
         << item.GetItem() << " " << BAK::ToString(slot) << "\n";
 
-    if (slot == BAK::ItemType::Sword)
+    const auto& slotItem = item.GetItem();
+    const auto weaponSlotType = character.IsSwordsman()
+        ? BAK::ItemType::Sword
+        : BAK::ItemType::Staff;
+
+    if (slot == BAK::ItemType::Sword
+        && (slotItem.IsItemType(BAK::ItemType::Sword)
+            || slotItem.IsItemType(BAK::ItemType::Staff)))
     {
-        if (GetCharacter(*mSelectedCharacter).IsSwordsman())
-            GetCharacter(*mSelectedCharacter)
-                .ApplyItemToSlot(item.GetItemIndex(), slot);
-        else
-            GetCharacter(*mSelectedCharacter)
-                .ApplyItemToSlot(item.GetItemIndex(), BAK::ItemType::Staff);
+        character.ApplyItemToSlot(item.GetItemIndex(), weaponSlotType);
+    }
+    else if (slot == BAK::ItemType::Crossbow && slotItem.IsItemType(BAK::ItemType::Crossbow))
+    {
+        character.ApplyItemToSlot(item.GetItemIndex(), slot);
+    }
+    else if (slot == BAK::ItemType::Armor && slotItem.IsItemType(BAK::ItemType::Armor))
+    {
+        character.ApplyItemToSlot(item.GetItemIndex(), slot);
     }
     else
     {
-        GetCharacter(*mSelectedCharacter)
-            .ApplyItemToSlot(item.GetItemIndex(), slot);
+        UseItem(item, character.GetItemAtSlot(slot));
     }
 
     GetCharacter(*mSelectedCharacter).CheckPostConditions();
@@ -775,12 +786,15 @@ void InventoryScreen::SplitStackBeforeMoveItemToContainer(InventorySlot& slot)
     }
 }
 
-void InventoryScreen::UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
+void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex targetItemIndex)
 {
     ASSERT(mSelectedCharacter);
-    auto& applyTo = GetCharacter(*mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
-    mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
-    GetCharacter(*mSelectedCharacter).CheckPostConditions();
+    auto& character = GetCharacter(*mSelectedCharacter) ;
+    [[maybe_unused]] const auto result = BAK::ApplyItemTo(character, sourceItemSlot.GetItemIndex(), targetItemIndex);
+
+    character.CheckPostConditions();
+
+    mNeedRefresh = true;
 }
 
 void InventoryScreen::AdvanceNextPage()

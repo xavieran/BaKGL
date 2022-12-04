@@ -38,6 +38,7 @@ public:
     virtual bool CanAddItem(const InventoryItem&) const = 0;
     virtual bool GiveItem(const InventoryItem&) = 0;
     virtual bool RemoveItem(const InventoryItem&) = 0;
+    virtual bool RemoveItem(InventoryIndex, unsigned amount) {return true;};
     virtual ContainerType GetContainerType() const = 0;
     virtual ShopStats& GetShop() = 0;
     virtual const ShopStats& GetShop() const = 0;

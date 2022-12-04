@@ -140,6 +140,27 @@ public:
         return GetObject().mType == type;
     }
 
+    bool IsItemModifier() const
+    {
+        return IsItemType(ItemType::WeaponOil)
+            || IsItemType(ItemType::ArmorOil)
+            || IsItemType(BAK::ItemType::SpecialOil);
+    }
+
+    bool IsModifiableBy(ItemType itemType)
+    {
+        return (itemType == ItemType::WeaponOil && IsItemType(ItemType::Sword))
+            || (itemType == ItemType::ArmorOil && IsItemType(ItemType::Armor))
+            || (itemType == ItemType::SpecialOil 
+                    && (IsItemType(ItemType::Armor)
+                        || IsItemType(ItemType::Sword)));
+    }
+
+    bool IsRepairItem() const
+    {
+        return IsItemType(BAK::ItemType::Tool);
+    }
+
     bool DisplayCondition() const
     {
         return IsConditionBased();

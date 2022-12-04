@@ -37,7 +37,8 @@ public:
         mUnknown{unknown},
         mUnknown2{unknown2},
         mConditions{conditions},
-        mInventory{std::move(inventory)}
+        mInventory{std::move(inventory)},
+        mLogger{Logging::LogState::GetLogger("BAK::Character")}
     {}
 
     /* IContainer */
@@ -134,6 +135,22 @@ public:
         return false;
     }
 
+    bool RemoveItem(InventoryIndex itemIndex, unsigned amount) override
+    {
+        auto& item = mInventory.GetAtIndex(itemIndex);
+        const auto remaining = item.GetQuantity() - amount;
+        if (remaining <= 0)
+        {
+            mInventory.RemoveItem(itemIndex);
+        }
+        else
+        {
+            item.SetQuantity(remaining);
+        }
+
+        return true;
+    }
+
     ContainerType GetContainerType() const override
     {
         return ContainerType::Inv;
@@ -176,6 +193,13 @@ public:
             == mInventory.GetItems().end();
     }
 
+    InventoryIndex GetItemAtSlot(ItemType slot) const
+    {
+        auto it = mInventory.FindEquipped(slot) ;
+        assert(it != mInventory.GetItems().end());
+        return static_cast<InventoryIndex>(std::distance(mInventory.GetItems().begin(), it));
+    }
+
     ItemType GetWeaponType() const
     {
         if (IsSpellcaster())
@@ -200,8 +224,9 @@ public:
     {
         auto& item = mInventory.GetAtIndex(index);
         auto equipped = mInventory.FindEquipped(slot);
+        const auto slotIndex = static_cast<InventoryIndex>(std::distance(mInventory.GetItems().begin(), equipped));
         // We are trying to move this item onto itself
-        if (std::distance(mInventory.GetItems().begin(), equipped) == index.mValue)
+        if (slotIndex == index)
         {
             return;
         }
@@ -215,6 +240,7 @@ public:
         else
         {
             // Try use item at index on slot item
+            //UseItem(index, slotIndex);
         }
 
         Logging::LogDebug("CharacterAFMove") << __FUNCTION__ << " " << item << " " << BAK::ToString(slot) << "\n";
@@ -321,6 +347,8 @@ public:
     std::array<std::uint8_t, 7> mUnknown2;
     Conditions mConditions;
     Inventory mInventory;
+
+    const Logging::Logger& mLogger;
 };
 
 std::ostream& operator<<(std::ostream&, const Character&);
