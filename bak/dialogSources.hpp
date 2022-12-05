@@ -79,7 +79,7 @@ public:
     static constexpr auto mCantStealItemDuringCombat = 0x1b7769;
     static constexpr auto mCantDiscardOnlyWeapon = KeyTarget{0x1b774e};
     static constexpr auto mCantDropFlamingTorch  = 0x1b775d;
-    static constexpr auto mCantRepairItem        = 0x1b775e;
+    static constexpr auto mCantRepairItemFurther = KeyTarget{0x1b775e};
     static constexpr auto mCantConsumeMorePoition = 0x1b7760;
     static constexpr auto mLitTorchInNapthaCaverns = 0x1b776e;
     static constexpr auto mInventoryInterfaceTooltips = 0x1b775a;

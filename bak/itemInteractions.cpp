@@ -54,6 +54,9 @@ ItemUseResult RepairItem(Character& character, InventoryIndex sourceItemIndex, I
 
     if (!targetItem.IsRepairable())
     {
+        return ItemUseResult{
+            std::nullopt,
+            DialogSources::mCantRepairItemFurther};
     }
 
     const auto whichSkill = targetItem.IsItemType(ItemType::Armor)
