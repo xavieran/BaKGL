@@ -652,7 +652,7 @@ void InventoryScreen::SplitStackBeforeTransferItemToCharacter(
 
     // Can't buy split stacks from shops
     if (slot.GetItem().IsStackable() 
-        && (!mContainer || !mContainer->IsShop()))
+        && (!mDisplayContainer || !mContainer || !mContainer->IsShop()))
     {
         const auto maxAmount = GetCharacter(character).GetInventory()
             .CanAddCharacter(slot.GetItem());

@@ -182,7 +182,14 @@ public:
 
     void ClearTemporaryModifiers()
     {
+        mStatus = mStatus & 0b0111'1111;
         mModifiers = mModifiers & 0b1110'0000;
+    }
+
+    void SetStatusAndModifierFromMask(std::uint16_t mask)
+    {
+        mStatus |= (mask & 0xff);
+        mModifiers |= ((mask >> 8) & 0xff);
     }
 
     void SetModifier(Modifier mod)
@@ -202,6 +209,11 @@ public:
             if (CheckBitSet(mModifiers, i))
                 mods.emplace_back(static_cast<Modifier>(i));
         return mods;
+    }
+
+    std::pair<unsigned, unsigned> GetItemUseSound()
+    {
+        return std::make_pair(GetObject().mUseSound, GetObject().mSoundPlayTimes);
     }
 
 

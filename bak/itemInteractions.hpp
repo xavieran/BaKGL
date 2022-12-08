@@ -16,6 +16,4 @@ struct ItemUseResult
 
 ItemUseResult ApplyItemTo(Character&, InventoryIndex sourceItem, InventoryIndex targetItem);
 
-ItemUseResult RepairItem(Character&, InventoryIndex sourceItem, InventoryIndex targetItem);
-
 }

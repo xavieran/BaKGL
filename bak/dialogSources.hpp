@@ -69,7 +69,7 @@ public:
     // Contextual on container type (use to deduce container types?)
     static constexpr auto mContainerHasNoRoomForItem = KeyTarget{0x1b7748};
     static constexpr auto mDropItem = 0x1b7749;
-    static constexpr auto mGenericCantUseItem = 0x1b774a;
+    static constexpr auto mGenericCantUseItem = KeyTarget{0x1b774a};
     static constexpr auto mGenericCharacterClassCantUseItem = 0x1b774b;
     // Though he was fascinated by the @1, he realised that this was neither the time nor the place for him to be toying with it, especially when spying eyes might be watching him.
     static constexpr auto mCantUseItemRightNowSpyingEyes = 0x1b7770;

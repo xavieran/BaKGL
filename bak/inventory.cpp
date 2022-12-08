@@ -143,8 +143,8 @@ bool Inventory::RemoveItem(const InventoryItem& item)
             if (it->GetQuantity() == 0)
                 mItems.erase(it);
 
-        } while ((it = FindStack(item)) != mItems.end()
-            && remainingToRemove > 0);
+        } while (remainingToRemove > 0
+            && (it = FindStack(item)) != mItems.end());
 
         CheckPostConditions();
         return true;
