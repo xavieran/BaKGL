@@ -14,6 +14,9 @@ struct ItemUseResult
     Target mDialog;
 };
 
-ItemUseResult ApplyItemTo(Character&, InventoryIndex sourceItem, InventoryIndex targetItem);
+ItemUseResult ApplyItemTo(
+    Character&,
+    InventoryIndex sourceItem,
+    InventoryIndex targetItem);
 
 }

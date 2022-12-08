@@ -9,7 +9,10 @@
 
 namespace BAK {
 
-ItemUseResult RepairItem(Character& character, InventoryIndex sourceItemIndex, InventoryIndex targetItemIndex)
+ItemUseResult RepairItem(
+    Character& character,
+    InventoryIndex sourceItemIndex,
+    InventoryIndex targetItemIndex)
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
@@ -39,12 +42,16 @@ ItemUseResult RepairItem(Character& character, InventoryIndex sourceItemIndex, I
         sourceItem.GetItemUseSound(),
         KeyTarget{0}};
 
-    character.RemoveItem(sourceItemIndex, 1);
+    character.RemoveItem(
+        InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
 
     return result;
 }
 
-ItemUseResult FixCrossbow(Character& character, InventoryIndex sourceItemIndex, InventoryIndex targetItemIndex)
+ItemUseResult FixCrossbow(
+    Character& character,
+    InventoryIndex sourceItemIndex,
+    InventoryIndex targetItemIndex)
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
@@ -75,7 +82,10 @@ ItemUseResult FixCrossbow(Character& character, InventoryIndex sourceItemIndex, 
     }
 }
 
-ItemUseResult ModifyItem(Character& character, InventoryIndex sourceItemIndex, InventoryIndex targetItemIndex)
+ItemUseResult ModifyItem(
+    Character& character,
+    InventoryIndex sourceItemIndex,
+    InventoryIndex targetItemIndex)
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
@@ -91,12 +101,16 @@ ItemUseResult ModifyItem(Character& character, InventoryIndex sourceItemIndex, I
             sourceItem.GetItemIndex().mValue)};
 
     if (sourceItem.IsChargeBased() || sourceItem.IsQuantityBased())
-        character.RemoveItem(sourceItemIndex, 1);
+        character.RemoveItem(
+            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
 
     return result;
 }
 
-ItemUseResult PoisonQuarrel(Character& character, InventoryIndex sourceItemIndex, InventoryIndex targetItemIndex)
+ItemUseResult PoisonQuarrel(
+    Character& character,
+    InventoryIndex sourceItemIndex,
+    InventoryIndex targetItemIndex)
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
@@ -112,7 +126,8 @@ ItemUseResult PoisonQuarrel(Character& character, InventoryIndex sourceItemIndex
         KeyTarget{0}};
 
     if (sourceItem.IsChargeBased() || sourceItem.IsQuantityBased())
-        character.RemoveItem(sourceItemIndex, 1);
+        character.RemoveItem(
+            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
 
     character.RemoveItem(targetItem);
     character.GiveItem(newQuarrels);
@@ -123,10 +138,13 @@ ItemUseResult PoisonQuarrel(Character& character, InventoryIndex sourceItemIndex
 bool IsPoisonableQuarrel(const InventoryItem& item)
 {
     const auto index = item.GetItemIndex().mValue;
-    return index >= 36 && index <= 38;
+    return index >= sQuarrels.mValue && index <= sTsuraniQuarrels.mValue;
 }
 
-ItemUseResult PoisonRations(Character& character, InventoryIndex sourceItemIndex, InventoryIndex targetItemIndex)
+ItemUseResult PoisonRations(
+    Character& character,
+    InventoryIndex sourceItemIndex,
+    InventoryIndex targetItemIndex)
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
@@ -142,7 +160,8 @@ ItemUseResult PoisonRations(Character& character, InventoryIndex sourceItemIndex
         KeyTarget{0}};
 
     if (sourceItem.IsChargeBased() || sourceItem.IsQuantityBased())
-        character.RemoveItem(sourceItemIndex, 1);
+        character.RemoveItem(
+            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
 
     character.RemoveItem(targetItem);
     character.GiveItem(newRations);
@@ -150,7 +169,10 @@ ItemUseResult PoisonRations(Character& character, InventoryIndex sourceItemIndex
     return result;
 }
 
-ItemUseResult MakeGuardaRevanche(Character& character, InventoryIndex sourceItemIndex, InventoryIndex targetItemIndex)
+ItemUseResult MakeGuardaRevanche(
+    Character& character,
+    InventoryIndex sourceItemIndex,
+    InventoryIndex targetItemIndex)
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);

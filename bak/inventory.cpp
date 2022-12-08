@@ -1,6 +1,7 @@
 #include "bak/inventory.hpp"
 
 #include "com/assert.hpp"
+#include "com/logger.hpp"
 
 #include <algorithm>
 #include <numeric>
@@ -34,7 +35,9 @@ bool Inventory::HasIncompleteStack(const InventoryItem& item) const
 
 std::size_t Inventory::CanAddCharacter(const InventoryItem& item) const
 {
-    const auto currentQuantity = GetSpaceUsed();
+    // This is an annoying hack because the game gives characters inventory
+    // size of 24, rather than 20 + 8 (items + equipped)
+    const auto currentQuantity = GetSpaceUsed() + 4;
     const auto fits = (currentQuantity + item.GetObject().mImageSize) <= mCapacity;
     return CanAdd(fits, item);
 }

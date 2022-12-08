@@ -135,22 +135,6 @@ public:
         return false;
     }
 
-    bool RemoveItem(InventoryIndex itemIndex, unsigned amount) override
-    {
-        auto& item = mInventory.GetAtIndex(itemIndex);
-        const auto remaining = item.GetQuantity() - amount;
-        if (remaining <= 0)
-        {
-            mInventory.RemoveItem(itemIndex);
-        }
-        else
-        {
-            item.SetQuantity(remaining);
-        }
-
-        return true;
-    }
-
     ContainerType GetContainerType() const override
     {
         return ContainerType::Inv;
