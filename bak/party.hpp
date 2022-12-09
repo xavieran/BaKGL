@@ -98,11 +98,11 @@ public:
 
     void RemoveItem(unsigned itemIndex, unsigned quantity)
     {
-        if (itemIndex == 0x35)
+        if (ItemIndex{itemIndex} == sSovereigns)
         {
             mGold.mValue -= GetRoyals(Sovereigns{quantity}).mValue;
         }
-        else if (itemIndex == 0x36)
+        else if (ItemIndex{itemIndex} == sRoyals)
         {
             mGold.mValue -= quantity;
         }
@@ -129,11 +129,11 @@ public:
 
     void GainItem(unsigned character, unsigned itemIndex, unsigned quantity)
     {
-        if (itemIndex == 0x35)
+        if (ItemIndex{itemIndex} == sSovereigns)
         {
             mGold.mValue += GetRoyals(Sovereigns{quantity}).mValue;
         }
-        else if (itemIndex == 0x36)
+        else if (ItemIndex{itemIndex} == sRoyals)
         {
             mGold.mValue += quantity;
         }

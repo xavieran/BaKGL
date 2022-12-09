@@ -17,6 +17,15 @@ ItemUseResult RepairItem(
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
 
+    if (!targetItem.IsItemType(static_cast<ItemType>(sourceItem.GetObject().mEffectMask)))
+    {
+        return ItemUseResult{
+            std::nullopt,
+            DialogSources::GetChoiceResult(
+                DialogSources::mItemUseFailure,
+                sourceItem.GetItemIndex().mValue)};
+    }
+
     if (!targetItem.IsRepairable())
     {
         return ItemUseResult{
@@ -89,8 +98,16 @@ ItemUseResult ModifyItem(
 {
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
-    const auto mod = ToModifier(sourceItem.GetObject().mEffectMask);
-    Logging::LogDebug(__FUNCTION__) << " Apply Modifier " << targetItem << " with " << sourceItem << "\n" << mod << "\n";
+
+    if (!targetItem.IsModifiableBy(sourceItem.GetObject().mType))
+    {
+        return ItemUseResult{
+            std::nullopt,
+            DialogSources::GetChoiceResult(
+                DialogSources::mItemUseFailure,
+                sourceItem.GetItemIndex().mValue)};
+    }
+
     targetItem.ClearTemporaryModifiers();
     targetItem.SetStatusAndModifierFromMask(sourceItem.GetObject().mEffectMask);
 
@@ -204,16 +221,15 @@ ItemUseResult ApplyItemTo(
     auto& sourceItem = character.GetInventory().GetAtIndex(sourceItemIndex);
     auto& targetItem = character.GetInventory().GetAtIndex(targetItemIndex);
 
-    if (sourceItem.IsRepairItem() 
-        && targetItem.IsItemType(static_cast<ItemType>(sourceItem.GetObject().mEffectMask)))
+    if (sourceItem.IsRepairItem())
     {
         Logging::LogDebug(__FUNCTION__) << " Repair " << targetItem << " with " << sourceItem << "\n";
         return RepairItem(character, sourceItemIndex, targetItemIndex);
     }
     else if (sourceItem.IsItemModifier()
-        && sourceItem.GetItemIndex() != sColtariPoison
-        && targetItem.IsModifiableBy(sourceItem.GetObject().mType))
+        && sourceItem.GetItemIndex() != sColtariPoison)
     {
+        // If incompatible item, dialog mItemUseFailure for modifiers
         Logging::LogDebug(__FUNCTION__) << " Modify item " << targetItem << " with " << sourceItem << "\n";
         return ModifyItem(character, sourceItemIndex, targetItemIndex);
     }
@@ -248,7 +264,7 @@ ItemUseResult ApplyItemTo(
 
     return ItemUseResult{
         std::nullopt,
-        DialogSources::mGenericCantUseItem};
+        KeyTarget{0}};
 }
 
 }
