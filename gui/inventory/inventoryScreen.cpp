@@ -790,6 +790,9 @@ void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex
 {
     ASSERT(mSelectedCharacter);
     auto& character = GetCharacter(*mSelectedCharacter) ;
+    mGameState.SetInventoryItem(sourceItemSlot.GetItem());
+    mGameState.SetDialogContext(sourceItemSlot.GetItem().GetItemIndex().mValue);
+    mGameState.GetTextVariableStore().SetTextVariable(1, sourceItemSlot.GetItem().GetObject().mName);
     const auto result = BAK::ApplyItemTo(character, sourceItemSlot.GetItemIndex(), targetItemIndex);
 
     character.CheckPostConditions();

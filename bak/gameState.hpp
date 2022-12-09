@@ -532,26 +532,26 @@ public:
     bool EvaluateDialogChoice(const Choice& choice) const
     {
         return std::visit(overloaded{
-                [&](const NoChoice& c){
-                    return true;
-                },
-                [&](const EventFlagChoice& c){
-                    return GetEventStateBool(c.mEventPointer) == c.mExpectedValue;
-                },
-                [&](const ComplexEventChoice& c){
-                    return EvaluateComplexChoice(c);
-                },
-                [&](const InventoryChoice& c){
-                    return GetParty().HaveItem(c.mRequiredItem) == c.mItemPresent;
-                },
-                [&](const GameStateChoice& c){
-                    return EvaluateGameStateChoice(c);
-                },
-                [&](const auto& c){
-                    return false; 
-                },
+            [&](const NoChoice& c){
+                return true;
             },
-            choice);
+            [&](const EventFlagChoice& c){
+                return GetEventStateBool(c.mEventPointer) == c.mExpectedValue;
+            },
+            [&](const ComplexEventChoice& c){
+                return EvaluateComplexChoice(c);
+            },
+            [&](const InventoryChoice& c){
+                return GetParty().HaveItem(c.mRequiredItem) == c.mItemPresent;
+            },
+            [&](const GameStateChoice& c){
+                return EvaluateGameStateChoice(c);
+            },
+            [&](const auto& c){
+                return false; 
+            },
+        },
+        choice);
     }
 
     unsigned GetEventState(unsigned eventPtr) const

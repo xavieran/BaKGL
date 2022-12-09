@@ -227,7 +227,8 @@ ItemUseResult ApplyItemTo(
         return RepairItem(character, sourceItemIndex, targetItemIndex);
     }
     else if (sourceItem.IsItemModifier()
-        && sourceItem.GetItemIndex() != sColtariPoison)
+        && sourceItem.GetItemIndex() != sColtariPoison
+        && !IsPoisonableQuarrel(targetItem))
     {
         // If incompatible item, dialog mItemUseFailure for modifiers
         Logging::LogDebug(__FUNCTION__) << " Modify item " << targetItem << " with " << sourceItem << "\n";
