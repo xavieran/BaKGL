@@ -10,6 +10,7 @@
 #include "xbak/FileBuffer.h"
 
 #include <iostream>
+#include <optional>
 #include <vector>
 
 namespace BAK {
@@ -74,6 +75,24 @@ public:
             [&item](const auto& elem){
                 return elem.GetItemIndex() == item.GetItemIndex();
             });
+    }
+
+    std::optional<InventoryIndex> GetIndexFromIt(std::vector<InventoryItem>::iterator it)
+    {
+        if (it == mItems.end())
+            return std::nullopt;
+        else
+            return std::make_optional(
+                static_cast<InventoryIndex>(std::distance(mItems.begin(), it)));
+    }
+
+    std::optional<InventoryIndex> GetIndexFromIt(std::vector<InventoryItem>::const_iterator it) const
+    {
+        if (it == mItems.end())
+            return std::nullopt;
+        else
+            return std::make_optional(
+                static_cast<InventoryIndex>(std::distance(mItems.cbegin(), it)));
     }
 
     // Search for a stackable item prioritising incomplete stacks

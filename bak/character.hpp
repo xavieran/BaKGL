@@ -180,8 +180,9 @@ public:
     InventoryIndex GetItemAtSlot(ItemType slot) const
     {
         auto it = mInventory.FindEquipped(slot) ;
-        assert(it != mInventory.GetItems().end());
-        return static_cast<InventoryIndex>(std::distance(mInventory.GetItems().begin(), it));
+        const auto index = mInventory.GetIndexFromIt(it);
+        assert(index);
+        return *index;
     }
 
     ItemType GetWeaponType() const
@@ -208,7 +209,7 @@ public:
     {
         auto& item = mInventory.GetAtIndex(index);
         auto equipped = mInventory.FindEquipped(slot);
-        const auto slotIndex = static_cast<InventoryIndex>(std::distance(mInventory.GetItems().begin(), equipped));
+        const auto slotIndex = *mInventory.GetIndexFromIt(equipped);
         // We are trying to move this item onto itself
         if (slotIndex == index)
         {
