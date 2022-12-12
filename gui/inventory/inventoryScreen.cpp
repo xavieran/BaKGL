@@ -315,14 +315,11 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
             const auto sourceItem = item;
             const auto destItemIt = dstC.GetInventory()
                 .FindEquipped(item.GetObject().mType);
+            const auto dstIndex = dstC.GetInventory().GetIndexFromIt(destItemIt);
+            ASSERT(dstIndex);
             const auto destItem = *destItemIt;
-            ASSERT(destItemIt != dstC.GetInventory().GetItems().end());
-            const auto dstIndex = std::distance(
-                dstC.GetInventory().GetItems().begin(),
-                destItemIt);
 
-            dstC.GetInventory().RemoveItem(
-                BAK::InventoryIndex{static_cast<unsigned>(dstIndex)});
+            dstC.GetInventory().RemoveItem(*dstIndex);
             dstC.GiveItem(sourceItem);
             srcC.GetInventory().RemoveItem(slot.GetItemIndex());
             srcC.GiveItem(destItem);
