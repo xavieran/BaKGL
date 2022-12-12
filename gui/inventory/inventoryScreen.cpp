@@ -2,6 +2,7 @@
 
 #include "bak/haggle.hpp"
 #include "bak/itemNumbers.hpp"
+#include "bak/itemInteractions.hpp"
 
 namespace Gui {
 
@@ -314,14 +315,11 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
             const auto sourceItem = item;
             const auto destItemIt = dstC.GetInventory()
                 .FindEquipped(item.GetObject().mType);
+            const auto dstIndex = dstC.GetInventory().GetIndexFromIt(destItemIt);
+            ASSERT(dstIndex);
             const auto destItem = *destItemIt;
-            ASSERT(destItemIt != dstC.GetInventory().GetItems().end());
-            const auto dstIndex = std::distance(
-                dstC.GetInventory().GetItems().begin(),
-                destItemIt);
 
-            dstC.GetInventory().RemoveItem(
-                BAK::InventoryIndex{static_cast<unsigned>(dstIndex)});
+            dstC.GetInventory().RemoveItem(*dstIndex);
             dstC.GiveItem(sourceItem);
             srcC.GetInventory().RemoveItem(slot.GetItemIndex());
             srcC.GiveItem(destItem);
@@ -651,7 +649,7 @@ void InventoryScreen::SplitStackBeforeTransferItemToCharacter(
 
     // Can't buy split stacks from shops
     if (slot.GetItem().IsStackable() 
-        && (!mContainer || !mContainer->IsShop()))
+        && (!mDisplayContainer || !mContainer || !mContainer->IsShop()))
     {
         const auto maxAmount = GetCharacter(character).GetInventory()
             .CanAddCharacter(slot.GetItem());
@@ -679,23 +677,33 @@ void InventoryScreen::MoveItemToEquipmentSlot(
     BAK::ItemType slot)
 {
     ASSERT(mSelectedCharacter);
+    auto& character = GetCharacter(*mSelectedCharacter) ;
 
     mLogger.Debug() << "Move item to equipment slot: " 
         << item.GetItem() << " " << BAK::ToString(slot) << "\n";
 
-    if (slot == BAK::ItemType::Sword)
+    const auto& slotItem = item.GetItem();
+    const auto weaponSlotType = character.IsSwordsman()
+        ? BAK::ItemType::Sword
+        : BAK::ItemType::Staff;
+
+    if (slot == BAK::ItemType::Sword
+        && (slotItem.IsItemType(BAK::ItemType::Sword)
+            || slotItem.IsItemType(BAK::ItemType::Staff)))
     {
-        if (GetCharacter(*mSelectedCharacter).IsSwordsman())
-            GetCharacter(*mSelectedCharacter)
-                .ApplyItemToSlot(item.GetItemIndex(), slot);
-        else
-            GetCharacter(*mSelectedCharacter)
-                .ApplyItemToSlot(item.GetItemIndex(), BAK::ItemType::Staff);
+        character.ApplyItemToSlot(item.GetItemIndex(), weaponSlotType);
+    }
+    else if (slot == BAK::ItemType::Crossbow && slotItem.IsItemType(BAK::ItemType::Crossbow))
+    {
+        character.ApplyItemToSlot(item.GetItemIndex(), slot);
+    }
+    else if (slot == BAK::ItemType::Armor && slotItem.IsItemType(BAK::ItemType::Armor))
+    {
+        character.ApplyItemToSlot(item.GetItemIndex(), slot);
     }
     else
     {
-        GetCharacter(*mSelectedCharacter)
-            .ApplyItemToSlot(item.GetItemIndex(), slot);
+        UseItem(item, character.GetItemAtSlot(slot));
     }
 
     GetCharacter(*mSelectedCharacter).CheckPostConditions();
@@ -775,12 +783,27 @@ void InventoryScreen::SplitStackBeforeMoveItemToContainer(InventorySlot& slot)
     }
 }
 
-void InventoryScreen::UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex)
+void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex targetItemIndex)
 {
     ASSERT(mSelectedCharacter);
-    auto& applyTo = GetCharacter(*mSelectedCharacter).GetInventory().GetAtIndex(itemIndex);
-    mLogger.Debug() << "Use item : " << item.GetItem() << " with " << applyTo << "\n";
-    GetCharacter(*mSelectedCharacter).CheckPostConditions();
+    auto& character = GetCharacter(*mSelectedCharacter) ;
+    mGameState.SetInventoryItem(sourceItemSlot.GetItem());
+    mGameState.SetDialogContext(sourceItemSlot.GetItem().GetItemIndex().mValue);
+    mGameState.GetTextVariableStore().SetTextVariable(1, sourceItemSlot.GetItem().GetObject().mName);
+    const auto result = BAK::ApplyItemTo(character, sourceItemSlot.GetItemIndex(), targetItemIndex);
+
+    character.CheckPostConditions();
+    mNeedRefresh = true;
+
+    if (result.mUseSound)
+    {
+        const auto [sound, times] = *result.mUseSound;
+        for (unsigned i = 0; i < (times + 1); i++)
+        {
+            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
+        }
+    }
+    StartDialog(result.mDialog);
 }
 
 void InventoryScreen::AdvanceNextPage()

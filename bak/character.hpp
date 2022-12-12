@@ -37,7 +37,8 @@ public:
         mUnknown{unknown},
         mUnknown2{unknown2},
         mConditions{conditions},
-        mInventory{std::move(inventory)}
+        mInventory{std::move(inventory)},
+        mLogger{Logging::LogState::GetLogger("BAK::Character")}
     {}
 
     /* IContainer */
@@ -176,6 +177,14 @@ public:
             == mInventory.GetItems().end();
     }
 
+    InventoryIndex GetItemAtSlot(ItemType slot) const
+    {
+        auto it = mInventory.FindEquipped(slot) ;
+        const auto index = mInventory.GetIndexFromIt(it);
+        assert(index);
+        return *index;
+    }
+
     ItemType GetWeaponType() const
     {
         if (IsSpellcaster())
@@ -200,8 +209,9 @@ public:
     {
         auto& item = mInventory.GetAtIndex(index);
         auto equipped = mInventory.FindEquipped(slot);
+        const auto slotIndex = *mInventory.GetIndexFromIt(equipped);
         // We are trying to move this item onto itself
-        if (std::distance(mInventory.GetItems().begin(), equipped) == index.mValue)
+        if (slotIndex == index)
         {
             return;
         }
@@ -215,6 +225,7 @@ public:
         else
         {
             // Try use item at index on slot item
+            //UseItem(index, slotIndex);
         }
 
         Logging::LogDebug("CharacterAFMove") << __FUNCTION__ << " " << item << " " << BAK::ToString(slot) << "\n";
@@ -321,6 +332,8 @@ public:
     std::array<std::uint8_t, 7> mUnknown2;
     Conditions mConditions;
     Inventory mInventory;
+
+    const Logging::Logger& mLogger;
 };
 
 std::ostream& operator<<(std::ostream&, const Character&);

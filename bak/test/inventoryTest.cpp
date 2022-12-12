@@ -244,7 +244,7 @@ TEST_F(InventoryTestFixture, FindStack)
 
 TEST_F(InventoryTestFixture, CanAddCharacterSuccess)
 {
-    auto inventory = Inventory{4};
+    auto inventory = Inventory{8};
 
     auto armor = MakeItem("Armor", 99);
     auto sword = MakeItem("Sword", 99);

@@ -27,6 +27,18 @@ std::string_view ToString(Modifier m)
     }
 }
 
+Modifier ToModifier(unsigned modifierMask)
+{
+    for (unsigned i = 0; i < 8; i++)
+    {
+        if (((1 << i) & (modifierMask >> 8)) != 0)
+        {
+            return static_cast<Modifier>(i);
+        }
+    }
+    return Modifier::Blessing1;
+}
+
 std::ostream& operator<<(std::ostream& os, Modifier m)
 {
     os << ToString(m);

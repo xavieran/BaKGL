@@ -140,6 +140,27 @@ public:
         return GetObject().mType == type;
     }
 
+    bool IsItemModifier() const
+    {
+        return IsItemType(ItemType::WeaponOil)
+            || IsItemType(ItemType::ArmorOil)
+            || IsItemType(BAK::ItemType::SpecialOil);
+    }
+
+    bool IsModifiableBy(ItemType itemType)
+    {
+        return (itemType == ItemType::WeaponOil && IsItemType(ItemType::Sword))
+            || (itemType == ItemType::ArmorOil && IsItemType(ItemType::Armor))
+            || (itemType == ItemType::SpecialOil 
+                    && (IsItemType(ItemType::Armor)
+                        || IsItemType(ItemType::Sword)));
+    }
+
+    bool IsRepairItem() const
+    {
+        return IsItemType(BAK::ItemType::Tool);
+    }
+
     bool DisplayCondition() const
     {
         return IsConditionBased();
@@ -159,6 +180,18 @@ public:
         return CheckBitSet(mModifiers, mod);
     }
 
+    void ClearTemporaryModifiers()
+    {
+        mStatus = mStatus & 0b0111'1111;
+        mModifiers = mModifiers & 0b1110'0000;
+    }
+
+    void SetStatusAndModifierFromMask(std::uint16_t mask)
+    {
+        mStatus |= (mask & 0xff);
+        mModifiers |= ((mask >> 8) & 0xff);
+    }
+
     void SetModifier(Modifier mod)
     {
         mModifiers = SetBit(mModifiers, static_cast<std::uint8_t>(mod), true);
@@ -176,6 +209,11 @@ public:
             if (CheckBitSet(mModifiers, i))
                 mods.emplace_back(static_cast<Modifier>(i));
         return mods;
+    }
+
+    std::pair<unsigned, unsigned> GetItemUseSound()
+    {
+        return std::make_pair(GetObject().mUseSound, GetObject().mSoundPlayTimes);
     }
 
 

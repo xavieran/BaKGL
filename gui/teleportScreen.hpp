@@ -4,6 +4,7 @@
 
 #include "bak/dialogSources.hpp"
 #include "bak/layout.hpp"
+#include "bak/sounds.hpp"
 #include "bak/temple.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -219,7 +220,7 @@ private:
                 mGameState.GetParty().LoseMoney(cost);
                 mState = State::Teleported;
                 mChosenDest = templeNumber;
-                AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0xc});
+                AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{BAK::sTeleportSound});
                 mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogPostTeleport, false, false, this);
             }
             else
