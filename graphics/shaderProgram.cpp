@@ -24,14 +24,14 @@ ShaderProgramHandle::ShaderProgramHandle(GLuint handle)
     mHandle{handle}
 {}
 
-ShaderProgramHandle& ShaderProgramHandle::operator=(ShaderProgramHandle&& other)
+ShaderProgramHandle& ShaderProgramHandle::operator=(ShaderProgramHandle&& other) noexcept
 {
     mHandle = other.mHandle;
     other.mHandle = 0;
     return *this;
 }
 
-ShaderProgramHandle::ShaderProgramHandle(ShaderProgramHandle&& other)
+ShaderProgramHandle::ShaderProgramHandle(ShaderProgramHandle&& other) noexcept
 {
     mHandle = other.mHandle;
     other.mHandle = 0;

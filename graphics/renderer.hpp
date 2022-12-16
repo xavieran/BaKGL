@@ -218,7 +218,7 @@ public:
         {
             if (glm::distance(lightCamera.GetPosition(), item.GetLocation()) > 128000.0) continue;
             const auto [offset, length] = item.GetObject();
-            auto modelMatrix = item.GetModelMatrix();
+            const auto& modelMatrix = item.GetModelMatrix();
 
             shader.SetUniform(modelMatrixId, modelMatrix);
 

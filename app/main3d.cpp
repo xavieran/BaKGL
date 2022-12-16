@@ -44,9 +44,11 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
 
+    const bool showImgui = false;
+
     auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
     Logging::LogState::AddStream(&log);
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
 
     Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
@@ -117,8 +119,10 @@ int main(int argc, char** argv)
         width,
         "BaK");
 
-    ImguiWrapper::Initialise(window.get());
-    
+    if (showImgui)
+    {
+        ImguiWrapper::Initialise(window.get());
+    }
     
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
@@ -325,7 +329,7 @@ int main(int argc, char** argv)
         cameraPtr->SetDeltaTime(deltaTime);
         gameState.SetLocation(cameraPtr->GetGameLocation());
         guiManager.mFullMap.UpdateLocation();
-        
+
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
         inputHandler.HandleInput(window.get());
@@ -360,18 +364,21 @@ int main(int argc, char** argv)
         guiRenderer.RenderGui(&root);
 
         // { *** IMGUI START ***
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        if (showImgui)
+        {
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
 
-        ShowLightGui(light);
+			ShowLightGui(light);
 
-        ShowCameraGui(camera);
-        console.Draw("Console", &consoleOpen);
+			ShowCameraGui(camera);
+			console.Draw("Console", &consoleOpen);
+		}
 
         gameRunner.RunGameUpdate();
 
-        if (gameRunner.mActiveEncounter)
+        if (showImgui && gameRunner.mActiveEncounter)
         {
             ImGui::Begin("Encounter");
             std::stringstream ss{};
@@ -418,11 +425,18 @@ int main(int argc, char** argv)
                 encounter);
         }
 
-        ImguiWrapper::Draw(window.get());
-        auto& io = ImGui::GetIO();
-        if (io.WantCaptureKeyboard || io.WantCaptureMouse)
+        if (showImgui)
         {
-            inputHandler.SetHandleInput(false);
+            ImguiWrapper::Draw(window.get());
+        }
+
+        if (showImgui)
+        {
+			auto& io = ImGui::GetIO();
+            if (io.WantCaptureKeyboard || io.WantCaptureMouse)
+            {
+                inputHandler.SetHandleInput(false);
+            }
         }
         else
         {
@@ -436,7 +450,10 @@ int main(int argc, char** argv)
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 
         && glfwWindowShouldClose(window.get()) == 0);
 
-    ImguiWrapper::Shutdown();
+    if (showImgui)
+    {
+        ImguiWrapper::Shutdown();
+    }
 
     delete gameData;
 

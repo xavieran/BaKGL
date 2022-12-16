@@ -14,8 +14,8 @@ public:
     FrameBuffer(const FrameBuffer&) = delete;
     FrameBuffer& operator=(const FrameBuffer&) = delete;
 
-    FrameBuffer(FrameBuffer&& other);
-    FrameBuffer& operator=(FrameBuffer&& other);
+    FrameBuffer(FrameBuffer&& other) noexcept;
+    FrameBuffer& operator=(FrameBuffer&& other) noexcept;
 
     ~FrameBuffer();
 

@@ -21,9 +21,8 @@ public:
     ShaderProgramHandle(GLuint handle);
     ShaderProgramHandle& operator=(const ShaderProgramHandle&) = delete;
     ShaderProgramHandle(const ShaderProgramHandle&) = delete;
-
-    ShaderProgramHandle& operator=(ShaderProgramHandle&& other);
-    ShaderProgramHandle(ShaderProgramHandle&& other);
+    ShaderProgramHandle& operator=(ShaderProgramHandle&& other) noexcept;
+    ShaderProgramHandle(ShaderProgramHandle&& other) noexcept;
     ~ShaderProgramHandle();
     
     void UseProgramGL() const;

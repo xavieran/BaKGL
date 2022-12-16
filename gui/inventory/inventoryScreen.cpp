@@ -317,7 +317,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
                 .FindEquipped(item.GetObject().mType);
             const auto dstIndex = dstC.GetInventory().GetIndexFromIt(destItemIt);
             ASSERT(dstIndex);
-            const auto destItem = *destItemIt;
+            const auto& destItem = *destItemIt;
 
             dstC.GetInventory().RemoveItem(*dstIndex);
             dstC.GiveItem(sourceItem);
@@ -546,7 +546,7 @@ void InventoryScreen::HaggleItem(
     ASSERT(mContainer);
 
     mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
-    const auto item = slot.GetItem();
+    const auto& item = slot.GetItem();
     if (item.GetItemIndex() == BAK::sScroll)
     {
         mDialogScene.ResetDialogFinished();
@@ -838,13 +838,17 @@ void InventoryScreen::HighlightValidDrops(const InventorySlot& slot)
             const auto giveable = GetCharacter(person)
                 .CanAddItem(slot.GetItem());
             const auto* shopItem = dynamic_cast<const ShopItemSlot*>(&slot);
-            if (mDisplayContainer && mContainer && mContainer->IsShop())
+            const auto inShopScreen = mDisplayContainer && mContainer && mContainer->IsShop();
+
+            if (inShopScreen)
             {
                 ASSERT(shopItem);
             }
-            const auto isAvailableShopItem = (!mDisplayContainer || !mContainer->IsShop()) || (mContainer->IsShop()
-                && mDisplayContainer
-                && shopItem->GetAvailable());
+
+            const auto isAvailableShopItem = !mDisplayContainer 
+                || !inShopScreen 
+                || shopItem->GetAvailable();
+
             if (isAvailableShopItem 
                 && ((mustSwap && (GetCharacter(person).CanSwapItem(item)))
                 || (giveable && !mustSwap)))

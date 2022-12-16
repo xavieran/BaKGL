@@ -12,17 +12,18 @@ FrameBuffer::FrameBuffer()
 {
 }
 
-FrameBuffer::FrameBuffer(FrameBuffer&& other)
+FrameBuffer::FrameBuffer(FrameBuffer&& other) noexcept
 {
     (*this) = std::move(other);
 }
 
-FrameBuffer& FrameBuffer::operator=(FrameBuffer&& other)
+FrameBuffer& FrameBuffer::operator=(FrameBuffer&& other) noexcept
 {
     other.mFrameBufferId = mFrameBufferId;
     other.mActive = false;
     return *this;
 }
+
 FrameBuffer::~FrameBuffer()
 {
     if (mActive)
@@ -31,6 +32,7 @@ FrameBuffer::~FrameBuffer()
         glDeleteFramebuffers(1, &mFrameBufferId);
     }
 }
+
 void FrameBuffer::BindGL() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
