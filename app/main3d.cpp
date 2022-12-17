@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
 
-    const bool showImgui = false;
+    const bool showImgui = true;
 
     auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
     Logging::LogState::AddStream(&log);
@@ -436,6 +436,10 @@ int main(int argc, char** argv)
             if (io.WantCaptureKeyboard || io.WantCaptureMouse)
             {
                 inputHandler.SetHandleInput(false);
+            }
+            else
+            {
+				inputHandler.SetHandleInput(true);
             }
         }
         else

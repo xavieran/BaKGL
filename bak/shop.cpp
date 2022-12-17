@@ -99,7 +99,8 @@ Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats, Roya
     // Add Scroll exception
     // Add Armor exception
     const auto sellFactor = static_cast<double>(100 + stats.mSellFactor) / 100.0;
-    const auto baseValue = static_cast<double>(item.GetObject().mValue);
+    auto baseValue = static_cast<double>(item.GetObject().mValue);
+    if (baseValue <= 0) baseValue = 1; // FIXME: Need proper cost of scrolls...
     const auto shopBasicValue = std::clamp(
         sellFactor * baseValue - discount.mValue,
         1.0, sellFactor * baseValue);

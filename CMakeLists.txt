@@ -20,10 +20,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (MSVC)
     set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302")
-    set(CXX_FLAGS "/W3 /WX /EHsc")
+    set(CXX_FLAGS "/W3 /WX /EHsc /bigobj")
     
     set(CXX_USAN "")
+    # MS asan is pretty brutal on performance
     set(CXX_ASAN "/fsanitize=address")
+    set(CXX_ASAN "")
 else()
     set(CXX_IGNORE ${CXX_IGNORES})
     set(CXX_FLAGS "-Wall -Wextra -Werror")
@@ -110,6 +112,7 @@ FetchContent_MakeAvailable(googletest)
 
 # --- SDL 2  --- #
 list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\SDL2-2.0.22")
+list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\SDL2-2.0.22\\lib\\x64")
 
 find_package(SDL2 REQUIRED)
 
@@ -151,7 +154,7 @@ set(CMAKE_INSTALL_MESSAGE LAZY)
 
 # For limpg123 find at http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win64.exe
 list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\yasm")
-
+list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\yasm\\bin\\yasm")
 
 FetchContent_GetProperties(SDLMixerX)
 if(NOT SDLMixerX_POPULATED)
@@ -169,6 +172,7 @@ if(NOT SDLMixerX_POPULATED)
     set(USE_MIDI_TIMIDITY OFF)
     set(USE_MODPLUG OFF)
     set(USE_MP3_MPG123 OFF)
+    set(BUILD_MPG123 OFF)
     set(USE_XMP OFF)
     set(USE_SYSTEM_SDL2 ON)
     set(DOWNLOAD_AUDIO_CODECS_DEPENDENCY ON)

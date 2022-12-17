@@ -317,7 +317,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
                 .FindEquipped(item.GetObject().mType);
             const auto dstIndex = dstC.GetInventory().GetIndexFromIt(destItemIt);
             ASSERT(dstIndex);
-            const auto& destItem = *destItemIt;
+            const auto destItem = *destItemIt;
 
             dstC.GetInventory().RemoveItem(*dstIndex);
             dstC.GiveItem(sourceItem);
