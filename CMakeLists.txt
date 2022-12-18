@@ -28,7 +28,7 @@ if (MSVC)
     set(CXX_ASAN "")
 else()
     set(CXX_IGNORE ${CXX_IGNORES})
-    set(CXX_FLAGS "-Wall -Wextra -Werror")
+    set(CXX_FLAGS "-Wall -Wextra -Werror -Wpedantic")
 
     # FileBuffer violates alignment pretty regularly. Will need to fix at some point
     #set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
@@ -46,8 +46,6 @@ set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 20)
 
 set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")
-
-#set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*")
 
 # --- Put all binaries in the root of the build dir ---
 set(
@@ -193,7 +191,7 @@ message ("System: ${CMAKE_SYSTEM}")
 if (UNIX)
     set(LINK_UNIX_LIBRARIES
         stdc++
-       m
+        m
         dl
         rt
         pthread)

@@ -3,3 +3,5 @@ leak:*nvidia-glcore*
 leak:*i965_dri*
 leak:*libmikmod*
 leak:*libX11*
+leak:*libpulse*
+leak:*libSDL2*

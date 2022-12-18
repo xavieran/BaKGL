@@ -214,6 +214,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     else if (hotspot.mAction == BAK::HotspotAction::EXIT)
     {
         mGuiManager.ExitGDSScene();
+        return;
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
@@ -327,8 +328,8 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     if (mKickedOut)
     {
         mKickedOut = false;
-        mGuiManager.ExitGDSScene();
         mState = State::Idle;
+        mGuiManager.ExitGDSScene();
         // Return immediately or the following 
         // actions will take place on destructed GDSScene
         return;
@@ -378,8 +379,8 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
         if (mGameState.GetEndOfDialogState() == -4)
         {
-            mGuiManager.ExitGDSScene();
             mState = State::Idle;
+            mGuiManager.ExitGDSScene();
             return;
         }
     }

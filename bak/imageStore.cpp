@@ -15,7 +15,6 @@ std::vector<Image> LoadImages(FileBuffer& fb)
 
     const unsigned compression = fb.GetUint16LE();
     const unsigned numImages = fb.GetUint16LE();
-    std::cout << "NNum Images: " << numImages << std::endl;
 
     std::vector<unsigned> imageSizes{};
     fb.Skip(2);

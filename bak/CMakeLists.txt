@@ -64,5 +64,11 @@ target_link_libraries(bak
     graphics
     xbak)
 
+#set_target_properties(
+#    bak
+#    PROPERTIES
+#    CXX_CLANG_TIDY
+#    "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*")
+
 add_subdirectory(encounter)
 add_subdirectory(test)

@@ -28,6 +28,7 @@ Image LoadScreenResource(FileBuffer& fb)
         ? Image(BOOK_SCREEN_WIDTH, BOOK_SCREEN_HEIGHT, 0, true)
         : Image(SCREEN_WIDTH, SCREEN_HEIGHT, 0, false);
     image.Load(decompressed);
+    delete decompressed;
     return image;
 }
 
