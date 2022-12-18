@@ -22,6 +22,8 @@ add_library(bak
     haggle.hpp haggle.cpp
     hotspot.hpp hotspot.cpp
     hotspotRef.hpp hotspotRef.cpp
+    image.hpp image.cpp
+    imageStore.hpp imageStore.cpp
     inventory.hpp inventory.cpp
     itemInteractions.hpp itemInteractions.cpp
     inventoryItem.hpp inventoryItem.cpp
@@ -40,6 +42,7 @@ add_library(bak
     saveFile.hpp saveFile.cpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
+    screen.hpp screen.cpp
     screens.hpp
     shop.hpp shop.cpp
     sound.hpp sound.cpp

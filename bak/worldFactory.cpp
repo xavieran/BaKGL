@@ -1,11 +1,12 @@
 #include "bak/worldFactory.hpp"
 
+#include "bak/imageStore.hpp"
+#include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
 
 #include "com/string.hpp"
 
 #include "xbak/FileBuffer.h"
-#include "xbak/ImageResource.h"
 
 namespace BAK {
 
@@ -20,18 +21,15 @@ ZoneTextureStore::ZoneTextureStore(
     bool found = true;
     unsigned spriteSlot = 0;
 
-    while ( found )
+    while (found)
     {
         auto spriteSlotLbl = zoneLabel.GetSpriteSlot(spriteSlot++);
         try
         {
             auto fb = FileBufferFactory::Get().CreateDataBuffer(spriteSlotLbl);
-            ImageResource sprites{};
-            sprites.Load(&fb);
+            const auto sprites = LoadImages(fb);
             TextureFactory::AddToTextureStore(
-                mTextures,
-                sprites,
-                palette);
+                mTextures, sprites, palette);
         }
         catch (const std::exception&)
         {
@@ -41,9 +39,8 @@ ZoneTextureStore::ZoneTextureStore(
 
     mTerrainOffset = GetTextures().size();
 
-    ScreenResource terrain{};
     auto fb = FileBufferFactory::Get().CreateDataBuffer(zoneLabel.GetTerrain());
-    terrain.Load(&fb);
+    const auto terrain = LoadScreenResource(fb);
 
     TextureFactory::AddTerrainToTextureStore(
         mTextures,
@@ -61,9 +58,8 @@ ZoneTextureStore::ZoneTextureStore(
         prefix = ToUpper(prefix);
         prefix += "1.BMX";
 
-        auto images = ImageResource{};
         auto fb = FileBufferFactory::Get().CreateDataBuffer(prefix);
-        images.Load(&fb);
+        const auto images = LoadImages(fb);
 
         auto pal = Palette{zoneLabel.GetPalette()};
         const auto colorSwap = monsters.GetColorSwap(MonsterIndex{i});
@@ -76,11 +72,11 @@ ZoneTextureStore::ZoneTextureStore(
             pal = Palette{pal, cs};
         }
 
+        ASSERT(!images.empty());
         TextureFactory::AddToTextureStore(
             mTextures,
-            images,
-            pal,
-            0);
+            images[0],
+            pal);
     }
 }
 
