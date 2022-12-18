@@ -9,6 +9,7 @@ add_library(bak
     character.hpp character.cpp
     container.hpp container.cpp
     coordinates.hpp coordinates.cpp
+    dataTags.hpp
     dialog.hpp dialog.cpp
     dialogAction.hpp dialogAction.cpp
     dialogChoice.hpp dialogChoice.cpp
@@ -44,9 +45,11 @@ add_library(bak
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
     skills.hpp skills.cpp
+    tags.hpp tags.cpp
     temple.hpp temple.cpp
     textureFactory.hpp textureFactory.cpp
     worldClock.hpp worldClock.cpp
+    worldItem.hpp worldItem.cpp
     worldFactory.hpp worldFactory.cpp
     zoneReference.hpp zoneReference.cpp
     zone.hpp

@@ -19,8 +19,6 @@
 
 #include <glm/glm.hpp>
 
-#include "xbak/Geometry.h"
-
 #include <ostream>
 
 namespace BAK {
@@ -44,12 +42,12 @@ GamePosition MakeGamePositionFromTileAndOffset(
     glm::vec<2, std::uint8_t> offset);
 
 template <typename T>
-glm::vec<3, T> ToGlCoord(const Vector3D& coord)
+glm::vec<3, T> ToGlCoord(const glm::ivec3& coord)
 {
     return glm::vec<3, T>{
-        static_cast<T>(coord.GetX()),
-        static_cast<T>(coord.GetZ()),
-        -static_cast<T>(coord.GetY())};
+        static_cast<T>(coord.x),
+        static_cast<T>(coord.z),
+        -static_cast<T>(coord.y)};
 }
 
 template <typename T>
@@ -62,7 +60,7 @@ glm::vec<3, T> ToGlCoord(const glm::uvec2& coord)
 }
 
 // Convert a 16 bit BAK angle to radians
-glm::vec3 ToGlAngle(const Vector3D& angle);
+glm::vec3 ToGlAngle(const glm::ivec3& angle);
 
 // Convert a 16 bit BAK angle to radians
 glm::vec2 ToGlAngle(GameHeading);

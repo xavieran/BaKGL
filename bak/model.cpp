@@ -1,7 +1,7 @@
+#include "bak/dataTags.hpp"
 #include "bak/model.hpp"
 
 #include "com/ostream.hpp"
-#include "xbak/TaggedResource.h"
 
 namespace BAK {
 
@@ -277,10 +277,10 @@ std::vector<Model> LoadTBL(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
-    auto mapbuf = fb.Find(TAG_MAP);
-    auto appbuf = fb.Find(TAG_APP);
-    auto gidbuf = fb.Find(TAG_GID);
-    auto datbuf = fb.Find(TAG_DAT);
+    auto mapbuf = fb.Find(DataTag::MAP);
+    auto appbuf = fb.Find(DataTag::APP);
+    auto gidbuf = fb.Find(DataTag::GID);
+    auto datbuf = fb.Find(DataTag::DAT);
 
     const auto names = LoadModelNames(mapbuf);
     std::stringstream ss{};

@@ -33,7 +33,7 @@ GamePosition MakeGamePositionFromTileAndOffset(
 }
 
 // Convert a 16 bit BAK angle to radians
-glm::vec3 ToGlAngle(const Vector3D& angle)
+glm::vec3 ToGlAngle(const glm::ivec3& angle)
 {
     return ToGlCoord<float>(angle) 
         / static_cast<float>(0xffff)

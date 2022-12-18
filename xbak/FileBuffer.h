@@ -71,6 +71,11 @@ class FileBuffer
 
         // Create a new file mBuffer starting from this tag
         FileBuffer Find(std::uint32_t tag) const;
+        template <typename T>
+        FileBuffer Find(T tag) const
+        {
+            return Find(static_cast<std::uint32_t>(tag));
+        }
 
         void Load ( std::ifstream &ifs );
         void Save ( std::ofstream &ofs );

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bak/sound.hpp"
-#include "xbak/TaggedResource.h"
 
 #include <unordered_map>
 #include <vector>
