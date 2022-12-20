@@ -62,8 +62,7 @@ add_library(bak
 target_link_libraries(bak
     audio
     bakEncounter
-    graphics
-    xbak)
+    graphics)
 
 #set_target_properties(
 #    bak

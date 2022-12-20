@@ -5,7 +5,7 @@
 #include "com/assert.hpp"
 #include "com/ostream.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 #include <iostream>
 

@@ -5,7 +5,7 @@
 #include "bak/inventory.hpp"
 #include "bak/party.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 namespace BAK {
 

@@ -15,8 +15,7 @@
 
 #include "graphics/meshObject.hpp"
 
-#include "xbak/Exception.h"
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 #include <functional>   
 #include <optional>
@@ -440,7 +439,7 @@ public:
                 mTile,
                 mTileIndex);
         }
-        catch (const OpenError&)
+        catch (std::runtime_error& e)
         {
             logger.Spam() << "No tile data for: " << mTile << std::endl;
         }

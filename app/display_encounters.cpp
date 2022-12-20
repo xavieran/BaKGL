@@ -4,7 +4,7 @@
 #include "bak/zoneReference.hpp"
 #include "bak/monster.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 int main(int argc, char** argv)
 {
@@ -26,7 +26,7 @@ int main(int argc, char** argv)
             const auto y = tile.y;
             try 
             {
-                auto fb = FileBufferFactory::Get().CreateDataBuffer(zoneLabel.GetTileData(x ,y));
+                auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(zoneLabel.GetTileData(x ,y));
                 for (unsigned c = 1; c < 11; c++)
                 {
                     logger.Info() << "Loading world tile:" << zone << " " << x 

@@ -4,6 +4,7 @@
 
 #include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/fileBuffer.hpp"
 #include "bak/money.hpp"
 #include "bak/temple.hpp"
 
@@ -35,7 +36,7 @@ GDSScene::GDSScene(
     mReference{hotspotRef},
     mGameState{gameState},
     mSceneHotspots{
-        FileBufferFactory::Get().CreateDataBuffer(
+        BAK::FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
     mSong{mSceneHotspots.mSong},
     mFlavourText{BAK::KeyTarget{0x00000}},
@@ -88,7 +89,7 @@ GDSScene::GDSScene(
 
     SetDimensions(glm::vec2{x, y});
 
-    auto fb = FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
+    auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
 
     // Needed for repair shops...
