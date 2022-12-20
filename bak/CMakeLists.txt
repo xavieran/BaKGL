@@ -16,6 +16,7 @@ add_library(bak
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
     fixedObject.hpp fixedObject.cpp
+    fileBuffer.hpp fileBuffer.cpp
     font.hpp font.cpp
     gameData.hpp gameData.cpp
     gameState.hpp
