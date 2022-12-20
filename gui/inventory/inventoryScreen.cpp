@@ -134,6 +134,7 @@ InventoryScreen::InventoryScreen(
     mSelectedCharacter{},
     mDisplayContainer{false},
     mItemSelectionMode{false},
+	mDisplayDetails{false},
     mItemSelectionCallback{nullptr},
     mSelectedItem{},
     mContainer{nullptr},

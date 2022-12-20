@@ -62,6 +62,7 @@ public:
         mSource{},
         mHighlightedDest{},
         mChosenDest{},
+        mNeedRefresh{false},
         mTeleportWord{
             ImageTag{},
             std::get<Graphics::SpriteSheetIndex>(icons.GetTeleportIcon(12)),
@@ -199,6 +200,19 @@ public:
         AddChildren();
     }
 
+	bool OnMouseEvent(const MouseEvent& me) override
+	{
+		const bool result = Widget::OnMouseEvent(me);
+
+        if (mNeedRefresh)
+        {
+            AddChildren();
+            mNeedRefresh = false;
+        }
+
+        return result;
+	}
+
 private:
     void HandleTempleClicked(unsigned templeNumber)
     {
@@ -246,7 +260,7 @@ private:
             mHighlightedDest.reset();
         }
 
-        AddChildren();
+        mNeedRefresh = true;
     }
 
     std::string MakeTempleString(const std::string& prefix, unsigned templeNumber)
@@ -284,7 +298,7 @@ private:
 
         for (auto& dst : mTeleportDests)
         {
-            if (dst.IsCanReach())
+			if (dst.IsCanReach())
                 AddChildBack(&dst);
         }
 
@@ -303,6 +317,7 @@ private:
     unsigned mSource;
     std::optional<unsigned> mHighlightedDest;
     std::optional<unsigned> mChosenDest;
+    bool mNeedRefresh;
 
     Widget mTeleportWord;
     TextBox mTeleportFromText;
