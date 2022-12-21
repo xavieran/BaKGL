@@ -15,7 +15,10 @@ Remake of Betrayal at Krondor using OpenGL.
 * World map
 
 # Acknowledgements
+
 This project would not have been possible without Guido De Jong's original work on xbak (http://xbak.sourceforge.net/).
+
+I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as a reference. This website is currently hosted at https://dimwood.net/krondor.html by vga256.
 
 # Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
