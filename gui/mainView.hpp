@@ -20,8 +20,6 @@
 #include "gui/scene.hpp"
 #include "gui/widget.hpp"
 
-#include "xbak/RequestResource.h"
-
 #include <glm/glm.hpp>
 
 #include <iostream>
@@ -82,7 +80,7 @@ public:
             const auto& widget = mLayout.GetWidget(i);
             switch (widget.mWidget)
             {
-            case REQ_IMAGEBUTTON:
+            case 3: //REQ_IMAGEBUTTON
             {
                 const auto& button = icons.GetButton(widget.mImage);
                 assert(std::get<Graphics::SpriteSheetIndex>(button)

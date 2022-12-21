@@ -24,7 +24,6 @@ set(APP_LIBS
     graphics
     gui
     imgui
-    xbak
 )
 
 

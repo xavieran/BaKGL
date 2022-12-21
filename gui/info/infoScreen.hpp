@@ -17,8 +17,6 @@
 #include "gui/clickButton.hpp"
 #include "gui/widget.hpp"
 
-#include "xbak/RequestResource.h"
-
 #include <glm/glm.hpp>
 
 #include <iostream>
