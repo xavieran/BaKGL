@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/font.hpp"
+#include "bak/fileBuffer.hpp"
 
 #include "graphics/glm.hpp"
 #include "graphics/sprites.hpp"
@@ -15,7 +16,7 @@ public:
         Graphics::SpriteManager& spriteManager)
     :
         mFont{std::invoke([&]{
-            auto fb = FileBufferFactory::Get().CreateDataBuffer(font);
+            auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(font);
             return BAK::LoadFont(fb);
         })},
         mSpriteSheet{spriteManager.AddSpriteSheet()}

@@ -171,9 +171,10 @@ void DialogRunner::EvaluateSnippetActions()
                         mStartedMusic = true;
                     }
                 }
-                catch (SDL_Exception& e)
+                catch (std::exception& e)
                 {
-                    mLogger.Error() << e.What() << "\n";
+                    mLogger.Error() << " Playing sound: " << sound
+                        << " failed with: " << e.what() << "\n";
                 }
             },
             [&](const auto& a){

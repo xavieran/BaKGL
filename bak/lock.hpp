@@ -3,7 +3,7 @@
 #include "bak/inventoryItem.hpp"
 #include "bak/skills.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 #include <optional>
 #include <ostream>

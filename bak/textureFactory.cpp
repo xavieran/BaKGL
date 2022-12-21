@@ -1,10 +1,13 @@
 #include "bak/textureFactory.hpp"
 
+#include "bak/imageStore.hpp"
+#include "bak/screen.hpp"
+
 #include <random>
 
 namespace BAK {
 
-Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette)
+Graphics::Texture ImageToTexture(const BAK::Image& image, const BAK::Palette& palette)
 {
     auto texture = Graphics::Texture::TextureType{};
     const auto imageSize = image.GetWidth() * image.GetHeight();
@@ -12,7 +15,7 @@ Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette
 
     auto* pixels = image.GetPixels();
 
-    for (int i = 0; i < imageSize; i++)
+    for (unsigned i = 0; i < imageSize; i++)
     {
         texture.push_back(palette.GetColor(pixels[i]));
     }
@@ -29,86 +32,26 @@ Graphics::Texture ImageToTexture(const Image& image, const BAK::Palette& palette
 }
 
 Graphics::TextureStore TextureFactory::MakeTextureStore(
-    const ImageResource& images,
-    const BAK::Palette& palette)
+    std::string_view bmx,
+    std::string_view pal)
 {
     auto store = Graphics::TextureStore{};
-    for (unsigned i = 0; i < images.GetNumImages(); i++)
-    {
-        store.AddTexture(
-            ImageToTexture(images.GetImage(i), palette));
-    }
-
+    AddToTextureStore(store, bmx, pal);
     return store;
 }
 
-Graphics::TextureStore TextureFactory::MakeTextureStore(
-    std::string_view bmx,
-    std::string_view pal)
-{
-    const auto palette = BAK::Palette{ std::string{pal} };
-    ImageResource images;
-    {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(
-            std::string{ bmx });
-        images.Load(&fb);
-    }
-
-    return MakeTextureStore(images, palette);
-}
-
-void TextureFactory::AddToTextureStore(
-    Graphics::TextureStore& store,
-    const ImageResource& images,
-    const BAK::Palette& palette,
-    unsigned imageIndex)
-{
-    store.AddTexture(
-        ImageToTexture(
-            images.GetImage(imageIndex),
-            palette));
-}
-
-void TextureFactory::AddToTextureStore(
-    Graphics::TextureStore& store,
-    const ImageResource& images,
-    const BAK::Palette& palette)
-{
-    for (unsigned i = 0; i < images.GetNumImages(); i++)
-    {
-        store.AddTexture(
-            ImageToTexture(images.GetImage(i), palette));
-    }
-}
-
 void TextureFactory::AddToTextureStore(
     Graphics::TextureStore& store,
     std::string_view bmx,
     std::string_view pal)
 {
-    const auto palette = BAK::Palette{ std::string{pal} };
+    const auto palette = BAK::Palette{std::string{pal}};
 
-    ImageResource images;
-    {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(
-            std::string{ bmx });
-        images.Load(&fb);
-    }
+    auto fb = FileBufferFactory::Get()
+        .CreateDataBuffer(std::string{bmx});
+    const auto images = LoadImages(fb);
 
-    AddToTextureStore(
-        store,
-        images,
-        palette);
-}
-
-
-void TextureFactory::AddToTextureStore(
-    Graphics::TextureStore& store,
-    const ScreenResource& screen,
-    const BAK::Palette& palette)
-{
-    store.AddTexture(
-        ImageToTexture(screen.GetImage(), palette));
+    AddToTextureStore(store, images, palette);
 }
 
 void TextureFactory::AddScreenToTextureStore(
@@ -116,27 +59,19 @@ void TextureFactory::AddScreenToTextureStore(
     std::string_view scx,
     std::string_view pal)
 {
-    const auto palette = BAK::Palette{ std::string{pal} };
-    ScreenResource screen;
-    {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(
-            std::string{ scx });
-        screen.Load(&fb);
-    }
-
-    AddToTextureStore(
-        store,
-        screen,
-        palette);
+    const auto palette = BAK::Palette{std::string{pal}};
+    auto fb = FileBufferFactory::Get()
+        .CreateDataBuffer(std::string{scx});
+    AddToTextureStore(store, LoadScreenResource(fb), palette);
 }
 
 void TextureFactory::AddTerrainToTextureStore(
     Graphics::TextureStore& store,
-    const ScreenResource& terrain,
+    const Image& terrain,
     const BAK::Palette& palette)
 {
-    auto* pixels = terrain.GetImage()->GetPixels();
-    auto width = terrain.GetImage()->GetWidth();
+    auto* pixels = terrain.GetPixels();
+    auto width = terrain.GetWidth();
 
     auto startOff = 0;
     // FIXME: Can I find these in the data files somewhere?
@@ -146,7 +81,7 @@ void TextureFactory::AddTerrainToTextureStore(
         const auto imageStart = startOff * width;
         const auto imageEnd = (startOff + offset) * width;
         image.reserve(imageEnd - imageStart);
-        for (int i = imageStart; i < imageEnd; i++)
+        for (unsigned i = imageStart; i < imageEnd; i++)
         {
             const auto& color = palette.GetColor(pixels[i]);
             image.push_back(color);
@@ -166,6 +101,23 @@ void TextureFactory::AddTerrainToTextureStore(
                 static_cast<unsigned>(width),
                 static_cast<unsigned>(offset)});
     }
+}
+
+void TextureFactory::AddToTextureStore(
+    Graphics::TextureStore& store,
+    const BAK::Image& image,
+    const Palette& palette)
+{
+    store.AddTexture(ImageToTexture(image, palette));
+}
+
+void TextureFactory::AddToTextureStore(
+    Graphics::TextureStore& store,
+    const std::vector<BAK::Image>& images,
+    const Palette& palette)
+{
+    for (const auto& image : images)
+        AddToTextureStore(store, image, palette);
 }
 
 } // namespace BAK {

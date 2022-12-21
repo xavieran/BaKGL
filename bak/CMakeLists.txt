@@ -9,18 +9,22 @@ add_library(bak
     character.hpp character.cpp
     container.hpp container.cpp
     coordinates.hpp coordinates.cpp
+    dataTags.hpp
     dialog.hpp dialog.cpp
     dialogAction.hpp dialogAction.cpp
     dialogChoice.hpp dialogChoice.cpp
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
     fixedObject.hpp fixedObject.cpp
+    fileBuffer.hpp fileBuffer.cpp
     font.hpp font.cpp
     gameData.hpp gameData.cpp
     gameState.hpp
     haggle.hpp haggle.cpp
     hotspot.hpp hotspot.cpp
     hotspotRef.hpp hotspotRef.cpp
+    image.hpp image.cpp
+    imageStore.hpp imageStore.cpp
     inventory.hpp inventory.cpp
     itemInteractions.hpp itemInteractions.cpp
     inventoryItem.hpp inventoryItem.cpp
@@ -39,14 +43,17 @@ add_library(bak
     saveFile.hpp saveFile.cpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
+    screen.hpp screen.cpp
     screens.hpp
     shop.hpp shop.cpp
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
     skills.hpp skills.cpp
+    tags.hpp tags.cpp
     temple.hpp temple.cpp
     textureFactory.hpp textureFactory.cpp
     worldClock.hpp worldClock.cpp
+    worldItem.hpp worldItem.cpp
     worldFactory.hpp worldFactory.cpp
     zoneReference.hpp zoneReference.cpp
     zone.hpp
@@ -55,8 +62,13 @@ add_library(bak
 target_link_libraries(bak
     audio
     bakEncounter
-    graphics
-    xbak)
+    graphics)
+
+#set_target_properties(
+#    bak
+#    PROPERTIES
+#    CXX_CLANG_TIDY
+#    "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*")
 
 add_subdirectory(encounter)
 add_subdirectory(test)

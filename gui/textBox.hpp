@@ -12,8 +12,6 @@
 #include "gui/fontManager.hpp"
 #include "gui/widget.hpp"
 
-#include "xbak/FileBuffer.h"
-
 #include <glm/glm.hpp>
 
 namespace Gui {

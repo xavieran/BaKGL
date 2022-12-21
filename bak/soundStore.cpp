@@ -1,9 +1,8 @@
+#include "bak/dataTags.hpp"
 #include "bak/soundStore.hpp"
+#include "bak/tags.hpp"
 
 #include "com/path.hpp"
-
-#include "xbak/ResourceTag.h"
-#include "xbak/TaggedResource.h"
 
 namespace BAK {
 
@@ -22,21 +21,20 @@ SoundStore::SoundStore()
 {
     auto fb = FileBufferFactory::Get().CreateDataBuffer(sSoundFile);
 
-    auto infbuf = fb.Find(TAG_INF);
-    auto tagbuf = fb.Find(TAG_TAG);
+    auto infbuf = fb.Find(DataTag::INF);
+    auto tagbuf = fb.Find(DataTag::TAG);
 
     infbuf.Skip(2);
     unsigned n = infbuf.GetUint16LE();
     infbuf.Skip(1);
-    ResourceTag tags;
-    tags.Load(&tagbuf);
+    Tags tags{};
+    tags.Load(tagbuf);
 
     for (unsigned i = 0; i < n; i++)
     {
         unsigned id = infbuf.GetUint16LE();
         std::streamoff offset = infbuf.GetUint32LE();
-        std::string name;
-        if (tags.Find(id, name))
+        if (const auto name = tags.GetTag(Tag{id}))
         {
             fb.Seek(offset + 8);
             if (id != fb.GetUint16LE())
@@ -80,7 +78,7 @@ SoundStore::SoundStore()
                 code = fb.GetUint8();
             }
 
-            mSoundMap.try_emplace(id, name, soundType, std::move(sounds));
+            mSoundMap.try_emplace(id, *name, soundType, std::move(sounds));
         }
         else
         {

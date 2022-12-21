@@ -5,7 +5,7 @@
 #include "bak/IContainer.hpp"
 #include "bak/inventoryItem.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 namespace BAK {
 

@@ -14,4 +14,4 @@ add_library(bakEncounter
     zone.hpp zone.cpp
 )
 
-target_link_libraries(bakEncounter bak xbak)
+target_link_libraries(bakEncounter bak)

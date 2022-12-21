@@ -3,7 +3,7 @@
 
 #include "com/logger.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 int main(int argc, char** argv)
 {
@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 
     logger.Info() << "Loading gds:" << gdsFile << std::endl;
 
-    auto fb = FileBufferFactory::Get().Get().CreateDataBuffer(gdsFile);
+    auto fb = BAK::FileBufferFactory::Get().Get().CreateDataBuffer(gdsFile);
     BAK::SceneHotspots sceneHotspots{std::move(fb)};
     const auto& dialog = BAK::DialogStore::Get();
     if (sceneHotspots.mFlavourText != 0)

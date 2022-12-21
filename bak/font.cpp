@@ -1,10 +1,9 @@
+#include "bak/dataTags.hpp"
 #include "bak/font.hpp"
 
 #include "com/logger.hpp"
 
 #include "graphics/texture.hpp"
-
-#include "xbak/TaggedResource.h"
 
 namespace BAK {
 
@@ -30,7 +29,7 @@ Font LoadFont(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
-    auto fntBuf= fb.Find(TAG_FNT);
+    auto fntBuf = fb.Find(DataTag::FNT);
     
     fntBuf.Skip(2);
     const auto height = fntBuf.GetUint8();

@@ -2,7 +2,7 @@
 
 #include "com/logger.hpp"
 
-#include "xbak/FileBuffer.h"
+#include "bak/fileBuffer.hpp"
 
 int main(int argc, char** argv)
 {
@@ -15,12 +15,12 @@ int main(int argc, char** argv)
     logger.Info() << "Loading ADS and TTM:" << adsFile << " " << ttmFile << std::endl;
 
     {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(adsFile);
+        auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
         BAK::LoadSceneIndices(fb);
     }
 
     {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(ttmFile);
+        auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
         BAK::LoadScenes(fb);
     }
 

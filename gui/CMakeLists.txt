@@ -31,7 +31,6 @@ target_link_libraries(gui
     com
     graphics
     #guiInfo
-    guiInventory
-    xbak)
+    guiInventory)
 
 add_subdirectory(test)

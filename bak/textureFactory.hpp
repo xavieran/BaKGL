@@ -4,19 +4,14 @@
 #include <string_view>
 #include <vector>
 
+#include "bak/image.hpp"
 #include "bak/palette.hpp"
 
 #include "graphics/texture.hpp"
 
-#include "xbak/FileBuffer.h"
-#include "xbak/ImageResource.h"
-#include "xbak/ScreenResource.h"
+#include "bak/fileBuffer.hpp"
 
 namespace BAK {
-
-Graphics::Texture ImageToTexture(
-    const Image& image,
-    const BAK::Palette& palette);
 
 class TextureFactory
 {
@@ -24,26 +19,6 @@ public:
     static Graphics::TextureStore MakeTextureStore(
         std::string_view bmx,
         std::string_view pal);
-
-    static Graphics::TextureStore MakeTextureStore(
-        const ImageResource&,
-        const BAK::Palette&);
-
-    static void AddToTextureStore(
-        Graphics::TextureStore&,
-        const ImageResource&,
-        const BAK::Palette&);
-
-    static void AddToTextureStore(
-        Graphics::TextureStore&,
-        const ImageResource&,
-        const BAK::Palette&,
-        unsigned imageIndex);
-
-    static void AddToTextureStore(
-        Graphics::TextureStore&,
-        const ScreenResource&,
-        const BAK::Palette&);
 
     static void AddToTextureStore(
         Graphics::TextureStore&,
@@ -57,9 +32,18 @@ public:
 
     static void AddTerrainToTextureStore(
         Graphics::TextureStore&,
-        const ScreenResource&,
+        const BAK::Image& terrain,
         const BAK::Palette&);
 
+    static void AddToTextureStore(
+        Graphics::TextureStore& store,
+        const BAK::Image& image,
+        const Palette& palette);
+
+    static void AddToTextureStore(
+        Graphics::TextureStore& store,
+        const std::vector<BAK::Image>& images,
+        const Palette& palette);
 };
 
 }

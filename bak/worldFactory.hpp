@@ -7,6 +7,7 @@
 #include "bak/monster.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/textureFactory.hpp"
+#include "bak/worldItem.hpp"
 #include "bak/zoneReference.hpp"
 
 #include "com/assert.hpp"
@@ -14,10 +15,7 @@
 
 #include "graphics/meshObject.hpp"
 
-#include "xbak/Exception.h"
-#include "xbak/FileBuffer.h"
-#include "xbak/TableResource.h"
-#include "xbak/TileWorldResource.h"
+#include "bak/fileBuffer.hpp"
 
 #include <functional>   
 #include <optional>
@@ -104,69 +102,32 @@ public:
         const Model& model,
         const ZoneTextureStore& textureStore)
     :
-        ZoneItem{
-            model.mName,
-            std::invoke([&model]{
-                DatInfo item{};
-                item.entityFlags = model.mEntityFlags;
-                item.entityType = model.mEntityType;
-                item.terrainType = model.mTerrainType;
-                item.terrainClass = model.mScale;
-                item.sprite = model.mSprite;
-                item.min.SetX(model.mMin.x);
-                item.min.SetY(model.mMin.y);
-                item.min.SetZ(model.mMin.z);
-                item.max.SetX(model.mMax.x);
-                item.max.SetY(model.mMax.y);
-                item.max.SetZ(model.mMax.z);
-                item.vertices = {};
-                for (const auto& v : model.mVertices)
-                {
-                    item.vertices.emplace_back(
-                        new Vector3D(v.x, v.y, v.z)
-                    );
-                }
-                item.faceColors = model.mFaceColors;
-                item.paletteSources = model.mPalettes;
-                item.faces = model.mFaces;
-                return item;
-            }),
-            textureStore}
-    {}
-
-    ZoneItem(
-        const std::string& name,
-        const DatInfo& datInfo,
-        const ZoneTextureStore& textureStore)
-    :
-        mName{name},
-        mEntityFlags{datInfo.entityFlags},
-        mEntityType{static_cast<EntityType>(datInfo.entityType)},
-        mScale{static_cast<float>(1 << datInfo.terrainClass)},
-        mSpriteIndex{datInfo.sprite},
+        mName{model.mName},
+        mEntityFlags{model.mEntityFlags},
+        mEntityType{static_cast<EntityType>(model.mEntityType)},
+        mScale{static_cast<float>(1 << model.mScale)},
+        mSpriteIndex{model.mSprite},
         mColors{},
         mVertices{},
         mPalettes{},
         mFaces{},
         mPush{}
     {
-        // FIXME: 400 -- the ground has sprite index != 0 for some reason...
         if (mSpriteIndex == 0 || mSpriteIndex > 400)
         {
-            for (const auto& vertex : datInfo.vertices)
+            for (const auto& vertex : model.mVertices)
             {
-                ASSERT(vertex);
-                mVertices.emplace_back(BAK::ToGlCoord<int>(*vertex));
+                mVertices.emplace_back(BAK::ToGlCoord<int>(vertex));
             }
-            for (const auto& face : datInfo.faces)
+            for (const auto& face : model.mFaces)
             {
                 mFaces.emplace_back(face);
             }
-            for (const auto& palette : datInfo.paletteSources)
+            for (const auto& palette : model.mPalettes)
             {
                 mPalettes.emplace_back(palette);
             }
-            for (const auto& color : datInfo.faceColors)
+            for (const auto& color : model.mFaceColors)
             {
                 mColors.emplace_back(color);
                 if ((GetName().substr(0, 5) == "house"
@@ -217,7 +178,7 @@ public:
             mPush.emplace_back(false);
 
             mPalettes.emplace_back(0x91);
-            mColors.emplace_back(datInfo.sprite);
+            mColors.emplace_back(model.mSprite);
         }
 
         ASSERT((mFaces.size() == mColors.size())
@@ -350,14 +311,9 @@ public:
         mZoneLabel{zoneLabel},
         mItems{}
     {
-        //TableResource table{};
-
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(
-            mZoneLabel.GetTable());
-        //table.Load(&fb);
+        auto fb = FileBufferFactory::Get()
+            .CreateDataBuffer(mZoneLabel.GetTable());
         const auto models = LoadTBL(fb);
-
-        //ASSERT(table.GetMapSize() == table.GetDatSize());
 
         for (unsigned i = 0; i < models.size(); i++)
         {
@@ -399,21 +355,20 @@ class WorldItemInstance
 public:
     WorldItemInstance(
         const ZoneItem& zoneItem,
-        unsigned type,
-        const Vector3D& rotation,
-        const Vector3D& location)
+        const WorldItem& worldItem)
     :
         mZoneItem{zoneItem},
-        mType{type},
-        mRotation{BAK::ToGlAngle(rotation)},
-        mLocation{BAK::ToGlCoord<float>(location)},
-        mBakLocation{location.GetX(), location.GetY()}
-    {}
+        mType{worldItem.mItemType},
+        mRotation{BAK::ToGlAngle(worldItem.mRotation)},
+        mLocation{BAK::ToGlCoord<float>(worldItem.mLocation)},
+        mBakLocation{worldItem.mLocation.x, worldItem.mLocation.y}
+    {
+    }
 
     const ZoneItem& GetZoneItem() const { return mZoneItem; }
     const glm::vec3& GetRotation() const { return mRotation; }
     const glm::vec3& GetLocation() const { return mLocation; }
-    const glm::vec<2, unsigned>& GetBakLocation() const { return mBakLocation; }
+    const glm::uvec2& GetBakLocation() const { return mBakLocation; }
     unsigned GetType() const { return mType; }
 
 private:
@@ -458,40 +413,32 @@ public:
         unsigned tileIndex)
     {
         const auto& logger = Logging::LogState::GetLogger("World");
-        const auto tile = zoneItems.GetZoneLabel().GetTileWorld(x, y);
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(tile);
-        logger.Debug() << "Loading tile: " << tile << std::endl;
+        const auto tileWorld = zoneItems.GetZoneLabel().GetTileWorld(x, y);
+        logger.Debug() << "Loading tile: " << tileWorld << std::endl;
 
-        TileWorldResource world{};
-        world.Load(&fb);
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(tileWorld);
+        const auto [tileWorldItems, tileCenter] = LoadWorldTile(fb);
 
-        for (unsigned i = 0; i < world.GetSize(); i++)
+        for (const auto& item : tileWorldItems)
         {
-            const auto& item = world.GetItem(i);
-            if (item.type == static_cast<unsigned>(OBJECT_CENTER))
+            if (item.mItemType == 0)
                 mCenter = ToGlCoord<float>(item.mLocation);
 
             mItemInsts.emplace_back(
-                zoneItems.GetZoneItem(item.type),
-                item.type,
-                item.mRotation,
-                item.mLocation);
+                zoneItems.GetZoneItem(item.mItemType),
+                item);
         }
+
+        const auto tileData = zoneItems.GetZoneLabel().GetTileData(x, y);
+        if (FileBufferFactory::Get().DataBufferExists(tileData))
         {
-            try
-            {
-                auto fb = FileBufferFactory::Get().CreateDataBuffer(
-                    zoneItems.GetZoneLabel().GetTileData(x, y));
-                mEncounters = Encounter::EncounterStore(
-                    ef,
-                    fb,
-                    mTile,
-                    mTileIndex);
-            }
-            catch (const OpenError&)
-            {
-                logger.Spam() << "No tile data for: " << mTile << std::endl;
-            }
+            auto fb = FileBufferFactory::Get().CreateDataBuffer(tileData);
+                
+            mEncounters = Encounter::EncounterStore(
+                ef,
+                fb,
+                mTile,
+                mTileIndex);
         }
     }
 

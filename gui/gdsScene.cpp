@@ -4,6 +4,7 @@
 
 #include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/fileBuffer.hpp"
 #include "bak/money.hpp"
 #include "bak/temple.hpp"
 
@@ -35,7 +36,7 @@ GDSScene::GDSScene(
     mReference{hotspotRef},
     mGameState{gameState},
     mSceneHotspots{
-        FileBufferFactory::Get().CreateDataBuffer(
+        BAK::FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
     mSong{mSceneHotspots.mSong},
     mFlavourText{BAK::KeyTarget{0x00000}},
@@ -88,7 +89,7 @@ GDSScene::GDSScene(
 
     SetDimensions(glm::vec2{x, y});
 
-    auto fb = FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
+    auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
 
     // Needed for repair shops...
@@ -214,6 +215,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     else if (hotspot.mAction == BAK::HotspotAction::EXIT)
     {
         mGuiManager.ExitGDSScene();
+        return;
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
@@ -327,8 +329,8 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     if (mKickedOut)
     {
         mKickedOut = false;
-        mGuiManager.ExitGDSScene();
         mState = State::Idle;
+        mGuiManager.ExitGDSScene();
         // Return immediately or the following 
         // actions will take place on destructed GDSScene
         return;
@@ -378,8 +380,8 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
         if (mGameState.GetEndOfDialogState() == -4)
         {
-            mGuiManager.ExitGDSScene();
             mState = State::Idle;
+            mGuiManager.ExitGDSScene();
             return;
         }
     }

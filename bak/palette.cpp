@@ -1,9 +1,9 @@
+#include "bak/dataTags.hpp"
 #include "bak/palette.hpp"
 
 #include "com/assert.hpp"
 
-#include "xbak/FileBuffer.h"
-#include "xbak/TaggedResource.h"
+#include "bak/fileBuffer.hpp"
 
 namespace BAK {
 
@@ -12,7 +12,7 @@ Palette::Palette(const std::string& filename)
     mColors{}
 {
     auto fb = FileBufferFactory::Get().CreateDataBuffer(filename);
-    auto palbuf = fb.Find(TAG_VGA);
+    auto palbuf = fb.Find(DataTag::VGA);
     const auto size = palbuf.GetSize() / 3;
     mColors.reserve(size);
 

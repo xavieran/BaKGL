@@ -1,11 +1,10 @@
+#include "bak/dataTags.hpp"
 #include "bak/scene.hpp"
+#include "bak/tags.hpp"
 
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 #include "com/string.hpp"
-
-#include "xbak/ResourceTag.h"
-#include "xbak/TaggedResource.h"
 
 #include <unordered_map>
 
@@ -47,9 +46,9 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
-    auto resbuf = fb.Find(TAG_RES);
-    auto scrbuf = fb.Find(TAG_SCR);
-    auto tagbuf = fb.Find(TAG_TAG);
+    auto resbuf = fb.Find(DataTag::RES);
+    auto scrbuf = fb.Find(DataTag::SCR);
+    auto tagbuf = fb.Find(DataTag::TAG);
 
     if (scrbuf.GetUint8() != 0x02)
     {
@@ -60,12 +59,9 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
     auto script = FileBuffer(decompressedSize);
     scrbuf.DecompressLZW(&script);
     
-    ResourceTag tags;
-    tags.Load(&tagbuf);
+    Tags tags{};
+    tags.Load(tagbuf);
 
-    for (const auto& [id, tag] : tags.GetTagMap())
-        logger.Debug() << "Id: " << id << " tag: " << tag << "\n";
-    
     std::optional<unsigned> currentIndex{};
     std::optional<unsigned> ttmIndex{};
     auto adsIndex = ADSIndex{};
@@ -126,11 +122,12 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
             {
                 ASSERT(currentIndex);
                 ASSERT(ttmIndex);
-                auto it = tags.GetTagMap().find(*currentIndex);
-                if (it == tags.GetTagMap().end())
+
+                const auto sceneName = tags.GetTag(Tag{*currentIndex});
+                if (!sceneName)
                     throw std::runtime_error("Tag not found");
                 sceneIndices[*currentIndex] = SceneIndex{
-                    it->second,
+                    *sceneName,
                     adsIndex};
 
                 // Reset the state for next scene index
@@ -188,10 +185,10 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
 
     std::vector<SceneChunk> chunks;
 
-    auto pageBuffer    = fb.Find(TAG_PAG);
-    auto versionBuffer = fb.Find(TAG_VER);
-    auto tt3Buffer     = fb.Find(TAG_TT3);
-    auto tagBuffer     = fb.Find(TAG_TAG);
+    auto pageBuffer    = fb.Find(DataTag::PAG);
+    auto versionBuffer = fb.Find(DataTag::VER);
+    auto tt3Buffer     = fb.Find(DataTag::TT3);
+    auto tagBuffer     = fb.Find(DataTag::TAG);
     
     const auto pages = pageBuffer.GetUint16LE();
     logger.Debug() << "Pages:" << pages << "\n";
@@ -199,11 +196,9 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     tt3Buffer.Skip(1);
     FileBuffer decompBuffer = FileBuffer(tt3Buffer.GetUint32LE());
     auto decomped = tt3Buffer.DecompressRLE(&decompBuffer);
-    ResourceTag tags;
-    tags.Load(&tagBuffer);
 
-    for (const auto& [id, tag] : tags.GetTagMap())
-        logger.Debug() << "Id: " << id << " tag: " << tag << "\n";
+    Tags tags{};
+    tags.Load(tagBuffer);
 
     while (!decompBuffer.AtEnd())
     {
@@ -218,10 +213,9 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         if ((code == 0x1110) && (size == 1))
         {
             unsigned int id = decompBuffer.GetUint16LE();
-            std::string name;
-            if (tags.Find(id, name))
+            if (const auto name = tags.GetTag(Tag{id}))
             {
-                ss << " Name: " << name;
+                ss << " Name: " << *name;
                 chunks.emplace_back(action, name, std::vector<std::int16_t>{});
             }
         }
@@ -272,15 +266,24 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         currentScene.mImages = images;
         currentScene.mActions.emplace_back(DisableClipRegion{});
 
-        const auto& tagMap = tags.GetTagMap();
-        auto it = std::find_if(tagMap.begin(), tagMap.end(),
-            [&](const auto& it){
-                return it.second == currentScene.mSceneTag; });
-
-        if (it != tagMap.end())
-            scenes[it->first] = currentScene;
+        const auto tag = tags.FindTag(currentScene.mSceneTag);
+        if (tag)
+        {
+            scenes[tag->mValue] = currentScene;
+        }
         else
+        {
             throw std::runtime_error("Tag not found");
+        }
+        //const auto& tagMap = tags.GetTagMap();
+        //auto it = std::find_if(tagMap.begin(), tagMap.end(),
+        //    [&](const auto& it){
+        //        return it.second == currentScene.mSceneTag; });
+
+        //if (it != tagMap.end())
+        //    scenes[it->first] = currentScene;
+        //else
+        //    throw std::runtime_error("Tag not found");
     };
 
     for (const auto& chunk : chunks)
