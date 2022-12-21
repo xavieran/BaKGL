@@ -413,10 +413,10 @@ public:
         unsigned tileIndex)
     {
         const auto& logger = Logging::LogState::GetLogger("World");
-        const auto tile = zoneItems.GetZoneLabel().GetTileWorld(x, y);
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(tile);
-        logger.Debug() << "Loading tile: " << tile << std::endl;
+        const auto tileWorld = zoneItems.GetZoneLabel().GetTileWorld(x, y);
+        logger.Debug() << "Loading tile: " << tileWorld << std::endl;
 
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(tileWorld);
         const auto [tileWorldItems, tileCenter] = LoadWorldTile(fb);
 
         for (const auto& item : tileWorldItems)
@@ -429,19 +429,16 @@ public:
                 item);
         }
 
-        try
+        const auto tileData = zoneItems.GetZoneLabel().GetTileData(x, y);
+        if (FileBufferFactory::Get().DataBufferExists(tileData))
         {
-            auto fb = FileBufferFactory::Get().CreateDataBuffer(
-                zoneItems.GetZoneLabel().GetTileData(x, y));
+            auto fb = FileBufferFactory::Get().CreateDataBuffer(tileData);
+                
             mEncounters = Encounter::EncounterStore(
                 ef,
                 fb,
                 mTile,
                 mTileIndex);
-        }
-        catch (std::runtime_error& e)
-        {
-            logger.Spam() << "No tile data for: " << mTile << std::endl;
         }
     }
 

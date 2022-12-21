@@ -24,16 +24,12 @@ ZoneTextureStore::ZoneTextureStore(
     while (found)
     {
         auto spriteSlotLbl = zoneLabel.GetSpriteSlot(spriteSlot++);
-        try
+        if ((found = FileBufferFactory::Get().DataBufferExists(spriteSlotLbl)))
         {
             auto fb = FileBufferFactory::Get().CreateDataBuffer(spriteSlotLbl);
             const auto sprites = LoadImages(fb);
             TextureFactory::AddToTextureStore(
                 mTextures, sprites, palette);
-        }
-        catch (const std::exception&)
-        {
-            found = false;
         }
     }
 

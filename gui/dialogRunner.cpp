@@ -173,7 +173,8 @@ void DialogRunner::EvaluateSnippetActions()
                 }
                 catch (std::exception& e)
                 {
-                    mLogger.Error() << e.what() << "\n";
+                    mLogger.Error() << " Playing sound: " << sound
+                        << " failed with: " << e.what() << "\n";
                 }
             },
             [&](const auto& a){

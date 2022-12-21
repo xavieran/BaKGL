@@ -49,17 +49,50 @@ void FileBufferFactory::SetSavePath(const std::string& savePath)
     mSavePath = savePath;
 }
 
-
 FileBuffer FileBufferFactory::CreateDataBuffer(const std::string& path)
 {
     // First look in the cwd
     if (std::filesystem::exists(path))
+    {
         return CreateFileBuffer(path);
+    }
     else
     {
         const auto realPath = std::filesystem::path{mDataPath} / path;
         return CreateFileBuffer(realPath.string());
     }
+}
+
+bool FileBufferFactory::DataBufferExists(const std::string& path)
+{
+    // First look in the cwd
+    if (std::filesystem::exists(path))
+    {
+        return true;
+    }
+    else
+    {
+        const auto realPath = std::filesystem::path{mDataPath} / path;
+        return std::filesystem::exists(realPath.string());
+    }
+
+    return false;
+}
+
+bool FileBufferFactory::SaveBufferExists(const std::string& path)
+{
+    // First look in the cwd
+    if (std::filesystem::exists(path))
+    {
+        return true;
+    }
+    else
+    {
+        const auto realPath = std::filesystem::path{mSavePath} / path;
+        return std::filesystem::exists(realPath.string());
+    }
+
+    return false;
 }
 
 FileBuffer FileBufferFactory::CreateSaveBuffer(const std::string& path)
