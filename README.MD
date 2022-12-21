@@ -19,7 +19,7 @@ This project would not have been possible without Guido De Jong's original work 
 
 # Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
-Requires CMake, SDL (xbak dependency), OpenGL, GLFW, and glm.
+Requires CMake, SDL2, SDL_MixerX, OpenGL, GLFW, and glm. Many of these dependencies will be downloaded and built automatically.
 
 # Setup
 ## Extract original data files
