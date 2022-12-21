@@ -3,9 +3,7 @@
 ![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
-Reimplementation of Betrayal at Krondor using OpenGL.
-
-Reuses much of the original work of xbak (http://xbak.sourceforge.net/) but I am rewriting/replacing xbak functionality as necessary.
+Remake of Betrayal at Krondor using OpenGL.
 
 # Features
 * World exploration
@@ -15,6 +13,9 @@ Reuses much of the original work of xbak (http://xbak.sourceforge.net/) but I am
 * Music and sound
 * Shops and inventory
 * World map
+
+# Acknowledgements
+This project would not have been possible without Guido De Jong's original work on xbak (http://xbak.sourceforge.net/).
 
 # Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
