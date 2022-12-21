@@ -12,6 +12,7 @@ Remake of Betrayal at Krondor using OpenGL.
 * Event state tracking
 * Music and sound
 * Shops and inventory
+* Temples
 * World map
 
 # Acknowledgements
