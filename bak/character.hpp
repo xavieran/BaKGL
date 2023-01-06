@@ -209,6 +209,13 @@ public:
     {
         auto& item = mInventory.GetAtIndex(index);
         auto equipped = mInventory.FindEquipped(slot);
+
+        if (equipped == mInventory.GetItems().end())
+        {
+            item.SetEquipped(true);
+            return;
+        }
+
         const auto slotIndex = *mInventory.GetIndexFromIt(equipped);
         // We are trying to move this item onto itself
         if (slotIndex == index)

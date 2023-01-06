@@ -18,7 +18,7 @@ Image::Image(unsigned width, unsigned height, unsigned flags, bool isHighResLowC
     mIsHighResLowCol(isHighResLowCol),
     mPixels()
 {
-    mPixels.reserve(width * height);
+    mPixels.resize(width * height);
 }
 
 unsigned Image::GetWidth() const
@@ -57,8 +57,7 @@ void Image::SetPixel(unsigned x, unsigned y, std::uint8_t color)
 
 void Image::Load(FileBuffer *buffer)
 {
-    ASSERT(mPixels.empty());
-
+    ASSERT(mPixels.size() == mWidth * mHeight);
     FileBuffer *imgbuf;
     if (mFlags & FLAG_COMPRESSED)
     {
@@ -99,7 +98,7 @@ void Image::Load(FileBuffer *buffer)
         {
             for (unsigned i = 0; i < GetSize(); i++)
             {
-                mPixels.emplace_back(imgbuf->GetUint8());
+                mPixels[i] = imgbuf->GetUint8();
             }
         }
     }
