@@ -151,7 +151,7 @@ if(NOT AudioCodecs_POPULATED)
     FetchContent_Populate(AudioCodecs)
 
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-    set(BUILD_SHARED_LIBS OFF)
+    set(CODECS_BUILD_STATIC ON)
     set(BUILD_OGG_VORBIS OFF)
     set(BUILD_MPG123 OFF)
     set(BUILD_FLAC OFF)
@@ -167,9 +167,12 @@ if(NOT AudioCodecs_POPULATED)
     set(BUILD_EDMIDI OFF)
     add_subdirectory(${audiocodecs_SOURCE_DIR} ${audiocodecs_BINARY_DIR})
 endif()
-include_directories(${AudioCodecs_SOURCE_DIR}/include)
-link_directories(${AudioCodecs_BINARY_DIR}/lib)
 
+# libADLMIDI and libOPNMIDI will be placed here to be found by
+# SDLMixerX below...
+# This is an awful hack and will require you to build once, 
+# then run cmake again to find the built libraries, then build again...
+list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib)
 
 # --- SDL2 Mixer X--- #
 
@@ -185,18 +188,22 @@ if(NOT SDLMixerX_POPULATED)
 
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
     set(BUILD_SHARED_LIBS OFF)
+    set(MIXERX_ZLIB FALSE)
     set(MIXERX_ENABLE_GPL ON)
     set(MIXERX_ENABLE_LGPL ON)
     set(SDL_MIXER_X_STATIC ON)
     set(SDL_MIXER_X_SHARED OFF)
     set(USE_MIDI_ADLMIDI ON)
+    set(USE_MIDI_OPNMIDI ON)
     set(USE_MIDI_FLUIDSYNTH ON)
     set(USE_MIDI_FLUIDLITE OFF)
     set(USE_MIDI_TIMIDITY OFF)
+    set(USE_GME OFF)
     set(USE_MODPLUG OFF)
     set(USE_MP3_MPG123 OFF)
     set(USE_XMP OFF)
     set(USE_SYSTEM_SDL2 ON)
+    set(USE_SYSTEM_AUDIO_LIBRARIES OFF)
     set(DOWNLOAD_AUDIO_CODECS_DEPENDENCY OFF)
     set(AUDIO_CODECS_REPO_PATH ${AudioCodecs_SOURCE_DIR})
     add_subdirectory(${sdlmixerx_SOURCE_DIR} ${sdlmixerx_BINARY_DIR})
