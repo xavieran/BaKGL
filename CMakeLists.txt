@@ -21,8 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (MSVC)
     set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302")
-    set(CXX_FLAGS "/W3 /EHsc /bigobj")
-    #set(CXX_FLAGS "/WX")
+    set(CXX_FLAGS "/W3 /WX /EHsc /bigobj")
     
     set(CXX_USAN "")
     # MS asan is pretty brutal on performance
