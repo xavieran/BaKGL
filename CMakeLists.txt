@@ -139,6 +139,38 @@ if(NOT TARGET SDL2::SDL2main)
     add_library(SDL2::SDL2main ALIAS SDL2::SDL2)
 endif()
 
+# --- AudioCodecs for SDLMixerX --- #
+FetchContent_Declare(
+    AudioCodecs
+    GIT_REPOSITORY https://github.com/WohlSoft/AudioCodecs
+    GIT_TAG f299826f4f32e6582c5a2ac363ac2cd963c68d86
+)
+
+FetchContent_GetProperties(AudioCodecs)
+if(NOT AudioCodecs_POPULATED)
+    FetchContent_Populate(AudioCodecs)
+
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+    set(BUILD_SHARED_LIBS OFF)
+    set(BUILD_OGG_VORBIS OFF)
+    set(BUILD_MPG123 OFF)
+    set(BUILD_FLAC OFF)
+    set(BUILD_GME OFF)
+    set(BUILD_TIMIDITYSDL OFF)
+    set(BUILD_MODPLUG OFF)
+    set(BUILD_LIBXMP OFF)
+    set(BUILD_OPUS OFF)
+    set(BUILD_WAVPACK OFF)
+    set(BUILD_FLUIDLITE OFF)
+    set(BUILD_ADLMIDI ON)
+    set(BUILD_OPNMIDI ON)
+    set(BUILD_EDMIDI OFF)
+    add_subdirectory(${audiocodecs_SOURCE_DIR} ${audiocodecs_BINARY_DIR})
+endif()
+include_directories(${AudioCodecs_SOURCE_DIR}/include)
+link_directories(${AudioCodecs_BINARY_DIR}/lib)
+
+
 # --- SDL2 Mixer X--- #
 
 FetchContent_Declare(
@@ -146,13 +178,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/WohlSoft/SDL-Mixer-X
     GIT_TAG f7d4549e98afd6436791a70c1cf9b79781895dc1
 )
-
-# This package spams installs...
-set(CMAKE_INSTALL_MESSAGE LAZY)
-
-# For limpg123 find at http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win64.exe
-list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\yasm")
-list(APPEND CMAKE_PREFIX_PATH "C:\\Program Files\\Common Files\\MSVC\\yasm\\bin\\yasm")
 
 FetchContent_GetProperties(SDLMixerX)
 if(NOT SDLMixerX_POPULATED)
@@ -170,10 +195,10 @@ if(NOT SDLMixerX_POPULATED)
     set(USE_MIDI_TIMIDITY OFF)
     set(USE_MODPLUG OFF)
     set(USE_MP3_MPG123 OFF)
-    set(BUILD_MPG123 OFF)
     set(USE_XMP OFF)
     set(USE_SYSTEM_SDL2 ON)
-    set(DOWNLOAD_AUDIO_CODECS_DEPENDENCY ON)
+    set(DOWNLOAD_AUDIO_CODECS_DEPENDENCY OFF)
+    set(AUDIO_CODECS_REPO_PATH ${AudioCodecs_SOURCE_DIR})
     add_subdirectory(${sdlmixerx_SOURCE_DIR} ${sdlmixerx_BINARY_DIR})
 endif()
 include_directories(${SDLMixerX_SOURCE_DIR}/include)
