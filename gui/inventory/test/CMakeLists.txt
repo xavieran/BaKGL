@@ -7,6 +7,7 @@ add_executable(guiInventoryTest
     )
 
 target_link_libraries(guiInventoryTest
+    ${LINK_UNIX_LIBRARIES}
     gui
     guiInventory
     gtest_main)
