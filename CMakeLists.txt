@@ -7,6 +7,7 @@ project( BaKGL )
 string(CONCAT CXX_IGNORES
     "-Wno-unused-variable "
     "-Wno-unused-parameter "
+    "-Wno-unused-but-set-variable "
 #   "-Wno-unused-but-set-parameter "
 #   "-Wno-c++17-extensions "
     "-Wno-unused-private-field "
@@ -43,17 +44,10 @@ endif()
 enable_testing()
 
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
-set(CMAKE_CXX_STANDARD 20)
 
 set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")
 
-# --- Put all binaries in the root of the build dir ---
-set(
-  CMAKE_RUNTIME_OUTPUT_DIRECTORY
-  ${CMAKE_BINARY_DIR})
-
-# --- External Packages ---
+# --- # --- External Packages --- # --- #
 
 # --- OpenGL related packages --- #
 find_package(OpenGL REQUIRED)
@@ -166,14 +160,15 @@ if(NOT AudioCodecs_POPULATED)
     set(BUILD_ADLMIDI ON)
     set(BUILD_OPNMIDI ON)
     set(BUILD_EDMIDI OFF)
-    add_subdirectory(${audiocodecs_SOURCE_DIR} ${audiocodecs_BINARY_DIR})
 endif()
+add_subdirectory(${audiocodecs_SOURCE_DIR} ${audiocodecs_BINARY_DIR})
 
 # libADLMIDI and libOPNMIDI will be placed here to be found by
 # SDLMixerX below...
 # This is an awful hack and will require you to build once, 
 # then run cmake again to find the built libraries, then build again...
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib)
+#set_target_properties(OPNMIDI_static PROPERTIES CMAKE_CXX_FLAGS "")
 
 # --- SDL2 Mixer X--- #
 
@@ -231,15 +226,30 @@ if (UNIX)
         pthread)
 endif()
 
+# --- My project CXX flags --- #
+set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
+set(CMAKE_CXX_STANDARD 20)
+
+# --- Put all binaries in the root of the build dir ---
+set(
+  CMAKE_RUNTIME_OUTPUT_DIRECTORY
+  ${CMAKE_BINARY_DIR})
+
 # --- My project directories --- #
 include_directories(".")
 
-add_subdirectory("app")
-add_subdirectory("audio")
-add_subdirectory("bak")
-add_subdirectory("com")
-add_subdirectory("game")
-add_subdirectory("graphics")
-add_subdirectory("gui")
-add_subdirectory("imgui")
-add_subdirectory("shaders")
+list(APPEND SOURCE_DIRECTORIES
+    "app"
+    "audio"
+    "bak"
+    "com"
+    "game"
+    "graphics"
+    "gui"
+    "imgui"
+    "shaders"
+)
+
+foreach (DIR IN LISTS SOURCE_DIRECTORIES)
+    add_subdirectory(${DIR})
+endforeach()
