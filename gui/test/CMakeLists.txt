@@ -7,6 +7,7 @@ add_executable(guiTest
     )
 
 target_link_libraries(guiTest
+    ${LINK_UNIX_LIBRARIES}
     gui
     gtest_main)
 

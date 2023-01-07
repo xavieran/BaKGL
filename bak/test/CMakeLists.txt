@@ -13,6 +13,7 @@ add_executable(bakTest
     )
 
 target_link_libraries(bakTest
+    ${LINK_UNIX_LIBRARIES}
     bak
     com
     gtest_main)

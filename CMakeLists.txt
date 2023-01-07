@@ -114,7 +114,7 @@ foreach (INCLUDE_DIR IN LISTS SDL2_INCLUDE_DIRS)
     include_directories(${INCLUDE_DIR})
     message("SDL DIR: " ${INCLUDE_DIR})
 endforeach()
-message ("LIB: " ${SDL2_LIBRARIES})
+message ("SDL LIB: " ${SDL2_LIBRARIES})
 # Hack for SDL < 2.0.12
 if(NOT TARGET SDL2::SDL2)
     add_library(SDL2::SDL2 INTERFACE IMPORTED)
@@ -125,12 +125,12 @@ if(NOT TARGET SDL2::SDL2)
 endif()
 
 if (NOT (TARGET SDL2::SDL2-static))
-    message ("Didnt find SDL2::SDL2-static, adding dummy target")
+    message ("Didn't find SDL2::SDL2-static, adding dummy target")
     add_library(SDL2::SDL2-static ALIAS SDL2::SDL2)
 endif()
 
 if(NOT TARGET SDL2::SDL2main)
-    message ("Didnt find SDL2::SDL2main, adding dummy target")
+    message ("Didn't find SDL2::SDL2main, adding dummy target")
     add_library(SDL2::SDL2main ALIAS SDL2::SDL2)
 endif()
 
@@ -162,13 +162,6 @@ if(NOT AudioCodecs_POPULATED)
     set(BUILD_EDMIDI OFF)
 endif()
 add_subdirectory(${audiocodecs_SOURCE_DIR} ${audiocodecs_BINARY_DIR})
-
-# libADLMIDI and libOPNMIDI will be placed here to be found by
-# SDLMixerX below...
-# This is an awful hack and will require you to build once, 
-# then run cmake again to find the built libraries, then build again...
-list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib)
-#set_target_properties(OPNMIDI_static PROPERTIES CMAKE_CXX_FLAGS "")
 
 # --- SDL2 Mixer X--- #
 
@@ -203,7 +196,27 @@ if(NOT SDLMixerX_POPULATED)
     set(USE_SYSTEM_AUDIO_LIBRARIES OFF)
     set(DOWNLOAD_AUDIO_CODECS_DEPENDENCY OFF)
     set(AUDIO_CODECS_REPO_PATH ${AudioCodecs_SOURCE_DIR})
+
+    # libADLMIDI and libOPNMIDI will be placed here to be found by SDLMixerX below...
+    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib)
+    list(APPEND CMAKE_PREFIX_PATH ${audiocodecs_SOURCE_DIR}/libADLMIDI/include)
+    list(APPEND CMAKE_PREFIX_PATH ${audiocodecs_SOURCE_DIR}/libOPNMIDI/include)
+
+    # Trick SDLMixerX into thinking these libraries exists.
+    # which they will, they just haven't been compiled yet...
+
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+    file(TOUCH ${CMAKE_BINARY_DIR}/lib/libADLMIDI.a)
+    file(TOUCH ${CMAKE_BINARY_DIR}/lib/libOPNMIDI.a)
+    file(TOUCH ${CMAKE_BINARY_DIR}/lib/libADLMIDI.lib)
+    file(TOUCH ${CMAKE_BINARY_DIR}/lib/libOPNMIDI.lib)
+
     add_subdirectory(${sdlmixerx_SOURCE_DIR} ${sdlmixerx_BINARY_DIR})
+
+    file(REMOVE ${CMAKE_BINARY_DIR}/lib/libADLMIDI.a)
+    file(REMOVE ${CMAKE_BINARY_DIR}/lib/libOPNMIDI.a)
+    file(REMOVE ${CMAKE_BINARY_DIR}/lib/libADLMIDI.lib)
+    file(REMOVE ${CMAKE_BINARY_DIR}/lib/libOPNMIDI.lib)
 endif()
 include_directories(${SDLMixerX_SOURCE_DIR}/include)
 link_directories(${SDLMixerX_BINARY_DIR}/lib)
@@ -219,10 +232,10 @@ set(LINK_3D_LIBRARIES
 message ("System: ${CMAKE_SYSTEM}")
 if (UNIX)
     set(LINK_UNIX_LIBRARIES
-        stdc++
         m
         dl
         rt
+        stdc++
         pthread)
 endif()
 
