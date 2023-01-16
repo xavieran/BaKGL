@@ -34,6 +34,7 @@ add_library(bak
     model.hpp model.cpp
     money.hpp money.cpp
     monster.hpp monster.cpp
+    packedResourceFile.hpp packedResourceFile.cpp
     party.hpp party.cpp
     palette.hpp palette.cpp
     objectInfo.hpp objectInfo.cpp
