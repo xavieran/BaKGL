@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/font.hpp"
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include "graphics/glm.hpp"
 #include "graphics/sprites.hpp"

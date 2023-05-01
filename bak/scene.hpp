@@ -6,7 +6,7 @@
 
 #include "com/assert.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include <optional>
 #include <vector>

@@ -134,6 +134,11 @@ public:
         return LogState::Log(LogLevel::Info, mName);
     }
 
+    std::ostream& Warn() const
+    {
+        return LogState::Log(LogLevel::Warn, mName);
+    }
+
     std::ostream& Error() const
     {
         return LogState::Log(LogLevel::Error, mName);

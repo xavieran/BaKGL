@@ -18,20 +18,7 @@ static constexpr auto COMPRESSION_RLE  = 2;
 
 class FileBuffer
 {
-private:
-    // Be nicer if this was a shared ptr...
-    std::uint8_t * mBuffer;
-    std::uint8_t * mCurrent;
-    unsigned mSize;
-    unsigned mNextBit;
-    bool mOwnBuffer;
-
-    FileBuffer(
-        std::uint8_t*,
-        std::uint8_t*,
-        std::uint32_t,
-        std::uint32_t);
-        
+       
 public:
     explicit FileBuffer(unsigned n);
     FileBuffer(const FileBuffer&) noexcept = delete;
@@ -49,6 +36,7 @@ public:
     {
         return Find(static_cast<std::uint32_t>(tag));
     }
+    FileBuffer MakeSubBuffer(std::uint32_t offset, std::uint32_t size) const;
 
     void Load(std::ifstream &ifs);
     void Save(std::ofstream &ofs);
@@ -172,33 +160,20 @@ public:
     void PutData(void * data, unsigned n);
     void PutData(std::uint8_t x, unsigned n);
     void PutBits(unsigned x, unsigned n);
-};
-
-class FileBufferFactory
-{
-public:
-    static FileBufferFactory& Get();
-
-    void SetDataPath(const std::string&);
-    void SetSavePath(const std::string&);
-
-    bool DataBufferExists(const std::string& path);
-    FileBuffer CreateDataBuffer(const std::string& path);
-    bool SaveBufferExists(const std::string& path);
-    FileBuffer CreateSaveBuffer(const std::string& path);
-    FileBuffer CreateFileBuffer(const std::string& path);
 
 private:
+    // Be nicer if this was a shared ptr...
+    std::uint8_t * mBuffer;
+    std::uint8_t * mCurrent;
+    unsigned mSize;
+    unsigned mNextBit;
+    bool mOwnBuffer;
 
-    FileBufferFactory();
-
-    FileBufferFactory& operator=(const FileBufferFactory&) noexcept = delete;
-    FileBufferFactory(const FileBufferFactory&) noexcept = delete;
-    FileBufferFactory& operator=(FileBufferFactory&&) noexcept = delete;
-    FileBufferFactory(FileBufferFactory&&) noexcept = delete;
-
-    std::string mDataPath;
-    std::string mSavePath;
+    FileBuffer(
+        std::uint8_t*,
+        std::uint8_t*,
+        std::uint32_t,
+        std::uint32_t);
 };
 
 }

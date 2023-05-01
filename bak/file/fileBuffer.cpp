@@ -1,4 +1,4 @@
-#include "bak/fileBuffer.hpp"
+#include "bak/file/fileBuffer.hpp"
 
 #include "com/logger.hpp"
 #include "com/path.hpp"
@@ -18,123 +18,15 @@
 
 namespace BAK {
 
-unsigned GetStreamSize(std::ifstream& ifs)
-{
-    ifs.ignore( std::numeric_limits<std::streamsize>::max() );
-    std::streamsize length = ifs.gcount();
-    ifs.clear();
-    ifs.seekg( 0, std::ios_base::beg );
-    return static_cast<unsigned>(length);
-}
-
-FileBufferFactory::FileBufferFactory()
-:
-    mDataPath{(std::filesystem::path{GetBakDirectory()} / "data").string()},
-    mSavePath{(std::filesystem::path{GetBakDirectory()} / "save").string()}
-{}
-
-FileBufferFactory& FileBufferFactory::Get()
-{
-    static FileBufferFactory factory{};
-    return factory;
-}
-
-void FileBufferFactory::SetDataPath(const std::string& dataPath)
-{
-    mDataPath = dataPath;
-}
-
-void FileBufferFactory::SetSavePath(const std::string& savePath)
-{
-    mSavePath = savePath;
-}
-
-FileBuffer FileBufferFactory::CreateDataBuffer(const std::string& path)
-{
-    // First look in the cwd
-    if (std::filesystem::exists(path))
-    {
-        return CreateFileBuffer(path);
-    }
-    else
-    {
-        const auto realPath = std::filesystem::path{mDataPath} / path;
-        return CreateFileBuffer(realPath.string());
-    }
-}
-
-bool FileBufferFactory::DataBufferExists(const std::string& path)
-{
-    // First look in the cwd
-    if (std::filesystem::exists(path))
-    {
-        return true;
-    }
-    else
-    {
-        const auto realPath = std::filesystem::path{mDataPath} / path;
-        return std::filesystem::exists(realPath.string());
-    }
-
-    return false;
-}
-
-bool FileBufferFactory::SaveBufferExists(const std::string& path)
-{
-    // First look in the cwd
-    if (std::filesystem::exists(path))
-    {
-        return true;
-    }
-    else
-    {
-        const auto realPath = std::filesystem::path{mSavePath} / path;
-        return std::filesystem::exists(realPath.string());
-    }
-
-    return false;
-}
-
-FileBuffer FileBufferFactory::CreateSaveBuffer(const std::string& path)
-{
-    if (std::filesystem::exists(path))
-        return CreateFileBuffer(path);
-    else
-    {
-        const auto realPath = std::filesystem::path{mSavePath} / path;
-        return CreateFileBuffer(realPath.string());
-    }
-}
-
-FileBuffer FileBufferFactory::CreateFileBuffer(const std::string& path)
-{
-    Logging::LogInfo(__FUNCTION__) << "Opening: " << path << std::endl;
-    std::ifstream in{};
-    in.open(path, std::ios::in | std::ios::binary);
-    if (!in.good())
-    {
-        std::cerr << "Failed to open file: " << path << std::endl;
-        std::stringstream ss{};
-        ss << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " OpenError!";
-        Logging::LogFatal("FileBuffer") << ss.str() << std::endl;
-        throw std::runtime_error(ss.str());
-    }
-
-    FileBuffer fb{GetStreamSize(in)};
-    fb.Load(in);
-    in.close();
-    return fb;
-}
-
 FileBuffer::FileBuffer(
     std::uint8_t* buf,
-    std::uint8_t* cur,
-    std::uint32_t sz,
+    std::uint8_t* current,
+    std::uint32_t size,
     std::uint32_t nb)
 :
     mBuffer{buf},
-    mCurrent{cur},
-    mSize{sz},
+    mCurrent{current},
+    mSize{size},
     mNextBit{nb},
     mOwnBuffer{false}
 {
@@ -161,13 +53,14 @@ FileBuffer::FileBuffer(FileBuffer&& fb) noexcept
 
 FileBuffer& FileBuffer::operator=(FileBuffer&& fb) noexcept
 {
+    bool wasOwnBuffer = fb.mOwnBuffer;
     fb.mOwnBuffer = false;
 
     mBuffer = fb.mBuffer;
     mCurrent = fb.mCurrent;
     mSize = fb.mSize;
     mNextBit = fb.mNextBit;
-    mOwnBuffer = true;
+    mOwnBuffer = wasOwnBuffer;
     return *this;
 }
 
@@ -214,8 +107,8 @@ FileBuffer FileBuffer::Find(std::uint32_t tag) const
     auto *search = mBuffer;
     for (; search < (mBuffer + mSize - sizeof(std::uint32_t)); search++)
     {
-        auto cur = *reinterpret_cast<std::uint32_t*>(search);
-        if (cur == tag)
+        auto current = *reinterpret_cast<std::uint32_t*>(search);
+        if (current == tag)
         {
             search += 4;
             const auto mBufferSize = *reinterpret_cast<std::uint32_t*>(search);
@@ -231,6 +124,24 @@ FileBuffer FileBuffer::Find(std::uint32_t tag) const
     std::stringstream ss{};
     ss << "Tag not found: " << std::hex << tag;
     throw std::runtime_error(ss.str());
+}
+
+FileBuffer FileBuffer::MakeSubBuffer(std::uint32_t offset, std::uint32_t size) const
+{
+    if (mSize < offset + size)
+    {
+        std::stringstream ss{};
+        ss << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " Requested new FileBuffer larger than available size: ("
+            << offset << ", " << size << ") my size: " << mSize;
+        Logging::LogFatal("FileBuffer") << ss.str() << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+
+    return FileBuffer{
+        mBuffer + offset,
+        mBuffer + offset,
+        size,
+        0};
 }
 
 void
@@ -455,7 +366,7 @@ FileBuffer::CompressLZSS(FileBuffer *result)
     try
     {
         uint8_t *data = GetCurrent();
-        uint8_t *curr = GetCurrent();
+        uint8_t *current = GetCurrent();
         uint8_t *codeptr = result->GetCurrent();
         uint8_t byte = GetUint8();
         uint8_t code = 0;
@@ -472,7 +383,7 @@ FileBuffer::CompressLZSS(FileBuffer *result)
             }
             unsigned off = 0;
             unsigned len = 0;
-            uint8_t *ptr = curr;
+            uint8_t *ptr = current;
             while (ptr > data)
             {
                 ptr--;
@@ -480,7 +391,7 @@ FileBuffer::CompressLZSS(FileBuffer *result)
                 {
                     off = ptr - data;
                     len = 1;
-                    while ((curr + len < mBuffer + mSize) && (ptr[len] == curr[len]))
+                    while ((current + len < mBuffer + mSize) && (ptr[len] == current[len]))
                     {
                         len++;
                     }
@@ -497,7 +408,7 @@ FileBuffer::CompressLZSS(FileBuffer *result)
                 result->PutUint8(len - 5);
                 Skip(len - 1);
             }
-            curr = GetCurrent();
+            current = GetCurrent();
             byte = GetUint8();
             mask <<= 1;
         }

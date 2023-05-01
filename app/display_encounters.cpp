@@ -4,7 +4,7 @@
 #include "bak/zoneReference.hpp"
 #include "bak/monster.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/file/fileBuffer.hpp"
 
 int main(int argc, char** argv)
 {

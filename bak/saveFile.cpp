@@ -1,5 +1,7 @@
 #include "bak/saveFile.hpp"
 
+#include "bak/file/util.hpp"
+
 namespace BAK {
 
 unsigned convertToInt(const std::string& s)
@@ -25,7 +27,7 @@ std::vector<SaveFile> MakeSaveFiles(std::filesystem::path saveDir)
         std::regex_search(saveName, matches, saveSuffix);
         if (matches.size() > 0)
         {
-            auto fb = FileBufferFactory::Get().CreateFileBuffer(save.path().string());
+            auto fb = File::CreateFileBuffer(save.path().string());
             saveFiles.emplace_back(
                 SaveFile{
                     convertToInt(matches.str(1)),

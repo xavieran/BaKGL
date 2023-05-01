@@ -1,7 +1,7 @@
 # BaK GL
 
 ![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
-![Clang 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
+![Clang 16 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
 Remake of Betrayal at Krondor using OpenGL.
 
@@ -25,22 +25,33 @@ I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
 Requires CMake, SDL2, SDL_MixerX, OpenGL, GLFW, and glm. Many of these dependencies will be downloaded and built automatically.
 
+# Build
+## Linux
+This project uses cmake. It can be built easily with
+```
+mkdir build; cd build;
+cmake ..
+make
+```
+
+The relevant binaries will be placed in your build directory.
+
+## Windows
+Alternatively you can build on windows by opening the project in visual studio.
+
+You may need to manually download some of the dependencies (freeglut and glew) and modify the CMakeLists.txt to point to them.
+
 # Setup
-## Extract original data files
-In order to play around with the project you will need to extract the original game data files.
+## Locate the original data files
+In order to play around with the project you will need the original game data files.
 
-This can be done using the "resourcedemo" binary.
+BaKGL will look in either the current directory, or $HOME/bak/data (%APPDATA%/bak/data on windows) for the game data files.
 
-In the folder where you have the BaK data files (krondor.001 and krondor.rmf) run
-
-```
-$ resourcedemo RMF E
-Extracting resources
-Created data path: /home/user/capture/
-Created data path: /home/user/data/
-```
+You will specifically need the following files: "krondor.001", "krondor.rmf", and "frp.sx".
 
 Make sure you check the case of the filenames in the folder where you installed BaK, if they are capitalised you will need to rename or copy them to lowercase.
+
+Save files will be searched for in the $HOME/bak/saves/GAMES directory, you can copy your old saves directory to this location. If you have no saves you will need to run BAK at least once in dosbox in order to create an initial save file.
 
 ## Set up shader path
 OpenGL shaders are searched for in a specific set of directories
@@ -54,9 +65,9 @@ ln -s BakGL/shaders $HOME/shaders
 ```
 
 ## Run main3d
-With the files extracted you can run "main3d" in the same directory as the extracted files (e.g. /home/user/data) with an existing save file.
+The main application is "main3d". You can run this in the terminal in linux, or select it as the target in Visual Studio.
 ```
-$ main3d --save BetrayalAtKrondor/GAMES/TOWN.G06/SAVE02.GAM
+$ main3d
 ```
 
 # Screenshots
