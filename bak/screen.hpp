@@ -2,7 +2,7 @@
 
 #include "bak/image.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 namespace BAK {
 

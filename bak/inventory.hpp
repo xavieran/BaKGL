@@ -7,7 +7,7 @@
 #include "com/assert.hpp"
 #include "com/strongType.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include <iostream>
 #include <optional>

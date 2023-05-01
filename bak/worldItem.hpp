@@ -3,7 +3,7 @@
 #include "bak/constants.hpp"
 #include "bak/coordinates.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include <vector>
 

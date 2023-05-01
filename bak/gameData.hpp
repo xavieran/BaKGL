@@ -18,7 +18,7 @@
 
 #include "com/logger.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include <vector>
 #include <memory>

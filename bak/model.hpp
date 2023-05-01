@@ -2,7 +2,7 @@
 
 #include "com/logger.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include "glm/fwd.hpp"
 #include <glm/glm.hpp>

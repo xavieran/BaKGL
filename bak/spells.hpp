@@ -3,7 +3,7 @@
 #include "com/assert.hpp"
 #include "com/logger.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include <string_view>
 #include <vector>

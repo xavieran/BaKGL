@@ -16,7 +16,7 @@ add_library(bak
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
     fixedObject.hpp fixedObject.cpp
-    fileBuffer.hpp fileBuffer.cpp
+    fileBufferFactory.hpp fileBufferFactory.cpp
     font.hpp font.cpp
     gameData.hpp gameData.cpp
     gameState.hpp
@@ -34,7 +34,6 @@ add_library(bak
     model.hpp model.cpp
     money.hpp money.cpp
     monster.hpp monster.cpp
-    packedResourceFile.hpp packedResourceFile.cpp
     party.hpp party.cpp
     palette.hpp palette.cpp
     objectInfo.hpp objectInfo.cpp
@@ -63,6 +62,7 @@ add_library(bak
 target_link_libraries(bak
     audio
     bakEncounter
+    bakFile
     graphics)
 
 #set_target_properties(
@@ -72,4 +72,5 @@ target_link_libraries(bak
 #    "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*")
 
 add_subdirectory(encounter)
+add_subdirectory(file)
 add_subdirectory(test)

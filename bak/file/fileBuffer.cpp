@@ -1,4 +1,4 @@
-#include "bak/fileBuffer.hpp"
+#include "bak/file/fileBuffer.hpp"
 
 #include "com/logger.hpp"
 #include "com/path.hpp"
@@ -53,13 +53,14 @@ FileBuffer::FileBuffer(FileBuffer&& fb) noexcept
 
 FileBuffer& FileBuffer::operator=(FileBuffer&& fb) noexcept
 {
+    bool wasOwnBuffer = fb.mOwnBuffer;
     fb.mOwnBuffer = false;
 
     mBuffer = fb.mBuffer;
     mCurrent = fb.mCurrent;
     mSize = fb.mSize;
     mNextBit = fb.mNextBit;
-    mOwnBuffer = true;
+    mOwnBuffer = wasOwnBuffer;
     return *this;
 }
 

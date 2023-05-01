@@ -7,7 +7,7 @@
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 namespace BAK::Encounter {
 

@@ -10,7 +10,7 @@
 
 #include "graphics/glm.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 namespace BAK {
 

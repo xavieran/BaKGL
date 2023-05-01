@@ -1,6 +1,7 @@
 #pragma once
 
-#include "bak/fileBuffer.hpp"
+#include "bak/file/fileBuffer.hpp"
+#include "bak/file/aggregateFileProvider.hpp"
 
 #include <string>
 
@@ -30,6 +31,7 @@ private:
 
     std::string mDataPath;
     std::string mSavePath;
+    File::AggregateFileProvider mDataFileProvider;
 };
 
 }

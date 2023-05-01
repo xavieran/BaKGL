@@ -9,7 +9,7 @@
 
 #include "graphics/texture.hpp"
 
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 namespace BAK {
 

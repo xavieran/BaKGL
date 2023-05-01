@@ -4,7 +4,7 @@
 
 #include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
-#include "bak/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 #include "bak/money.hpp"
 #include "bak/temple.hpp"
 
