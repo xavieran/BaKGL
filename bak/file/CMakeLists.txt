@@ -7,3 +7,6 @@ add_library(bakFile
     util.hpp util.cpp
     IDataBufferProvider.hpp
 )
+
+target_link_libraries(bakFile
+    glm)
