@@ -26,7 +26,7 @@ FileBuffer* FileDataProvider::GetDataBuffer(const std::string& path)
     {
         if (!mCache.contains(path))
         {
-            const auto [it, emplaced] = mCache.emplace(path, CreateFileBuffer(mBasePath / path));
+            const auto [it, emplaced] = mCache.emplace(path, CreateFileBuffer((mBasePath / path).string()));
             assert(emplaced);
         }
         return &mCache.at(path);
