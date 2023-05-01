@@ -37,14 +37,14 @@ PackedFileDataProvider::PackedFileDataProvider(IDataBufferProvider& dataProvider
             resourceName,
             packedResource->MakeSubBuffer(index.mOffset + ResourceIndex::sFilenameLength + 4, resourceSize));
 
-        mLogger.Debug() << "Resource: " << resourceName << " hash: " << std::hex << index.mHashKey
+        mLogger.Spam() << "Resource: " << resourceName << " hash: " << std::hex << index.mHashKey
             << std::dec << " offset: " << index.mOffset << " size: " << resourceSize << "\n";
     }
 }
 
 FileBuffer* PackedFileDataProvider::GetDataBuffer(const std::string& fileName)
 {
-    mLogger.Debug() << "Searching for file: " << fileName << std::endl;
+    mLogger.Spam() << "Searching for file: " << fileName << std::endl;
     if (mCache.contains(fileName))
     {
         return &mCache.at(fileName);

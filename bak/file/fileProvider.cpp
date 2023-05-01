@@ -19,7 +19,7 @@ bool FileDataProvider::DataFileExists(const std::string& path) const
 
 FileBuffer* FileDataProvider::GetDataBuffer(const std::string& path)
 {
-    Logging::LogDebug("FileDataProvider") << "Searching for file: "
+    Logging::LogSpam("FileDataProvider") << "Searching for file: "
         << path << " in directory [" << mBasePath.string() << "]" << std::endl;
 
     if (DataFileExists(path))
