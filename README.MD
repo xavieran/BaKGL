@@ -37,31 +37,37 @@ make
 The relevant binaries will be placed in your build directory.
 
 ## Windows
-Alternatively you can build on windows by opening the project in visual studio.
+Alternatively you can build on Windows by opening the project in Visual Studio.
 
-You may need to manually download some of the dependencies (freeglut and glew) and modify the CMakeLists.txt to point to them.
+You may need to manually download some of the dependencies (freeglut, glew, and SDL2) and modify the CMakeLists.txt to point to them.
 
 # Setup
+## BaKGL file main directory
+BaKGL needs to find a number of different files in order to run with the games original data. These are searched for in the "bak main directory".
+
+On UNIX systems this will be "$HOME/bak", under Windows it will be "%APPDATA%\bak". I will refer to this directory from here as $BAK_MAIN_DIR for both platforms.
+
 ## Locate the original data files
 In order to play around with the project you will need the original game data files.
 
-BaKGL will look in either the current directory, or $HOME/bak/data (%APPDATA%/bak/data on windows) for the game data files.
+You will specifically need the following files from your game: "krondor.001", "krondor.rmf", and "frp.sx".
 
-You will specifically need the following files: "krondor.001", "krondor.rmf", and "frp.sx".
+BaKGL will look in either the current directory from which you ran the executable, or $BAK_MAIN_DIR/data for the game data files, so please copy them to the appropriate folder.
 
 Make sure you check the case of the filenames in the folder where you installed BaK, if they are capitalised you will need to rename or copy them to lowercase.
 
-Save files will be searched for in the $HOME/bak/saves/GAMES directory, you can copy your old saves directory to this location. If you have no saves you will need to run BAK at least once in dosbox in order to create an initial save file.
+Save files will be searched for in the $BAK_MAIN_DIR/saves/GAMES directory, you can copy your old saves directory to this location. If you have no saves you will need to run BAK at least once in dosbox in order to create an initial save file.
 
 ## Set up shader path
 OpenGL shaders are searched for in a specific set of directories
 
 $HOME/shaders
 $HOME/.shaders
+$BAK_MAIN_DIR/shaders
 
 Either copy the shaders to this directory, or (better) create a symbolic link to point to the shaders directory of the repo.
 ```
-ln -s BakGL/shaders $HOME/shaders
+ln -sf BakGL/shaders $BAK_MAIN_DIR/shaders
 ```
 
 ## Run main3d

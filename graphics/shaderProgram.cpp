@@ -8,6 +8,21 @@
 #include <fstream>
 #include <iostream>
 
+namespace {
+static const std::vector<std::filesystem::path> sSearchPaths{
+    ".shaders",
+    "shaders",
+    std::filesystem::path{"bak"} / "shaders"
+};
+
+auto MakeSearchPath(std::filesystem::path aPath)
+{
+    const auto home = GetHomeDirectory();
+    auto fullPath = std::filesystem::path{home} / aPath;
+    return fullPath;
+}
+}
+
 std::string ShaderTypeToString(GLenum shaderType)
 {
     switch (shaderType)
@@ -182,17 +197,9 @@ GLuint ShaderProgram::CompileShader(const std::string& shader, GLenum shaderType
 
 std::optional<std::string> ShaderProgram::FindFile(const std::string& shaderPath)
 {   
-    const auto home = GetHomeDirectory();
-
-    const std::vector<std::string> searchPaths{
-        ".shaders",
-        "shaders",
-        "C:\\Users\\xavieran\\Source\\Repos\\xavieran\\BaKGL\\shaders"
-    };
-
-    for (const auto& searchPath : searchPaths)
+    for (const auto& searchPath : sSearchPaths)
     {
-        auto fullPath = std::filesystem::path{home} / searchPath / shaderPath;
+        const auto fullPath = MakeSearchPath(searchPath) / shaderPath;
         if (std::filesystem::exists(fullPath))
             return fullPath.string();
     }
@@ -206,7 +213,16 @@ std::string ShaderProgram::LoadFileContents(const std::string& path)
     if (!fullPath)
     {
         std::stringstream err{};
-        err << "Could not find file in search directories " << path << std::endl;
+        err << "Could not find shader file ["
+            << path << "] in shader search directories [";
+        std::string c = "";
+        for (const auto& path : sSearchPaths)
+        {
+            err << c << MakeSearchPath(path).string();
+            c = ", ";
+        }
+        err << "]\n";
+        err << "Please place or link the files in BaKGL/shaders in the search path.";
         throw std::runtime_error{err.str()};
     }
 

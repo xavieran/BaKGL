@@ -2,6 +2,7 @@
 
 #include "com/strongType.hpp"
 
+#include <cstdint>
 #include <functional>
 #include <ostream>
 #include <variant>

@@ -19,7 +19,7 @@ else()
     foreach (SHADER IN LISTS SHADERS)
         add_custom_target(
             compileShader${SHADER} ALL COMMAND 
-            ${CMAKE_COMMAND} -E env ${LSAN_OPTS} ${CMAKE_BINARY_DIR}/compile_shaders ${SHADER}.vert.glsl ${SHADER}.frag.glsl
+            ${CMAKE_COMMAND} -E env ${LSAN_OPTS} ${CMAKE_BINARY_DIR}/compile_shaders ${CMAKE_CURRENT_SOURCE_DIR}/${SHADER}.vert.glsl ${CMAKE_CURRENT_SOURCE_DIR}/${SHADER}.frag.glsl
             DEPENDS compile_shaders)
     endforeach()
 endif()
