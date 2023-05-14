@@ -198,6 +198,7 @@ public:
     GLuint GetId() const;
     
     void MakeDepthBuffer(unsigned width, unsigned height);
+    void MakePickBuffer(unsigned width, unsigned height);
     void MakeTexture2DArray();
 
     void LoadTexturesGL(

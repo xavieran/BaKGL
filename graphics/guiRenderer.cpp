@@ -178,7 +178,7 @@ void GuiRenderer::Draw(
 {
     mCamera.UpdateModelViewMatrix(modelMatrix);
 
-    mShader.SetUniform(mColorModeId, static_cast<unsigned>(colorMode));
+    mShader.SetUniform(mColorModeId, static_cast<int>(colorMode));
     mShader.SetUniform(mBlockColorId, blockColor);
     
     const auto [offset, length] = object;

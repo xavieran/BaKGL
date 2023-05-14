@@ -422,12 +422,19 @@ public:
         mActiveClickable = nullptr;
     }
 
-    void CheckClickable()
+    void CheckClickable(unsigned entityId)
     {
-        const auto bestId = mSystems->RunClickable(
-            std::make_pair(
-                mCamera.GetPosition(), 
-                mCamera.GetPosition() + (mCamera.GetDirection() * 300.0f)));
+        assert(mSystems);
+
+        auto bestId = std::optional<BAK::EntityIndex>{};
+        for (const auto& entity : mSystems->GetClickables())
+        {
+            if (entity.GetId().mValue == entityId)
+            {
+                bestId = entity.GetId();
+                break;
+            }
+        }
 
         if (bestId)
         {

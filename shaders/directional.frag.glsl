@@ -8,7 +8,6 @@ struct Light
     vec3 mSpecularColor;
 };
 
-in vec3 Position_worldspace;
 in vec3 Position_lightSpace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;

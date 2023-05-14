@@ -21,7 +21,8 @@ public:
 
     void BindGL() const;
     void UnbindGL() const;
-    void AttachDepthTexture(const Graphics::TextureBuffer&) const;
+    void AttachDepthTexture(const Graphics::TextureBuffer&, bool clearDrawBuffer) const;
+    void AttachTexture(const Graphics::TextureBuffer&) const;
 
 private:
     static GLuint GenFrameBufferGL();

@@ -252,6 +252,20 @@ void TextureBuffer::MakeDepthBuffer(unsigned width, unsigned height)
     glTexParameteri(mTextureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
+void TextureBuffer::MakePickBuffer(unsigned width, unsigned height)
+{
+    ASSERT(mTextureType == GL_TEXTURE_2D);
+    //glActiveTexture(GL_TEXTURE1);
+    BindGL();
+    glTexImage2D(
+        mTextureType, 0,
+        GL_RGBA32F,
+        width, height, 0,
+        GL_RGBA, GL_FLOAT, nullptr);
+    glTexParameteri(mTextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(mTextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
 //void TextureBuffer::MakeTexture2DArray()
 //{
 //    BindGL();

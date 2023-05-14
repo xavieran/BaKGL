@@ -17,6 +17,8 @@ struct Light
 
 class Renderer
 {
+    static constexpr auto sDrawDistance = 128000;
+    static constexpr auto sClickDistance = 8000;
 public:
     Renderer(
         unsigned depthMapWidth,
@@ -26,6 +28,12 @@ public:
             auto shader = ShaderProgram{
                 "directional.vert.glsl",
                 "directional.frag.glsl"};
+            return shader.Compile();
+        })},
+        mPickShader{std::invoke([]{
+            auto shader = ShaderProgram{
+                "pick.vert.glsl",
+                "pick.frag.glsl"};
             return shader.Compile();
         })},
         mShadowMapShader{std::invoke([]{
@@ -46,6 +54,9 @@ public:
         mVertexArrayObject{},
         mGLBuffers{},
         mTextureBuffer{GL_TEXTURE_2D_ARRAY},
+        mPickFB{},
+        mPickTexture{GL_TEXTURE_2D},
+        mPickDepth{GL_TEXTURE_2D},
         mDepthMapDims{depthMapWidth, depthMapHeight},
         mDepthFB1{},
         mDepthFB2{},
@@ -53,15 +64,20 @@ public:
         mDepthBuffer2{GL_TEXTURE_2D},
         mUseDepthBuffer1{false}
     {
+        mPickTexture.MakePickBuffer(320*4, 200*4);
+        mPickDepth.MakeDepthBuffer(320*4, 200*4);
+        mPickFB.AttachTexture(mPickTexture);
+        mPickFB.AttachDepthTexture(mPickDepth, false);
+
         mDepthBuffer1.MakeDepthBuffer(
             mDepthMapDims.x, 
             mDepthMapDims.y);
-        mDepthFB1.AttachDepthTexture(mDepthBuffer1);
+        mDepthFB1.AttachDepthTexture(mDepthBuffer1, true);
 
         mDepthBuffer2.MakeDepthBuffer(
             mDepthMapDims.x, 
             mDepthMapDims.y);
-        mDepthFB2.AttachDepthTexture(mDepthBuffer2);
+        mDepthFB2.AttachDepthTexture(mDepthBuffer2, true);
     }
 
     template <typename TextureStoreT>
@@ -92,6 +108,66 @@ public:
         mTextureBuffer.LoadTexturesGL(
             textureStore.GetTextures(),
             textureStore.GetMaxDim());
+    }
+
+    template <typename Renderables, typename Camera>
+    void DrawForPicking(
+        const Renderables& renderables,
+        const Renderables& sprites,
+        const Camera& camera)
+    {
+        mVertexArrayObject.BindGL();
+        glActiveTexture(GL_TEXTURE0);
+        mTextureBuffer.BindGL();
+
+        mPickFB.BindGL();
+        glViewport(0, 0, 320*4, 200*4);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto& shader = mPickShader;
+        shader.UseProgramGL();
+
+        shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
+
+        const auto mvpMatrixId = shader.GetUniformLocation("MVP");
+        const auto entityIdId = shader.GetUniformLocation("entityId");
+
+        const auto& viewMatrix = camera.GetViewMatrix();
+        glm::mat4 MVP;
+
+        const auto RenderItem = [&](const auto& item)
+        {
+            if (glm::distance(camera.GetPosition(), item.GetLocation()) > sClickDistance) return;
+
+            const auto [offset, length] = item.GetObject();
+            const auto& modelMatrix = item.GetModelMatrix();
+
+            MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
+
+            shader.SetUniform(mvpMatrixId, MVP);
+            shader.SetUniform(entityIdId, item.GetId().mValue);
+
+            glDrawElementsBaseVertex(
+                GL_TRIANGLES,
+                length,
+                GL_UNSIGNED_INT,
+                (void*) (offset * sizeof(GLuint)),
+                offset
+            );
+        };
+
+        for (const auto& item : renderables)
+        {
+            RenderItem(item);
+        }
+        for (const auto& item : sprites)
+        {
+            RenderItem(item);
+        }
+
+        mPickFB.UnbindGL();
     }
 
     template <typename Renderables, typename Camera>
@@ -140,7 +216,7 @@ public:
 
         for (const auto& item : renderables)
         {
-            if (glm::distance(camera.GetPosition(), item.GetLocation()) > 128000.0) continue;
+            if (glm::distance(camera.GetPosition(), item.GetLocation()) > sDrawDistance) continue;
             const auto [offset, length] = item.GetObject();
             const auto& modelMatrix = item.GetModelMatrix();
 
@@ -158,6 +234,22 @@ public:
                 offset
             );
         }
+    }
+
+    unsigned GetClickedEntity(glm::vec2 click)
+    {
+        mPickFB.BindGL();
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glm::vec4 data{};
+        auto newClick = click;
+        newClick.y = (4 * 200) - click.y;
+        glReadPixels(newClick.x, newClick.y, 1, 1, GL_RGBA, GL_FLOAT, &data);
+        mPickFB.UnbindGL();
+        const auto entityIndex = static_cast<unsigned>(data.r)
+            | (static_cast<unsigned>(data.g) << 8)
+            | (static_cast<unsigned>(data.b) << 16)
+            | (static_cast<unsigned>(data.a) << 24);
+        return entityIndex;
     }
 
     void BeginDepthMapDraw()
@@ -178,7 +270,6 @@ public:
 
     void EndDepthMapDraw()
     {
-
         if (mUseDepthBuffer1)
         {
             mDepthFB1.UnbindGL();
@@ -234,11 +325,15 @@ public:
 
 //private:
     ShaderProgramHandle mModelShader;
+    ShaderProgramHandle mPickShader;
     ShaderProgramHandle mShadowMapShader;
     ShaderProgramHandle mNormalShader;
     VertexArrayObject mVertexArrayObject;
     GLBuffers mGLBuffers;
     TextureBuffer mTextureBuffer;
+    FrameBuffer mPickFB;
+    TextureBuffer mPickTexture;
+    TextureBuffer mPickDepth;
     glm::uvec2 mDepthMapDims;
     FrameBuffer mDepthFB1;
     FrameBuffer mDepthFB2;
