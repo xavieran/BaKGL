@@ -3,7 +3,7 @@
 #include <cassert>
 
 #ifdef NDEBUG
-#define ASSERT(x) ;
+#define ASSERT(x) {};
 #else
 #define ASSERT(x) assert((x));
 #endif

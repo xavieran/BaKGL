@@ -272,7 +272,6 @@ int main(int argc, char** argv)
         {
             root.OnMouseEvent(
                 Gui::RightMouseRelease{guiScaleInv * click});
-            gameRunner.ResetClickable();
         }
     );
 
@@ -335,6 +334,14 @@ int main(int argc, char** argv)
         // { *** Draw 3D World ***
         UpdateLightCamera();
 
+        glDisable(GL_BLEND);
+        glDisable(GL_MULTISAMPLE);  
+
+        renderer.DrawForPicking(
+            gameRunner.mSystems->GetRenderables(),
+            gameRunner.mSystems->GetSprites(),
+            *cameraPtr);
+
         glEnable(GL_BLEND);
         glEnable(GL_MULTISAMPLE);  
 
@@ -363,17 +370,7 @@ int main(int argc, char** argv)
             lightCamera,
             *cameraPtr);
 
-        glDisable(GL_BLEND);
-        glDisable(GL_MULTISAMPLE);  
-
-        renderer.DrawForPicking(
-            gameRunner.mSystems->GetRenderables(),
-            gameRunner.mSystems->GetSprites(),
-            *cameraPtr);
-
-        // { *** Draw 2D GUI ***
-        glEnable(GL_BLEND);
-        glEnable(GL_MULTISAMPLE);  
+        //// { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);
 
         // { *** IMGUI START ***

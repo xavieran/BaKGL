@@ -18,7 +18,7 @@ struct Light
 class Renderer
 {
     static constexpr auto sDrawDistance = 128000;
-    static constexpr auto sClickDistance = 8000;
+    static constexpr auto sClickDistance = 16000;
 public:
     Renderer(
         unsigned depthMapWidth,

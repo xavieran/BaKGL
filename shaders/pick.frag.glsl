@@ -16,6 +16,7 @@ void main()
 
     if (!(texBlend < 1) && textureAlpha == 0) discard;
 
+    // I want to output this RGBui8 but can't get it working
     float entityIdR = (entityId & 0xffu);
     float entityIdG = ((entityId >> 8) & 0xffu);
     float entityIdB = ((entityId >> 16) & 0xffu);

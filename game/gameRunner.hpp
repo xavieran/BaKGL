@@ -139,7 +139,6 @@ public:
                         mSystems->AddClickable(
                             Clickable{
                                 id,
-                                250,
                                 item.GetLocation()});
                         mClickables.emplace(id, &item);
                         //mSystems->AddRenderable(
@@ -280,6 +279,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Dialog& dialog)
     {
+        mLogger.Debug() << "Doing DialogEncounter: " << encounter << "\n";
         if (!mGameState.CheckEncounterActive(encounter))
             return;
 
@@ -347,7 +347,7 @@ public:
 
     void DoEncounter(const BAK::Encounter::Encounter& encounter)
     {
-        mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
+        mLogger.Debug() << "Doing Encounter: " << encounter << "\n";
         std::visit(
             overloaded{
             [&](const BAK::Encounter::GDSEntry& gds){
@@ -398,7 +398,6 @@ public:
     void RunGameUpdate()
     {
         mActiveEncounter = nullptr;
-        //mActiveClickable = nullptr;
 
         auto intersectable = mSystems->RunIntersection(mCamera.GetPosition());
         if (intersectable)
@@ -417,11 +416,6 @@ public:
         }
     }
 
-    void ResetClickable()
-    {
-        mActiveClickable = nullptr;
-    }
-
     void CheckClickable(unsigned entityId)
     {
         assert(mSystems);
@@ -435,6 +429,8 @@ public:
                 break;
             }
         }
+        mLogger.Debug() << "Checked clickable entity id: " << entityId
+            << " found: " << bestId << "\n";
 
         if (bestId)
         {

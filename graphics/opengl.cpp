@@ -255,7 +255,6 @@ void TextureBuffer::MakeDepthBuffer(unsigned width, unsigned height)
 void TextureBuffer::MakePickBuffer(unsigned width, unsigned height)
 {
     ASSERT(mTextureType == GL_TEXTURE_2D);
-    //glActiveTexture(GL_TEXTURE1);
     BindGL();
     glTexImage2D(
         mTextureType, 0,

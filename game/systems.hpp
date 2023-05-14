@@ -81,22 +81,18 @@ class Clickable
 public:
     Clickable(
         BAK::EntityIndex itemId,
-        double radius,
         glm::vec3 location)
     :
         mItemId{itemId},
-        mRadius{radius},
         mLocation{location}
     {}
 
     BAK::EntityIndex GetId() const { return mItemId; }
-    double GetRadius() const { return mRadius; }
 
     auto GetLocation() const { return mLocation; }
 
 private:
     BAK::EntityIndex mItemId;
-    double mRadius;
     glm::vec3 mLocation;
 };
 
