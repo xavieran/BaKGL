@@ -57,6 +57,7 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("MeshObjectStore");
+    Logging::LogState::Disable("GameData");
     Logging::LogState::Disable("Gui::StaticTTM");
     //Logging::LogState::Disable("Gui::DialogRunner");
     Logging::LogState::Disable("Gui::DialogDisplay");
@@ -167,6 +168,8 @@ int main(int argc, char** argv)
     // OpenGL 3D Renderer
     constexpr auto sShadowDim = 4096;
     auto renderer = Graphics::Renderer{
+        width,
+        height,
         sShadowDim,
         sShadowDim};
 
@@ -193,6 +196,9 @@ int main(int argc, char** argv)
         camera.SetPosition(position);
     }
 
+    auto currentTile = camera.GetGameTile();
+    logger.Info() << " Starting on tile: " << currentTile << "\n";
+
     Graphics::Light light{
         glm::vec3{.2, -1, 0},
         glm::vec3{.5, .5, .5},
@@ -211,21 +217,31 @@ int main(int argc, char** argv)
         lightCamera.SetPosition(lightPos * BAK::gWorldScale);
     };
 
+    auto UpdateGameTile = [&]()
+    {
+        if (camera.GetGameTile() != currentTile)
+        {
+            currentTile = camera.GetGameTile();
+            logger.Debug() << "New tile: " << currentTile << "\n";
+            gameRunner.mGameState.mGameData->ClearTileRecentEncounters();
+        }
+    };
+
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_G,     [&]{ cameraPtr = &camera; });
     inputHandler.Bind(GLFW_KEY_H,     [&]{ cameraPtr = &lightCamera; });
     inputHandler.Bind(GLFW_KEY_R,     [&]{
         UpdateLightCamera();
     });
-    inputHandler.Bind(GLFW_KEY_UP,   [&]{ cameraPtr->StrafeForward(); });
-    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ cameraPtr->StrafeBackward(); });
-    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ cameraPtr->StrafeLeft(); });
-    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ cameraPtr->StrafeRight(); });
+    inputHandler.Bind(GLFW_KEY_UP,   [&]{ cameraPtr->StrafeForward(); UpdateGameTile();});
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ cameraPtr->StrafeBackward(); UpdateGameTile(); });
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ cameraPtr->StrafeLeft(); UpdateGameTile(); });
+    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ cameraPtr->StrafeRight(); UpdateGameTile(); });
 
-    inputHandler.Bind(GLFW_KEY_W, [&]{ cameraPtr->MoveForward(); });
-    inputHandler.Bind(GLFW_KEY_A, [&]{ cameraPtr->StrafeLeft(); });
-    inputHandler.Bind(GLFW_KEY_D, [&]{ cameraPtr->StrafeRight(); });
-    inputHandler.Bind(GLFW_KEY_S, [&]{ cameraPtr->MoveBackward(); });
+    inputHandler.Bind(GLFW_KEY_W, [&]{ cameraPtr->MoveForward(); UpdateGameTile(); });
+    inputHandler.Bind(GLFW_KEY_A, [&]{ cameraPtr->StrafeLeft(); UpdateGameTile(); });
+    inputHandler.Bind(GLFW_KEY_D, [&]{ cameraPtr->StrafeRight(); UpdateGameTile(); });
+    inputHandler.Bind(GLFW_KEY_S, [&]{ cameraPtr->MoveBackward(); UpdateGameTile(); });
     inputHandler.Bind(GLFW_KEY_Q, [&]{
         cameraPtr->RotateLeft();
         guiManager.mMainView.SetHeading(cameraPtr->GetHeading());

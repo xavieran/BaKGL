@@ -279,7 +279,6 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Dialog& dialog)
     {
-        mLogger.Debug() << "Doing DialogEncounter: " << encounter << "\n";
         if (!mGameState.CheckEncounterActive(encounter))
             return;
 
@@ -347,7 +346,7 @@ public:
 
     void DoEncounter(const BAK::Encounter::Encounter& encounter)
     {
-        mLogger.Debug() << "Doing Encounter: " << encounter << "\n";
+        mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
         std::visit(
             overloaded{
             [&](const BAK::Encounter::GDSEntry& gds){

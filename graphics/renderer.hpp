@@ -21,6 +21,8 @@ class Renderer
     static constexpr auto sClickDistance = 16000;
 public:
     Renderer(
+        float screenWidth,
+        float screenHeight,
         unsigned depthMapWidth,
         unsigned depthMapHeight)
     :
@@ -62,10 +64,11 @@ public:
         mDepthFB2{},
         mDepthBuffer1{GL_TEXTURE_2D},
         mDepthBuffer2{GL_TEXTURE_2D},
+        mScreenDims{screenWidth, screenHeight},
         mUseDepthBuffer1{false}
     {
-        mPickTexture.MakePickBuffer(320*4, 200*4);
-        mPickDepth.MakeDepthBuffer(320*4, 200*4);
+        mPickTexture.MakePickBuffer(screenWidth, screenHeight);
+        mPickDepth.MakeDepthBuffer(screenWidth, screenHeight);
         mPickFB.AttachTexture(mPickTexture);
         mPickFB.AttachDepthTexture(mPickDepth, false);
 
@@ -121,7 +124,7 @@ public:
         mTextureBuffer.BindGL();
 
         mPickFB.BindGL();
-        glViewport(0, 0, 320*4, 200*4);
+        glViewport(0, 0, mScreenDims.x, mScreenDims.y);
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -242,7 +245,7 @@ public:
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glm::vec4 data{};
         auto newClick = click;
-        newClick.y = (4 * 200) - click.y;
+        newClick.y = mScreenDims.y - click.y;
         glReadPixels(newClick.x, newClick.y, 1, 1, GL_RGBA, GL_FLOAT, &data);
         mPickFB.UnbindGL();
         const auto entityIndex = static_cast<unsigned>(data.r)
@@ -307,7 +310,7 @@ public:
 
         for (const auto& item : renderables)
         {
-            if (glm::distance(lightCamera.GetPosition(), item.GetLocation()) > 128000.0) continue;
+            if (glm::distance(lightCamera.GetPosition(), item.GetLocation()) > sDrawDistance) continue;
             const auto [offset, length] = item.GetObject();
             const auto& modelMatrix = item.GetModelMatrix();
 
@@ -339,6 +342,7 @@ public:
     FrameBuffer mDepthFB2;
     TextureBuffer mDepthBuffer1;
     TextureBuffer mDepthBuffer2;
+    glm::vec2 mScreenDims;
     bool mUseDepthBuffer1;
 };
 
