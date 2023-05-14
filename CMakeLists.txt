@@ -5,6 +5,7 @@ project( BaKGL )
 
 # Project wide CXX flags
 string(CONCAT CXX_IGNORES
+    "-Wno-unknown-warning-option "
     # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105329
     "-Wno-restrict "
     # std::optional is triggering this a lot
