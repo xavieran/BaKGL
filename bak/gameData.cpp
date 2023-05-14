@@ -85,7 +85,7 @@ void GameData::SetBitValueAt(unsigned byteOffset, unsigned bitOffset, unsigned v
 
     mLogger.Debug() << __FUNCTION__ << std::hex << 
         " " << byteOffset << " " << bitOffset 
-        << " original[" << +originalData << "] new[" << +data  <<"]\n";
+        << " original[" << +originalData << "] new[" << +data  <<"]\n" << std::dec;
 }
 
 void GameData::SetEventFlag(unsigned eventPtr, unsigned value)
@@ -129,7 +129,7 @@ void GameData::SetEventDialogAction(const SetFlag& setFlag)
 
         mLogger.Debug() << __FUNCTION__ << std::hex << 
             " " << setFlag << " offset: " << offset 
-            << " data[" << +data << "] new[" << +newData <<"]\n";
+            << " data[" << +data << "] new[" << +newData <<"]\n" << std::dec;
         mBuffer.PutUint8(newData);
     }
     else
@@ -153,7 +153,7 @@ unsigned GameData::ReadBitValueAt(unsigned byteOffset, unsigned bitOffset) const
     const unsigned bitValue = eventData >> bitOffset;
     mLogger.Spam() << __FUNCTION__ << std::hex << 
         " " << byteOffset << " " << bitOffset 
-        << " [" << +bitValue << "]\n";
+        << " [" << +bitValue << "]\n" << std::dec;
     return bitValue;
 }
 
@@ -729,7 +729,7 @@ void GameData::LoadChapterOffsetP()
         for (unsigned i = 0; i < 5; i++)
         {
             unsigned addr = mBuffer.GetUint32LE();
-            ss << " a: " << std::hex << addr;
+            ss << " a: " << std::hex << addr << std::dec;
         }
         mLogger.Spam() << ss.str() << std::endl;
     }

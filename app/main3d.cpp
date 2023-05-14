@@ -124,8 +124,6 @@ int main(int argc, char** argv)
         ImguiWrapper::Initialise(window.get());
     }
     
-    // Dark blue background
-    glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
     auto spriteManager = Graphics::SpriteManager{};
     auto guiRenderer = Graphics::GuiRenderer{
@@ -253,7 +251,7 @@ int main(int argc, char** argv)
             // GuiManager state, interacting with 2d or 3d world..?
             if (!guiHandled && guiManager.mScreenStack.size() == 1)
             {
-                gameRunner.CheckClickable();
+                gameRunner.CheckClickable(renderer.GetClickedEntity(click));
             }
         },
         [&](const auto click)
@@ -274,7 +272,6 @@ int main(int argc, char** argv)
         {
             root.OnMouseEvent(
                 Gui::RightMouseRelease{guiScaleInv * click});
-            gameRunner.ResetClickable();
         }
     );
 
@@ -337,6 +334,17 @@ int main(int argc, char** argv)
         // { *** Draw 3D World ***
         UpdateLightCamera();
 
+        glDisable(GL_BLEND);
+        glDisable(GL_MULTISAMPLE);  
+
+        renderer.DrawForPicking(
+            gameRunner.mSystems->GetRenderables(),
+            gameRunner.mSystems->GetSprites(),
+            *cameraPtr);
+
+        glEnable(GL_BLEND);
+        glEnable(GL_MULTISAMPLE);  
+
         renderer.BeginDepthMapDraw();
         renderer.DrawDepthMap(
             gameRunner.mSystems->GetRenderables(),
@@ -347,6 +355,8 @@ int main(int argc, char** argv)
         renderer.EndDepthMapDraw();
 
         glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+        // Dark blue background
+        glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderer.DrawWithShadow(
             gameRunner.mSystems->GetRenderables(),
@@ -360,7 +370,7 @@ int main(int argc, char** argv)
             lightCamera,
             *cameraPtr);
 
-        // { *** Draw 2D GUI ***
+        //// { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);
 
         // { *** IMGUI START ***

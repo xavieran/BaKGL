@@ -139,7 +139,6 @@ public:
                         mSystems->AddClickable(
                             Clickable{
                                 id,
-                                250,
                                 item.GetLocation()});
                         mClickables.emplace(id, &item);
                         //mSystems->AddRenderable(
@@ -280,6 +279,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Dialog& dialog)
     {
+        mLogger.Debug() << "Doing DialogEncounter: " << encounter << "\n";
         if (!mGameState.CheckEncounterActive(encounter))
             return;
 
@@ -347,7 +347,7 @@ public:
 
     void DoEncounter(const BAK::Encounter::Encounter& encounter)
     {
-        mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
+        mLogger.Debug() << "Doing Encounter: " << encounter << "\n";
         std::visit(
             overloaded{
             [&](const BAK::Encounter::GDSEntry& gds){
@@ -398,7 +398,6 @@ public:
     void RunGameUpdate()
     {
         mActiveEncounter = nullptr;
-        //mActiveClickable = nullptr;
 
         auto intersectable = mSystems->RunIntersection(mCamera.GetPosition());
         if (intersectable)
@@ -417,17 +416,21 @@ public:
         }
     }
 
-    void ResetClickable()
+    void CheckClickable(unsigned entityId)
     {
-        mActiveClickable = nullptr;
-    }
+        assert(mSystems);
 
-    void CheckClickable()
-    {
-        const auto bestId = mSystems->RunClickable(
-            std::make_pair(
-                mCamera.GetPosition(), 
-                mCamera.GetPosition() + (mCamera.GetDirection() * 300.0f)));
+        auto bestId = std::optional<BAK::EntityIndex>{};
+        for (const auto& entity : mSystems->GetClickables())
+        {
+            if (entity.GetId().mValue == entityId)
+            {
+                bestId = entity.GetId();
+                break;
+            }
+        }
+        mLogger.Debug() << "Checked clickable entity id: " << entityId
+            << " found: " << bestId << "\n";
 
         if (bestId)
         {

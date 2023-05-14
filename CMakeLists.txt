@@ -5,14 +5,19 @@ project( BaKGL )
 
 # Project wide CXX flags
 string(CONCAT CXX_IGNORES
+    "-Wno-unknown-warning-option "
+    # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105329
+    "-Wno-restrict "
+    # std::optional is triggering this a lot
+    "-Wno-maybe-uninitialized "
+    # imgui
+    "-Wno-format-security "
+    # The usual things I don't worry about
     "-Wno-unused-variable "
     "-Wno-unused-parameter "
     "-Wno-unused-but-set-variable "
-#   "-Wno-unused-but-set-parameter "
-#   "-Wno-c++17-extensions "
     "-Wno-unused-private-field "
     "-Wno-unused-function "
-    "-Wno-format-security "
     "-Wno-deprecated-enum-enum-conversion "
     )
 

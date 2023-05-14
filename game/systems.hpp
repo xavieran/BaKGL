@@ -81,22 +81,18 @@ class Clickable
 public:
     Clickable(
         BAK::EntityIndex itemId,
-        double radius,
         glm::vec3 location)
     :
         mItemId{itemId},
-        mRadius{radius},
         mLocation{location}
     {}
 
     BAK::EntityIndex GetId() const { return mItemId; }
-    double GetRadius() const { return mRadius; }
 
     auto GetLocation() const { return mLocation; }
 
 private:
     BAK::EntityIndex mItemId;
-    double mRadius;
     glm::vec3 mLocation;
 };
 
@@ -210,39 +206,6 @@ public:
         }
 
         return std::optional<BAK::EntityIndex>{};
-    }
-
-    std::optional<BAK::EntityIndex> RunClickable(std::pair<glm::vec3, glm::vec3> line) const
-    {
-        double bestDistance = 1e9;
-        auto bestId = std::optional<BAK::EntityIndex>{};
-        for (const auto& clickable : GetClickables())
-        {
-            glm::vec3 p;
-            glm::vec3 n;
-
-            bool intersecting = glm::intersectLineSphere(
-                line.first,
-                line.second,
-                clickable.GetLocation(),
-                clickable.GetRadius(),
-                p,
-                n,
-                p,
-                n);
-
-            if (intersecting)
-            {
-                auto distance = glm::distance(line.first, clickable.GetLocation());
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    bestId = clickable.GetId();
-                }
-            }
-        }
-
-        return bestId;
     }
 
     const std::vector<Intersectable>& GetIntersectables() const { return mIntersectables; }

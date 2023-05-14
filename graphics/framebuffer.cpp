@@ -43,7 +43,7 @@ void FrameBuffer::UnbindGL() const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FrameBuffer::AttachDepthTexture(const Graphics::TextureBuffer& buffer) const
+void FrameBuffer::AttachDepthTexture(const Graphics::TextureBuffer& buffer, bool clearDrawBuffer) const
 {
     BindGL();
     glFramebufferTexture2D(
@@ -52,11 +52,26 @@ void FrameBuffer::AttachDepthTexture(const Graphics::TextureBuffer& buffer) cons
         GL_TEXTURE_2D,
         buffer.GetId(),
         0);
-    glDrawBuffer(GL_NONE);
+    if (clearDrawBuffer)
+    {
+        glDrawBuffer(GL_NONE);
+    }
     glReadBuffer(GL_NONE);
     UnbindGL();
 }
 
+void FrameBuffer::AttachTexture(const Graphics::TextureBuffer& buffer) const
+{
+    BindGL();
+    glFramebufferTexture(
+        GL_FRAMEBUFFER,
+        GL_COLOR_ATTACHMENT0,
+        buffer.GetId(),
+        0);
+    GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, drawBuffers);
+    UnbindGL();
+}
 
 GLuint FrameBuffer::GenFrameBufferGL()
 {

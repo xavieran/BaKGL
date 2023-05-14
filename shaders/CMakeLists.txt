@@ -11,6 +11,7 @@ list(APPEND SHADERS
     directional
     instance
     gui
+    pick
     shadowMap
 )
 

@@ -15,7 +15,6 @@ layout(location = 3) in vec3  textureCoords;
 layout(location = 4) in float texBlendVec;
 
 // Output data ; will be interpolated for each fragment.
-out vec3 Position_worldspace;
 out vec3 Position_lightSpace;
 out vec3 Normal_cameraspace;
 out vec3 EyeDirection_cameraspace;
@@ -39,7 +38,7 @@ void main(){
 	gl_Position =  MVP * vec4(vertexPosition_modelspace, 1);
 	
 	// Position of the vertex, in worldspace : M * position
-	Position_worldspace = (M * vec4(vertexPosition_modelspace, 1)).xyz;
+	vec3 Position_worldspace = (M * vec4(vertexPosition_modelspace, 1)).xyz;
     Position_lightSpace = (lightSpaceMatrix * vec4(Position_worldspace, 1.0)).xyz;
 	
 	// Vector that goes from the vertex to the camera, in camera space.
