@@ -255,7 +255,7 @@ int main(int argc, char** argv)
             }
         },
         [&](const auto click)
-      {
+        {
             root.OnMouseEvent(
                 Gui::LeftMouseRelease{guiScaleInv * click});
         }
