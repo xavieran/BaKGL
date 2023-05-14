@@ -72,9 +72,12 @@ ln -sf BakGL/shaders $BAK_MAIN_DIR/shaders
 
 ## Run main3d
 The main application is "main3d". You can run this in the terminal in linux, or select it as the target in Visual Studio.
+
 ```
 $ main3d
 ```
+
+If you do not specify a save file, BaKGL will look in $BAK_MAIN_DIR/save/NEW_GAME.GAM for a save to use as the new game. I usually start a new game in original bak, save without doing anything, and then copy the save file to this location.
 
 # Screenshots
 ![waterfall_ui](screenshots/waterfall_ui.png?raw=true "Waterfall near Tyr-Sog with UI")
