@@ -17,6 +17,7 @@
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/textBox.hpp"
+#include "gui/mouseEvent.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -105,6 +106,7 @@ public:
     {
         const auto result = std::visit(overloaded{
             [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [this](const LeftMouseDoublePress& p){ return LeftMouseDoublePressed(p.mValue); },
             [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
             [](const auto& p){ return false; }
             },
@@ -130,6 +132,17 @@ public:
         }
 
         return false;
+    }
+
+    bool LeftMouseDoublePressed(glm::vec2 click)
+    {
+        if (Within(click))
+        {
+            Logging::LogDebug("InventoryItem") << "DoublePressed: " << mItemRef << "\n"
+                << mItemRef.GetObject() << "\n";
+        }
+
+        return true;
     }
 
     bool RightMousePressed(glm::vec2 click)

@@ -14,6 +14,11 @@ std::ostream& operator<<(std::ostream& os, const LeftMouseRelease& event)
     return os << "LeftMouseRelease {" << event.mValue << "}";
 }
 
+std::ostream& operator<<(std::ostream& os, const LeftMouseDoublePress& event)
+{
+    return os << "LeftMouseDoublePress{" << event.mValue << "}";
+}
+
 std::ostream& operator<<(std::ostream& os, const RightMousePress& event)
 {
     return os << "RightMousePress {" << event.mValue << "}";

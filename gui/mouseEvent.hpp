@@ -19,6 +19,12 @@ struct LeftMouseRelease
     glm::vec2 mValue;
 };
 
+struct LeftMouseDoublePress
+{
+    bool operator==(const LeftMouseDoublePress&) const = default;
+    glm::vec2 mValue;
+};
+
 struct RightMousePress
 {
     bool operator==(const RightMousePress&) const = default;
@@ -46,6 +52,7 @@ struct MouseScroll
 using MouseEvent = std::variant<
     LeftMousePress,
     LeftMouseRelease,
+    LeftMouseDoublePress,
     RightMousePress,
     RightMouseRelease,
     MouseMove,

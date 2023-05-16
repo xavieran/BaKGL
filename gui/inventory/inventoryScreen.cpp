@@ -188,8 +188,6 @@ void InventoryScreen::SetContainer(BAK::IContainer* container)
 bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
 {
     const bool handled = Widget::OnMouseEvent(event);
-    {
-    }
 
     if (std::holds_alternative<LeftMousePress>(event)
         && mItemSelectionMode)
