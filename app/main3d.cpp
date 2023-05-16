@@ -257,7 +257,7 @@ int main(int argc, char** argv)
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
 
     float doubleClickTimeout = .5; // seconds
-    float releaseTimeout = .05;
+    float releaseTimeout = .1;
     std::optional<float> clickTime{};
     std::optional<glm::vec2> clickPos{};
     std::optional<float> clickReleasedTime{};
