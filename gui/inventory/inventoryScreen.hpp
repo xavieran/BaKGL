@@ -161,6 +161,7 @@ private:
 
     void CompleteTransferStack(bool share, unsigned amount);
     
+    void UseItem(BAK::InventoryIndex inventoryIndex);
     void UseItem(InventorySlot& item, BAK::InventoryIndex itemIndex);
     
     void AdvanceNextPage();

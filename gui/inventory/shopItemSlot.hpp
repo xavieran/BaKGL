@@ -44,6 +44,7 @@ public:
             icons,
             itemIndex,
             item,
+            []{},
             std::move(showItemDescription)
         },
         mAvailable{available},

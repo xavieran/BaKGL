@@ -24,6 +24,7 @@ extern "C" {
 #include "graphics/renderer.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/doubleClickStateMachine.hpp"
 #include "gui/guiManager.hpp"
 #include "gui/window.hpp"
 
@@ -256,66 +257,24 @@ int main(int argc, char** argv)
 
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
 
-    float doubleClickTimeout = .5; // seconds
-    float releaseTimeout = .1;
-    std::optional<float> clickTime{};
-    std::optional<glm::vec2> clickPos{};
-    std::optional<float> clickReleasedTime{};
-    std::optional<glm::vec2> clickReleased{};
-
-    const auto DispatchMouseClick = [&]()
-    {
-        assert(clickPos);
-        bool guiHandled = root.OnMouseEvent(
-            Gui::LeftMousePress{guiScaleInv * *clickPos});
-        // i.e. only MainView is present
-        // should really formalise this with some sort of
-        // GuiManager state, interacting with 2d or 3d world..?
-        if (!guiHandled && guiManager.mScreenStack.size() == 1)
-        {
-            gameRunner.CheckClickable(renderer.GetClickedEntity(*clickPos));
-        }
-        clickPos.reset();
-        clickTime.reset();
-
-        if (clickReleased)
-        {
-            root.OnMouseEvent(
-                Gui::LeftMouseRelease{guiScaleInv * *clickReleased});
-        }
-        clickReleased.reset();
-    };
-
     inputHandler.BindMouse(
         GLFW_MOUSE_BUTTON_LEFT,
-        [&](const auto click)
+        [&](auto clickPos)
         {
-            if (clickTime)
+            bool guiHandled = root.OnMouseEvent(
+                Gui::LeftMousePress{guiScaleInv * clickPos});
+            // i.e. only MainView is present
+            // should really formalise this with some sort of
+            // GuiManager state, interacting with 2d or 3d world..?
+            if (!guiHandled && guiManager.mScreenStack.size() == 1)
             {
-                bool guiHandled = root.OnMouseEvent(
-                    Gui::LeftMouseDoublePress{guiScaleInv * click});
-                clickTime.reset();
-                clickPos.reset();
-                clickReleased.reset();
-            }
-            else
-            {
-                clickReleased.reset();
-                clickTime = glfwGetTime();
-                clickPos = click;
+                gameRunner.CheckClickable(renderer.GetClickedEntity(clickPos));
             }
         },
-        [&](const auto click)
+        [&](auto clickPos)
         {
-            if (!clickTime)
-            {
-                root.OnMouseEvent(
-                    Gui::LeftMouseRelease{guiScaleInv * click});
-            }
-            else
-            {
-                clickReleased = click;
-            }
+            root.OnMouseEvent(
+                Gui::LeftMouseRelease{guiScaleInv * clickPos});
         }
     );
 
@@ -377,13 +336,6 @@ int main(int argc, char** argv)
     do
     {
         currentTime = glfwGetTime();
-        if (clickTime && ((currentTime - *clickTime) > releaseTimeout))
-        {
-            if (!clickReleased || (clickTime && ((currentTime - *clickTime) > doubleClickTimeout)))
-            {
-                DispatchMouseClick();
-            }
-        }
 
         deltaTime = float(currentTime - lastTime);
         guiManager.OnTimeDelta(currentTime - lastTime);

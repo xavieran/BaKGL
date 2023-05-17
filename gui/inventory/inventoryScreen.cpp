@@ -1,6 +1,7 @@
 #include "gui/inventory/inventoryScreen.hpp"
 
 #include "bak/haggle.hpp"
+#include "bak/inventoryItem.hpp"
 #include "bak/itemNumbers.hpp"
 #include "bak/itemInteractions.hpp"
 
@@ -782,6 +783,19 @@ void InventoryScreen::SplitStackBeforeMoveItemToContainer(InventorySlot& slot)
     }
 }
 
+void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
+{
+    mLogger.Debug() << "UseItem: " << inventoryIndex << "\n";
+    auto& item = GetCharacter(*mSelectedCharacter).GetInventory()
+        .GetAtIndex(inventoryIndex);
+    mLogger.Debug() << "UseItem: " << item << "\n";
+    if (item.IsItemType(BAK::ItemType::Note))
+    {
+        mGameState.SetDialogContext(item.GetQuantity());
+        StartDialog(BAK::DialogSources::GetSpynote());
+    }
+}
+
 void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex targetItemIndex)
 {
     ASSERT(mSelectedCharacter);
@@ -1008,6 +1022,8 @@ void InventoryScreen::UpdateInventoryContents()
                 mIcons,
                 invIndex,
                 item,
+                // Staffs are usable..
+                [this, inventoryIndex=invIndex]{ UseItem(inventoryIndex); },
                 [&]{
                     ShowItemDescription(item);
                 });
@@ -1025,6 +1041,7 @@ void InventoryScreen::UpdateInventoryContents()
                 mIcons,
                 invIndex,
                 item,
+                []{},
                 [&]{
                     ShowItemDescription(item);
                 });
@@ -1042,6 +1059,7 @@ void InventoryScreen::UpdateInventoryContents()
                 mIcons,
                 invIndex,
                 item,
+                []{},
                 [&]{
                     ShowItemDescription(item);
                 });
@@ -1088,6 +1106,7 @@ void InventoryScreen::UpdateInventoryContents()
                 mIcons,
                 invIndex,
                 item,
+                [this, inventoryIndex=invIndex]{ UseItem(inventoryIndex); },
                 [&]{
                     ShowItemDescription(item);
                 });

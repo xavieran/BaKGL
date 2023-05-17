@@ -49,6 +49,7 @@ public:
         const Icons& icons,
         BAK::InventoryIndex itemIndex,
         const BAK::InventoryItem& item,
+        std::function<void()>&& useItemDirectly,
         std::function<void()>&& showItemDescription)
     :
         Widget{
@@ -60,6 +61,7 @@ public:
         },
         mItemIndex{itemIndex},
         mItemRef{item},
+        mUseItemDirectly{std::move(useItemDirectly)},
         mShowItemDescription{std::move(showItemDescription)},
         mIsSelected{false},
         mQuantity{
@@ -106,7 +108,6 @@ public:
     {
         const auto result = std::visit(overloaded{
             [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
-            [this](const LeftMouseDoublePress& p){ return LeftMouseDoublePressed(p.mValue); },
             [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
             [](const auto& p){ return false; }
             },
@@ -121,10 +122,11 @@ public:
     {
         if (Within(click))
         {
-
+            if (mIsSelected)
+            {
+                mUseItemDirectly();
+            }
             mIsSelected = true;
-            Logging::LogDebug("InventoryItem") << "Clicked: " << mItemRef << "\n"
-                << mItemRef.GetObject() << "\n";
         }
         else
         {
@@ -132,17 +134,6 @@ public:
         }
 
         return false;
-    }
-
-    bool LeftMouseDoublePressed(glm::vec2 click)
-    {
-        if (Within(click))
-        {
-            Logging::LogDebug("InventoryItem") << "DoublePressed: " << mItemRef << "\n"
-                << mItemRef.GetObject() << "\n";
-        }
-
-        return true;
     }
 
     bool RightMousePressed(glm::vec2 click)
@@ -213,6 +204,7 @@ private:
     
     const BAK::InventoryIndex mItemIndex;
     const BAK::InventoryItem& mItemRef;
+    std::function<void()> mUseItemDirectly;
     std::function<void()> mShowItemDescription;
     bool mIsSelected;
 

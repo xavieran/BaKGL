@@ -5,6 +5,7 @@ add_library(gui
     clickButton.hpp
     colors.hpp
     cursor.hpp
+    doubleClickStateMachine.hpp doubleClickStateMachine.cpp
     dragEvent.hpp dragEvent.cpp
     dialogRunner.hpp dialogRunner.cpp
     gdsScene.hpp gdsScene.cpp
