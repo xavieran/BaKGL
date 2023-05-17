@@ -17,6 +17,7 @@
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/textBox.hpp"
+#include "gui/mouseEvent.hpp"
 #include "gui/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -48,6 +49,7 @@ public:
         const Icons& icons,
         BAK::InventoryIndex itemIndex,
         const BAK::InventoryItem& item,
+        std::function<void()>&& useItemDirectly,
         std::function<void()>&& showItemDescription)
     :
         Widget{
@@ -59,6 +61,7 @@ public:
         },
         mItemIndex{itemIndex},
         mItemRef{item},
+        mUseItemDirectly{std::move(useItemDirectly)},
         mShowItemDescription{std::move(showItemDescription)},
         mIsSelected{false},
         mQuantity{
@@ -119,10 +122,11 @@ public:
     {
         if (Within(click))
         {
-
+            if (mIsSelected)
+            {
+                mUseItemDirectly();
+            }
             mIsSelected = true;
-            Logging::LogDebug("InventoryItem") << "Clicked: " << mItemRef << "\n"
-                << mItemRef.GetObject() << "\n";
         }
         else
         {
@@ -200,6 +204,7 @@ private:
     
     const BAK::InventoryIndex mItemIndex;
     const BAK::InventoryItem& mItemRef;
+    std::function<void()> mUseItemDirectly;
     std::function<void()> mShowItemDescription;
     bool mIsSelected;
 

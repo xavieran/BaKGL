@@ -1,6 +1,7 @@
 #include "gui/inventory/inventoryScreen.hpp"
 
 #include "bak/haggle.hpp"
+#include "bak/inventoryItem.hpp"
 #include "bak/itemNumbers.hpp"
 #include "bak/itemInteractions.hpp"
 
@@ -188,8 +189,6 @@ void InventoryScreen::SetContainer(BAK::IContainer* container)
 bool InventoryScreen::OnMouseEvent(const MouseEvent& event)
 {
     const bool handled = Widget::OnMouseEvent(event);
-    {
-    }
 
     if (std::holds_alternative<LeftMousePress>(event)
         && mItemSelectionMode)
@@ -784,6 +783,19 @@ void InventoryScreen::SplitStackBeforeMoveItemToContainer(InventorySlot& slot)
     }
 }
 
+void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
+{
+    mLogger.Debug() << "UseItem: " << inventoryIndex << "\n";
+    auto& item = GetCharacter(*mSelectedCharacter).GetInventory()
+        .GetAtIndex(inventoryIndex);
+    mLogger.Debug() << "UseItem: " << item << "\n";
+    if (item.IsItemType(BAK::ItemType::Note))
+    {
+        mGameState.SetDialogContext(item.GetQuantity());
+        StartDialog(BAK::DialogSources::GetSpynote());
+    }
+}
+
 void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex targetItemIndex)
 {
     ASSERT(mSelectedCharacter);
@@ -1010,6 +1022,8 @@ void InventoryScreen::UpdateInventoryContents()
                 mIcons,
                 invIndex,
                 item,
+                // Staffs are usable..
+                [this, inventoryIndex=invIndex]{ UseItem(inventoryIndex); },
                 [&]{
                     ShowItemDescription(item);
                 });
@@ -1027,6 +1041,7 @@ void InventoryScreen::UpdateInventoryContents()
                 mIcons,
                 invIndex,
                 item,
+                []{},
                 [&]{
                     ShowItemDescription(item);
                 });
@@ -1044,6 +1059,7 @@ void InventoryScreen::UpdateInventoryContents()
                 mIcons,
                 invIndex,
                 item,
+                []{},
                 [&]{
                     ShowItemDescription(item);
                 });
@@ -1083,13 +1099,14 @@ void InventoryScreen::UpdateInventoryContents()
         {
             mInventoryItems.emplace_back(
                 [this, index=invIndex](auto& item){
-                    UseItem(item, BAK::InventoryIndex{index}); },
+                    this->UseItem(item, BAK::InventoryIndex{index}); },
                 itemPos + pos,
                 dims,
                 mFont,
                 mIcons,
                 invIndex,
                 item,
+                [this, inventoryIndex=invIndex]{ UseItem(inventoryIndex); },
                 [&]{
                     ShowItemDescription(item);
                 });

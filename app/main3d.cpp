@@ -24,6 +24,7 @@ extern "C" {
 #include "graphics/renderer.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/doubleClickStateMachine.hpp"
 #include "gui/guiManager.hpp"
 #include "gui/window.hpp"
 
@@ -258,22 +259,22 @@ int main(int argc, char** argv)
 
     inputHandler.BindMouse(
         GLFW_MOUSE_BUTTON_LEFT,
-        [&](const auto click)
+        [&](auto clickPos)
         {
             bool guiHandled = root.OnMouseEvent(
-                Gui::LeftMousePress{guiScaleInv * click});
+                Gui::LeftMousePress{guiScaleInv * clickPos});
             // i.e. only MainView is present
             // should really formalise this with some sort of
             // GuiManager state, interacting with 2d or 3d world..?
             if (!guiHandled && guiManager.mScreenStack.size() == 1)
             {
-                gameRunner.CheckClickable(renderer.GetClickedEntity(click));
+                gameRunner.CheckClickable(renderer.GetClickedEntity(clickPos));
             }
         },
-        [&](const auto click)
+        [&](auto clickPos)
         {
             root.OnMouseEvent(
-                Gui::LeftMouseRelease{guiScaleInv * click});
+                Gui::LeftMouseRelease{guiScaleInv * clickPos});
         }
     );
 
@@ -335,6 +336,7 @@ int main(int argc, char** argv)
     do
     {
         currentTime = glfwGetTime();
+
         deltaTime = float(currentTime - lastTime);
         guiManager.OnTimeDelta(currentTime - lastTime);
         lastTime = currentTime;

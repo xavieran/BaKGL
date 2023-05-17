@@ -124,6 +124,7 @@ private:
                         mIcons,
                         invIndex,
                         item,
+                        []{},
                         [&]{
                             ShowItemDescription(item);
                         });
@@ -152,6 +153,7 @@ private:
                         mIcons,
                         invIndex,
                         item,
+                        []{},
                         [&]{
                             ShowItemDescription(item);
                         });
