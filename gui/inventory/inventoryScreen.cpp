@@ -1099,7 +1099,7 @@ void InventoryScreen::UpdateInventoryContents()
         {
             mInventoryItems.emplace_back(
                 [this, index=invIndex](auto& item){
-                    UseItem(item, BAK::InventoryIndex{index}); },
+                    this->UseItem(item, BAK::InventoryIndex{index}); },
                 itemPos + pos,
                 dims,
                 mFont,
