@@ -547,6 +547,16 @@ public:
             [&](const GameStateChoice& c){
                 return EvaluateGameStateChoice(c);
             },
+            [&](const CustomStateChoice& c)
+            {
+                switch (c.mScenario)
+                {
+                case Scenario::Plagued:
+                    return CheckCustomStateScenarioPlagued();
+                default:
+                    return false;
+                }
+            },
             [&](const auto& c){
                 return false; 
             },
@@ -677,8 +687,6 @@ public:
             mGameData->SetPostEnableOrDisableEventFlags(encounter, mZone);
     }
 
-
-
     void SetDialogContext(unsigned contextValue)
     {
         mContextValue = contextValue;
@@ -728,6 +736,21 @@ public:
     {
         ASSERT(zone.mValue < 13);
         return mContainers[zone.mValue - 1];
+    }
+
+    bool CheckCustomStateScenarioPlagued() const
+    {
+        for (auto activeCharIndex = ActiveCharIndex{0};
+            activeCharIndex.mValue < GetParty().GetNumCharacters();
+            activeCharIndex = GetParty().NextActiveCharacter(activeCharIndex))
+        {
+            if (GetParty().GetCharacter(activeCharIndex).GetConditions().GetCondition(BAK::Condition::Plagued).Get() > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     std::optional<CharIndex> mDialogCharacter;

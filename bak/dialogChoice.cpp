@@ -32,7 +32,7 @@ std::string_view ToString(ChoiceMask m)
     case ChoiceMask::ItemOrChest: return "ItemOrChest";
     case ChoiceMask::EventFlag: return "EventFlag";
     case ChoiceMask::GameState: return "GameState";
-    case ChoiceMask::StatusOrItem: return "StatusOrItem";
+    case ChoiceMask::CustomState: return "CustomState";
     case ChoiceMask::Inventory: return "Inventory";
     case ChoiceMask::HaveNote: return "HaveNote";
     case ChoiceMask::CastSpell: return "CastSpell";
@@ -73,6 +73,23 @@ std::ostream& operator<<(std::ostream& os, const GameStateChoice& c)
 {
     os << ToString(ChoiceMask::GameState) << " " << ToString(c.mState) 
         << " " << std::hex << c.mExpectedValue << " | " << c.mExpectedValue2;
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, Scenario s)
+{
+    switch (s)
+    {
+        case Scenario::Plagued: os << "Plagued"; break;
+        default: os << "Unknown(" << static_cast<unsigned>(s) << ")";
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CustomStateChoice& c)
+{
+    os << ToString(ChoiceMask::CustomState) << " scenario: " << c.mScenario
+        << " flag: " << c.mFlag;
     return os;
 }
 
@@ -131,7 +148,7 @@ ChoiceMask CategoriseChoice(std::uint16_t state)
         ChoiceMask::ItemOrChest,
         ChoiceMask::EventFlag,
         ChoiceMask::GameState,
-        ChoiceMask::StatusOrItem,
+        ChoiceMask::CustomState,
         ChoiceMask::Inventory,
         ChoiceMask::HaveNote,
         ChoiceMask::CastSpell,
@@ -173,6 +190,10 @@ Choice CreateChoice(
             static_cast<ActiveStateFlag>(state),
             choice0,
             choice1};
+    case ChoiceMask::CustomState:
+        return CustomStateChoice{
+            static_cast<Scenario>(state & ~0x9c40),
+            bool(choice0)};
     case ChoiceMask::Inventory:
         return InventoryChoice{
             // This is the math to get the item index

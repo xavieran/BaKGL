@@ -52,7 +52,7 @@ enum class ChoiceMask : std::uint16_t
     // These seem to be complex active checks,
     // e.g. check whether character is starving,
     // or check whether there are six suits of armor
-    StatusOrItem = 0x9cff,
+    CustomState = 0x9cff,
     // item that you need is: (c3xx & 0xff) - 0x50
     Inventory = 0xc3ff,
     HaveNote      = 0xc7ff,
@@ -92,6 +92,17 @@ struct GameStateChoice
     std::uint16_t mExpectedValue2;
 };
 
+enum class Scenario : std::uint8_t
+{
+    Plagued = 2
+};
+
+struct CustomStateChoice
+{
+    Scenario mScenario;
+    bool mFlag;
+};
+
 struct InventoryChoice
 {
     ItemIndex mRequiredItem;
@@ -125,6 +136,7 @@ using Choice = std::variant<
     QueryChoice,
     EventFlagChoice,
     GameStateChoice,
+    CustomStateChoice,
     InventoryChoice,
     ComplexEventChoice,
     UnknownChoice>;
