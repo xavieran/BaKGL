@@ -405,12 +405,12 @@ public:
             {
                 mLogger.Debug() << "Gaining condition: " << cond << "\n";
                 // FIXME: Implement if this condition only changes for one character
-                auto& party = GetParty();
-                for (const auto c : party.mActiveCharacters)
-                {
-                    party.mCharacters[c.mValue].mConditions.IncreaseCondition(
-                        cond.mCondition, cond.mValue1);
-                }
+                GetParty().ForEachActiveCharacter(
+                    [&](auto& character){
+                        character.GetConditions().IncreaseCondition(
+                            cond.mCondition, cond.mValue1);
+                        return true;
+                    });
             },
             [&](const BAK::SetTimeExpiringState& state)
             {
@@ -553,6 +553,8 @@ public:
                 {
                 case Scenario::Plagued:
                     return CheckCustomStateScenarioPlagued();
+                case Scenario::AllPartyArmorIsGoodCondition:
+                    return CheckCustomStateScenarioAllPartyArmorIsGoodCondition();
                 default:
                     return false;
                 }
@@ -740,17 +742,38 @@ public:
 
     bool CheckCustomStateScenarioPlagued() const
     {
-        for (auto activeCharIndex = ActiveCharIndex{0};
-            activeCharIndex.mValue < GetParty().GetNumCharacters();
-            activeCharIndex = GetParty().NextActiveCharacter(activeCharIndex))
-        {
-            if (GetParty().GetCharacter(activeCharIndex).GetConditions().GetCondition(BAK::Condition::Plagued).Get() > 0)
-            {
+        bool foundPlagued = false;
+        GetParty().ForEachActiveCharacter(
+            [&](const auto& character){
+                if (character.GetConditions().GetCondition(BAK::Condition::Plagued).Get() > 0)
+                {
+                    foundPlagued = true;
+                    return false;
+                }
                 return true;
-            }
-        }
+            });
 
-        return false;
+        return foundPlagued;
+    }
+
+    bool CheckCustomStateScenarioAllPartyArmorIsGoodCondition() const
+    {
+        bool foundRepairableArmor = false;
+        GetParty().ForEachActiveCharacter(
+            [&](const auto& character){
+                const auto& items = character.GetInventory().GetItems();
+                for (const auto& item : items)
+                {
+                    if (item.IsItemType(BAK::ItemType::Armor) && item.IsRepairable())
+                    {
+                        foundRepairableArmor = true;
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+        return !foundRepairableArmor;
     }
 
     std::optional<CharIndex> mDialogCharacter;

@@ -324,6 +324,7 @@ public:
     }
 
     const Conditions& GetConditions() const { return mConditions; }
+    Conditions& GetConditions() { return mConditions; }
 
     void UpdateSkills()
     {

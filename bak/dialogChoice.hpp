@@ -94,7 +94,19 @@ struct GameStateChoice
 
 enum class Scenario : std::uint8_t
 {
-    Plagued = 2
+    MortificationOfTheFlesh = 1,
+    Plagued = 2,
+    HaveSixSuitsOfArmor = 3,
+    AllPartyArmorIsGoodCondition = 4,
+
+    RelatedToMartin = 5,
+
+
+    AcceptedRusalkaQuest = 9, // ?
+    CompletedRusalkaQuest = 10, // ?
+    AllPartyMembersHaveNapthaMask = 11,
+    NormalFoodInArlieChest = 12, // Guess...
+    PoisonedFoodInArlieChest = 13 // ?
 };
 
 struct CustomStateChoice

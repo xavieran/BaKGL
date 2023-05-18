@@ -80,7 +80,16 @@ std::ostream& operator<<(std::ostream& os, Scenario s)
 {
     switch (s)
     {
+        case Scenario::MortificationOfTheFlesh: os << "MortificationOfTheFlesh"; break;
         case Scenario::Plagued: os << "Plagued"; break;
+        case Scenario::HaveSixSuitsOfArmor: os << "HaveSixSuitsOfArmor"; break;
+        case Scenario::AllPartyArmorIsGoodCondition: os << "AllPartyArmorIsGoodCondition"; break;
+        case Scenario::RelatedToMartin: os << "RelatedToMartin"; break;
+        case Scenario::AcceptedRusalkaQuest: os << "AcceptedRusalkaQuest"; break;
+        case Scenario::CompletedRusalkaQuest: os << "CompletedRusalkaQuest"; break;
+        case Scenario::AllPartyMembersHaveNapthaMask: os << "AllPartyMembersHaveNapthaMask"; break;
+        case Scenario::NormalFoodInArlieChest: os << "NormalFoodInArlieChest"; break;
+        case Scenario::PoisonedFoodInArlieChest: os << "PoisonedFoodInArlieChest"; break;
         default: os << "Unknown(" << static_cast<unsigned>(s) << ")";
     }
     return os;
