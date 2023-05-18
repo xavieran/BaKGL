@@ -194,6 +194,30 @@ public:
         return ActiveCharIndex{i};
     }
 
+    template <typename F>
+    void ForEachActiveCharacter(F&& f) const
+    {
+        for (const auto character : mActiveCharacters)
+        {
+            if (std::forward<F>(f)(GetCharacter(character)))
+            {
+                break;
+            }
+        }
+    }
+
+    template <typename F>
+    void ForEachActiveCharacter(F&& f)
+    {
+        for (const auto character : mActiveCharacters)
+        {
+            if (std::forward<F>(f)(GetCharacter(character)))
+            {
+                break;
+            }
+        }
+    }
+
     std::pair<CharIndex, unsigned> GetSkill(BAK::SkillType skill, bool best)
     {
         std::optional<unsigned> skillValue{};

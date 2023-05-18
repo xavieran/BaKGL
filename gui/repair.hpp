@@ -64,10 +64,11 @@ public:
             mState = State::Idle;
             ASSERT(mItem);
             ASSERT(mShopStats);
-            if (choice && *choice == BAK::ChoiceIndex{260})
+            const auto cost = BAK::Shop::CalculateRepairCost(*mItem, *mShopStats);
+            if (choice && *choice == BAK::ChoiceIndex{260}
+                && mGameState.GetParty().GetGold().mValue > cost.mValue)
             {
-                mGameState.GetParty().LoseMoney(
-                    BAK::Shop::CalculateRepairCost(*mItem, *mShopStats));
+                mGameState.GetParty().LoseMoney(cost);
                 BAK::Shop::RepairItem(*mItem);
             }
         }

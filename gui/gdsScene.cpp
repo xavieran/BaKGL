@@ -345,7 +345,7 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     }
     else if (mState == State::Repair)
     {
-        if (choice && choice->mValue == BAK::Keywords::sYesIndex)
+        if (!choice || (choice && choice->mValue == BAK::Keywords::sYesIndex))
         {
             auto* container = mGameState.GetContainerForGDSScene(mReference);
             mRepair.EnterRepair(container->GetShop());
