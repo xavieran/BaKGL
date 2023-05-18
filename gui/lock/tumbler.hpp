@@ -8,14 +8,14 @@
 #include "bak/objectInfo.hpp"
 #include "bak/textureFactory.hpp"
 
-#include "gui/clickable.hpp"
-#include "gui/dragEndpoint.hpp"
-#include "gui/draggable.hpp"
+#include "gui/core/clickable.hpp"
+#include "gui/core/dragEndpoint.hpp"
+#include "gui/core/draggable.hpp"
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

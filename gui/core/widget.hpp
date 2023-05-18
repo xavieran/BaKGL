@@ -2,8 +2,8 @@
 
 #include "com/logger.hpp"
 
-#include "gui/dragEvent.hpp"
-#include "gui/mouseEvent.hpp"
+#include "gui/core/dragEvent.hpp"
+#include "gui/core/mouseEvent.hpp"
 
 #include "graphics/IGuiElement.hpp"
 #include "graphics/guiTypes.hpp"

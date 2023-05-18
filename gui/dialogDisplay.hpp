@@ -14,7 +14,7 @@
 #include "gui/colors.hpp"
 #include "gui/label.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <string>
 #include <string_view>

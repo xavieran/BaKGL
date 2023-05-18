@@ -1,4 +1,4 @@
-#include "gui/dragEvent.hpp"
+#include "gui/core/dragEvent.hpp"
 
 #include "graphics/glm.hpp"
 

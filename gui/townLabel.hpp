@@ -7,7 +7,7 @@
 #include "gui/colors.hpp"
 #include "gui/cursor.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 namespace Gui {
 

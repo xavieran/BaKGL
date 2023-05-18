@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gui/colors.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include "com/ostream.hpp"
 

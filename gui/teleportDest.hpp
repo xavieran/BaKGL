@@ -3,9 +3,9 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 #include "gui/highlightable.hpp"
-#include "gui/clickable.hpp"
+#include "gui/core/clickable.hpp"
 #include "gui/icons.hpp"
 
 #include <functional>

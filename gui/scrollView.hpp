@@ -5,7 +5,7 @@
 #include "gui/clickButton.hpp"
 #include "gui/icons.hpp"
 #include "gui/scrollBar.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

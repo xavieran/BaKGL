@@ -1,4 +1,4 @@
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include "com/assert.hpp"
 

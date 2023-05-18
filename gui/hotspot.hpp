@@ -4,11 +4,11 @@
 #include "com/visit.hpp"
 
 #include "gui/colors.hpp"
-#include "gui/clickable.hpp"
+#include "gui/core/clickable.hpp"
 #include "gui/cursor.hpp"
 #include "gui/highlightable.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 namespace Gui {
 

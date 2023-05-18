@@ -24,7 +24,6 @@ extern "C" {
 #include "graphics/renderer.hpp"
 #include "graphics/sprites.hpp"
 
-#include "gui/doubleClickStateMachine.hpp"
 #include "gui/guiManager.hpp"
 #include "gui/window.hpp"
 

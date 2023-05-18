@@ -10,7 +10,7 @@
 
 #include "gui/colors.hpp"
 #include "gui/fontManager.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

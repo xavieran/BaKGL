@@ -27,7 +27,7 @@
 #include "gui/mainMenuScreen.hpp"
 #include "gui/mainView.hpp"
 #include "gui/teleportScreen.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

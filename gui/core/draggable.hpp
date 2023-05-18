@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include "com/visit.hpp"
 

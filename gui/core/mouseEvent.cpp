@@ -1,4 +1,4 @@
-#include "gui/mouseEvent.hpp"
+#include "gui/core/mouseEvent.hpp"
 
 #include "graphics/glm.hpp"
 
