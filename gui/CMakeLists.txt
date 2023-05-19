@@ -14,6 +14,7 @@ add_library(gui
     teleportScreen.hpp
     teleportDest.hpp
     textBox.hpp
+    textInput.hpp
     window.hpp
 )
 

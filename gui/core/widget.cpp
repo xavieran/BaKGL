@@ -105,6 +105,20 @@ void Widget::SetInactive()
     mActive = false;
 }
 
+bool Widget::OnKeyEvent(const KeyEvent& event)
+{
+    if (mActive)
+    {
+        for (auto& c : mChildren)
+        {
+            const bool handled = c->OnKeyEvent(event);
+            if (handled)
+                return true;
+        }
+    }
+    return false;
+}
+
 bool Widget::OnMouseEvent(const MouseEvent& event)
 {
     if (mActive)

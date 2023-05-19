@@ -13,6 +13,7 @@ class InputHandler
 {
 public:
     using KeyCallback = std::function<void()>;
+    using CharacterCallback = std::function<void(char)>;
     using MouseCallback = std::function<void(glm::vec2)>;
 
     InputHandler() noexcept;
@@ -26,6 +27,7 @@ public:
     }
 
     void Bind(int key, KeyCallback&& callback);
+    void BindCharacter(CharacterCallback&& callback);
     void BindMouse(
         int button,
         MouseCallback&& pressed,
@@ -36,6 +38,7 @@ public:
     void HandleInput(GLFWwindow* window);
     void HandleMouseInput(GLFWwindow* window);
     void HandleKeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void HandleCharacterCallback(GLFWwindow* window, unsigned character);
     void HandleMouseCallback(GLFWwindow* window, int button, int action, int mods);
     void HandleMouseMotionCallback(GLFWwindow* window, double xpos, double ypos);
     void HandleMouseScrollCallback(GLFWwindow* window, double xpos, double ypos);
@@ -45,12 +48,14 @@ private:
     static void MouseMotionAction(GLFWwindow* window, double xpos, double ypos);
     static void MouseScrollAction(GLFWwindow* window, double xpos, double ypos);
     static void KeyboardAction(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void CharacterAction(GLFWwindow* window, unsigned character);
 
     static InputHandler* sHandler;
 
     bool mHandleInput;
 
     std::unordered_map<int, KeyCallback> mKeyBindings;
+    CharacterCallback mCharacterCallback;
     std::unordered_map<int, std::pair<MouseCallback, MouseCallback>> mMouseBindings;
     MouseCallback mMouseMovedBinding;
     MouseCallback mMouseScrolledBinding;

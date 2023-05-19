@@ -8,6 +8,7 @@
 #include "gui/clickButton.hpp"
 #include "gui/scrollView.hpp"
 #include "gui/textBox.hpp"
+#include "gui/textInput.hpp"
 #include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -72,8 +73,10 @@ public:
             glm::vec2{80, 16}
         },
         mFilesLabel{
+            font,
             glm::vec2{132, 30},
-            glm::vec2{40, 16}
+            glm::vec2{40, 16},
+            30
         },
         mDirectories{
             glm::vec2{20, 40},
@@ -135,7 +138,7 @@ public:
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
     {
         mDirectoryLabel.AddText(mFont, "Directories");
-        mFilesLabel.AddText(mFont, "Games");
+        //mFilesLabel.AddText(mFont, "Games");
         mRestoreLabel.AddText(mFont, "#Restore Game");
     }
 
@@ -272,7 +275,7 @@ private:
     Widget mFrame;
     TextBox mRestoreLabel;
     TextBox mDirectoryLabel;
-    TextBox mFilesLabel;
+    TextInput mFilesLabel;
     ScrollView<List<ClickButton>> mDirectories;
     ScrollView<List<ClickButton>> mFiles;
     ClickButton mRmDirectory;

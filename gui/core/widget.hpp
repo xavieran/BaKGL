@@ -3,6 +3,7 @@
 #include "com/logger.hpp"
 
 #include "gui/core/dragEvent.hpp"
+#include "gui/core/keyEvent.hpp"
 #include "gui/core/mouseEvent.hpp"
 
 #include "graphics/IGuiElement.hpp"
@@ -53,11 +54,14 @@ public:
     virtual void SetActive();
     virtual void SetInactive();
 
-    [[nodiscard]] virtual bool OnMouseEvent(
-        const MouseEvent& event);
-
     [[nodiscard]] virtual bool OnDragEvent(
         const DragEvent& event);
+
+    [[nodiscard]] virtual bool OnKeyEvent(
+        const KeyEvent& event);
+
+    [[nodiscard]] virtual bool OnMouseEvent(
+        const MouseEvent& event);
 
     virtual void PropagateUp(
         const DragEvent& event);

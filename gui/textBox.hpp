@@ -168,6 +168,10 @@ public:
         unsigned currentChar = 0;
         for (; currentChar < text.size(); currentChar++)
         {
+            if (text.size() == 0)
+            {
+                break;
+            }
             const auto c = text[currentChar];
             logger.Spam() << "Char[" << c << "]" << std::hex 
                 << +c << std::dec << " " << charPos << "\n";

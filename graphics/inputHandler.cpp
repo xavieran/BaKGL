@@ -10,6 +10,7 @@ InputHandler::InputHandler() noexcept
 :
     mHandleInput{true},
     mKeyBindings{},
+    mCharacterCallback{},
     mMouseBindings{},
     mMouseMovedBinding{},
     mMouseScrolledBinding{}
@@ -26,12 +27,18 @@ void InputHandler::BindMouseToWindow(GLFWwindow* window, InputHandler& handler)
 void InputHandler::BindKeyboardToWindow(GLFWwindow* window, InputHandler& handler)
 {
     sHandler = &handler;
-    glfwSetKeyCallback(window, InputHandler::KeyboardAction);
+    glfwSetCharCallback(window, InputHandler::CharacterAction);
+    //glfwSetKeyCallback(window, InputHandler::KeyboardAction);
 }
 
 void InputHandler::Bind(int key, KeyCallback&& callback)
 {
     mKeyBindings.emplace(key, std::move(callback));
+}
+
+void InputHandler::BindCharacter(CharacterCallback&& callback)
+{
+    mCharacterCallback = std::move(callback);
 }
 
 void InputHandler::BindMouse(int button, MouseCallback&& pressed, MouseCallback&& released)
@@ -116,6 +123,17 @@ void InputHandler::HandleKeyboardCallback(GLFWwindow* window, int key, int scanc
     }
 }
 
+void InputHandler::HandleCharacterCallback(GLFWwindow* window, unsigned character)
+{
+    if (mHandleInput)
+    {
+        if (mCharacterCallback)
+        {
+            mCharacterCallback(character & 0xff);
+        }
+    }
+}
+
 void InputHandler::HandleMouseInput(GLFWwindow* window)
 {
     
@@ -157,6 +175,13 @@ void InputHandler::KeyboardAction(GLFWwindow* window, int key, int scancode, int
     ASSERT(sHandler);
     sHandler->HandleKeyboardCallback(window, key, scancode, action, mods);
 }
+
+void InputHandler::CharacterAction(GLFWwindow* window, unsigned character)
+{
+    ASSERT(sHandler);
+    sHandler->HandleCharacterCallback(window, character);
+}
+
 
 InputHandler* InputHandler::sHandler = nullptr;
 
