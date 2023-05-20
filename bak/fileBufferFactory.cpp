@@ -42,7 +42,8 @@ FileBuffer FileBufferFactory::CreateDataBuffer(const std::string& fileName)
     else
     {
         std::stringstream ss{};
-        ss << "File not found: " << fileName << "\n";
+        ss << "File not found: " << fileName << std::endl;
+        Logging::LogFatal("FileBufferFactory") << ss.str();
         throw new std::runtime_error(ss.str());
     }
 }
