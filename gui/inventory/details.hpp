@@ -146,7 +146,10 @@ public:
                 comma = true;
                 ss << "Broken";
             }
-            if (item.IsRepairable())
+            if (item.IsRepairable()
+                && (item.IsItemType(BAK::ItemType::Armor)
+                    || item.IsItemType(BAK::ItemType::Crossbow)
+                    || item.IsItemType(BAK::ItemType::Sword)))
             {
                 if (comma) ss << ", ";
                 comma = true;

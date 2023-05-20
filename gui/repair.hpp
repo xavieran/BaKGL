@@ -106,7 +106,7 @@ private:
         {
             StartDialog(BAK::DialogSources::mRepairShopCantRepairItem);
         }
-        else if (!item.IsRepairable() && !item.IsBroken())
+        else if (!item.IsRepairableByShop() && !item.IsBroken())
         {
             StartDialog(BAK::DialogSources::mRepairShopItemDoesntNeedRepair);
         }

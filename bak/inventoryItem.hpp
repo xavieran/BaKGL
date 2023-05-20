@@ -63,6 +63,11 @@ public:
         return CheckItemStatus(mStatus, ItemStatus::Repairable) && !IsBroken();
     }
 
+    bool IsRepairableByShop() const
+    {
+        return GetCondition() < 100;
+    }
+
     bool IsPoisoned() const
     {
         return CheckItemStatus(mStatus, ItemStatus::Poisoned);

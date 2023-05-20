@@ -764,7 +764,7 @@ public:
                 const auto& items = character.GetInventory().GetItems();
                 for (const auto& item : items)
                 {
-                    if (item.IsItemType(BAK::ItemType::Armor) && item.IsRepairable())
+                    if (item.IsItemType(BAK::ItemType::Armor) && item.IsRepairableByShop())
                     {
                         foundRepairableArmor = true;
                         return false;
