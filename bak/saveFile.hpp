@@ -22,10 +22,29 @@ public:
 class SaveDirectory
 {
 public:
+    std::string GetPath() const
+    {
+        std::stringstream ss{};
+        ss << mName << std::setw(2) << std::setfill('0')<< ".G" << mIndex;
+        return ss.str();
+    }
+
+    std::string GetName() const
+    {
+        return mName;
+    }
+
     unsigned mIndex;
     std::string mName;
     std::vector<SaveFile> mSaves;
 };
+
+std::ostream& operator<<(auto& os, const SaveDirectory& saveDir)
+{
+    os << "SaveDir{ " << saveDir.mIndex << ", " 
+        << saveDir.mName << ", " << saveDir.mSaves.size() << "}";
+    return os;
+}
 
 std::string LoadSaveName(FileBuffer& fb);
 std::vector<SaveDirectory> MakeSaveDirectories();
@@ -33,35 +52,54 @@ std::vector<SaveDirectory> MakeSaveDirectories();
 class SaveManager
 {
 public:
+    SaveManager(
+        const std::string& savePath)
+    :
+        mSavePath{savePath},
+        mDirectories{},
+        mLogger{Logging::LogState::GetLogger("BAK::SaveManager")}
+    {}
+
+    const std::vector<SaveDirectory>& GetSaves() const
+    {
+        return mDirectories;
+    }
+
+    void RefreshSaves()
+    {
+        mDirectories = MakeSaveDirectories();
+    }
+
     const SaveFile& MakeSave(
         const std::string& saveDirectory,
         const std::string& saveName)
     {
+        mLogger.Debug() << __FUNCTION__ << "(" << saveDirectory << ", " << saveName << std::endl;
         const auto it = std::find_if(mDirectories.begin(), mDirectories.end(),
             [&](const auto& elem){
-                return saveDirectory == GetDirectoryNameWithoutIndex(elem.mName);
+                return saveDirectory == elem.mName;
             });
 
         auto& directory = std::invoke([&]() -> SaveDirectory& {
             if (it != mDirectories.end())
             {
+                mLogger.Debug() << __FUNCTION__ << " Found existing save directory: " << *it << std::endl;
                 return *it;
             }
             else
             {
-                std::stringstream ss{};
-                ss << saveDirectory << std::setw(2) << std::setfill('0')<< ".G" << mDirectories.size();
-                const auto directoryName = ss.str();
-                std::filesystem::create_directory(mSavePath / directoryName);
+                auto directory = SaveDirectory{
+                    static_cast<unsigned>(mDirectories.size()),
+                    saveDirectory,
+                    {}};
+                std::filesystem::create_directory(mSavePath / directory.GetPath());
+                mLogger.Debug() << __FUNCTION__ << " Creating directory: " << mSavePath / directory.GetPath() << std::endl;
                 return mDirectories.emplace_back(
-                    SaveDirectory{
-                        static_cast<unsigned>(mDirectories.size()),
-                        directoryName,
-                        {}});
+                    std::move(directory));
             }
         });
 
-
+        mLogger.Debug() << __FUNCTION__ << " SaveDir: " << directory << std::endl;
         const auto fileIt = std::find_if(directory.mSaves.begin(), directory.mSaves.end(),
             [&](const auto& elem){
                 return saveName == elem.mName;
@@ -79,18 +117,15 @@ public:
                 SaveFile{
                     static_cast<unsigned>(directory.mSaves.size()),
                     saveName,
-                    (mSavePath / directory.mName) / ss.str()});
+                    (mSavePath / directory.GetPath()) / ss.str()});
         }
     }
 
 private:
-    std::string GetDirectoryNameWithoutIndex(const std::string& directory) const
-    {
-        return std::filesystem::path{directory}.stem();
-    }
-
     std::filesystem::path mSavePath;
     std::vector<SaveDirectory> mDirectories;
+
+    const Logging::Logger& mLogger;
 };
 
 }

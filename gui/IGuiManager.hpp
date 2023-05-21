@@ -16,6 +16,7 @@ class IGuiManager
 {
 public:
     virtual void DoFade(double duration, std::function<void()>&&) = 0;
+    virtual bool InMainView() const = 0;
     virtual void EnterMainView() = 0;
     virtual void EnterMainMenu(bool gameRunning) = 0;
 

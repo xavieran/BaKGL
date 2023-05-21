@@ -90,14 +90,17 @@ private:
 
     bool KeyPressed(int key)
     {
-        if (key == GLFW_KEY_BACKSPACE)
+        if (mHaveFocus)
         {
-            if (mText.size() > 0)
+            if (key == GLFW_KEY_BACKSPACE)
             {
-                mText.pop_back();
-                RefreshText();
+                if (mText.size() > 0)
+                {
+                    mText.pop_back();
+                    RefreshText();
+                }
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -109,7 +112,7 @@ private:
 
     bool CharacterEntered(char character)
     {
-        if (mHaveFocus)
+        if (mHaveFocus && mText.size() < mMaxChars)
         {
             mText += character;
             RefreshText();

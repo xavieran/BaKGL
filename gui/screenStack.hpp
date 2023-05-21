@@ -60,7 +60,7 @@ public:
         PopChild();
     }
 
-    Widget* Top()
+    Widget* Top() const
     {
         assert(mChildren.size() > 0);
         return mChildren.back();

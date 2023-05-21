@@ -146,9 +146,7 @@ public:
         mRefreshSaves{false},
         mSelectedDirectory{0},
         mSelectedSave{0},
-        mSaveDirs{
-            BAK::MakeSaveDirectories()
-        },
+        mSaveManager{GetBakDirectoryPath() / "GAMES"},
         mNeedRefresh{false},
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
     {
@@ -171,6 +169,8 @@ public:
 
     void SetSaveOrLoad(bool isSave)
     {
+        mSaveManager.RefreshSaves();
+
         mIsSave = isSave;
         mRefreshSaves = true;
         mRefreshDirectories = true;
@@ -182,35 +182,13 @@ private:
     {
         const auto saveDir = mDirectorySaveInput.GetText();
         const auto saveName = mFileSaveInput.GetText();
-
-        const auto selectedDirectoryName = std::filesystem::path{mSaveDirs.at(mSelectedDirectory).mName}.stem();
-
-        mLogger.Debug() << "Selected save dir: " << selectedDirectoryName
-            << " :: " << mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mName << "\n";
-
-        if (saveDir == selectedDirectoryName)
-        {
-            if (saveName == mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mName)
-            {
-                mLogger.Debug() << "Overwrite: " << mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mPath << "\n";
-            }
-            else
-            {
-                const auto saveDirPath = mSaveDirs.at(mSelectedDirectory);
-                mLogger.Debug() << "Save dir: " << saveDirPath.mName<< "\n";
-                mLogger.Debug() << "File name: SAVE" << std::setw(2) << std::setfill('0') << saveDirPath.mSaves.size() << ".GAM -> " << saveName << "\n";
-            }
-        }
-        else
-        {
-                mLogger.Debug() << "New dir: " << saveDir << std::setw(2) << std::setfill('0')<< ".G" << mSaveDirs.size() << "\n";
-                mLogger.Debug() << "File name: SAVE01.GAM -> " << saveName << "\n";
-        }
+        mLogger.Info() << "Saving game to: " << saveDir << " " << saveName << "\n";
+        mSaveFn(mSaveManager.MakeSave(saveDir, saveName));
     }
 
     void RestoreGame()
     {
-        const auto savePath = mSaveDirs.at(mSelectedDirectory)
+        const auto savePath = mSaveManager.GetSaves().at(mSelectedDirectory)
             .mSaves.at(mSelectedSave).mPath;
         std::invoke(mLoadSaveFn, savePath);
     }
@@ -223,7 +201,8 @@ private:
         mRefreshSaves = true;
 
         mDirectorySaveInput.SetFocus(true);
-        mDirectorySaveInput.SetText(mSaveDirs.at(mSelectedDirectory).mName);
+        mDirectorySaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mName);
+        mFileSaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.front().mName);
         mFileSaveInput.SetFocus(false);
     }
 
@@ -234,7 +213,7 @@ private:
 
         mDirectorySaveInput.SetFocus(false);
         mFileSaveInput.SetFocus(true);
-        const auto saveName = mSaveDirs.at(mSelectedDirectory)
+        const auto saveName = mSaveManager.GetSaves().at(mSelectedDirectory)
             .mSaves.at(mSelectedSave).mName;
         mFileSaveInput.SetText(saveName);
     }
@@ -254,7 +233,7 @@ private:
         AddChildBack(&mFrame);
 
         std::size_t index = 0;
-        for (const auto& dir : mSaveDirs)
+        for (const auto& dir : mSaveManager.GetSaves())
         {
             mDirectories.GetChild().AddWidget(
                 glm::vec2{0, 0},
@@ -267,7 +246,7 @@ private:
         }
 
         index = 0;
-        for (auto save : mSaveDirs.at(mSelectedDirectory).mSaves)
+        for (auto save : mSaveManager.GetSaves().at(mSelectedDirectory).mSaves)
         {
             mFiles.GetChild().AddWidget(
                 glm::vec2{0, 0},
@@ -349,7 +328,7 @@ private:
     bool mRefreshSaves;
     std::size_t mSelectedDirectory;
     std::size_t mSelectedSave;
-    std::vector<BAK::SaveDirectory> mSaveDirs;
+    BAK::SaveManager mSaveManager;
 
     bool mNeedRefresh;
 

@@ -155,6 +155,7 @@ public:
         mBuffer.PutUint16LE(mLocation.mLocation.mHeading);
 
 
+        mLogger.Info() << "Saving game to: " << savePath << std::endl;
         auto saveFile = std::ofstream{
             savePath,
             std::ios::binary | std::ios::out};

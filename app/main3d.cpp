@@ -228,31 +228,36 @@ int main(int argc, char** argv)
     };
 
     Graphics::InputHandler inputHandler{};
-    inputHandler.Bind(GLFW_KEY_G,     [&]{ cameraPtr = &camera; });
-    inputHandler.Bind(GLFW_KEY_H,     [&]{ cameraPtr = &lightCamera; });
+    inputHandler.Bind(GLFW_KEY_G,     [&]{ if (guiManager.InMainView()) cameraPtr = &camera; });
+    inputHandler.Bind(GLFW_KEY_H,     [&]{ if (guiManager.InMainView()) cameraPtr = &lightCamera; });
     inputHandler.Bind(GLFW_KEY_R,     [&]{
-        UpdateLightCamera();
+        if (guiManager.InMainView())
+            UpdateLightCamera();
     });
-    inputHandler.Bind(GLFW_KEY_UP,   [&]{ cameraPtr->StrafeForward(); UpdateGameTile();});
-    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ cameraPtr->StrafeBackward(); UpdateGameTile(); });
-    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ cameraPtr->StrafeLeft(); UpdateGameTile(); });
-    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ cameraPtr->StrafeRight(); UpdateGameTile(); });
+    inputHandler.Bind(GLFW_KEY_UP,   [&]{ if (guiManager.InMainView()){cameraPtr->StrafeForward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ if (guiManager.InMainView()){cameraPtr->StrafeBackward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (guiManager.InMainView()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (guiManager.InMainView()){cameraPtr->StrafeRight(); UpdateGameTile();}});
 
-    inputHandler.Bind(GLFW_KEY_W, [&]{ cameraPtr->MoveForward(); UpdateGameTile(); });
-    inputHandler.Bind(GLFW_KEY_A, [&]{ cameraPtr->StrafeLeft(); UpdateGameTile(); });
-    inputHandler.Bind(GLFW_KEY_D, [&]{ cameraPtr->StrafeRight(); UpdateGameTile(); });
-    inputHandler.Bind(GLFW_KEY_S, [&]{ cameraPtr->MoveBackward(); UpdateGameTile(); });
+    inputHandler.Bind(GLFW_KEY_W, [&]{ if (guiManager.InMainView()){cameraPtr->MoveForward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_A, [&]{ if (guiManager.InMainView()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_D, [&]{ if (guiManager.InMainView()){cameraPtr->StrafeRight(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_S, [&]{ if (guiManager.InMainView()){cameraPtr->MoveBackward(); UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_Q, [&]{
-        cameraPtr->RotateLeft();
-        guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
-        });
+        if (guiManager.InMainView())
+        {
+            cameraPtr->RotateLeft();
+            guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
+        }});
     inputHandler.Bind(GLFW_KEY_E, [&]{ 
-        cameraPtr->RotateRight();
-        guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
-        });
-    inputHandler.Bind(GLFW_KEY_X, [&]{ cameraPtr->RotateVerticalUp(); });
-    inputHandler.Bind(GLFW_KEY_Y, [&]{ cameraPtr->RotateVerticalDown(); });
-    inputHandler.Bind(GLFW_KEY_C, [&]{ gameRunner.mGameState.mGameData->ClearTileRecentEncounters(); });
+        if (guiManager.InMainView())
+        {
+            cameraPtr->RotateRight();
+            guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
+        }});
+    inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalUp(); });
+    inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalDown(); });
+    inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.mGameData->ClearTileRecentEncounters(); });
 
     inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE}); });
     inputHandler.BindCharacter([&](char character){ root.OnKeyEvent(Gui::Character{character}); });

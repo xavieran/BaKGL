@@ -185,6 +185,7 @@ public:
     void SaveGame(const BAK::SaveFile& saveFile) override
     {
         mGameState.Save(saveFile);
+        EnterMainView();
     }
 
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader)
@@ -202,6 +203,11 @@ public:
             AddChildBack(&mFadeScreen);
             mFadeScreen.FadeIn(duration);
         }
+    }
+
+    bool InMainView() const override
+    {
+        return mScreenStack.Top() == &mMainView;
     }
 
     void EnterMainView() override
