@@ -138,6 +138,11 @@ public:
                 mState = State::MainMenu;
                 AudioA::AudioManager::Get().PopTrack();
                 mGuiManager.LoadGame(file);
+            },
+            [this](const auto& saveFile){
+                mState = State::MainMenu;
+                AudioA::AudioManager::Get().PopTrack();
+                mGuiManager.SaveGame(saveFile);
             }
         },
         mState{State::MainMenu},

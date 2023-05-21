@@ -7,6 +7,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
+#include "bak/saveFile.hpp"
 #include "bak/types.hpp"
 
 namespace Gui {
@@ -48,6 +49,7 @@ public:
     virtual ScreenStack& GetScreenStack() = 0;
 
     virtual void LoadGame(std::string) = 0;
+    virtual void SaveGame(const BAK::SaveFile&) = 0;
     virtual void DoTeleport(BAK::TeleportIndex) = 0;
 };
 

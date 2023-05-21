@@ -13,6 +13,8 @@
 
 #include <glm/glm.hpp>
 
+#include <iomanip>
+#include <filesystem>
 #include <functional>
 
 namespace Gui {
@@ -34,13 +36,15 @@ public:
 
     using LeaveSaveFn = std::function<void()>;
     using LoadSaveFn = std::function<void(std::string)>;
+    using SaveFn = std::function<void(const BAK::SaveFile&)>;
 
     SaveScreen(
         const Backgrounds& backgrounds,
         const Icons& icons,
         const Font& font,
         LeaveSaveFn&& leaveSaveFn,
-        LoadSaveFn&& loadSaveFn)
+        LoadSaveFn&& loadSaveFn,
+        SaveFn&& saveFn)
     :
         Widget{
             RectTag{},
@@ -55,6 +59,7 @@ public:
         mLayoutRestore{sLayoutRestoreFile},
         mLeaveSaveFn{std::move(leaveSaveFn)},
         mLoadSaveFn{std::move(loadSaveFn)},
+        mSaveFn{std::move(saveFn)},
         mIsSave{true},
         mFrame{
             ImageTag{},
@@ -73,25 +78,35 @@ public:
             glm::vec2{80, 16}
         },
         mFilesLabel{
-            font,
             glm::vec2{132, 30},
-            glm::vec2{40, 16},
-            30
+            glm::vec2{40, 16}
         },
         mDirectories{
             glm::vec2{20, 40},
-            glm::vec2{100, 100},
+            glm::vec2{100, 90},
             icons,
             false,
             true,
             40u, 0.0f, true},
+        mDirectorySaveInput{
+            font,
+            glm::vec2{20, 132},
+            glm::vec2{100, 16},
+            30
+        },
         mFiles{
             glm::vec2{130, 40},
-            glm::vec2{160, 100},
+            glm::vec2{160, 90},
             icons,
             false,
             true,
             40u, 0.0f, true},
+        mFileSaveInput{
+            font,
+            glm::vec2{130, 132},
+            glm::vec2{160, 16},
+            30
+        },
         mRmDirectory{
             mLayout.GetWidgetLocation(sRmDirectory),
             mLayout.GetWidgetDimensions(sRmDirectory),
@@ -111,7 +126,7 @@ public:
             mLayout.GetWidgetDimensions(sSave),
             mFont,
             "#Save",
-            []{ }
+            [this]{ SaveGame(); }
         },
         mRestore{
             mLayoutRestore.GetWidgetLocation(sSave - sLoadOffset),
@@ -138,7 +153,7 @@ public:
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
     {
         mDirectoryLabel.AddText(mFont, "Directories");
-        //mFilesLabel.AddText(mFont, "Games");
+        mFilesLabel.AddText(mFont, "Games");
         mRestoreLabel.AddText(mFont, "#Restore Game");
     }
 
@@ -163,9 +178,40 @@ public:
     }
 
 private:
+    void SaveGame()
+    {
+        const auto saveDir = mDirectorySaveInput.GetText();
+        const auto saveName = mFileSaveInput.GetText();
+
+        const auto selectedDirectoryName = std::filesystem::path{mSaveDirs.at(mSelectedDirectory).mName}.stem();
+
+        mLogger.Debug() << "Selected save dir: " << selectedDirectoryName
+            << " :: " << mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mName << "\n";
+
+        if (saveDir == selectedDirectoryName)
+        {
+            if (saveName == mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mName)
+            {
+                mLogger.Debug() << "Overwrite: " << mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mPath << "\n";
+            }
+            else
+            {
+                const auto saveDirPath = mSaveDirs.at(mSelectedDirectory);
+                mLogger.Debug() << "Save dir: " << saveDirPath.mName<< "\n";
+                mLogger.Debug() << "File name: SAVE" << std::setw(2) << std::setfill('0') << saveDirPath.mSaves.size() << ".GAM -> " << saveName << "\n";
+            }
+        }
+        else
+        {
+                mLogger.Debug() << "New dir: " << saveDir << std::setw(2) << std::setfill('0')<< ".G" << mSaveDirs.size() << "\n";
+                mLogger.Debug() << "File name: SAVE01.GAM -> " << saveName << "\n";
+        }
+    }
+
     void RestoreGame()
     {
-        const auto savePath = mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mPath;
+        const auto savePath = mSaveDirs.at(mSelectedDirectory)
+            .mSaves.at(mSelectedSave).mPath;
         std::invoke(mLoadSaveFn, savePath);
     }
 
@@ -175,12 +221,22 @@ private:
         mSelectedSave = 0;
         mNeedRefresh = true;
         mRefreshSaves = true;
+
+        mDirectorySaveInput.SetFocus(true);
+        mDirectorySaveInput.SetText(mSaveDirs.at(mSelectedDirectory).mName);
+        mFileSaveInput.SetFocus(false);
     }
 
     void SaveSelected(std::size_t i)
     {
         mSelectedSave = i;
         mNeedRefresh = true;
+
+        mDirectorySaveInput.SetFocus(false);
+        mFileSaveInput.SetFocus(true);
+        const auto saveName = mSaveDirs.at(mSelectedDirectory)
+            .mSaves.at(mSelectedSave).mName;
+        mFileSaveInput.SetText(saveName);
     }
 
     void RefreshGui()
@@ -240,6 +296,8 @@ private:
             AddChildBack(&mRmFile);
             AddChildBack(&mSave);
             AddChildBack(&mRestoreLabel);
+            AddChildBack(&mDirectorySaveInput);
+            AddChildBack(&mFileSaveInput);
         }
         else
         {
@@ -270,14 +328,17 @@ private:
     BAK::Layout mLayoutRestore;
     LeaveSaveFn mLeaveSaveFn;
     LoadSaveFn mLoadSaveFn;
+    SaveFn mSaveFn;
 
     bool mIsSave;
     Widget mFrame;
     TextBox mRestoreLabel;
     TextBox mDirectoryLabel;
-    TextInput mFilesLabel;
+    TextBox mFilesLabel;
     ScrollView<List<ClickButton>> mDirectories;
+    TextInput mDirectorySaveInput;
     ScrollView<List<ClickButton>> mFiles;
+    TextInput mFileSaveInput;
     ClickButton mRmDirectory;
     ClickButton mRmFile;
     ClickButton mSave;

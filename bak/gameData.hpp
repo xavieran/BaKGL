@@ -131,7 +131,14 @@ public:
 
     GameData(const std::string& save);
 
-    void Save(const std::string& saveName)
+    void Save(const SaveFile& saveFile)
+    {
+        Save(saveFile.mName, saveFile.mPath);
+    }
+
+    void Save(
+        const std::string& saveName,
+        const std::string& savePath)
     {
         ASSERT(saveName.size() < 30);
         mBuffer.Seek(0);
@@ -149,7 +156,7 @@ public:
 
 
         auto saveFile = std::ofstream{
-            saveName,
+            savePath,
             std::ios::binary | std::ios::out};
         mBuffer.Save(saveFile);
     }

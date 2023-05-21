@@ -31,14 +31,22 @@ public:
         },
         mFont{font},
         mTextBox{glm::vec2{}, dim},
-        mString{},
+        mText{},
         mMaxChars{maxChars},
-        mHaveFocus{true}
+        mHaveFocus{false}
     {
         AddChildBack(&mTextBox);
     }
 
-    bool OnKeyEvent(const KeyEvent& event)
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        return std::visit(overloaded{
+            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
+            [](const auto&){ return false; }
+            }, event);
+    }
+
+    bool OnKeyEvent(const KeyEvent& event) override
     {
         return std::visit(overloaded{
             [this](const KeyPress& p){ return KeyPressed(p.mValue); },
@@ -47,31 +55,73 @@ public:
             }, event);
     }
 
+    void SetText(const std::string& text)
+    {
+        mText = text;
+        RefreshText();
+    }
+
+    const std::string& GetText() const
+    {
+        return mText;
+    }
+
+    void SetFocus(bool focus)
+    {
+        mHaveFocus = focus;
+    }
+
 private:
+    bool LeftMousePressed(const auto& clickPos)
+    {
+        if (Within(clickPos))
+        {
+            mHaveFocus = true;
+            SetColor(glm::vec4{1, 0, 0, .3});
+            return true;
+        }
+        else
+        {
+            mHaveFocus = false;
+            SetColor(glm::vec4{0, 1, 0, .3});
+            return false;
+        }
+    }
+
     bool KeyPressed(int key)
     {
         if (key == GLFW_KEY_BACKSPACE)
         {
-            if (mString.size() > 0)
+            if (mText.size() > 0)
             {
-                mString.pop_back();
-                mTextBox.AddText(mFont, mString);
+                mText.pop_back();
+                RefreshText();
             }
             return true;
         }
         return false;
     }
 
+    void RefreshText()
+    {
+        mTextBox.AddText(mFont, mText);
+    }
+
     bool CharacterEntered(char character)
     {
-        mString += character;
-        mTextBox.AddText(mFont, mString);
-        return true;
+        if (mHaveFocus)
+        {
+            mText += character;
+            RefreshText();
+            return true;
+        }
+
+        return false;
     }
 
     const Font& mFont;
     TextBox mTextBox;
-    std::string mString;
+    std::string mText;
     unsigned mMaxChars;
     bool mHaveFocus;
 };

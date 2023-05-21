@@ -712,6 +712,28 @@ public:
         }
     }
 
+    bool Save(const SaveFile& saveFile)
+    {
+        if (mGameData)
+        {
+            BAK::Save(GetParty(), mGameData->GetFileBuffer());
+
+            for (const auto& container : mGDSContainers)
+                BAK::Save(container, mGameData->GetFileBuffer());
+
+            for (const auto& container : mCombatContainers)
+                BAK::Save(container, mGameData->GetFileBuffer());
+
+            for (const auto& zoneContainers : mContainers)
+                for (const auto& container : zoneContainers)
+                    BAK::Save(container, mGameData->GetFileBuffer());
+
+            mGameData->Save(saveFile);
+            return true;
+        }
+        return false;
+    }
+
     bool Save(const std::string& saveName)
     {
         if (mGameData)
@@ -728,7 +750,7 @@ public:
                 for (const auto& container : zoneContainers)
                     BAK::Save(container, mGameData->GetFileBuffer());
 
-            mGameData->Save(saveName);
+            mGameData->Save(saveName, saveName);
             return true;
         }
         return false;

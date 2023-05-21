@@ -5,6 +5,7 @@
 #include "bak/IZoneLoader.hpp"
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
+#include "bak/saveFile.hpp"
 
 #include "com/assert.hpp"
 
@@ -179,6 +180,11 @@ public:
         ASSERT(mZoneLoader);
         mZoneLoader->LoadGame(save);
         EnterMainView();
+    }
+
+    void SaveGame(const BAK::SaveFile& saveFile) override
+    {
+        mGameState.Save(saveFile);
     }
 
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader)
