@@ -70,6 +70,21 @@ public:
         mDirectories = MakeSaveDirectories();
     }
 
+    void RemoveDirectory(unsigned index)
+    {
+        mLogger.Info() << "Removing save directory: " << mDirectories.at(index) << "\n";
+        std::filesystem::remove_all(mSavePath / mDirectories.at(index).GetPath());
+        RefreshSaves();
+    }
+
+    void RemoveSave(unsigned directory, unsigned save)
+    {
+        mLogger.Info() << "Removing save file: "
+            << mDirectories.at(directory).mSaves.at(save).mPath << "\n";
+        std::filesystem::remove(mDirectories.at(directory).mSaves.at(save).mPath);
+        RefreshSaves();
+    }
+
     const SaveFile& MakeSave(
         const std::string& saveDirectory,
         const std::string& saveName)

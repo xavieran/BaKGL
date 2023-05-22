@@ -70,6 +70,14 @@ public:
         AddChildren();
     }
 
+    void SetDimensions(glm::vec2 dims) override
+    {
+        Widget::SetDimensions(dims);
+        mBar.SetDimensions(glm::vec2{16, dims.y});
+        mHandle.SetDimensions(mBar.GetDimensions() - glm::vec2{sMarginPixels * 2});
+        SetScale(mScale);
+    }
+
     void SetScale(float scale)
     {
         mScale = scale;
@@ -78,7 +86,7 @@ public:
                 (mBar.GetDimensions().y - sMarginPixels * 2) * mScale});
     }
 
-    bool OnMouseEvent(const MouseEvent& event)
+    bool OnMouseEvent(const MouseEvent& event) override
     {
         if (std::holds_alternative<LeftMousePress>(event)
             && Within(GetValue(event)))

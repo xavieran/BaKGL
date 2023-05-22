@@ -112,14 +112,14 @@ public:
             mLayout.GetWidgetDimensions(sRmDirectory),
             mFont,
             "#Remove Directory",
-            []{ }
+            [&]{ RemoveDirectory(); }
         },
         mRmFile{
             mLayout.GetWidgetLocation(sRmFile),
             mLayout.GetWidgetDimensions(sRmFile),
             mFont,
             "#Remove File",
-            []{ }
+            [&]{ RemoveFile(); }
         },
         mSave{
             mLayout.GetWidgetLocation(sSave),
@@ -172,12 +172,41 @@ public:
         mSaveManager.RefreshSaves();
 
         mIsSave = isSave;
+        mDirectories.SetDimensions(glm::vec2{100, mIsSave ? 90 : 108});
+        mFiles.SetDimensions(glm::vec2{160, mIsSave ? 90 : 108});
+        mDirectorySaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mName);
+        mFileSaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.front().mName);
         mRefreshSaves = true;
         mRefreshDirectories = true;
         RefreshGui();
     }
 
 private:
+    void RemoveDirectory()
+    {
+        mSaveManager.RemoveDirectory(mSelectedDirectory);
+        if (mSelectedDirectory > 0)
+        {
+            mSelectedDirectory--;
+        }
+        RefreshGui();
+    }
+
+    void RemoveFile()
+    {
+        // Disable remove file button when no saves in selected dir
+        mSaveManager.RemoveSave(mSelectedDirectory, mSelectedSave);
+        if (mSelectedSave > 0)
+        {
+            mSelectedSave--;
+        }
+        if (mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.size() == 0)
+        {
+            RemoveDirectory();
+        }
+        RefreshGui();
+    }
+
     void SaveGame()
     {
         const auto saveDir = mDirectorySaveInput.GetText();
@@ -201,9 +230,9 @@ private:
         mRefreshSaves = true;
 
         mDirectorySaveInput.SetFocus(true);
+        mFileSaveInput.SetFocus(false);
         mDirectorySaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mName);
         mFileSaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.front().mName);
-        mFileSaveInput.SetFocus(false);
     }
 
     void SaveSelected(std::size_t i)
@@ -314,10 +343,13 @@ private:
     TextBox mRestoreLabel;
     TextBox mDirectoryLabel;
     TextBox mFilesLabel;
+
     ScrollView<List<ClickButton>> mDirectories;
     TextInput mDirectorySaveInput;
+
     ScrollView<List<ClickButton>> mFiles;
     TextInput mFileSaveInput;
+
     ClickButton mRmDirectory;
     ClickButton mRmFile;
     ClickButton mSave;

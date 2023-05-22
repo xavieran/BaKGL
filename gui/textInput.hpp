@@ -25,8 +25,7 @@ public:
             RectTag{},
             pos,
             dim,
-            //glm::vec4{0},
-            glm::vec4{0,1,0,.3},
+            glm::vec4{0},
             true
         },
         mFont{font},
@@ -69,6 +68,14 @@ public:
     void SetFocus(bool focus)
     {
         mHaveFocus = focus;
+        if (!mHaveFocus)
+        {
+            SetColor(glm::vec4{0, 0, 0, 0});
+        }
+        else
+        {
+            SetColor(glm::vec4{0, 0, 0, .2});
+        }
     }
 
 private:
@@ -76,16 +83,13 @@ private:
     {
         if (Within(clickPos))
         {
-            mHaveFocus = true;
-            SetColor(glm::vec4{1, 0, 0, .3});
-            return true;
+            SetFocus(true);
         }
         else
         {
-            mHaveFocus = false;
-            SetColor(glm::vec4{0, 1, 0, .3});
-            return false;
+            SetFocus(false);
         }
+        return false;
     }
 
     bool KeyPressed(int key)

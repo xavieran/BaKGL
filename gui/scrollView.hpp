@@ -54,7 +54,14 @@ public:
         return mChild;
     }
 
-    bool OnMouseEvent(const MouseEvent& event)
+    void SetDimensions(glm::vec2 dims) override
+    {
+        Widget::SetDimensions(dims);
+        mChild.SetDimensions(dims);
+        mScrollBar.SetDimensions(glm::vec2{16, dims.y});
+    }
+
+    bool OnMouseEvent(const MouseEvent& event) override
     {
         // ... track mouse position
         if (std::holds_alternative<MouseMove>(event))
