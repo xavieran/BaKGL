@@ -8,7 +8,7 @@
 #include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

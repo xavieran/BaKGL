@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bak/saveFile.hpp"
+#include "bak/saveManager.hpp"
 
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
@@ -8,10 +8,13 @@
 #include "gui/clickButton.hpp"
 #include "gui/scrollView.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/textInput.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 
+#include <iomanip>
+#include <filesystem>
 #include <functional>
 
 namespace Gui {
@@ -33,13 +36,15 @@ public:
 
     using LeaveSaveFn = std::function<void()>;
     using LoadSaveFn = std::function<void(std::string)>;
+    using SaveFn = std::function<void(const BAK::SaveFile&)>;
 
     SaveScreen(
         const Backgrounds& backgrounds,
         const Icons& icons,
         const Font& font,
         LeaveSaveFn&& leaveSaveFn,
-        LoadSaveFn&& loadSaveFn)
+        LoadSaveFn&& loadSaveFn,
+        SaveFn&& saveFn)
     :
         Widget{
             RectTag{},
@@ -54,6 +59,7 @@ public:
         mLayoutRestore{sLayoutRestoreFile},
         mLeaveSaveFn{std::move(leaveSaveFn)},
         mLoadSaveFn{std::move(loadSaveFn)},
+        mSaveFn{std::move(saveFn)},
         mIsSave{true},
         mFrame{
             ImageTag{},
@@ -77,38 +83,50 @@ public:
         },
         mDirectories{
             glm::vec2{20, 40},
-            glm::vec2{100, 100},
+            glm::vec2{100, 90},
             icons,
             false,
             true,
             40u, 0.0f, true},
+        mDirectorySaveInput{
+            font,
+            glm::vec2{20, 132},
+            glm::vec2{100, 16},
+            30
+        },
         mFiles{
             glm::vec2{130, 40},
-            glm::vec2{160, 100},
+            glm::vec2{160, 90},
             icons,
             false,
             true,
             40u, 0.0f, true},
+        mFileSaveInput{
+            font,
+            glm::vec2{130, 132},
+            glm::vec2{160, 16},
+            30
+        },
         mRmDirectory{
             mLayout.GetWidgetLocation(sRmDirectory),
             mLayout.GetWidgetDimensions(sRmDirectory),
             mFont,
             "#Remove Directory",
-            []{ }
+            [&]{ RemoveDirectory(); }
         },
         mRmFile{
             mLayout.GetWidgetLocation(sRmFile),
             mLayout.GetWidgetDimensions(sRmFile),
             mFont,
             "#Remove File",
-            []{ }
+            [&]{ RemoveFile(); }
         },
         mSave{
             mLayout.GetWidgetLocation(sSave),
             mLayout.GetWidgetDimensions(sSave),
             mFont,
             "#Save",
-            []{ }
+            [this]{ SaveGame(); }
         },
         mRestore{
             mLayoutRestore.GetWidgetLocation(sSave - sLoadOffset),
@@ -128,9 +146,7 @@ public:
         mRefreshSaves{false},
         mSelectedDirectory{0},
         mSelectedSave{0},
-        mSaveDirs{
-            BAK::MakeSaveDirectories()
-        },
+        mSaveManager{GetBakDirectoryPath() / "GAMES"},
         mNeedRefresh{false},
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
     {
@@ -153,16 +169,56 @@ public:
 
     void SetSaveOrLoad(bool isSave)
     {
+        mSaveManager.RefreshSaves();
+
         mIsSave = isSave;
+        mDirectories.SetDimensions(glm::vec2{100, mIsSave ? 90 : 108});
+        mFiles.SetDimensions(glm::vec2{160, mIsSave ? 90 : 108});
+        mDirectorySaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mName);
+        mFileSaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.front().mName);
         mRefreshSaves = true;
         mRefreshDirectories = true;
         RefreshGui();
     }
 
 private:
+    void RemoveDirectory()
+    {
+        mSaveManager.RemoveDirectory(mSelectedDirectory);
+        if (mSelectedDirectory > 0)
+        {
+            mSelectedDirectory--;
+        }
+        RefreshGui();
+    }
+
+    void RemoveFile()
+    {
+        // Disable remove file button when no saves in selected dir
+        mSaveManager.RemoveSave(mSelectedDirectory, mSelectedSave);
+        if (mSelectedSave > 0)
+        {
+            mSelectedSave--;
+        }
+        if (mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.size() == 0)
+        {
+            RemoveDirectory();
+        }
+        RefreshGui();
+    }
+
+    void SaveGame()
+    {
+        const auto saveDir = mDirectorySaveInput.GetText();
+        const auto saveName = mFileSaveInput.GetText();
+        mLogger.Info() << "Saving game to: " << saveDir << " " << saveName << "\n";
+        mSaveFn(mSaveManager.MakeSave(saveDir, saveName));
+    }
+
     void RestoreGame()
     {
-        const auto savePath = mSaveDirs.at(mSelectedDirectory).mSaves.at(mSelectedSave).mPath;
+        const auto savePath = mSaveManager.GetSaves().at(mSelectedDirectory)
+            .mSaves.at(mSelectedSave).mPath;
         std::invoke(mLoadSaveFn, savePath);
     }
 
@@ -172,12 +228,23 @@ private:
         mSelectedSave = 0;
         mNeedRefresh = true;
         mRefreshSaves = true;
+
+        mDirectorySaveInput.SetFocus(true);
+        mFileSaveInput.SetFocus(false);
+        mDirectorySaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mName);
+        mFileSaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.front().mName);
     }
 
     void SaveSelected(std::size_t i)
     {
         mSelectedSave = i;
         mNeedRefresh = true;
+
+        mDirectorySaveInput.SetFocus(false);
+        mFileSaveInput.SetFocus(true);
+        const auto saveName = mSaveManager.GetSaves().at(mSelectedDirectory)
+            .mSaves.at(mSelectedSave).mName;
+        mFileSaveInput.SetText(saveName);
     }
 
     void RefreshGui()
@@ -195,7 +262,7 @@ private:
         AddChildBack(&mFrame);
 
         std::size_t index = 0;
-        for (const auto& dir : mSaveDirs)
+        for (const auto& dir : mSaveManager.GetSaves())
         {
             mDirectories.GetChild().AddWidget(
                 glm::vec2{0, 0},
@@ -208,7 +275,7 @@ private:
         }
 
         index = 0;
-        for (auto save : mSaveDirs.at(mSelectedDirectory).mSaves)
+        for (auto save : mSaveManager.GetSaves().at(mSelectedDirectory).mSaves)
         {
             mFiles.GetChild().AddWidget(
                 glm::vec2{0, 0},
@@ -237,6 +304,8 @@ private:
             AddChildBack(&mRmFile);
             AddChildBack(&mSave);
             AddChildBack(&mRestoreLabel);
+            AddChildBack(&mDirectorySaveInput);
+            AddChildBack(&mFileSaveInput);
         }
         else
         {
@@ -267,14 +336,20 @@ private:
     BAK::Layout mLayoutRestore;
     LeaveSaveFn mLeaveSaveFn;
     LoadSaveFn mLoadSaveFn;
+    SaveFn mSaveFn;
 
     bool mIsSave;
     Widget mFrame;
     TextBox mRestoreLabel;
     TextBox mDirectoryLabel;
     TextBox mFilesLabel;
+
     ScrollView<List<ClickButton>> mDirectories;
+    TextInput mDirectorySaveInput;
+
     ScrollView<List<ClickButton>> mFiles;
+    TextInput mFileSaveInput;
+
     ClickButton mRmDirectory;
     ClickButton mRmFile;
     ClickButton mSave;
@@ -285,7 +360,7 @@ private:
     bool mRefreshSaves;
     std::size_t mSelectedDirectory;
     std::size_t mSelectedSave;
-    std::vector<BAK::SaveDirectory> mSaveDirs;
+    BAK::SaveManager mSaveManager;
 
     bool mNeedRefresh;
 

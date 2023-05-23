@@ -2,7 +2,7 @@
 
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 namespace Gui {
 

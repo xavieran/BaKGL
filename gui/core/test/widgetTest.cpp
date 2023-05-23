@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "com/logger.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

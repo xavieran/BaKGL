@@ -1,4 +1,4 @@
-#include "gui/doubleClickStateMachine.hpp"
+#include "gui/core/doubleClickStateMachine.hpp"
 
 namespace Gui {
 

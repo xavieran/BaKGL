@@ -13,7 +13,7 @@
 #include "gui/icons.hpp"
 #include "gui/colors.hpp"
 #include "gui/teleportDest.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

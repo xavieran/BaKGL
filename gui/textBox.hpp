@@ -10,7 +10,7 @@
 
 #include "gui/colors.hpp"
 #include "gui/fontManager.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 
@@ -168,6 +168,10 @@ public:
         unsigned currentChar = 0;
         for (; currentChar < text.size(); currentChar++)
         {
+            if (text.size() == 0)
+            {
+                break;
+            }
             const auto c = text[currentChar];
             logger.Spam() << "Char[" << c << "]" << std::hex 
                 << +c << std::dec << " " << charPos << "\n";

@@ -5,7 +5,7 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/colors.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

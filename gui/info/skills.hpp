@@ -11,7 +11,7 @@
 #include "gui/colors.hpp"
 #include "gui/compass.hpp"
 #include "gui/clickButton.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 #include "gui/scene.hpp"
 
 #include <glm/glm.hpp>

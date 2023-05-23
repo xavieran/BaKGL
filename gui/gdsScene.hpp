@@ -13,7 +13,7 @@
 #include "gui/staticTTM.hpp"
 #include "gui/temple.hpp"
 #include "gui/repair.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 namespace Gui {
 

@@ -13,7 +13,7 @@
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/guiManager.hpp"
-#include "gui/mouseEvent.hpp"
+#include "gui/core/mouseEvent.hpp"
 #include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"

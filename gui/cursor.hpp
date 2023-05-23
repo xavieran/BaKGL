@@ -7,7 +7,7 @@
 #include "graphics/texture.hpp"
 #include "graphics/sprites.hpp"
 
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <stack>
 

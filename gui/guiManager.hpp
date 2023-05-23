@@ -5,6 +5,7 @@
 #include "bak/IZoneLoader.hpp"
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
+#include "bak/saveManager.hpp"
 
 #include "com/assert.hpp"
 
@@ -27,7 +28,7 @@
 #include "gui/mainMenuScreen.hpp"
 #include "gui/mainView.hpp"
 #include "gui/teleportScreen.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 
@@ -181,6 +182,12 @@ public:
         EnterMainView();
     }
 
+    void SaveGame(const BAK::SaveFile& saveFile) override
+    {
+        mGameState.Save(saveFile);
+        EnterMainView();
+    }
+
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader)
     {
         ASSERT(zoneLoader);
@@ -196,6 +203,11 @@ public:
             AddChildBack(&mFadeScreen);
             mFadeScreen.FadeIn(duration);
         }
+    }
+
+    bool InMainView() const override
+    {
+        return mScreenStack.Top() == &mMainView;
     }
 
     void EnterMainView() override

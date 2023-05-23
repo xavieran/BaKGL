@@ -18,7 +18,7 @@
 #include "gui/dialogDisplay.hpp"
 #include "gui/label.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <regex>
 #include <stack>

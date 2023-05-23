@@ -7,6 +7,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
+#include "bak/saveManager.hpp"
 #include "bak/types.hpp"
 
 namespace Gui {
@@ -15,6 +16,7 @@ class IGuiManager
 {
 public:
     virtual void DoFade(double duration, std::function<void()>&&) = 0;
+    virtual bool InMainView() const = 0;
     virtual void EnterMainView() = 0;
     virtual void EnterMainMenu(bool gameRunning) = 0;
 
@@ -48,6 +50,7 @@ public:
     virtual ScreenStack& GetScreenStack() = 0;
 
     virtual void LoadGame(std::string) = 0;
+    virtual void SaveGame(const BAK::SaveFile&) = 0;
     virtual void DoTeleport(BAK::TeleportIndex) = 0;
 };
 

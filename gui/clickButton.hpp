@@ -2,9 +2,9 @@
 
 #include "gui/button.hpp"
 #include "gui/colors.hpp"
-#include "gui/mouseEvent.hpp"
+#include "gui/core/mouseEvent.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include "com/assert.hpp"
 #include "com/visit.hpp"

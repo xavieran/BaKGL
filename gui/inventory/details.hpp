@@ -10,7 +10,7 @@
 #include "gui/clickButton.hpp"
 #include "gui/textBox.hpp"
 #include "gui/centeredImage.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 

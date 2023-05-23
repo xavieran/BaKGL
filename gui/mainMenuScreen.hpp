@@ -14,7 +14,7 @@
 #include "gui/preferencesScreen.hpp"
 #include "gui/saveScreen.hpp"
 #include "gui/textBox.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
 
@@ -138,6 +138,11 @@ public:
                 mState = State::MainMenu;
                 AudioA::AudioManager::Get().PopTrack();
                 mGuiManager.LoadGame(file);
+            },
+            [this](const auto& saveFile){
+                mState = State::MainMenu;
+                AudioA::AudioManager::Get().PopTrack();
+                mGuiManager.SaveGame(saveFile);
             }
         },
         mState{State::MainMenu},

@@ -16,7 +16,7 @@
 #include "gui/dialogDisplay.hpp"
 #include "gui/hotspot.hpp"
 #include "gui/staticTTM.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 namespace Gui {
 

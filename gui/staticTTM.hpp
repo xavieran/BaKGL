@@ -8,7 +8,7 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/scene.hpp"
-#include "gui/widget.hpp"
+#include "gui/core/widget.hpp"
 
 namespace Gui {
 

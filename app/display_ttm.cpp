@@ -8,6 +8,13 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+
+    if (argc < 3)
+    {
+        std::cerr << "No arguments provided!\nUsage: "
+            << argv[0] << " ADS TTM\n";
+        return -1;
+    }
     
     std::string adsFile{argv[1]};
     std::string ttmFile{argv[2]};

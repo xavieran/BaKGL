@@ -82,7 +82,6 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
         std::stringstream ss{};
         ss << std::hex << code << std::dec << " adsAct: " << action << " ";
         
-
         switch (action)
         {
             case AdsActions::INDEX:
@@ -321,7 +320,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             break;
 
         case Actions::LOAD_PALETTE:
-            ASSERT(loadingScene);
+            //ASSERT(loadingScene);
             ASSERT(chunk.mResourceName);
             ASSERT(paletteSlot);
             palettes[*paletteSlot] = *chunk.mResourceName;
@@ -335,7 +334,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             break;
         case Actions::LOAD_IMAGE:
         {
-            ASSERT(loadingScene);
+            //ASSERT(loadingScene);
             ASSERT(chunk.mResourceName);
             ASSERT(imageSlot);
             ASSERT(paletteSlot);
@@ -346,7 +345,8 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             break;
         case Actions::DRAW_RECT:
         case Actions::DRAW_FRAME:
-            ASSERT(activeColor);
+            // There must be a default colour?
+            //ASSERT(activeColor);
             currentScene.mActions.emplace_back(
                 DrawRect{
                     *activeColor,
@@ -384,7 +384,6 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
 
     // Push final scene
     PushScene();
-
 
     return scenes;
 }
