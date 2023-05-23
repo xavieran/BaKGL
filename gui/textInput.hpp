@@ -2,7 +2,9 @@
 
 #include "graphics/glfw.hpp"
 
+#include "gui/button.hpp"
 #include "gui/core/widget.hpp"
+#include "gui/colors.hpp"
 
 #include "gui/fontManager.hpp"
 #include "gui/textBox.hpp"
@@ -29,11 +31,15 @@ public:
             true
         },
         mFont{font},
-        mTextBox{glm::vec2{}, dim},
+        mButton{glm::vec2{}, dim, Color::buttonBackground, Color::buttonShadow, Color::buttonShadow},
+        mHighlight{RectTag{}, glm::vec2{2}, glm::vec2{3, dim.y - 4}, {}, true},
+        mTextBox{glm::vec2{2}, dim - glm::vec2{2}},
         mText{},
         mMaxChars{maxChars},
         mHaveFocus{false}
     {
+        AddChildBack(&mButton);
+        AddChildBack(&mHighlight);
         AddChildBack(&mTextBox);
     }
 
@@ -70,11 +76,11 @@ public:
         mHaveFocus = focus;
         if (!mHaveFocus)
         {
-            SetColor(glm::vec4{0, 0, 0, 0});
+            mHighlight.SetColor(glm::vec4{0, 0, 0, 0});
         }
         else
         {
-            SetColor(glm::vec4{0, 0, 0, .2});
+            mHighlight.SetColor(glm::vec4{0, 0, 0, .2});
         }
     }
 
@@ -111,7 +117,9 @@ private:
 
     void RefreshText()
     {
-        mTextBox.AddText(mFont, mText);
+        const auto [pos, _] = mTextBox.AddText(mFont, mText);
+        mHighlight.SetPosition(glm::vec2{pos.x - 2, 2});
+        
     }
 
     bool CharacterEntered(char character)
@@ -127,6 +135,8 @@ private:
     }
 
     const Font& mFont;
+    Button mButton;
+    Widget mHighlight;
     TextBox mTextBox;
     std::string mText;
     unsigned mMaxChars;

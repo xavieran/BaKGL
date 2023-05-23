@@ -259,8 +259,8 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.mGameData->ClearTileRecentEncounters(); });
 
-    inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE}); });
-    inputHandler.BindCharacter([&](char character){ root.OnKeyEvent(Gui::Character{character}); });
+    inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ if (root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE})){ ;} });
+    inputHandler.BindCharacter([&](char character){ if(root.OnKeyEvent(Gui::Character{character})){ ;} });
 
     Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);

@@ -7,7 +7,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
-#include "bak/saveFile.hpp"
+#include "bak/saveManager.hpp"
 #include "bak/types.hpp"
 
 namespace Gui {
