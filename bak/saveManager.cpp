@@ -71,7 +71,7 @@ const SaveFile& SaveManager::MakeSave(
         else
         {
             auto directory = SaveDirectory{
-                static_cast<unsigned>(mDirectories.size()),
+                static_cast<unsigned>(mDirectories.size() + 1),
                 saveDirectory,
                 {}};
             std::filesystem::create_directory(mSavePath / directory.GetPath());
@@ -135,12 +135,30 @@ std::vector<SaveFile> SaveManager::MakeSaveFiles(std::filesystem::path saveDir)
 
 std::vector<SaveDirectory> SaveManager::MakeSaveDirectories()
 {
-    const auto dirSuffix = std::regex{".[Gg]([0-9]{2})$"};
+    std::vector<SaveDirectory> saveDirs{};
+
+    const auto gameDirectoryPath = GetBakDirectoryPath() / "GAMES";
+    if (!std::filesystem::exists(gameDirectoryPath))
+    {
+        mLogger.Info() << "Save game directory path: [" <<
+            gameDirectoryPath << "] does not exist, creating it." << std::endl;
+        try
+        {
+            std::filesystem::create_directory(gameDirectoryPath);
+        }
+        catch (const std::filesystem::filesystem_error& error)
+        {
+            mLogger.Error() << "Failed to create save game directory path: ["
+                << gameDirectoryPath << "] " << error.what() << std::endl;
+        }
+        return saveDirs;
+    }
 
     const auto saveDirectories = std::filesystem::directory_iterator{
-        GetBakDirectoryPath() / "GAMES"};
+        gameDirectoryPath};
 
-    std::vector<SaveDirectory> saveDirs{};
+    const auto dirSuffix = std::regex{".[Gg]([0-9]{2})$"};
+
     for (const auto& directory : saveDirectories)
     {
         const auto dirName = directory.path().filename().string();

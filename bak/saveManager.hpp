@@ -27,7 +27,7 @@ public:
     std::string GetPath() const
     {
         std::stringstream ss{};
-        ss << mName << std::setw(2) << std::setfill('0')<< ".G" << mIndex;
+        ss << mName << ".G" << std::setw(2) << std::setfill('0') << mIndex;
         return ss.str();
     }
 
