@@ -144,8 +144,8 @@ public:
         },
         mRefreshDirectories{false},
         mRefreshSaves{false},
-        mSelectedDirectory{0},
-        mSelectedSave{0},
+        mSelectedDirectory{},
+        mSelectedSave{},
         mSaveManager{GetBakDirectoryPath() / "GAMES"},
         mNeedRefresh{false},
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
@@ -174,8 +174,29 @@ public:
         mIsSave = isSave;
         mDirectories.SetDimensions(glm::vec2{100, mIsSave ? 90 : 108});
         mFiles.SetDimensions(glm::vec2{160, mIsSave ? 90 : 108});
-        mDirectorySaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mName);
-        mFileSaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.front().mName);
+
+        if (!mSelectedDirectory || !mSelectedSave)
+        {
+            if (mSaveManager.GetSaves().size() > 0)
+            {
+                mSelectedDirectory = 0;
+                if (mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves.size() > 0)
+                {
+                    mSelectedSave = 0;
+                }
+            }
+        }
+
+        mDirectorySaveInput.SetText(
+            mSelectedDirectory
+                ? mSaveManager.GetSaves().at(*mSelectedDirectory).mName
+                : "");
+
+        mFileSaveInput.SetText(
+            (mSelectedDirectory && mSelectedSave)
+                ? mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves.at(*mSelectedSave).mName
+                : "");
+
         mRefreshSaves = true;
         mRefreshDirectories = true;
         RefreshGui();
@@ -184,23 +205,33 @@ public:
 private:
     void RemoveDirectory()
     {
-        mSaveManager.RemoveDirectory(mSelectedDirectory);
-        if (mSelectedDirectory > 0)
+        if (!mSelectedDirectory)
+            return;
+
+        mSaveManager.RemoveDirectory(*mSelectedDirectory);
+        if (*mSelectedDirectory > 0)
         {
-            mSelectedDirectory--;
+            (*mSelectedDirectory)--;
         }
         RefreshGui();
     }
 
     void RemoveFile()
     {
+        if (!mSelectedSave)
+            return;
+
+        assert(mSelectedDirectory);
+
         // Disable remove file button when no saves in selected dir
-        mSaveManager.RemoveSave(mSelectedDirectory, mSelectedSave);
-        if (mSelectedSave > 0)
+        mSaveManager.RemoveSave(*mSelectedDirectory, *mSelectedSave);
+        if (*mSelectedSave > 0)
         {
-            mSelectedSave--;
+            (*mSelectedSave)--;
+            mFileSaveInput.SetText(mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves.front().mName);
+
         }
-        if (mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.size() == 0)
+        if (mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves.size() == 0)
         {
             RemoveDirectory();
         }
@@ -211,40 +242,55 @@ private:
     {
         const auto saveDir = mDirectorySaveInput.GetText();
         const auto saveName = mFileSaveInput.GetText();
+        if (saveDir.empty() || saveName.empty())
+        {
+            mLogger.Error() << "Cannot save game, no directory or save name\n";
+            return;
+        }
+
         mLogger.Info() << "Saving game to: " << saveDir << " " << saveName << "\n";
         mSaveFn(mSaveManager.MakeSave(saveDir, saveName));
     }
 
     void RestoreGame()
     {
-        const auto savePath = mSaveManager.GetSaves().at(mSelectedDirectory)
-            .mSaves.at(mSelectedSave).mPath;
+        assert(mSelectedDirectory && mSelectedSave);
+        const auto savePath = mSaveManager.GetSaves().at(*mSelectedDirectory)
+            .mSaves.at(*mSelectedSave).mPath;
         std::invoke(mLoadSaveFn, savePath);
     }
 
     void DirectorySelected(std::size_t i)
     {
         mSelectedDirectory = i;
-        mSelectedSave = 0;
-        mNeedRefresh = true;
-        mRefreshSaves = true;
+        const auto& saves = mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves;
+        mSelectedSave = saves.size() > 0
+            ? std::make_optional(0)
+            : std::nullopt;
 
         mDirectorySaveInput.SetFocus(true);
         mFileSaveInput.SetFocus(false);
-        mDirectorySaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mName);
-        mFileSaveInput.SetText(mSaveManager.GetSaves().at(mSelectedDirectory).mSaves.front().mName);
+        mDirectorySaveInput.SetText(saves.at(*mSelectedDirectory).mName);
+        mFileSaveInput.SetText(saves.size() > 0
+                ? saves.front().mName
+                : "");
+
+        mNeedRefresh = true;
+        mRefreshSaves = true;
     }
 
     void SaveSelected(std::size_t i)
     {
-        mSelectedSave = i;
-        mNeedRefresh = true;
+        assert(mSelectedDirectory);
+        const auto& saves = mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves;
 
+        mSelectedSave = i;
         mDirectorySaveInput.SetFocus(false);
         mFileSaveInput.SetFocus(true);
-        const auto saveName = mSaveManager.GetSaves().at(mSelectedDirectory)
-            .mSaves.at(mSelectedSave).mName;
+        const auto saveName = saves.at(*mSelectedSave).mName;
         mFileSaveInput.SetText(saveName);
+
+        mNeedRefresh = true;
     }
 
     void RefreshGui()
@@ -274,17 +320,20 @@ private:
             index++;
         }
 
-        index = 0;
-        for (auto save : mSaveManager.GetSaves().at(mSelectedDirectory).mSaves)
+        if (mSelectedDirectory)
         {
-            mFiles.GetChild().AddWidget(
-                glm::vec2{0, 0},
-                glm::vec2{mFiles.GetDimensions().x - 16, 15},
-                mFont,
-                (index == mSelectedSave ? "#" : "") + save.mName,
-                [this, i=index]{ SaveSelected(i); }
-            );
-            index++;
+            index = 0;
+            for (auto save : mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves)
+            {
+                mFiles.GetChild().AddWidget(
+                    glm::vec2{0, 0},
+                    glm::vec2{mFiles.GetDimensions().x - 16, 15},
+                    mFont,
+                    (index == mSelectedSave ? "#" : "") + save.mName,
+                    [this, i=index]{ SaveSelected(i); }
+                );
+                index++;
+            }
         }
 
         AddChildBack(&mDirectories);
@@ -358,8 +407,8 @@ private:
 
     bool mRefreshDirectories;
     bool mRefreshSaves;
-    std::size_t mSelectedDirectory;
-    std::size_t mSelectedSave;
+    std::optional<std::size_t> mSelectedDirectory;
+    std::optional<std::size_t> mSelectedSave;
     BAK::SaveManager mSaveManager;
 
     bool mNeedRefresh;
