@@ -270,7 +270,8 @@ private:
 
         mDirectorySaveInput.SetFocus(true);
         mFileSaveInput.SetFocus(false);
-        mDirectorySaveInput.SetText(saves.at(*mSelectedDirectory).mName);
+        mDirectorySaveInput.SetText(
+            mSaveManager.GetSaves().at(*mSelectedDirectory).mName);
         mFileSaveInput.SetText(saves.size() > 0
                 ? saves.front().mName
                 : "");

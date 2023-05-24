@@ -155,7 +155,8 @@ public:
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        return UpdateState(false);
+        UpdateState(false);
+        return false;
     }
 
     bool MouseMoved(glm::vec2 pos)
