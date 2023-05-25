@@ -13,6 +13,7 @@
 #include "gui/IGuiManager.hpp"
 
 #include "gui/animatorStore.hpp"
+#include "gui/campScreen.hpp"
 #include "gui/cureScreen.hpp"
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
@@ -102,6 +103,11 @@ public:
             mIcons,
             mFontManager.GetGameFont(),
             mGameState
+        },
+        mCampScreen{
+            *this,
+            mBackgrounds,
+            mIcons
         },
         mCureScreen{
             *this,
@@ -463,7 +469,8 @@ public:
     void ShowFullMap() override
     {
         DoFade(.8, [this]{
-            mScreenStack.PushScreen(&mFullMap);
+            mScreenStack.PushScreen(&mCampScreen);
+            //mScreenStack.PushScreen(&mFullMap);
         });
     }
 
@@ -548,6 +555,7 @@ public:
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
+    CampScreen mCampScreen;
     CureScreen mCureScreen;
     LockScreen mLockScreen;
     FullMap mFullMap;

@@ -4,6 +4,7 @@ add_library(bak
     IContainer.hpp IContainer.cpp
     bard.hpp bard.cpp
     camera.hpp
+    camp.hpp camp.cpp
     condition.hpp condition.cpp
     constants.hpp
     character.hpp character.cpp

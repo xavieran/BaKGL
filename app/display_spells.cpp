@@ -1,4 +1,4 @@
-#include "bak/spells.hpp"
+#include "bak/camp.hpp"
 
 #include "com/logger.hpp"
 
@@ -8,8 +8,9 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     Logging::LogState::Disable("DialogStore");
     
-    BAK::SpellInfo();
+    //BAK::SpellInfo();
 
+    BAK::CampData{};
     return 0;
 }
 
