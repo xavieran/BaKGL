@@ -13,6 +13,8 @@
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
+#include "gui/core/clickable.hpp"
+#include "gui/highlightable.hpp"
 #include "gui/compass.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/icons.hpp"
@@ -40,7 +42,8 @@ public:
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
         const Icons& icons,
-        const Font& font)
+        const Font& font,
+        BAK::GameState& gameState)
     :
         Widget{
             Graphics::DrawMode::Sprite,
@@ -54,6 +57,7 @@ public:
         },
         mGuiManager{guiManager},
         mFont{font},
+        mGameState{gameState},
         mIcons{icons},
         mLayout{sLayoutFile},
         mButtons{},
@@ -70,42 +74,20 @@ public:
                 [this, i]{ HandleButton(i); });
         }
 
-        auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer("ENCAMP.DAT");
-        mDots.reserve(27*2);
-        for (unsigned i = 0; i < 27; i++)
+        mDots.reserve(24);
+        for (unsigned i = 0; i < 24; i++)
         {
-            auto x = fb.GetUint16LE();
-            auto y = fb.GetUint16LE();
-            continue;
             mDots.emplace_back(
-                glm::vec2{x, y},
-                glm::vec2{8, 3},
-                std::get<Graphics::SpriteSheetIndex>(icons.GetEncampIcon(3)),
-                std::get<Graphics::TextureIndex>(icons.GetEncampIcon(3)),
-                std::get<Graphics::TextureIndex>(icons.GetEncampIcon(3)),
                 []{},
-                []{});
-
-            mLogger.Debug() << x << " " << y << "\n";
-        }
-        for (unsigned i = 0; i < 27; i++)
-        {
-            auto x = fb.GetUint16LE();
-            auto y = fb.GetUint16LE();
-            mDots.emplace_back(
-                glm::vec2{x, y},
+                ImageTag{},
+                std::get<Graphics::SpriteSheetIndex>(icons.GetEncampIcon(2)),
+                std::get<Graphics::TextureIndex>(icons.GetEncampIcon(3)),
+                mCampData.GetClockTicks().at(i),
                 glm::vec2{8, 3},
-                std::get<Graphics::SpriteSheetIndex>(icons.GetEncampIcon(3)),
-                std::get<Graphics::TextureIndex>(icons.GetEncampIcon(3)),
-                std::get<Graphics::TextureIndex>(icons.GetEncampIcon(3)),
-                []{},
-                []{});
-
-            mLogger.Debug() << x << " " << y << "\n";
+                true);
         }
 
         AddChildren();
-
     }
 
     void SetIsInn(bool isInn)
@@ -157,13 +139,22 @@ private:
 
     IGuiManager& mGuiManager;
     const Font& mFont;
+    BAK::GameState& mGameState;
     const Icons& mIcons;
 
     BAK::Layout mLayout;
 
     BAK::CampData mCampData;
     std::vector<ClickButton> mButtons;
-    std::vector<ClickButtonImage> mDots;
+    class ClockTickBase : public Widget
+    {
+    public:
+        using Widget::Widget;
+        void Entered(){}
+        void Exited(){}
+    };
+    using ClockTick = Highlightable<Clickable<ClockTickBase, LeftMousePress, std::function<void()>>, true>;
+    std::vector<ClockTick> mDots;
 
     const Logging::Logger& mLogger;
 };

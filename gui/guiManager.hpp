@@ -108,7 +108,8 @@ public:
             *this,
             mBackgrounds,
             mIcons,
-            mFontManager.GetGameFont()
+            mFontManager.GetGameFont(),
+            mGameState
         },
         mCureScreen{
             *this,
