@@ -107,7 +107,8 @@ public:
         mCampScreen{
             *this,
             mBackgrounds,
-            mIcons
+            mIcons,
+            mFontManager.GetGameFont()
         },
         mCureScreen{
             *this,
@@ -466,11 +467,18 @@ public:
         }
     }
 
+    void ShowCamp(bool isInn) override
+    {
+        DoFade(.8, [this, isInn]{
+            mCampScreen.SetIsInn(isInn);
+            mScreenStack.PushScreen(&mCampScreen);
+        });
+    }
+
     void ShowFullMap() override
     {
         DoFade(.8, [this]{
-            mScreenStack.PushScreen(&mCampScreen);
-            //mScreenStack.PushScreen(&mFullMap);
+            mScreenStack.PushScreen(&mFullMap);
         });
     }
 

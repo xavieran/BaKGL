@@ -1,5 +1,6 @@
 #include "bak/camp.hpp"
 
+#include "graphics/glm.hpp"
 #include "com/logger.hpp"
 
 namespace BAK {
@@ -20,6 +21,7 @@ CampData::CampData()
     }
     mClockTwelve = {fb.GetSint16LE(), fb.GetSint16LE()};
     mClockCenter = {fb.GetSint16LE(), fb.GetSint16LE()};
+    logger.Debug() << "twlv: " << mClockTwelve << " cntr: " << mClockCenter << "\n";
     for (unsigned i = 0; i < 25; i++)
     {
         auto x = fb.GetSint16LE();

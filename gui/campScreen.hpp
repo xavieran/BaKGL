@@ -39,7 +39,8 @@ public:
     CampScreen(
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
-        const Icons& icons)
+        const Icons& icons,
+        const Font& font)
     :
         Widget{
             Graphics::DrawMode::Sprite,
@@ -52,6 +53,7 @@ public:
             true
         },
         mGuiManager{guiManager},
+        mFont{font},
         mIcons{icons},
         mLayout{sLayoutFile},
         mButtons{},
@@ -63,11 +65,9 @@ public:
             mButtons.emplace_back(
                 mLayout.GetWidgetLocation(i),
                 mLayout.GetWidgetDimensions(i),
-                std::get<Graphics::SpriteSheetIndex>(icons.GetButton(0)),
-                std::get<Graphics::TextureIndex>(icons.GetButton(0)),
-                std::get<Graphics::TextureIndex>(icons.GetPressedButton(0)),
-                []{},
-                []{});
+                mFont,
+                GetButtonText(i),
+                [this, i]{ HandleButton(i); });
         }
 
         auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer("ENCAMP.DAT");
@@ -76,6 +76,7 @@ public:
         {
             auto x = fb.GetUint16LE();
             auto y = fb.GetUint16LE();
+            continue;
             mDots.emplace_back(
                 glm::vec2{x, y},
                 glm::vec2{8, 3},
@@ -89,7 +90,6 @@ public:
         }
         for (unsigned i = 0; i < 27; i++)
         {
-            continue;
             auto x = fb.GetUint16LE();
             auto y = fb.GetUint16LE();
             mDots.emplace_back(
@@ -108,6 +108,44 @@ public:
 
     }
 
+    void SetIsInn(bool isInn)
+    {
+    }
+
+private:
+
+    void HandleButton(unsigned button)
+    {
+        if (button == sCampUntilHealed)
+        {
+        }
+        else if (button == sStop)
+        {
+        }
+        else if (button == sExit)
+        {
+            mGuiManager.DoFade(.8, [this]{mGuiManager.ExitSimpleScreen(); });
+        }
+    }
+
+    std::string GetButtonText(unsigned button)
+    {
+        if (button == sCampUntilHealed)
+        {
+            return "Camp until Healed";
+        }
+        else if (button == sStop)
+        {
+            return "Stop";
+        }
+        else if (button == sExit)
+        {
+            return "Exit";
+        }
+        assert(false);
+        return "";
+    }
+
     void AddChildren()
     {
         for (auto& button : mButtons)
@@ -117,14 +155,14 @@ public:
             AddChildBack(&dot);
     }
 
-private:
     IGuiManager& mGuiManager;
+    const Font& mFont;
     const Icons& mIcons;
 
     BAK::Layout mLayout;
 
     BAK::CampData mCampData;
-    std::vector<ClickButtonImage> mButtons;
+    std::vector<ClickButton> mButtons;
     std::vector<ClickButtonImage> mDots;
 
     const Logging::Logger& mLogger;
