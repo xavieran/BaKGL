@@ -12,7 +12,8 @@ namespace {
 static const std::vector<std::filesystem::path> sSearchPaths{
     ".shaders",
     "shaders",
-    std::filesystem::path{"bak"} / "shaders"
+    std::filesystem::path{"bak"} / "shaders",
+    "C:/Users/xavieran/source/repos/xavieran/BaKGL/shaders"
 };
 
 auto MakeSearchPath(std::filesystem::path aPath)

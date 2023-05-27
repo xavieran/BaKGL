@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 
     auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
     Logging::LogState::AddStream(&log);
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::SetLevel(Logging::LogLevel::Info);
 
     Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 		saveName = "NEW_GAME.GAM";
 	}
 
-    auto guiScalar = 4.0f;
+    auto guiScalar = 6.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;
@@ -200,9 +200,9 @@ int main(int argc, char** argv)
     logger.Info() << " Starting on tile: " << currentTile << "\n";
 
     Graphics::Light light{
-        glm::vec3{.2, -1, 0},
+        glm::vec3{.2, -.1, .05},
         glm::vec3{.5, .5, .5},
-        glm::vec3{1,1,1},
+        glm::vec3{1,.85,.87},
         glm::vec3{.2,.2,.2}
     };
 
@@ -322,7 +322,7 @@ int main(int argc, char** argv)
 
     glfwSetCursorPos(window.get(), width/2, height/2);
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    //glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_MULTISAMPLE);  
 

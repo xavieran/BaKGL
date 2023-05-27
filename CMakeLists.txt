@@ -252,6 +252,10 @@ set(
   CMAKE_RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR})
 
+# --- Install Path
+set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/installed")
+include(InstallRequiredSystemLibraries)
+
 # --- My project directories --- #
 include_directories(".")
 
