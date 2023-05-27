@@ -99,7 +99,7 @@ const SaveFile& SaveManager::MakeSave(
             SaveFile{
                 static_cast<unsigned>(directory.mSaves.size()),
                 saveName,
-                (mSavePath / directory.GetPath()) / ss.str()});
+                ((mSavePath / directory.GetPath()) / ss.str()).string()});
     }
 }
 
