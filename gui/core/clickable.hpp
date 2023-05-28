@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <type_traits>
 #include <utility>
 #include <variant>
 
@@ -46,7 +47,14 @@ public:
     {
         if (Base::Within(event.mValue))
         {
-            mCallback();
+            if constexpr (std::is_same_v<decltype(mCallback()), bool>)
+            {
+                return mCallback();
+            }
+            else
+            {
+                mCallback();
+            }
             return true;
         }
 

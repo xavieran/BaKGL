@@ -9,6 +9,8 @@
 #include "com/assert.hpp"
 #include "com/visit.hpp"
 
+#include <variant>
+
 namespace Gui {
 
 class ClickButtonBase : public Widget
@@ -135,7 +137,7 @@ public:
 
         const bool handled = ClickButtonBase::OnMouseEvent(event);
 
-        if (dirty)
+        if (dirty || std::holds_alternative<LeftMouseRelease>(event))
         {
             AddChildren();
         }
@@ -198,8 +200,6 @@ private:
     Button mPressed;
     bool mButtonPressed;
     TextBox mText;
-    
-    //std::vector<Graphics::IGuiElement*> mButton;
 };
 
 class ClickButtonImage : public ClickButtonBase

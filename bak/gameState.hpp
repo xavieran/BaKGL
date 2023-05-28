@@ -202,6 +202,18 @@ public:
         }
     }
 
+    WorldClock GetWorldTime() const
+    {
+        if (mGameData)
+        {
+            return mGameData->mTime;
+        }
+        else
+        {
+            return WorldClock{{0}, {0}};
+        }
+    }
+
     void SetShopType(unsigned shopType)
     {
         mShopType = shopType;

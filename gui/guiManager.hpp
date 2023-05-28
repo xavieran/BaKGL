@@ -260,7 +260,7 @@ public:
         mAnimatorStore.OnTimeDelta(delta);
     }
 
-    void AddAnimator(LinearAnimator&& animator) override
+    void AddAnimator(std::unique_ptr<IAnimator>&& animator) override
     {
         mAnimatorStore.AddAnimator(std::move(animator));
     }

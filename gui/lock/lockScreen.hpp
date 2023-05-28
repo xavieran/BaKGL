@@ -11,6 +11,8 @@
 #include "bak/objectInfo.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "gui/animator.hpp"
+
 #include "gui/lock/lock.hpp"
 
 #include "gui/inventory/containerDisplay.hpp"
@@ -306,7 +308,7 @@ private:
                 GetCharacter(*mSelectedCharacter)
                     .ImproveSkill(BAK::SkillType::Lockpick, BAK::SkillChange::ExercisedSkill, 2);
                 mGuiManager.AddAnimator(
-                    LinearAnimator{
+                    std::make_unique<LinearAnimator>(
                         .25,
                         glm::vec4{13, 17, 0, 0},
                         glm::vec4{13, 2, 0, 0},
@@ -315,7 +317,7 @@ private:
                             return false;
                         },
                         [&](){ Unlocked(BAK::DialogSources::mLockPicked); }
-                    });
+                    ));
 
                 mUnlocked = true;
             }
@@ -353,7 +355,7 @@ private:
                 mGameState.MarkLockSeen(*BAK::GetLockIndex(lockRating));
                 //mLock.SetUnlocked();
                 mGuiManager.AddAnimator(
-                    LinearAnimator{
+                    std::make_unique<LinearAnimator>(
                         .2,
                         glm::vec4{13, 17, 0, 0},
                         glm::vec4{13, 2, 0, 0},
@@ -362,7 +364,7 @@ private:
                             return false;
                         },
                         [&](){ Unlocked(BAK::DialogSources::mKeyOpenedLock); }
-                    });
+                    ));
                 mUnlocked = true;
             }
             else

@@ -4,7 +4,7 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
-#include "gui/animator.hpp"
+#include "gui/IAnimator.hpp"
 
 #include <glm/glm.hpp>
 
@@ -22,30 +22,29 @@ public:
         mAnimators.reserve(20);
     }
 
-    template <typename ...Args>
-    void AddAnimator(Args&&... args)
+    void AddAnimator(std::unique_ptr<IAnimator>&& animator)
     {
-        mAnimators.emplace_back(std::forward<Args>(args)...);
-        mLogger.Spam() << "Added animator @" << &mAnimators.back() << "\n";
+        mAnimators.emplace_back(std::move(animator));
+        mLogger.Spam() << "Added animator @" << mAnimators.back() << "\n";
     }
 
     void OnTimeDelta(double delta)
     {
         mLogger.Spam() << "Ticking : " << delta << "\n";
         for (auto& animator : mAnimators)
-            animator.OnTimeDelta(delta);
+            animator->OnTimeDelta(delta);
 
         mAnimators.erase(
             std::remove_if(
                 mAnimators.begin(), mAnimators.end(),
                 [&](const auto& a){
-                    return !a.IsAlive();
+                    return !a->IsAlive();
                 }),
             mAnimators.end());
     }
 
 private:
-    std::vector<LinearAnimator> mAnimators;
+    std::vector<std::unique_ptr<IAnimator>> mAnimators;
     const Logging::Logger& mLogger;
 };
 

@@ -4,6 +4,7 @@
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
+#include "gui/animator.hpp"
 #include "gui/colors.hpp"
 #include "gui/core/widget.hpp"
 
@@ -51,7 +52,7 @@ public:
 
         SetColor(glm::vec4{0,0,0,0});
         mGuiManager.AddAnimator(
-            LinearAnimator{
+            std::make_unique<LinearAnimator>(
                 mDuration / 2,
                 glm::vec4{0, 0, 0, 0},
                 glm::vec4{0, 0, 0, 1},
@@ -63,7 +64,7 @@ public:
                     mFading = false;
                     mFadeInDone(); 
                 }
-            });
+            ));
     }
 
     void FadeOut()
@@ -72,7 +73,7 @@ public:
         mFading = true;
         SetColor(glm::vec4{0,0,0,1});
         mGuiManager.AddAnimator(
-            LinearAnimator{
+            std::make_unique<LinearAnimator>(
                 mDuration / 2,
                 glm::vec4{0, 0, 0, 1},
                 glm::vec4{0, 0, 0, 0},
@@ -84,7 +85,7 @@ public:
                     mFading = false;
                     mFadeOutDone();
                 }
-            });
+            ));
     }
 
 private:

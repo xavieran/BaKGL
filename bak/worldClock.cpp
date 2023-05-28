@@ -12,7 +12,6 @@ std::string ToString(Time t)
     return ss.str();
 }   
 
-
 std::ostream& operator<<(std::ostream& os, const Time& t)
 {
     os << "Time {" << ToString(t) << "}";

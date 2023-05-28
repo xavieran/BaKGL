@@ -3,7 +3,7 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/screenStack.hpp"
 
-#include "gui/animator.hpp"
+#include "gui/IAnimator.hpp"
 
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
@@ -47,7 +47,7 @@ public:
     virtual bool IsLockOpened() const = 0;
     virtual bool IsWordLockOpened() const = 0;
 
-    virtual void AddAnimator(LinearAnimator&&) = 0;
+    virtual void AddAnimator(std::unique_ptr<IAnimator>&&) = 0;
     virtual ScreenStack& GetScreenStack() = 0;
 
     virtual void LoadGame(std::string) = 0;
