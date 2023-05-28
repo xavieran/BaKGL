@@ -11,20 +11,26 @@ std::string_view ToString(HotspotAction ha)
 {
     switch (ha)
     {
-        case HotspotAction::DIALOG:    return "Dialog";
-        case HotspotAction::EXIT:      return "Exit";
-        case HotspotAction::GOTO:      return "Goto";
-        case HotspotAction::BARMAID:   return "Barmaid";
-        case HotspotAction::SHOP:      return "Shop";
-        case HotspotAction::INN:       return "Inn";
-        case HotspotAction::CONTAINER: return "Container";
-        case HotspotAction::LUTE:      return "Lute";
-        case HotspotAction::TELEPORT:  return "Teleport";
-        case HotspotAction::TEMPLE:    return "Temple";
-        case HotspotAction::NOT_SURE:  return "Not Sure";
-        case HotspotAction::REPAIR:    return "Repair";
+        case HotspotAction::UNKNOWN_0:   return "UNKNOWN_0";
+        case HotspotAction::UNKNOWN_1:   return "UNKNOWN_1";
+        case HotspotAction::DIALOG:      return "Dialog";
+        case HotspotAction::EXIT:        return "Exit";
+        case HotspotAction::GOTO:        return "Goto";
+        case HotspotAction::BARMAID:     return "Barmaid";
+        case HotspotAction::SHOP:        return "Shop";
+        case HotspotAction::INN:         return "Inn";
+        case HotspotAction::CONTAINER:   return "Container";
+        case HotspotAction::LUTE:        return "Lute";
+        case HotspotAction::UNKNOWN_A:   return "UNKNOWN_A";
+        case HotspotAction::TELEPORT:    return "Teleport";
+        case HotspotAction::UNKNOWN_C:   return "UNKNOWN_C";
+        case HotspotAction::TEMPLE:      return "Temple";
+        case HotspotAction::UNKNOWN_E:   return "UNKNOWN_E";
+        case HotspotAction::CHAPTER_END: return "CHAPTER_END";
+        case HotspotAction::REPAIR:      return "Repair";
+        case HotspotAction::UNKNOWN_X:   return "UNKNOWN_X";
 
-        default: throw std::runtime_error("Unknown HotspotAction");
+        default: std::cerr << "Unknown!! " << +static_cast<unsigned>(ha) << std::endl; throw std::runtime_error("Unknown HotspotAction");
     }
 }
 
@@ -42,8 +48,8 @@ std::ostream& operator<<(std::ostream& os, const Hotspot& hs)
         << " arg3: " << hs.mActionArg3
         << " tip: " << hs.mTooltip
         << " dialog: " << hs.mDialog 
-        << " unknown: " << hs.mUnknown0 << " | " << hs.mUnknown1
-        << " | " << hs.mUnknown2 << std::dec
+        << " chapterMask: " << hs.mChapterMask << " | " << hs.mUnknown1
+        << " | " << hs.mCheckEventState << std::dec
         << " }";
     return os;
 }
@@ -97,8 +103,8 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
         auto w = fb.GetUint16LE();
         auto h = fb.GetUint16LE();
         logger.Spam() << "Hotspot #" << std::dec << i << std::endl;
-        const auto unknown0 = fb.GetUint16LE();
-        logger.Spam() << "Unknown0: " << std::hex << unknown0 << std::dec << std::endl;
+        const auto chapterMask = fb.GetUint16LE();
+        logger.Spam() << "ChapterMask: " << std::hex << chapterMask << std::dec << std::endl;
         const auto keyword = fb.GetUint16LE();
         const auto action = static_cast<HotspotAction>(fb.GetUint16LE());
         logger.Spam() << "Action: " << action << std::endl;
@@ -112,8 +118,8 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
         logger.Spam() << "Unknown1: " << std::hex << unknown1 << std::dec << std::endl;
         std::uint32_t dialog = fb.GetUint32LE(); 
         logger.Spam() << "LeftClick: " << std::hex << dialog << std::endl;
-        const auto unknown2 = fb.GetUint16LE();
-        logger.Spam() << "Unknown2: " << std::hex << unknown2 << std::dec << std::endl;
+        const auto checkEventState = fb.GetUint16LE();
+        logger.Spam() << "CheckEventState: " << std::hex << checkEventState << std::dec << std::endl;
 
         hotspots.emplace_back(
             i,
@@ -126,9 +132,9 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
             actionArg3,
             KeyTarget{tooltip},
             KeyTarget{dialog},
-            unknown0,
+            chapterMask,
             unknown1,
-            unknown2);
+            checkEventState);
     }
 
     mHotspots = hotspots;
