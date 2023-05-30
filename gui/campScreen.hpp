@@ -1,18 +1,19 @@
 #pragma once
 
 #include "bak/camp.hpp"
+#include "bak/itemNumbers.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/layout.hpp"
 
 #include "graphics/texture.hpp"
 
 #include "gui/core/clickable.hpp"
+#include "gui/core/highlightable.hpp"
 
 #include "gui/IAnimator.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/clickButton.hpp"
-#include "gui/highlightable.hpp"
 #include "gui/icons.hpp"
 
 #include <glm/glm.hpp>
@@ -27,6 +28,7 @@ namespace detail {
 
 class TimeElapser : public IAnimator
 {
+    static constexpr auto sTickSpeed = .1;
 public:
     TimeElapser(
         unsigned hourBegin,
@@ -48,7 +50,7 @@ public:
         Logging::LogDebug(__FUNCTION__) << " " << delta << " " << mAccumulatedTimeDelta
             << " " << mHour << " " << mAlive << "\n";
 
-        if (mAccumulatedTimeDelta > .1 && mAlive)
+        if (mAccumulatedTimeDelta > sTickSpeed && mAlive)
         {
             mAccumulatedTimeDelta = 0;
             mHour += 1;
@@ -173,12 +175,21 @@ public:
         mGameState{gameState},
         mIcons{icons},
         mLayout{sLayoutFile},
-        mText{
-            {180, 16},
-            {200, 100}
+        mNamesColumn{
+            {130, 20},
+            {60, 200}
+        },
+        mHealthColumn{
+            {180, 20},
+            {70, 200}
+        },
+        mRationsColumn{
+            {250, 20},
+            {60, 200}
         },
         mButtons{},
         mDots{},
+        mIsInInn{false},
         mState{State::Idle},
         mLatestTick{},
         mTimeElapser{nullptr},
@@ -206,7 +217,6 @@ public:
             dot.SetCurrent(false);
         }
 
-        mText.AddText(mFont, "Health/Stamina    Rations");
         AddChildren();
     }
 
@@ -236,10 +246,43 @@ public:
         {
             mDots.at(i).SetCurrent(i == hour);
         }
+        mIsInInn = isInn;
+        AddText();
         AddChildren();
     }
 
 private:
+    void AddText()
+    {
+        std::stringstream namesSS{};
+        namesSS << "\n";
+        std::stringstream healthSS{};
+        healthSS << "Health/Stamina\n";
+        std::stringstream rationsSS{};
+        rationsSS << "Rations\n";
+        mGameState.GetParty().ForEachActiveCharacter(
+            [&](auto& character){
+                namesSS << character.GetName() << "\n";
+                const auto health = character.GetSkill(BAK::SkillType::TotalHealth);
+                const auto maxHealth = character.GetMaxSkill(BAK::SkillType::TotalHealth);
+                const auto multiplier = mIsInInn ? 1.0 : .70;
+                const auto highlight = health < (maxHealth * multiplier) ? '\xf5' : ' ';
+                healthSS << highlight << " " << health << " " << highlight 
+                    << " of " << maxHealth << "\n";
+                const auto rations = character.GetTotalItem(
+                    std::vector<BAK::ItemIndex>{BAK::sPoisonedRations, BAK::sRations, BAK::sSpoiledRations});
+                const auto rhighlight = rations == 0 ? '\xf5' : ' ';
+                rationsSS << rhighlight << " " << rations << " " << rhighlight << "\n";
+                return false;
+            });
+        mLogger.Debug() << namesSS.str() << "fin\n";
+        mLogger.Debug() << healthSS.str() << "fin\n";
+        mLogger.Debug() << rationsSS.str() << "fin\n";
+        mNamesColumn.AddText(mFont, namesSS.str(), true, false, false, 1.5);
+        mHealthColumn.AddText(mFont, healthSS.str(), true, false, false, 1.5);
+        mRationsColumn.AddText(mFont, rationsSS.str(), true, false, false, 1.5);
+    }
+
     void HandleDot(unsigned i)
     {
         mLogger.Debug() << "Hour: " << i << "\n";
@@ -304,7 +347,7 @@ private:
         }
     }
 
-    std::string GetButtonText(unsigned button)
+    std::string GetButtonText(unsigned button) const
     {
         if (button == sCampUntilHealed)
         {
@@ -339,7 +382,9 @@ private:
         for (auto& dot : mDots)
             AddChildBack(&dot);
 
-        AddChildBack(&mText);
+        AddChildBack(&mNamesColumn);
+        AddChildBack(&mHealthColumn);
+        AddChildBack(&mRationsColumn);
     }
 
     IGuiManager& mGuiManager;
@@ -350,11 +395,14 @@ private:
     BAK::Layout mLayout;
     BAK::CampData mCampData;
 
-    TextBox mText;
+    TextBox mNamesColumn;
+    TextBox mHealthColumn;
+    TextBox mRationsColumn;
     std::vector<ClickButton> mButtons;
     using ClockTick = Highlightable<Clickable<detail::CampDest, LeftMousePress, std::function<void()>>, true>;
     std::vector<ClockTick> mDots;
 
+    bool mIsInInn;
     State mState;
     unsigned mLatestTick;
     detail::TimeElapser* mTimeElapser;

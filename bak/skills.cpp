@@ -65,12 +65,12 @@ unsigned CalculateEffectiveSkillValue(
             SkillType::Health,
             skills,
             conditions,
-            SkillRead::Current);
+            skillRead);
         const auto stamina = CalculateEffectiveSkillValue(
             SkillType::Stamina,
             skills,
             conditions,
-            SkillRead::Current);
+            skillRead);
         return health + stamina;
     }
 

@@ -51,7 +51,8 @@ public:
         std::string_view text,
         bool centerHorizontal=false,
         bool centerVertical=false,
-        bool isBold=false)
+        bool isBold=false,
+        double newLineMultiplier=1.0)
     {
         const auto& logger = Logging::LogState::GetLogger("Gui::TextBox");
 
@@ -81,13 +82,13 @@ public:
             ASSERT(lines.size() > 0);
             lines.back().mDimensions = glm::vec2{
                 charPos.x + font.GetSpace(),
-                charPos.y + font.GetHeight() + 1
+                charPos.y + font.GetHeight() * newLineMultiplier + 1
             };
             logger.Spam() << "NextLine: pos: " << charPos << " prevDims: " << lines.back().mDimensions << "\n";
             lines.emplace_back(Line{{}, glm::vec2{0}});
 
             charPos.x = initialPosition.x;
-            charPos.y += font.GetHeight() + 1;
+            charPos.y += font.GetHeight() * newLineMultiplier + 1;
 
             italic = false;
             unbold = false;

@@ -3,11 +3,12 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
-#include "gui/highlightable.hpp"
+#include "gui/core/highlightable.hpp"
+#include "gui/core/widget.hpp"
+
 #include "gui/colors.hpp"
 #include "gui/cursor.hpp"
 #include "gui/textBox.hpp"
-#include "gui/core/widget.hpp"
 
 namespace Gui {
 
