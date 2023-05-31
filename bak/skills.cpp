@@ -244,6 +244,7 @@ signed DoAdjustHealth(
     signed healthChangePercent,
     signed multiplier)
 {
+    Logging::LogDebug(__FUNCTION__) << "(" << healthChangePercent << " " << multiplier << ")";
     auto& healthSkill = skills.GetSkill(SkillType::Health);
     auto& staminaSkill = skills.GetSkill(SkillType::Stamina);
 
@@ -285,9 +286,11 @@ signed DoAdjustHealth(
     else
     {
         // ovr131:03ce
+        Logging::LogDebug(__FUNCTION__) << __LINE__ << " Current: " << currentHealthAndStamina << "\n";
         if (currentHealthAndStamina < healthChange)
         {
             currentHealthAndStamina += (multiplier / 0x100);
+            Logging::LogDebug(__FUNCTION__) << __LINE__ << " New : " << currentHealthAndStamina << "\n";
             if (currentHealthAndStamina > healthChange)
             {
                 currentHealthAndStamina = healthChange;

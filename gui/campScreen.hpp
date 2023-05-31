@@ -265,8 +265,7 @@ private:
                 namesSS << character.GetName() << "\n";
                 const auto health = character.GetSkill(BAK::SkillType::TotalHealth);
                 const auto maxHealth = character.GetMaxSkill(BAK::SkillType::TotalHealth);
-                const auto multiplier = mIsInInn ? 1.0 : .70;
-                const auto highlight = health < (maxHealth * multiplier) ? '\xf5' : ' ';
+                const auto highlight = character.CanHeal(mIsInInn) ? '\xf5' : ' ';
                 healthSS << highlight << " " << health << " " << highlight 
                     << " of " << maxHealth << "\n";
                 const auto rations = character.GetTotalItem(
@@ -275,12 +274,20 @@ private:
                 rationsSS << rhighlight << " " << rations << " " << rhighlight << "\n";
                 return false;
             });
-        mLogger.Debug() << namesSS.str() << "fin\n";
-        mLogger.Debug() << healthSS.str() << "fin\n";
-        mLogger.Debug() << rationsSS.str() << "fin\n";
         mNamesColumn.AddText(mFont, namesSS.str(), true, false, false, 1.5);
         mHealthColumn.AddText(mFont, healthSS.str(), true, false, false, 1.5);
         mRationsColumn.AddText(mFont, rationsSS.str(), true, false, false, 1.5);
+    }
+
+    bool AnyCharacterCanHeal()
+    {
+        bool canHeal = false;
+        mGameState.GetParty().ForEachActiveCharacter(
+            [&](auto& character){
+                canHeal |= character.CanHeal(mIsInInn);
+                return false;
+            });
+        return canHeal;
     }
 
     void HandleDot(unsigned i)
@@ -302,12 +309,14 @@ private:
             i,
             [this](unsigned index, bool isLast){
                 mLogger.Debug() << "HourTicked: " << index << "\n";
+                mGameState.ElapseTime(BAK::Time{720});
                 if (isLast)
                 {
                     FinishedTicking(index);
                 }
                 mDots.at(index).SetCurrent(true);
                 mLatestTick = index;
+                AddText();
             });
         mTimeElapser = timeElapser.get();
         mGuiManager.AddAnimator(std::move(timeElapser));
@@ -375,7 +384,11 @@ private:
         }
         else
         {
-            AddChildBack(&mButtons[sCampUntilHealed]);
+            if (AnyCharacterCanHeal())
+            {
+                AddChildBack(&mButtons[sCampUntilHealed]);
+            }
+
             AddChildBack(&mButtons[sExit]);
         }
 

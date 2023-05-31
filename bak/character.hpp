@@ -313,6 +313,14 @@ public:
         return mName;
     }
 
+    bool CanHeal(bool isInn)
+    {
+        const auto multiplier = isInn ? 1.0 : .80;
+        const auto health = GetSkill(BAK::SkillType::TotalHealth);
+        const auto maxHealth = GetMaxSkill(BAK::SkillType::TotalHealth);
+        return health < (maxHealth * multiplier);
+    }
+
     const Skills& GetSkills() const
     {
         return mSkills;

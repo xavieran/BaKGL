@@ -499,6 +499,21 @@ public:
         return false;
     }
 
+    void ElapseTime(Time time)
+    {
+        GetParty().ForEachActiveCharacter([&](auto& character){
+            // Heal when camping...
+            if (character.CanHeal(false))
+            {
+                character.ImproveSkill(
+                    SkillType::TotalHealth,
+                    static_cast<SkillChange>(100),
+                    1 << 8);
+            }
+            return false;
+        });
+    }
+
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const
     {
         // RunDialog addr: 23d1
