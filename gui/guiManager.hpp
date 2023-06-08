@@ -13,6 +13,7 @@
 #include "gui/IGuiManager.hpp"
 
 #include "gui/animatorStore.hpp"
+#include "gui/campScreen.hpp"
 #include "gui/cureScreen.hpp"
 #include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
@@ -97,6 +98,13 @@ public:
             mGameState
         },
         mInventoryScreen{
+            *this,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetGameFont(),
+            mGameState
+        },
+        mCampScreen{
             *this,
             mBackgrounds,
             mIcons,
@@ -252,7 +260,7 @@ public:
         mAnimatorStore.OnTimeDelta(delta);
     }
 
-    void AddAnimator(LinearAnimator&& animator) override
+    void AddAnimator(std::unique_ptr<IAnimator>&& animator) override
     {
         mAnimatorStore.AddAnimator(std::move(animator));
     }
@@ -460,6 +468,14 @@ public:
         }
     }
 
+    void ShowCamp(bool isInn) override
+    {
+        DoFade(.8, [this, isInn]{
+            mCampScreen.SetIsInn(isInn);
+            mScreenStack.PushScreen(&mCampScreen);
+        });
+    }
+
     void ShowFullMap() override
     {
         DoFade(.8, [this]{
@@ -548,6 +564,7 @@ public:
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
+    CampScreen mCampScreen;
     CureScreen mCureScreen;
     LockScreen mLockScreen;
     FullMap mFullMap;

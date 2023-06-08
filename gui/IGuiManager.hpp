@@ -3,7 +3,7 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/screenStack.hpp"
 
-#include "gui/animator.hpp"
+#include "gui/IAnimator.hpp"
 
 #include "bak/dialog.hpp"
 #include "bak/hotspot.hpp"
@@ -36,6 +36,7 @@ public:
     virtual void ExitInventory() = 0;
 
     virtual void ShowLock(BAK::IContainer*, std::function<void()>&& finished) = 0;
+    virtual void ShowCamp(bool isInn) = 0;
     virtual void ShowFullMap() = 0;
     virtual void ShowTeleport(unsigned sourceTemple) = 0;
     virtual void ShowCureScreen(
@@ -46,7 +47,7 @@ public:
     virtual bool IsLockOpened() const = 0;
     virtual bool IsWordLockOpened() const = 0;
 
-    virtual void AddAnimator(LinearAnimator&&) = 0;
+    virtual void AddAnimator(std::unique_ptr<IAnimator>&&) = 0;
     virtual ScreenStack& GetScreenStack() = 0;
 
     virtual void LoadGame(std::string) = 0;

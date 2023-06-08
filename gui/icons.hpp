@@ -87,6 +87,10 @@ public:
             BAK::TextureFactory::AddToTextureStore(
                 textures, "TELEPORT.BMX", "TELEPORT.PAL");
 
+            mEncampIconOffset = textures.size();
+            BAK::TextureFactory::AddToTextureStore(
+                textures, "ENCAMP.BMX", "OPTIONS.PAL");
+
             for (const auto& t : textures.GetTextures())
             {
                 const auto [w, h] = t.GetDims();
@@ -206,6 +210,16 @@ public:
             mInventoryIconsDims[index]);
     }
 
+    IconInfo GetEncampIcon(unsigned i) const
+    {
+        const auto index = i + mEncampIconOffset;
+        ASSERT(index < mInventoryIconsDims.size());
+        return std::make_tuple(
+            mInventoryIconsSpriteSheet,
+            Graphics::TextureIndex{index},
+            mInventoryIconsDims[index]);
+    }
+
 private:
     Graphics::SpriteSheetIndex mButtonIconsSpriteSheet;
     unsigned mPressedOffset;
@@ -218,6 +232,7 @@ private:
     unsigned mInventoryLockOffset;
     unsigned mFullMapIconOffset;
     unsigned mTeleportIconOffset;
+    unsigned mEncampIconOffset;
     std::vector<glm::vec2> mInventoryIconsDims;
 
     const Logging::Logger& mLogger;

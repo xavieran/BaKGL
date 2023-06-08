@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gui/IAnimator.hpp"
+
 #include "com/assert.hpp"
 #include "com/logger.hpp"
 
@@ -12,7 +14,7 @@
 
 namespace Gui {
 
-class LinearAnimator
+class LinearAnimator : public IAnimator
 {
 public:
     // every 10ms
@@ -41,7 +43,7 @@ public:
     {
     }
 
-    void OnTimeDelta(double delta)
+    void OnTimeDelta(double delta) override
     {
         mAccumulatedTimeDelta += delta;
         mDuration -= delta;
@@ -60,7 +62,7 @@ public:
         }
     }
 
-    bool IsAlive() const { return mAlive; }
+    bool IsAlive() const override { return mAlive; }
 
 private:
     bool mAlive;

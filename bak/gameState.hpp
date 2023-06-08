@@ -202,6 +202,18 @@ public:
         }
     }
 
+    WorldClock GetWorldTime() const
+    {
+        if (mGameData)
+        {
+            return mGameData->mTime;
+        }
+        else
+        {
+            return WorldClock{{0}, {0}};
+        }
+    }
+
     void SetShopType(unsigned shopType)
     {
         mShopType = shopType;
@@ -485,6 +497,21 @@ public:
         }
 
         return false;
+    }
+
+    void ElapseTime(Time time)
+    {
+        GetParty().ForEachActiveCharacter([&](auto& character){
+            // Heal when camping...
+            if (character.CanHeal(false))
+            {
+                character.ImproveSkill(
+                    SkillType::TotalHealth,
+                    static_cast<SkillChange>(100),
+                    1 << 8);
+            }
+            return false;
+        });
     }
 
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const

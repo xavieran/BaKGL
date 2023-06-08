@@ -59,8 +59,10 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("MeshObjectStore");
     Logging::LogState::Disable("GameData");
     Logging::LogState::Disable("Gui::StaticTTM");
+    Logging::LogState::Disable("GuiRenderer");
     //Logging::LogState::Disable("Gui::DialogRunner");
     Logging::LogState::Disable("Gui::DialogDisplay");
+    Logging::LogState::Disable("Gui::AnimatorStore");
 
     struct option options[] = {
         {"help", no_argument,       0, 'h'},

@@ -17,18 +17,24 @@ namespace BAK {
 
 enum class HotspotAction
 {
-    DIALOG    = 2,
-    EXIT      = 3,
-    GOTO      = 4,
-    BARMAID   = 5,
-    SHOP      = 6,
-    INN       = 7,
-    CONTAINER = 8,
-    LUTE      = 9,
-    TELEPORT  = 0xb,
-    TEMPLE    = 0xd,
-    NOT_SURE  = 0xf,
-    REPAIR    = 0x10
+    UNKNOWN_0   = 0,
+    UNKNOWN_1   = 1,
+    DIALOG      = 2,
+    EXIT        = 3,
+    GOTO        = 4,
+    BARMAID     = 5,
+    SHOP        = 6,
+    INN         = 7,
+    CONTAINER   = 8,
+    LUTE        = 9,
+    UNKNOWN_A   = 0xa,
+    TELEPORT    = 0xb,
+    UNKNOWN_C   = 0xc,
+    TEMPLE      = 0xd,
+    UNKNOWN_E   = 0xe,
+    CHAPTER_END = 0xf,
+    REPAIR      = 0x10,
+    UNKNOWN_X   = 0x100
 };
 
 std::ostream& operator<<(std::ostream&, HotspotAction);
@@ -46,9 +52,9 @@ struct Hotspot
         std::uint32_t actionArg3,
         KeyTarget tooltip,
         KeyTarget dialog,
-        std::uint16_t unknown0,
+        std::uint16_t chapterMask,
         std::uint32_t unknown1,
-        std::uint16_t unknown2)
+        std::uint16_t checkEventState)
     :
         mHotspot{hotspot},
         mTopLeft{topLeft},
@@ -60,9 +66,9 @@ struct Hotspot
         mActionArg3{actionArg3},
         mTooltip{tooltip},
         mDialog{dialog},
-        mUnknown0{unknown0},
+        mChapterMask{chapterMask},
         mUnknown1{unknown1},
-        mUnknown2{unknown2}
+        mCheckEventState{checkEventState}
     {}
 
     std::uint16_t mHotspot;
@@ -79,28 +85,28 @@ struct Hotspot
     // Yes but there is more to it - e.g. Sarth
     bool IsActive(GameState& gameState) const
     {
-        // ovr148:86D test mUnknown0, 0x8000???
+        // ovr148:86D test mChapterMask, 0x8000???
 
         const auto state = mDialog.mValue & 0xffff;
         const auto expectedVal = (mDialog.mValue >> 16) & 0xffff;
-        Logging::LogDebug(__FUNCTION__) << "Unk2: " << mUnknown2 << " Eq: " <<
-            (mUnknown2 == 1) << " GS: " << std::hex << state << " st: " << 
-            gameState.GetEventState(state) << " exp: " << expectedVal << " Unk0: " << mUnknown0 << "\n";
-        if (mUnknown2 != 0 && state != 0)
+        Logging::LogDebug(__FUNCTION__) << "Unk2: " << mCheckEventState << " Eq: " <<
+            (mCheckEventState == 1) << " GS: " << std::hex << state << " st: " << 
+            gameState.GetEventState(state) << " exp: " << expectedVal << " Unk0: " << mChapterMask << "\n";
+        if (mCheckEventState != 0 && state != 0)
         {
             return gameState.GetEventState(state) == expectedVal;
         }
-        return (mUnknown0 ^ 0xffff) & (1 << (gameState.GetChapter().mValue - 1));
+        return (mChapterMask ^ 0xffff) & (1 << (gameState.GetChapter().mValue - 1));
     }
     
     bool EvaluateImmediately() const
     {
-        return (mUnknown0 & 0x8000) != 0;
+        return (mChapterMask & 0x8000) != 0;
     }
 
-    std::uint16_t mUnknown0;
+    std::uint16_t mChapterMask;
     std::uint32_t mUnknown1;
-    std::uint16_t mUnknown2;
+    std::uint16_t mCheckEventState;
 };
 
 std::ostream& operator<<(std::ostream&, const Hotspot&);

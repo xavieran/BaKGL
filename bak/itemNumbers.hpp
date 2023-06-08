@@ -24,7 +24,9 @@ static constexpr auto sPoisonedTsuraniQuarrels = BAK::ItemIndex{41};
 
 static constexpr auto sPoisonOffset = 3;
 
+static constexpr auto sRations = BAK::ItemIndex{72};
 static constexpr auto sPoisonedRations = BAK::ItemIndex{73};
+static constexpr auto sSpoiledRations = BAK::ItemIndex{74};
 static constexpr auto sColtariPoison   = BAK::ItemIndex{105};
 
 static constexpr auto sEliaemsShell   = BAK::ItemIndex{16};
@@ -34,7 +36,6 @@ static constexpr auto sExoticSword    = BAK::ItemIndex{23};
 static constexpr auto sSovereigns  = BAK::ItemIndex{53};
 static constexpr auto sRoyals      = BAK::ItemIndex{54};
 static constexpr auto sShovel      = BAK::ItemIndex{83};
-static constexpr auto sRations     = BAK::ItemIndex{72};
 static constexpr auto sScroll      = BAK::ItemIndex{133};
 static constexpr auto sDayRations  = BAK::ItemIndex{134};
 static constexpr auto sBrandy      = BAK::ItemIndex{135};

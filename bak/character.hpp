@@ -10,6 +10,7 @@
 #include "bak/types.hpp"
 #include "bak/inventory.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <iterator>
 #include <ostream>
@@ -287,9 +288,37 @@ public:
         }
     }
 
+    unsigned GetTotalItem(const std::vector<BAK::ItemIndex>& itemIndex)
+    {
+        unsigned total = 0;
+        for (const auto& item : GetInventory().GetItems())
+        {
+            if (std::find_if(itemIndex.begin(), itemIndex.end(), [&item](auto& elem){ return item.GetItemIndex() == elem;}) != itemIndex.end())
+            {
+                if (item.IsConditionBased() || item.IsChargeBased())
+                {
+                    total += 1;
+                }
+                else
+                {
+                    total += item.GetQuantity();
+                }
+            }
+        }
+        return total;
+    }
+
     const std::string& GetName() const
     {
         return mName;
+    }
+
+    bool CanHeal(bool isInn)
+    {
+        const auto multiplier = isInn ? 1.0 : .80;
+        const auto health = GetSkill(BAK::SkillType::TotalHealth);
+        const auto maxHealth = GetMaxSkill(BAK::SkillType::TotalHealth);
+        return health < (maxHealth * multiplier);
     }
 
     const Skills& GetSkills() const
@@ -305,7 +334,10 @@ public:
 
     unsigned GetSkill(SkillType skill) const
     {
-        mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        if (skill != SkillType::TotalHealth)
+        {
+            mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        }
         return CalculateEffectiveSkillValue(
             skill,
             mSkills,
@@ -315,7 +347,10 @@ public:
 
     unsigned GetMaxSkill(SkillType skill) const
     {
-        mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        if (skill != SkillType::TotalHealth)
+        {
+            mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        }
         return CalculateEffectiveSkillValue(
             skill,
             mSkills,

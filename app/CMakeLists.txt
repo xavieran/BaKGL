@@ -7,7 +7,7 @@ list(APPEND APP_BINARIES
     display_gds
     display_object
     display_save
-    display_sound
+    display_spells
     display_tile
     display_ttm
     instancing

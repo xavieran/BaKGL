@@ -1,18 +1,27 @@
-encampDialog
-ovrl:250
-handleGameTimeSomthing
-handleGameTimeChange???
-* Adjusts condition
-handleGameTimeIncreased
-* heals, progresses conditions
-
-Trials to run:
-0. No conditions, low health, low stamina - See the change
-1. Starving - see how it increases
-2. Drunk 100% - see how it is reduced with camping
-3. Sick - see if it is reduced by camping
-4. Posioned - see how it increases and affects health and progressed to near death
-5. Plagued - check effect same as poisoned
-6. Near Death - what effect does it have?
-7. All the above with healing @100%
-8. Healing by itself, see reduction
+0300 0300 0900 0900
+1800 4700 6a00 3900
+6800 2b00 6200 1f00
+5b00 1700 5200 1100
+4800 1000 3c00 1100
+3100 1500 2600 1e00
+1d00 2900 1500 3600
+0f00 4500 0d00 5400
+0f00 6100 1500 6c00
+1d00 7500 2600 7a00
+2f00 7c00 3c00 7b00
+4800 7600 5200 6d00
+5b00 6300 6200 5600
+6800 1b00 4600 1000
+4600 3c00 0000 0000
+1300 3c00 1300 3800
+1500 3300 1700 2e00
+1900 2800 1c00 2400
+2100 2000 2600 1c00
+2c00 1800 3200 1500
+3800 1200 3f00 1100
+4e00 1100 5400 1200
+5b00 1400 6100 1800
+6700 1c00 6b00 2000
+7000 2400 7400 2800
+7700 2d00 7900 3100
+7b00 3700 7b00 3c00                    

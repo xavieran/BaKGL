@@ -3,12 +3,13 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
-#include "gui/colors.hpp"
 #include "gui/core/clickable.hpp"
-#include "gui/cursor.hpp"
-#include "gui/highlightable.hpp"
-#include "gui/textBox.hpp"
+#include "gui/core/highlightable.hpp"
 #include "gui/core/widget.hpp"
+
+#include "gui/colors.hpp"
+#include "gui/cursor.hpp"
+#include "gui/textBox.hpp"
 
 namespace Gui {
 
@@ -36,19 +37,9 @@ public:
             true
         },
         mCursor{cursor},
-        mHighlightCursor{highlightCursor},
-        mText{
-            glm::vec2{0},
-            glm::vec2{50, 16}
-        }
+        mHighlightCursor{highlightCursor}
     {
-        //std::stringstream ss{};
-        //ss << id;
-        //mText.AddText(font, ss.str());
-
-        //AddChildBack(&mText);
     }
-
 
     void Entered()
     {
@@ -63,7 +54,6 @@ public:
 private:
     Cursor& mCursor;
     unsigned mHighlightCursor;
-    TextBox mText;
 };
 
 }
