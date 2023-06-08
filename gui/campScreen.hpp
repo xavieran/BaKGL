@@ -32,7 +32,7 @@ class TimeElapser : public IAnimator
 public:
     TimeElapser(
         unsigned hourBegin,
-        unsigned hourEnd,
+        std::optional<unsigned> hourEnd,
         std::function<void(unsigned, bool)>&& callback)
     :
         mAccumulatedTimeDelta{},
@@ -47,9 +47,6 @@ public:
     void OnTimeDelta(double delta) override
     {
         mAccumulatedTimeDelta += delta;
-        Logging::LogDebug(__FUNCTION__) << " " << delta << " " << mAccumulatedTimeDelta
-            << " " << mHour << " " << mAlive << "\n";
-
         if (mAccumulatedTimeDelta > sTickSpeed && mAlive)
         {
             mAccumulatedTimeDelta = 0;
@@ -73,7 +70,7 @@ private:
     double mAccumulatedTimeDelta;
     bool mAlive;
     unsigned mHour;
-    const unsigned mHourEnd;
+    const std::optional<unsigned> mHourEnd;
     std::function<void(unsigned, bool)> mCallback;
 };
 
@@ -143,7 +140,8 @@ class CampScreen : public Widget
     enum class State
     {
         Idle,
-        Camping
+        Camping,
+        CampingTilHealed
     };
     static constexpr auto sLayoutFile = "REQ_CAMP.DAT";
     static constexpr auto sScreen = "ENCAMP.SCX";
@@ -292,8 +290,15 @@ private:
 
     void HandleDot(unsigned i)
     {
-        mLogger.Debug() << "Hour: " << i << "\n";
-        if (mDots.at(i).GetCurrent() || mState == State::Camping)
+        StartCamping(i);
+    }
+
+    void StartCamping(std::optional<unsigned> hourTil)
+    {
+        mLogger.Debug() << "Hour: " << hourTil << "\n";
+
+        if ((hourTil && mDots.at(*hourTil).GetCurrent())
+            || mState == State::Camping)
         {
             return;
         }
@@ -302,30 +307,49 @@ private:
             [](const auto& dot){ return dot.GetCurrent(); });
         assert(it != mDots.end());
 
-        mState = State::Camping;
+        mState = hourTil ? State::Camping : State::CampingTilHealed;
 
         auto timeElapser = std::make_unique<detail::TimeElapser>(
             std::distance(mDots.begin(), it),
-            i,
+            hourTil,
             [this](unsigned index, bool isLast){
-                mLogger.Debug() << "HourTicked: " << index << "\n";
-                mGameState.ElapseTime(BAK::Time{720});
-                if (isLast)
-                {
-                    FinishedTicking(index);
-                }
-                mDots.at(index).SetCurrent(true);
-                mLatestTick = index;
-                AddText();
+                this->HandleTick(index, isLast);
             });
         mTimeElapser = timeElapser.get();
         mGuiManager.AddAnimator(std::move(timeElapser));
         AddChildren();
     }
 
+    void HandleTick(unsigned index, bool isLast)
+    {
+        mGameState.ElapseTime(BAK::Time{0x708}); // 1 hour...
+        if (isLast || (mState == State::CampingTilHealed && !AnyCharacterCanHeal()))
+        {
+            FinishedTicking(index);
+        }
+
+        if (mState == State::CampingTilHealed)
+        {
+            for (unsigned i = 0; i < mDots.size(); i++)
+            {
+                mDots.at(i).SetCurrent(false);
+            }
+        }
+
+        mDots.at(index).SetCurrent(true);
+        mLatestTick = index;
+        AddText();
+    }
+
     void FinishedTicking(unsigned endTick)
     {
+        if (mTimeElapser)
+        {
+            mTimeElapser->Stop();
+        }
+
         mTimeElapser = nullptr;
+
         for (unsigned i = 0; i < mDots.size(); i++)
         {
             mDots.at(i).SetCurrent(false);
@@ -341,12 +365,12 @@ private:
         {
             const auto hour = mGameState.GetWorldTime().mTime.GetHour();
             mLogger.Debug() << "Hour: "<< hour << "\n";
+            StartCamping(std::nullopt);
         }
         else if (button == sStop)
         {
             if (mTimeElapser != nullptr)
             {
-                mTimeElapser->Stop();
                 FinishedTicking(mLatestTick);
             }
         }
