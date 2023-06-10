@@ -1,0 +1,20 @@
+ovr181:24a
+push large 640050
+push 1 -- how many hours
+
+handleGameTimeChange
+4221:7b5
+
+ax = timeOfLastSleep
+ax / a8c0
+ax = 21
+dx = 468c (remainder)
+div remainder by 0x708
+ax = A
+ax = hour of the day...
+hourOfDay = ax...
+
+cx = days elapsed (timeOfLastSleep / 0xa8c0)
+timeOfLastSleep += timeDeltaHours
+
+
