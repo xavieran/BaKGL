@@ -56,6 +56,18 @@ class MakeCamp
         }
     }
 
+    // HandleGameTimeChangeFromSleep calls HandleGameTimeIncreased with:
+    // HandleGameTimeIncreased(timeDeltaHours, 1, 1, healPercent??)
+    // RunDialog calls it with
+    // HandleGameTimeIncreased(0x708 or timeDelta,1, charSkillWho?, 0
+    // RepairScreen calls it with
+    // MainView calls it twice with either
+    // HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
+    // HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
+    // MapView calls it twice with either
+    // HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
+    // HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
+
     void HandleGameTimeIncreased(
         unsigned x,
         unsigned y,
