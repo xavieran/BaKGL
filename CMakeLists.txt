@@ -12,6 +12,8 @@ string(CONCAT CXX_IGNORES
     "-Wno-maybe-uninitialized "
     # imgui
     "-Wno-format-security "
+    # GCC is overzealous
+    "-Wno-dangling-reference "
     # The usual things I don't worry about
     "-Wno-unused-variable "
     "-Wno-unused-parameter "
