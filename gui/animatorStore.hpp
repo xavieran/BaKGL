@@ -19,7 +19,6 @@ public:
         mAnimators{},
         mLogger{Logging::LogState::GetLogger("Gui::AnimatorStore")}
     {
-        mAnimators.reserve(20);
     }
 
     void AddAnimator(std::unique_ptr<IAnimator>&& animator)

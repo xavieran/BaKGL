@@ -218,7 +218,7 @@ private:
         mGameState.SetCharacterTextVariables();
         // For some reason the dialog action sets text variable 1 for cost but the dialog uses 0 for cost.
         mGameState.GetTextVariableStore().SetTextVariable(0, BAK::ToShopDialogString(mCost));
-        mCureText.AddText(mFont, mGameState.GetTextVariableStore()
+        mCureText.SetText(mFont, mGameState.GetTextVariableStore()
             .SubstituteVariables(std::string{snip.GetText()}), false, false, true);
     }
 

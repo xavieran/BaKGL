@@ -117,7 +117,7 @@ private:
 
     void RefreshText()
     {
-        const auto [pos, _] = mTextBox.AddText(mFont, mText);
+        const auto [pos, _] = mTextBox.SetText(mFont, mText);
         mHighlight.SetPosition(glm::vec2{pos.x - 2, 2});
         
     }

@@ -147,9 +147,9 @@ public:
             );
         }
 
-        mTeleportFromText.AddText(mFont, "From:", true);
-        mTeleportToText.AddText(mFont, "To:", true);
-        mCostText.AddText(mFont, "Cost: ");
+        mTeleportFromText.SetText(mFont, "From:", true);
+        mTeleportToText.SetText(mFont, "To:", true);
+        mCostText.SetText(mFont, "Cost: ");
         mMapSnippet.AddChildBack(&mMap);
 
         AddChildren();
@@ -187,7 +187,7 @@ public:
             if (sourceTemple - 1 == i)
             {
                 mTeleportDests.at(i).SetSelected();
-                mTeleportFromText.AddText(mFont, MakeTempleString("From:", sourceTemple), true);
+                mTeleportFromText.SetText(mFont, MakeTempleString("From:", sourceTemple), true);
             }
             else
             {
@@ -249,14 +249,14 @@ private:
         if (selected)
         {
             mHighlightedDest = templeNumber;
-            mTeleportToText.AddText(mFont, MakeTempleString("To:", templeNumber), true);
-            mCostText.AddText(mFont, MakeCostString(templeNumber));
+            mTeleportToText.SetText(mFont, MakeTempleString("To:", templeNumber), true);
+            mCostText.SetText(mFont, MakeCostString(templeNumber));
             mTeleportTo.SetTexture(std::get<Graphics::TextureIndex>(mIcons.GetTeleportIcon(templeNumber - 1)));
         }
         else
         {
-            mTeleportToText.AddText(mFont, "To:", true);
-            mCostText.AddText(mFont, "Cost: ");
+            mTeleportToText.SetText(mFont, "To:", true);
+            mCostText.SetText(mFont, "Cost: ");
             mHighlightedDest.reset();
         }
 

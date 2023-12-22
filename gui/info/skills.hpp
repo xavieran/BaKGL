@@ -120,7 +120,7 @@ public:
 
         ss << skillStr << std::setw(18 - skillStr.size()) 
             << std::setfill(' ') << value << "%";
-        mText.AddText(font, ss.str());
+        mText.SetText(font, ss.str());
         mBlood.UpdateValue(value);
 
         if (skillSelected)

@@ -245,12 +245,12 @@ public:
             mDots.at(i).SetCurrent(i == hour);
         }
         mIsInInn = isInn;
-        AddText();
+        SetText();
         AddChildren();
     }
 
 private:
-    void AddText()
+    void SetText()
     {
         std::stringstream namesSS{};
         namesSS << "\n";
@@ -272,9 +272,9 @@ private:
                 rationsSS << rhighlight << " " << rations << " " << rhighlight << "\n";
                 return false;
             });
-        mNamesColumn.AddText(mFont, namesSS.str(), true, false, false, 1.5);
-        mHealthColumn.AddText(mFont, healthSS.str(), true, false, false, 1.5);
-        mRationsColumn.AddText(mFont, rationsSS.str(), true, false, false, 1.5);
+        mNamesColumn.SetText(mFont, namesSS.str(), true, false, false, 1.5);
+        mHealthColumn.SetText(mFont, healthSS.str(), true, false, false, 1.5);
+        mRationsColumn.SetText(mFont, rationsSS.str(), true, false, false, 1.5);
     }
 
     bool AnyCharacterCanHeal()
@@ -338,7 +338,7 @@ private:
 
         mDots.at(index).SetCurrent(true);
         mLatestTick = index;
-        AddText();
+        SetText();
     }
 
     void FinishedTicking(unsigned endTick)

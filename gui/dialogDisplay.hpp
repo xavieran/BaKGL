@@ -175,7 +175,7 @@ public:
             actor = mGameState.GetActor(act);
         }
 
-        const auto [charPos, undisplayedText] = AddText(
+        const auto [charPos, undisplayedText] = SetText(
             text,
             dialogFrame,
             horizontallyCentered,
@@ -217,7 +217,7 @@ private:
         AddChildBack(&mLabel);
     }
 
-    std::pair<glm::vec2, std::string_view> AddText(
+    std::pair<glm::vec2, std::string_view> SetText(
         std::string_view text,
         DialogFrame dialogFrame,
         bool centeredX,
@@ -231,7 +231,7 @@ private:
         case DialogFrame::Fullscreen:
         {
             AddChildBack(&mFullscreenFrame);
-            auto [charPos, remaining] = mFullscreenTextBox.AddText(
+            auto [charPos, remaining] = mFullscreenTextBox.SetText(
                 mFont,
                 text,
                 centeredX,
@@ -256,7 +256,7 @@ private:
                 mActionAreaFrame.SetDimensions({295, 121});
                 mActionAreaTextBox.SetDimensions({288, 118});
             }
-            auto [charPos, remaining] = mActionAreaTextBox.AddText(
+            auto [charPos, remaining] = mActionAreaTextBox.SetText(
                 mFont,
                 text,
                 centeredX,
@@ -267,7 +267,7 @@ private:
         case DialogFrame::LowerArea:
         {
             AddChildBack(&mLowerFrame);
-            auto [charPos, remaining] = mLowerTextBox.AddText(
+            auto [charPos, remaining] = mLowerTextBox.SetText(
                 mFont,
                 text,
                 centeredX,

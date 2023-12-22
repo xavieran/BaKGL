@@ -34,20 +34,19 @@ public:
         mElements{},
         mLogger{Logging::LogState::GetLogger("Gui::List")}
     {
-        mElements.reserve(expectedSize);
+        //mElements.reserve(expectedSize);
     }
 
     template <typename ...Args>
     void AddWidget(Args&&... args)
     {
-        
-        Widget::ClearChildren();
-        auto& widget = mElements.emplace_back(std::forward<Args>(args)...);
-        widget.SetPosition(widget.GetPositionInfo().mPosition + mEnd);
-        mEnd += widget.GetPositionInfo().mDimensions * mMultiplier;
+        ClearChildren();
+        auto& widget = mElements.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+        widget->SetPosition(widget->GetPositionInfo().mPosition + mEnd);
+        mEnd += widget->GetPositionInfo().mDimensions * mMultiplier;
         mEnd += mSpacing * mMultiplier;
         AddChildren();
-        SetDimensions(mEnd + glm::vec2{widget.GetPositionInfo().mDimensions.x, 0});
+        SetDimensions(mEnd + glm::vec2{widget->GetPositionInfo().mDimensions.x, 0});
     }
 
     void ClearWidgets()
@@ -64,14 +63,16 @@ private:
         ClearChildren();
         for (auto& widget : mElements)
         {
-            AddChildBack(&widget);
+            AddChildBack(widget.get());
         }
     }
 
     glm::vec2 mMultiplier;
     float mSpacing;
     glm::vec2 mEnd;
-    std::vector<T> mElements;
+    // Because mElements can grow, make these unique_ptrs so that 
+    // they remain stable when mElements grows and they are moved.
+    std::vector<std::unique_ptr<T>> mElements;
     const Logging::Logger& mLogger;
 };
 

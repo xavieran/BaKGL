@@ -33,7 +33,7 @@ public:
         mTown{label},
         mLabel{{}, glm::vec2{120, 32}}
     {
-        const auto& [tDims, _] = mLabel.AddText(font, label);
+        const auto& [tDims, _] = mLabel.SetText(font, label);
         mLabel.SetDimensions(tDims);
         mLabel.SetCenter(glm::vec2{0, -3});
     }

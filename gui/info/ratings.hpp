@@ -124,7 +124,7 @@ public:
             ss << "\xf6";
             ss << "  Strength    " << strength << "\n";
             mLogger.Debug() << ss.str();
-            mRatingsText.AddText(mFont, ss.str());
+            mRatingsText.SetText(mFont, ss.str());
         }
         {
             std::stringstream ss{};
@@ -145,7 +145,7 @@ public:
                     }
                 }
             }
-            mConditionsText.AddText(mFont, ss.str());
+            mConditionsText.SetText(mFont, ss.str());
         }
     }
 

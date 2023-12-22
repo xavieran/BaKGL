@@ -33,8 +33,6 @@ public:
         },
         mText{}
     {
-        // FIXME: Do this when text is added...
-        mText.reserve(2048);
         // no point propagating MouseMoved to every
         // character of text
         SetInactive();
@@ -46,7 +44,7 @@ public:
         glm::vec2 mDimensions;
     };
 
-    std::pair<glm::vec2, std::string_view> AddText(
+    std::pair<glm::vec2, std::string_view> SetText(
         const Font& fr,
         std::string_view text,
         bool centerHorizontal=false,
@@ -57,6 +55,7 @@ public:
         const auto& logger = Logging::LogState::GetLogger("Gui::TextBox");
 
         mText.clear();
+        mText.reserve(text.size() * 2);
 
         ClearChildren();
 
@@ -377,7 +376,7 @@ public:
                 return lhs.mDimensions.x < rhs.mDimensions.x;
             });
 
-        ASSERT(currentChar < 2048);
+        ASSERT(currentChar < text.size() * 2);
 
         return std::make_pair(
             glm::vec2{maxX->mDimensions.x, charPos.y},

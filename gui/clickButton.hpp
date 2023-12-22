@@ -118,7 +118,7 @@ public:
     {
         const auto textPos = glm::vec2{3, 2};
         const auto& dims = GetPositionInfo().mDimensions;
-        const auto& [endPos, text] = mText.AddText(mFont, label);
+        const auto& [endPos, text] = mText.SetText(mFont, label);
         mText.SetPosition(
             glm::vec2{
                 textPos.x + (dims.x - endPos.x) / 2,

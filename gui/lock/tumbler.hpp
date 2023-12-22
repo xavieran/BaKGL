@@ -79,7 +79,7 @@ private:
     {
         ASSERT(digitIndex < mDigits.size());
         mSelectedDigit = digitIndex;
-        mCharacter.AddText(mFont, "\xf7" + std::string{mDigits[digitIndex]}, true, true);
+        mCharacter.SetText(mFont, "\xf7" + std::string{mDigits[digitIndex]}, true, true);
     }
 
     void AddChildren()

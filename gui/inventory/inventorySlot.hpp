@@ -166,7 +166,7 @@ public:
             std::stringstream ss{};
             ss << "#" << +item.GetCondition() << 
                 (item.DisplayCondition()  ? "%" : "");
-            const auto& [textDims, _] = mQuantity.AddText(font, ss.str());
+            const auto& [textDims, _] = mQuantity.SetText(font, ss.str());
             const auto& dims = GetPositionInfo().mDimensions;
             mQuantity.SetPosition(
                 dims - textDims 

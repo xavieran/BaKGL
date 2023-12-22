@@ -110,7 +110,7 @@ public:
                     ss << "Amount: " << item.GetCondition();
                 }
             }
-            mName.AddText(mFont, ss.str(), true);
+            mName.SetText(mFont, ss.str(), true);
             Logging::LogDebug(__FUNCTION__) << " Name: " << ss.str() << "\n";
         }
 
@@ -127,7 +127,7 @@ public:
                     std::string{BAK::DialogSources::GetItemDescription(item.GetItemIndex().mValue)});
         }
 
-        mDescriptionText.AddText(mFont, mDescription, true, true);
+        mDescriptionText.SetText(mFont, mDescription, true, true);
         mShowingMoreInfo = false;
 
         {
@@ -159,7 +159,7 @@ public:
             if (HasMoreInfo(item))
             {
                 Logging::LogDebug(__FUNCTION__) << " Status: " << ss.str();
-                mStatusText.AddText(mFont, ss.str(), true, true);
+                mStatusText.SetText(mFont, ss.str(), true, true);
                 mHasMoreInfo = true;
 
                 mMoreInfoDescription = MakeMoreInfo(item);
@@ -195,12 +195,12 @@ private:
     {
         if (mShowingMoreInfo)
         {
-            mDescriptionText.AddText(mFont, mDescription, true, true);
+            mDescriptionText.SetText(mFont, mDescription, true, true);
             mShowingMoreInfo = false;
         }
         else
         {
-            mDescriptionText.AddText(mFont, mMoreInfoDescription, false, true);
+            mDescriptionText.SetText(mFont, mMoreInfoDescription, false, true);
             mShowingMoreInfo = true;
         }
     }

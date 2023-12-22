@@ -150,7 +150,7 @@ private:
 
         UpdateTumblers();
 
-        mDescription.AddText(
+        mDescription.SetText(
             mPuzzleFont, 
             "\xf7" + mFairyChest->mHint, true, true);
 
@@ -164,7 +164,7 @@ private:
                 mLayout.GetWidgetDimensions(i));
             std::stringstream ss{};
             ss << i;
-            mReqLocs.back().AddText(mPuzzleFont, ss.str());
+            mReqLocs.back().SetText(mPuzzleFont, ss.str());
         }
 
         AddChildren();

@@ -92,9 +92,9 @@ public:
 
         // First calculate text dims, trim the textbox to that size,
         // then add the text again, centered
-        const auto& [textDims, _] = mDescription.AddText(font, ss.str());
+        const auto& [textDims, _] = mDescription.SetText(font, ss.str());
         mDescription.SetDimensions(textDims);
-        mDescription.AddText(font, ss.str(), true);
+        mDescription.SetText(font, ss.str(), true);
 
         const auto& dims = GetPositionInfo().mDimensions;
         auto diff = dims - textDims;

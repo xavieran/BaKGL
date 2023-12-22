@@ -50,7 +50,7 @@ public:
     void SetText(std::string_view text)
     {
         auto [dims, remaining] = mTextBox
-            .AddText(mFont, text);
+            .SetText(mFont, text);
         // Add margin
         dims += glm::vec2{3, 4};
         // Resize to flow around text

@@ -466,7 +466,7 @@ private:
     {
         const auto gold = mGameState.GetParty().GetGold();
         const auto text = ToString(gold);
-        const auto [textDims, _] = mGoldDisplay.AddText(mFont, text);
+        const auto [textDims, _] = mGoldDisplay.SetText(mFont, text);
 
         // Justify text to the right
         const auto basePos = mLayout.GetWidgetLocation(mGoldRequest);

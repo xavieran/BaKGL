@@ -150,9 +150,9 @@ public:
         mNeedRefresh{false},
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
     {
-        mDirectoryLabel.AddText(mFont, "Directories");
-        mFilesLabel.AddText(mFont, "Games");
-        mRestoreLabel.AddText(mFont, "#Restore Game");
+        mDirectoryLabel.SetText(mFont, "Directories");
+        mFilesLabel.SetText(mFont, "Games");
+        mRestoreLabel.SetText(mFont, "#Restore Game");
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
