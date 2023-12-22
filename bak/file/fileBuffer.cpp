@@ -270,6 +270,15 @@ FileBuffer::Seek(const unsigned n)
     {
         mCurrent = mBuffer + n;
     }
+    else
+    {
+        return;
+        std::stringstream ss{};
+        ss << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " Tried to seek to: " << n << " but size is only: " << mSize << "!\n";
+        Logging::LogFatal("FileBuffer") << ss.str() << std::endl;
+        throw std::runtime_error(ss.str());
+
+    }
 }
 
 void

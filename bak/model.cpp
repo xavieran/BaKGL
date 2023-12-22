@@ -173,7 +173,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         auto animCount = fb.GetUint16LE();
         auto animOffset = fb.GetUint16LE();
         // fb.Skip(4); 
-        logger.Info() << model.mName << " @" << offsets[i] << "\n";
+        logger.Info() << model.mName << " @" << offsets[i] << " ( " << offset << " ) " << "\n";
         logger.Info() << "Anim: " << animCount << " " << animOffset << "\n";
         if (model.mName == "boom")
         {
@@ -209,7 +209,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
             logger.Info() << " Model U (" << +u_1_1 << ", " << +u_1_2 << ") mesh cnt " << meshCount << " meshOff: " << meshOffset << "\n";
         }
 
-        offset += 14 + (bounded ? 12 : 0) + animOffset;
+        offset += 14 + (bounded ? 12 : 0);
         logger.Info() << "Offset now: " << offset << "\n";
 
         logger.Info() << "Animation offset: " << fb.Tell() << "\n";
@@ -230,7 +230,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         {
 
             auto& modelX = modelXs[modelI];
-            //fb.Seek(offset + modelX.mMeshOffset - baseOffset);
+            fb.Seek(offset + modelX.mMeshOffset - baseOffset);
             for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
             {
                 logger.Info() << "Mesh #" << meshI << "\n";
@@ -286,6 +286,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
             {
                 auto& meshX = modelX.mMeshs[meshI];
                 auto fo = offset - baseOffset + meshX.mFaceOffset;
+                logger.Info() << meshI << " Off: " << offset << " BO: " << baseOffset << " animO: " << animOffset << " FO: " << meshX.mFaceOffset << std::endl;
                 logger.Info() << meshI << " -- Sook from: " << fb.Tell() << " to: " << fo << "\n";
                 fb.Seek(fo);
                 fb.Dump(8);
