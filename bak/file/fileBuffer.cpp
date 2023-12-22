@@ -905,10 +905,10 @@ FileBuffer::GetData(void *data,
     }
     else
     {
-        std::cerr << "Requested: " << n << " but @" << std::hex 
-            << (mCurrent - mBuffer) << " mSize: " << std::dec << mSize
-            << " @: " << std::hex << (mCurrent + n) << " to "
-            << " @: " << std::hex << (mBuffer + mSize)
+        std::cerr << "Requested: " << n << " but @" 
+            << (mCurrent - mBuffer) << " mSize: " << mSize
+            << " @: " << std::hex << static_cast<void*>(mCurrent + n) << " to "
+            << " @: " << std::hex << static_cast<void*>(mBuffer + mSize)
             << std::endl;
         std::stringstream ss{};
         ss << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " BufferEmpty!";

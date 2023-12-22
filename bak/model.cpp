@@ -2,6 +2,7 @@
 #include "bak/model.hpp"
 
 #include "com/ostream.hpp"
+#include "graphics/glm.hpp"
 
 namespace BAK {
 
@@ -99,6 +100,47 @@ std::vector<ModelClip> LoadModelClip(FileBuffer& fb, unsigned numItems)
     return modelClips;
 }
 
+struct EdgeX
+{
+    std::uint8_t mPalette;
+    glm::uvec4 mColor;
+    std::uint8_t mGroup;
+    std::uint16_t mVertexOffset;
+    std::vector<std::uint16_t> mVertexIndices;
+};
+
+struct FaceX
+{
+    unsigned mType;
+    unsigned mEdgeCount;
+    unsigned mEdgeOffset;
+    std::vector<EdgeX> mEdges{};
+};
+
+struct MeshX
+{
+    unsigned mVertexCount;
+    unsigned mVertexOffset;
+    unsigned mVertexIndexTransform;
+    unsigned mFaceCount;
+    unsigned mFaceOffset;
+    std::vector<glm::vec3> mVertices;
+    std::vector<FaceX> mFaces;
+};
+
+struct ModelX
+{
+    unsigned mMeshCount;
+    unsigned mMeshOffset;
+
+    std::vector<MeshX> mMeshs;
+};
+
+struct Animation
+{
+    std::array<char, 7> mData;
+};
+
 std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
@@ -121,151 +163,203 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         Model model{};
 
         fb.Seek(offsets[i]);
+        auto offset = offsets[i];
         model.mName = itemNames[i];
         model.mEntityFlags = fb.GetUint8();
         model.mEntityType = fb.GetUint8();
         model.mTerrainType = fb.GetUint8();
         model.mScale = fb.GetUint8();
-        fb.Skip(4);
-        const bool more = fb.GetUint16LE() > 0;
-        fb.Skip(4);
 
-        if (more)
+        auto animCount = fb.GetUint16LE();
+        auto animOffset = fb.GetUint16LE();
+        // fb.Skip(4); 
+        logger.Info() << model.mName << " @" << offsets[i] << "\n";
+        logger.Info() << "Anim: " << animCount << " " << animOffset << "\n";
+        if (model.mName == "boom")
         {
-            if (!(model.mEntityFlags & EF_UNBOUNDED))
-            {
-                model.mMin = fb.LoadVector<std::int16_t, 3>();
-                model.mMax = fb.LoadVector<std::int16_t, 3>();
-            }
-            fb.Skip(2);
+            // to keep the indices aligned
+            models.emplace_back(models.back());
+            continue;
+        }
 
-            unsigned nComponents = fb.GetUint16LE();
-            fb.Skip(2); // Seems important...
-            unsigned nVertices = 0;
-            unsigned prevVertex = 0;
-            // Which component do we go over the 255 vertex limit?
-            unsigned changeOverComponent = 0;
-            unsigned changeOverVerticesOffset = 0;
-            for (unsigned component = 0; component < nComponents; component++)
+        auto modelCount = fb.GetUint16LE();
+        auto baseOffset = fb.GetUint16LE();
+
+        auto u1 = fb.GetUint8();
+        auto u2 = fb.GetUint8();
+        logger.Info() << "MC: " << modelCount<< " " << baseOffset<< " (" << std::hex << +u1 << " " << +u2 << std::dec << ")\n";
+
+        std::vector<ModelX> modelXs{};
+
+        bool bounded = !(model.mEntityFlags & EF_UNBOUNDED);
+        if (bounded)
+        {
+            model.mMin = fb.LoadVector<std::int16_t, 3>();
+            model.mMax = fb.LoadVector<std::int16_t, 3>();
+        }
+
+        for (auto modelI = 0; modelI < modelCount; modelI++)
+        {
+            auto u_1_1 = fb.GetUint8();
+            auto u_1_2 = fb.GetUint8();
+
+            unsigned meshCount = fb.GetUint16LE();
+            unsigned meshOffset = fb.GetUint16LE();
+            modelXs.emplace_back(ModelX{meshCount, meshOffset, {}});
+            logger.Info() << " Model U (" << +u_1_1 << ", " << +u_1_2 << ") mesh cnt " << meshCount << " meshOff: " << meshOffset << "\n";
+        }
+
+        offset += 14 + (bounded ? 12 : 0) + animOffset;
+        logger.Info() << "Offset now: " << offset << "\n";
+
+        logger.Info() << "Animation offset: " << fb.Tell() << "\n";
+        logger.Info() << "Animation offset from py: " << offset + animOffset - baseOffset << " (" << animCount << ")\n";
+        if (animCount > 10000)
+        {
+            
+            fb.Seek(offset + animOffset - baseOffset);
+            for (auto animI = 0; animI < animCount; animI++)
             {
+                fb.DumpAndSkip(7);
+            }
+        }
+
+        std::vector<std::pair<unsigned, unsigned>> vertexSets{};
+        std::vector<unsigned> vertexSums{};
+        for (auto modelI = 0; modelI < modelCount; modelI++)
+        {
+
+            auto& modelX = modelXs[modelI];
+            //fb.Seek(offset + modelX.mMeshOffset - baseOffset);
+            for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
+            {
+                logger.Info() << "Mesh #" << meshI << "\n";
+                fb.Dump(7);
                 fb.Skip(3);
-                unsigned v = fb.GetUint8();
-                if (v != prevVertex)
+                unsigned vertices = fb.GetUint8();
+                unsigned vertexOffset = fb.GetUint16LE();
+                unsigned faceCount = fb.GetUint16LE();
+                unsigned faceOffset = fb.GetUint16LE();
+                if (vertexSets.empty())
                 {
-                    nVertices += v;
-                    changeOverComponent = component;
-                    changeOverVerticesOffset = prevVertex;
-                    prevVertex = v;
-                }
-                fb.Skip(10);
-            }
-
-            if (   model.mEntityType == 0x0
-                || model.mEntityType == 0x1
-                || model.mEntityType == 0x2
-                || model.mEntityType == 0x3
-                || model.mEntityType == 0x4
-                || model.mEntityType == 0x5
-                || model.mEntityType == 0x6
-                || model.mEntityType == 0x7
-                || model.mEntityType == 0x8
-                || model.mEntityType == 0x9
-                || model.mEntityType == 0xa
-                || model.mEntityType == 0xe
-                || model.mEntityType == 0xf
-                || model.mEntityType == 0x12
-                || model.mEntityType == 0x14
-                || model.mEntityType == 0x17
-                || model.mEntityType == 0x24
-                || model.mEntityType == 0x26
-                || model.mEntityType == 0x27
-                )
-            {
-                if (nVertices > 0)
-                    nVertices -= 1;
-            }
-
-            for (unsigned v = 0; v <= nVertices; v++)
-            {
-                if (nVertices == 0) continue;
-                model.mVertices.emplace_back(fb.LoadVector<std::int16_t, 3>());
-            }
-
-            if (nVertices == 0)
-            {
-                // 2D objects
-                if ((model.mEntityFlags & EF_UNBOUNDED) 
-                    && (model.mEntityFlags & EF_2D_OBJECT) && (nComponents == 1))
-                {
-                    fb.Skip(2);
-                    model.mSprite = fb.GetUint16LE();
-                    fb.Skip(4);
+                    vertexSets.emplace_back(vertices, vertexOffset);
+                    vertexSums.emplace_back(0);
                 }
                 else
                 {
-                    model.mSprite = -1;
-                }
-            }
-            else
-            {
-                // nComponents - 1 ? This doesn't seem right... something a little wrong with house?
-                if (model.mEntityType == 0xa) nComponents -= 1;
-                for (unsigned int component = 0; component < nComponents; component++)
-                {
-                    std::vector<std::uint16_t> nFaces{};
-                    // There can be multiple "components" 
-                    while (fb.GetUint16LE() == 0)
+                    if (std::make_pair(vertices, vertexOffset) != vertexSets.back())
                     {
-                        nFaces.emplace_back(fb.GetUint16LE());
-                        fb.Skip(4); // Offset?
+                        vertexSums.emplace_back(vertexSums.back() + vertexSets.back().first);
+                        vertexSets.emplace_back(vertices, vertexOffset);
                     }
-                    fb.Skip(-2); // Go back 
-                    if (nFaces.empty())
+                }
+
+                modelX.mMeshs.emplace_back(MeshX{vertices, vertexOffset, vertexSums.back(), faceCount, faceOffset, {}, {}});
+                logger.Info() << " VC: " << vertices << " VO: " << vertexOffset << " FC: " << faceCount << " FO: " << faceOffset << "\n";
+                fb.Skip(4);
+            }
+        }
+
+        std::vector<glm::i32vec3> vertices{};
+        unsigned vs = 0;
+        logger.Info() << "Vertices start at: " << fb.Tell() << "\n";
+        fb.Dump(6);
+        for (auto [vertexCount, vertexOffset] : vertexSets)
+        {
+            logger.Info() << "VC: " << vertexCount << " " << vertexOffset << "\n";
+            logger.Info() << "ULocation: " << fb.Tell() << "\n";
+            logger.Info() << "ULocation calc: " << offset - baseOffset + vertexOffset << "\n";
+            
+            for (unsigned vv = 0; vv < vertexCount; vv++)
+            {
+                vertices.emplace_back(fb.LoadVector<std::int16_t, 3>());
+            }
+        }
+        logger.Info() << "Vertices end at " << fb.Tell() << "\n";
+        fb.Dump(8);
+        model.mVertices = vertices;
+
+        for (unsigned modelI = 0; modelI < modelCount; modelI++)
+        {
+            auto& modelX = modelXs[modelI];
+            for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
+            {
+                auto& meshX = modelX.mMeshs[meshI];
+                auto fo = offset - baseOffset + meshX.mFaceOffset;
+                logger.Info() << meshI << " -- Sook from: " << fb.Tell() << " to: " << fo << "\n";
+                fb.Seek(fo);
+                fb.Dump(8);
+                for (unsigned faceI = 0; faceI < meshX.mFaceCount; faceI++)
+                {
+                    auto faceType = fb.GetUint16LE();
+                    auto edgeCount = fb.GetUint16LE();
+                    auto edgeOffset = fb.GetUint16LE();
+                    fb.Skip(2);
+                    auto& faceX = meshX.mFaces.emplace_back(FaceX{faceType, edgeCount, edgeOffset});
+                    logger.Info() << "Mesh Num: " << meshI << "\n";
+                    logger.Info() << "Face # " << faceI << "\n";
+                    logger.Info() << "tp " << faceType << " ec " << edgeCount << " eo " << edgeOffset << "\n";
+
+                    if (faceType == 2)
                     {
+                        model.mSprite = edgeCount;
                         continue;
                     }
+                }
 
-                    assert(!nFaces.empty());
-
-                    for (const auto faces : nFaces)
+                for (unsigned faceI = 0; faceI < meshX.mFaceCount; faceI++)
+                {
+                    auto& faceX = meshX.mFaces[faceI];
+                    if (faceX.mType == 2) continue;
+                    fb.Seek(offset - baseOffset + faceX.mEdgeOffset);
+                    unsigned edgeSeekOffset = offset - baseOffset + faceX.mEdgeOffset;
+                    for (unsigned edgeI = 0; edgeI < faceX.mEdgeCount; edgeI++)
                     {
-                        for (unsigned k = 0; k < faces; k++)
+                        fb.Seek(edgeSeekOffset);
+                        logger.Info() << + edgeI << " -- Sook to: " << edgeSeekOffset << " sz: " << fb.GetSize() << "\n";
+                        fb.Dump(8);
+                        auto palette = fb.GetUint8();
+                        model.mPalettes.emplace_back(palette);
+                        auto color = fb.LoadVector<std::uint8_t, 4>();
+                        model.mFaceColors.emplace_back(color.x);
+                        auto group = fb.GetUint8();
+                        auto vertexOffset = fb.GetUint16LE();
+                        auto& edgeX = faceX.mEdges.emplace_back(EdgeX{palette, color, group, vertexOffset, {}});
+                        edgeSeekOffset = fb.Tell();
+                        logger.Info() << "Edge " << edgeI << " " << +edgeX.mPalette << " color " << edgeX.mColor << " group " << +edgeX.mGroup << " vo " << edgeX.mVertexOffset << "\n";
+
+                        logger.Info() << "Going to vertex offset: " << offset - baseOffset + vertexOffset << "\n";
+                        fb.Seek(offset - baseOffset + vertexOffset);
+                        std::uint8_t vertexIndex;
+                        std::stringstream ss{};
+                        while ((vertexIndex = fb.GetUint8()) != 0xff)
                         {
-                            model.mPalettes.push_back(fb.GetUint8());
-                            // There are four colours defined face color, edge color, ??, and ??
-                            for (unsigned c = 0; c < 4; c++)
-                            {
-                                if (c == 0)
-                                {
-                                    auto color = fb.GetUint8();
-                                    model.mFaceColors.push_back(color); 
-                                }
-                                // for now we ignore the edge colors and other colors
-                                else
-                                {
-                                    auto color = fb.GetUint8();
-                                }
-                            }
-                            fb.Skip(3); // Offset?
+                            ss << +vertexIndex << " ";
+                            edgeX.mVertexIndices.emplace_back(static_cast<std::uint16_t>(vertexIndex) + meshX.mVertexIndexTransform);
                         }
-                        for (unsigned k = 0; k < faces; k++)
-                        {
-                            unsigned vertI;
-                            std::vector<std::uint16_t> vertIndices;
-                            while ((vertI = fb.GetUint8()) != 0xff)
-                            {
-                                // If we are at or beyond the component where the 
-                                // vertices change over then we need to add the respective offset
-                                if (component >= changeOverComponent)
-                                    vertI += changeOverVerticesOffset;
-                                vertIndices.emplace_back(vertI);
-                            }
-                            model.mFaces.emplace_back(vertIndices);
-                        }
+                        model.mFaces.emplace_back(edgeX.mVertexIndices);
+                        ss << vertexIndex << "\n";
+                        logger.Info() << ss.str() << "\n";
                     }
                 }
             }
         }
+
+        //if (nVertices == 0)
+        //{
+        //    // 2D objects
+        //    if ((model.mEntityFlags & EF_UNBOUNDED) 
+        //        && (model.mEntityFlags & EF_2D_OBJECT) && (meshCount == 1))
+        //    {
+        //        fb.Skip(2);
+        //        model.mSprite = fb.GetUint16LE();
+        //        fb.Skip(4);
+        //    }
+        //    else
+        //    {
+        //        model.mSprite = -1;
+        //    }
+        //}
 
         models.emplace_back(std::move(model));
     }

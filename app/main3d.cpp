@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 		saveName = "NEW_GAME.GAM";
 	}
 
-    auto guiScalar = 6.0f;
+    auto guiScalar = 2.0f;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;

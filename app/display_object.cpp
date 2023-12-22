@@ -75,7 +75,7 @@ int main(int argc, char** argv)
     Camera camera{
         static_cast<unsigned>(width),
         static_cast<unsigned>(height),
-        400 * 30.0f,
+        50*30.0f,
         2.0f};
     Camera* cameraPtr = &camera;
     camera.SetPosition({-10, 0, -10});
