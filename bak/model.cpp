@@ -165,6 +165,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         fb.Seek(offsets[i]);
         auto offset = offsets[i];
         model.mName = itemNames[i];
+        fb.Dump(16);
         model.mEntityFlags = fb.GetUint8();
         model.mEntityType = fb.GetUint8();
         model.mTerrainType = fb.GetUint8();
@@ -194,12 +195,14 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         bool bounded = !(model.mEntityFlags & EF_UNBOUNDED);
         if (bounded)
         {
+            fb.Dump(12);
             model.mMin = fb.LoadVector<std::int16_t, 3>();
             model.mMax = fb.LoadVector<std::int16_t, 3>();
         }
 
         for (auto modelI = 0; modelI < modelCount; modelI++)
         {
+            fb.Dump(6);
             auto u_1_1 = fb.GetUint8();
             auto u_1_2 = fb.GetUint8();
 
@@ -212,17 +215,16 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         offset += 14 + (bounded ? 12 : 0);
         logger.Info() << "Offset now: " << offset << "\n";
 
-        logger.Info() << "Animation offset: " << fb.Tell() << "\n";
-        logger.Info() << "Animation offset from py: " << offset + animOffset - baseOffset << " (" << animCount << ")\n";
-        if (animCount > 10000)
-        {
-            
-            fb.Seek(offset + animOffset - baseOffset);
-            for (auto animI = 0; animI < animCount; animI++)
-            {
-                fb.DumpAndSkip(7);
-            }
-        }
+        // this doesn't work
+        //if (animCount > 0)
+        //{
+        //    
+        //    fb.Seek(offset + animOffset - baseOffset);
+        //    for (auto animI = 0; animI < animCount; animI++)
+        //    {
+        //        fb.DumpAndSkip(7);
+        //    }
+        //}
 
         std::vector<std::pair<unsigned, unsigned>> vertexSets{};
         std::vector<unsigned> vertexSums{};
@@ -234,7 +236,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
             for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
             {
                 logger.Info() << "Mesh #" << meshI << "\n";
-                fb.Dump(7);
+                fb.Dump(14);
                 fb.Skip(3);
                 unsigned vertices = fb.GetUint8();
                 unsigned vertexOffset = fb.GetUint16LE();
@@ -269,7 +271,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
             logger.Info() << "VC: " << vertexCount << " " << vertexOffset << "\n";
             logger.Info() << "ULocation: " << fb.Tell() << "\n";
             logger.Info() << "ULocation calc: " << offset - baseOffset + vertexOffset << "\n";
-            
+            fb.Seek(offset - baseOffset + vertexOffset);
             for (unsigned vv = 0; vv < vertexCount; vv++)
             {
                 vertices.emplace_back(fb.LoadVector<std::int16_t, 3>());

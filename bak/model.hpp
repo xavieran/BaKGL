@@ -44,6 +44,34 @@ struct Model
     std::vector<std::vector<std::uint16_t>> mFaces;
 };
 
+
+struct Mesh
+{
+    std::vector<std::uint8_t> mFaceColors;
+    std::vector<std::uint8_t> mPalettes;
+    std::vector<std::vector<std::uint16_t>> mFaces;
+};
+
+struct Component
+{
+    std::vector<Mesh> mMeshes;
+};
+
+struct NewModel
+{
+    std::string mName;
+    unsigned mEntityFlags;
+    unsigned mEntityType;
+    unsigned mTerrainType;
+    unsigned mScale;
+    unsigned mSprite;
+    glm::ivec3 mMin;
+    glm::ivec3 mMax;
+    glm::ivec3 mPos;
+    std::vector<glm::i32vec3> mVertices;
+    std::vector<Component> mComponent;
+};
+
 std::vector<Model> LoadTBL(FileBuffer& fb);
 
 }
