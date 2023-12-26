@@ -119,42 +119,51 @@ public:
             {
                 mVertices.emplace_back(BAK::ToGlCoord<int>(vertex));
             }
-            for (const auto& face : model.mFaces)
+            for (const auto& component : model.mComponents)
             {
-                mFaces.emplace_back(face);
-            }
-            for (const auto& palette : model.mPalettes)
-            {
-                mPalettes.emplace_back(palette);
-            }
-            for (const auto& color : model.mFaceColors)
-            {
-                mColors.emplace_back(color);
-                if ((GetName().substr(0, 5) == "house"
-                    || GetName().substr(0, 3) == "inn")
-                    && (color == 190
-                    || color == 191))
-                    mPush.emplace_back(false);
-                else if (GetName().substr(0, 4) == "blck"
-                    && (color == 145
-                    || color == 191))
-                    mPush.emplace_back(false);
-                else if (GetName().substr(0, 4) == "brid"
-                    && (color == 147))
-                    mPush.emplace_back(false);
-                else if (GetName().substr(0, 4) == "temp"
-                    && (color == 218
-                    || color == 220
-                    || color == 221))
-                    mPush.emplace_back(false);
-                else if (GetName().substr(0, 6) == "church"
-                    && (color == 191
-                    || color == 0))
-                    mPush.emplace_back(false);
-                else if (GetName().substr(0, 6) == "ground")
-                    mPush.emplace_back(false);
-                else
-                    mPush.emplace_back(true);
+                for (const auto& mesh : component.mMeshes)
+                {
+                    assert(mesh.mFaceOptions.size() > 0);
+                    const auto& faceOption = mesh.mFaceOptions[0];
+                    for (const auto& face : faceOption.mFaces)
+                    {
+                        mFaces.emplace_back(face);
+                    }
+                    for (const auto& palette : faceOption.mPalettes)
+                    {
+                        mPalettes.emplace_back(palette);
+                    }
+                    for (const auto& colorVec : faceOption.mFaceColors)
+                    {
+                        const auto color = colorVec.x;
+                        mColors.emplace_back(color);
+                        if ((GetName().substr(0, 5) == "house"
+                            || GetName().substr(0, 3) == "inn")
+                            && (color == 190
+                            || color == 191))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 4) == "blck"
+                            && (color == 145
+                            || color == 191))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 4) == "brid"
+                            && (color == 147))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 4) == "temp"
+                            && (color == 218
+                            || color == 220
+                            || color == 221))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 6) == "church"
+                            && (color == 191
+                            || color == 0))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 6) == "ground")
+                            mPush.emplace_back(false);
+                        else
+                            mPush.emplace_back(true);
+                    }
+                }
             }
         }
         else

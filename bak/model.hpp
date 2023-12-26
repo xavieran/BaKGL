@@ -27,6 +27,25 @@ struct ModelClip
     std::vector<glm::ivec2> otherCoords;
 };
 
+struct FaceOption
+{
+    unsigned mFaceType;
+    unsigned mEdgeCount;
+    std::vector<glm::vec<4, std::uint8_t>> mFaceColors;
+    std::vector<std::uint8_t> mPalettes;
+    std::vector<std::vector<std::uint16_t>> mFaces;
+};
+
+struct Mesh
+{
+    std::vector<FaceOption> mFaceOptions;
+};
+
+struct Component
+{
+    std::vector<Mesh> mMeshes;
+};
+
 struct Model
 {
     std::string mName;
@@ -39,9 +58,7 @@ struct Model
     glm::ivec3 mMax;
     glm::ivec3 mPos;
     std::vector<glm::i32vec3> mVertices;
-    std::vector<std::uint8_t> mFaceColors;
-    std::vector<std::uint8_t> mPalettes;
-    std::vector<std::vector<std::uint16_t>> mFaces;
+    std::vector<Component> mComponents;
 };
 
 std::vector<Model> LoadTBL(FileBuffer& fb);

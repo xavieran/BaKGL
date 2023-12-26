@@ -376,7 +376,7 @@ public:
                 return lhs.mDimensions.x < rhs.mDimensions.x;
             });
 
-        ASSERT(currentChar < text.size() * 2);
+        ASSERT(currentChar <= text.size() * 2);
 
         return std::make_pair(
             glm::vec2{maxX->mDimensions.x, charPos.y},
