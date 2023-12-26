@@ -6,6 +6,45 @@
 
 namespace BAK {
 
+inline std::ostream& operator<<(std::ostream& os, const Mesh& m)
+{
+    os << "      FCs: " << m.mFaceColors.size() << " PALs: " 
+        << m.mPalettes.size() << " Faces: " << m.mFaces.size();
+    for (const auto& f: m.mFaces)
+    {
+        os << " " << f.size() << ",";
+    }
+    os << "\n";
+
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const Component& m)
+{
+    os << "  Meshes: " << m.mMeshes.size() << "\n";
+    for (unsigned i = 0; i < m.mMeshes.size(); i++)
+    {
+        os << "    Mesh #" << i << "\n";
+        os << m.mMeshes[i] << "\n";
+    }
+
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const NewModel& m)
+{
+    os << m.mName << " EF: " << m.mEntityFlags << " ET: " << m.mEntityType 
+        << " TT: " << m.mTerrainType << " Scale: " << m.mScale << " Sprite: " << m.mSprite
+        << "\n";
+    os << " NumVertices: " << m.mVertices.size() << "\n";
+    os << " Components: " << m.mComponents.size() << "\n";
+    for (unsigned i = 0; i < m.mComponents.size(); i++)
+    {
+        os << "  Component: " << i << "\n" << m.mComponents[i] << "\n";
+    }
+
+    return os;
+}
+
+
 std::vector<std::string> LoadModelNames(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
@@ -151,6 +190,9 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
     std::vector<Model> models{};
     models.reserve(numItems);
 
+    std::vector<NewModel> newModels{};
+    newModels.reserve(numItems);
+
     for (unsigned i = 0; i < numItems; i++)
     {
         const auto lower = fb.GetUint16LE();
@@ -161,6 +203,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
     for (unsigned i = 0; i < numItems; i++)
     {
         Model model{};
+        NewModel newModel{};
 
         fb.Seek(offsets[i]);
         auto offset = offsets[i];
@@ -171,6 +214,12 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         model.mTerrainType = fb.GetUint8();
         model.mScale = fb.GetUint8();
 
+        newModel.mName = model.mName;
+        newModel.mEntityFlags = model.mEntityFlags;
+        newModel.mEntityType = model.mEntityType;
+        newModel.mTerrainType = model.mTerrainType;
+        newModel.mScale = model.mScale;
+
         auto animCount = fb.GetUint16LE();
         auto animOffset = fb.GetUint16LE();
         // fb.Skip(4); 
@@ -180,15 +229,16 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         {
             // to keep the indices aligned
             models.emplace_back(models.back());
+            newModels.emplace_back(newModels.back());
             continue;
         }
 
-        auto modelCount = fb.GetUint16LE();
+        auto componentCount = fb.GetUint16LE();
         auto baseOffset = fb.GetUint16LE();
 
         auto u1 = fb.GetUint8();
         auto u2 = fb.GetUint8();
-        logger.Info() << "MC: " << modelCount<< " " << baseOffset<< " (" << std::hex << +u1 << " " << +u2 << std::dec << ")\n";
+        logger.Info() << "MC: " << componentCount<< " " << baseOffset<< " (" << std::hex << +u1 << " " << +u2 << std::dec << ")\n";
 
         std::vector<ModelX> modelXs{};
 
@@ -200,7 +250,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
             model.mMax = fb.LoadVector<std::int16_t, 3>();
         }
 
-        for (auto modelI = 0; modelI < modelCount; modelI++)
+        for (auto componentI = 0; componentI < componentCount; componentI++)
         {
             fb.Dump(6);
             auto u_1_1 = fb.GetUint8();
@@ -228,10 +278,10 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
 
         std::vector<std::pair<unsigned, unsigned>> vertexSets{};
         std::vector<unsigned> vertexSums{};
-        for (auto modelI = 0; modelI < modelCount; modelI++)
+        for (auto componentI = 0; componentI < componentCount; componentI++)
         {
 
-            auto& modelX = modelXs[modelI];
+            auto& modelX = modelXs[componentI];
             fb.Seek(offset + modelX.mMeshOffset - baseOffset);
             for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
             {
@@ -280,10 +330,12 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
         logger.Info() << "Vertices end at " << fb.Tell() << "\n";
         fb.Dump(8);
         model.mVertices = vertices;
+        newModel.mVertices = vertices;
 
-        for (unsigned modelI = 0; modelI < modelCount; modelI++)
+        for (unsigned componentI = 0; componentI < componentCount; componentI++)
         {
-            auto& modelX = modelXs[modelI];
+            auto& component = newModel.mComponents.emplace_back(Component{{}});
+            auto& modelX = modelXs[componentI];
             for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
             {
                 auto& meshX = modelX.mMeshs[meshI];
@@ -292,6 +344,10 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
                 logger.Info() << meshI << " -- Sook from: " << fb.Tell() << " to: " << fo << "\n";
                 fb.Seek(fo);
                 fb.Dump(8);
+                auto& newMesh = component.mMeshes.emplace_back(Mesh{});
+                newMesh.mFaceColors = {};
+                newMesh.mPalettes = {};
+                newMesh.mFaces = {};
                 for (unsigned faceI = 0; faceI < meshX.mFaceCount; faceI++)
                 {
                     auto faceType = fb.GetUint16LE();
@@ -299,6 +355,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
                     auto edgeOffset = fb.GetUint16LE();
                     fb.Skip(2);
                     auto& faceX = meshX.mFaces.emplace_back(FaceX{faceType, edgeCount, edgeOffset});
+
                     logger.Info() << "Mesh Num: " << meshI << "\n";
                     logger.Info() << "Face # " << faceI << "\n";
                     logger.Info() << "tp " << faceType << " ec " << edgeCount << " eo " << edgeOffset << "\n";
@@ -306,6 +363,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
                     if (faceType == 2)
                     {
                         model.mSprite = edgeCount;
+                        newModel.mSprite = edgeCount;
                         continue;
                     }
                 }
@@ -332,6 +390,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
                         logger.Info() << "Edge " << edgeI << " " << +edgeX.mPalette << " color " << edgeX.mColor << " group " << +edgeX.mGroup << " vo " << edgeX.mVertexOffset << "\n";
 
                         logger.Info() << "Going to vertex offset: " << offset - baseOffset + vertexOffset << "\n";
+
                         fb.Seek(offset - baseOffset + vertexOffset);
                         std::uint8_t vertexIndex;
                         std::stringstream ss{};
@@ -341,6 +400,9 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
                             edgeX.mVertexIndices.emplace_back(static_cast<std::uint16_t>(vertexIndex) + meshX.mVertexIndexTransform);
                         }
                         model.mFaces.emplace_back(edgeX.mVertexIndices);
+                        newMesh.mFaceColors.emplace_back(color.x);
+                        newMesh.mPalettes.emplace_back(palette);
+                        newMesh.mFaces.emplace_back(edgeX.mVertexIndices);
                         ss << vertexIndex << "\n";
                         logger.Info() << ss.str() << "\n";
                     }
@@ -348,23 +410,13 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
             }
         }
 
-        //if (nVertices == 0)
-        //{
-        //    // 2D objects
-        //    if ((model.mEntityFlags & EF_UNBOUNDED) 
-        //        && (model.mEntityFlags & EF_2D_OBJECT) && (meshCount == 1))
-        //    {
-        //        fb.Skip(2);
-        //        model.mSprite = fb.GetUint16LE();
-        //        fb.Skip(4);
-        //    }
-        //    else
-        //    {
-        //        model.mSprite = -1;
-        //    }
-        //}
-
         models.emplace_back(std::move(model));
+        newModels.emplace_back(std::move(newModel));
+    }
+
+    for (auto& model : newModels)
+    {
+        logger.Info() << "Model: " << model << "\n";
     }
 
     return models;

@@ -69,7 +69,7 @@ struct NewModel
     glm::ivec3 mMax;
     glm::ivec3 mPos;
     std::vector<glm::i32vec3> mVertices;
-    std::vector<Component> mComponent;
+    std::vector<Component> mComponents;
 };
 
 std::vector<Model> LoadTBL(FileBuffer& fb);
