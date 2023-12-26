@@ -75,8 +75,6 @@ int main(int argc, char** argv)
     BAK::ZoneLabel zoneLabel{1};
     std::optional<std::string> saveName{};
     
-    BAK::GameData* gameData{nullptr};
-
 	bool noOptions = true;
     while ((opt = getopt_long(argc, argv, "hs:z:", options, &optionIndex)) != -1)
     {   
@@ -221,7 +219,7 @@ int main(int argc, char** argv)
 
     auto UpdateGameTile = [&]()
     {
-        if (camera.GetGameTile() != currentTile)
+        if (camera.GetGameTile() != currentTile && gameRunner.mGameState.mGameData)
         {
             currentTile = camera.GetGameTile();
             logger.Debug() << "New tile: " << currentTile << "\n";
@@ -323,8 +321,8 @@ int main(int argc, char** argv)
     float deltaTime = 0;
 
     glfwSetCursorPos(window.get(), width/2, height/2);
-    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    //glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_MULTISAMPLE);  
 
@@ -414,7 +412,10 @@ int main(int argc, char** argv)
 			console.Draw("Console", &consoleOpen);
 		}
 
-        gameRunner.RunGameUpdate();
+        if (gameRunner.mGameState.mGameData)
+        {
+            gameRunner.RunGameUpdate();
+        }
 
         if (showImgui && gameRunner.mActiveEncounter)
         {
@@ -431,25 +432,25 @@ int main(int argc, char** argv)
                         ShowDialogGui(
                             gds.mEntryDialog,
                             BAK::DialogStore::Get(),
-                            gameData);
+                            gameRunner.mGameState.mGameData);
                     },
                     [&](const BAK::Encounter::Block& e){
                         ShowDialogGui(
                             e.mDialog,
                             BAK::DialogStore::Get(),
-                            gameData);
+                            gameRunner.mGameState.mGameData);
                     },
                     [&](const BAK::Encounter::Combat& e){
                         ShowDialogGui(
                             e.mEntryDialog,
                             BAK::DialogStore::Get(),
-                            gameData);
+                            gameRunner.mGameState.mGameData);
                     },
                     [&](const BAK::Encounter::Dialog& e){
                         ShowDialogGui(
                             e.mDialog,
                             BAK::DialogStore::Get(),
-                            gameData);
+                            gameRunner.mGameState.mGameData);
                     },
                     [](const BAK::Encounter::EventFlag&){
                     },
@@ -457,7 +458,7 @@ int main(int argc, char** argv)
                         ShowDialogGui(
                             e.mDialog,
                             BAK::DialogStore::Get(),
-                            gameData);
+                            gameRunner.mGameState.mGameData);
                     },
                 },
                 encounter);
@@ -496,8 +497,6 @@ int main(int argc, char** argv)
     {
         ImguiWrapper::Shutdown();
     }
-
-    delete gameData;
 
     return 0;
 }

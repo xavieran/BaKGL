@@ -27,29 +27,18 @@ struct ModelClip
     std::vector<glm::ivec2> otherCoords;
 };
 
-struct Model
+struct FaceOption
 {
-    std::string mName;
-    unsigned mEntityFlags;
-    unsigned mEntityType;
-    unsigned mTerrainType;
-    unsigned mScale;
-    unsigned mSprite;
-    glm::ivec3 mMin;
-    glm::ivec3 mMax;
-    glm::ivec3 mPos;
-    std::vector<glm::i32vec3> mVertices;
-    std::vector<std::uint8_t> mFaceColors;
+    unsigned mFaceType;
+    unsigned mEdgeCount;
+    std::vector<glm::vec<4, std::uint8_t>> mFaceColors;
     std::vector<std::uint8_t> mPalettes;
     std::vector<std::vector<std::uint16_t>> mFaces;
 };
 
-
 struct Mesh
 {
-    std::vector<std::uint8_t> mFaceColors;
-    std::vector<std::uint8_t> mPalettes;
-    std::vector<std::vector<std::uint16_t>> mFaces;
+    std::vector<FaceOption> mFaceOptions;
 };
 
 struct Component
@@ -57,7 +46,7 @@ struct Component
     std::vector<Mesh> mMeshes;
 };
 
-struct NewModel
+struct Model
 {
     std::string mName;
     unsigned mEntityFlags;

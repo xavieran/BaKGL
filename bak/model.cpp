@@ -6,15 +6,25 @@
 
 namespace BAK {
 
-inline std::ostream& operator<<(std::ostream& os, const Mesh& m)
+inline std::ostream& operator<<(std::ostream& os, const FaceOption& m)
 {
-    os << "      FCs: " << m.mFaceColors.size() << " PALs: " 
-        << m.mPalettes.size() << " Faces: " << m.mFaces.size();
+    os << "      FaceOption[FT: " << m.mFaceType << " EC: " << m.mEdgeCount << " FCs: " << m.mFaceColors.size() << " PALs: " 
+        << m.mPalettes.size() << " Faces " << m.mFaces.size() << " -- ";
     for (const auto& f: m.mFaces)
     {
         os << " " << f.size() << ",";
     }
-    os << "\n";
+    os << "]";
+
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const Mesh& m)
+{
+    os << "      FaceOptions: " << m.mFaceOptions.size() << "\n";
+    for (const auto& f: m.mFaceOptions)
+    {
+        os << " " << f << "\n";
+    }
 
     return os;
 }
@@ -24,12 +34,12 @@ inline std::ostream& operator<<(std::ostream& os, const Component& m)
     for (unsigned i = 0; i < m.mMeshes.size(); i++)
     {
         os << "    Mesh #" << i << "\n";
-        os << m.mMeshes[i] << "\n";
+        os << m.mMeshes[i] << "";
     }
 
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, const NewModel& m)
+inline std::ostream& operator<<(std::ostream& os, const Model& m)
 {
     os << m.mName << " EF: " << m.mEntityFlags << " ET: " << m.mEntityType 
         << " TT: " << m.mTerrainType << " Scale: " << m.mScale << " Sprite: " << m.mSprite
@@ -139,45 +149,27 @@ std::vector<ModelClip> LoadModelClip(FileBuffer& fb, unsigned numItems)
     return modelClips;
 }
 
-struct EdgeX
+struct FaceData
 {
-    std::uint8_t mPalette;
-    glm::uvec4 mColor;
-    std::uint8_t mGroup;
-    std::uint16_t mVertexOffset;
-    std::vector<std::uint16_t> mVertexIndices;
-};
-
-struct FaceX
-{
-    unsigned mType;
+    unsigned mFaceType;
     unsigned mEdgeCount;
     unsigned mEdgeOffset;
-    std::vector<EdgeX> mEdges{};
 };
 
-struct MeshX
+struct MeshOffsetData
 {
     unsigned mVertexCount;
     unsigned mVertexOffset;
     unsigned mVertexIndexTransform;
     unsigned mFaceCount;
     unsigned mFaceOffset;
-    std::vector<glm::vec3> mVertices;
-    std::vector<FaceX> mFaces;
 };
 
-struct ModelX
+struct ComponentData 
 {
     unsigned mMeshCount;
     unsigned mMeshOffset;
-
-    std::vector<MeshX> mMeshs;
-};
-
-struct Animation
-{
-    std::array<char, 7> mData;
+    std::vector<MeshOffsetData> mMeshOffsetDatas;
 };
 
 std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames)
@@ -187,10 +179,8 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
     const unsigned numItems = itemNames.size();
     std::vector<unsigned> offsets{};
     offsets.reserve(numItems);
-    std::vector<Model> models{};
-    models.reserve(numItems);
 
-    std::vector<NewModel> newModels{};
+    std::vector<Model> newModels{};
     newModels.reserve(numItems);
 
     for (unsigned i = 0; i < numItems; i++)
@@ -202,91 +192,59 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
 
     for (unsigned i = 0; i < numItems; i++)
     {
-        Model model{};
-        NewModel newModel{};
+        Model newModel{};
 
         fb.Seek(offsets[i]);
         auto offset = offsets[i];
-        model.mName = itemNames[i];
-        fb.Dump(16);
-        model.mEntityFlags = fb.GetUint8();
-        model.mEntityType = fb.GetUint8();
-        model.mTerrainType = fb.GetUint8();
-        model.mScale = fb.GetUint8();
+        newModel.mName = itemNames[i];
+        newModel.mEntityFlags = fb.GetUint8();
+        newModel.mEntityType = fb.GetUint8();
+        newModel.mTerrainType = fb.GetUint8();
+        newModel.mScale = fb.GetUint8();
 
-        newModel.mName = model.mName;
-        newModel.mEntityFlags = model.mEntityFlags;
-        newModel.mEntityType = model.mEntityType;
-        newModel.mTerrainType = model.mTerrainType;
-        newModel.mScale = model.mScale;
-
+        // uncertain what these are for...
+        // animCount seems to be related to the number of face
+        // options, e.g. the catapult
         auto animCount = fb.GetUint16LE();
         auto animOffset = fb.GetUint16LE();
-        // fb.Skip(4); 
-        logger.Info() << model.mName << " @" << offsets[i] << " ( " << offset << " ) " << "\n";
-        logger.Info() << "Anim: " << animCount << " " << animOffset << "\n";
-        if (model.mName == "boom")
+        if (newModel.mName == "boom")
         {
-            // to keep the indices aligned
-            models.emplace_back(models.back());
+            // to keep the indices aligned - not sure what to do with this
             newModels.emplace_back(newModels.back());
             continue;
         }
 
         auto componentCount = fb.GetUint16LE();
         auto baseOffset = fb.GetUint16LE();
+        fb.Skip(2);
 
-        auto u1 = fb.GetUint8();
-        auto u2 = fb.GetUint8();
-        logger.Info() << "MC: " << componentCount<< " " << baseOffset<< " (" << std::hex << +u1 << " " << +u2 << std::dec << ")\n";
-
-        std::vector<ModelX> modelXs{};
-
-        bool bounded = !(model.mEntityFlags & EF_UNBOUNDED);
+        bool bounded = !(newModel.mEntityFlags & EF_UNBOUNDED);
         if (bounded)
         {
-            fb.Dump(12);
-            model.mMin = fb.LoadVector<std::int16_t, 3>();
-            model.mMax = fb.LoadVector<std::int16_t, 3>();
+            newModel.mMin = fb.LoadVector<std::int16_t, 3>();
+            newModel.mMax = fb.LoadVector<std::int16_t, 3>();
         }
 
+        std::vector<ComponentData> componentOffsetDatas;
         for (auto componentI = 0; componentI < componentCount; componentI++)
         {
-            fb.Dump(6);
-            auto u_1_1 = fb.GetUint8();
-            auto u_1_2 = fb.GetUint8();
-
+            fb.Skip(2);
             unsigned meshCount = fb.GetUint16LE();
             unsigned meshOffset = fb.GetUint16LE();
-            modelXs.emplace_back(ModelX{meshCount, meshOffset, {}});
-            logger.Info() << " Model U (" << +u_1_1 << ", " << +u_1_2 << ") mesh cnt " << meshCount << " meshOff: " << meshOffset << "\n";
+            componentOffsetDatas.emplace_back(ComponentData{meshCount, meshOffset, {}});
         }
 
         offset += 14 + (bounded ? 12 : 0);
-        logger.Info() << "Offset now: " << offset << "\n";
-
-        // this doesn't work
-        //if (animCount > 0)
-        //{
-        //    
-        //    fb.Seek(offset + animOffset - baseOffset);
-        //    for (auto animI = 0; animI < animCount; animI++)
-        //    {
-        //        fb.DumpAndSkip(7);
-        //    }
-        //}
 
         std::vector<std::pair<unsigned, unsigned>> vertexSets{};
         std::vector<unsigned> vertexSums{};
         for (auto componentI = 0; componentI < componentCount; componentI++)
         {
 
-            auto& modelX = modelXs[componentI];
-            fb.Seek(offset + modelX.mMeshOffset - baseOffset);
-            for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
+            auto& component = componentOffsetDatas[componentI];
+            fb.Seek(offset + component.mMeshOffset - baseOffset);
+            for (unsigned meshI = 0; meshI < component.mMeshCount; meshI++)
             {
-                logger.Info() << "Mesh #" << meshI << "\n";
-                fb.Dump(14);
                 fb.Skip(3);
                 unsigned vertices = fb.GetUint8();
                 unsigned vertexOffset = fb.GetUint16LE();
@@ -306,120 +264,95 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
                     }
                 }
 
-                modelX.mMeshs.emplace_back(MeshX{vertices, vertexOffset, vertexSums.back(), faceCount, faceOffset, {}, {}});
-                logger.Info() << " VC: " << vertices << " VO: " << vertexOffset << " FC: " << faceCount << " FO: " << faceOffset << "\n";
+                component.mMeshOffsetDatas.emplace_back(MeshOffsetData{vertices, vertexOffset, vertexSums.back(), faceCount, faceOffset});
                 fb.Skip(4);
             }
         }
 
         std::vector<glm::i32vec3> vertices{};
         unsigned vs = 0;
-        logger.Info() << "Vertices start at: " << fb.Tell() << "\n";
-        fb.Dump(6);
         for (auto [vertexCount, vertexOffset] : vertexSets)
         {
-            logger.Info() << "VC: " << vertexCount << " " << vertexOffset << "\n";
-            logger.Info() << "ULocation: " << fb.Tell() << "\n";
-            logger.Info() << "ULocation calc: " << offset - baseOffset + vertexOffset << "\n";
             fb.Seek(offset - baseOffset + vertexOffset);
             for (unsigned vv = 0; vv < vertexCount; vv++)
             {
                 vertices.emplace_back(fb.LoadVector<std::int16_t, 3>());
             }
         }
-        logger.Info() << "Vertices end at " << fb.Tell() << "\n";
-        fb.Dump(8);
-        model.mVertices = vertices;
+
         newModel.mVertices = vertices;
 
         for (unsigned componentI = 0; componentI < componentCount; componentI++)
         {
             auto& component = newModel.mComponents.emplace_back(Component{{}});
-            auto& modelX = modelXs[componentI];
-            for (unsigned meshI = 0; meshI < modelX.mMeshCount; meshI++)
+            auto& componentOffsetData = componentOffsetDatas[componentI];
+            for (unsigned meshI = 0; meshI < componentOffsetData.mMeshCount; meshI++)
             {
-                auto& meshX = modelX.mMeshs[meshI];
-                auto fo = offset - baseOffset + meshX.mFaceOffset;
-                logger.Info() << meshI << " Off: " << offset << " BO: " << baseOffset << " animO: " << animOffset << " FO: " << meshX.mFaceOffset << std::endl;
-                logger.Info() << meshI << " -- Sook from: " << fb.Tell() << " to: " << fo << "\n";
+                auto& meshOffsetData = componentOffsetData.mMeshOffsetDatas[meshI];
+                auto fo = offset - baseOffset + meshOffsetData.mFaceOffset;
                 fb.Seek(fo);
-                fb.Dump(8);
-                auto& newMesh = component.mMeshes.emplace_back(Mesh{});
-                newMesh.mFaceColors = {};
-                newMesh.mPalettes = {};
-                newMesh.mFaces = {};
-                for (unsigned faceI = 0; faceI < meshX.mFaceCount; faceI++)
+                auto& newMesh = component.mMeshes.emplace_back(Mesh{{}});
+                newMesh.mFaceOptions.reserve(meshOffsetData.mFaceCount);
+                std::vector<FaceData> faceOffsetDatas;
+                for (unsigned faceI = 0; faceI < meshOffsetData.mFaceCount; faceI++)
                 {
+                    auto& faceOption = newMesh.mFaceOptions.emplace_back(FaceOption{});
                     auto faceType = fb.GetUint16LE();
                     auto edgeCount = fb.GetUint16LE();
+                    faceOption.mFaceType = faceType;
+                    faceOption.mEdgeCount = edgeCount;
                     auto edgeOffset = fb.GetUint16LE();
                     fb.Skip(2);
-                    auto& faceX = meshX.mFaces.emplace_back(FaceX{faceType, edgeCount, edgeOffset});
-
-                    logger.Info() << "Mesh Num: " << meshI << "\n";
-                    logger.Info() << "Face # " << faceI << "\n";
-                    logger.Info() << "tp " << faceType << " ec " << edgeCount << " eo " << edgeOffset << "\n";
+                    faceOffsetDatas.emplace_back(FaceData{faceType, edgeCount, edgeOffset});
 
                     if (faceType == 2)
                     {
-                        model.mSprite = edgeCount;
                         newModel.mSprite = edgeCount;
                         continue;
                     }
                 }
 
-                for (unsigned faceI = 0; faceI < meshX.mFaceCount; faceI++)
+                assert(newMesh.mFaceOptions.size() == meshOffsetData.mFaceCount);
+                for (unsigned faceI = 0; faceI < meshOffsetData.mFaceCount; faceI++)
                 {
-                    auto& faceX = meshX.mFaces[faceI];
-                    if (faceX.mType == 2) continue;
-                    fb.Seek(offset - baseOffset + faceX.mEdgeOffset);
-                    unsigned edgeSeekOffset = offset - baseOffset + faceX.mEdgeOffset;
-                    for (unsigned edgeI = 0; edgeI < faceX.mEdgeCount; edgeI++)
+                    auto& faceOption = newMesh.mFaceOptions[faceI];
+                    auto& faceOffsetData = faceOffsetDatas[faceI];
+                    if (faceOffsetData.mFaceType == 2) continue;
+                    fb.Seek(offset - baseOffset + faceOffsetData.mEdgeOffset);
+                    unsigned edgeSeekOffset = offset - baseOffset + faceOffsetData.mEdgeOffset;
+                    for (unsigned edgeI = 0; edgeI < faceOffsetData.mEdgeCount; edgeI++)
                     {
                         fb.Seek(edgeSeekOffset);
-                        logger.Info() << + edgeI << " -- Sook to: " << edgeSeekOffset << " sz: " << fb.GetSize() << "\n";
-                        fb.Dump(8);
                         auto palette = fb.GetUint8();
-                        model.mPalettes.emplace_back(palette);
                         auto color = fb.LoadVector<std::uint8_t, 4>();
-                        model.mFaceColors.emplace_back(color.x);
                         auto group = fb.GetUint8();
                         auto vertexOffset = fb.GetUint16LE();
-                        auto& edgeX = faceX.mEdges.emplace_back(EdgeX{palette, color, group, vertexOffset, {}});
                         edgeSeekOffset = fb.Tell();
-                        logger.Info() << "Edge " << edgeI << " " << +edgeX.mPalette << " color " << edgeX.mColor << " group " << +edgeX.mGroup << " vo " << edgeX.mVertexOffset << "\n";
-
-                        logger.Info() << "Going to vertex offset: " << offset - baseOffset + vertexOffset << "\n";
 
                         fb.Seek(offset - baseOffset + vertexOffset);
                         std::uint8_t vertexIndex;
-                        std::stringstream ss{};
+                        std::vector<std::uint16_t> vertexIndices{};
                         while ((vertexIndex = fb.GetUint8()) != 0xff)
                         {
-                            ss << +vertexIndex << " ";
-                            edgeX.mVertexIndices.emplace_back(static_cast<std::uint16_t>(vertexIndex) + meshX.mVertexIndexTransform);
+                            vertexIndices.emplace_back(static_cast<std::uint16_t>(vertexIndex) + meshOffsetData.mVertexIndexTransform);
                         }
-                        model.mFaces.emplace_back(edgeX.mVertexIndices);
-                        newMesh.mFaceColors.emplace_back(color.x);
-                        newMesh.mPalettes.emplace_back(palette);
-                        newMesh.mFaces.emplace_back(edgeX.mVertexIndices);
-                        ss << vertexIndex << "\n";
-                        logger.Info() << ss.str() << "\n";
+                        faceOption.mFaceColors.emplace_back(color);
+                        faceOption.mPalettes.emplace_back(palette);
+                        faceOption.mFaces.emplace_back(vertexIndices);
                     }
                 }
             }
         }
 
-        models.emplace_back(std::move(model));
         newModels.emplace_back(std::move(newModel));
     }
 
     for (auto& model : newModels)
     {
-        logger.Info() << "Model: " << model << "\n";
+        logger.Spam() << "Model: " << model << "\n";
     }
 
-    return models;
+    return newModels;
 }
 
 std::vector<Model> LoadTBL(FileBuffer& fb)
