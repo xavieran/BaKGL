@@ -4,15 +4,16 @@ namespace BAK {
 
 std::string_view ToString(Condition s)
 {
+    using enum Condition;
     switch (s)
     {
-    case Condition::Sick: return "Sick";
-    case Condition::Plagued: return "Plagued";
-    case Condition::Poisoned: return "Poisoned";
-    case Condition::Drunk: return "Drunk";
-    case Condition::Healing: return "Healing";
-    case Condition::Starving: return "Starving";
-    case Condition::NearDeath: return "NearDeath";
+    case Sick: return "Sick";
+    case Plagued: return "Plagued";
+    case Poisoned: return "Poisoned";
+    case Drunk: return "Drunk";
+    case Healing: return "Healing";
+    case Starving: return "Starving";
+    case NearDeath: return "NearDeath";
     default: return "UnknownCondition";
     }
 }

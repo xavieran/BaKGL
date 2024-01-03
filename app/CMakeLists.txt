@@ -10,6 +10,7 @@ list(APPEND APP_BINARIES
     display_spells
     display_tbl
     display_tile
+    display_traps
     display_ttm
     instancing
     main3d

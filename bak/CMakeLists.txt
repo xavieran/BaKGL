@@ -53,6 +53,7 @@ add_library(bak
     tags.hpp tags.cpp
     temple.hpp temple.cpp
     textureFactory.hpp textureFactory.cpp
+    trap.hpp trap.cpp
     worldClock.hpp worldClock.cpp
     worldItem.hpp worldItem.cpp
     worldFactory.hpp worldFactory.cpp
