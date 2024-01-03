@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("CreateFileBuffer");
     Logging::LogState::Disable("LoadFixedObjects");
     Logging::LogState::Disable("MeshObjectStore");
-    Logging::LogState::Disable("ZoneItemToMeshObject");
+    //Logging::LogState::Disable("ZoneItemToMeshObject");
     Logging::LogState::Disable("World");
     Logging::LogState::Disable("LoadEncounter");
     Logging::LogState::Disable("ZoneFactory");

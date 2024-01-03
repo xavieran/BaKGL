@@ -124,12 +124,61 @@ Graphics::MeshObject ZoneItemToMeshObject(
     unsigned index = 0;
     for (const auto& face : item.GetFaces())
     {
-        if (face.size() < 3)
+        if (face.size() < 3) // line
         {
-            logger.Debug() << "Face with < 3 vertices: " << index
-                << " - " << item.GetName() << std::endl;
+            auto start = glmVertices[face[0]];
+            auto end = glmVertices[face[1]];
+            auto normal = glm::normalize(
+                glm::cross(end - start, glm::vec3(0, 0, 1.0)));
+            float linewidth = 0.05f;
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start - linewidth * normal);
+
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start - linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end - linewidth * normal);
+
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+
+            auto colorIndex = item.GetColors().at(index);
+            auto paletteIndex = item.GetPalettes().at(index);
+            auto textureIndex = colorIndex;
+
+            auto color = pal.GetColor(colorIndex);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+
+            TextureBlend(0.0);
+            TextureBlend(0.0);
+
+            index++;
             continue;
         }
+
         unsigned triangles = face.size() - 2;
 
         // Whether to push this face away from the main plane
@@ -354,6 +403,11 @@ Graphics::MeshObject ZoneItemToMeshObject(
         index++;
     }
 
+    assert(vertices.size() == normals.size());
+    assert(vertices.size() == colors.size());
+    assert(vertices.size() == textureCoords.size());
+    assert(vertices.size() == textureBlends.size());
+    assert(vertices.size() == indices.size());
     return Graphics::MeshObject{
         vertices,
         normals,
