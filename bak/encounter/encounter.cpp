@@ -129,6 +129,7 @@ std::vector<Encounter> LoadEncounters(
 
     encounters.reserve(numberOfEncounters);
     
+    logger.Debug() << "Loading encounters for chapter: " << chapter.mValue << " encounters: " << numberOfEncounters << "\n";
     for (unsigned i = 0; i < numberOfEncounters; i++)
     {
         auto loc = fb.Tell();
@@ -161,7 +162,6 @@ std::vector<Encounter> LoadEncounters(
             << std::dec << " type: " << encounterType << " index: " << encounterTableIndex
             << " saveAddr: 0x" << std::hex << saveAddr << ", " << saveAddr2 << ", "
             << saveAddr3 << std::dec << "\n";
-
         encounters.emplace_back(
             ef.MakeEncounter(
                 encounterType,
@@ -219,7 +219,7 @@ EncounterT EncounterFactory::MakeEncounter(
         return mTowns.Get(encounterIndex, tile);
     case EncounterType::Trap:
         {
-            auto combat = mCombats.Get(encounterIndex);
+            auto combat = mTraps.Get(encounterIndex);
             const auto tilePos = tile * static_cast<unsigned>(64000);
             combat.mNorthRetreat.mPosition += tilePos;
             combat.mSouthRetreat.mPosition += tilePos;

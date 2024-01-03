@@ -1,0 +1,105 @@
+
+Combat entity #1
+05:51:30.01 INFO  [GameData]  Combat #1 3 
+-- Combat inventory # 3
+05:54:56.01 INFO  [GameData] CobmatInventory #3 GenericContainer{ ContainerHeader {CCL { arr: 64 0a 00 00 combat: 1 person: 0} LocType: 7 Items: 3 Capacity: 3 Flags: 0} Inventory {
+#0 -> Standard Kingdom Armor #48 pct/qty: 76 status: 96 mods: [] IsEquipped: 1
+
+#1 -> Broadsword #18 pct/qty: 63 status: 96 mods: [] IsEquipped: 1
+
+#2 -> Silver Royals #54 pct/qty: 42 status: 0 mods: [] IsEquipped: 0
+
+
+-- Combat stats #3 also
+
+05:54:56.01 INFO  [GameData] Combat #3 9268
+05:54:56.01 INFO  [GameData] bbe0
+00000000: 00 00 00 00 00 00 
+00000000: 00 00 00 00 00 00 00 
+05:54:56.01 INFO  [GameData] Health: 27 27 27 Stamina: 21 21 21 Speed: 3 3 3 Strength: 14 14 14 Defense: 40 40 40 Crossbow: 0 0 0 Melee: 46 46 46 Cast: 0 0 0 Assess: 210 210 210 Armor: 0 0 0 Weapon: 18 18 18 Bard: 192 192 192 Haggle: 88 88 88 Lockpick: 255 255 255 Scout: 60 60 60 Stealth: 58 58 58 
+0
+
+Grid location:
+05:58:13.01 INFO  [GameData] Combat #3 monster: 18 grid: uvec2(2, 6)
+
+
+Combat 2
+05:58:13.01 INFO  [GameData]  Combat #2 4,5
+05:58:13.01 INFO  [GameData] Combat #4 monster: 18 grid: uvec2(2, 7)
+05:58:13.01 INFO  [GameData] Combat #5 monster: 18 grid: uvec2(6, 7)
+
+05:58:13.01 INFO  [GameData] Combat #4 92c7
+05:58:13.01 INFO  [GameData] e040
+00000000: 00 00 00 00 00 00 
+00000000: 00 00 00 00 00 00 00 
+05:58:13.01 INFO  [GameData] Health: 26 26 26 Stamina: 33 33 33 Speed: 5 5 5 Strength: 23 23 23 Defense: 36 36 36 Crossbow: 0 0 0 Melee: 56 56 56 Cast: 0 0 0 Assess: 210 210 210 Armor: 0 0 0 Weapon: 18 18 18 Bard: 192 192 192 Haggle: 88 88 88 Lockpick: 255 255 255 Scout: 60 60 60 Stealth: 58 58 58 
+05:58:13.01 INFO  [GameData] Combat #5 9326
+05:58:13.01 INFO  [GameData] bbe0
+00000000: 00 00 00 00 00 00 
+00000000: 00 00 00 00 00 00 00 
+05:58:13.01 INFO  [GameData] Health: 31 31 31 Stamina: 17 17 17 Speed: 3 3 3 Strength: 13 13 13 Defense: 41 41 41 Crossbow: 0 0 0 Melee: 51 51 51 Cast: 0 0 0 Assess: 210 210 210 Armor: 0 0 0 Weapon: 18 18 18 Bard: 192 192 192 Haggle: 88 88 88 Lockpick: 255 255 255 Scout: 60 60 60 Stealth: 58 58 58 
+0
+
+
+05:58:13.01 INFO  [GameData]  Combat #72 195,196,197
+
+06:10:54.01 INFO  [GameData] Combat #195 monster: 55 grid: uvec2(1, 5)
+06:10:54.01 INFO  [GameData] Combat #196 monster: 55 grid: uvec2(3, 4)
+06:10:54.01 INFO  [GameData] Combat #197 monster: 55 grid: uvec2(5, 4)
+05:58:13.01 INFO  [GameData] CobmatInventory #195 GenericContainer{ ContainerHeader {CCL { arr: 64 0a 00 00 combat: 72 person: 0} LocType: 7 Items: 6 Capacity: 6 Flags: 0} Inventory {
+#0 -> Standard Kingdom Armor #48 pct/qty: 69 status: 96 mods: [] IsEquipped: 1
+
+#1 -> Broadsword #18 pct/qty: 85 status: 96 mods: [] IsEquipped: 1
+
+#2 -> Light Crossbow #30 pct/qty: 81 status: 96 mods: [] IsEquipped: 1
+
+#3 -> Quarrels #36 pct/qty: 15 status: 0 mods: [] IsEquipped: 0
+
+#4 -> Rations (Spoiled) #74 pct/qty: 2 status: 0 mods: [] IsEquipped: 0
+
+#5 -> Silver Royals #54 pct/qty: 37 status: 0 mods: [] IsEquipped: 0
+
+}}
+05:58:13.01 INFO  [GameData] CobmatInventory #196 GenericContainer{ ContainerHeader {CCL { arr: 64 0a 00 00 combat: 72 person: 1} LocType: 7 Items: 6 Capacity: 6 Flags: 0} Inventory {
+#0 -> Standard Kingdom Armor #48 pct/qty: 50 status: 96 mods: [] IsEquipped: 1
+
+#1 -> Broadsword #18 pct/qty: 55 status: 96 mods: [] IsEquipped: 1
+
+#2 -> Light Crossbow #30 pct/qty: 89 status: 96 mods: [] IsEquipped: 1
+
+#3 -> Quarrels #36 pct/qty: 11 status: 0 mods: [] IsEquipped: 0
+
+#4 -> Rations #72 pct/qty: 6 status: 0 mods: [] IsEquipped: 0
+
+#5 -> Silver Royals #54 pct/qty: 36 status: 0 mods: [] IsEquipped: 0
+
+}}
+05:58:13.01 INFO  [GameData] CobmatInventory #197 GenericContainer{ ContainerHeader {CCL { arr: 64 0a 00 00 combat: 72 person: 2} LocType: 7 Items: 5 Capacity: 5 Flags: 0} Inventory {
+#0 -> Standard Kingdom Armor #48 pct/qty: 90 status: 96 mods: [] IsEquipped: 1
+
+#1 -> Broadsword #18 pct/qty: 55 status: 96 mods: [] IsEquipped: 1
+
+#2 -> Light Crossbow #30 pct/qty: 80 status: 96 mods: [] IsEquipped: 1
+
+#3 -> Quarrels #36 pct/qty: 15 status: 0 mods: [] IsEquipped: 0
+
+#4 -> Restoratives #119 pct/qty: 3 status: 0 mods: [] IsEquipped: 0
+
+
+
+Combat just outside Krondor:
+"#14" according to bakweb
+https://dimwood.net/com2-14.html
+
+
+06:10:54.01 INFO  [GameData] CobmatInventory #214 GenericContainer{ ContainerHeader {CCL { arr: 64 0a 00 00 combat: 78 person: 1} LocType: 7 Items: 4 Capacity: 4 Flags: 0} Inventory {
+#0 -> Standard Kingdom Armor #48 pct/qty: 66 status: 96 mods: [] IsEquipped: 1
+
+#1 -> Broadsword #18 pct/qty: 55 status: 96 mods: [] IsEquipped: 1
+
+#2 -> Rations #72 pct/qty: 10 status: 0 mods: [] IsEquipped: 0
+
+#3 -> Restoratives #119 pct/qty: 4 status: 0 mods: [] IsEquipped: 0
+
+06:10:54.01 INFO  [GameData]  Combat #78 212,213,214,215,216
+

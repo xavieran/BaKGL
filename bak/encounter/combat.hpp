@@ -44,7 +44,7 @@ std::ostream& operator<<(std::ostream&, const CombatantData&);
 // Objects
 // Enter Dialogue
 // Scout Dialogue
-// Ambush
+// Ambush / Regular
 // North Retreat
 // West Retreat
 // South Retreat

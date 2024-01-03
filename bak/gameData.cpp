@@ -39,12 +39,9 @@ GameData::GameData(const std::string& save)
     //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
     //    << mBuffer.Tell() << std::dec << "\n";
     LoadShops();
-    //LoadCombatEntityLists();
-    //LoadCombatInventories(
-    //    sCombatInventoryOffset,
-    //    sCombatInventoryCount);
-    //LoadCombatStats(0x914b, 1698);
-    //LoadCombatGridLocations();
+    LoadCombatEntityLists();
+    LoadCombatStats(0x914b, 1698);
+    LoadCombatGridLocations();
 }
 
 
@@ -742,7 +739,7 @@ void GameData::LoadCombatEntityLists()
 {
     mBuffer.Seek(sCombatEntityListOffset);
 
-    mLogger.Spam() << "Combat Entity Lists Start @" 
+    mLogger.Info() << "Combat Entity Lists Start @" 
         << std::hex << sCombatEntityListOffset << std::dec << std::endl;
 
     for (int i = 0; i < sCombatEntityListCount; i++)
@@ -758,10 +755,10 @@ void GameData::LoadCombatEntityLists()
                 ss << sep << combatant;
             sep = ',';
         }
-        mLogger.Spam() << ss.str() << std::endl;
+        mLogger.Info() << ss.str() << std::endl;
     }
 
-    mLogger.Spam() << "Combat Entity Lists End @" 
+    mLogger.Info() << "Combat Entity Lists End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
@@ -769,15 +766,15 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
 {
     unsigned combatStatsStart = offset;
     mBuffer.Seek(combatStatsStart);
-    mLogger.Spam() << "Combat Stats Start @" 
+    mLogger.Info() << "Combat Stats Start @" 
         << std::hex << combatStatsStart << std::dec << std::endl;
 
     // ends at 3070a
     for (unsigned i = 0; i < num; i++)
     {
-        mLogger.Spam() << "Combat #" << std::dec << i 
+        mLogger.Info() << "Combat #" << std::dec << i 
             << " " << std::hex << mBuffer.Tell() << std::endl;
-        mLogger.Spam() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
+        mLogger.Info() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
         // These are spells
         mBuffer.DumpAndSkip(6);
 
@@ -793,18 +790,18 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
             mBuffer.Skip(2);
         }
         mBuffer.DumpAndSkip(7);
-        mLogger.Spam() << ss.str() << std::endl;
+        mLogger.Info() << ss.str() << std::endl;
     }
-    mLogger.Spam() << "Combat Stats End @" 
+    mLogger.Info() << "Combat Stats End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
 void GameData::LoadCombatGridLocations()
 {
-    const auto initial = 3;
+    const auto initial = 0;
     static constexpr auto sCombatGridLocationsOffset = 0x31349;
-    static constexpr auto sCombatGridLocationsCount = 2;
-    mLogger.Spam() << "Loading Combat Grid Locations" << std::endl;
+    static constexpr auto sCombatGridLocationsCount = 1699;
+    mLogger.Info() << "Loading Combat Grid Locations" << std::endl;
     mBuffer.Seek(sCombatGridLocationsOffset + (initial * 22));
     for (unsigned i = 0; i < sCombatGridLocationsCount; i++)
     {
@@ -814,22 +811,27 @@ void GameData::LoadCombatGridLocations()
         const auto gridY = mBuffer.GetUint8();
         mBuffer.DumpAndSkip(16);
 
-        mLogger.Spam() << "Combat #" << i << " monster: " << monsterType <<
+        mLogger.Info() << "Combat #" << i << " monster: " << monsterType <<
             " grid: " << glm::uvec2{gridX, gridY} << "\n";
     }
 }
 
 std::vector<GenericContainer> GameData::LoadCombatInventories()
 {
-    mLogger.Spam() << "Loading Combat Inventories" << std::endl;
+    mLogger.Info() << "Loading Combat Inventories" << std::endl;
     mBuffer.Seek(sCombatInventoryOffset);
     std::vector<GenericContainer> containers{};
 
+    // There are more combat inventories than there are
+    // combatants for some reason. We should look them
+    // up by combat and combatant number rather than by
+    // index.
     for (unsigned i = 0; i < sCombatInventoryCount; i++)
     {
+        auto loc = mBuffer.Tell();
         auto container = LoadGenericContainer<ContainerCombatLocationTag>(mBuffer);
         containers.emplace_back(std::move(container));
-        mLogger.Spam() << containers.back() << "\n";
+        mLogger.Info() << "CobmatInventory #" << i << " @" << std::hex << loc << std::dec << " " << containers.back() << "\n";
     }
 
     return containers;
