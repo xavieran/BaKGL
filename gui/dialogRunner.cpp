@@ -271,6 +271,7 @@ void DialogRunner::MakeChoice(BAK::ChoiceIndex choice)
         if (choices.size() == 0 || choices.size() == 1)
         {
             mLogger.Info() << "Yes|No dialog choice. Player chose: " << mLastChoice << "\n";
+            mLastChoice = std::nullopt;
         }
         else
         {
@@ -369,7 +370,8 @@ void DialogRunner::ShowQueryChoices()
 
     if (choices.size() == 1)
     {
-        const auto index = BAK::Keywords::sNoIndex; // No
+        const auto availableChoice = choices.back().first;
+        const auto index = availableChoice.mValue == BAK::Keywords::sNoIndex ? BAK::Keywords::sYesIndex : BAK::Keywords::sNoIndex;
         choices.emplace_back(
             std::make_pair(
                 BAK::ChoiceIndex{index},

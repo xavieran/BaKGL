@@ -6,11 +6,14 @@
 #include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
+#include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
+
+#include "com/logger.hpp"
 
 #include "gui/guiManager.hpp"
 
@@ -259,18 +262,22 @@ public:
         mDynamicDialogScene.SetDialogFinished(
             [&, zone=zone](const auto& choice){
                 // These dialogs should always result in a choice
-                ASSERT(choice);
+                //ASSERT(choice);
                 Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
-                if (choice->mValue == BAK::Keywords::sYesIndex)
+                if (choice)
                 {
                     DoTransition(
                         zone.mTargetZone,
                         zone.mTargetLocation);
                     Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
                 }
+                else
+                {
+                    mCamera.MoveBackward();
+                }
                 mDynamicDialogScene.ResetDialogFinished();
             });
-
+		mLogger.Info() << "Zone transition: " << zone << "\n";
         mGuiManager.StartDialog(
             zone.mDialog,
             false,
