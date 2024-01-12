@@ -6,11 +6,14 @@
 #include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
+#include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
+
+#include "com/logger.hpp"
 
 #include "gui/guiManager.hpp"
 
@@ -233,6 +236,7 @@ public:
                 false,
                 &mDynamicDialogScene);
 
+        mCamera.UndoPositionChange();
         mGameState.SetPostEnableOrDisableEventFlags(encounter);
     }
 
@@ -255,22 +259,30 @@ public:
     {
         if (!mGameState.CheckEncounterActive(encounter))
             return;
-
+        const auto& choices = BAK::DialogStore::Get().GetSnippet(zone.mDialog).mChoices;
+        const bool isNoAffirmative = choices.size() == 1 
+            && std::holds_alternative<BAK::QueryChoice>(choices.back().mChoice)
+            && std::get<BAK::QueryChoice>(choices.back().mChoice).mQueryIndex == BAK::Keywords::sNoIndex;
         mDynamicDialogScene.SetDialogFinished(
-            [&, zone=zone](const auto& choice){
+            [&, isNoAffirmative=isNoAffirmative, zone=zone](const auto& choice){
                 // These dialogs should always result in a choice
                 ASSERT(choice);
                 Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
-                if (choice->mValue == BAK::Keywords::sYesIndex)
+                if ((choice->mValue == BAK::Keywords::sYesIndex && !isNoAffirmative)
+                    || (choice->mValue == BAK::Keywords::sNoIndex && isNoAffirmative))
                 {
                     DoTransition(
                         zone.mTargetZone,
                         zone.mTargetLocation);
                     Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
                 }
+                else
+                {
+                    mCamera.UndoPositionChange();
+                }
                 mDynamicDialogScene.ResetDialogFinished();
             });
-
+		mLogger.Info() << "Zone transition: " << zone << "\n";
         mGuiManager.StartDialog(
             zone.mDialog,
             false,
@@ -327,15 +339,14 @@ public:
                                     false,
                                     &mDynamicDialogScene);
                                 });
+                                mCamera.SetGameLocation(gds.mExitPosition);
                     });
                 }
+                else
+                {
+                    mCamera.UndoPositionChange();
+                }
 
-                // FIXME: Move this into the if block so we only
-                // modify the players position if they entered the town.
-                // Will need a "TryMoveCamera" step that checks encounter 
-                // bounds and doesn't move if its a no. 
-                // Will need the same for block and Zone transitions too.
-                mCamera.SetGameLocation(gds.mExitPosition);
                 mGameState.SetPostGDSEventFlags(encounter);
                 mDynamicDialogScene.ResetDialogFinished();
             });

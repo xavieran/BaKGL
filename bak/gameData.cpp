@@ -591,9 +591,10 @@ Location GameData::LoadLocation()
     unsigned xpos = mBuffer.GetUint32LE();
     unsigned ypos = mBuffer.GetUint32LE();
 
-    mBuffer.DumpAndSkip(5);
+    //mBuffer.DumpAndSkip(5);
+    mBuffer.Skip(5);
     std::uint16_t heading = mBuffer.GetUint8();
-    mBuffer.DumpAndSkip(1);
+    mBuffer.Skip(1);
 
     mLogger.Info() << "Tile: " << xtile << "," << ytile << std::endl;
     mLogger.Info() << "Pos: " << xpos << "," << ypos << std::endl;
@@ -776,7 +777,8 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
             << " " << std::hex << mBuffer.Tell() << std::endl;
         mLogger.Info() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
         // These are spells
-        mBuffer.DumpAndSkip(6);
+        //mBuffer.DumpAndSkip(6);
+        mBuffer.Skip(6);
 
         std::stringstream ss{""};
         for (const auto& stat : {
@@ -789,7 +791,7 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
                 << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " ";
             mBuffer.Skip(2);
         }
-        mBuffer.DumpAndSkip(7);
+        mBuffer.Skip(7);
         mLogger.Info() << ss.str() << std::endl;
     }
     mLogger.Info() << "Combat Stats End @" 
@@ -805,11 +807,11 @@ void GameData::LoadCombatGridLocations()
     mBuffer.Seek(sCombatGridLocationsOffset + (initial * 22));
     for (unsigned i = 0; i < sCombatGridLocationsCount; i++)
     {
-        mBuffer.DumpAndSkip(2);
+        mBuffer.Skip(2);
         const auto monsterType = mBuffer.GetUint16LE();
         const auto gridX = mBuffer.GetUint8();
         const auto gridY = mBuffer.GetUint8();
-        mBuffer.DumpAndSkip(16);
+        mBuffer.Skip(16);
 
         mLogger.Info() << "Combat #" << i << " monster: " << monsterType <<
             " grid: " << glm::uvec2{gridX, gridY} << "\n";

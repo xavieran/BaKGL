@@ -24,8 +24,11 @@ public:
     std::string_view GetQueryChoice(unsigned i) const;
     std::string_view GetNPCName(unsigned i) const;
 
-    static constexpr auto sYesIndex = 0x100;
-    static constexpr auto sNoIndex  = 0x101;
+    static constexpr unsigned sYesIndex = 0x100;
+    static constexpr unsigned sNoIndex  = 0x101;
+    static constexpr unsigned sAcceptIndex = 0x104;
+    static constexpr unsigned sDeclineIndex = 0x105;
+    static constexpr unsigned sHaggleIndex = 0x106;
 private:
     static constexpr auto mCharacterNameOffset = 293;
 
