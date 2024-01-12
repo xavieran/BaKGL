@@ -271,7 +271,6 @@ void DialogRunner::MakeChoice(BAK::ChoiceIndex choice)
         if (choices.size() == 0 || choices.size() == 1)
         {
             mLogger.Info() << "Yes|No dialog choice. Player chose: " << mLastChoice << "\n";
-            mLastChoice = std::nullopt;
         }
         else
         {

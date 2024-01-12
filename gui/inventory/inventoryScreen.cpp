@@ -521,12 +521,12 @@ void InventoryScreen::TransferItemFromShopToCharacter(
             [this, &slot, character, share, amount](const auto& choice)
             {
                 ASSERT(choice);
-                if (choice->mValue == 0x104)
+                if (choice->mValue == BAK::Keywords::sAcceptIndex)
                 {
                     BuyItem(slot, character, share, amount);
                     mDialogScene.ResetDialogFinished();
                 }
-                else if (choice->mValue == 0x106)
+                else if (choice->mValue == BAK::Keywords::sDeclineIndex)
                 {
                     HaggleItem(slot, character);
                 }

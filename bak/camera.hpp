@@ -21,6 +21,7 @@ public:
         mTurnSpeed{turnSpeed},
         mDeltaTime{0},
         mPosition{0,1.4,0},
+        mLastPosition{mPosition},
         mProjectionMatrix{CalculatePerspectiveMatrix(width, height)},
         mAngle{3.14, 0}
     {}
@@ -84,6 +85,7 @@ public:
 
     void SetPosition(const glm::vec3& position)
     {
+        mLastPosition = mPosition;
         mPosition = position;
     }
     
@@ -108,42 +110,55 @@ public:
 
     void MoveForward()
     {
+        mLastPosition = mPosition;
         mPosition += GetDirection() * (mMoveSpeed * mDeltaTime);
     }
 
     void MoveBackward()
     {
+        mLastPosition = mPosition;
         mPosition -= GetDirection() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeForward()
     {
+        mLastPosition = mPosition;
         mPosition += GetForward() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeBackward()
     {
+        mLastPosition = mPosition;
         mPosition -= GetForward() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeRight()
     {
+        mLastPosition = mPosition;
         mPosition += GetRight() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeLeft()
     {
+        mLastPosition = mPosition;
         mPosition -= GetRight() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeUp()
     {
+        mLastPosition = mPosition;
         mPosition += GetUp() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeDown()
     {
+        mLastPosition = mPosition;
         mPosition -= GetUp() * (mMoveSpeed * mDeltaTime);
+    }
+
+    void UndoPositionChange()
+    {
+        mPosition = mLastPosition;
     }
 
     void RotateLeft()
@@ -239,6 +254,7 @@ private:
     float mDeltaTime;
 
     glm::vec3 mPosition;
+    glm::vec3 mLastPosition;
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
 };
