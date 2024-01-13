@@ -42,6 +42,7 @@ GameData::GameData(const std::string& save)
     LoadCombatEntityLists();
     LoadCombatStats(0x914b, 1698);
     LoadCombatGridLocations();
+    LoadCombatWorldLocations();
 }
 
 
@@ -801,8 +802,6 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
 void GameData::LoadCombatGridLocations()
 {
     const auto initial = 0;
-    static constexpr auto sCombatGridLocationsOffset = 0x31349;
-    static constexpr auto sCombatGridLocationsCount = 1699;
     mLogger.Info() << "Loading Combat Grid Locations" << std::endl;
     mBuffer.Seek(sCombatGridLocationsOffset + (initial * 22));
     for (unsigned i = 0; i < sCombatGridLocationsCount; i++)
@@ -815,6 +814,28 @@ void GameData::LoadCombatGridLocations()
 
         mLogger.Info() << "Combat #" << i << " monster: " << monsterType <<
             " grid: " << glm::uvec2{gridX, gridY} << "\n";
+    }
+}
+
+void GameData::LoadCombatWorldLocations()
+{
+    mBuffer.Seek(sCombatWorldLocationsOffset);
+    for (unsigned k = 0; k < sCombatWorldLocationsCount; k++)
+    {
+        const auto x = mBuffer.GetUint32LE();
+        const auto y = mBuffer.GetUint32LE();
+        const auto heading = static_cast<std::uint16_t>(mBuffer.GetUint16LE() >> 8);
+        const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
+        const auto unknownFlag = mBuffer.GetUint8();
+        // 0 - invisible?
+        // 1 - invisible?
+        // 2 - moving
+        // 3 - moving
+        // 4 - dead
+        const auto combatantState = mBuffer.GetUint8();
+        mLogger.Info() << "Combatant: " << k << " Position: " << combatantPosition << 
+            " unknown: " << + unknownFlag <<
+            " state: " << +combatantState << std::endl;
     }
 }
 

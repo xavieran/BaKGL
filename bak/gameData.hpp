@@ -99,8 +99,14 @@ public:
     static constexpr auto sCombatEntityListCount  = 700;
     static constexpr auto sCombatEntityListOffset = 0x1383;
 
+    static constexpr auto sCombatWorldLocationsOffset = 0x4fab;
+    static constexpr auto sCombatWorldLocationsCount = 1400;
+
     static constexpr auto sCombatSkillsListOffset = 0x914b;
     static constexpr auto sCombatSkillsListCount  = 1698;
+
+    static constexpr auto sCombatGridLocationsOffset = 0x31349;
+    static constexpr auto sCombatGridLocationsCount = 1699;
 
     static constexpr auto sCharacterInventoryOffset = 0x3a804; // -> 3aa4b
     static constexpr auto sCharacterInventoryLength = 0x70; // -> 3aa4b
@@ -295,6 +301,7 @@ public:
     void LoadChapterOffsetP();
     void LoadCombatEntityLists();
     void LoadCombatGridLocations();
+    void LoadCombatWorldLocations();
     void LoadCombatStats(unsigned offset, unsigned num);
 
     mutable FileBuffer mBuffer;
