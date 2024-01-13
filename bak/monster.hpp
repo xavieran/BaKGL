@@ -10,6 +10,7 @@ namespace BAK {
 
 class MonsterNames
 {
+    static constexpr std::string sInvalidMonster = "INVALID MONSTER";
 public:
     MonsterNames();
 
@@ -35,6 +36,18 @@ public:
         std::uint8_t mUnknown2;
         std::uint8_t mColorSwap;
     };
+
+    const std::string& GetMonsterName(MonsterIndex monster) const
+    {
+        if (monster.mValue < mMonsterNames.size())
+        {
+            return mMonsterNames[monster.mValue];
+        }
+        else
+        {
+            return sInvalidMonster;
+        }
+    }
 
     const std::string& GetMonsterAnimationFile(MonsterIndex monster) const
     {

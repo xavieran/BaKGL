@@ -20,8 +20,8 @@ MonsterNames::MonsterNames()
     {
         auto fb = FileBufferFactory::Get().CreateDataBuffer("MNAMES.DAT");
         const auto monsters = fb.GetUint32LE();
-        logger.Spam() << "Loading keywords" << "\n";
-        logger.Spam() << "Length: " << monsters << "\n";
+        logger.Spam() << "Loading monsters: " << "\n";
+        logger.Spam() << "Monsters: " << monsters << "\n";
 
         std::vector<unsigned> offsets{};
         for (unsigned i = 0; i < monsters; i++)
@@ -36,7 +36,13 @@ MonsterNames::MonsterNames()
         unsigned p = 0;
         for (auto offset : offsets)
         {
-            if (start + offset > fb.GetSize()) continue;
+            if (start + offset > fb.GetSize())
+            {
+                logger.Spam() << "Seeking past end of file!\n";
+                strings.emplace_back("INVALID MONSTER");
+                mMonsterNames.emplace_back("INVALID MONSTER");
+                continue;
+            }
             fb.Seek(start + offset);
             const auto& keyword = strings.emplace_back(fb.GetString());
             logger.Spam() << p++ << " " << keyword << std::endl;
