@@ -75,7 +75,7 @@ public:
         if (item.IsItemType(BAK::ItemType::Scroll))
         {
             BAK::SpellInfo spells{};
-            ss << std::string{spells.GetSpellName(item.GetScroll())};
+            ss << std::string{spells.GetSpellName(item.GetSpell())};
         }
         else
         {

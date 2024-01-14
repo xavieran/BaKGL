@@ -7,6 +7,7 @@
 #include "bak/condition.hpp"
 #include "bak/itemNumbers.hpp"
 #include "bak/skills.hpp"
+#include "bak/spells.hpp"
 #include "bak/types.hpp"
 #include "bak/inventory.hpp"
 
@@ -25,7 +26,7 @@ public:
         unsigned index,
         const std::string& name,
         const Skills& skills,
-        const std::array<std::uint8_t, 6>& spells,
+        Spells spells,
         const std::array<std::uint8_t, 2>& unknown,
         const std::array<std::uint8_t, 7>& unknown2,
         const Conditions& conditions,
@@ -367,10 +368,20 @@ public:
             GetSkill(static_cast<SkillType>(i));
     }
 
+    Spells& GetSpells()
+    {
+        return mSpells;
+    }
+
+    const Spells& GetSpells() const
+    {
+        return mSpells;
+    }
+
     CharIndex mCharacterIndex;
     std::string mName;
     mutable Skills mSkills;
-    std::array<std::uint8_t, 6> mSpells;
+    Spells mSpells;
     std::array<std::uint8_t, 2> mUnknown;
     std::array<std::uint8_t, 7> mUnknown2;
     Conditions mConditions;

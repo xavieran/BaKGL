@@ -26,9 +26,37 @@ enum class SpellCalculationType
 std::string_view ToString(SpellCalculationType);
 std::ostream& operator<<(std::ostream&, SpellCalculationType);
 
+class Spells
+{
+public:
+    explicit Spells(std::array<std::uint8_t, 6> spells)
+    {
+        std::copy(spells.data(), spells.data() + 6, reinterpret_cast<std::uint8_t*>(&mSpells));
+    }
+
+    bool HaveSpell(std::uint64_t spellIndex) const
+    {
+        return (mSpells & (static_cast<std::uint64_t>(1) << spellIndex)) != 0;
+    }
+
+    void SetSpell(std::uint64_t spellIndex)
+    {
+        mSpells |= (static_cast<std::uint64_t>(1) << spellIndex);
+    }
+
+    std::uint64_t mSpells;
+};
+
+std::ostream& operator<<(std::ostream&, const Spells&);
+
 class Spell
 {
 public:
+    bool HasSpell(Spells spells) const
+    {
+        return (spells.mSpells & (static_cast<std::uint64_t>(1) << mIndex)) != 0;
+    }
+
     unsigned mIndex;
     std::string mName;
     unsigned mMinCost;
@@ -59,7 +87,7 @@ class SpellInfo
     static constexpr auto sSpellNamesFile = "SPELLS.DAT";
     static constexpr auto sSpellDocsFile  = "SPELLDOC.DAT";
     static constexpr auto sSpellWeaknessesFile = "SPELLWEA.DAT";
-    static constexpr auto sSpellResistances = "SPELLRES.DAT";
+    static constexpr auto sSpellResistances    = "SPELLRES.DAT";
 public:
     SpellInfo()
     :
@@ -70,6 +98,11 @@ public:
         LoadSpellDoc();
         LoadSpellWeaknesses();
         LoadSpellResistances();
+    }
+
+    const auto& GetSpells() const
+    {
+        return mSpells;
     }
 
     std::string_view GetSpellName(unsigned spellIndex) const
@@ -132,13 +165,11 @@ private:
             stringOffsets.emplace_back(fb.GetUint32LE());
         }
 
-        fb.GetUint16LE();
+        fb.Skip(2);
 
-        Logging::LogDebug(__FUNCTION__) << "String: " << stringOffsets << " currentLoc: " << fb.Tell() << "\n";
         auto here = fb.Tell();
         for (unsigned i = 0, entry = 0; i < mSpells.size(); i++)
         {
-            Logging::LogDebug(__FUNCTION__) << "Entry: " << entry << "\n";
             fb.Seek(here + stringOffsets[entry++]);
             auto title = fb.GetString();
             fb.Seek(here + stringOffsets[entry++]);
@@ -182,24 +213,17 @@ private:
         for (unsigned i = 0; i < entries; i++)
         {
             fb.Dump(6);
-            auto u0 = fb.GetUint16LE();
-            auto u1 = fb.GetUint16LE();
-            auto u2 = fb.GetUint16LE();
-            Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - " << monsters.GetMonsterName(MonsterIndex{i - 1}) << std::hex << " datas: " << u0 << " " << u1 << " " << u2 << "\n";
-            for (unsigned j = 0; j < 16; j++)
+            auto spells = Spells{fb.GetArray<6>()};
+            std::stringstream ss{};
+            for (const auto& spell : mSpells)
             {
-                if ((u0 & (1 << j)) != 0)
+                if (spell.HasSpell(spells))
                 {
-                    Logging::LogDebug(__FUNCTION__) << "  " << mSpells[j].mName << "\n";
+                    ss << spell.mName << ",";
                 }
             }
-            for (unsigned j = 0; j < 16; j++)
-            {
-                if ((u1 & (1 << j)) != 0)
-                {
-                    Logging::LogDebug(__FUNCTION__) << "  " << mSpells[16 + j].mName << "\n";
-                }
-            }
+            Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - "
+                << monsters.GetMonsterName(MonsterIndex{i - 1}) << " (" << std::hex << spells.mSpells << std::dec << ") " << ss.str() << "\n";
         }
     }
 
@@ -211,34 +235,17 @@ private:
         for (unsigned i = 0; i < entries; i++)
         {
             fb.Dump(6);
-            auto u0 = fb.GetUint16LE();
-            auto u1 = fb.GetUint16LE();
-            auto u2 = fb.GetUint16LE();
-            Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - " << monsters.GetMonsterName(MonsterIndex{i - 1}) << std::hex << " datas: " << u0 << " " << u1 << " " << u2 << "\n";
-            for (unsigned j = 0; j < 16; j++)
+            auto spells = Spells{fb.GetArray<6>()};
+            std::stringstream ss{};
+            for (const auto& spell : mSpells)
             {
-                if ((u0 & (1 << j)) != 0)
+                if (spell.HasSpell(spells))
                 {
-                    Logging::LogDebug(__FUNCTION__) << "  " << mSpells[j].mName << "\n";
+                    ss << spell.mName << ",";
                 }
             }
-            for (unsigned j = 0; j < 16; j++)
-            {
-                if ((u1 & (1 << j)) != 0)
-                {
-                    Logging::LogDebug(__FUNCTION__) << "  " << mSpells[16 + j].mName << "\n";
-                }
-            }
-            for (unsigned j = 0; j < 16; j++)
-            {
-                if ((u1 & (1 << j)) != 0)
-                {
-                    if (32 + j < mSpells.size())
-                    {
-                        Logging::LogDebug(__FUNCTION__) << "  " << mSpells[32 + j].mName << "\n";
-                    }
-                }
-            }
+            Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - "
+                << monsters.GetMonsterName(MonsterIndex{i - 1}) << " " << ss.str() << "\n";
         }
     }
 

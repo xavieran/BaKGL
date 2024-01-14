@@ -60,7 +60,7 @@ public:
     static constexpr auto mConsumeAntiVenom   = 0x1b776f;
     static constexpr auto mNoSpaceForNewItem  = 0x1b775b;
     static constexpr auto mCantConsumeAlcohol = 0x1b775c;
-    static constexpr auto mWarriorCantUseMagiciansItem = 0x1b7745;
+    static constexpr auto mWarriorCantUseMagiciansItem = KeyTarget{0x1b7745};
     static constexpr auto mMagicianCantUseWarriorsItem = 0x1b7771;
     static constexpr auto mCantUseItemRightNow = 0x1b7746;
     static constexpr auto mCantUseItemDuringCombat = 0x1b7747;

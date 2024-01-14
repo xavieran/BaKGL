@@ -1,5 +1,6 @@
 #include "bak/gameData.hpp"
 #include "bak/save.hpp"
+#include "bak/spells.hpp"
 
 #include "bak/container.hpp"
 #include "bak/inventory.hpp"
@@ -54,7 +55,7 @@ std::pair<unsigned, unsigned> GameData::CalculateComplexEventOffset(unsigned eve
         ? (source % 10) - 1
         : 0;
         
-    mLogger.Spam() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
+    mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
         << byteOffset + sGameComplexEventRecordOffset << ", " 
         << bitOffset << ")\n" << std::dec;
     return std::make_pair(
@@ -67,7 +68,7 @@ std::pair<unsigned, unsigned> GameData::CalculateEventOffset(unsigned eventPtr) 
     const unsigned startOffset = sGameEventRecordOffset;
     const unsigned bitOffset = eventPtr & 0xf;
     const unsigned byteOffset = (0xfffe & (eventPtr >> 3)) + startOffset;
-    mLogger.Spam() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
+    mLogger.Debug() << __FUNCTION__ << std::hex << " " << eventPtr << " ("
         << byteOffset << ", " << bitOffset << ")\n" << std::dec;
     return std::make_pair(byteOffset, bitOffset);
 }
@@ -149,7 +150,7 @@ unsigned GameData::ReadBitValueAt(unsigned byteOffset, unsigned bitOffset) const
     mBuffer.Seek(byteOffset);
     const unsigned eventData = mBuffer.GetUint16LE();
     const unsigned bitValue = eventData >> bitOffset;
-    mLogger.Spam() << __FUNCTION__ << std::hex << 
+    mLogger.Debug() << __FUNCTION__ << std::hex << 
         " " << byteOffset << " " << bitOffset 
         << " [" << +bitValue << "]\n" << std::dec;
     return bitValue;
@@ -475,6 +476,7 @@ std::vector<Character> GameData::LoadCharacters()
     unsigned characters = sCharacterCount;
 
     std::vector<Character> chars;
+    auto spellInfo = SpellInfo{};
 
     for (unsigned character = 0; character < characters; character++)
     {
@@ -482,11 +484,18 @@ std::vector<Character> GameData::LoadCharacters()
         auto name = mBuffer.GetString(sCharacterNameLength);
 
         mBuffer.Seek(GetCharacterSkillOffset(character));
-        mLogger.Spam() << "Name: " << name << "@" 
+        mLogger.Debug() << "Name: " << name << "@" 
             << std::hex << mBuffer.Tell() << std::dec << "\n";
 
         auto characterNameOffset = mBuffer.GetArray<2>();
-        auto spells = mBuffer.GetArray<6>();
+        auto spells = Spells{mBuffer.GetArray<6>()};
+        for (const auto& spell : spellInfo.GetSpells())
+        {
+            if (spell.HasSpell(spells))
+            {
+                mLogger.Debug() << "  " << spell.mName << "\n";
+            }
+        }
 
         auto skills = Skills{};
 
@@ -625,7 +634,7 @@ Inventory GameData::LoadCharacterInventory(unsigned offset)
 
     const auto itemCount = mBuffer.GetUint8();
     const auto capacity = mBuffer.GetUint16LE();
-    mLogger.Spam() << " Items: " << +itemCount << " cap: " << capacity << "\n";
+    mLogger.Debug() << " Items: " << +itemCount << " cap: " << capacity << "\n";
     return LoadInventory(mBuffer, itemCount, capacity);
 }
 
@@ -692,7 +701,7 @@ std::vector<GenericContainer> GameData::LoadShops()
 std::vector<GenericContainer> GameData::LoadContainers(unsigned zone)
 {
     const auto& mLogger = Logging::LogState::GetLogger("GameData");
-    mLogger.Spam() << "Loading containers for Z: " << zone << "\n";
+    mLogger.Debug() << "Loading containers for Z: " << zone << "\n";
     std::vector<GenericContainer> containers{};
 
     ASSERT(zone < sZoneContainerOffsets.size());
@@ -702,11 +711,11 @@ std::vector<GenericContainer> GameData::LoadContainers(unsigned zone)
     for (unsigned j = 0; j < count; j++)
     {
         const unsigned address = mBuffer.Tell();
-        mLogger.Spam() << " Container: " << j
+        mLogger.Debug() << " Container: " << j
             << " addr: " << std::hex << address << std::dec << std::endl;
         auto container = LoadGenericContainer<ContainerWorldLocationTag>(mBuffer);
         containers.emplace_back(std::move(container));
-        mLogger.Spam() << containers.back() << "\n";
+        mLogger.Debug() << containers.back() << "\n";
     }
 
     return containers;
@@ -718,7 +727,7 @@ void GameData::LoadChapterOffsetP()
     constexpr unsigned chapterOffsetsStart = 0x11a3;
     mBuffer.Seek(chapterOffsetsStart);
 
-    mLogger.Spam() << "Chapter Offsets Start @" 
+    mLogger.Debug() << "Chapter Offsets Start @" 
         << std::hex << chapterOffsetsStart << std::dec << std::endl;
 
     for (unsigned i = 0; i < 10; i++)
@@ -730,10 +739,10 @@ void GameData::LoadChapterOffsetP()
             unsigned addr = mBuffer.GetUint32LE();
             ss << " a: " << std::hex << addr << std::dec;
         }
-        mLogger.Spam() << ss.str() << std::endl;
+        mLogger.Debug() << ss.str() << std::endl;
     }
 
-    mLogger.Spam() << "Chapter Offsets End @" 
+    mLogger.Debug() << "Chapter Offsets End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 

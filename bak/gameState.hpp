@@ -37,7 +37,7 @@ public:
                     0,
                     "None",
                     Skills{},
-                    {},
+                    Spells{{}},
                     {},
                     {},
                     Conditions{},
@@ -443,6 +443,21 @@ public:
                     load.mSkill,
                     load.mTarget == 1); // best or worst skill
                 mSkillValue = value;
+            },
+            [&](const BAK::LearnSpell& learnSpell)
+            {
+                // This is always 5 - which must mean the party magician
+                mLogger.Debug() << "Learning Spell: " << learnSpell << "\n";
+                assert(learnSpell.mWho == 5);
+                mParty.ForEachActiveCharacter(
+                    [&](auto& character){
+                        if (character.IsSpellcaster())
+                        {
+                            character.GetSpells().SetSpell(learnSpell.mWhichSpell);
+                            return true;
+                        }
+                        return false;
+                    });
             },
             [&](const auto& a){
                 mLogger.Debug() << "Doing nothing for: " << a << "\n";

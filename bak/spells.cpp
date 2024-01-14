@@ -26,6 +26,11 @@ std::ostream& operator<<(std::ostream& os, SpellCalculationType s)
     return os << ToString(s);
 }
 
+std::ostream& operator<<(std::ostream& os, const Spells& s)
+{
+    return os << "Spells{" << std::hex << s.mSpells << std::dec << "}";
+}
+
 std::ostream& operator<<(std::ostream& os, const Spell& s)
 {
     return os << "Spell{" << s.mIndex << " - " << s.mName << " minCost: " << s.mMinCost 
