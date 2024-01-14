@@ -61,11 +61,11 @@ P1.DAT
 PARTY.DAT -- initial party stats
 POSSES.DAT
 RED.RMP
-RING.DAT
+RING.DAT -- the cast screen ring coords?
 SHOOT.DAT
 SPELL.DAT -- spell stats??
 START.DAT -- starting location of party?
-SYMBOL1.DAT
+SYMBOL1.DAT -- the cast screen symbols...
 SYMBOL2.DAT
 SYMBOL3.DAT
 SYMBOL4.DAT

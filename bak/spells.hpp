@@ -1,6 +1,7 @@
 #pragma once
 
 #include "com/assert.hpp"
+#include "com/bits.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -36,12 +37,12 @@ public:
 
     bool HaveSpell(std::uint64_t spellIndex) const
     {
-        return (mSpells & (static_cast<std::uint64_t>(1) << spellIndex)) != 0;
+        return CheckBitSet(mSpells, spellIndex);
     }
 
     void SetSpell(std::uint64_t spellIndex)
     {
-        mSpells |= (static_cast<std::uint64_t>(1) << spellIndex);
+        mSpells = SetBit(mSpells, spellIndex, true);
     }
 
     std::uint64_t mSpells;
@@ -62,7 +63,7 @@ public:
     unsigned mMinCost;
     unsigned mMaxCost;
     std::array<std::uint8_t, 8> mUnknown;
-    std::optional<ItemIndex> mObjectRequired; // Which COMBAT.TBL object is used for effect?
+    std::optional<ItemIndex> mObjectRequired;
     SpellCalculationType mCalculationType;
     int mDamage;
     unsigned mDuration;
