@@ -275,6 +275,16 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     state,
                     rest});
         }
+        else if (dr == DialogResult::LearnSpell)
+        {
+            const auto who = fb.GetUint16LE();
+            const auto whichSpell = fb.GetUint16LE();
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                LearnSpell{
+                    who,
+                    whichSpell});
+        }
         else if (dr == DialogResult::PlaySound)
         {
             const auto soundIndex = fb.GetUint16LE();

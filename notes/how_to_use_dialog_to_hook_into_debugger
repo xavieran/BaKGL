@@ -5,6 +5,9 @@ dosbox will stop
 > bpdel *
 remove the existing ints.
 continue until you get into the dialog key finding loop. (e.g. ovrl 3dc7, 3b52)
+you may need to set a BP at (42c4:014D) if the game keeps dropping 
+straight back to running which it seems to do sometimes
+
 > bp ovrl:1b4 (1b4 is finished finding key)
 step out of that function into "RunDialog" (ovrl:1427)
 then

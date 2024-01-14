@@ -1,5 +1,6 @@
 #include "bak/gameData.hpp"
 #include "bak/save.hpp"
+#include "bak/spells.hpp"
 
 #include "bak/container.hpp"
 #include "bak/inventory.hpp"
@@ -81,14 +82,14 @@ void GameData::SetBitValueAt(unsigned byteOffset, unsigned bitOffset, unsigned v
     mBuffer.Seek(byteOffset);
     mBuffer.PutUint16LE(data);
 
-    mLogger.Debug() << __FUNCTION__ << std::hex << 
+    mLogger.Spam() << __FUNCTION__ << std::hex << 
         " " << byteOffset << " " << bitOffset 
         << " original[" << +originalData << "] new[" << +data  <<"]\n" << std::dec;
 }
 
 void GameData::SetEventFlag(unsigned eventPtr, unsigned value)
 {
-    mLogger.Debug() << __FUNCTION__ << " " << std::hex << eventPtr 
+    mLogger.Spam() << __FUNCTION__ << " " << std::hex << eventPtr 
         << " to: " << value << std::dec << "\n";
     if (eventPtr >= 0xdac0)
     {
@@ -125,7 +126,7 @@ void GameData::SetEventDialogAction(const SetFlag& setFlag)
             ^ setFlag.mAlwaysZero;
         mBuffer.Seek(offset);
 
-        mLogger.Debug() << __FUNCTION__ << std::hex << 
+        mLogger.Spam() << __FUNCTION__ << std::hex << 
             " " << setFlag << " offset: " << offset 
             << " data[" << +data << "] new[" << +newData <<"]\n" << std::dec;
         mBuffer.PutUint8(newData);
@@ -475,6 +476,7 @@ std::vector<Character> GameData::LoadCharacters()
     unsigned characters = sCharacterCount;
 
     std::vector<Character> chars;
+    auto spellInfo = SpellInfo{};
 
     for (unsigned character = 0; character < characters; character++)
     {
@@ -482,11 +484,18 @@ std::vector<Character> GameData::LoadCharacters()
         auto name = mBuffer.GetString(sCharacterNameLength);
 
         mBuffer.Seek(GetCharacterSkillOffset(character));
-        mLogger.Spam() << "Name: " << name << "@" 
+        mLogger.Debug() << "Name: " << name << "@" 
             << std::hex << mBuffer.Tell() << std::dec << "\n";
 
         auto characterNameOffset = mBuffer.GetArray<2>();
-        auto spells = mBuffer.GetArray<6>();
+        auto spells = Spells{mBuffer.GetArray<6>()};
+        for (const auto& spell : spellInfo.GetSpells())
+        {
+            if (spell.HasSpell(spells))
+            {
+                mLogger.Debug() << "  " << spell.mName << "\n";
+            }
+        }
 
         auto skills = Skills{};
 
@@ -679,11 +688,11 @@ std::vector<GenericContainer> GameData::LoadShops()
     for (unsigned i = 0; i < sShopsCount; i++)
     {
         const unsigned address = mBuffer.Tell();
-        mLogger.Debug() << " Container: " << i
+        mLogger.Spam() << " Container: " << i
             << " addr: " << std::hex << address << std::dec << std::endl;
         auto container = LoadGenericContainer<ContainerGDSLocationTag>(mBuffer);
         shops.emplace_back(std::move(container));
-        mLogger.Debug() << shops.back() << "\n";
+        mLogger.Spam() << shops.back() << "\n";
     }
 
     return shops;
@@ -718,7 +727,7 @@ void GameData::LoadChapterOffsetP()
     constexpr unsigned chapterOffsetsStart = 0x11a3;
     mBuffer.Seek(chapterOffsetsStart);
 
-    mLogger.Spam() << "Chapter Offsets Start @" 
+    mLogger.Debug() << "Chapter Offsets Start @" 
         << std::hex << chapterOffsetsStart << std::dec << std::endl;
 
     for (unsigned i = 0; i < 10; i++)
@@ -730,10 +739,10 @@ void GameData::LoadChapterOffsetP()
             unsigned addr = mBuffer.GetUint32LE();
             ss << " a: " << std::hex << addr << std::dec;
         }
-        mLogger.Spam() << ss.str() << std::endl;
+        mLogger.Debug() << ss.str() << std::endl;
     }
 
-    mLogger.Spam() << "Chapter Offsets End @" 
+    mLogger.Debug() << "Chapter Offsets End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
@@ -777,9 +786,7 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
         mLogger.Info() << "Combat #" << std::dec << i 
             << " " << std::hex << mBuffer.Tell() << std::endl;
         mLogger.Info() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
-        // These are spells
-        //mBuffer.DumpAndSkip(6);
-        mBuffer.Skip(6);
+        auto spells = Spells(mBuffer.GetArray<6>());
 
         std::stringstream ss{""};
         for (const auto& stat : {
@@ -792,7 +799,7 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
                 << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " ";
             mBuffer.Skip(2);
         }
-        mBuffer.Skip(7);
+        mBuffer.Skip(7); // Conditions?
         mLogger.Info() << ss.str() << std::endl;
     }
     mLogger.Info() << "Combat Stats End @" 

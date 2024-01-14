@@ -148,6 +148,12 @@ std::ostream& operator<<(std::ostream& os, const SetEndOfDialogState& action)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const LearnSpell& action)
+{
+    os << "LearnSpell{who: " << action.mWho << ", whichSpell: " << action.mWhichSpell << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const UnknownAction& action)
 {
     os << "UnknownAction { " 

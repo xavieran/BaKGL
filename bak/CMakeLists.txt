@@ -47,9 +47,10 @@ add_library(bak
     screen.hpp screen.cpp
     screens.hpp
     shop.hpp shop.cpp
+    skills.hpp skills.cpp
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
-    skills.hpp skills.cpp
+    spells.hpp spells.cpp
     tags.hpp tags.cpp
     temple.hpp temple.cpp
     textureFactory.hpp textureFactory.cpp

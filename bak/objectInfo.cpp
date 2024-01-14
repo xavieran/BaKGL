@@ -198,7 +198,7 @@ ObjectIndex::ObjectIndex()
     for (unsigned i = 0; i < sObjectCount; i++)
     {
         const auto name = fb.GetString(30);
-        logger.Debug() << "ItemOff: " << std::hex << fb.Tell() << std::dec << "\n";
+        logger.Spam() << "ItemOff: " << std::hex << fb.Tell() << std::dec << "\n";
         const auto unknown = fb.GetArray<2>();
         const auto flags = fb.GetUint16LE();
         const auto unknown2 = fb.GetArray<2>();
@@ -254,10 +254,10 @@ ObjectIndex::ObjectIndex()
             dullFactor1,
             minimumCondition};
 
-        logger.Debug() << i << std::hex << " Unknown0: " << unknown << "|2 "
+        logger.Spam() << i << std::hex << " Unknown0: " << unknown << "|2 "
             << unknown2 << "|5 "
             << unknown5 << "|" << name << std::dec << "\n";
-        logger.Debug() << "ItmIndex:" << i << " " << mObjects[i] << "\n";
+        logger.Spam() << "ItmIndex:" << i << " " << mObjects[i] << "\n";
     }
 }
     

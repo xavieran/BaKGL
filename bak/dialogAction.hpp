@@ -183,6 +183,20 @@ struct SetEndOfDialogState
     std::array<std::uint8_t, 6> mRest;
 };
 
+struct LearnSpell
+{
+    LearnSpell(
+        std::uint16_t who,
+        std::uint16_t whichSpell)
+    :
+        mWho(who),
+        mWhichSpell(whichSpell)
+    {}
+
+    std::uint16_t mWho;
+    std::uint16_t mWhichSpell;
+};
+
 struct UnknownAction
 {
     UnknownAction(
@@ -214,6 +228,7 @@ using DialogAction = std::variant<
     Teleport,
     UpdateCharacters,
     SetEndOfDialogState,
+    LearnSpell,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);

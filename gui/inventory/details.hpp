@@ -118,7 +118,7 @@ public:
         {
             mDescription = gameState.GetTextVariableStore()
                 .SubstituteVariables(
-                    std::string{BAK::DialogSources::GetScrollDescription(item.GetScroll())});
+                    std::string{BAK::DialogSources::GetScrollDescription(item.GetSpell())});
         }
         else
         {

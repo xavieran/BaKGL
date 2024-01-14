@@ -794,6 +794,36 @@ void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
         mGameState.SetDialogContext(item.GetQuantity());
         StartDialog(BAK::DialogSources::GetSpynote());
     }
+    else if (item.IsItemType(BAK::ItemType::Scroll))
+    {
+        mGameState.SetDialogContext(item.GetItemIndex().mValue);
+        mGameState.SetInventoryItem(item);
+        auto& character = GetCharacter(*mSelectedCharacter);
+        if (character.IsSpellcaster())
+        {
+            if (character.GetSpells().HaveSpell(item.GetSpell()))
+            {
+                StartDialog(BAK::DialogSources::mItemUseFailure);
+            }
+            else
+            {
+                const auto [sound, times] = item.GetItemUseSound();
+                for (unsigned i = 0; i < (times + 1); i++)
+                {
+                    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
+                }
+                character.GetInventory().RemoveItem(inventoryIndex);
+                character.GetSpells().SetSpell(item.GetSpell());
+                StartDialog(BAK::DialogSources::mItemUseSucessful);
+                mNeedRefresh = true;
+            }
+        }
+        else
+        {
+            StartDialog(BAK::DialogSources::mWarriorCantUseMagiciansItem);
+        }
+    }
+
 }
 
 void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex targetItemIndex)
