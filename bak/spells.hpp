@@ -63,7 +63,10 @@ public:
     std::string mName;
     unsigned mMinCost;
     unsigned mMaxCost;
-    std::array<std::uint8_t, 8> mUnknown;
+    bool mIsMartial;
+    std::uint16_t mTargetingType;
+    std::optional<std::uint16_t> mColor;
+    std::optional<std::uint16_t> mAnimationEffectType;
     std::optional<ItemIndex> mObjectRequired;
     SpellCalculationType mCalculationType;
     int mDamage;
@@ -138,7 +141,25 @@ private:
             nameOffsets.emplace_back(nameOffset);
             unsigned minCost = fb.GetUint16LE();
             unsigned maxCost = fb.GetUint16LE();
-            auto unknown = fb.GetArray<8>();
+            auto isMartialFlag = fb.GetUint16LE();
+            assert(isMartialFlag == 0 || isMartialFlag == 1);
+            bool isMartial =  isMartialFlag == 0x1; // name taken from SPELLREQ.DAT
+            auto targetingType = fb.GetUint16LE();
+            // targeting type - this seems to be affected by the effectAnimationType
+            // e.g. when using effect animation 12 (winds of eortis), 0-3 only target enemies with LOS
+            // 0 - only targets enemies - LOS
+            // 1 - only target enemies - ignores LOS
+            // 2 - targets allies - ignores LOS
+            // 3 - targets allies - ignores LOS
+            // 4 - targes enemies - ignores LOS
+            // 5 - targets empty squares
+            // 6 - targets empty squares
+            // Color of any related effect sprites, e.g. sparks of flamecast, mind melt color
+            auto color = fb.GetUint16LE();
+            // Determines whether we throw a ball (flamecast), strike an enemy,
+            // what kind of animation is used. Combines weirdly with the actual spell
+            auto effectAnimationType = fb.GetUint16LE();
+            // object required to cast spell
             auto objectRequired = ItemIndex{fb.GetUint16LE()};
             auto calculationType = static_cast<SpellCalculationType>(fb.GetUint16LE());
             int damage = fb.GetSint16LE();
@@ -146,8 +167,12 @@ private:
             mSpells.emplace_back(Spell{
                 i,
                 "",
-                minCost, maxCost,
-                unknown,
+                minCost,
+                maxCost,
+                isMartial,
+                targetingType,
+                (color != 0xffff) ? std::make_optional(color) : std::nullopt,
+                (effectAnimationType != 0xffff) ? std::make_optional(effectAnimationType) : std::nullopt,
                 (objectRequired.mValue != 0xffff) ? std::make_optional(objectRequired) : std::nullopt,
                 calculationType,
                 damage,
@@ -269,6 +294,7 @@ public:
 
     struct SymbolSlot
     {
+        unsigned mSpell;
         unsigned mSymbolIcon;
         glm::vec<2, std::uint16_t> mPosition;
     };
@@ -286,11 +312,11 @@ public:
         Logging::LogDebug(__FUNCTION__) << " slots: " << slotCount << "\n";
         for (unsigned i = 0; i < slotCount; i++)
         {
-            auto unknown = fb.GetUint16LE();
+            auto spell = fb.GetUint16LE();
             auto position = fb.LoadVector<std::uint16_t, 2>();
             auto symbolIcon = fb.GetUint8();
-            mSymbolSlots.emplace_back(SymbolSlot{symbolIcon, position});
-            Logging::LogDebug(__FUNCTION__) << " unk: " << unknown << "  icon: " << +symbolIcon << " @ " << position << "\n";
+            mSymbolSlots.emplace_back(SymbolSlot{spell, symbolIcon, position});
+            Logging::LogDebug(__FUNCTION__) << " spell: " << spell << "  icon: " << +symbolIcon << " @ " << position << "\n";
         }
     }
 

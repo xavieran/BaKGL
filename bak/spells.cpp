@@ -34,10 +34,13 @@ std::ostream& operator<<(std::ostream& os, const Spells& s)
 std::ostream& operator<<(std::ostream& os, const Spell& s)
 {
     return os << "Spell{" << s.mIndex << " - " << s.mName << " minCost: " << s.mMinCost 
-        << " maxCost: " << s.mMaxCost << " unknown: " << s.mUnknown << " objectRequired: " << s.mObjectRequired << " (" <<
+        << " maxCost: " << s.mMaxCost <<  " isCmbt: " << s.mIsMartial 
+        << " targTp: " << s.mTargetingType
+        << " effCol: " << s.mColor << " anim: " << s.mAnimationEffectType 
+        << " objReq: " << s.mObjectRequired << " (" <<
         (s.mObjectRequired ? GetObjectIndex().GetObject(*s.mObjectRequired).mName : "None") << ")"
-        << " calculationType: " << s.mCalculationType << " damage: " << s.mDamage
-        << " duration: " << s.mDuration << "}";
+        << " calcTp: " << s.mCalculationType << " dmg: " << s.mDamage
+        << " len: " << s.mDuration << "}";
 }
 
 }
