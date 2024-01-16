@@ -31,15 +31,16 @@ Font LoadFont(FileBuffer& fb)
 
     auto fntBuf = fb.Find(DataTag::FNT);
     
-    fntBuf.Skip(2);
+    const auto version = fntBuf.GetUint8();
+    const auto maxWidth = fntBuf.GetUint8();
     const auto height = fntBuf.GetUint8();
-    fntBuf.Skip(1);
+    const auto baseline = fntBuf.GetUint8();
     const auto firstChar = fntBuf.GetUint8();
     const auto numChars = fntBuf.GetUint8();
-    fntBuf.Skip(2);
+    const auto dataLength = fntBuf.GetUint16LE();
 
     if (fntBuf.GetUint8() != 0x01)
-        throw std::runtime_error("Expected font to be compressed");
+        throw std::runtime_error("Expected font to be RLE compressed");
 
     const auto decompSize = fntBuf.GetUint32LE();
     auto glyphBuf = FileBuffer(decompSize);
@@ -54,26 +55,48 @@ Font LoadFont(FileBuffer& fb)
 
     auto glyphs = std::vector<Glyph>{};
 
+    auto textures = Graphics::TextureStore{}; 
+
     for (auto i = 0; i < numChars; i++)
     {
         glyphBuf.Seek(glyphDataStart + i);
         const auto width = glyphBuf.GetUint8();
         glyphBuf.Seek(glyphDataStart + numChars + glyphOffsets[i]);
 
-        std::array<std::uint16_t, 16> points{};
-
-        for (auto j = 0; j < height; j++)
+        if (version == 0xff)
         {
-            points[j] = static_cast<std::uint16_t>(glyphBuf.GetUint8()) << 8;
-            if (width > 8)
-                points[j] |= static_cast<std::uint16_t>(glyphBuf.GetUint8());
+            std::array<std::uint16_t, 16> points{};
+            for (auto j = 0; j < height; j++)
+            {
+                points[j] = static_cast<std::uint16_t>(glyphBuf.GetUint8()) << 8;
+                if (width > 8)
+                    points[j] |= static_cast<std::uint16_t>(glyphBuf.GetUint8());
+            }
+            textures.AddTexture(GlyphToTexture(Glyph(width, height, points)));
         }
-
-        glyphs.emplace_back(width, height, points);
+        // SPELL.FNT
+        else if (version == 0xfd)
+        {
+            auto data = Graphics::Texture::TextureType{};
+            for (unsigned r = 0; r < height; r++)
+            {
+                for (unsigned c = 0; c < width; c++)
+                {
+                    auto index = glyphBuf.GetUint8();
+                    float shade = static_cast<float>(index) / 255.0f;
+                    auto color = glm::vec4{shade, 0, 0, index != 0 ? 1.0f : 0.0f};
+                    data.push_back(color);
+                }
+            }
+            auto texture = Graphics::Texture{data, width, height};
+            texture.Invert();
+            textures.AddTexture(texture);
+        }
+        else
+        {
+            throw std::runtime_error("Unexpected font version: ");
+        }
     }
-    auto textures = Graphics::TextureStore{}; 
-    for (const auto& glyph : glyphs)
-        textures.AddTexture(GlyphToTexture(glyph));
     // OpenGL requires min texture dims of 16
     auto empty = Glyph{16, 16, std::array<std::uint16_t, 16>{}};
     textures.AddTexture(GlyphToTexture(empty));

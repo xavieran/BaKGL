@@ -5,8 +5,9 @@
 #include "graphics/glfw.hpp"
 #include "graphics/guiRenderer.hpp"
 
-#include "gui/window.hpp"
 #include "gui/icons.hpp"
+#include "gui/textBox.hpp"
+#include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"
 
@@ -33,8 +34,6 @@ int main(int argc, char** argv)
 
     glViewport(0, 0, width, height);
 
-    ImguiWrapper::Initialise(window.get());
-    
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
 
@@ -44,6 +43,8 @@ int main(int argc, char** argv)
         height,
         guiScalar,
         spriteManager};
+
+    auto fontManager = Gui::FontManager{spriteManager};
 
     auto root = Gui::Window{
         spriteManager,
@@ -62,13 +63,36 @@ int main(int argc, char** argv)
 
     root.AddChildBack(&picture);
     root.HideCursor();
-     
+
+    const auto& font = fontManager.GetSpellFont();
+    std::vector<std::unique_ptr<Gui::Widget>> spellIcons{};
+    auto pos = glm::vec2{2, 100};
+    for (unsigned i = 0; i < 96; i++)
+    {
+        if (i == 24)
+        {
+            pos = glm::vec2{2, 120};
+        }
+        spellIcons.emplace_back(
+            std::make_unique<Gui::Widget>(
+                Graphics::DrawMode::Sprite,
+                font.GetSpriteSheet(),
+                static_cast<Graphics::TextureIndex>(
+                    font.GetFont().GetIndex(i)),
+                Graphics::ColorMode::Texture,
+                glm::vec4{1.f, 0.f, 0.f, 1.f},
+                pos,
+                glm::vec2{font.GetFont().GetWidth(i), font.GetFont().GetHeight()},
+                true
+                ));
+        pos += glm::vec2{font.GetFont().GetWidth(i) + 1, 0};
+        root.AddChildBack(spellIcons.back().get());
+    }
+
     Graphics::InputHandler inputHandler{};
-    Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
-    Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
     inputHandler.Bind(GLFW_KEY_RIGHT, [&]{
         iconI++;
-        const auto& [ss, ti, dims] = icons.GetTeleportIcon(iconI);
+        const auto& [ss, ti, dims] = icons.GetInventoryLockIcon(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);
@@ -76,7 +100,7 @@ int main(int argc, char** argv)
     });
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{
         iconI--;
-        const auto& [ss, ti, dims] = icons.GetTeleportIcon(iconI);
+        const auto& [ss, ti, dims] = icons.GetInventoryIcon(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);
@@ -87,6 +111,9 @@ int main(int argc, char** argv)
         logger.Debug() << p << "\n";
     },
     [](auto){});
+
+    Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
+    Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
 
     double currentTime = 0;
     double lastTime = 0;
@@ -108,19 +135,11 @@ int main(int argc, char** argv)
     unsigned i = 0;
     do
     {
-        currentTime = glfwGetTime();
-        deltaTime = float(currentTime - lastTime);
-        acc += deltaTime;
-        if (acc > .2)
-        { 
-            i = (i + 1) % 20;
-            acc = 0;
-        }
-
-        lastTime = currentTime;
+        inputHandler.SetHandleInput(true);
 
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
+        inputHandler.HandleInput(window.get());
 
         // { *** Draw 2D GUI ***
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -130,8 +149,6 @@ int main(int argc, char** argv)
     }
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 
         && glfwWindowShouldClose(window.get()) == 0);
-
-    ImguiWrapper::Shutdown();
 
     glfwTerminate();
 

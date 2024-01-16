@@ -4,6 +4,7 @@
 #include "com/bits.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
+#include "graphics/glm.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 #include "bak/types.hpp"
@@ -89,6 +90,13 @@ class SpellInfo
     static constexpr auto sSpellDocsFile  = "SPELLDOC.DAT";
     static constexpr auto sSpellWeaknessesFile = "SPELLWEA.DAT";
     static constexpr auto sSpellResistances    = "SPELLRES.DAT";
+
+    static constexpr auto sSymbol1 = "SYMBOL1.DAT";
+    static constexpr auto sSymbol2 = "SYMBOL2.DAT";
+    static constexpr auto sSymbol3 = "SYMBOL3.DAT";
+    static constexpr auto sSymbol4 = "SYMBOL4.DAT";
+    static constexpr auto sSymbol5 = "SYMBOL5.DAT";
+    static constexpr auto sSymbol6 = "SYMBOL6.DAT";
 public:
     SpellInfo()
     :
@@ -253,6 +261,76 @@ private:
 private:
     std::vector<Spell> mSpells;
     std::vector<SpellDoc> mSpellDocs;
+};
+
+class SymbolCoordinates
+{
+public:
+
+    struct SymbolSlot
+    {
+        unsigned mSymbolIcon;
+        glm::vec<2, std::uint16_t> mPosition;
+    };
+
+    explicit SymbolCoordinates(unsigned index)
+    {
+        assert(index > 0 && index < 7);
+        std::stringstream ss{};
+        ss << "SYMBOL" << index << ".DAT";
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(ss.str());
+
+        auto slotCount = fb.GetUint16LE();
+
+        Logging::LogDebug(__FUNCTION__) << "Loading SymbolIndex #" << index << "\n";
+        Logging::LogDebug(__FUNCTION__) << " slots: " << slotCount << "\n";
+        for (unsigned i = 0; i < slotCount; i++)
+        {
+            auto unknown = fb.GetUint16LE();
+            auto position = fb.LoadVector<std::uint16_t, 2>();
+            auto symbolIcon = fb.GetUint8();
+            mSymbolSlots.emplace_back(SymbolSlot{symbolIcon, position});
+            Logging::LogDebug(__FUNCTION__) << " unk: " << unknown << "  icon: " << +symbolIcon << " @ " << position << "\n";
+        }
+    }
+
+    const auto& GetSymbolSlots() const
+    {
+        return mSymbolSlots;
+    }
+
+private:
+    std::vector<SymbolSlot> mSymbolSlots;
+};
+
+// These are the locations of the dots for the spell power ring
+class PowerRing
+{
+public:
+    PowerRing()
+    {
+        auto fb = FileBufferFactory::Get().CreateDataBuffer("RING.DAT");
+        unsigned points = 30;
+        Logging::LogDebug(__FUNCTION__) << "Ring has: " << points << " points\n";
+        for (unsigned i = 0; i < points; i++)
+        {
+            auto pos = fb.LoadVector<std::uint16_t, 2>();
+            Logging::LogDebug(__FUNCTION__) << "  " << i << " - " << pos << "\n";
+            mPoints.emplace_back(pos);
+        }
+    }
+
+    const auto& GetPoints() const
+    {
+        return mPoints;
+    }
+private:
+    std::vector<glm::vec<2, std::uint16_t>> mPoints;
+};
+
+class CastScreen
+{
+public:
 };
 
 }
