@@ -7,6 +7,7 @@
 #include "gui/info/portrait.hpp"
 #include "gui/info/ratings.hpp"
 #include "gui/info/skills.hpp"
+#include "gui/info/spells.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -33,6 +34,7 @@ public:
 
     static constexpr auto sPortraitWidget = 0;
     static constexpr auto sExitWidget = 1;
+    static constexpr auto sSpellsWidget = 2;
 
     InfoScreen(
         IGuiManager& guiManager,
@@ -64,6 +66,13 @@ public:
             mFont,
             "#Exit",
             [this]{ mGuiManager.DoFade(0.8, [this]{ mGuiManager.ExitSimpleScreen(); }); }
+        },
+        mSpellsButton{
+            mLayout.GetWidgetLocation(sSpellsWidget),
+            mLayout.GetWidgetDimensions(sSpellsWidget),
+            mFont,
+            "#Spells",
+            [this]{ mGuiManager.DoFade(0.8, [this]{ mGuiManager.GetScreenStack().PushScreen(&mSpells); }); },
         },
         mPortrait{
             mLayout.GetWidgetLocation(sPortraitWidget),
@@ -109,6 +118,13 @@ public:
                     sSkillRightClickDialog, false, false, &mDialogScene);
             }
         },
+        mSpells{
+            mGuiManager,
+            backgrounds,
+            icons,
+            font,
+            gameState
+        },
         mLogger{Logging::LogState::GetLogger("Gui::InfoScreen")}
     {
         AddChildren();
@@ -118,13 +134,7 @@ public:
     {
         mSelectedCharacter = character;
         mGameState.GetParty().GetCharacter(character).UpdateSkills();
-    }
-
-    void AdvanceCharacter()
-    {
-        SetSelectedCharacter(
-            mGameState.GetParty().NextActiveCharacter(mSelectedCharacter));
-        UpdateCharacter();
+        AddChildren();
     }
 
     void UpdateCharacter()
@@ -134,8 +144,17 @@ public:
         mPortrait.SetCharacter(character.GetIndex(), character.mName);
         mRatings.SetCharacter(character);
         character.mSkills.ClearUnseenImprovements();
+        AddChildren();
     }
 
+    void AdvanceCharacter()
+    {
+        SetSelectedCharacter(
+            mGameState.GetParty().NextActiveCharacter(mSelectedCharacter));
+        UpdateCharacter();
+    }
+
+private:
     void ToggleSkill(BAK::SkillType skill)
     {
         mLogger.Debug() << "Toggle Skill: " << BAK::ToString(skill) << "\n";
@@ -148,13 +167,18 @@ public:
 
     void AddChildren()
     {
+        ClearChildren();
         AddChildBack(&mExitButton);
         AddChildBack(&mSkills);
         AddChildBack(&mPortrait);
         AddChildBack(&mRatings);
+
+        if (mGameState.GetParty().GetCharacter(mSelectedCharacter).IsSpellcaster())
+        {
+            AddChildBack(&mSpellsButton);
+        }
     }
 
-private:
     IGuiManager& mGuiManager;
     const Font& mFont;
     BAK::GameState& mGameState;
@@ -164,9 +188,11 @@ private:
     BAK::Layout mLayout;
 
     ClickButton mExitButton;
+    ClickButton mSpellsButton;
     Portrait mPortrait;
     Ratings mRatings;
     Skills mSkills;
+    SpellsScreen mSpells;
 
     const Logging::Logger& mLogger;
 };
