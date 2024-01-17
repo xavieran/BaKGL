@@ -43,7 +43,7 @@ public:
 
     auto GetItemIndex() const { return mItemIndex; }
     auto GetQuantity() const { return mCondition; }
-    auto GetSpell() const { return mCondition; }
+    auto GetSpell() const { return SpellIndex{mCondition}; }
     auto GetCondition() const { return mCondition; }
     auto GetStatus() const { return mStatus; }
     auto GetModifierMask() const { return mModifiers; }

@@ -65,14 +65,16 @@ public:
             mLayout.GetWidgetDimensions(sExitWidget),
             mFont,
             "#Exit",
-            [this]{ mGuiManager.DoFade(0.8, [this]{ mGuiManager.ExitSimpleScreen(); }); }
+            [this]{ mGuiManager.DoFade(0.5, [this]{ mGuiManager.ExitSimpleScreen(); }); }
         },
         mSpellsButton{
             mLayout.GetWidgetLocation(sSpellsWidget),
             mLayout.GetWidgetDimensions(sSpellsWidget),
             mFont,
             "#Spells",
-            [this]{ mGuiManager.DoFade(0.8, [this]{ mGuiManager.GetScreenStack().PushScreen(&mSpells); }); },
+            [this]{ mGuiManager.DoFade(0.5, [this]{ 
+                mSpells.SetSelectedCharacter(mSelectedCharacter);
+                mGuiManager.GetScreenStack().PushScreen(&mSpells); }); },
         },
         mPortrait{
             mLayout.GetWidgetLocation(sPortraitWidget),

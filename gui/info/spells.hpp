@@ -3,6 +3,7 @@
 #include "bak/gameState.hpp"
 
 #include "gui/backgrounds.hpp"
+#include "gui/button.hpp"
 #include "gui/fontManager.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/icons.hpp"
@@ -11,7 +12,7 @@
 namespace Gui {
 
 
-class SpellList : public Widget
+class SpellList : public Button
 {
 public:
     SpellList(
@@ -19,37 +20,49 @@ public:
         glm::vec2 pos,
         const Icons& icons)
     :
-        Widget{
+        Button{
+            pos,
+            std::get<glm::vec2>(icons.GetButton(symbolButtonIndex)) + glm::vec2{3, 2},
+            Color::infoBackground,
+            Color::frameMaroon,
+            Color::frameMaroon
+        },
+        mSymbolImage{
             Graphics::DrawMode::Sprite,
             std::get<Graphics::SpriteSheetIndex>(icons.GetButton(symbolButtonIndex)),
             std::get<Graphics::TextureIndex>(icons.GetButton(symbolButtonIndex)),
             Graphics::ColorMode::Texture,
             Color::black,
-            pos,
+            glm::vec2{2, 1},
             std::get<glm::vec2>(icons.GetButton(symbolButtonIndex)),
             true},
         mSpells{
             glm::vec2{
-                std::get<glm::vec2>(icons.GetButton(symbolButtonIndex)).x + 4,
-                4},
-            glm::vec2{240, 40}}
+                std::get<glm::vec2>(icons.GetButton(symbolButtonIndex)).x + 5,
+                2},
+            glm::vec2{260, std::get<glm::vec2>(icons.GetButton(symbolButtonIndex)).y - 2}}
     {
+        AddChildBack(&mSymbolImage);
         AddChildBack(&mSpells);
     }
 
-    void AddSpells(const Font& font)
+    void SetSpells(const Font& font, std::string text)
     {
-        mSpells.SetText(font, "Bane of Black Slayers, Evil Seek, Fetters of Rime, Flamecast, Life Drain, Skyfire", false, false, true);
+        mSpells.SetText(font, text, false, true, true);
     }
 
 private:
+    Widget mSymbolImage;
     TextBox mSpells;
 };
 
 class SpellsScreen : public Widget
 {
-    static constexpr auto sCombatSpellButtonBaseIndex = 36;
-    static constexpr auto sWorldSpellButtonBaseIndex = 55;
+    static constexpr std::array<unsigned, 6> sSpellSymbolIndexToButtonIndex = 
+    {
+        37, 36, 38, 39, 56, 55
+    };
+
 public:
     SpellsScreen(
         IGuiManager& guiManager,
@@ -77,32 +90,40 @@ public:
         const auto& [_, __, dims] = icons.GetButton(36);
         glm::vec2 pos{4,8};
         mSpellLists.reserve(6);
-        for (unsigned i = 0; i < 4; i++)
+        for (unsigned i = 0; i < 6; i++)
         {
             mSpellLists.emplace_back(
-                sCombatSpellButtonBaseIndex + i,
+                sSpellSymbolIndexToButtonIndex[i],
                 pos,
                 icons);
-            mSpellLists.back().AddSpells(font);
-            pos += glm::vec2{0, dims.y + 2};
+            pos += glm::vec2{0, dims.y + 3};
         }
 
-        for (unsigned i = 0; i < 2; i++)
-        {
-            mSpellLists.emplace_back(
-                sWorldSpellButtonBaseIndex + i,
-                pos,
-                icons);
-            mSpellLists.back().AddSpells(font);
-            pos += glm::vec2{0, dims.y + 2};
-        }
         AddChildren();
     }
 
     void SetSelectedCharacter(BAK::ActiveCharIndex character)
     {
         mSelectedCharacter = character;
-        mGameState.GetParty().GetCharacter(character).UpdateSkills();
+        assert(mGameState.GetParty().GetCharacter(character).IsSpellcaster());
+
+        const auto& characterSpells = mGameState.GetParty().GetCharacter(character).GetSpells();
+        const auto& spellDb = BAK::SpellDatabase::Get();
+        const auto& symbols = spellDb.GetSymbols();
+        for (unsigned i = 0; i < 6; i++)
+        {
+            std::stringstream spellText{};
+            std::string sep{""};
+            for (const auto& spell : symbols[i].GetSymbolSlots())
+            {
+                if (characterSpells.HaveSpell(spell.mSpell))
+                {
+                    spellText << sep << spellDb.GetSpellName(spell.mSpell);
+                    sep = ", ";
+                }
+            }
+            mSpellLists[i].SetSpells(mFont, spellText.str());
+        }
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
@@ -118,7 +139,7 @@ public:
 private:
     void Exit()
     {
-        mGuiManager.DoFade(0.8, [this]{ mGuiManager.ExitSimpleScreen(); });
+        mGuiManager.DoFade(0.5, [this]{ mGuiManager.ExitSimpleScreen(); });
     }
 
     void AddChildren()

@@ -23,10 +23,10 @@ public:
             GetChoiceResult(mItemDescription, itemIndex)).GetText();
     }
 
-    static std::string_view GetScrollDescription(unsigned scrollIndex)
+    static std::string_view GetScrollDescription(SpellIndex spellIndex)
     {
         return DialogStore::Get().GetSnippet(
-            GetChoiceResult(mScrollDescriptions, scrollIndex)).GetText();
+            GetChoiceResult(mScrollDescriptions, spellIndex.mValue)).GetText();
     }
 
     static KeyTarget GetItemUseText(unsigned itemIndex)
