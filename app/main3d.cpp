@@ -120,12 +120,6 @@ int main(int argc, char** argv)
         width,
         "BaK");
 
-    if (showImgui)
-    {
-        ImguiWrapper::Initialise(window.get());
-    }
-    
-
     auto spriteManager = Graphics::SpriteManager{};
     auto guiRenderer = Graphics::GuiRenderer{
         width,
@@ -340,6 +334,12 @@ int main(int argc, char** argv)
     console.mGameRunner = &gameRunner;
     console.mGameState = &gameState;
     console.ToggleLog();
+
+    // Do this last so we don't blast Imgui's callback hooks
+    if (showImgui)
+    {
+        ImguiWrapper::Initialise(window.get());
+    }
 
     do
     {
