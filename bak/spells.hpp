@@ -1,14 +1,15 @@
 #pragma once
 
+#include "bak/fileBufferFactory.hpp"
+#include "bak/types.hpp"
+#include "bak/monster.hpp"
+
 #include "com/assert.hpp"
 #include "com/bits.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
-#include "graphics/glm.hpp"
 
-#include "bak/fileBufferFactory.hpp"
-#include "bak/types.hpp"
-#include "bak/monster.hpp"
+#include "graphics/glm.hpp"
 
 #include <string_view>
 #include <vector>
@@ -33,20 +34,43 @@ class Spells
 public:
     explicit Spells(std::array<std::uint8_t, 6> spells)
     {
-        std::copy(spells.data(), spells.data() + 6, reinterpret_cast<std::uint8_t*>(&mSpells));
+        std::copy(spells.data(), spells.data() + 6, reinterpret_cast<std::uint8_t*>(&mSpellBytes));
+        for (std::uint64_t i = 0; i < 8 * 6; i++)
+        {
+            if (HaveSpell(SpellIndex{i}))
+            {
+                mSpellIndices.emplace_back(SpellIndex{i});
+            }
+        }
     }
 
-    bool HaveSpell(std::uint64_t spellIndex) const
+    bool HaveSpell(SpellIndex spellIndex) const
     {
-        return CheckBitSet(mSpells, spellIndex);
+        return CheckBitSet(mSpellBytes, spellIndex.mValue);
     }
 
-    void SetSpell(std::uint64_t spellIndex)
+    void SetSpell(SpellIndex spellIndex)
     {
-        mSpells = SetBit(mSpells, spellIndex, true);
+        if (!HaveSpell(spellIndex))
+        {
+            mSpellIndices.emplace_back(spellIndex);
+        }
+        mSpellBytes = SetBit(mSpellBytes, spellIndex.mValue, true);
     }
 
-    std::uint64_t mSpells;
+    const std::uint64_t& GetSpellBytes() const
+    {
+        return mSpellBytes;
+    }
+
+    auto GetSpells() const
+    {
+        return mSpellIndices;
+    }
+
+private:
+    std::uint64_t mSpellBytes;
+    std::vector<SpellIndex> mSpellIndices;
 };
 
 std::ostream& operator<<(std::ostream&, const Spells&);
@@ -56,10 +80,10 @@ class Spell
 public:
     bool HasSpell(Spells spells) const
     {
-        return (spells.mSpells & (static_cast<std::uint64_t>(1) << mIndex)) != 0;
+        return spells.HaveSpell(mIndex);
     }
 
-    unsigned mIndex;
+    SpellIndex mIndex;
     std::string mName;
     unsigned mMinCost;
     unsigned mMaxCost;
@@ -78,7 +102,7 @@ std::ostream& operator<<(std::ostream&, const Spell&);
 class SpellDoc
 {
 public:
-    unsigned mIndex;
+    SpellIndex mIndex;
     std::string mTitle;
     std::string mCost;
     std::string mDamage;
@@ -87,29 +111,59 @@ public:
     std::string mDescription;
 };
 
-class SpellInfo
+class Symbol
+{
+public:
+
+    struct SymbolSlot
+    {
+        SpellIndex mSpell;
+        unsigned mSpellIcon;
+        glm::vec<2, std::uint16_t> mPosition;
+    };
+
+    explicit Symbol(unsigned index)
+    {
+        assert(index > 0 && index < 7);
+        std::stringstream ss{};
+        ss << "SYMBOL" << index << ".DAT";
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(ss.str());
+
+        auto slotCount = fb.GetUint16LE();
+
+        Logging::LogDebug(__FUNCTION__) << "Loading SymbolIndex #" << index << "\n";
+        Logging::LogDebug(__FUNCTION__) << " slots: " << slotCount << "\n";
+        for (unsigned i = 0; i < slotCount; i++)
+        {
+            auto spell = SpellIndex{fb.GetUint16LE()};
+            auto position = fb.LoadVector<std::uint16_t, 2>();
+            auto symbolIcon = fb.GetUint8();
+            mSymbolSlots.emplace_back(SymbolSlot{spell, symbolIcon, position});
+            Logging::LogDebug(__FUNCTION__) << " spell: " << spell << "  icon: " << +symbolIcon << " @ " << position << "\n";
+        }
+    }
+
+    const auto& GetSymbolSlots() const
+    {
+        return mSymbolSlots;
+    }
+
+private:
+    std::vector<SymbolSlot> mSymbolSlots;
+};
+
+class SpellDatabase
 {
     static constexpr auto sSpellNamesFile = "SPELLS.DAT";
     static constexpr auto sSpellDocsFile  = "SPELLDOC.DAT";
     static constexpr auto sSpellWeaknessesFile = "SPELLWEA.DAT";
     static constexpr auto sSpellResistances    = "SPELLRES.DAT";
 
-    static constexpr auto sSymbol1 = "SYMBOL1.DAT";
-    static constexpr auto sSymbol2 = "SYMBOL2.DAT";
-    static constexpr auto sSymbol3 = "SYMBOL3.DAT";
-    static constexpr auto sSymbol4 = "SYMBOL4.DAT";
-    static constexpr auto sSymbol5 = "SYMBOL5.DAT";
-    static constexpr auto sSymbol6 = "SYMBOL6.DAT";
 public:
-    SpellInfo()
-    :
-        mSpells{},
-        mSpellDocs{}
+    static const SpellDatabase& Get()
     {
-        LoadSpells();
-        LoadSpellDoc();
-        LoadSpellWeaknesses();
-        LoadSpellResistances();
+        static SpellDatabase spellDb{};
+        return spellDb;
     }
 
     const auto& GetSpells() const
@@ -117,19 +171,41 @@ public:
         return mSpells;
     }
 
-    std::string_view GetSpellName(unsigned spellIndex) const
+    std::string_view GetSpellName(SpellIndex spellIndex) const
     {
-        ASSERT(spellIndex < mSpells.size());
-        return mSpells[spellIndex].mName;
+        ASSERT(spellIndex.mValue < mSpells.size());
+        return mSpells[spellIndex.mValue].mName;
     }
 
-    const SpellDoc& GetSpellDoc(unsigned spellIndex) const
+    const SpellDoc& GetSpellDoc(SpellIndex spellIndex) const
     {
-        ASSERT(spellIndex < mSpells.size());
-        return mSpellDocs[spellIndex];
+        ASSERT(spellIndex.mValue < mSpells.size());
+        return mSpellDocs[spellIndex.mValue];
+    }
+
+    const auto& GetSymbols() const
+    {
+        return mSymbols;
     }
 
 private:
+    SpellDatabase()
+    :
+        mSpells{},
+        mSpellDocs{}
+    {
+        LoadSpells();
+        LoadSpellDoc();
+        //LoadSpellWeaknesses();
+        //LoadSpellResistances();
+
+        for (unsigned i = 1; i < 7; i++)
+        {
+            mSymbols.emplace_back(BAK::Symbol{i});
+        }
+    }
+
+
     void LoadSpells()
     {
         auto fb = FileBufferFactory::Get().CreateDataBuffer(sSpellNamesFile);
@@ -165,7 +241,7 @@ private:
             int damage = fb.GetSint16LE();
             unsigned duration = fb.GetSint16LE();
             mSpells.emplace_back(Spell{
-                i,
+                SpellIndex{i},
                 "",
                 minCost,
                 maxCost,
@@ -220,7 +296,7 @@ private:
             description += " " + fb.GetString();
             mSpellDocs.emplace_back(
                 SpellDoc{
-                    i,
+                    SpellIndex{i},
                     title,
                     cost,
                     damage,
@@ -232,7 +308,7 @@ private:
         for (unsigned i = 0; i < mSpells.size(); i++)
         {
             auto doc = mSpellDocs[i];
-            Logging::LogDebug(__FUNCTION__) << GetSpellName(i) << "\nTitle: " << doc.mTitle
+            Logging::LogDebug(__FUNCTION__) << GetSpellName(SpellIndex{i}) << "\nTitle: " << doc.mTitle
                 << "\nCost: " << doc.mCost << "\nDamage: " << doc.mDamage 
                 << "\nDuration: " << doc.mDuration << "\nLOS: " << doc.mLineOfSight
                 << "\nDescription: " << doc.mDescription << "\n";
@@ -257,7 +333,7 @@ private:
                 }
             }
             Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - "
-                << monsters.GetMonsterName(MonsterIndex{i - 1}) << " (" << std::hex << spells.mSpells << std::dec << ") " << ss.str() << "\n";
+                << monsters.GetMonsterName(MonsterIndex{i - 1}) << " (" << std::hex << spells.GetSpells() << std::dec << ") " << ss.str() << "\n";
         }
     }
 
@@ -286,47 +362,7 @@ private:
 private:
     std::vector<Spell> mSpells;
     std::vector<SpellDoc> mSpellDocs;
-};
-
-class SymbolCoordinates
-{
-public:
-
-    struct SymbolSlot
-    {
-        unsigned mSpell;
-        unsigned mSymbolIcon;
-        glm::vec<2, std::uint16_t> mPosition;
-    };
-
-    explicit SymbolCoordinates(unsigned index)
-    {
-        assert(index > 0 && index < 7);
-        std::stringstream ss{};
-        ss << "SYMBOL" << index << ".DAT";
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(ss.str());
-
-        auto slotCount = fb.GetUint16LE();
-
-        Logging::LogDebug(__FUNCTION__) << "Loading SymbolIndex #" << index << "\n";
-        Logging::LogDebug(__FUNCTION__) << " slots: " << slotCount << "\n";
-        for (unsigned i = 0; i < slotCount; i++)
-        {
-            auto spell = fb.GetUint16LE();
-            auto position = fb.LoadVector<std::uint16_t, 2>();
-            auto symbolIcon = fb.GetUint8();
-            mSymbolSlots.emplace_back(SymbolSlot{spell, symbolIcon, position});
-            Logging::LogDebug(__FUNCTION__) << " spell: " << spell << "  icon: " << +symbolIcon << " @ " << position << "\n";
-        }
-    }
-
-    const auto& GetSymbolSlots() const
-    {
-        return mSymbolSlots;
-    }
-
-private:
-    std::vector<SymbolSlot> mSymbolSlots;
+    std::vector<Symbol> mSymbols;
 };
 
 // These are the locations of the dots for the spell power ring

@@ -3,6 +3,7 @@ add_library(guiInfo
     portrait.hpp
     ratings.hpp
     skills.hpp
+    spells.hpp
 )
 
 target_link_libraries(guiInfo

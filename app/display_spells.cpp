@@ -10,10 +10,7 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     Logging::LogState::Disable("DialogStore");
     
-    BAK::SpellInfo();
-    for (unsigned i = 1; i < 7; i++)
-        BAK::SymbolCoordinates{i};
-
+    BAK::SpellDatabase::Get();
     BAK::PowerRing{};
 
     return 0;

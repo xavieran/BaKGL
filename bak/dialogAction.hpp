@@ -194,7 +194,7 @@ struct LearnSpell
     {}
 
     std::uint16_t mWho;
-    std::uint16_t mWhichSpell;
+    SpellIndex mWhichSpell;
 };
 
 struct UnknownAction

@@ -28,7 +28,7 @@ std::ostream& operator<<(std::ostream& os, SpellCalculationType s)
 
 std::ostream& operator<<(std::ostream& os, const Spells& s)
 {
-    return os << "Spells{" << std::hex << s.mSpells << std::dec << "}";
+    return os << "Spells{" << std::hex << s.GetSpells() << std::dec << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const Spell& s)
@@ -38,7 +38,7 @@ std::ostream& operator<<(std::ostream& os, const Spell& s)
         << " targTp: " << s.mTargetingType
         << " effCol: " << s.mColor << " anim: " << s.mAnimationEffectType 
         << " objReq: " << s.mObjectRequired << " (" <<
-        (s.mObjectRequired ? GetObjectIndex().GetObject(*s.mObjectRequired).mName : "None") << ")"
+        (s.mObjectRequired ? *s.mObjectRequired : ItemIndex{0}) << ")"
         << " calcTp: " << s.mCalculationType << " dmg: " << s.mDamage
         << " len: " << s.mDuration << "}";
 }

@@ -52,7 +52,7 @@ int main(int argc, char** argv)
         height / guiScalar};
 
     auto icons = Gui::Icons{spriteManager};
-    unsigned iconI = 0;
+    int iconI = 56;
     auto picture = Gui::Widget{
         Gui::ImageTag{},
         Graphics::SpriteSheetIndex{0},
@@ -60,6 +60,11 @@ int main(int argc, char** argv)
         glm::vec2{50,50},
         glm::vec2{100,100},
         true};
+    const auto& [ss, ti, dims] = icons.GetButton(iconI);
+    picture.SetSpriteSheet(ss);
+    picture.SetTexture(ti);
+    picture.SetDimensions(dims);
+
 
     root.AddChildBack(&picture);
     root.HideCursor();
@@ -92,7 +97,8 @@ int main(int argc, char** argv)
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_RIGHT, [&]{
         iconI++;
-        const auto& [ss, ti, dims] = icons.GetInventoryLockIcon(iconI);
+        if (static_cast<unsigned>(iconI) > icons.GetSize()) iconI = 0;
+        const auto& [ss, ti, dims] = icons.GetButton(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);
@@ -100,7 +106,8 @@ int main(int argc, char** argv)
     });
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{
         iconI--;
-        const auto& [ss, ti, dims] = icons.GetInventoryIcon(iconI);
+        if (iconI < 0) iconI = icons.GetSize();
+        const auto& [ss, ti, dims] = icons.GetButton(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);

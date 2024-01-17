@@ -81,7 +81,7 @@ void Save(const Character& c, FileBuffer& fb)
     // Skills
     fb.Seek(BAK::GameData::GetCharacterSkillOffset(charIndex));
     fb.Skip(2); // Character name offset
-    auto* spells = reinterpret_cast<const std::uint8_t*>(&c.GetSpells().mSpells);
+    auto* spells = reinterpret_cast<const std::uint8_t*>(&c.GetSpells().GetSpellBytes());
     for (unsigned i = 0; i < 6; i++)
     {
         fb.PutUint8(spells[i]);

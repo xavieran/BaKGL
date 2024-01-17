@@ -220,6 +220,11 @@ public:
             mInventoryIconsDims[index]);
     }
 
+    std::size_t GetSize() const
+    {
+        return mInventoryIconsDims.size();
+    }
+
 private:
     Graphics::SpriteSheetIndex mButtonIconsSpriteSheet;
     unsigned mPressedOffset;

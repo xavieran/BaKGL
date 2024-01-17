@@ -476,7 +476,7 @@ std::vector<Character> GameData::LoadCharacters()
     unsigned characters = sCharacterCount;
 
     std::vector<Character> chars;
-    auto spellInfo = SpellInfo{};
+    const auto& spellDb = BAK::SpellDatabase::Get();
 
     for (unsigned character = 0; character < characters; character++)
     {
@@ -489,7 +489,7 @@ std::vector<Character> GameData::LoadCharacters()
 
         auto characterNameOffset = mBuffer.GetArray<2>();
         auto spells = Spells{mBuffer.GetArray<6>()};
-        for (const auto& spell : spellInfo.GetSpells())
+        for (const auto& spell : spellDb.GetSpells())
         {
             if (spell.HasSpell(spells))
             {
