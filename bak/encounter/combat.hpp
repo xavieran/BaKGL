@@ -63,7 +63,9 @@ public:
         GamePositionAndHeading westRetreat,
         GamePositionAndHeading southRetreat,
         GamePositionAndHeading eastRetreat,
-        std::vector<CombatantData> combatants)
+        std::vector<CombatantData> combatants,
+        std::uint16_t unknown,
+        bool isAmbush)
     :
         mCombatIndex{combatIndex},
         mEntryDialog{entryDialog},
@@ -73,7 +75,9 @@ public:
         mWestRetreat{westRetreat},
         mSouthRetreat{southRetreat},
         mEastRetreat{eastRetreat},
-        mCombatants{combatants}
+        mCombatants{combatants},
+        mUnknown{unknown},
+        mIsAmbush{isAmbush}
     {}
 
     unsigned mCombatIndex;
@@ -87,7 +91,10 @@ public:
     GamePositionAndHeading mEastRetreat;
 
     std::vector<CombatantData> mCombatants;
-    //bool mVisible;
+    std::uint16_t mUnknown;
+    // ambushes are not visible, but are scoutable
+    // not ambushes are visible, but not scoutable
+    bool mIsAmbush;
 };
 
 std::ostream& operator<<(std::ostream&, const Combat&);

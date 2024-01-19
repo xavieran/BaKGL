@@ -1,0 +1,11 @@
+add_library(bakState
+    dialog.hpp dialog.cpp
+    encounter.hpp encounter.cpp
+    event.hpp event.cpp
+    lock.hpp lock.cpp
+    offsets.hpp
+    skill.hpp skill.cpp
+    temple.hpp temple.cpp
+)
+
+target_link_libraries(bakState bak bakEncounter)

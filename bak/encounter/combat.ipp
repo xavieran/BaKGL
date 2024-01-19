@@ -34,13 +34,13 @@ void GenericCombatFactory<isTrap>::Load()
 
     const auto logger = Logging::LogState::GetLogger("Combat");
 
-    const auto count = fb.GetUint16LE();
+    const auto count = fb.GetUint32LE();
     logger.Debug() << "Combats: " << count <<"\n";
     for (unsigned i = 0; i < count; i++)
     {
         logger.Debug() << "Combat #" << i << " @" 
             << std::hex << fb.Tell() << std::dec << "\n";
-        fb.Skip(5);
+        fb.Skip(3);
         const auto combatIndex = fb.GetUint32LE();
         const auto entryDialog = fb.GetUint32LE();
         const auto scoutDialog = fb.GetUint32LE();
@@ -53,7 +53,6 @@ void GenericCombatFactory<isTrap>::Load()
             const auto heading = static_cast<std::uint16_t>(fb.GetUint16LE() >> 8);
             return GamePositionAndHeading{{x, y}, heading};
         };
-
         
         const auto trap = std::invoke([&]() -> std::optional<GamePositionAndHeading> 
         {
@@ -85,7 +84,9 @@ void GenericCombatFactory<isTrap>::Load()
         {
             fb.Skip(48);
         }
-        fb.Skip(2);
+
+        auto unknown = fb.GetUint16LE();
+        const bool isAmbush = fb.GetUint16LE() == 0x1;
 
         mCombats.emplace_back(
             combatIndex,
@@ -96,7 +97,9 @@ void GenericCombatFactory<isTrap>::Load()
             west,
             south,
             east,
-            combatants);
+            combatants,
+            unknown,
+            isAmbush);
 
         logger.Spam() << "Index: " << i << " COMBAT #" << combatIndex << " ";
         logger.Spam() << mCombats.back() << "\n";

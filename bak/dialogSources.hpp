@@ -173,6 +173,8 @@ public:
     static constexpr auto mTrappedAnimal = KeyTarget{0xab};
     static constexpr auto mWell          = KeyTarget{0xbc};
 
+    static constexpr auto mGenericScoutedCombat = KeyTarget{0x2f};
+
     static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
 };
 

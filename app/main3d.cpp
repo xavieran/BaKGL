@@ -5,6 +5,8 @@
 #include "bak/gameData.hpp"
 #include "bak/screens.hpp"
 
+#include "bak/state/encounter.hpp"
+
 extern "C" {
 #include "com/getopt.h"
 }
@@ -217,7 +219,7 @@ int main(int argc, char** argv)
         {
             currentTile = camera.GetGameTile();
             logger.Debug() << "New tile: " << currentTile << "\n";
-            gameRunner.mGameState.mGameData->ClearTileRecentEncounters();
+            gameRunner.mGameState.Apply([](auto& fb){ BAK::State::ClearTileRecentEncounters(fb); });
         }
     };
 
@@ -251,7 +253,7 @@ int main(int argc, char** argv)
         }});
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalDown(); });
-    inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.mGameData->ClearTileRecentEncounters(); });
+    inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply([](auto& fb){ BAK::State::ClearTileRecentEncounters(fb); }); });
 
     inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ if (root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE})){ ;} });
     inputHandler.BindCharacter([&](char character){ if(root.OnKeyEvent(Gui::Character{character})){ ;} });

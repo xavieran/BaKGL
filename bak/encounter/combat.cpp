@@ -21,12 +21,14 @@ std::ostream& operator<<(std::ostream& os, const Combat& comb)
         << " \nWest: " << comb.mWestRetreat
         << " \nSouth: " << comb.mSouthRetreat
         << " \nEast: " << comb.mEastRetreat
+        << " unknown: " << comb.mUnknown
+        << " isAmbush: " << comb.mIsAmbush
         << " \nCombatants: [";
     for (const auto& combat : comb.mCombatants)
     {
         os << combat << ", ";
     }
-    os << "]}";
+    os << "]";
     return os;
 }
 

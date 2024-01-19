@@ -70,30 +70,17 @@ public:
 
     static constexpr auto sCharacterSkillOffset   = 0xdb; // -> 0x315
     static constexpr auto sCharacterSkillLength   = 5 * 16 + 8 + 7;
-
     static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
-    static constexpr auto sCharacterSelectedSkillPool = 0x324; // -> 0x319
+                                                           //
     static constexpr auto sCharacterStatusOffset  = 0x330;
     static constexpr auto sCharacterPotionOffset  = 0x350;
 
     static constexpr auto sTimeExpiringEventRecordOffset = 0x618; // (0x4340)
-    // Single bit indicators for event state tracking 
-    // In the code this offset is 0x440a in the game -> diff of 0x3d28
-    static constexpr auto sGameEventRecordOffset = 0x6e2; // -> 0xadc
-    static constexpr auto sGameComplexEventRecordOffset = 0xb09;
 
-    static constexpr auto sConversationChoiceMarkedFlag = 0x1d4c;
-    static constexpr auto sConversationOptionInhibitedFlag = 0x1a2c;
     // Based on disassembly this may be the state of doors (open/closed)
     static constexpr auto sDoorFlag = 0x1b58;
 
-    static constexpr auto sSkillSelectedEventFlag = 0x1856;
-    static constexpr auto sSkillImprovementEventFlag = 0x18ce;
-
-    static constexpr auto sLockHasBeenSeenFlag = 0x1c5c;
-
     static constexpr auto sConditionBasedFlag = 0x1c98;
-    static constexpr auto sTempleSeenFlag = 0x1950;
     static constexpr auto sPantathiansEventFlag = 0x1ed4;
 
     static constexpr auto sCombatEntityListCount  = 700;
@@ -169,110 +156,12 @@ public:
     }
 
     FileBuffer& GetFileBuffer() { return mBuffer; }
-
-    std::pair<unsigned, unsigned> CalculateComplexEventOffset(unsigned eventPtr) const;
-    std::pair<unsigned, unsigned> CalculateEventOffset(unsigned eventPtr) const;
-
-    void SetBitValueAt(unsigned byteOffset, unsigned bitOffset, unsigned value);
-    void SetEventFlag(unsigned eventPtr, unsigned value);
-    void SetEventFlagTrue (unsigned eventPtr);
-    void SetEventFlagFalse(unsigned eventPtr);
-
-    void SetEventDialogAction(const SetFlag& setFlag);
-
-    unsigned ReadBitValueAt(unsigned byteOffset, unsigned bitOffset) const;
-    unsigned ReadEvent(unsigned eventPtr) const;
-    bool ReadEventBool(unsigned eventPtr) const;
-
-    bool ReadSkillSelected(unsigned character, unsigned skill) const;
-    bool ReadSkillUnseenImprovement(unsigned character, unsigned skill) const;
-    void ClearUnseenImprovements(unsigned character);
-
-    std::uint8_t ReadSelectedSkillPool(unsigned character) const;
-    void SetSelectedSkillPool(unsigned character, std::uint8_t value);
-
-    bool ReadTempleSeen(unsigned temple) const;
-    void SetTempleSeen(unsigned temple);
-
     void SetTimeExpiringState(
         unsigned number,
         unsigned eventPtr,
         unsigned flag,
         Time time);
 
-    // Called by
-    // * checkBlockTriggered
-    // * checkTownTriggered
-    // * checkBackgroundTriggered
-    // * checkZoneTriggered,
-    // * doEnableEncounter
-    // * doDialogEncounter
-    // * doDisableEncounter
-    // * doSoundEncounter
-    bool CheckActive(
-        const Encounter::Encounter& encounter,
-        ZoneNumber zone) const;
-
-    bool CheckCombatActive(
-        const Encounter::Encounter& encounter,
-        ZoneNumber zone) const;
-
-    // Used by
-    // * Dialog
-    void SetPostDialogEventFlags(
-        const Encounter::Encounter& encounter,
-        ZoneNumber zone);
-    
-    // Used by
-    // * Background
-    // * Town
-    void SetPostGDSEventFlags(
-        const Encounter::Encounter& encounter);
-    
-    // Used by
-    // * Block
-    // * Disable
-    // * Enable
-    // * Sound
-    // * Zone
-    void SetPostEnableOrDisableEventFlags(
-        const Encounter::Encounter& encounter,
-        ZoneNumber zone);
-
-    // For each encounter in every zone there is a unique enabled/disabled flag.
-    // This is reset every time a new chapter is loaded (I think);
-    unsigned CalculateUniqueEncounterStateFlagOffset(
-        ZoneNumber zone, 
-        std::uint8_t tileIndex,
-        std::uint8_t encounterIndex) const;
-
-    bool CheckUniqueEncounterStateFlagOffset(
-        ZoneNumber zone, 
-        std::uint8_t tileIndex,
-        std::uint8_t encounterIndex) const;
-    
-    // 1450 is "recently encountered this encounter"
-    // should be cleared when we move to a new tile
-    // (or it will inhibit the events of the new tile)
-    unsigned CalculateRecentEncounterStateFlag(
-        std::uint8_t encounterIndex) const;
-
-    // 1464 is combat completed flag
-    unsigned CalculateCombatEncounterStateFlag(
-        unsigned combatIndex) const;
-
-    bool CheckCombatEncounterStateFlag(
-        unsigned combatIndex) const;
-
-    void ClearTileRecentEncounters();
-    
-    bool ReadConversationItemClicked(unsigned eventPtr) const;
-    void SetConversationItemClicked(unsigned eventPtr);
-    bool CheckConversationOptionInhibited(unsigned eventPtr);
-
-    void SetLockHasBeenSeen(unsigned lockIndex);
-    bool CheckLockHasBeenSeen(unsigned lockIndex);
-    
     /* ************* LOAD Game STATE ***************** */
     static constexpr unsigned GetCharacterNameOffset(unsigned c) { return c * sCharacterNameLength + sCharacterNameOffset; }
     static constexpr unsigned GetCharacterSkillOffset(unsigned c) { return c * sCharacterSkillLength + sCharacterSkillOffset; }

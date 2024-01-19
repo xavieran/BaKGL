@@ -66,6 +66,7 @@ target_link_libraries(bak
     audio
     bakEncounter
     bakFile
+    bakState
     graphics)
 
 #set_target_properties(
@@ -76,4 +77,5 @@ target_link_libraries(bak
 
 add_subdirectory(encounter)
 add_subdirectory(file)
+add_subdirectory(state)
 add_subdirectory(test)

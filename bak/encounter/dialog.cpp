@@ -1,6 +1,7 @@
 #include "bak/encounter/dialog.hpp"
 
 #include "com/assert.hpp"
+#include "com/logger.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 
@@ -30,12 +31,14 @@ void DialogFactory::Load()
     auto fb = FileBufferFactory::Get().CreateDataBuffer(
         sFilename);
 
-    const auto count = fb.GetUint16LE();
+    const auto count = fb.GetUint32LE();
     for (unsigned i = 0; i < count; i++)
     {
-        fb.Skip(5);
+        fb.Skip(3);
         const auto target = fb.GetUint32LE();
+        Logging::LogDebug("Dialog") << " Target: " << target << "\n";
         mDialogs.emplace_back(KeyTarget{target});
+        fb.Skip(2);
     }
 }
 

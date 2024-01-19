@@ -163,16 +163,16 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                //if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
-                //{
-                //    mSystems->AddRenderable(
-                //        Renderable{
-                //            id,
-                //            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                //            enc.GetLocation(),
-                //            glm::vec3{0.0},
-                //            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-                //}
+                if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
+                {
+                    mSystems->AddRenderable(
+                        Renderable{
+                            id,
+                            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                            enc.GetLocation(),
+                            glm::vec3{0.0},
+                            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                }
 
                 mSystems->AddIntersectable(
                     Intersectable{
@@ -221,6 +221,63 @@ public:
                 + glm::uvec2{800, 800}); // Hack to ensure these encounters trigger...
         }
         */
+    }
+
+    void DoCombatEncounter(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::Combat& combat)
+    {
+        if (!mGameState.Apply([&](auto& fb){ return BAK::State::CheckCombatActive(fb, encounter, mGameState.GetZone()); }))
+        {
+            return;
+        }
+
+        //if (!combat.mIsAmbush)
+        //{
+        //    //return {combatActive, combatNotScouted}
+        //}
+        //else
+        //{
+        //    //if (arg_dontDoCombatIfIsAmbush)
+        //    //{
+        //    //    return {combatInActive, combatNotScouted}
+        //    //}
+        //    if (false)
+        //    {
+        //        ;
+        //    }
+        //    else
+        //    {
+        //        if (!mGameState.mGameData->CheckRecentlyEncountered(encounter.GetIndex().mValue))
+        //        {
+        //            mGameState.mGameData->SetRecentlyEncountered(encounter.GetIndex().mValue, true);
+        //            auto chance = GetRandomNumber(0, 0xfff) / 100;
+        //            auto bestScoutSkill = mGameState.GetParty().GetSkill(BAK::SkillType::Scout, true);
+        //            if (bestScoutSkill > chance)
+        //            {
+        //                mGameState.GetParty().ImproveSkillForAll(
+        //                    BAK::SkillType::Scout, SkillChange::ExercisedSkill, 1);
+        //                // RunDialog combat.mScoutDialog
+        //                mGameState.mGameData.SetCombatEncounterScoutedState(
+        //                    encounter.GetIndex().mValue, true);
+        //                // return {combatNotActive, combatScouted}
+        //            }
+        //            else
+        //            {
+        //                // return {combatActive, combatNotScouted}
+        //            }
+        //        }
+        //    }
+        //}
+
+        //mGuiManager.StartDialog(
+        //        block.mDialog,
+        //        false,
+        //        false,
+        //        &mDynamicDialogScene);
+
+        //mCamera.UndoPositionChange();
+        //mGameState.SetPostEnableOrDisableEventFlags(encounter);
     }
 
     void DoBlockEncounter(
@@ -371,8 +428,9 @@ public:
                 if (mGuiManager.mScreenStack.size() == 1)
                     DoBlockEncounter(encounter, block);
             },
-            [](const BAK::Encounter::Combat& combat){
-                // Fill in ...
+            [&](const BAK::Encounter::Combat& combat){
+                if (mGuiManager.mScreenStack.size() == 1)
+                    DoCombatEncounter(encounter, combat);
             },
             [&](const BAK::Encounter::Dialog& dialog){
                 if (mGuiManager.mScreenStack.size() == 1)

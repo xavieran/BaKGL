@@ -10,6 +10,13 @@
 #include "bak/textVariableStore.hpp"
 #include "bak/types.hpp"
 
+#include "bak/state/dialog.hpp"
+#include "bak/state/event.hpp"
+#include "bak/state/encounter.hpp"
+#include "bak/state/lock.hpp"
+#include "bak/state/skill.hpp"
+#include "bak/state/temple.hpp"
+
 #include "com/random.hpp"
 #include "com/visit.hpp"
 
@@ -124,6 +131,24 @@ public:
     
     const TextVariableStore& GetTextVariableStore() const { return mTextVariableStore; }
     TextVariableStore& GetTextVariableStore() { return mTextVariableStore; }
+
+    template <typename F>
+    bool Apply(F&& func)
+    {
+        if (mGameData)
+        {
+            if constexpr (std::is_same_v<decltype(func(mGameData->GetFileBuffer())), bool>)
+            {
+                return std::invoke(func, mGameData->GetFileBuffer());
+            }
+            else
+            {
+                std::invoke(func, mGameData->GetFileBuffer());
+            }
+        }
+
+        return false;
+    }
 
     void SetChapter(Chapter chapter)
     {
@@ -539,7 +564,7 @@ public:
         // Probably want to put this logic somewhere else...
         // if eventPtr % 10 != 0
         if (mGameData 
-            && std::get<1>(mGameData->CalculateComplexEventOffset(choice.mEventPointer))
+            && std::get<1>(State::CalculateComplexEventOffset(choice.mEventPointer))
                 != 0)
         {
             return (state >= choice.mXorMask) && (state <= choice.mMustEqualExpected);
@@ -616,7 +641,7 @@ public:
         }
         if (mGameData != nullptr)
         {
-            return mGameData->ReadEvent(eventPtr);
+            return State::ReadEvent(mGameData->GetFileBuffer(), eventPtr);
         }
         else
             return 0;
@@ -631,7 +656,8 @@ public:
     {
         if (mGameData != nullptr)
         {
-            return mGameData->CheckConversationOptionInhibited(
+            return State::CheckConversationOptionInhibited(
+                mGameData->GetFileBuffer(),
                 choice.mEventPointer);
         }
         return false;
@@ -641,7 +667,8 @@ public:
     {
         if (mGameData != nullptr)
         {
-            return mGameData->ReadConversationItemClicked(
+            return State::ReadConversationItemClicked(
+                mGameData->GetFileBuffer(),
                 choice.mEventPointer);
         }
         return false;
@@ -650,44 +677,46 @@ public:
     void MarkDiscussed(const ConversationChoice& choice)
     {
         if (mGameData)
-            mGameData->SetConversationItemClicked(choice.mEventPointer);
+            State::SetConversationItemClicked(
+                mGameData->GetFileBuffer(),
+                choice.mEventPointer);
     }
 
     bool CheckLockSeen(unsigned lockIndex)
     {
         if (mGameData)
-            return mGameData->CheckLockHasBeenSeen(lockIndex);
+            return State::CheckLockHasBeenSeen(mGameData->GetFileBuffer(), lockIndex);
         return false;
     }
 
     void MarkLockSeen(unsigned lockIndex)
     {
         if (mGameData)
-            mGameData->SetLockHasBeenSeen(lockIndex);
+            State::SetLockHasBeenSeen(mGameData->GetFileBuffer(), lockIndex);
     }
 
     void SetEventValue(unsigned eventPtr, unsigned value)
     {
         if (mGameData)
-            mGameData->SetEventFlag(eventPtr, value);
+            State::SetEventFlag(mGameData->GetFileBuffer(), eventPtr, value);
     }
 
     void SetEventState(const SetFlag& setFlag)
     {
         if (mGameData)
-            mGameData->SetEventDialogAction(setFlag);
+            State::SetEventDialogAction(mGameData->GetFileBuffer(), setFlag);
     }
 
     void SetTempleSeen(unsigned temple)
     {
         if (mGameData)
-            mGameData->SetTempleSeen(temple);
+            State::SetTempleSeen(mGameData->GetFileBuffer(), temple);
     }
 
     bool GetTempleSeen(unsigned temple) const
     {
         if (mGameData)
-            return mGameData->ReadTempleSeen(temple);
+            return State::ReadTempleSeen(mGameData->GetFileBuffer(), temple);
         return true;
     }
 
@@ -708,13 +737,14 @@ public:
     bool CheckEncounterActive(const Encounter::Encounter& encounter)
     {
          if (!mGameData) return true;
-         return mGameData->CheckActive(encounter, mZone);
+         return State::CheckActive(mGameData->GetFileBuffer(), encounter, mZone);
     }
 
     void SetPostDialogEventFlags(const Encounter::Encounter& encounter)
     {
         if (mGameData)
-            GetGameData().SetPostDialogEventFlags(
+            State::SetPostDialogEventFlags(
+                mGameData->GetFileBuffer(),
                 encounter,
                 mZone);
     }
@@ -722,13 +752,13 @@ public:
     void SetPostGDSEventFlags(const Encounter::Encounter& encounter)
     {
         if (mGameData)
-            mGameData->SetPostGDSEventFlags(encounter);
+            State::SetPostGDSEventFlags(mGameData->GetFileBuffer(), encounter);
     }
 
     void SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter)
     {
         if (mGameData)
-            mGameData->SetPostEnableOrDisableEventFlags(encounter, mZone);
+            State::SetPostEnableOrDisableEventFlags(mGameData->GetFileBuffer(), encounter, mZone);
     }
 
     void SetDialogContext(unsigned contextValue)
@@ -750,7 +780,7 @@ public:
     {
         if (mGameData)
         {
-            mGameData->ClearUnseenImprovements(character);
+            State::ClearUnseenImprovements(mGameData->GetFileBuffer(), character);
         }
     }
 
