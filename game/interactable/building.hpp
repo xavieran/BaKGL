@@ -105,6 +105,7 @@ public:
         {
             Logging::LogDebug("Building") << "State: DoneFirstDialog: \n";
             TryDoEncounter();
+            StartDialog(mCurrentBuilding->GetDialog().mDialog);
             return;
         }
         else if (mState == State::TryUnlock)
@@ -136,6 +137,10 @@ public:
             else
                 mState = State::Idle;
         }
+        else if (mState == State::Done)
+        {
+            mState = State::Idle;
+        }
         else
         {
             ASSERT(false);
@@ -152,7 +157,10 @@ public:
                 << mCurrentBuilding->GetEncounter() << "\n";
             std::invoke(
                 mEncounterCallback,
-                *mCurrentBuilding->GetEncounter().mEncounterPos);
+                *mCurrentBuilding->GetEncounter().mEncounterPos + glm::uvec2{600, 600});
+            // If this encounter is now inactive, we can run this dialog instead
+            //StartDialog(mCurrentBuilding->GetDialog().mDialog);
+            //mState = State::Done;
         }
         else
         {

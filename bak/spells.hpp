@@ -317,7 +317,7 @@ private:
 
     void LoadSpellWeaknesses()
     {
-        auto monsters = MonsterNames{};
+        auto monsters = MonsterNames::Get();
         auto fb = FileBufferFactory::Get().CreateDataBuffer(sSpellWeaknessesFile);
         unsigned entries = fb.GetUint16LE();
         for (unsigned i = 0; i < entries; i++)
@@ -339,7 +339,7 @@ private:
 
     void LoadSpellResistances()
     {
-        auto monsters = MonsterNames{};
+        auto monsters = MonsterNames::Get();
         auto fb = FileBufferFactory::Get().CreateDataBuffer(sSpellResistances);
         unsigned entries = fb.GetUint16LE();
         for (unsigned i = 0; i < entries; i++)

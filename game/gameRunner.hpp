@@ -157,7 +157,7 @@ public:
             }
         }
 
-        const auto monsters = BAK::MonsterNames{};
+        const auto monsters = BAK::MonsterNames::Get();
         for (const auto& world : mZoneData->mWorldTiles.GetTiles())
         {
             for (const auto& enc : world.GetEncounters(mGameState.GetChapter()))
@@ -213,18 +213,10 @@ public:
         mCurrentInteractable = mInteractableFactory.MakeInteractable(et);
         ASSERT(mCurrentInteractable);
         mCurrentInteractable->BeginInteraction(container, et);
-
-        /*
-        if (container.HasEncounter() && container.GetEncounter().mEncounterPos)
-        {
-            CheckAndDoEncounter(
-                *container.GetEncounter().mEncounterPos
-                + glm::uvec2{800, 800}); // Hack to ensure these encounters trigger...
-        }
-        */
     }
 
-    void DoCombatEncounter(
+    // Returns <combatActive, combatScouted>
+    std::pair<bool, bool> CheckCombatEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Combat& combat)
     {
@@ -232,16 +224,13 @@ public:
         if (!mGameState.Apply(BAK::State::CheckCombatActive, encounter, mGameState.GetZone()))
         {
             mLogger.Info() << __FUNCTION__ << " Combat inactive\n";
-            return;
+            return std::make_pair(false, false);
         }
 
-        bool combatActive = false;
-        bool combatScouted = false;
         if (!combat.mIsAmbush)
         {
             mLogger.Info() << __FUNCTION__ << " Combat is not ambush\n";
-            combatActive = true;
-            combatScouted = true;
+            return std::make_pair(true, false);
         }
         else
         {
@@ -250,8 +239,7 @@ public:
             const auto arg_dontDoCombatIfIsAmbush = false;
             if (arg_dontDoCombatIfIsAmbush)
             {
-                combatActive = false;
-                combatScouted = false;
+                return std::make_pair(false, false);
             }
             else
             {
@@ -266,7 +254,6 @@ public:
                     {
                         mGameState.GetParty().ImproveSkillForAll(
                             BAK::SkillType::Scouting, BAK::SkillChange::ExercisedSkill, 1);
-                        // RunDialog combat.mScoutDialog
                         mGuiManager.StartDialog(
                             combat.mScoutDialog,
                             false,
@@ -276,113 +263,154 @@ public:
                         mGameState.Apply(BAK::State::SetCombatEncounterScoutedState,
                             encounter.GetIndex().mValue, true);
 
-                        combatActive = false;
-                        combatScouted = true;
+                        return std::make_pair(false, true);
                     }
                     else
                     {
-                        combatActive = true;
-                        combatScouted = false;
+                        return std::make_pair(true, false);
                     }
                 }
                 else
                 {
                     mLogger.Info() << __FUNCTION__ << " Combat was scouted already\n";
+                    return std::make_pair(true, false);
                 }
             }
         }
-
-        //mGuiManager.StartDialog(
-        //        block.mDialog,
-        //        false,
-        //        false,
-        //        &mDynamicDialogScene);
-
-        //mCamera.UndoPositionChange();
-        //mGameState.SetPostEnableOrDisableEventFlags(encounter);
     }
 
-    //void CheckCombatStealhAvoided()
-    //{
-    //    auto lowestStealth = ...
-    //    if (lowestStealh < 0x5a) // 90
-    //    {
-    //        lowestStealth *= 0x1e; // 30
-    //        lowestStealth += (lowestStealth / 100);
-    //    }
-    //    if (lowestStealth > 0x5a) lowestStealth = 0x5a;
+    void CheckAndDoCombatEncounter(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::Combat& combat)
+    {
+        const auto [combatActive, combatScouted] = CheckCombatEncounter(encounter, combat);
 
-    //    if (combatIsAmbush)
-    //    {
-    //        if (isSpellActive(Spell_0)) // dragon's breath
-    //        {
-    //            lowestStealth = lowestStealth + ((100 - lowestStealth) >> 1)
-    //        }
-    //    }
+        mLogger.Debug() << __FUNCTION__ << " Combat checked, result: [" << combatActive << ", " << combatScouted << "]\n";
 
-    //    auto chance = GetRandomNumber(0, 0xfff) % 100;
-    //    if (lowestStealth > chance)
-    //    {
-    //        mGameState.GetParty().ImproveSkillForAll(
-    //            BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
+        if (!combatActive)
+        {
+            mLogger.Debug() << __FUNCTION__ << " Combat not active, not doing it\n";
+            return;
+        }
 
-    //        return; // avoided combat due to stealth!
-    //    }
+        const auto [character, stealthSkill] = mGameState.GetParty().GetSkill(BAK::SkillType::Stealth, false);
+        auto lowestStealth = stealthSkill;
+        if (lowestStealth < 0x5a) // 90
+        {
+            lowestStealth *= 0x1e; // 30
+            lowestStealth += (lowestStealth / 100);
+        }
+        if (lowestStealth > 0x5a) lowestStealth = 0x5a;
 
-    //    // Check whether players are in valid combatable position???
-    //    auto timeOfScouting = LoadTimeOfScouting(ThisCombat);
-    //    auto timeDiff = mGameState.CurrentTime() - timeOfScouting;
-    //    if ((timeDiff / 0x1e) > 0x1e) // within scouting valid time
-    //    {
-    //        auto chance = GetRandomNumber(0, 0xfff) % 100;
-    //        if (chance > lowestStealth)
-    //        {
-    //            DialogContext_7530 = 1;
-    //            // Failed to scout
-    //        }
-    //        else
-    //        {
-    //            mGameState.GetParty().ImproveSkillForAll(
-    //                BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
-    //            DialogContext_7530 = 0;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        DialogContext_7530 = 2;
-    //    }
+        if (combat.mIsAmbush)
+        {
+            //if (isSpellActive(Spell_0)) // dragon's breath
+            //{
+            //    lowestStealth = lowestStealth + ((100 - lowestStealth) >> 1)
+            //}
+        }
 
-    //    SetDialogTextVariable(monster, combat.firstMonster.index);
-    //    if (combat.mEntryDialog != 0)
-    //    {
-    //        RunDialog(combat.mEntryDialog());
-    //    }
+        auto chance = GetRandomNumber(0, 0xfff) % 100;
+        if (lowestStealth > chance)
+        {
+            mGameState.GetParty().ImproveSkillForAll(
+                BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
 
-    //    bool combatRetreated;
-    //    auto combatResult = EnterCombatScreen(surprisedEnemy, &combatRetreated);
-    //    //recordTimeOfCombat at (combatIndex << 2) + 0x3967
-    //    if (combatResult == 2)
-    //    {
-    //        // retreat to a combat retreat location based on player entry
-    //    }
-    //    else if (combatResult == 1)
-    //    {
-    //        // Victory?
-    //        if (encounter.haveSaveAddr3)
-    //        {
-    //            setSaveAddr3 to 1
-    //        }
-    //    }
+            mLogger.Debug() << __FUNCTION__ << " Avoided combat due to stealth\n";
+            return; // avoided combat due to stealth!
+        }
 
-    //    setEncounterState190 to 1
-    //    setEncounterState1464 to 1
-    //    setFlagsPostCombat
+        // Check whether players are in valid combatable position???
+        //auto timeOfScouting = LoadTimeOfPlanningCombat(combat.mCombatIndex);
+        auto timeOfScouting = 0;
+        //auto timeDiff = mGameState.GetWorldTime().mTime.mTime - timeOfScouting;
+        auto timeDiff = 0;
+        if ((timeDiff / 0x1e) < 0x1e) // within scouting valid time
+        {
+            auto chance = GetRandomNumber(0, 0xfff) % 100;
+            if (chance > lowestStealth)
+            {
+                // failed to sneak up
+                mGameState.SetDialogContext(1);
+            }
+            else
+            {
+                // Successfully snuck
+                mGameState.GetParty().ImproveSkillForAll(
+                    BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
+                mGameState.SetDialogContext(0);
+            }
+        }
+        else
+        {
+            mGameState.SetDialogContext(2);
+        }
 
-    //    if (combatResult == 3)
-    //    {
-    //    }
-    //    
-    //}
+        if (!combat.mCombatants.empty())
+        {
+            auto monsterName = BAK::MonsterNames::Get().GetMonsterName(BAK::MonsterIndex{combat.mCombatants.back().mMonster});
+            mGameState.mTextVariableStore.SetTextVariable(
+                1, // not sure if this is universally true...
+                monsterName);
+            mLogger.Debug() << __FUNCTION__ << " First combatant: " << monsterName << "\n";
+        }
+
+        if (combat.mEntryDialog.mValue != 0)
+        {
+            mGuiManager.StartDialog(
+                combat.mEntryDialog,
+                false,
+                false,
+                &mDynamicDialogScene);
+        }
+
+        // The below needs to be called in the return from the combat screen
+        bool combatRetreated;
+        //auto combatResult = EnterCombatScreen(surprisedEnemy, &combatRetreated);
+        auto combatResult = 1;
+        //recordTimeOfCombat at (combatIndex << 2) + 0x3967
+        if (combatResult == 2)
+        {
+            // retreat to a combat retreat location based on player entry
+        }
+        else if (combatResult == 1)
+        {
+            // Victory?
+            if (encounter.mSaveAddress3 != 0)
+            {
+                mGameState.Apply(BAK::State::SetEventFlagTrue, encounter.mSaveAddress3);
+            }
+        }
+
+        mGameState.Apply(
+            BAK::State::SetUniqueEncounterStateFlag,
+            mGameState.GetZone(),
+            encounter.GetTileIndex(),
+            encounter.GetIndex().mValue,
+            true);
+
+        mGameState.Apply(
+            BAK::State::SetCombatEncounterState,
+            combat.mCombatIndex,
+            true);
+
+        mGameState.Apply(BAK::State::SetPostCombatCombatSpecificFlags, combat.mCombatIndex);
+        // This is a part of the above function, but I separate it out here
+        // to keep things cleaner
+        if (combat.mCombatIndex == 74)
+        {
+            // I happen to know all this "dialog" does is set a bunch of flags,
+            // so it's safe to do this rather than triggering an actual dialog.
+            for (const auto& action : BAK::DialogStore::Get().GetSnippet(BAK::DialogSources::mAfterNagoCombatSetKeys).mActions)
+            {
+                mGameState.EvaluateAction(action);
+            }
+        }
+
+        if (combatResult == 3)
+        {
+        }
+    }
 
     void DoBlockEncounter(
         const BAK::Encounter::Encounter& encounter,
@@ -534,7 +562,7 @@ public:
             },
             [&](const BAK::Encounter::Combat& combat){
                 if (mGuiManager.mScreenStack.size() == 1)
-                    DoCombatEncounter(encounter, combat);
+                    CheckAndDoCombatEncounter(encounter, combat);
             },
             [&](const BAK::Encounter::Dialog& dialog){
                 if (mGuiManager.mScreenStack.size() == 1)

@@ -176,6 +176,8 @@ public:
     static constexpr auto mGenericScoutedCombat = KeyTarget{0x2f};
 
     static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
+
+    static constexpr auto mAfterNagoCombatSetKeys = BAK::KeyTarget{0x1cfdf1};
 };
 
 }

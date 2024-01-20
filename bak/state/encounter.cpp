@@ -15,7 +15,7 @@ bool CheckActive(
     ZoneNumber zone) 
 {
     const auto encounterIndex = encounter.GetIndex().mValue;
-    const bool alreadyEncountered = CheckUniqueEncounterStateFlagOffset(
+    const bool alreadyEncountered = CheckUniqueEncounterStateFlag(
         fb,
         zone,
         encounter.GetTileIndex(),
@@ -41,7 +41,7 @@ bool CheckCombatActive(
     ZoneNumber zone) 
 {
     const auto encounterIndex = encounter.GetIndex().mValue;
-    const bool alreadyEncountered = CheckUniqueEncounterStateFlagOffset(
+    const bool alreadyEncountered = CheckUniqueEncounterStateFlag(
         fb,
         zone,
         encounter.GetTileIndex(),
@@ -129,12 +129,12 @@ void SetPostEnableOrDisableEventFlags(
 
     if (encounter.mUnknown2 != 0)
     {
-        SetEventFlagTrue(
+        SetUniqueEncounterStateFlag(
             fb,
-            CalculateUniqueEncounterStateFlagOffset(
-                zone,
-                encounter.GetTileIndex(),
-                encounter.GetIndex().mValue));
+            zone,
+            encounter.GetTileIndex(),
+            encounter.GetIndex().mValue,
+            true);
     }
 }
 
@@ -154,7 +154,7 @@ unsigned CalculateUniqueEncounterStateFlagOffset(
     return offset + encounterStateOffset;
 }
 
-bool CheckUniqueEncounterStateFlagOffset(
+bool CheckUniqueEncounterStateFlag(
     FileBuffer& fb,
     ZoneNumber zone, 
     std::uint8_t tileIndex,
@@ -166,6 +166,22 @@ bool CheckUniqueEncounterStateFlagOffset(
             zone,
             tileIndex,
             encounterIndex));
+}
+
+void SetUniqueEncounterStateFlag(
+    FileBuffer& fb,
+    ZoneNumber zone,
+    std::uint8_t tileIndex,
+    std::uint8_t encounterIndex,
+    bool value)
+{
+    SetEventFlag(
+        fb,
+        CalculateUniqueEncounterStateFlagOffset(
+            zone,
+            tileIndex,
+            encounterIndex),
+        value);
 }
 
 unsigned CalculateCombatEncounterScoutedStateFlag(
@@ -193,6 +209,19 @@ bool CheckCombatEncounterStateFlag(
         return ReadEventBool(
             fb,
             CalculateCombatEncounterStateFlag(combatIndex));
+}
+
+void SetCombatEncounterState(
+    FileBuffer& fb,
+    unsigned combatIndex,
+    bool state)
+{
+    constexpr auto alwaysTriggeredIndex = 0x3e8;
+    if (combatIndex >= alwaysTriggeredIndex)
+    {
+        return;
+    }
+    SetEventFlag(fb, CalculateCombatEncounterStateFlag(combatIndex), state);
 }
 
 void SetCombatEncounterScoutedState(
@@ -236,5 +265,67 @@ void ClearTileRecentEncounters(
         SetEventFlagFalse(fb, CalculateRecentEncounterStateFlag(i));
         SetEventFlagFalse(fb, CalculateCombatEncounterScoutedStateFlag(i));
     }
+}
+
+void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex)
+{
+    switch (combatIndex)
+    {
+        case 74: return; // this runs dialog 1cfdf1 (nago combat flags)
+                         // and is handled externally in my code
+        case 131: [[fallthrough]];
+        case 132: [[fallthrough]];
+        case 133: [[fallthrough]];
+        case 134: [[fallthrough]];
+        case 135:
+            if (ReadEventBool(fb, 0x14e7)
+                && ReadEventBool(fb, 0x14e8)
+                && ReadEventBool(fb, 0x14e9)
+                && ReadEventBool(fb, 0x14ea)
+                && ReadEventBool(fb, 0x14eb))
+            {
+                SetEventFlag(fb, 0xdb1c, 1);
+            }
+            return;
+        // The never-ending combats?
+        case 235: [[fallthrough]];
+        case 245: [[fallthrough]];
+        case 291: [[fallthrough]];
+        case 293: [[fallthrough]];
+        case 335: [[fallthrough]];
+        case 337: [[fallthrough]];
+        case 338: [[fallthrough]];
+        case 375: [[fallthrough]];
+        case 410: [[fallthrough]];
+        case 429: [[fallthrough]];
+        case 430:
+            // Zero State 0x190  UniqueEncounterStateFlag
+            // Zero state 0x1450 Recently encountered encounter
+            // Zero state 145a
+            // Zero state 1464
+            // Zero combat clicked...
+            break;
+        case 610: [[fallthrough]];
+        case 613: [[fallthrough]];
+        case 615: [[fallthrough]];
+        case 618: [[fallthrough]];
+        case 619: [[fallthrough]];
+        case 621:
+            if (ReadEventBool(fb, 0x16c6)
+                && ReadEventBool(fb, 0x16c9)
+                && ReadEventBool(fb, 0x16cb)
+                && ReadEventBool(fb, 0x16ce)
+                && ReadEventBool(fb, 0x16cf)
+                && ReadEventBool(fb, 0x16d1))
+            {
+                SetEventFlag(fb, 0x1d17, 1);
+            }
+        default:break;
+    }
+}
+
+void ZeroCombatClicked(unsigned combatIndex)
+{
+    auto offset = (combatIndex * 0xe) + 0x131f;
 }
 }

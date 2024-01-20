@@ -21,6 +21,10 @@ string(CONCAT CXX_IGNORES
     "-Wno-unused-private-field "
     "-Wno-unused-function "
     "-Wno-deprecated-enum-enum-conversion "
+    # This is currently needed for glm
+    #glm/gtx/string_cast.inl:25:40: error: comparison of unsigned expression in ‘>= 0’ is always true [-Werror=type-limits]
+    # 25 |                 assert(strlen(message) >= 0 && strlen(message) < STRING_BUFFER);
+    "-Wno-type-limits "
     )
 
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)

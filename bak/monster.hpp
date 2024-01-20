@@ -12,7 +12,11 @@ class MonsterNames
 {
     static constexpr std::string sInvalidMonster = "INVALID MONSTER";
 public:
-    MonsterNames();
+    static const MonsterNames& Get()
+    {
+        static auto mnames = MonsterNames{};
+        return mnames;
+    }
 
     struct Monster
     {
@@ -64,6 +68,8 @@ public:
     auto size() const { return mMonsterPrefixes.size(); }
 
 private:
+    MonsterNames();
+
     std::vector<std::string> mMonsterNames;
     std::vector<Monster> mMonsterPrefixes;
 };

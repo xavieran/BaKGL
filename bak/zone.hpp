@@ -31,7 +31,7 @@ public:
                 item.GetName(),
                 BAK::ZoneItemToMeshObject(item, mZoneTextures, mPalette));
 
-        const auto monsters = MonsterNames{};
+        const auto monsters = MonsterNames::Get();
         for (unsigned i = 0; i < monsters.size(); i++)
         {
             mObjects.AddObject(

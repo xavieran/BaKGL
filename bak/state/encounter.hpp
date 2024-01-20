@@ -57,11 +57,18 @@ unsigned CalculateUniqueEncounterStateFlagOffset(
     std::uint8_t tileIndex,
     std::uint8_t encounterIndex);
 
-bool CheckUniqueEncounterStateFlagOffset(
+bool CheckUniqueEncounterStateFlag(
     FileBuffer&,
     ZoneNumber zone, 
     std::uint8_t tileIndex,
     std::uint8_t encounterIndex);
+
+void SetUniqueEncounterStateFlag(
+    FileBuffer& fb,
+    ZoneNumber zone,
+    std::uint8_t tileIndex,
+    std::uint8_t encounterIndex,
+    bool value);
 
 // 1450 is "recently encountered this encounter"
 // should be cleared when we move to a new tile
@@ -69,17 +76,22 @@ bool CheckUniqueEncounterStateFlagOffset(
 unsigned CalculateRecentEncounterStateFlag(
     std::uint8_t encounterIndex);
 
-// 145a is combat scouted flag
+// 1464 is combat completed flag
 unsigned CalculateCombatEncounterStateFlag(
     unsigned combatIndex);
-
-// 1464 is combat completed flag
-unsigned CalculateCombatEncounterScoutedStateFlag(
-    std::uint8_t encounterIndex);
 
 bool CheckCombatEncounterStateFlag(
     FileBuffer&,
     unsigned combatIndex);
+
+void SetCombatEncounterState(
+    FileBuffer& fb,
+    unsigned combatIndex,
+    bool state);
+
+// 145a is combat scouted flag
+unsigned CalculateCombatEncounterScoutedStateFlag(
+    std::uint8_t encounterIndex);
 
 void SetCombatEncounterScoutedState(
     FileBuffer&,
@@ -88,5 +100,6 @@ void SetCombatEncounterScoutedState(
 void SetRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
 bool CheckRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
 void ClearTileRecentEncounters(FileBuffer&);
+void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex);
 
 }

@@ -344,6 +344,39 @@ struct Console : public std::streambuf
         mGameState->SetChapter(BAK::Chapter{chapter});
     }
 
+    void SetLogLevel(const std::vector<std::string>& words)
+    {
+        if (words.size() < 2)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: SET_LOG_LEVEL LEVEL (%s)", ss.str().c_str());
+            return;
+        }
+
+        if (words[1] == LevelToString(Logging::LogLevel::Spam))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Spam);
+        }
+        else if (words[1] == LevelToString(Logging::LogLevel::Debug))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+        }
+        else if (words[1] == LevelToString(Logging::LogLevel::Info))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Info);
+        }
+        else if (words[1] == LevelToString(Logging::LogLevel::Fatal))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
+        }
+        else
+        {
+            AddLog("[error] SET_LOG_LEVEL FAILED Invalid log level provided");
+        }
+    }
+
     Console()
     :
         mStream{this},
@@ -402,6 +435,10 @@ struct Console : public std::streambuf
             for (int i = first > 0 ? first : 0; i < mHistory.Size; i++)
                 AddLog("%3d: %s\n", i, mHistory[i]);
         });
+
+        mCommands.push_back("SET_LOG_LEVEL");
+        mCommandActions.emplace_back([this](const auto& cmd){ SetLogLevel(cmd); });
+
         mCommands.push_back("CLEAR");
         mCommandActions.emplace_back([this](const auto& cmd)
         {

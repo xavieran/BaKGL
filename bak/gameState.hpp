@@ -563,9 +563,8 @@ public:
 
         // Probably want to put this logic somewhere else...
         // if eventPtr % 10 != 0
-        if (mGameData 
-            && std::get<1>(State::CalculateComplexEventOffset(choice.mEventPointer))
-                != 0)
+        const auto [byteOffset, bitOffset] = State::CalculateComplexEventOffset(choice.mEventPointer);
+        if (mGameData && bitOffset != 0)
         {
             return (state >= choice.mXorMask) && (state <= choice.mMustEqualExpected);
         }
@@ -582,17 +581,25 @@ public:
         {
             if (((state ^ choice.mXorMask) & choice.mExpected) == choice.mExpected
                 && chapterMaskSatisfied)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
         else
         {
             if (((state ^ choice.mXorMask) & choice.mExpected) != 0
                 && chapterMaskSatisfied)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
     }
 

@@ -20,7 +20,7 @@ void SetEventDialogAction(FileBuffer& fb, const SetFlag& setFlag)
             ^ setFlag.mAlwaysZero;
         fb.Seek(offset);
 
-        Logging::LogSpam(__FUNCTION__) << std::hex << 
+        Logging::LogSpam(__FUNCTION__) << std::hex <<
             " " << setFlag << " offset: " << offset 
             << " data[" << +data << "] new[" << +newData <<"]\n" << std::dec;
         fb.PutUint8(newData);
