@@ -25,7 +25,7 @@ string(CONCAT CXX_IGNORES
     #glm/gtx/string_cast.inl:25:40: error: comparison of unsigned expression in ‘>= 0’ is always true [-Werror=type-limits]
     # 25 |                 assert(strlen(message) >= 0 && strlen(message) < STRING_BUFFER);
     "-Wno-type-limits "
-    )
+    "-Wno-volatile ")
 
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
