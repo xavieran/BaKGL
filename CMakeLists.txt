@@ -75,6 +75,7 @@ include(FetchContent)
 FetchContent_Declare(
     glm 
     GIT_REPOSITORY https://github.com/g-truc/glm
+    GIT_TAG 0.9.9.8
 )
 
 FetchContent_MakeAvailable(glm)
@@ -83,6 +84,7 @@ FetchContent_MakeAvailable(glm)
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw
+        GIT_TAG 3.3.9
 )
 
 FetchContent_GetProperties(glfw)
