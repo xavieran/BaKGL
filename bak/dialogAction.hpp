@@ -112,7 +112,9 @@ struct GainCondition
     std::uint16_t mFlag;
     Condition mCondition;
     // Value 1 seems to be the one that actually takes effect
+    // JvE: the game takes a random value between value1 and value2
     // if value1 == 0xff9c then it reverses/heals the specific condition
+    // JvE: 0xff9c == -100
     std::int16_t mValue1;
     std::int16_t mValue2;
 };
@@ -122,6 +124,7 @@ struct GainSkill
     std::uint16_t mWho;
     SkillType mSkill;
     // These may be different and I'm not sure on their meaning when different
+    // JvE: the game takes a random value between value1 and value2
     std::int16_t mValue0;
     std::int16_t mValue1;
 };
