@@ -39,7 +39,7 @@ public:
         mState{State::Idle}
     {}
 
-    void BeginInteraction(BAK::GenericContainer& ladder) override
+    void BeginInteraction(BAK::GenericContainer& ladder, BAK::EntityType) override
     {
         ASSERT(mState == State::Idle);
 

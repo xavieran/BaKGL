@@ -132,18 +132,18 @@ public:
     const TextVariableStore& GetTextVariableStore() const { return mTextVariableStore; }
     TextVariableStore& GetTextVariableStore() { return mTextVariableStore; }
 
-    template <typename F>
-    bool Apply(F&& func)
+    template <typename F, typename ...Args>
+    bool Apply(F&& func, Args&&... args)
     {
         if (mGameData)
         {
-            if constexpr (std::is_same_v<decltype(func(mGameData->GetFileBuffer())), bool>)
+            if constexpr (std::is_same_v<decltype(func(mGameData->GetFileBuffer(), args...)), bool>)
             {
-                return std::invoke(func, mGameData->GetFileBuffer());
+                return std::invoke(func, mGameData->GetFileBuffer(), args...);
             }
             else
             {
-                std::invoke(func, mGameData->GetFileBuffer());
+                std::invoke(func, mGameData->GetFileBuffer(), args...);
             }
         }
 

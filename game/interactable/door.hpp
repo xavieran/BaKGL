@@ -37,7 +37,7 @@ public:
         mEncounterCallback{encounterCallback}
     {}
 
-    void BeginInteraction(BAK::GenericContainer& container) override
+    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType) override
     {
         mContainer = &container;
 

@@ -175,7 +175,11 @@ Conditions GameData::LoadConditions(unsigned character)
 unsigned GameData::LoadChapter()
 {
     mBuffer.Seek(sChapterOffset);
-    return mBuffer.GetUint16LE();
+    auto chapter = mBuffer.GetUint16LE();
+    mBuffer.Seek(0x64);
+    auto chapterAgain = mBuffer.GetUint16LE();
+    assert(chapter == chapterAgain);
+    return chapterAgain;
 }
 
 Royals GameData::LoadGold()
@@ -204,7 +208,7 @@ Location GameData::LoadLocation()
     mBuffer.Seek(sLocationOffset);
 
     unsigned zone = mBuffer.GetUint8();
-    ASSERT(zone < 12);
+    ASSERT(zone <= 12);
     mLogger.Info() << "LOADED: Zone:" << zone << std::endl;
 
     unsigned xtile = mBuffer.GetUint8();
@@ -212,10 +216,8 @@ Location GameData::LoadLocation()
     unsigned xpos = mBuffer.GetUint32LE();
     unsigned ypos = mBuffer.GetUint32LE();
 
-    //mBuffer.DumpAndSkip(5);
-    mBuffer.Skip(5);
-    std::uint16_t heading = mBuffer.GetUint8();
-    mBuffer.Skip(1);
+    mLogger.Info() << "Unknown: " << mBuffer.GetArray<5>() << "\n";
+    std::uint16_t heading = mBuffer.GetUint16LE() >> 8;
 
     mLogger.Info() << "Tile: " << xtile << "," << ytile << std::endl;
     mLogger.Info() << "Pos: " << xpos << "," << ypos << std::endl;

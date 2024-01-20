@@ -8,6 +8,7 @@
 #include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
 #include "bak/itemNumbers.hpp"
+#include "bak/types.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -37,9 +38,10 @@ public:
         mEncounterCallback{encounterCallback}
     {}
 
-    void BeginInteraction(BAK::GenericContainer& container) override
+    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType) override
     {
         mContainer = &container;
+        mEntityType = entityType;
 
         if (container.HasDialog())
             StartDialog(container.GetDialog().mDialog);
@@ -61,7 +63,7 @@ public:
         ASSERT(mContainer);
         if (mContainer->HasInventory())
         {
-            mGuiManager.ShowContainer(mContainer);
+            mGuiManager.ShowContainer(mContainer, mEntityType);
         }
     }
 
@@ -83,6 +85,7 @@ private:
     Gui::DynamicDialogScene mDialogScene;
     BAK::Target mDefaultDialog;
     BAK::GenericContainer* mContainer;
+    BAK::EntityType mEntityType;
     const EncounterCallback& mEncounterCallback;
 };
 

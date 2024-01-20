@@ -20,9 +20,7 @@ bool CheckActive(
         zone,
         encounter.GetTileIndex(),
         encounterIndex);
-    const bool encounterFlag1450 = ReadEventBool(
-        fb,
-        CalculateRecentEncounterStateFlag(encounterIndex));
+    const bool recentlyEncountered = CheckRecentlyEncountered(fb, encounterIndex);
     // event flag 1 - this flag must be set to encounter the event
     const bool eventFlag1 = encounter.mSaveAddress != 0
         ? (ReadEventBool(fb, encounter.mSaveAddress) == 1)
@@ -32,7 +30,7 @@ bool CheckActive(
         ? ReadEventBool(fb, encounter.mSaveAddress2)
         : false;
     return !(alreadyEncountered
-        || encounterFlag1450
+        || recentlyEncountered
         || eventFlag1
         || eventFlag2);
 }
@@ -51,8 +49,9 @@ bool CheckCombatActive(
 
     assert(std::holds_alternative<Encounter::Combat>(encounter.GetEncounter()));
     const auto combatIndex = std::get<Encounter::Combat>(encounter.GetEncounter()).mCombatIndex;
-    // If this flag is not set then this combat hasn't been seen
-    const bool encounterFlag1464 = !CheckCombatEncounterStateFlag(fb, combatIndex);
+
+    // If this flag is set then this combat hasn't been seen
+    const bool encounterFlag1464 = CheckCombatEncounterStateFlag(fb, combatIndex);
 
     // event flag 1 - this flag must be set to encounter the event
     const bool eventFlag1 = encounter.mSaveAddress != 0
@@ -62,6 +61,11 @@ bool CheckCombatActive(
     const bool eventFlag2 = encounter.mSaveAddress2 != 0
         ? ReadEventBool(fb, encounter.mSaveAddress2)
         : false;
+
+    Logging::LogInfo(__FUNCTION__) << " alreadyEncountered: " << alreadyEncountered
+        << " combatEncounterStateFlag: " << encounterFlag1464
+        << " eventFlag1: " << eventFlag1
+        << " eventFlag2: " << eventFlag2 << "\n";
 
     return !(alreadyEncountered
         || encounterFlag1464
@@ -98,10 +102,7 @@ void SetPostDialogEventFlags(
         }
 
         // Inhibit for this tile
-        SetEventFlagTrue(
-            fb,
-            CalculateRecentEncounterStateFlag(
-                encounterIndex));
+        SetRecentlyEncountered(fb, encounterIndex);
     }
 
 }
@@ -214,12 +215,26 @@ unsigned CalculateRecentEncounterStateFlag(
     return offset + encounterIndex;
 }
 
+bool CheckRecentlyEncountered(FileBuffer& fb, std::uint8_t encounterIndex)
+{
+    return ReadEventBool(fb, CalculateRecentEncounterStateFlag(encounterIndex));
+}
+
+void SetRecentlyEncountered(FileBuffer& fb, std::uint8_t encounterIndex)
+{
+    SetEventFlagTrue(
+        fb,
+        CalculateRecentEncounterStateFlag(
+            encounterIndex));
+}
+
 void ClearTileRecentEncounters(
     FileBuffer& fb)
 {
     for (unsigned i = 0; i < 10; i++)
     {
         SetEventFlagFalse(fb, CalculateRecentEncounterStateFlag(i));
+        SetEventFlagFalse(fb, CalculateCombatEncounterScoutedStateFlag(i));
     }
 }
 }

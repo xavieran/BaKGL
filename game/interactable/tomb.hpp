@@ -6,6 +6,8 @@
 #include "bak/container.hpp"
 #include "bak/dialog.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/entityType.hpp"
+#include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
 #include "bak/itemNumbers.hpp"
 
@@ -41,7 +43,7 @@ public:
         mEncounterCallback{encounterCallback}
     {}
 
-    void BeginInteraction(BAK::GenericContainer& tomb) override
+    void BeginInteraction(BAK::GenericContainer& tomb, BAK::EntityType) override
     {
         mCurrentTomb = &tomb;
         mGameState.SetDialogContext(0);
@@ -149,7 +151,7 @@ public:
                 1);
         }
 
-        mGuiManager.ShowContainer(mCurrentTomb);
+        mGuiManager.ShowContainer(mCurrentTomb, BAK::EntityType::TOMBSTONE);
     }
 
 private:

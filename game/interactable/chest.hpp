@@ -44,7 +44,7 @@ public:
         mState{State::Idle}
     {}
 
-    void BeginInteraction(BAK::GenericContainer& chest) override
+    void BeginInteraction(BAK::GenericContainer& chest, BAK::EntityType) override
     {
         ASSERT(mState == State::Idle);
 
@@ -214,7 +214,7 @@ public:
                 1);
         }
 
-        mGuiManager.ShowContainer(mCurrentChest);
+        mGuiManager.ShowContainer(mCurrentChest, BAK::EntityType::CHEST);
     }
 
     void TryUnlockChest()

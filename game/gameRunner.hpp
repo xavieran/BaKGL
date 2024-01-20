@@ -9,6 +9,7 @@
 #include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
+#include "bak/state/encounter.hpp"
 #include "bak/monster.hpp"
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
@@ -211,7 +212,7 @@ public:
 
         mCurrentInteractable = mInteractableFactory.MakeInteractable(et);
         ASSERT(mCurrentInteractable);
-        mCurrentInteractable->BeginInteraction(container);
+        mCurrentInteractable->BeginInteraction(container, et);
 
         /*
         if (container.HasEncounter() && container.GetEncounter().mEncounterPos)
@@ -227,48 +228,69 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Combat& combat)
     {
-        if (!mGameState.Apply([&](auto& fb){ return BAK::State::CheckCombatActive(fb, encounter, mGameState.GetZone()); }))
+        mLogger.Info() << __FUNCTION__ << " Checking combat active\n";
+        if (!mGameState.Apply(BAK::State::CheckCombatActive, encounter, mGameState.GetZone()))
         {
+            mLogger.Info() << __FUNCTION__ << " Combat inactive\n";
             return;
         }
 
-        //if (!combat.mIsAmbush)
-        //{
-        //    //return {combatActive, combatNotScouted}
-        //}
-        //else
-        //{
-        //    //if (arg_dontDoCombatIfIsAmbush)
-        //    //{
-        //    //    return {combatInActive, combatNotScouted}
-        //    //}
-        //    if (false)
-        //    {
-        //        ;
-        //    }
-        //    else
-        //    {
-        //        if (!mGameState.mGameData->CheckRecentlyEncountered(encounter.GetIndex().mValue))
-        //        {
-        //            mGameState.mGameData->SetRecentlyEncountered(encounter.GetIndex().mValue, true);
-        //            auto chance = GetRandomNumber(0, 0xfff) / 100;
-        //            auto bestScoutSkill = mGameState.GetParty().GetSkill(BAK::SkillType::Scout, true);
-        //            if (bestScoutSkill > chance)
-        //            {
-        //                mGameState.GetParty().ImproveSkillForAll(
-        //                    BAK::SkillType::Scout, SkillChange::ExercisedSkill, 1);
-        //                // RunDialog combat.mScoutDialog
-        //                mGameState.mGameData.SetCombatEncounterScoutedState(
-        //                    encounter.GetIndex().mValue, true);
-        //                // return {combatNotActive, combatScouted}
-        //            }
-        //            else
-        //            {
-        //                // return {combatActive, combatNotScouted}
-        //            }
-        //        }
-        //    }
-        //}
+        bool combatActive = false;
+        bool combatScouted = false;
+        if (!combat.mIsAmbush)
+        {
+            mLogger.Info() << __FUNCTION__ << " Combat is not ambush\n";
+            combatActive = true;
+            combatScouted = true;
+        }
+        else
+        {
+            // This seems to be a variable used to prevent the scouting of multiple combats
+            // at once...
+            const auto arg_dontDoCombatIfIsAmbush = false;
+            if (arg_dontDoCombatIfIsAmbush)
+            {
+                combatActive = false;
+                combatScouted = false;
+            }
+            else
+            {
+                if (!mGameState.Apply(BAK::State::CheckRecentlyEncountered, encounter.GetIndex().mValue))
+                {
+                    mGameState.Apply(BAK::State::SetRecentlyEncountered, encounter.GetIndex().mValue);
+                    auto chance = GetRandomNumber(0, 0xfff) % 100;
+                    const auto [character, scoutSkill] = mGameState.GetParty().GetSkill(BAK::SkillType::Scouting, true);
+                    mLogger.Info() << __FUNCTION__ << " Trying to scout combat: "
+                        << scoutSkill << " chance: " << chance << "\n";
+                    if (scoutSkill > chance)
+                    {
+                        mGameState.GetParty().ImproveSkillForAll(
+                            BAK::SkillType::Scouting, BAK::SkillChange::ExercisedSkill, 1);
+                        // RunDialog combat.mScoutDialog
+                        mGuiManager.StartDialog(
+                            combat.mScoutDialog,
+                            false,
+                            false,
+                            &mDynamicDialogScene);
+
+                        mGameState.Apply(BAK::State::SetCombatEncounterScoutedState,
+                            encounter.GetIndex().mValue, true);
+
+                        combatActive = false;
+                        combatScouted = true;
+                    }
+                    else
+                    {
+                        combatActive = true;
+                        combatScouted = false;
+                    }
+                }
+                else
+                {
+                    mLogger.Info() << __FUNCTION__ << " Combat was scouted already\n";
+                }
+            }
+        }
 
         //mGuiManager.StartDialog(
         //        block.mDialog,
@@ -279,6 +301,88 @@ public:
         //mCamera.UndoPositionChange();
         //mGameState.SetPostEnableOrDisableEventFlags(encounter);
     }
+
+    //void CheckCombatStealhAvoided()
+    //{
+    //    auto lowestStealth = ...
+    //    if (lowestStealh < 0x5a) // 90
+    //    {
+    //        lowestStealth *= 0x1e; // 30
+    //        lowestStealth += (lowestStealth / 100);
+    //    }
+    //    if (lowestStealth > 0x5a) lowestStealth = 0x5a;
+
+    //    if (combatIsAmbush)
+    //    {
+    //        if (isSpellActive(Spell_0)) // dragon's breath
+    //        {
+    //            lowestStealth = lowestStealth + ((100 - lowestStealth) >> 1)
+    //        }
+    //    }
+
+    //    auto chance = GetRandomNumber(0, 0xfff) % 100;
+    //    if (lowestStealth > chance)
+    //    {
+    //        mGameState.GetParty().ImproveSkillForAll(
+    //            BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
+
+    //        return; // avoided combat due to stealth!
+    //    }
+
+    //    // Check whether players are in valid combatable position???
+    //    auto timeOfScouting = LoadTimeOfScouting(ThisCombat);
+    //    auto timeDiff = mGameState.CurrentTime() - timeOfScouting;
+    //    if ((timeDiff / 0x1e) > 0x1e) // within scouting valid time
+    //    {
+    //        auto chance = GetRandomNumber(0, 0xfff) % 100;
+    //        if (chance > lowestStealth)
+    //        {
+    //            DialogContext_7530 = 1;
+    //            // Failed to scout
+    //        }
+    //        else
+    //        {
+    //            mGameState.GetParty().ImproveSkillForAll(
+    //                BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
+    //            DialogContext_7530 = 0;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        DialogContext_7530 = 2;
+    //    }
+
+    //    SetDialogTextVariable(monster, combat.firstMonster.index);
+    //    if (combat.mEntryDialog != 0)
+    //    {
+    //        RunDialog(combat.mEntryDialog());
+    //    }
+
+    //    bool combatRetreated;
+    //    auto combatResult = EnterCombatScreen(surprisedEnemy, &combatRetreated);
+    //    //recordTimeOfCombat at (combatIndex << 2) + 0x3967
+    //    if (combatResult == 2)
+    //    {
+    //        // retreat to a combat retreat location based on player entry
+    //    }
+    //    else if (combatResult == 1)
+    //    {
+    //        // Victory?
+    //        if (encounter.haveSaveAddr3)
+    //        {
+    //            setSaveAddr3 to 1
+    //        }
+    //    }
+
+    //    setEncounterState190 to 1
+    //    setEncounterState1464 to 1
+    //    setFlagsPostCombat
+
+    //    if (combatResult == 3)
+    //    {
+    //    }
+    //    
+    //}
 
     void DoBlockEncounter(
         const BAK::Encounter::Encounter& encounter,

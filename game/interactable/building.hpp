@@ -49,7 +49,7 @@ public:
         mEncounterCallback{encounterCallback}
     {}
 
-    void BeginInteraction(BAK::GenericContainer& building) override
+    void BeginInteraction(BAK::GenericContainer& building, BAK::EntityType) override
     {
         ASSERT(mState == State::Idle);
         mCurrentBuilding = &building;
@@ -205,7 +205,7 @@ public:
         ASSERT(mState == State::ShowInventory);
         if (mCurrentBuilding->HasInventory())
         {
-            mGuiManager.ShowContainer(mCurrentBuilding);
+            mGuiManager.ShowContainer(mCurrentBuilding, BAK::EntityType::BUILDING);
         }
         mState = State::Idle;
     }

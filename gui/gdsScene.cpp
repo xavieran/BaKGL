@@ -403,7 +403,7 @@ void GDSScene::EnterContainer()
 {
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     if (container != nullptr)
-        mGuiManager.ShowContainer(container);
+        mGuiManager.ShowContainer(container, BAK::EntityType::BAG);
 }
 
 void GDSScene::DoBard()

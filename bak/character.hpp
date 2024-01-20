@@ -259,7 +259,7 @@ public:
                     staffCount++;
                 }
             }
-            ASSERT(staffCount == 1);
+            ASSERT(staffCount <= 1);
         }
         else
         {
@@ -274,7 +274,7 @@ public:
                     swordCount++;
                 }
             }
-            ASSERT(swordCount == 1);
+            ASSERT(swordCount <= 1);
 
             unsigned crossbowCount = 0;
             for (const auto& item : GetInventory().GetItems())

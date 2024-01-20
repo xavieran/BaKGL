@@ -72,7 +72,8 @@ public:
     void SetSelectionMode(bool, std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&&);
 
     void ClearContainer();
-    void SetContainer(BAK::IContainer* container);
+    // containerType determines the image used from INVMISC.BMX
+    void SetContainer(BAK::IContainer* container, BAK::EntityType entityType);
 
     /* Widget */
     bool OnMouseEvent(const MouseEvent& event) override;

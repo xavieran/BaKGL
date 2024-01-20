@@ -398,7 +398,7 @@ public:
         });
     }
 
-    void ShowContainer(BAK::IContainer* container) override
+    void ShowContainer(BAK::IContainer* container, BAK::EntityType containerType) override
     {
         mCursor.PushCursor(0);
         ASSERT(container);
@@ -409,7 +409,7 @@ public:
         }});
 
         mInventoryScreen.SetSelectionMode(false, nullptr);
-        mInventoryScreen.SetContainer(container);
+        mInventoryScreen.SetContainer(container, containerType);
         mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
         mScreenStack.PushScreen(&mInventoryScreen);
     }

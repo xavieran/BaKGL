@@ -164,7 +164,7 @@ void InventoryScreen::ClearContainer()
     mDisplayContainer = false;
 }
 
-void InventoryScreen::SetContainer(BAK::IContainer* container)
+void InventoryScreen::SetContainer(BAK::IContainer* container, BAK::EntityType entityType)
 {
     ASSERT(container != nullptr);
 
@@ -177,7 +177,7 @@ void InventoryScreen::SetContainer(BAK::IContainer* container)
     }
     else
     {
-        SetContainerTypeImage(0);
+        SetContainerTypeImage(BAK::GetContainerTypeFromEntityType(entityType));
         mContainerScreen.SetContainer(container);
     }
 

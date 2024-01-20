@@ -51,6 +51,11 @@ public:
             return glm::vec2{0, 0};
         //ASSERT(it != tiles.end());
         const auto index = std::distance(tiles.begin(), it);
+        // There's no full map for Timirianya
+        if (zone.mValue == 9)
+        {
+            return glm::vec2{0, 0};
+        }
         return mTileCoords[zone.mValue - 1][index];
     }
 

@@ -16,6 +16,7 @@ add_library(bak
     dialogChoice.hpp dialogChoice.cpp
     dialogSources.hpp
     dialogTarget.hpp dialogTarget.cpp
+    entityType.hpp entityType.cpp
     fixedObject.hpp fixedObject.cpp
     fileBufferFactory.hpp fileBufferFactory.cpp
     font.hpp font.cpp

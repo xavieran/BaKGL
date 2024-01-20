@@ -85,6 +85,8 @@ void SetCombatEncounterScoutedState(
     FileBuffer&,
     std::uint8_t encounterIndex, bool state);
 
-void ClearTileRecentEncounters(FileBuffer& fb);
+void SetRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
+bool CheckRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
+void ClearTileRecentEncounters(FileBuffer&);
 
 }

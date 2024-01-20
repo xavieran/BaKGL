@@ -219,7 +219,7 @@ int main(int argc, char** argv)
         {
             currentTile = camera.GetGameTile();
             logger.Debug() << "New tile: " << currentTile << "\n";
-            gameRunner.mGameState.Apply([](auto& fb){ BAK::State::ClearTileRecentEncounters(fb); });
+            gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters);
         }
     };
 
@@ -253,7 +253,7 @@ int main(int argc, char** argv)
         }});
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalDown(); });
-    inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply([](auto& fb){ BAK::State::ClearTileRecentEncounters(fb); }); });
+    inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
 
     inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ if (root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE})){ ;} });
     inputHandler.BindCharacter([&](char character){ if(root.OnKeyEvent(Gui::Character{character})){ ;} });

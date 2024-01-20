@@ -30,9 +30,9 @@ enum class EncounterType : std::uint16_t
 {
     Background = 0, // DEF_BKGR.DAT?? teleport??
     Combat = 1,  // DEF_COMB.DAT
-    Comment = 2,  // ???
+    Comment = 2,  // no file exists, but would be DEF_COMM.DAT
     Dialog = 3,  // DEF_DIAL.DAT
-    Health = 4,  // ???
+    Health = 4,  // no file exists, but would be DEF_COMM.DAT
     Sound = 5,  // DEF_SOUN.DAT
     Town = 6,  // DEF_TOWN.DAT
     Trap = 7,  // DEF_TRAP.DAT
