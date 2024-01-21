@@ -275,14 +275,14 @@ public:
                 return character.mCharacterIndex.mValue + 1;
             }
         }
-        else if (actor == 0xfe)
-        {
-            // Use character found by ReadEventState(0x7535) - seems to be party leader?
-        }
-        else if (actor == 0xfd)
-        {
-            // Use party follower index?
-        }
+        //else if (actor == 0xfe)
+        //{
+        //    // Use character found by ReadEventState(0x7535) - seems to be party leader?
+        //}
+        //else if (actor == 0xfd)
+        //{
+        //    // Use party follower index?
+        //}
         else if (actor == 0xf0 || actor == 0xf4)
         {
             //0xf0 - use the character list for diags to pick a character?
