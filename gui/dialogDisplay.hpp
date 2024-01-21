@@ -124,10 +124,16 @@ public:
     void DisplayPlayer(IDialogScene& dialogScene, unsigned act)
     {
         const auto actor = mGameState.GetActor(act);
-        SetActor(actor, dialogScene, false);
-        AddLabel("#" 
-            + std::string{mKeywords.GetNPCName(actor)}
-            + " asked about:#");
+        if (actor)
+        {
+            SetActor(*actor, dialogScene, false);
+            AddLabel("#" 
+                + std::string{mKeywords.GetNPCName(*actor)}
+                + " asked about:#");
+        }
+        else
+        {
+        }
     }
 
     std::pair<glm::vec2, std::string> DisplaySnippet(

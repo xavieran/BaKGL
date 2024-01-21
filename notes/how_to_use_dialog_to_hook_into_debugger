@@ -23,3 +23,7 @@ heal: 3be6, heal ovrl: 47a0
 who is magician, soldier, etc.
 
 bpm 2b50:4df2
+
+ALTERNATIVELY
+Set a memory breakpoint on 2b50:4df2, this is the character list and
+may be easier to hook into then interrupts

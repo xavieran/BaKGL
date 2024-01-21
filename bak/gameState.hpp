@@ -262,7 +262,7 @@ public:
         return nullptr;
     }
 
-    unsigned GetActor(unsigned actor) const
+    std::optional<unsigned> GetActor(unsigned actor) const
     {
         if (actor == 0xff)
         {
@@ -277,41 +277,25 @@ public:
                 return character.mCharacterIndex.mValue + 1;
             }
         }
-        //else if (actor == 0xfe)
-        //{
-        //    // Use character found by ReadEventState(0x7535) - seems to be party leader?
-        //}
-        //else if (actor == 0xfd)
-        //{
-        //    // Use party follower index?
-        //}
-        else if (actor == 0xf0 || actor == 0xf4)
+        else if (actor == 0xfe)
+        {
+            return GetPartyLeader().mValue + 1;
+        }
+        else if (actor == 0xfd)
+        {
+            // Use party follower index?
+            // this logicc is not quite right
+            return mDialogCharacterList[5] + 1;
+        }
+        else if (actor >= 0xf0)
         {
             //0xf0 - use the character list for diags to pick a character?
-            const auto& character = GetParty().GetCharacter(ActiveCharIndex{0});
-            return character.mCharacterIndex.mValue + 1;
-        }
-        else if (actor == 0xf3 || actor == 0xf1)
-        {
-            const auto& character = GetParty().GetCharacter(ActiveCharIndex{1});
-            return character.mCharacterIndex.mValue + 1;
-        }
-        else if (actor == 0xf5)
-        {
-            const auto& character = GetParty().GetCharacter(ActiveCharIndex{2});
-            return character.mCharacterIndex.mValue + 1;
-        }
-        else if (actor > 0xf5)
-        {
-            return actor & 0xf;
+            assert(mDialogCharacterList[actor - 0xf0] != 0xff);
+            return mDialogCharacterList[actor - 0xf0] + 1;
         }
         else if (actor == 0xc8)
         {
-            const auto& character = GetParty().GetCharacter(
-                GetParty().NextActiveCharacter(
-                    GetParty().NextActiveCharacter(
-                        ActiveCharIndex{0})));
-            return character.mCharacterIndex.mValue + 1;
+            return std::nullopt;
         }
         else
         {
@@ -348,8 +332,10 @@ public:
         SetDialogTextVariable(0, 0x1f);
     }
 
-    void SetDialogTextVariable(auto index, unsigned attribute)
+    void SetDialogTextVariable(unsigned index, unsigned attribute)
     {
+        mLogger.Debug() << __FUNCTION__ << "(" << index << ", " << attribute << ")\n";
+        assert(attribute > 0);
         switch (attribute - 1)
         {
         case 0: [[fallthrough]];
@@ -381,9 +367,10 @@ public:
         default:
              break;
         }
+        mLogger.Debug() << __FUNCTION__ << " chose: " << +mDialogCharacterList[index] << "\n";
     }
 
-    CharIndex GetPartyLeader()
+    CharIndex GetPartyLeader() const
     {
         static constexpr std::array<CharIndex, 9> partyLeaderPerChapter = {Locklear, James, James, Gorath, James, Owyn, James, Owyn, Pug};
         if (GetParty().FindActiveCharacter(Pug))
@@ -398,44 +385,50 @@ public:
 
     void SelectRandomActiveCharacter(unsigned index, unsigned attribute)
     {
+        mLogger.Debug() << __FUNCTION__ << "(" << index << ", " << attribute << ")\n";
         bool foundValidCharacter = false;
         unsigned limit = 0x1f8;
-        // is this right...? or is it the opposite of the party leader that we should choose?
+        // is this right...? or is it the opposite of the party leader that we should choose by default?
         auto chosenChar = GetPartyLeader();
+        
+        auto CharacterAlreadyExists = [&](auto character){
+            for (unsigned i = 0; i < index; i++)
+            {
+                if (mDialogCharacterList[i] == character.mValue) return true;
+            }
+            return false;
+        };
+
         while (!foundValidCharacter && limit != 0)
         {
             limit--;
             auto randomChar = ActiveCharIndex{GetRandomNumber(0, GetParty().GetNumCharacters() - 1)};
             chosenChar = GetParty().GetCharacter(randomChar).mCharacterIndex;
-            for (unsigned i = 0; i < index; i++)
+            if (CharacterAlreadyExists(chosenChar))
             {
-                if (mDialogCharacterList[i] == chosenChar.mValue)
-                {
-                    continue;
-                }
+                continue;
             }
 
             switch (attribute)
             {
-            case 14:
-                if (chosenChar == Gorath
+            case 14: // Magicians
+                if (chosenChar == Owyn
                     || chosenChar == Pug
                     || chosenChar == Patrus)
                 {
                     foundValidCharacter = true;
                 }
                 break;
-            case 15:
+            case 15: // Swordsmen
                 if (chosenChar == Locklear
-                    || chosenChar == Owyn
-                    || chosenChar == James
-                    || chosenChar == Patrus)
+                    || chosenChar == Gorath
+                    || chosenChar == James)
                 {
                     foundValidCharacter = true;
                 }
                 break;
-            case 16:
-                if (chosenChar == Owyn
+            case 16: // Third-ary character?
+                if (chosenChar == Gorath
                     || chosenChar == Patrus)
                 {
                     foundValidCharacter = true;
@@ -448,6 +441,7 @@ public:
                 }
                 break;
             default:
+                foundValidCharacter = true;
                 break;
             }
         }
@@ -467,14 +461,9 @@ public:
             [&](const BAK::SetTextVariable& set)
             {
                 mLogger.Debug() << "Setting text variable: " << BAK::DialogAction{set} << "\n";
-                if (set.mWhat == 0x7 || set.mWhat == 0xc || set.mWhat == 0xf)
+                if (set.mWhat == 0x7 || (set.mWhat >= 0xc && set.mWhat <= 0xf))
                 {
-                    mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
-                }
-                else if (set.mWhat == 0xd || set.mWhat == 0xe)
-                {
-                    const auto character = GetRandomNumber(1, GetParty().GetNumCharacters() - 1);
-                    mTextVariableStore.SetTextVariable(set.mWhich, GetParty().GetCharacter(ActiveCharIndex{character}).GetName());
+                    SetDialogTextVariable(set.mWhich, set.mWhat);
                 }
                 else if (set.mWhat == 0xb)
                 {
@@ -510,6 +499,7 @@ public:
                 }
                 else if (set.mWhat == 0x1c)
                 {
+                    // if in a tavern use tavernkeeper for the shop
                     mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
                 }
             },

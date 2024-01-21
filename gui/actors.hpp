@@ -88,6 +88,7 @@ public:
         glm::vec2>
     GetActor(unsigned actor) const
     {
+        mLogger.Info() << "Get Actor: " << actor << "\n";
         unsigned index = actor - 1;
         ASSERT(index < mActorDimensions.size());
         return mActorDimensions[index];

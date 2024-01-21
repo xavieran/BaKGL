@@ -34,7 +34,7 @@ public:
         return mCharacters[i.mValue];
     }
 
-    std::optional<ActiveCharIndex> FindActiveCharacter(CharIndex index)
+    std::optional<ActiveCharIndex> FindActiveCharacter(CharIndex index) const
     {
         const auto it = std::find(mActiveCharacters.begin(), mActiveCharacters.end(), index);
         if (it != mActiveCharacters.end())

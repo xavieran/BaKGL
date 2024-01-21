@@ -1,0 +1,24 @@
+B4 temple talk
+11:20:10.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [0]
+
+AF temple talk MINE
+11:21:07.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [1]
+
+AF temple talk BAK
+11:21:07.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [1]
+
+Nago AFTER MINE
+11:22:45.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [41]
+
+BAK After Nago Clicked Barn B4 Temple
+11:23:43.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [43]
+
+BAK After Nago No Click Barn B4 Temple
+11:24:36.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [3]
+
+BAK After Nago No Click Barn AF Temple
+11:25:33.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [7]
+
+BAK After Nago Click Barn AF Temple
+11:26:21.01 DEBUG [BAK::GameState] EvaluateComplexChoice : ComplexEvent dae8 -> 0 4 | 1 ff S: [47]
+
