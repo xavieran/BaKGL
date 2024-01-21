@@ -275,8 +275,17 @@ public:
                 return character.mCharacterIndex.mValue + 1;
             }
         }
+        else if (actor == 0xfe)
+        {
+            // Use character found by ReadEventState(0x7535) - seems to be party leader?
+        }
+        else if (actor == 0xfd)
+        {
+            // Use party follower index?
+        }
         else if (actor == 0xf0 || actor == 0xf4)
         {
+            //0xf0 - use the character list for diags to pick a character?
             const auto& character = GetParty().GetCharacter(ActiveCharIndex{0});
             return character.mCharacterIndex.mValue + 1;
         }
@@ -407,12 +416,18 @@ public:
                 // If Skill == TotalHealth: 
                 // mValue 1 and mValue 2 refer to the upper and lower bounds of change
                 mLogger.Debug() << "Gaining skill: " << skill << "\n";
+                auto amount = skill.mMax;
+                if (skill.mMin != skill.mMax)
+                {
+                    amount = skill.mMin + (GetRandomNumber(0, 0xfff) % (skill.mMax - skill.mMin));
+                }
+
                 if (skill.mWho <= 1)
                 {
                     GetParty().ImproveSkillForAll(
                             skill.mSkill,
                             SkillChange::Direct,
-                            skill.mValue1);
+                            amount);
                 }
                 // 3, 4 -> Owyn & Gorath when talking to Calin
                 // 3, 4, -> Locklear and James when talking to Martin
@@ -430,22 +445,27 @@ public:
                 else if (skill.mWho == 6) // 1,2,3,4,5,6, (condition -- 1,2,6,7)
                 {
                     GetParty().GetCharacter(ActiveCharIndex{0})
-                        .ImproveSkill(skill.mSkill, SkillChange::Direct, skill.mValue1);
+                        .ImproveSkill(skill.mSkill, SkillChange::Direct, amount);
                 }
                 else if (skill.mWho == 2)
                 {
                     GetParty().GetCharacter(ActiveCharIndex{0})
-                        .ImproveSkill(skill.mSkill, SkillChange::Direct, skill.mValue1);
+                        .ImproveSkill(skill.mSkill, SkillChange::Direct, amount);
                 }
             },
             [&](const BAK::GainCondition& cond)
             {
                 mLogger.Debug() << "Gaining condition: " << cond << "\n";
                 // FIXME: Implement if this condition only changes for one character
+                auto amount = cond.mMax;
+                if (cond.mMin != cond.mMax)
+                {
+                    amount = cond.mMin + (GetRandomNumber(0, 0xfff) % (cond.mMax - cond.mMin));
+                }
                 GetParty().ForEachActiveCharacter(
                     [&](auto& character){
                         character.GetConditions().IncreaseCondition(
-                            cond.mCondition, cond.mValue1);
+                            cond.mCondition, amount);
                         return true;
                     });
             },
@@ -455,6 +475,12 @@ public:
                 SetEventValue(state.mEventPtr, 1);
                 if (mGameData)
                     mGameData->SetTimeExpiringState(4, state.mEventPtr, 0x40, state.mTimeToExpire);
+            },
+            [&](const BAK::SetTimeExpiringState2& state)
+            {
+                mLogger.Debug() << "Setting time expiring state2: " << state << "\n";
+                if (mGameData)
+                    mGameData->SetTimeExpiringState(state.mNumber, state.mEventPtr, state.mFlag, state.mTimeToExpire);
             },
             [&](const BAK::SetEndOfDialogState& state)
             {

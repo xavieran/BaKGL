@@ -27,6 +27,7 @@ enum class ActiveStateFlag : std::uint16_t
     // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4
     Shop       = 0x7542,
     Zone       = 0x7543,
+    // 0x7544 - 0x754c - which chapter
     Gambler    = 0x754d // gambler has no money?
 };
 

@@ -1,5 +1,7 @@
 #include "bak/dialogChoice.hpp"
 
+#include "com/logger.hpp"
+
 namespace BAK {
 
 std::string_view ToString(ActiveStateFlag f)

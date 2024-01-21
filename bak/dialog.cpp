@@ -119,75 +119,20 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
     {
         const auto type = fb.GetUint16LE();
         const auto dr = static_cast<DialogResult>(type);
-        if (dr == DialogResult::PushNextDialog)
+        switch (dr)
         {
-            const auto offset = fb.GetUint32LE();
+        case DialogResult::SetTextVariable:
+        {
+            const auto which = fb.GetUint16LE();
+            const auto what = fb.GetUint16LE();
             const auto rest = fb.GetArray<4>();
             mActions.emplace_back(
-                PushNextDialog{
-                    GetTarget(offset),
+                SetTextVariable{
+                    which,
+                    what,
                     rest});
-        }
-        else if (dr == DialogResult::ElapseTime)
-        {
-            const auto time = Time{fb.GetUint32LE()};
-            const auto rest = fb.GetArray<4>();
-            mActions.emplace_back(
-                ElapseTime{
-                    time,
-                    rest});
-        }
-        else if (dr == DialogResult::LoseItem)
-        {
-            const auto item = fb.GetUint16LE();
-            auto quantity = fb.GetUint16LE();
-            if (quantity == 0)
-                quantity = 1;
-            const auto rest = fb.GetArray<4>();
-            mActions.emplace_back(
-                LoseItem{
-                    item,
-                    quantity,
-                    rest});
-        }
-        else if (dr == DialogResult::GainSkill)
-        {
-            const auto flag = fb.GetUint16LE();
-            const auto skill = static_cast<SkillType>(fb.GetUint16LE());
-            const auto val0 = fb.GetSint16LE();
-            const auto val1 = fb.GetSint16LE();
-            mActions.emplace_back(
-                GainSkill{flag, skill, val0, val1});
-        }
-        else if (dr == DialogResult::LoadSkillValue)
-        {
-            const auto target = fb.GetUint16LE();
-            const auto skill = static_cast<SkillType>(fb.GetUint16LE());
-            fb.Skip(4);
-            mActions.emplace_back(
-                LoadSkillValue{target, skill});
-        }
-        else if (dr == DialogResult::UpdateCharacters)
-        {
-            const auto number = fb.GetUint16LE();
-            const auto char0 = CharIndex{fb.GetUint16LE()};
-            const auto char1 = CharIndex{fb.GetUint16LE()};
-            const auto char2 = CharIndex{fb.GetUint16LE()};
-            mActions.emplace_back(
-                UpdateCharacters{
-                    number,
-                    char0,
-                    char1,
-                    char2});
-        }
-        else if (dr == DialogResult::Teleport)
-        {
-            const auto teleportIndex = fb.GetUint16LE();
-            fb.Skip(6);
-            mActions.emplace_back(
-                Teleport{TeleportIndex{teleportIndex}});
-        }
-        else if (dr == DialogResult::GiveItem)
+        } break;
+        case DialogResult::GiveItem:
         {
             const auto item = fb.GetUint8();
             const auto character = fb.GetUint8();
@@ -199,32 +144,21 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     character,
                     quantity,
                     rest});
-        }
-        else if (dr == DialogResult::GainCondition)
+        } break;
+        case DialogResult::LoseItem:
         {
-            const auto who = fb.GetUint16LE();
-            const auto condition = static_cast<Condition>(fb.GetUint16LE());
-            const auto val1 = fb.GetSint16LE();
-            const auto val2 = fb.GetSint16LE();
-            mActions.emplace_back(
-                GainCondition{
-                    who,
-                    condition,
-                    val1,
-                    val2});
-        }
-        else if (dr == DialogResult::SetTextVariable)
-        {
-            const auto which = fb.GetUint16LE();
-            const auto what = fb.GetUint16LE();
+            const auto item = fb.GetUint16LE();
+            auto quantity = fb.GetUint16LE();
+            if (quantity == 0)
+                quantity = 1;
             const auto rest = fb.GetArray<4>();
             mActions.emplace_back(
-                SetTextVariable{
-                    which,
-                    what,
+                LoseItem{
+                    item,
+                    quantity,
                     rest});
-        }
-        else if (dr == DialogResult::SetFlag)
+        } break;
+        case DialogResult::SetFlag:
         {
             const auto eventPtr = fb.GetUint16LE();
             const auto mask = fb.GetUint8();
@@ -238,8 +172,8 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     data,
                     zero,
                     value});
-        }
-        else if (dr == DialogResult::SetPopupDimensions)
+        } break;
+        case DialogResult::SetPopupDimensions:
         {
             const auto posX = fb.GetUint16LE();
             const auto posY = fb.GetUint16LE();
@@ -249,43 +183,41 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                 SetPopupDimensions{
                     glm::vec2{posX, posY},
                     glm::vec2{dimsX, dimsY}});
-        }
-        else if (dr == DialogResult::HealCharacters)
+        } break;
+        case DialogResult::SpecialAction:
+        case DialogResult::GainCondition:
         {
             const auto who = fb.GetUint16LE();
-            const auto howMuch = fb.GetUint16LE();
-            fb.GetUint16LE();
-            fb.GetUint16LE();
-            mActions.emplace_back(HealCharacters{who, howMuch});
-        }
-        else if (dr == DialogResult::SetTimeExpiringState)
-        {
-            const auto state = fb.GetUint16LE();
-            const auto unk0 = fb.GetUint16LE();
-            const auto time = Time{fb.GetUint32LE()};
+            const auto condition = static_cast<Condition>(fb.GetUint16LE());
+            const auto min = fb.GetSint16LE();
+            const auto max = fb.GetSint16LE();
+            assert(min <= max);
             mActions.emplace_back(
-                SetTimeExpiringState{state, unk0, time});
-        }
-        else if (dr == DialogResult::SetEndOfDialogState)
-        {
-            const auto state = fb.GetSint16LE();
-            const auto rest = fb.GetArray<6>();
-            mActions.emplace_back(
-                SetEndOfDialogState{
-                    state,
-                    rest});
-        }
-        else if (dr == DialogResult::LearnSpell)
-        {
-            const auto who = fb.GetUint16LE();
-            const auto whichSpell = fb.GetUint16LE();
-            const auto rest = fb.GetArray<4>();
-            mActions.emplace_back(
-                LearnSpell{
+                GainCondition{
                     who,
-                    whichSpell});
-        }
-        else if (dr == DialogResult::PlaySound)
+                    condition,
+                    min,
+                    max});
+        } break;
+        case DialogResult::GainSkill:
+        {
+            const auto flag = fb.GetUint16LE();
+            const auto skill = static_cast<SkillType>(fb.GetUint16LE());
+            const auto min = fb.GetSint16LE();
+            const auto max = fb.GetSint16LE();
+            assert(min <= max);
+            mActions.emplace_back(
+                GainSkill{flag, skill, min, max});
+        } break;
+        case DialogResult::LoadSkillValue:
+        {
+            const auto target = fb.GetUint16LE();
+            const auto skill = static_cast<SkillType>(fb.GetUint16LE());
+            fb.Skip(4);
+            mActions.emplace_back(
+                LoadSkillValue{target, skill});
+        } break;
+        case DialogResult::PlaySound:
         {
             const auto soundIndex = fb.GetUint16LE();
             const auto flag = fb.GetUint16LE();
@@ -295,15 +227,110 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     soundIndex,
                     flag,
                     rest});
-                    
-        }
-        else
+        } break;
+        case DialogResult::ElapseTime:
+        {
+            const auto time = Time{fb.GetUint32LE()};
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                ElapseTime{
+                    time,
+                    rest});
+        } break;
+        case DialogResult::SetTimeExpiringState:
+        {
+            const auto state = fb.GetUint16LE();
+            const auto unk0 = fb.GetUint16LE();
+            const auto time = Time{fb.GetUint32LE()};
+            mActions.emplace_back(
+                SetTimeExpiringState{state, unk0, time});
+        } break;
+        case DialogResult::PushNextDialog:
+        {
+            const auto offset = fb.GetUint32LE();
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                PushNextDialog{
+                    GetTarget(offset),
+                    rest});
+        } break;
+        case DialogResult::UpdateCharacters:
+        {
+            const auto number = fb.GetUint16LE();
+            const auto char0 = CharIndex{fb.GetUint16LE()};
+            const auto char1 = CharIndex{fb.GetUint16LE()};
+            const auto char2 = CharIndex{fb.GetUint16LE()};
+            mActions.emplace_back(
+                UpdateCharacters{
+                    number,
+                    char0,
+                    char1,
+                    char2});
+        } break;
+        case DialogResult::HealCharacters:
+        {
+            const auto who = fb.GetUint16LE();
+            const auto howMuch = fb.GetUint16LE();
+            fb.GetUint16LE();
+            fb.GetUint16LE();
+            mActions.emplace_back(HealCharacters{who, howMuch});
+        } break;
+        case DialogResult::LearnSpell:
+        {
+            const auto who = fb.GetUint16LE();
+            const auto whichSpell = fb.GetUint16LE();
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                LearnSpell{
+                    who,
+                    whichSpell});
+        } break;
+        case DialogResult::Teleport:
+        {
+            const auto teleportIndex = fb.GetUint16LE();
+            fb.Skip(6);
+            mActions.emplace_back(
+                Teleport{TeleportIndex{teleportIndex}});
+        } break;
+        case DialogResult::SetEndOfDialogState:
+        {
+            const auto state = fb.GetSint16LE();
+            const auto rest = fb.GetArray<6>();
+            mActions.emplace_back(
+                SetEndOfDialogState{
+                    state,
+                    rest});
+        } break;
+        case DialogResult::SetTimeExpiringState2:
+        {
+            const auto number = fb.GetUint8();
+            const auto flag = fb.GetUint8();
+            const auto state = fb.GetUint16LE();
+            const auto time = Time{fb.GetUint32LE()};
+            mActions.emplace_back(
+                SetTimeExpiringState2{number, flag, state, time});
+        } break;
+        case DialogResult::LoseItem2:
+        {
+            const auto item = fb.GetUint16LE();
+            auto quantity = fb.GetUint16LE();
+            if (quantity == 0)
+                quantity = 1;
+            const auto rest = fb.GetArray<4>();
+            mActions.emplace_back(
+                LoseItem2{
+                    item,
+                    quantity,
+                    rest});
+        } break;
+        default:
         {
             const auto& rest = fb.GetArray<8>();
             mActions.emplace_back(
                 UnknownAction{
                     type,
                     rest});
+        } break;
         }
     }
     

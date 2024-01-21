@@ -14,21 +14,23 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::GiveItem: return os << "GiveItem";
         case DialogResult::LoseItem: return os << "LoseItem";
         case DialogResult::SetFlag: return os << "SetFlag";
-        case DialogResult::Unknown5: return os << "Unknown[5]";
+        case DialogResult::SetPopupDimensions: return os << "SetPopupDimensions";
         case DialogResult::SpecialAction: return os << "SpecialAction";
         case DialogResult::GainCondition: return os << "GainCondition";
         case DialogResult::GainSkill: return os << "GainSkill";
         case DialogResult::LoadSkillValue: return os << "LoadSkillValue";
         case DialogResult::PlaySound: return os << "PlaySound";
         case DialogResult::ElapseTime: return os << "ElapseTime";
-        case DialogResult::PushNextDialog: return os << "PushNextDialog";
-        case DialogResult::Teleport: return os << "Teleport";
         case DialogResult::SetTimeExpiringState: return os << "SetTimeExpiringState";
-        case DialogResult::HealCharacters: return os << "HealCharacters";
-        case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
+        case DialogResult::PushNextDialog: return os << "PushNextDialog";
         case DialogResult::UpdateCharacters: return os << "UpdateCharacters";
+        case DialogResult::HealCharacters: return os << "HealCharacters";
         case DialogResult::LearnSpell: return os << "LearnSpell";
-        default: return os << "(" << static_cast<unsigned>(d) << ")";
+        case DialogResult::Teleport: return os << "Teleport";
+        case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
+        case DialogResult::SetTimeExpiringState2: return os << "SetTimeExpiringState2";
+        case DialogResult::LoseItem2: return os << "LoseItem2";
+        default: return os << "Unknown[" << static_cast<unsigned>(d) << "]";
     }
 }
 
@@ -88,15 +90,15 @@ std::ostream& operator<<(std::ostream& os, const SetFlag& action)
 std::ostream& operator<<(std::ostream& os, const GainCondition& cond)
 {
     os << "GainCondition{ who: " << cond.mFlag << " " << ToString(cond.mCondition)
-        << " Val1: " << cond.mValue1 << " Val2: " << cond.mValue2 << "}";
+        << " Val1: " << cond.mMin << " Val2: " << cond.mMax << "}";
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const GainSkill& cond)
 {
     os << "GainSkill{ who: " << cond.mWho << " " << ToString(cond.mSkill)
-        << " [" << +cond.mValue0 
-        << ", " << +cond.mValue1 << "]}";
+        << " [" << +cond.mMin
+        << ", " << +cond.mMax << "]}";
     return os;
 }
 
@@ -130,9 +132,19 @@ std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
 std::ostream& operator<<(std::ostream& os, const SetTimeExpiringState& action)
 {
     os << "SetTimeExpiringState{" << std::hex << action.mEventPtr << " unk0: " << action.mUnknown0
-        << " TimeToExpire: " << action.mTimeToExpire << "}";
+        << " TimeToExpire: " << std::dec << action.mTimeToExpire << "}";
     return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const SetTimeExpiringState2& action)
+{
+    os << "SetTimeExpiringState2{" << std::hex << " number: " << +action.mNumber
+        << " flag: " << +action.mFlag
+        << " eventPtr: " << action.mEventPtr
+        << " TimeToExpire: " << std::dec << action.mTimeToExpire << "}";
+    return os;
+}
+
 
 std::ostream& operator<<(std::ostream& os, const HealCharacters& action)
 {
@@ -151,6 +163,14 @@ std::ostream& operator<<(std::ostream& os, const SetEndOfDialogState& action)
 std::ostream& operator<<(std::ostream& os, const LearnSpell& action)
 {
     os << "LearnSpell{who: " << action.mWho << ", whichSpell: " << action.mWhichSpell << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const LoseItem2& action)
+{
+    os << "LoseItem2 { what: " << action.mItemIndex
+        << " amount: " << action.mQuantity
+        << " rest[" << std::hex << action.mRest << std::dec << "]}";
     return os;
 }
 

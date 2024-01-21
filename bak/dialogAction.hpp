@@ -14,36 +14,28 @@ namespace BAK {
 
 enum class DialogResult
 {
-    // Maybe also something to do wih tstate?
     SetTextVariable = 0x01,
     GiveItem        = 0x02,
-    LoseItem        = 0x03, // pt2 object, pt3 amount
-    // Unlocks dialog options / Sets event state
+    LoseItem        = 0x03,
     SetFlag         = 0x04,
-    Unknown5        = 0x05,
-    // For popup dialogs sets the dimensions of the dialog
     SetPopupDimensions = 0x06,
     SpecialAction = 0x07,
-    // e.g. sickness when visiting orno (2f4e8c)
     GainCondition = 0x08,
     GainSkill  = 0x09,
-    // Load skill value for a skill check
-    // e.g. isaac 2dc6e5 sharpen his sword
     LoadSkillValue = 0x0a,
-    PlaySound  = 0x0c, // See RunDialog: 0x14aa
+    //PlaySound2  = 0x0b, unused, but calls same code as play sound...
+    PlaySound  = 0x0c,
     ElapseTime = 0x0d,
     SetTimeExpiringState = 0x0e,
-    // Push this Key/Offset to the dialog queue
-    // i.e. when the current dialog is finished, we enter this dialog
     PushNextDialog = 0x10,
     UpdateCharacters = 0x11,
     HealCharacters   = 0x12,
     LearnSpell = 0x13,
-    // Teleport to another location? e.g. sewer dialog 231861
     Teleport = 0x14,
-    SetEndOfDialogState = 0x15, // ??
+    SetEndOfDialogState = 0x15,
+    SetTimeExpiringState2 = 0x16,
+    LoseItem2 = 0x17
     // 18 - seems to remove/move mney at a chapter transition
-    // 17 - maybe moves party members around? e.g. at chapter transition
 };
 
 struct SetTextVariable
@@ -111,22 +103,16 @@ struct GainCondition
     //
     std::uint16_t mFlag;
     Condition mCondition;
-    // Value 1 seems to be the one that actually takes effect
-    // JvE: the game takes a random value between value1 and value2
-    // if value1 == 0xff9c then it reverses/heals the specific condition
-    // JvE: 0xff9c == -100
-    std::int16_t mValue1;
-    std::int16_t mValue2;
+    std::int16_t mMin;
+    std::int16_t mMax;
 };
 
 struct GainSkill
 {
     std::uint16_t mWho;
     SkillType mSkill;
-    // These may be different and I'm not sure on their meaning when different
-    // JvE: the game takes a random value between value1 and value2
-    std::int16_t mValue0;
-    std::int16_t mValue1;
+    std::int16_t mMin;
+    std::int16_t mMax;
 };
 
 struct LoadSkillValue
@@ -200,6 +186,21 @@ struct LearnSpell
     SpellIndex mWhichSpell;
 };
 
+struct SetTimeExpiringState2
+{
+    std::uint8_t mNumber;
+    std::uint8_t mFlag;
+    std::uint16_t mEventPtr;
+    Time mTimeToExpire;
+};
+
+struct LoseItem2
+{
+    std::uint16_t mItemIndex;
+    std::uint16_t mQuantity;
+    std::array<std::uint8_t, 4> mRest;
+};
+
 struct UnknownAction
 {
     UnknownAction(
@@ -216,22 +217,24 @@ struct UnknownAction
 
 using DialogAction = std::variant<
     SetTextVariable,
-    LoseItem,
     GiveItem,
+    LoseItem,
     SetFlag,
-    ElapseTime,
     SetPopupDimensions,
     GainCondition,
     GainSkill,
     LoadSkillValue,
-    HealCharacters,
     PlaySound,
+    ElapseTime,
     SetTimeExpiringState,
     PushNextDialog,
-    Teleport,
     UpdateCharacters,
-    SetEndOfDialogState,
+    HealCharacters,
     LearnSpell,
+    Teleport,
+    SetEndOfDialogState,
+    SetTimeExpiringState2,
+    LoseItem2,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);

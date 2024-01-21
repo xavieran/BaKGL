@@ -1,6 +1,5 @@
 #include "bak/spells.hpp"
 #include "bak/fileBufferFactory.hpp"
-#include "bak/font.hpp"
 
 #include "com/logger.hpp"
 
