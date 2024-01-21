@@ -89,16 +89,15 @@ std::ostream& operator<<(std::ostream& os, const SetFlag& action)
 
 std::ostream& operator<<(std::ostream& os, const GainCondition& cond)
 {
-    os << "GainCondition{ who: " << cond.mFlag << " " << ToString(cond.mCondition)
-        << " Val1: " << cond.mMin << " Val2: " << cond.mMax << "}";
+    os << "GainCondition{ who: " << cond.mWho << " " << ToString(cond.mCondition)
+        << " [" << cond.mMin << ", " << cond.mMax << "]}";
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const GainSkill& cond)
 {
     os << "GainSkill{ who: " << cond.mWho << " " << ToString(cond.mSkill)
-        << " [" << +cond.mMin
-        << ", " << +cond.mMax << "]}";
+        << " [" << +cond.mMin << ", " << +cond.mMax << "]}";
     return os;
 }
 

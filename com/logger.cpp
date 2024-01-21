@@ -8,10 +8,10 @@ std::string_view LevelToString(LogLevel level)
 {
     switch (level)
     {
-    case LogLevel::Spam:   return "SPAM ";
+    case LogLevel::Spam:   return "SPAM";
     case LogLevel::Debug:  return "DEBUG";
-    case LogLevel::Info:   return "INFO ";
-    case LogLevel::Warn:   return "WARN ";
+    case LogLevel::Info:   return "INFO";
+    case LogLevel::Warn:   return "WARN";
     case LogLevel::Error:  return "ERROR";
     case LogLevel::Fatal: return "FATAL";
     case LogLevel::Always: return "ALWAYS";

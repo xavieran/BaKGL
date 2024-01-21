@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/container.hpp"
+#include "bak/constants.hpp"
 #include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
@@ -55,6 +56,7 @@ public:
         mItemValue{0},
         mSkillValue{0},
         mSelectedItem{},
+        mCurrentMonster{},
         mChapter{7},
         mZone{1},
         mEndOfDialogState{0},
@@ -326,15 +328,132 @@ public:
     {
         mEndOfDialogState = 0x0;
 
-        // FIXME: There is more to setting the characters than this...
         if (GetParty().GetNumCharacters() > 0)
         {
-            mTextVariableStore.SetTextVariable(0, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
-            mTextVariableStore.SetTextVariable(4, GetParty().GetCharacter(ActiveCharIndex{0}).GetName());
-            mTextVariableStore.SetTextVariable(3, GetParty().GetCharacter(ActiveCharIndex{1}).GetName());
-            if (GetParty().GetNumCharacters() > 2)
-                mTextVariableStore.SetTextVariable(5, GetParty().GetCharacter(ActiveCharIndex{2}).GetName());
+            SetDefaultDialogTextVariables();
         }
+    }
+
+    void SetDefaultDialogTextVariables()
+    {
+        for (auto& c : mDialogCharacterList)
+        {
+            c = 0xff;
+        }
+        // index 4 gets party leader
+        SetDialogTextVariable(4, 7);
+        // Select random characters for indices 5, 3, and 0
+        SetDialogTextVariable(5, 0xF);
+        SetDialogTextVariable(3, 0xE);
+        SetDialogTextVariable(0, 0x1f);
+    }
+
+    void SetDialogTextVariable(auto index, unsigned attribute)
+    {
+        switch (attribute - 1)
+        {
+        case 0: [[fallthrough]];
+        case 1: [[fallthrough]];
+        case 2: [[fallthrough]];
+        case 3: [[fallthrough]];
+        case 4: [[fallthrough]];
+        case 5:
+            mDialogCharacterList[index] = attribute;
+            mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(CharIndex{attribute}).GetName());
+            break;
+        case 6:
+            mDialogCharacterList[index] = GetPartyLeader().mValue;
+            mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(GetPartyLeader()).GetName());
+            break;
+        case 12: [[fallthrough]];
+        case 13: [[fallthrough]];
+        case 14: [[fallthrough]];
+        case 15: [[fallthrough]];
+        case 30:
+            SelectRandomActiveCharacter(index, attribute);
+            break;
+        case 7: [[fallthrough]];
+        case 8: [[fallthrough]];
+        case 23: [[fallthrough]];
+        case 24: [[fallthrough]];
+        case 25:
+            break; // Do nothing..?
+        default:
+             break;
+        }
+    }
+
+    CharIndex GetPartyLeader()
+    {
+        static constexpr std::array<CharIndex, 9> partyLeaderPerChapter = {Locklear, James, James, Gorath, James, Owyn, James, Owyn, Pug};
+        if (GetParty().FindActiveCharacter(Pug))
+        {
+            return Pug;
+        }
+        else
+        {
+            return partyLeaderPerChapter[GetChapter().mValue - 1];
+        }
+    }
+
+    void SelectRandomActiveCharacter(unsigned index, unsigned attribute)
+    {
+        bool foundValidCharacter = false;
+        unsigned limit = 0x1f8;
+        // is this right...? or is it the opposite of the party leader that we should choose?
+        auto chosenChar = GetPartyLeader();
+        while (!foundValidCharacter && limit != 0)
+        {
+            limit--;
+            auto randomChar = ActiveCharIndex{GetRandomNumber(0, GetParty().GetNumCharacters() - 1)};
+            chosenChar = GetParty().GetCharacter(randomChar).mCharacterIndex;
+            for (unsigned i = 0; i < index; i++)
+            {
+                if (mDialogCharacterList[i] == chosenChar.mValue)
+                {
+                    continue;
+                }
+            }
+
+            switch (attribute)
+            {
+            case 14:
+                if (chosenChar == Gorath
+                    || chosenChar == Pug
+                    || chosenChar == Patrus)
+                {
+                    foundValidCharacter = true;
+                }
+                break;
+            case 15:
+                if (chosenChar == Locklear
+                    || chosenChar == Owyn
+                    || chosenChar == James
+                    || chosenChar == Patrus)
+                {
+                    foundValidCharacter = true;
+                }
+                break;
+            case 16:
+                if (chosenChar == Owyn
+                    || chosenChar == Patrus)
+                {
+                    foundValidCharacter = true;
+                }
+                break;
+            case 31:
+                if (chosenChar != GetPartyLeader())
+                {
+                    foundValidCharacter = true;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(chosenChar).GetName());
+        mDialogCharacterList[index] = chosenChar.mValue;
     }
 
     void EvaluateAction(const DialogAction& action)
@@ -365,9 +484,10 @@ public:
                 }
                 else if (set.mWhat == 0x11)
                 {
+                    const auto& monsters = MonsterNames::Get();
                     mTextVariableStore.SetTextVariable(
                         set.mWhich,
-                        "Opponent");
+                        mCurrentMonster ? monsters.GetMonsterName(*mCurrentMonster) : "No Monster Specified");
                 }
                 else if (set.mWhat == 0x12)
                 {
@@ -429,45 +549,41 @@ public:
                             SkillChange::Direct,
                             amount);
                 }
-                // 3, 4 -> Owyn & Gorath when talking to Calin
-                // 3, 4, -> Locklear and James when talking to Martin
-                // 5 -> Owyn when talking to Cullich
-                // 6 -> Party leader
-                //  0  1  2  3  4  5  6  7 
-                // 00 00 00 02 01 02 00 01 00 Chapter 1
-                // 00 00 02 FF FF 02 04 01 00 Chapter 2
-                // 00 00 02 FF FF 02 04 01 00 Chapter 3
-                // 00 00 02 FF FF 02 01 01 00 Chapter 4
-                // 00 00 05 FF FF 05 04 00 00 Chapter 5
-                // 00 00 02 FF FF 02 00 01 00 Chapter 6
-                // use this to figure out who is who...
-                // This is generated semi-randomly from the active characters list
-                else if (skill.mWho == 6) // 1,2,3,4,5,6, (condition -- 1,2,6,7)
+                // there are two character index arrays in the code, starting at 0x4df0 and 0x4df2
+                // The dala one specifically uses query choice dialog to select the character, and 
+                // places this in 4df2[0], i.e. 4df0[2], so the skill.mWho is effecting -= 2
+                // Since skill.mWho <= 1 doesn't use the array anyway, we always use the array
+                // that starts at 0x4df2
+                else
                 {
-                    GetParty().GetCharacter(ActiveCharIndex{0})
-                        .ImproveSkill(skill.mSkill, SkillChange::Direct, amount);
-                }
-                else if (skill.mWho == 2)
-                {
-                    GetParty().GetCharacter(ActiveCharIndex{0})
+                    auto characterToImproveSkill = mDialogCharacterList[skill.mWho - 2];
+                    GetParty().GetCharacter(CharIndex{characterToImproveSkill})
                         .ImproveSkill(skill.mSkill, SkillChange::Direct, amount);
                 }
             },
             [&](const BAK::GainCondition& cond)
             {
                 mLogger.Debug() << "Gaining condition: " << cond << "\n";
-                // FIXME: Implement if this condition only changes for one character
                 auto amount = cond.mMax;
                 if (cond.mMin != cond.mMax)
                 {
                     amount = cond.mMin + (GetRandomNumber(0, 0xfff) % (cond.mMax - cond.mMin));
                 }
-                GetParty().ForEachActiveCharacter(
-                    [&](auto& character){
-                        character.GetConditions().IncreaseCondition(
-                            cond.mCondition, amount);
-                        return true;
-                    });
+                if (cond.mWho > 1)
+                {
+                    auto characterToAffect = CharIndex{mDialogCharacterList[cond.mWho - 2]};
+                    GetParty().GetCharacter(characterToAffect).GetConditions()
+                        .IncreaseCondition(cond.mCondition, amount);
+                }
+                else
+                {
+                    GetParty().ForEachActiveCharacter(
+                        [&](auto& character){
+                            character.GetConditions().IncreaseCondition(
+                                cond.mCondition, amount);
+                            return true;
+                        });
+                }
             },
             [&](const BAK::SetTimeExpiringState& state)
             {
@@ -584,12 +700,14 @@ public:
     {
         // RunDialog addr: 23d1
         const auto state = GetEventState(choice.mEventPointer);
-        mLogger.Debug() << __FUNCTION__ << " : " << choice 
-            << " S: [" << std::hex << +state << std::dec << "]\n";
 
         // Probably want to put this logic somewhere else...
         // if eventPtr % 10 != 0
         const auto [byteOffset, bitOffset] = State::CalculateComplexEventOffset(choice.mEventPointer);
+        mLogger.Debug() << __FUNCTION__ << " : " << choice 
+            << " S: [" << std::hex << +state << std::dec << "] - byteOff: " 
+            << + byteOffset << " bitOff: " << +bitOffset << "\n";
+
         if (mGameData && bitOffset != 0)
         {
             return (state >= choice.mXorMask) && (state <= choice.mMustEqualExpected);
@@ -906,6 +1024,8 @@ public:
     std::optional<CharIndex> mDialogCharacter;
     CharIndex mActiveCharacter;
 
+    std::array<std::uint8_t, 6> mDialogCharacterList;
+
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue;
@@ -913,6 +1033,7 @@ public:
     Royals mItemValue;
     unsigned mSkillValue;
     std::optional<InventoryItem> mSelectedItem;
+    std::optional<MonsterIndex> mCurrentMonster;
     Chapter mChapter;
     ZoneNumber mZone;
     std::int16_t mEndOfDialogState;

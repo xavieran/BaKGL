@@ -68,6 +68,61 @@ struct Console : public std::streambuf
         }
     }
 
+    void SetComplexEvent(const std::vector<std::string>& words)
+    {
+        if (words.size() < 5)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: SET_COMPLEX_EVENT EV_PTR EV_MASK EV_DATA EV_VALUE (%s)", ss.str().c_str());
+            return;
+        }
+
+        if (!mGameState)
+        {
+            AddLog("[error] SET_COMPLEX_EVENT FAILED No GameState Connected");
+            return;
+        }
+
+        std::uint16_t eventPtr;
+        {
+            std::stringstream ss{};
+            ss << words[1];
+            ss >> eventPtr;
+        }
+        
+        unsigned eventMask;
+        {
+            std::stringstream ss{};
+            ss << words[2];
+            ss >> eventMask;
+        }
+
+        unsigned eventData;
+        {
+            std::stringstream ss{};
+            ss << words[3];
+            ss >> eventData;
+        }
+
+        std::uint16_t eventValue;
+        {
+            std::stringstream ss{};
+            ss << words[4];
+            ss >> eventValue;
+        }
+
+        auto setFlag = BAK::SetFlag{
+            eventPtr,
+            static_cast<std::uint8_t>(eventMask),
+            static_cast<std::uint8_t>(eventData),
+            0,
+            eventValue};
+        Logging::LogInfo(__FUNCTION__) << " Setting event with: " << setFlag << "\n";
+        mGameState->SetEventState(setFlag);
+    }
+
     void SaveGame(const std::vector<std::string>& words)
     {
         if (words.size() < 2)
@@ -377,6 +432,20 @@ struct Console : public std::streambuf
         }
     }
 
+    void DisableLogger(const std::vector<std::string>& words)
+    {
+        if (words.size() < 2)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: DISABLE_LOGGER LOGGER (%s)", ss.str().c_str());
+            return;
+        }
+
+        Logging::LogState::Disable(words[1]);
+    }
+
     Console()
     :
         mStream{this},
@@ -438,6 +507,12 @@ struct Console : public std::streambuf
 
         mCommands.push_back("SET_LOG_LEVEL");
         mCommandActions.emplace_back([this](const auto& cmd){ SetLogLevel(cmd); });
+
+        mCommands.push_back("DISABLE_LOGGER");
+        mCommandActions.emplace_back([this](const auto& cmd){ DisableLogger(cmd); });
+
+        mCommands.push_back("SET_COMPLEX_EVENT");
+        mCommandActions.emplace_back([this](const auto& cmd){ SetComplexEvent(cmd); });
 
         mCommands.push_back("CLEAR");
         mCommandActions.emplace_back([this](const auto& cmd)

@@ -348,11 +348,7 @@ public:
 
         if (!combat.mCombatants.empty())
         {
-            auto monsterName = BAK::MonsterNames::Get().GetMonsterName(BAK::MonsterIndex{combat.mCombatants.back().mMonster});
-            mGameState.mTextVariableStore.SetTextVariable(
-                1, // not sure if this is universally true...
-                monsterName);
-            mLogger.Debug() << __FUNCTION__ << " First combatant: " << monsterName << "\n";
+            mGameState.mCurrentMonster = BAK::MonsterIndex{combat.mCombatants.back().mMonster};
         }
 
         if (combat.mEntryDialog.mValue != 0)

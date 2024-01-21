@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "bak/types.hpp"
+
 namespace BAK {
 
 static constexpr float gWorldScale = 100.;
@@ -40,6 +42,13 @@ enum class Enemy
     Nighthawk = 0x17,
     Rogue = 0x18
 };
+
+static constexpr auto Locklear = CharIndex{0};
+static constexpr auto Gorath = CharIndex{1};
+static constexpr auto Owyn = CharIndex{2};
+static constexpr auto Pug = CharIndex{3};
+static constexpr auto James = CharIndex{4};
+static constexpr auto Patrus = CharIndex{5};
 
 enum class Actor
 {

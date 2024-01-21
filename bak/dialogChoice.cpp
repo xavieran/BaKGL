@@ -114,8 +114,8 @@ std::ostream& operator<<(std::ostream& os, const InventoryChoice& c)
 std::ostream& operator<<(std::ostream& os, const ComplexEventChoice& c)
 {
     os << ToString(ChoiceMask::ComplexEvent) << " " << std::hex << 
-        c.mEventPointer << " -> " << +c.mXorMask << " " 
-        << +c.mExpected << " | " << +c.mMustEqualExpected << " " 
+        c.mEventPointer << " -> xorMask: " << +c.mXorMask << " expect: "
+        << +c.mExpected << " mustEqualExpect: " << +c.mMustEqualExpected << " chapterMask: "
         << +c.mChapterMask << std::dec;
     return os;
 }

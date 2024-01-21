@@ -101,7 +101,7 @@ struct GainCondition
     // if flag == 6 locklear party leader.. ?
     // if flag == 5 owyn second party member?
     //
-    std::uint16_t mFlag;
+    std::uint16_t mWho;
     Condition mCondition;
     std::int16_t mMin;
     std::int16_t mMax;
