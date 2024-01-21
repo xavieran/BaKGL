@@ -3,6 +3,7 @@
 #include "game/interactable/IInteractable.hpp"
 #include "game/interactable/building.hpp"
 #include "game/interactable/chest.hpp"
+#include "game/interactable/combatant.hpp"
 #include "game/interactable/door.hpp"
 #include "game/interactable/generic.hpp"
 #include "game/interactable/ladder.hpp"
@@ -47,6 +48,8 @@ enum class InteractableType
     Tunnel1     = 33,
     Bag         = 35,
     Ladder      = 36,
+    DeadCombatant = 100,
+    LivingCombatant = 101,
 };
 
 std::string_view ToString(InteractableType);
@@ -142,11 +145,14 @@ public:
         case InteractableType::Tunnel0: [[ fallthrough ]];
         case InteractableType::Tunnel1:
             return MakeGeneric(BAK::DialogSources::mUnknownObject);
+        case InteractableType::DeadCombatant:
+            return std::make_unique<Combatant>(
+                mGuiManager,
+                BAK::KeyTarget{0});
         default:
             Logging::LogFatal(__FUNCTION__) << "Unhandled entity type: " 
                 << static_cast<unsigned>(entity) << " interactableType: "
                 << ToString(interactableType) << std::endl;
-            //ASSERT(false);
             return MakeGeneric(BAK::DialogSources::mUnknownObject);
         }
     }

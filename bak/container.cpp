@@ -129,6 +129,18 @@ HotspotRef ContainerHeader::GetHotspotRef() const
     return std::get<ContainerGDSLocation>(mLocation).mLocation;
 }
 
+unsigned ContainerHeader::GetCombatNumber() const
+{
+    ASSERT(std::holds_alternative<ContainerCombatLocation>(mLocation));
+    return std::get<ContainerCombatLocation>(mLocation).mCombat;
+}
+
+unsigned ContainerHeader::GetCombatantNumber() const
+{
+    ASSERT(std::holds_alternative<ContainerCombatLocation>(mLocation));
+    return std::get<ContainerCombatLocation>(mLocation).mCombatant;
+}
+
 std::ostream& operator<<(std::ostream& os, const ContainerEncounter& ce)
 {
     os << "ContainerEncounter { require: " << std::hex << ce.mRequireEventFlag

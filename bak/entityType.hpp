@@ -43,7 +43,9 @@ enum class EntityType
     LANDSCAPE  = 38,
     TUNNEL2    = 39, // with tunnel
     BAG        = 41,
-    LADDER     = 42
+    LADDER     = 42,
+    DEAD_COMBATANT = 106,
+    LIVING_COMBATANT = 107
 };
 
 unsigned GetContainerTypeFromEntityType(EntityType);

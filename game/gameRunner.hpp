@@ -20,6 +20,13 @@
 
 namespace Game {
 
+class ClickableEntity
+{
+public:
+    BAK::EntityType mEntityType;
+    BAK::GenericContainer* mContainer;
+};
+
 class GameRunner : public BAK::IZoneLoader
 {
 public:
@@ -45,7 +52,6 @@ public:
         mGameData{nullptr},
         mZoneData{nullptr},
         mActiveEncounter{nullptr},
-        mActiveClickable{nullptr},
         mEncounters{},
         mClickables{},
         mNullContainer{
@@ -140,18 +146,37 @@ public:
 
                     if (item.GetZoneItem().GetClickable())
                     {
-                        mSystems->AddClickable(
-                            Clickable{
-                                id,
-                                item.GetLocation()});
-                        mClickables.emplace(id, &item);
-                        //mSystems->AddRenderable(
-                        //    Renderable{
-                        //        id,
-                        //        mZoneData->mObjects.GetObject("clickable"),
-                        //        item.GetLocation(),
-                        //        glm::vec3{1.0},
-                        //        glm::vec3{1.0}});
+                        const auto bakLocation = item.GetBakLocation();
+                        const auto et = item.GetZoneItem().GetEntityType();
+                        mSystems->AddClickable(Clickable{id});
+
+                        auto& containers = mGameState.GetContainers(
+                            BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
+                        auto cit = std::find_if(containers.begin(), containers.end(),
+                            [&bakLocation](const auto& x){
+                                return x.GetHeader().GetPosition() == bakLocation;
+                            });
+
+                        if (cit != containers.end())
+                        {
+                            mClickables.emplace(id, ClickableEntity{et, &(*cit)});
+                            continue;
+                        }
+
+                        auto fit = std::find_if(
+                            mZoneData->mFixedObjects.begin(),
+                            mZoneData->mFixedObjects.end(),
+                            [&bakLocation](const auto& x){
+                                return x.GetHeader().GetPosition() == bakLocation;
+                            });
+
+                        if (fit != mZoneData->mFixedObjects.end())
+                        {
+                            mClickables.emplace(id, ClickableEntity{et, &(*fit)});
+                            continue;
+                        }
+
+                        mClickables.emplace(id, ClickableEntity{et, &mNullContainer});
                     }
                 }
             }
@@ -186,17 +211,30 @@ public:
                 // Throw the enemies onto the map...
                 evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
                     [&](const auto& combat){
-                        for (const auto& enemy : combat.mCombatants)
+                        for (unsigned i = 0; i < combat.mCombatants.size(); i++)
                         {
+                            const auto& enemy = combat.mCombatants[i];
+                            auto entityId = mSystems->GetNextItemId();
                             mSystems->AddRenderable(
                                 Renderable{
-                                    mSystems->GetNextItemId(),
+                                    entityId,
                                     mZoneData->mObjects.GetObject(
                                         monsters.GetMonsterAnimationFile(BAK::MonsterIndex{enemy.mMonster - 1u})),
 
                                     BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
                                     glm::vec3{0},
                                     glm::vec3{1}});
+
+                            auto container = std::find_if(mGameState.mCombatContainers.begin(), mGameState.mCombatContainers.end(),
+                                [&](auto& lhs){
+                                    return lhs.GetHeader().GetCombatNumber() == combat.mCombatIndex
+                                        && lhs.GetHeader().GetCombatantNumber() == i;
+                                });
+                            if (container != mGameState.mCombatContainers.end())
+                            {
+                                mSystems->AddClickable(Clickable{entityId});
+                                mClickables.emplace(entityId, ClickableEntity(BAK::EntityType::DEAD_COMBATANT, &(*container)));
+                            }
                         }
                     });
 
@@ -596,22 +634,28 @@ public:
 
     void RunGameUpdate()
     {
-        mActiveEncounter = nullptr;
-
-        auto intersectable = mSystems->RunIntersection(mCamera.GetPosition());
-        if (intersectable)
+        if (mCamera.CheckAndResetDirty())
         {
-            auto it = mEncounters.find(*intersectable);
-            if (it != mEncounters.end())
+            // This class var is only really necessary so that
+            // we can us IMGUI to pull the latest triggered interactable.
+            // Might want to clean this up.
+            mActiveEncounter = nullptr;
+
+            auto intersectable = mSystems->RunIntersection(mCamera.GetPosition());
+            if (intersectable)
             {
-                const auto* encounter = it->second;
-                mActiveEncounter = encounter;
+                auto it = mEncounters.find(*intersectable);
+                if (it != mEncounters.end())
+                {
+                    const auto* encounter = it->second;
+                    mActiveEncounter = encounter;
+                }
             }
-        }
 
-        if (mActiveEncounter)
-        {
-            DoEncounter(*mActiveEncounter);
+            if (mActiveEncounter)
+            {
+                DoEncounter(*mActiveEncounter);
+            }
         }
     }
 
@@ -633,38 +677,11 @@ public:
 
         if (bestId)
         {
-            mActiveClickable = mClickables[*bestId];
-            const auto bakLocation = mActiveClickable->GetBakLocation();
-            const auto et = mActiveClickable->GetZoneItem().GetEntityType();
-
-            auto& containers = mGameState.GetContainers(
-                BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
-            auto cit = std::find_if(containers.begin(), containers.end(),
-                [&bakLocation](const auto& x){
-                    return x.GetHeader().GetPosition() == bakLocation;
-                });
-
-            mLogger.Debug() <<" " << mActiveClickable->GetZoneItem().GetName()<< "\n";
-            if (cit != containers.end())
-            {
-                DoGenericContainer(et, *cit);
-                return;
-            }
-
-            auto fit = std::find_if(
-                mZoneData->mFixedObjects.begin(),
-                mZoneData->mFixedObjects.end(),
-                [&bakLocation](const auto& x){
-                    return x.GetHeader().GetPosition() == bakLocation;
-                });
-
-            if (fit != mZoneData->mFixedObjects.end())
-            {
-                DoGenericContainer(et, *fit);
-                return;
-            }
-
-            DoGenericContainer(et, mNullContainer);
+            auto it = mClickables.find(*bestId);
+            assert (it != mClickables.end());
+            auto& clickable = mClickables[*bestId];
+            assert(clickable.mContainer);
+            DoGenericContainer(clickable.mEntityType, *clickable.mContainer);
         }
     }
 
@@ -679,9 +696,8 @@ public:
     std::unique_ptr<BAK::Zone> mZoneData;
 
     const BAK::Encounter::Encounter* mActiveEncounter;
-    const BAK::WorldItemInstance* mActiveClickable;
     std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> mEncounters;
-    std::unordered_map<BAK::EntityIndex, const BAK::WorldItemInstance*> mClickables{};
+    std::unordered_map<BAK::EntityIndex, ClickableEntity> mClickables{};
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;

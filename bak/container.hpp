@@ -78,6 +78,8 @@ public:
     ZoneNumber GetZone() const;
     GamePosition GetPosition() const;
     HotspotRef GetHotspotRef() const;
+    unsigned GetCombatNumber() const;
+    unsigned GetCombatantNumber() const;
 
     bool HasLock() const { return CheckBitSet(mFlags, ContainerProperty::HasLock); }
     bool HasDialog() const { return CheckBitSet(mFlags, ContainerProperty::HasDialog); }

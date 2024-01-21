@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <utility>
+
 class Camera
 {
 public:
@@ -85,7 +87,7 @@ public:
 
     void SetPosition(const glm::vec3& position)
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition = position;
     }
     
@@ -110,50 +112,56 @@ public:
 
     void MoveForward()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition += GetDirection() * (mMoveSpeed * mDeltaTime);
     }
 
     void MoveBackward()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition -= GetDirection() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeForward()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition += GetForward() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeBackward()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition -= GetForward() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeRight()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition += GetRight() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeLeft()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition -= GetRight() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeUp()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition += GetUp() * (mMoveSpeed * mDeltaTime);
     }
 
     void StrafeDown()
     {
-        mLastPosition = mPosition;
+        PositionChanged();
         mPosition -= GetUp() * (mMoveSpeed * mDeltaTime);
+    }
+
+    void PositionChanged()
+    {
+        mLastPosition = mPosition;
+        mDirty = true;
     }
 
     void UndoPositionChange()
@@ -248,6 +256,10 @@ public:
     glm::vec3 GetNormalisedPosition() const { return mPosition / BAK::gWorldScale; }
     const glm::mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 
+    bool CheckAndResetDirty()
+    {
+        return std::exchange(mDirty, false);
+    }
 private:
     float mMoveSpeed;
     float mTurnSpeed;
@@ -257,5 +269,7 @@ private:
     glm::vec3 mLastPosition;
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
+
+    bool mDirty;
 };
 

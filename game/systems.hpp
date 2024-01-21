@@ -78,21 +78,16 @@ private:
 class Clickable
 {
 public:
-    Clickable(
-        BAK::EntityIndex itemId,
-        glm::vec3 location)
+    explicit Clickable(
+        BAK::EntityIndex itemId)
     :
-        mItemId{itemId},
-        mLocation{location}
+        mItemId{itemId}
     {}
 
     BAK::EntityIndex GetId() const { return mItemId; }
 
-    auto GetLocation() const { return mLocation; }
-
 private:
     BAK::EntityIndex mItemId;
-    glm::vec3 mLocation;
 };
 
 class Renderable
