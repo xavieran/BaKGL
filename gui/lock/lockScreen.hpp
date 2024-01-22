@@ -188,7 +188,7 @@ public:
         ResetUnlocked();
 
         // Automatically set to the highest skilled character
-        const auto [character, _] = mGameState.GetParty().GetSkill(
+        const auto [character, _] = mGameState.GetPartySkill(
             BAK::SkillType::Lockpick,
             true);
         ASSERT(mGameState.GetParty().FindActiveCharacter(character));

@@ -411,7 +411,7 @@ void GDSScene::DoBard()
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     auto& shopStats = container->GetShop();
 
-    const auto [character, skill] = mGameState.GetParty().GetSkill(
+    const auto [character, skill] = mGameState.GetPartySkill(
         BAK::SkillType::Barding, true);
     mGameState.SetActiveCharacter(character);
 

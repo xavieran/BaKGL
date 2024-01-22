@@ -195,6 +195,9 @@ void DoImproveSkill(
     case SkillChange::Direct:
         experienceChange = multiplier;
         break;
+    default:
+        assert(false);
+        break;
     }
 
     // di + 0x58
@@ -244,7 +247,7 @@ signed DoAdjustHealth(
     signed healthChangePercent,
     signed multiplier)
 {
-    Logging::LogDebug(__FUNCTION__) << "(" << healthChangePercent << " " << multiplier << ")";
+    Logging::LogDebug(__FUNCTION__) << "(" << healthChangePercent << " " << multiplier << ")\n";
     auto& healthSkill = skills.GetSkill(SkillType::Health);
     auto& staminaSkill = skills.GetSkill(SkillType::Stamina);
 
@@ -377,12 +380,12 @@ std::uint8_t Skills::CalculateSelectedSkillPool() const
 void Skills::ImproveSkill(
     SkillType skill, 
     SkillChange skillChangeType,
-    unsigned multiplier)
+    int multiplier)
 {
     if (skill == SkillType::TotalHealth)
     {
         auto x = Conditions{};
-        DoAdjustHealth(*this, x, static_cast<unsigned>(skillChangeType), multiplier);
+        DoAdjustHealth(*this, x, static_cast<int>(skillChangeType), multiplier);
     }
     else
     {

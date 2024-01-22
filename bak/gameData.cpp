@@ -44,6 +44,7 @@ GameData::GameData(const std::string& save)
     //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
     //    << mBuffer.Tell() << std::dec << "\n";
     LoadShops();
+    LoadChapterOffsetP();
     LoadCombatEntityLists();
     LoadCombatStats(0x914b, 1698);
     LoadCombatGridLocations();
@@ -334,6 +335,7 @@ std::vector<GenericContainer> GameData::LoadContainers(unsigned zone)
     return containers;
 }
 
+// add a memroy breakpoint on this?
 void GameData::LoadChapterOffsetP()
 {
     // I have no idea what these mean

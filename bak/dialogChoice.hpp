@@ -135,6 +135,15 @@ struct NoChoice
 {
 };
 
+struct CastSpellChoice
+{
+    // This doesn't seem to be the spell index.
+    // e.g. for Scent of Sarig it's 5 and for
+    // The Unseen it is 3, neither of which match
+    // the spell index in SPELLS.DAT...
+    unsigned mRequiredSpell;
+};
+
 struct UnknownChoice
 {
     ChoiceMask mChoiceCategory;
@@ -152,6 +161,7 @@ using Choice = std::variant<
     CustomStateChoice,
     InventoryChoice,
     ComplexEventChoice,
+    CastSpellChoice,
     UnknownChoice>;
 
 std::ostream& operator<<(std::ostream&, const Choice&);

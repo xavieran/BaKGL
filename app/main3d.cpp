@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 
     auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
     Logging::LogState::AddStream(&log);
-    Logging::LogState::SetLevel(Logging::LogLevel::Info);
+    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
     Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");

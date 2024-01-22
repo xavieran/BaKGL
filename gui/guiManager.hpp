@@ -221,7 +221,14 @@ public:
     void EnterMainView() override
     {
         mMainView.UpdatePartyMembers(mGameState);
-        DoFade(1.0,[this]{
+        // There is a bug here.
+        // If we load a save where we are in a combat
+        // we will evaluate and possibly trigger the combat
+        // while fading. This means the pop screen will
+        // pop the combat entry dialog, not the main menu
+        // screen as we want. To fix this we need to add a
+        // "in main view" state to the app...
+        DoFade(1.0, [this]{
             mScreenStack.PopScreen();
             mScreenStack.PushScreen(&mMainView);
         });

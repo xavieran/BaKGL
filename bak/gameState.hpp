@@ -303,9 +303,19 @@ public:
         }
     }
 
-    bool GetSpellActive(unsigned spell)
+    bool GetSpellActive(SpellIndex spell)
     {
         return true;
+    }
+
+    // prefer to use this function when getting best skill
+    // as it will set the appropriate internal state.
+    std::pair<CharIndex, unsigned> GetPartySkill(BAK::SkillType skill, bool best)
+    {
+        const auto [character, value] = GetParty().GetSkill(skill, best);
+        mSkillCheckedCharacter = character;
+        mSkillValue = value;
+        return std::make_pair(character, value);
     }
 
     void SetCharacterTextVariables()
@@ -350,6 +360,14 @@ public:
         case 6:
             mDialogCharacterList[index] = GetPartyLeader().mValue;
             mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(GetPartyLeader()).GetName());
+            break;
+        case 10:
+            mDialogCharacterList[index] = mActiveCharacter.mValue;
+            mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(mActiveCharacter).GetName());
+            break;
+        case 11:
+            mDialogCharacterList[index] = mSkillCheckedCharacter.mValue;
+            mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(mSkillCheckedCharacter).GetName());
             break;
         case 12: [[fallthrough]];
         case 13: [[fallthrough]];
@@ -461,15 +479,9 @@ public:
             [&](const BAK::SetTextVariable& set)
             {
                 mLogger.Debug() << "Setting text variable: " << BAK::DialogAction{set} << "\n";
-                if (set.mWhat == 0x7 || (set.mWhat >= 0xc && set.mWhat <= 0xf))
+                if (set.mWhat == 0x7 || (set.mWhat >= 0xb && set.mWhat <= 0xf))
                 {
                     SetDialogTextVariable(set.mWhich, set.mWhat);
-                }
-                else if (set.mWhat == 0xb)
-                {
-                    mTextVariableStore.SetTextVariable(
-                        set.mWhich,
-                        GetParty().GetCharacter(mActiveCharacter).GetName());
                 }
                 else if (set.mWhat == 0x11)
                 {
@@ -517,15 +529,6 @@ public:
             },
             [&](const BAK::GainSkill& skill)
             {
-                // FIXME: Implement if this skill only improves for one character
-                // Refer to dala blessing (13 @ 0xfd8c)
-                // who == 6 => apply gain to selected character (ref gamestate)
-                // who == 2 => apply gain to selected character (ref gamestate)
-                // who == 1 => apply gain to all characters
-                // Ref label: RunDialog_GainSkillAction for actual code
-                // If Skill == TotalHealth: 
-                // mValue 1 and mValue 2 refer to the upper and lower bounds of change
-                mLogger.Debug() << "Gaining skill: " << skill << "\n";
                 auto amount = skill.mMax;
                 if (skill.mMin != skill.mMax)
                 {
@@ -534,6 +537,7 @@ public:
 
                 if (skill.mWho <= 1)
                 {
+                    mLogger.Debug() << "Gaining skill: " << skill << " - with amount: " << amount << " for all chars\n";
                     GetParty().ImproveSkillForAll(
                             skill.mSkill,
                             SkillChange::Direct,
@@ -546,6 +550,8 @@ public:
                 // that starts at 0x4df2
                 else
                 {
+                    mLogger.Debug() << "Gaining skill: " << skill << " - with amount: " << amount << " for "
+                        << +mDialogCharacterList[skill.mWho - 2] << "\n";
                     auto characterToImproveSkill = mDialogCharacterList[skill.mWho - 2];
                     GetParty().GetCharacter(CharIndex{characterToImproveSkill})
                         .ImproveSkill(skill.mSkill, SkillChange::Direct, amount);
@@ -553,7 +559,6 @@ public:
             },
             [&](const BAK::GainCondition& cond)
             {
-                mLogger.Debug() << "Gaining condition: " << cond << "\n";
                 auto amount = cond.mMax;
                 if (cond.mMin != cond.mMax)
                 {
@@ -562,11 +567,14 @@ public:
                 if (cond.mWho > 1)
                 {
                     auto characterToAffect = CharIndex{mDialogCharacterList[cond.mWho - 2]};
+                    mLogger.Debug() << "Gaining condition : " << cond << " - with amount: " << amount << " for "
+                        << characterToAffect << "\n";
                     GetParty().GetCharacter(characterToAffect).GetConditions()
                         .IncreaseCondition(cond.mCondition, amount);
                 }
                 else
                 {
+                    mLogger.Debug() << "Gaining condition : " << cond << " - with amount: " << amount << " for all\n";
                     GetParty().ForEachActiveCharacter(
                         [&](auto& character){
                             character.GetConditions().IncreaseCondition(
@@ -596,25 +604,13 @@ public:
             [&](const BAK::LoadSkillValue& load)
             {
                 mLogger.Debug() << "Loading skill value: " << load << "\n";
-                const auto [character, value] = GetParty().GetSkill(
-                    load.mSkill,
-                    load.mTarget == 1); // best or worst skill
-                mSkillValue = value;
+                GetPartySkill(load.mSkill, load.mTarget == 1);
             },
             [&](const BAK::LearnSpell& learnSpell)
             {
-                // This is always 5 - which must mean the party magician
                 mLogger.Debug() << "Learning Spell: " << learnSpell << "\n";
-                assert(learnSpell.mWho == 5);
-                mParty.ForEachActiveCharacter(
-                    [&](auto& character){
-                        if (character.IsSpellcaster())
-                        {
-                            character.GetSpells().SetSpell(learnSpell.mWhichSpell);
-                            return true;
-                        }
-                        return false;
-                    });
+                mParty.GetCharacter(CharIndex{mDialogCharacterList[learnSpell.mWho]})
+                    .GetSpells().SetSpell(learnSpell.mWhichSpell);
             },
             [&](const auto& a){
                 mLogger.Debug() << "Doing nothing for: " << a << "\n";
@@ -754,6 +750,12 @@ public:
             },
             [&](const GameStateChoice& c){
                 return EvaluateGameStateChoice(c);
+            },
+            [&](const CastSpellChoice& c)
+            {
+                //if (c.mRequiredSpell == 5) // scent of sarig
+                //if (c.mRequiredSpell == 3) // the unseen
+                return true;
             },
             [&](const CustomStateChoice& c)
             {
@@ -1013,7 +1015,14 @@ public:
 
     std::optional<CharIndex> mDialogCharacter;
     CharIndex mActiveCharacter;
+    CharIndex mSkillCheckedCharacter;
 
+    // 0 - defaults to someone other than party leader
+    // 1 - will be selected so as not to equal 0
+    // 2 - will be selected so as not to be either 0 or 1
+    // 3 - party magician
+    // 4 - party leader
+    // 5 - party warrior
     std::array<std::uint8_t, 6> mDialogCharacterList;
 
     GameData* mGameData;

@@ -1,5 +1,7 @@
 #include "bak/dialogChoice.hpp"
 
+#include "bak/spells.hpp"
+
 #include "com/logger.hpp"
 
 namespace BAK {
@@ -120,6 +122,13 @@ std::ostream& operator<<(std::ostream& os, const ComplexEventChoice& c)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const CastSpellChoice& c)
+{
+    os << ToString(ChoiceMask::CastSpell) << " " << c.mRequiredSpell << "\n";
+    return os;
+}
+
+
 std::ostream& operator<<(std::ostream& os, const UnknownChoice& c)
 {
     os << ToString(c.mChoiceCategory) << " " << std::hex << 
@@ -219,6 +228,8 @@ Choice CreateChoice(
             static_cast<std::uint8_t>(choice1 & 0xff),
             static_cast<std::uint8_t>(choice1 >> 8)
         };
+    case ChoiceMask::CastSpell:
+        return CastSpellChoice{static_cast<unsigned>(state) - 0xcb21};
     default:
         return UnknownChoice{
             mask,

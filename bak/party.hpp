@@ -239,7 +239,7 @@ public:
         return std::make_pair(character, *skillValue);
     }
 
-    void ImproveSkillForAll(SkillType skill, SkillChange skillChangeType, unsigned multiplier)
+    void ImproveSkillForAll(SkillType skill, SkillChange skillChangeType, int multiplier)
     {
         for (const auto c : mActiveCharacters)
         {

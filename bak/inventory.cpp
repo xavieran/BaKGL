@@ -126,6 +126,23 @@ bool Inventory::RemoveItem(BAK::InventoryIndex item)
     return false;
 }
 
+bool Inventory::RemoveItem(BAK::InventoryIndex index, unsigned quantity)
+{
+    ASSERT(index.mValue < mItems.size());
+    if (index.mValue < mItems.size())
+    {
+        auto& item = mItems[index.mValue];
+        ASSERT(quantity <= item.GetQuantity());
+        item.SetQuantity(item.GetQuantity() - quantity);
+        if (item.GetQuantity() == 0)
+        {
+            mItems.erase(mItems.begin() + index.mValue);
+        }
+        return true;
+    }
+    return false;
+}
+
 bool Inventory::RemoveItem(const InventoryItem& item)
 {
     if ((item.IsStackable() || item.IsChargeBased())

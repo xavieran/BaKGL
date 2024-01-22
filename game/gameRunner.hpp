@@ -189,16 +189,16 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
-                {
-                    mSystems->AddRenderable(
-                        Renderable{
-                            id,
-                            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                            enc.GetLocation(),
-                            glm::vec3{0.0},
-                            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-                }
+                //if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
+                //{
+                //    mSystems->AddRenderable(
+                //        Renderable{
+                //            id,
+                //            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                //            enc.GetLocation(),
+                //            glm::vec3{0.0},
+                //            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                //}
 
                 mSystems->AddIntersectable(
                     Intersectable{
@@ -285,7 +285,7 @@ public:
                 {
                     mGameState.Apply(BAK::State::SetRecentlyEncountered, encounter.GetIndex().mValue);
                     auto chance = GetRandomNumber(0, 0xfff) % 100;
-                    const auto [character, scoutSkill] = mGameState.GetParty().GetSkill(BAK::SkillType::Scouting, true);
+                    const auto [character, scoutSkill] = mGameState.GetPartySkill(BAK::SkillType::Scouting, true);
                     mLogger.Info() << __FUNCTION__ << " Trying to scout combat: "
                         << scoutSkill << " chance: " << chance << "\n";
                     if (scoutSkill > chance)
@@ -331,7 +331,7 @@ public:
             return;
         }
 
-        const auto [character, stealthSkill] = mGameState.GetParty().GetSkill(BAK::SkillType::Stealth, false);
+        const auto [character, stealthSkill] = mGameState.GetPartySkill(BAK::SkillType::Stealth, false);
         auto lowestStealth = stealthSkill;
         if (lowestStealth < 0x5a) // 90
         {
@@ -342,10 +342,10 @@ public:
 
         if (combat.mIsAmbush)
         {
-            //if (isSpellActive(Spell_0)) // dragon's breath
-            //{
-            //    lowestStealth = lowestStealth + ((100 - lowestStealth) >> 1)
-            //}
+            if (mGameState.GetSpellActive(BAK::DragonsBreath))
+            {
+                lowestStealth = lowestStealth + ((100 - lowestStealth) >> 1);
+            }
         }
 
         auto chance = GetRandomNumber(0, 0xfff) % 100;
@@ -595,8 +595,8 @@ public:
                     DoBlockEncounter(encounter, block);
             },
             [&](const BAK::Encounter::Combat& combat){
-                if (mGuiManager.mScreenStack.size() == 1)
-                    CheckAndDoCombatEncounter(encounter, combat);
+                //if (mGuiManager.mScreenStack.size() == 1)
+                //    CheckAndDoCombatEncounter(encounter, combat);
             },
             [&](const BAK::Encounter::Dialog& dialog){
                 if (mGuiManager.mScreenStack.size() == 1)

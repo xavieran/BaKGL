@@ -51,8 +51,15 @@ ItemUseResult RepairItem(
         sourceItem.GetItemUseSound(),
         KeyTarget{0}};
 
-    character.RemoveItem(
-        InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
+    if (targetItem.IsItemType(BAK::ItemType::Crossbow))
+    {
+        character.RemoveItem(
+            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
+    }
+    else
+    {
+        character.GetInventory().RemoveItem(sourceItemIndex, 1);
+    }
 
     return result;
 }

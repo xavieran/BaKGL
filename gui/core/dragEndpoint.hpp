@@ -23,7 +23,7 @@ public:
 
     bool OnDragEvent(const DragEvent& event) override
     {
-        evaluate_if<DragEnded>(event, [&](const auto& e){
+        return evaluate_if<DragEnded>(event, [&](const auto& e){
             if (Base::Within(e.mValue))
             {
                 ASSERT(e.mWidget);
@@ -31,9 +31,10 @@ public:
                 std::invoke(
                     mCallback,
                     static_cast<DraggedT&>(*e.mWidget));
+                return true;
             }
+            return false;
         });
-        return false;
     }
 
 private:

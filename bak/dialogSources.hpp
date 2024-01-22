@@ -140,8 +140,10 @@ public:
     static constexpr auto mWordlockIntro     = KeyTarget{0xc};
     static constexpr auto mCantOpenWorldock  = KeyTarget{0xd};
     static constexpr auto mOpenedWordlock    = KeyTarget{0xe};
+    static constexpr auto mTrappedChestExplodes = KeyTarget{0xc0};
     static constexpr auto mOpenUnlockedBox   = KeyTarget{0xc2};
     static constexpr auto mOpenTrappedBox    = KeyTarget{0xbe};
+    static constexpr auto mDisarmedTrappedBox = KeyTarget{0xbf};
     static constexpr auto mChooseUnlock      = KeyTarget{0x4f};
     static constexpr auto mOpenExplodedChest = KeyTarget{0x13d};
 

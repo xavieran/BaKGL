@@ -10,6 +10,8 @@
 #include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
 
+#include "com/logger.hpp"
+
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 
@@ -71,17 +73,22 @@ public:
         }
         else
         {
-            // Scent of sarig aactive and chest is trapped
-            if (mGameState.GetSpellActive(5) && chest.GetLock().mLockFlag == 4)
+            // Scent of sarig active and chest is trapped
+            if (mGameState.GetSpellActive(BAK::ScentOfSarig)
+                && chest.GetLock().mLockFlag == 4 && chest.GetLock().mTrapDamage > 0)
             {
-                // Box is trapped, do we want to open it?
                 StartDialog(BAK::DialogSources::mOpenTrappedBox);
+            }
+            // Scent of sarig not active and chest was trapped, chest is incinerated
+            else if (chest.GetLock().mLockFlag == 4 && chest.GetLock().mTrapDamage == 0)
+            {
+                StartDialog(BAK::DialogSources::mOpenExplodedChest);
             }
             // Chest is not trapped
             else if (chest.GetLock().mLockFlag == 1)
             {
                 ASSERT(chest.GetLock().mLockFlag == 1);
-                StartDialog(BAK::DialogSources::mOpenExplodedChest);
+                StartDialog(BAK::DialogSources::mChooseUnlock);
             }
             else
             {
@@ -141,11 +148,13 @@ public:
             if (openChest)
             {
                 auto& lock = mCurrentChest->GetLock();
-                if (mGameState.GetSpellActive(5) && lock.mLockFlag == 4)
+                if (mGameState.GetSpellActive(BAK::ScentOfSarig)
+                    && lock.mLockFlag == 4 && lock.mTrapDamage > 0)
                 {
                     TryDisarmTrap();
                 }
-                else if (lock.mLockFlag == 1)
+                else if ((lock.mLockFlag == 4 && lock.mTrapDamage == 0)
+                    || lock.mLockFlag == 1)
                 {
                     mState = State::Idle;
                     ShowChestContents();
@@ -175,7 +184,7 @@ public:
         ASSERT(mCurrentChest);
         auto& lock = mCurrentChest->GetLock();
         const auto& [character, skill] = mGameState
-            .GetParty().GetSkill(BAK::SkillType::Lockpick, true);
+            .GetPartySkill(BAK::SkillType::Lockpick, true);
         if (skill > lock.mRating)
         {
             mGameState.GetParty()
@@ -184,10 +193,9 @@ public:
                     BAK::SkillType::Lockpick,
                     BAK::SkillChange::ExercisedSkill,
                     2);
-            lock.mLockFlag = 1;
             lock.mTrapDamage = 0;
             mState = State::DisarmedTrap;
-            StartDialog(BAK::KeyTarget{0xbf});
+            StartDialog(BAK::DialogSources::mDisarmedTrappedBox);
         }
         else
         {
@@ -197,9 +205,13 @@ public:
 
     void Explode()
     {
-        // Do TrapDamage amount of damage to party
+        ASSERT(mCurrentChest->HasLock());
+        mGameState.GetParty().ImproveSkillForAll(
+            BAK::SkillType::TotalHealth,
+            BAK::SkillChange::HealMultiplier_100,
+            -(mCurrentChest->GetLock().mTrapDamage << 8));
         mCurrentChest->GetLock().mTrapDamage = 0;
-        StartDialog(BAK::KeyTarget{0xc0});
+        StartDialog(BAK::DialogSources::mTrappedChestExplodes);
         mState = State::Exploded;
         AudioA::AudioManager::Get().PlaySound(sExploded);
     }

@@ -166,6 +166,7 @@ public:
     void AddItem(const InventoryItem& item);
     bool RemoveItem(const InventoryItem& item);
     bool RemoveItem(BAK::InventoryIndex item);
+    bool RemoveItem(BAK::InventoryIndex item, unsigned quantity);
 
     void CheckPostConditions();
 

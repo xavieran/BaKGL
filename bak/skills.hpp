@@ -38,7 +38,10 @@ enum class SkillChange
     Direct = 0,
     FractionOfSkill = 1,
     DifferenceOfSkill = 2,
-    ExercisedSkill = 3
+    ExercisedSkill = 3,
+
+    HealMultiplier_80 = 80,
+    HealMultiplier_100 = 100
 };
 
 enum class SkillRead
@@ -142,7 +145,7 @@ public:
     void ImproveSkill(
         SkillType skill, 
         SkillChange skillChangeType,
-        unsigned multiplier);
+        int multiplier);
 
     friend std::ostream& operator<<(std::ostream&, const Skills&);
 private:

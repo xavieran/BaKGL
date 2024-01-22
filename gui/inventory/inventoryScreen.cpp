@@ -330,6 +330,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
         }
         else
         {
+            mGameState.SetActiveCharacter(srcC.mCharacterIndex);
             StartDialog(BAK::DialogSources::mCantDiscardOnlyWeapon);
         }
 
@@ -355,8 +356,9 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
     }
     else
     {
-        // Set source and dest cahracter indices here..
         mGameState.SetDialogContext(1);
+        mGameState.SetActiveCharacter(
+            GetCharacter(dest).mCharacterIndex);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
     }
 
@@ -459,6 +461,8 @@ void InventoryScreen::TransferItemToShop(
         && (item.IsItemType(BAK::ItemType::Sword)
             || item.IsItemType(BAK::ItemType::Staff)))
     {
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mCantDiscardOnlyWeapon);
         return;
     }
@@ -466,6 +470,8 @@ void InventoryScreen::TransferItemToShop(
     if (mShopScreen.CanBuyItem(slot.GetItem()))
     {
         mGameState.SetItemValue(mShopScreen.GetBuyPrice(slot.GetItem()));
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mSellItemDialog);
 
         mDialogScene.SetDialogFinished(
@@ -482,6 +488,8 @@ void InventoryScreen::TransferItemToShop(
     else if (false) // Shop has no room for item, what triggers this??
     {
         mGameState.SetDialogContext(0xa);
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
     }
     else
@@ -502,6 +510,8 @@ void InventoryScreen::TransferItemFromShopToCharacter(
         && mGameState.GetParty().GetCharacter(character)
             .GetConditions().GetCondition(BAK::Condition::Drunk).Get() >= 100)
     {
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mCantBuyTooDrunk);
         return;
     }
@@ -515,6 +525,8 @@ void InventoryScreen::TransferItemFromShopToCharacter(
         }
 
         mGameState.SetItemValue(sellPrice);
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mBuyItemDialog);
 
         mDialogScene.SetDialogFinished(
@@ -526,7 +538,7 @@ void InventoryScreen::TransferItemFromShopToCharacter(
                     BuyItem(slot, character, share, amount);
                     mDialogScene.ResetDialogFinished();
                 }
-                else if (choice->mValue == BAK::Keywords::sDeclineIndex)
+                else if (choice->mValue == BAK::Keywords::sHaggleIndex)
                 {
                     HaggleItem(slot, character);
                 }
@@ -535,6 +547,8 @@ void InventoryScreen::TransferItemFromShopToCharacter(
     else
     {
         mGameState.SetDialogContext(0xb);
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
     }
 }
@@ -550,6 +564,8 @@ void InventoryScreen::HaggleItem(
     if (item.GetItemIndex() == BAK::sScroll)
     {
         mDialogScene.ResetDialogFinished();
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mCantHaggleScroll);
         return;
     }
@@ -564,6 +580,8 @@ void InventoryScreen::HaggleItem(
     if (!result)
     {
         mDialogScene.ResetDialogFinished();
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
         mNeedRefresh = true;
         return;
@@ -575,11 +593,15 @@ void InventoryScreen::HaggleItem(
     if (result && value == BAK::sUnpurchaseablePrice)
     {
         mDialogScene.ResetDialogFinished();
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
         mNeedRefresh = true;
     }
     else
     {
+        mGameState.SetActiveCharacter(
+            GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mSucceedHaggle);
         mDialogScene.SetDialogFinished(
             [this, &slot, character](const auto& choice)
@@ -648,7 +670,7 @@ void InventoryScreen::SplitStackBeforeTransferItemToCharacter(
         return;
 
     // Can't buy split stacks from shops
-    if (slot.GetItem().IsStackable() 
+    if (slot.GetItem().IsStackable()  && (slot.GetItem().GetQuantity() > 1)
         && (!mDisplayContainer || !mContainer || !mContainer->IsShop()))
     {
         const auto maxAmount = GetCharacter(character).GetInventory()
@@ -727,6 +749,8 @@ void InventoryScreen::MoveItemToContainer(
         && (item.IsItemType(BAK::ItemType::Sword)
             || item.IsItemType(BAK::ItemType::Staff)))
     {
+        mGameState.SetActiveCharacter(
+            GetCharacter(*mSelectedCharacter).mCharacterIndex);
         StartDialog(BAK::DialogSources::mCantDiscardOnlyWeapon);
         return;
     }
@@ -751,6 +775,8 @@ void InventoryScreen::MoveItemToContainer(
     }
     else
     {
+        mGameState.SetActiveCharacter(
+            GetCharacter(*mSelectedCharacter).mCharacterIndex);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
     }
 
@@ -789,6 +815,8 @@ void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
     auto& item = GetCharacter(*mSelectedCharacter).GetInventory()
         .GetAtIndex(inventoryIndex);
     mLogger.Debug() << "UseItem: " << item << "\n";
+    mGameState.SetActiveCharacter(
+        GetCharacter(*mSelectedCharacter).mCharacterIndex);
     if (item.IsItemType(BAK::ItemType::Note))
     {
         mGameState.SetDialogContext(item.GetQuantity());
@@ -833,6 +861,7 @@ void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex
     mGameState.SetInventoryItem(sourceItemSlot.GetItem());
     mGameState.SetDialogContext(sourceItemSlot.GetItem().GetItemIndex().mValue);
     mGameState.GetTextVariableStore().SetTextVariable(1, sourceItemSlot.GetItem().GetObject().mName);
+    mGameState.SetActiveCharacter(character.mCharacterIndex);
     const auto result = BAK::ApplyItemTo(character, sourceItemSlot.GetItemIndex(), targetItemIndex);
 
     character.CheckPostConditions();

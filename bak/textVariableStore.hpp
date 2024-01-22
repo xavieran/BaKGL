@@ -29,9 +29,6 @@ public:
         mTextVariables.clear();
     }
 
-    // variable 3: party magician
-    // variable 4: party leader
-    // variable 5: party non-magician
     void SetTextVariable(unsigned variable, std::string value)
     {
         mLogger.Debug() << "Setting " << variable << " to " << value << "\n";
