@@ -414,7 +414,7 @@ int main(int argc, char** argv)
 			console.Draw("Console", &consoleOpen);
 		}
 
-        if (gameRunner.mGameState.mGameData)
+        if (gameRunner.mGameState.mGameData && guiManager.InMainView())
         {
             gameRunner.RunGameUpdate();
         }

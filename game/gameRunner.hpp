@@ -595,8 +595,8 @@ public:
                     DoBlockEncounter(encounter, block);
             },
             [&](const BAK::Encounter::Combat& combat){
-                //if (mGuiManager.mScreenStack.size() == 1)
-                //    CheckAndDoCombatEncounter(encounter, combat);
+                if (mGuiManager.mScreenStack.size() == 1)
+                    CheckAndDoCombatEncounter(encounter, combat);
             },
             [&](const BAK::Encounter::Dialog& dialog){
                 if (mGuiManager.mScreenStack.size() == 1)
