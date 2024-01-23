@@ -102,4 +102,6 @@ bool CheckRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
 void ClearTileRecentEncounters(FileBuffer&);
 void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex);
 
+Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex);
+
 }

@@ -2,6 +2,7 @@
 #include "bak/save.hpp"
 #include "bak/spells.hpp"
 
+#include "bak/state/encounter.hpp"
 #include "bak/state/skill.hpp"
 
 #include "bak/container.hpp"
@@ -49,6 +50,7 @@ GameData::GameData(const std::string& save)
     LoadCombatStats(0x914b, 1698);
     LoadCombatGridLocations();
     LoadCombatWorldLocations();
+    LoadCombatClickedTimes();
 }
 
 void GameData::SetTimeExpiringState(
@@ -482,6 +484,19 @@ std::vector<GenericContainer> GameData::LoadCombatInventories()
     }
 
     return containers;
+}
+
+void GameData::LoadCombatClickedTimes()
+{
+    mLogger.Info() << "Loading Combat Clicked Times" << std::endl;
+    for (unsigned i = 0; i < 100; i++)
+    {
+        auto time = State::GetCombatClickedTime(mBuffer, i);
+        if (time.mTime > 0)
+        {
+            mLogger.Info() << "Combat #" << i << " time: " << time << "\n";
+        }
+    }
 }
 
 }

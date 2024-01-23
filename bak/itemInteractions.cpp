@@ -6,6 +6,7 @@
 #include "bak/sounds.hpp"
 
 #include "com/logger.hpp"
+#include "com/random.hpp"
 
 namespace BAK {
 
@@ -275,4 +276,55 @@ ItemUseResult ApplyItemTo(
         KeyTarget{0}};
 }
 
+/*
+ItemUseResult ReadBook(
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    auto& object = item.GetObject();
+    assert(item.GetCondition() > 0);
+    assert(object.mEffectMask != 0);
+
+    bool haveReadBefore = false;
+    std::optional<std::pair<SkillChange, unsigned>> improvement;
+    if (haveReadBefore)
+    {
+        auto chance = GetRandomNumber(0, 0xfff) % 0x64;
+        if (chance > object.mPotionPowerOrBookChance)
+        {
+            improvement = std::make_pair(SkillChange::DifferenceOfSkill, object.mAlternativeEffect);
+        }
+    }
+    else
+    {
+        improvement = std::make_pair(SkillChange::Direct, object.mEffect);
+    }
+    
+    if (improvement)
+    {
+        auto [skillChange, amount] = *improvement;
+        for (unsigned i = 0; i < 0x10; i++)
+        {
+            auto skill = static_cast<SkillType>(i);
+            if (CheckBitSet(object.mEffectMask, skill))
+            {
+                character.ImproveSkill(skill, skillChange, amount);
+            }
+        }
+    }
+}
+
+ItemUseResult UseItem(
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    auto& object = item.GetObject();
+    if  (object.mType == ItemType::Book)
+    {
+        ReadBook(character, inventoryIndex);
+    }
+}
+*/
 }

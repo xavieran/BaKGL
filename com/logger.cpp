@@ -21,6 +21,7 @@ std::string_view LevelToString(LogLevel level)
 
 LogLevel LogState::sGlobalLogLevel{LogLevel::Info};
 std::string LogState::sTimeFormat{"%H:%M:%S.%m"};
+bool LogState::sLogTime{true};
 
 std::vector<std::string> LogState::sEnabledLoggers{};
 std::vector<std::string> LogState::sDisabledLoggers{};

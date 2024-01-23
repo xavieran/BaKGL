@@ -356,14 +356,12 @@ public:
                 BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
 
             mLogger.Debug() << __FUNCTION__ << " Avoided combat due to stealth\n";
-            return; // avoided combat due to stealth!
+            return;
         }
 
         // Check whether players are in valid combatable position???
-        //auto timeOfScouting = LoadTimeOfPlanningCombat(combat.mCombatIndex);
-        auto timeOfScouting = 0;
-        //auto timeDiff = mGameState.GetWorldTime().mTime.mTime - timeOfScouting;
-        auto timeDiff = 0;
+        auto timeOfScouting = mGameState.Apply(BAK::State::GetCombatClickedTime, combat.mCombatIndex);
+        auto timeDiff = mGameState.GetWorldTime().mTime.mTime - timeOfScouting;
         if ((timeDiff / 0x1e) < 0x1e) // within scouting valid time
         {
             auto chance = GetRandomNumber(0, 0xfff) % 100;
@@ -431,8 +429,9 @@ public:
 
         mGameState.Apply(BAK::State::SetPostCombatCombatSpecificFlags, combat.mCombatIndex);
         // This is a part of the above function, but I separate it out here
-        // to keep things cleaner
-        if (combat.mCombatIndex == 74)
+        // to keep things cleaner. Yes this is hardcoded in the game code.
+        static constexpr auto NagoCombatIndex = 74;
+        if (combat.mCombatIndex == NagoCombatIndex)
         {
             // I happen to know all this "dialog" does is set a bunch of flags,
             // so it's safe to do this rather than triggering an actual dialog.

@@ -19,4 +19,8 @@ ItemUseResult ApplyItemTo(
     InventoryIndex sourceItem,
     InventoryIndex targetItem);
 
+ItemUseResult UseItem(
+    Character&,
+    InventoryIndex sourceItem);
+
 }

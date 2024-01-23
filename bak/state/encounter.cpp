@@ -328,4 +328,19 @@ void ZeroCombatClicked(unsigned combatIndex)
 {
     auto offset = (combatIndex * 0xe) + 0x131f;
 }
+
+Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex)
+{
+    static constexpr auto offset = 0x4457 + 0x64;
+    fb.Seek(offset + (combatIndex << 2));
+    return Time{fb.GetUint32LE()};
+}
+
+void SetCombatClickedTime(FileBuffer& fb, unsigned combatIndex, Time time)
+{
+    static constexpr auto offset = 0x4457 + 0x64;
+    fb.Seek(offset + (combatIndex << 2));
+    fb.PutUint32LE(time.mTime);
+}
+
 }

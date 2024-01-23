@@ -39,6 +39,11 @@ public:
     {
         sGlobalLogLevel = level;
     }
+    
+    static void SetLogTime(bool value)
+    {
+        sTimeFormat = value;
+    }
 
     static std::ostream& Log(LogLevel level, const std::string& loggerName)
     {
@@ -83,21 +88,26 @@ public:
 private:
     static std::ostream& DoLog(LogLevel level, const std::string& loggerName)
     {
-        const auto t = std::chrono::system_clock::now();
-        const auto time = std::chrono::system_clock::to_time_t(t);
-        auto gmt_time = tm{};
+        std::string ts{};
+        if (sLogTime)
+        {
+            const auto t = std::chrono::system_clock::now();
+            const auto time = std::chrono::system_clock::to_time_t(t);
+            auto gmt_time = tm{};
 #ifdef _MSC_VER
-        gmtime_s(&gmt_time , &time);
+            gmtime_s(&gmt_time , &time);
 #else
-        gmtime_r(&time, &gmt_time);
+            gmtime_r(&time, &gmt_time);
 #endif
-        auto ts = std::put_time(&gmt_time, sTimeFormat.c_str());
+            auto ts = std::put_time(&gmt_time, sTimeFormat.c_str());
+        }
 
         return sOutput << ts << " " << LevelToString(level) << " [" << loggerName << "] ";
     }
 
     static LogLevel sGlobalLogLevel;
     static std::string sTimeFormat;
+    static bool sLogTime;
 
     static std::vector<std::string> sEnabledLoggers;
     static std::vector<std::string> sDisabledLoggers;

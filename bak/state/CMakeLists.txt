@@ -2,6 +2,7 @@ add_library(bakState
     dialog.hpp dialog.cpp
     encounter.hpp encounter.cpp
     event.hpp event.cpp
+    item.hpp item.cpp
     lock.hpp lock.cpp
     offsets.hpp
     skill.hpp skill.cpp
