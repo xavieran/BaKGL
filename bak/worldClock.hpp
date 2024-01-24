@@ -40,8 +40,17 @@ struct Time
         return mTime * 2;
     }
 
-    std::uint32_t mTime;
+    Time operator*(const Time& lhs) const
+    {
+        return Time(mTime * lhs.mTime);
+    }
 
+    Time operator/(const Time& lhs) const
+    {
+        return Time(mTime / lhs.mTime);
+    }
+
+    std::uint32_t mTime;
 };
 
 std::string ToString(Time t);

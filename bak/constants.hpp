@@ -3,6 +3,7 @@
 #include <string>
 
 #include "bak/types.hpp"
+#include "bak/worldClock.hpp"
 
 namespace BAK {
 
@@ -62,5 +63,11 @@ enum class Actor
     UgyneCorvalis = 8,
     SquirePhillip = 24
 };
+
+namespace Times {
+static constexpr auto HalfHour = Time{0x384};
+static constexpr auto OneHour = Time{0x708};
+static constexpr auto OneDay = Time{0xa8c0};
+}
 
 }

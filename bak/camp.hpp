@@ -24,49 +24,96 @@ private:
 
 class MakeCamp
 {
+    MakeCamp(GameState& gameState)
+    :
+        mGameState{gameState}
+    {}
+
+    void ImproveActiveCharactersHealthAndStamina()
+    {
+    }
+
+    void PartyConsumeRations()
+    {
+        // if (HaveNormalRations)
+        // {
+        //  ReduceStarving(100)
+        // }
+        // else if (HaveSpoiledRations)
+        // {
+        //     SetStarving(100);
+        // }
+        // else if (HavePoisonedRations)
+        // {
+        //   increase posioned by 4
+        // }
+        // else // no rations of any kind
+        // {
+        //  increase starving by 5
+        // }
+    }
+
     void Camp(unsigned hours, unsigned healPercent)
     {
 //ovr181:24a
 
-//handleGameTimeChange
-//4221:7b5
+    }
+
+    void HandleGameTimeChange(
+        unsigned timeDelta,
+        unsigned arg4,
+        unsigned passedMidnight,
+        unsigned arg8,
+        unsigned percentage) // inn vs outdoors heal percentage?
+    {
+        //handleGameTimeChange
+        //4221:7b5
         auto currentTime = 0;
-        auto timeDeltaHours = hours * 0x708;
-        auto hourOfDay = (currentTime % 0xa8c0) / 0x708;
+        auto timeDeltaHours = Time{timeDelta} * Times::OneHour;
+        auto hourOfDay = Time(currentTime % Times::OneDay.mTime) / Times::OneHour;
 
-        auto daysElapsed_cx = currentTime / 0xa8c0;
-        currentTime += timeDeltaHours;
-        auto daysElapedNow = currentTime / 0xa8c0;
-        if (daysElapedNow != daysElapsed_cx)
+        auto daysElapsedBefore = currentTime / Times::OneDay.mTime;
+        currentTime += timeDeltaHours.mTime;
+        auto daysElapsedAfter = currentTime / Times::OneDay.mTime;
+        if (daysElapsedAfter != daysElapsedBefore)
         {
-        }
-        else
-        {
-            auto newHourOfDay = (currentTime % 0xa8c0) / 0x708;
-            if (newHourOfDay != hourOfDay)
+            if (daysElapsedAfter > 30)
             {
-                auto arg4 = 1;
-                auto arg8 = 0;
-
-                HandleGameTimeIncreased(
-                    arg4, 
-                    arg8,
-                    healPercent);
+                ImproveActiveCharactersHealthAndStamina();
             }
+            if (passedMidnight)
+            {
+                PartyConsumeRations();
+            }
+            //IncreaseAllCharactersConditionByConditionAmount;
         }
+        auto newHourOfDay = (currentTime % Times::OneDay.mTime) / Times::OneHour.mTime;
+        if (newHourOfDay != hourOfDay.mTime)
+        {
+            auto arg4 = 1;
+            auto arg8 = 0;
+
+            HandleGameTimeIncreased(
+                arg4, 
+                arg8,
+                percentage);
+        }
+
+        //EvaluateTimeExpiringState(timeDelta);
     }
 
     // HandleGameTimeChangeFromSleep calls HandleGameTimeIncreased with:
-    // HandleGameTimeIncreased(timeDeltaHours, 1, 1, healPercent??)
+    //     HandleGameTimeIncreased(timeDeltaHours, 1, 1, healPercent??)
     // RunDialog calls it with
-    // HandleGameTimeIncreased(0x708 or timeDelta,1, charSkillWho?, 0
+    //     HandleGameTimeChange(0x708 or timeDelta,1, charSkillWho?, 0
     // RepairScreen calls it with
+    //     HandleGameTimeChange(0x708, varA, 1, 1)
     // MainView calls it twice with either
-    // HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
-    // HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
+    //     HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
+    //     HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
     // MapView calls it twice with either
-    // HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
-    // HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
+    //     HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
+    //     HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
 
     void HandleGameTimeIncreased(
         unsigned x,

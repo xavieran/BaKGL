@@ -322,7 +322,7 @@ private:
 
     void HandleTick(unsigned index, bool isLast)
     {
-        mGameState.ElapseTime(BAK::Time{0x708}); // 1 hour...
+        mGameState.ElapseTime(BAK::Times::OneHour);
         if (isLast || (mState == State::CampingTilHealed && !AnyCharacterCanHeal()))
         {
             FinishedTicking(index);
