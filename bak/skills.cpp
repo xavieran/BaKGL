@@ -283,10 +283,9 @@ signed DoAdjustHealth(
             if (isPlayerCharacter)
             {
                 conditions.AdjustCondition(skills, Condition::NearDeath, 100);
-                // I don't think this return is in the original code
-                // ... when we acquire plagued while having near death and sleep 
-                // once we should health go to 0
-                return 0;
+                // This doesn't always return the right results. e.g.
+                // if just about to die due to sleeping, health ends up at
+                // 1 rather than 0
             }
         }
     }
