@@ -13,5 +13,6 @@ void Save(const Inventory&, FileBuffer&);
 void Save(const GenericContainer&, FileBuffer&);
 void Save(const Character&, FileBuffer&);
 void Save(const Party&, FileBuffer&);
+void Save(const WorldClock&, FileBuffer&);
 
 }

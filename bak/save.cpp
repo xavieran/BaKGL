@@ -137,4 +137,11 @@ void Save(const Party& party, FileBuffer& fb)
         fb.PutUint8(charIndex.mValue);
 }
 
+void Save(const WorldClock& worldClock, FileBuffer& fb)
+{
+    fb.Seek(GameData::sTimeOffset);
+    fb.PutUint32LE(worldClock.GetTime().mTime);
+    fb.PutUint32LE(worldClock.GetTimeLastSlept().mTime);
+}
+
 }

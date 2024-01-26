@@ -83,7 +83,9 @@ int main(int argc, char** argv)
         glm::vec3{.2, -.1, .05},
         glm::vec3{.5, .5, .5},
         glm::vec3{1,.85,.87},
-        glm::vec3{.2,.2,.2}
+        glm::vec3{.2,.2,.2},
+        .0005f,
+        glm::vec3{.15, .31, .36}
     };
 
     auto systems = Systems{};

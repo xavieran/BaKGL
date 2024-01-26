@@ -35,9 +35,11 @@ extern "C" {
 
 #include <GLFW/glfw3.h>
 
+#include <cmath>
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <numbers>
 #include <sstream>
 
 #undef main
@@ -196,10 +198,12 @@ int main(int argc, char** argv)
     logger.Info() << " Starting on tile: " << currentTile << "\n";
 
     Graphics::Light light{
-        glm::vec3{.2, -.1, .05},
+        glm::vec3{.0, -.25, .00},
         glm::vec3{.5, .5, .5},
         glm::vec3{1,.85,.87},
-        glm::vec3{.2,.2,.2}
+        glm::vec3{.2,.2,.2},
+        .0005f,
+        glm::vec3{.15, .31, .36}
     };
 
     const auto UpdateLightCamera = [&]{
@@ -365,6 +369,32 @@ int main(int argc, char** argv)
         glDisable(GL_BLEND);
         glDisable(GL_MULTISAMPLE);  
 
+        double bakTimeOfDay = (gameState.GetWorldTime().GetTime().mTime % 43200);
+        auto twoPi = std::numbers::pi_v<double> * 2.0;
+        // light starts at 6 after midnight
+        auto sixHours = 7200.0;
+        auto beginDay = bakTimeOfDay - sixHours;
+        bool isNight = bakTimeOfDay < 7200|| bakTimeOfDay > 36000;
+        light.mDirection = glm::vec3{
+            std::cos(beginDay * (twoPi / (28800 * 2))),
+            isNight ? .1 : -.25,
+            0};
+        float ambient = isNight
+            ? .05
+            : std::sin(beginDay * (twoPi / 57600));
+        light.mAmbientColor = glm::vec3{ambient};
+        light.mDiffuseColor = ambient * glm::vec3{
+            1.,
+            std::sin(beginDay * (twoPi / (57600 * 2))),
+            std::sin(beginDay * (twoPi / (57600 * 2)))
+        };
+
+        light.mSpecularColor = isNight ? glm::vec3{0} : ambient * glm::vec3{
+            1.,
+            std::sin(beginDay * (twoPi / (57600 * 2))),
+            std::sin(beginDay * (twoPi / (57600 * 2)))
+        };
+        light.mFogColor = ambient * glm::vec3{.15, .31, .36};
         renderer.DrawForPicking(
             gameRunner.mSystems->GetRenderables(),
             gameRunner.mSystems->GetSprites(),
@@ -384,7 +414,7 @@ int main(int argc, char** argv)
 
         glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
         // Dark blue background
-        glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
+        glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderer.DrawWithShadow(
             gameRunner.mSystems->GetRenderables(),

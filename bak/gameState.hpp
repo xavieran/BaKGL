@@ -936,6 +936,7 @@ public:
     {
         if (mGameData)
         {
+            BAK::Save(GetWorldTime(), mGameData->GetFileBuffer());
             BAK::Save(GetParty(), mGameData->GetFileBuffer());
 
             for (const auto& container : mGDSContainers)
@@ -958,6 +959,7 @@ public:
     {
         if (mGameData)
         {
+            BAK::Save(GetWorldTime(), mGameData->GetFileBuffer());
             BAK::Save(GetParty(), mGameData->GetFileBuffer());
 
             for (const auto& container : mGDSContainers)

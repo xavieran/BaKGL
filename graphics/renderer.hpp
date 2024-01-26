@@ -13,6 +13,8 @@ struct Light
     glm::vec3 mAmbientColor;
     glm::vec3 mDiffuseColor;
     glm::vec3 mSpecularColor;
+    float mFogStrength;
+    glm::vec3 mFogColor;
 };
 
 class Renderer
@@ -196,8 +198,8 @@ public:
         shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
         shader.SetUniform(shader.GetUniformLocation("shadowMap"), 1);
 
-        shader.SetUniform(shader.GetUniformLocation("fogStrength"), Float{0.0005f});
-        shader.SetUniform(shader.GetUniformLocation("fogColor"), glm::vec3{.15, .31, .36});
+        shader.SetUniform(shader.GetUniformLocation("fogStrength"), Float{light.mFogStrength});
+        shader.SetUniform(shader.GetUniformLocation("fogColor"), light.mFogColor);
 
         shader.SetUniform(shader.GetUniformLocation("light.mDirection"), light.mDirection);
         shader.SetUniform(shader.GetUniformLocation("light.mAmbientColor"), light.mAmbientColor);
