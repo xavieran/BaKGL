@@ -21,7 +21,7 @@ add_library(bak
     fileBufferFactory.hpp fileBufferFactory.cpp
     font.hpp font.cpp
     gameData.hpp gameData.cpp
-    gameState.hpp
+    gameState.hpp gameState.cpp
     haggle.hpp haggle.cpp
     hotspot.hpp hotspot.cpp
     hotspotRef.hpp hotspotRef.cpp

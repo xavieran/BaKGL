@@ -245,7 +245,7 @@ signed DoAdjustHealth(
     signed healthChangePercent,
     signed multiplier)
 {
-    Logging::LogDebug(__FUNCTION__) << "(" << healthChangePercent << " " << multiplier << ")\n";
+    Logging::LogDebug(__FUNCTION__) << "called with (" << healthChangePercent << " " << multiplier << ")\n";
     auto& healthSkill = skills.GetSkill(SkillType::Health);
     auto& staminaSkill = skills.GetSkill(SkillType::Stamina);
 
@@ -266,6 +266,7 @@ signed DoAdjustHealth(
         {
             healthChange = (((0x64 - nearDeath) * 0x1E) / 0x64) + 1;
         }
+        Logging::LogDebug(__FUNCTION__) << " NearDeath >0 --" << healthChange << "\n"    ;
     }
 
     // ovr131:03c7
@@ -282,6 +283,10 @@ signed DoAdjustHealth(
             if (isPlayerCharacter)
             {
                 conditions.AdjustCondition(skills, Condition::NearDeath, 100);
+                // I don't think this return is in the original code
+                // ... when we acquire plagued while having near death and sleep 
+                // once we should health go to 0
+                return 0;
             }
         }
     }
@@ -377,14 +382,14 @@ std::uint8_t Skills::CalculateSelectedSkillPool() const
 }
 
 void Skills::ImproveSkill(
+    Conditions& conditions,
     SkillType skill, 
     SkillChange skillChangeType,
     int multiplier)
 {
     if (skill == SkillType::TotalHealth)
     {
-        auto x = Conditions{};
-        DoAdjustHealth(*this, x, static_cast<int>(skillChangeType), multiplier);
+        DoAdjustHealth(*this, conditions, static_cast<int>(skillChangeType), multiplier);
     }
     else
     {

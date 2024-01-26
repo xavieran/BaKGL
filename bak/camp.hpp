@@ -34,6 +34,7 @@ void ImproveNearDeath(
     Conditions& conditions);
 
 void DamageDueToLackOfSleep(
+    Conditions& conditions,
     CharIndex charIndex,
     Skills& skills);
 
@@ -44,6 +45,58 @@ public:
     :
         mGameState{gameState}
     {}
+
+
+    void HandleGameTimeChange(
+        Time timeDelta,
+        bool canDisplayDialog,
+        bool mustConsumeRations,
+        bool isNotSleeping,
+        unsigned healPercentage)
+    {
+        Logging::LogDebug(__FUNCTION__) << "(" << timeDelta
+            << " canDisplayDialog: " << canDisplayDialog << " consRat: "
+            << mustConsumeRations << " sleep? "
+            << isNotSleeping << " hl: " << healPercentage << ")\n";
+        auto& currentTime = mGameState.GetWorldTime();
+        auto oldTime = currentTime;
+        auto hourOfDay = currentTime.GetTime().GetHour();
+
+        auto daysElapsedBefore = currentTime.GetTime().GetDays();
+        currentTime.AdvanceTime(timeDelta);
+        auto daysElapsedAfter = currentTime.GetTime().GetDays();
+
+        if (daysElapsedAfter != daysElapsedBefore)
+        {
+            if ((daysElapsedAfter % 30) == 0)
+            {
+                ImproveActiveCharactersHealthAndStamina();
+            }
+
+            if (mustConsumeRations)
+            {
+                PartyConsumeRations();
+            }
+
+            // Heal NearDeath Condition if healing
+            // Confirm this only happens at midnight
+            mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+                ImproveNearDeath(character.GetSkills(), character.GetConditions());
+                return false;
+            });
+        }
+
+        auto newHourOfDay = currentTime.GetTime().GetHour();
+        if (newHourOfDay != hourOfDay)
+        {
+            HandleGameTimeIncreased(
+                canDisplayDialog, 
+                isNotSleeping,
+                healPercentage);
+        }
+
+        //EvaluateTimeExpiringState(timeDelta);
+    }
 
     // Time change per step
     //   minStep: 0x1e 30 secs distance: 400
@@ -64,7 +117,7 @@ public:
         mGameState.GetWorldTime().SetTimeLastSlept(
             mGameState.GetWorldTime().GetTime());
     }
-
+private:
     void ImproveActiveCharactersHealthAndStamina()
     {
         mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
@@ -134,65 +187,14 @@ public:
      *      behave same as mainView, > 12 hrs resets time since last sleep
      *      so as not to consume rations...?
      **/
-    void HandleGameTimeChange(
-        Time timeDelta,
-        bool inMainView,
-        bool mustConsumeRations,
-        bool isNotSleeping,
-        unsigned healPercentage)
-    {
-        Logging::LogDebug(__FUNCTION__) << "(" << timeDelta
-            << " inMainView: " << inMainView << " consRat: "
-            << mustConsumeRations << " sleep? "
-            << isNotSleeping << " hl: " << healPercentage << ")\n";
-        auto& currentTime = mGameState.GetWorldTime();
-        auto oldTime = currentTime;
-        auto hourOfDay = currentTime.GetTime().GetHour();
-
-        auto daysElapsedBefore = currentTime.GetTime().GetDays();
-        currentTime.AdvanceTime(timeDelta);
-        auto daysElapsedAfter = currentTime.GetTime().GetDays();
-
-        if (daysElapsedAfter != daysElapsedBefore)
-        {
-            if ((daysElapsedAfter % 30) == 0)
-            {
-                ImproveActiveCharactersHealthAndStamina();
-            }
-
-            if (mustConsumeRations)
-            {
-                PartyConsumeRations();
-            }
-
-            // Heal NearDeath Condition if healing
-            // Confirm this only happens at midnight
-            mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
-                ImproveNearDeath(character.GetSkills(), character.GetConditions());
-                return false;
-            });
-        }
-
-        auto newHourOfDay = currentTime.GetTime().GetHour();
-        if (newHourOfDay != hourOfDay)
-        {
-            HandleGameTimeIncreased(
-                inMainView, 
-                isNotSleeping,
-                healPercentage);
-        }
-
-        //EvaluateTimeExpiringState(timeDelta);
-    }
-
     void HandleGameTimeIncreased(
-        bool inMainView,
+        bool canDisplayDialog,
         bool isNotSleeping,
         unsigned healPercent)
     {
-        Logging::LogDebug(__FUNCTION__) << "(" << inMainView
+        Logging::LogDebug(__FUNCTION__) << "(" << canDisplayDialog
             << ", " << isNotSleeping << ", " << healPercent << ")\n";
-        if (inMainView)
+        if (canDisplayDialog)
         {
             if (isNotSleeping)
             {
@@ -205,7 +207,7 @@ public:
                 if (timeDiff >= Times::EighteenHours)
                 {
                     mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
-                        DamageDueToLackOfSleep(character.mCharacterIndex, character.GetSkills());
+                        DamageDueToLackOfSleep(character.GetConditions(), character.mCharacterIndex, character.GetSkills());
                         return false;
                     });
                 }

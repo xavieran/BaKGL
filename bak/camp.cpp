@@ -118,7 +118,10 @@ void EffectOfConditionsWithTime(
 
     if (healAmount != 0)
     {
+        Logging::LogInfo(__FUNCTION__) << " Heal : " << conditionChangePcnt <<
+            " healAmount: " << healAmount << "\n";
         skills.ImproveSkill(
+            conditions,
             SkillType::TotalHealth,
             static_cast<SkillChange>(conditionChangePcnt),
             healAmount << 8);
@@ -145,11 +148,13 @@ void ImproveNearDeath(
 }
 
 void DamageDueToLackOfSleep(
+    Conditions& conditions,
     CharIndex charIndex,
     Skills& skills)
 {
     static constexpr std::array<int, 6> damagePerCharacter = {-2, -1, -2, -2, -2, -3};
     skills.ImproveSkill(
+        conditions,
         SkillType::TotalHealth,
         SkillChange::HealMultiplier_100,
         damagePerCharacter[charIndex.mValue] << 8);

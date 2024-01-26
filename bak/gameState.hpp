@@ -591,7 +591,7 @@ public:
                         [&](auto& character){
                             character.GetConditions().IncreaseCondition(
                                 cond.mCondition, amount);
-                            return true;
+                            return false;
                         });
                 }
             },
@@ -601,6 +601,11 @@ public:
                 SetEventValue(state.mEventPtr, 1);
                 if (mGameData)
                     mGameData->SetTimeExpiringState(4, state.mEventPtr, 0x40, state.mTimeToExpire);
+            },
+            [&](const BAK::ElapseTime& elapse)
+            {
+                mLogger.Debug() << "Elapsing time: " << elapse << "\n";
+                ElapseTime(elapse.mTime);
             },
             [&](const BAK::SetTimeExpiringState2& state)
             {
@@ -679,20 +684,8 @@ public:
         return false;
     }
 
-    void ElapseTime(Time time)
-    {
-        //GetParty().ForEachActiveCharacter([&](auto& character){
-        //    // Heal when camping...
-        //    if (character.CanHeal(false))
-        //    {
-        //        character.ImproveSkill(
-        //            SkillType::TotalHealth,
-        //            static_cast<SkillChange>(100),
-        //            1 << 8);
-        //    }
-        //    return false;
-        //});
-    }
+    // in cpp to break dep with bak/camp.hpp
+    void ElapseTime(Time time);
 
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const
     {

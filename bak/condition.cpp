@@ -1,5 +1,9 @@
 #include "bak/condition.hpp"
 
+#include "bak/skills.hpp"
+
+#include "com/logger.hpp"
+
 namespace BAK {
 
 std::string_view ToString(Condition s)
@@ -61,6 +65,7 @@ void Conditions::SetCondition(BAK::Condition cond, std::uint8_t amount)
 
 void Conditions::AdjustCondition(Skills& skills, BAK::Condition cond, signed amount)
 {
+    Logging::LogDebug(__FUNCTION__) << " called with : cond: " << ToString(cond) << " amt: " << amount << "\n";
     const auto currentValue = GetCondition(cond).Get();
     int newValue = currentValue + amount;
     if (newValue > 100)
@@ -103,15 +108,16 @@ void Conditions::AdjustCondition(Skills& skills, BAK::Condition cond, signed amo
         //}
         if (amount > 0)
         {
+            Logging::LogDebug(__FUNCTION__) << " Near death...\n";
             for (unsigned i = 0; i < Conditions::sNumConditions - 1; i++)
             {
                 SetCondition(static_cast<Condition>(i), 0);
             }
             SetCondition(BAK::Condition::NearDeath, 100);
-            //skills.GetSkill(Skill::Health).mTrueSkill = 0;
-            //skills.GetSkill(Skill::Stamina).mTrueSkill = 0;
-            // Near death condition will inhibit this health increase...
-            //DoAdjustHealth(skills, *this, 0x64, 0x7fff);
+            skills.GetSkill(SkillType::Health).mTrueSkill = 0;
+            skills.GetSkill(SkillType::Stamina).mTrueSkill = 0;
+            // Near death condition will inhibit this health "increase"...
+            skills.ImproveSkill(*this, SkillType::TotalHealth, SkillChange::HealMultiplier_100, 0x7fff);
         }
     }
 }

@@ -67,6 +67,8 @@ enum class Actor
 namespace Times {
 static constexpr auto HalfHour = Time{0x384};
 static constexpr auto OneHour = Time{0x708};
+static constexpr auto TwelveHours = Time{0x5460};
+static constexpr auto ThirteenHours = Time{0x5b68};
 static constexpr auto SeventeenHours = Time{0x7788};
 static constexpr auto EighteenHours = Time{0x7e90};
 static constexpr auto OneDay = Time{0xa8c0};

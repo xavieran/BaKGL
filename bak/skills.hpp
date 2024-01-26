@@ -143,6 +143,7 @@ public:
     std::uint8_t CalculateSelectedSkillPool() const;
 
     void ImproveSkill(
+        Conditions& conditions,
         SkillType skill, 
         SkillChange skillChangeType,
         int multiplier);

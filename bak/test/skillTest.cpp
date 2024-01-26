@@ -221,6 +221,7 @@ TEST_F(SkillTestFixture, ImproveSkillTest)
 
     for (unsigned i = 0; i < 3; i++)
         mSkills.ImproveSkill(
+            mConditions,
             BAK::SkillType::Lockpick, 
             BAK::SkillChange::ExercisedSkill,
             2);
@@ -231,6 +232,7 @@ TEST_F(SkillTestFixture, ImproveSkillTest)
     mSkills.ToggleSkill(BAK::SkillType::Lockpick);
 
     mSkills.ImproveSkill(
+            mConditions,
             BAK::SkillType::Lockpick, 
             BAK::SkillChange::ExercisedSkill,
             2);
@@ -249,6 +251,7 @@ TEST_F(SkillTestFixture, ImproveSkillFromDialogTest)
 
     mSkills.ToggleSkill(BAK::SkillType::Lockpick);
     mSkills.ImproveSkill(
+            mConditions,
             BAK::SkillType::Lockpick, 
             BAK::SkillChange::Direct,
             5 << 8);
