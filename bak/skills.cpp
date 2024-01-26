@@ -175,9 +175,7 @@ void DoImproveSkill(
     {
     case SkillChange::ExercisedSkill:
     {
-        // FIXME: double check this... obviously these
-        // numbers can go negative for many of the vals
-        // in the array
+        // Experience change scales with how close you are to 100 skill level
         const auto diff = sSkillExperienceVar1[skillIndex]
             - sSkillExperienceVar2[skillIndex];
         experienceChange = ((diff * skill.mTrueSkill) / 100)
@@ -247,7 +245,7 @@ signed DoAdjustHealth(
     signed healthChangePercent,
     signed multiplier)
 {
-    Logging::LogDebug(__FUNCTION__) << "(" << healthChangePercent << " " << multiplier << ")\n";
+    Logging::LogDebug(__FUNCTION__) << "called with (" << healthChangePercent << " " << multiplier << ")\n";
     auto& healthSkill = skills.GetSkill(SkillType::Health);
     auto& staminaSkill = skills.GetSkill(SkillType::Stamina);
 
@@ -268,12 +266,14 @@ signed DoAdjustHealth(
         {
             healthChange = (((0x64 - nearDeath) * 0x1E) / 0x64) + 1;
         }
+        Logging::LogDebug(__FUNCTION__) << " NearDeath >0 --" << healthChange << "\n"    ;
     }
 
     // ovr131:03c7
     if (multiplier <= 0)
     {
         // ovr131:03f4
+        Logging::LogDebug(__FUNCTION__) << " Previous: " << currentHealthAndStamina << "\n";
         currentHealthAndStamina += multiplier / 0x100;
         Logging::LogDebug(__FUNCTION__) << " Current: " << currentHealthAndStamina << "\n";
         if (currentHealthAndStamina <= 0)
@@ -283,6 +283,9 @@ signed DoAdjustHealth(
             if (isPlayerCharacter)
             {
                 conditions.AdjustCondition(skills, Condition::NearDeath, 100);
+                // This doesn't always return the right results. e.g.
+                // if just about to die due to sleeping, health ends up at
+                // 1 rather than 0
             }
         }
     }
@@ -378,14 +381,14 @@ std::uint8_t Skills::CalculateSelectedSkillPool() const
 }
 
 void Skills::ImproveSkill(
+    Conditions& conditions,
     SkillType skill, 
     SkillChange skillChangeType,
     int multiplier)
 {
     if (skill == SkillType::TotalHealth)
     {
-        auto x = Conditions{};
-        DoAdjustHealth(*this, x, static_cast<int>(skillChangeType), multiplier);
+        DoAdjustHealth(*this, conditions, static_cast<int>(skillChangeType), multiplier);
     }
     else
     {

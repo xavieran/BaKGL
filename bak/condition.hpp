@@ -25,6 +25,9 @@ enum class Condition
 
 std::string_view ToString(Condition);
 
+// deterioration
+// heal reduction
+// ....
 constexpr std::uint16_t sConditionSkillEffect[7][6] = {
     {     1, 0xFFFF,      0,      0, 0, 0},  // Sick
     {     1, 0xFFFE,      0,      0, 0, 0},  // Plagued

@@ -28,7 +28,7 @@ GameData::GameData(const std::string& save)
 
     mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
     //mLogger.Info() << mParty << "\n";
-    mLogger.Info() << mTime << std::hex << " " << mTime.mTime.mTime << std::dec << "\n";
+    mLogger.Info() << mTime << std::hex << " " << mTime.GetTime().mTime  << std::dec << "\n";
     //LoadContainers(0x1);
     //LoadContainers(0x2);
     //LoadContainers(0x3);
@@ -177,6 +177,8 @@ unsigned GameData::LoadChapter()
 {
     mBuffer.Seek(sChapterOffset);
     auto chapter = mBuffer.GetUint16LE();
+    // next 4 uint16's might have something to do
+    // with location displayed when chapter loaded
     mBuffer.Seek(0x64);
     auto chapterAgain = mBuffer.GetUint16LE();
     assert(chapter == chapterAgain);

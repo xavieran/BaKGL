@@ -327,9 +327,14 @@ public:
         return mSkills;
     }
 
+    Skills& GetSkills()
+    {
+        return mSkills;
+    }
+
     void ImproveSkill(SkillType skill, SkillChange skillChangeType, int multiplier)
     {
-        mSkills.ImproveSkill(skill, skillChangeType, multiplier);
+        mSkills.ImproveSkill(mConditions, skill, skillChangeType, multiplier);
         UpdateSkills();
     }
 

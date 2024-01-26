@@ -1,4 +1,6 @@
 Before clicking on something that triggers dialog
+
+
 > bpint 21 *
 then click
 dosbox will stop
@@ -22,8 +24,11 @@ heal: 3be6, heal ovrl: 47a0
 2b50:4df0 -> character list for dialogs...
 who is magician, soldier, etc.
 
-bpm 2b50:4df2
-
-ALTERNATIVELY
 Set a memory breakpoint on 2b50:4df2, this is the character list and
 may be easier to hook into then interrupts
+
+bpm 2b50:4df2
+then bp 3b52:2649
+
+bpm 2b50:3d92 - current time
+bpm 2b50:3d96 - current time

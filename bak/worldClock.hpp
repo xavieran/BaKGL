@@ -40,8 +40,35 @@ struct Time
         return mTime * 2;
     }
 
-    std::uint32_t mTime;
+    constexpr auto operator<=>(const Time&) const = default;
 
+    Time operator+(const Time& lhs) const
+    {
+        return Time(mTime + lhs.mTime);
+    }
+
+    Time operator-(const Time& lhs) const
+    {
+        return Time(mTime - lhs.mTime);
+    }
+
+    Time operator*(const Time& lhs) const
+    {
+        return Time(mTime * lhs.mTime);
+    }
+
+    template <typename Numeric> requires std::is_integral_v<Numeric>
+    Time operator*(Numeric lhs) const
+    {
+        return Time(mTime * lhs);
+    }
+
+    Time operator/(const Time& lhs) const
+    {
+        return Time(mTime / lhs.mTime);
+    }
+
+    std::uint32_t mTime;
 };
 
 std::string ToString(Time t);
@@ -57,6 +84,39 @@ public:
     // 1 hour = 1800 ticks
     // Each tick is 2 seconds
     // One step forward is 0x1e ticks (60 seconds)
+    WorldClock(Time time, Time timeLastSlept)
+    :
+        mTime{time},
+        mTimeLastSlept{timeLastSlept}
+    {
+    }
+
+    Time GetTime() const
+    {
+        return mTime;
+    }
+
+    Time GetTimeLastSlept() const
+    {
+        return mTimeLastSlept;
+    }
+
+    Time GetTimeSinceLastSlept() const
+    {
+        return Time{mTime - mTimeLastSlept};
+    }
+
+    void AdvanceTime(Time timeDelta)
+    {
+        mTime = mTime + timeDelta;
+    }
+
+    void SetTimeLastSlept(Time time)
+    {
+        mTimeLastSlept = time;
+    }
+
+private:
     Time mTime;
     Time mTimeLastSlept;
 };

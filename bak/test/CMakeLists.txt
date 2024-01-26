@@ -3,6 +3,7 @@ enable_testing()
 include(GoogleTest)
 
 add_executable(bakTest
+    campTest.cpp
     characterTest.cpp
     keyContainerTest.cpp
     lockTest.cpp
