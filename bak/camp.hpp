@@ -3,6 +3,8 @@
 #include "bak/fileBufferFactory.hpp"
 #include "bak/gameState.hpp"
 
+#include "bak/inventoryItem.hpp"
+
 #include <glm/glm.hpp>
 
 namespace BAK {
@@ -22,152 +24,201 @@ private:
     std::vector<glm::vec2> mDaytimeShadow;
 };
 
+void EffectOfConditionsWithTime(
+    Skills& skills,
+    Conditions& conditions,
+    unsigned healPercent);
+
+void ImproveNearDeath(
+    Skills& skills,
+    Conditions& conditions);
+
+void DamageDueToLackOfSleep(
+    CharIndex charIndex,
+    Skills& skills);
+
 class MakeCamp
 {
+public:
     MakeCamp(GameState& gameState)
     :
         mGameState{gameState}
     {}
 
+    // Time change per step
+    //   minStep: 0x1e 30 secs distance: 400
+    //   medStep: 0x3c 60 secs distance: 800
+    //   bigStep: 0x78 120 secs distance: 1600
+    void ElapseTimeInMainView(Time delta)
+    {
+        HandleGameTimeChange(
+            delta,
+            true, true, true, 0);
+    }
+
+    void ElapseTimeInSleepView(Time delta, unsigned healPercent)
+    {
+        HandleGameTimeChange(
+            BAK::Times::OneHour,
+            true, true, false, healPercent);
+        mGameState.GetWorldTime().SetTimeLastSlept(
+            mGameState.GetWorldTime().GetTime());
+    }
+
     void ImproveActiveCharactersHealthAndStamina()
     {
+        mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+            character.ImproveSkill(SkillType::Health, SkillChange::Direct, 1);
+            character.ImproveSkill(SkillType::Stamina, SkillChange::Direct, 1);
+            return false;
+        });
+    }
+
+    void ConsumeRations(auto& character)
+    {
+        auto rations = InventoryItemFactory::MakeItem(sRations, 1);
+        auto spoiled = InventoryItemFactory::MakeItem(sSpoiledRations, 1);
+        auto poisoned = InventoryItemFactory::MakeItem(sPoisonedRations, 1);
+        if (character.RemoveItem(rations))
+        {
+            // Eating rations instantly removes starving...
+            character.GetConditions().AdjustCondition(
+                character.GetSkills(),
+                BAK::Condition::Starving,
+                -100);
+        }
+        else if (character.RemoveItem(spoiled))
+        {
+            character.GetConditions().AdjustCondition(
+                character.GetSkills(),
+                BAK::Condition::Starving,
+                -100);
+            character.GetConditions().AdjustCondition(
+                character.GetSkills(),
+                BAK::Condition::Sick,
+                3);
+        }
+        else if (character.RemoveItem(poisoned))
+        {
+            character.GetConditions().AdjustCondition(
+                character.GetSkills(),
+                BAK::Condition::Poisoned,
+                4);
+        }
+        else // no rations of any kind
+        {
+            character.GetConditions().AdjustCondition(
+                character.GetSkills(),
+                BAK::Condition::Starving,
+                5);
+        }
     }
 
     void PartyConsumeRations()
     {
-        // if (HaveNormalRations)
-        // {
-        //  ReduceStarving(100)
-        // }
-        // else if (HaveSpoiledRations)
-        // {
-        //     SetStarving(100);
-        // }
-        // else if (HavePoisonedRations)
-        // {
-        //   increase posioned by 4
-        // }
-        // else // no rations of any kind
-        // {
-        //  increase starving by 5
-        // }
+        mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+            ConsumeRations(character);
+            return false;
+        });
     }
 
-    void Camp(unsigned hours, unsigned healPercent)
-    {
-//ovr181:24a
-
-    }
-
+    /*
+     * Trials to run:
+     *   1. With each condition set (start at 50%)
+     *   2. With days elapsed > 30 days
+     *   3. With characters health low (see when healing occurs)
+     *   4. With rations of different types
+     *   5. Called from different places to see what the arguments are
+     *   6. with different time elapsing states set (spell, ring, potions)
+     *   7. With differing time elapsed during dialog, < 12 hrs should 
+     *      behave same as mainView, > 12 hrs resets time since last sleep
+     *      so as not to consume rations...?
+     **/
     void HandleGameTimeChange(
-        unsigned timeDelta,
-        unsigned arg4,
-        unsigned passedMidnight,
-        unsigned arg8,
-        unsigned percentage) // inn vs outdoors heal percentage?
+        Time timeDelta,
+        bool inMainView,
+        bool mustConsumeRations,
+        bool isNotSleeping,
+        unsigned healPercentage)
     {
-        //handleGameTimeChange
-        //4221:7b5
-        auto currentTime = 0;
-        auto timeDeltaHours = Time{timeDelta} * Times::OneHour;
-        auto hourOfDay = Time(currentTime % Times::OneDay.mTime) / Times::OneHour;
+        Logging::LogDebug(__FUNCTION__) << "(" << timeDelta
+            << " inMainView: " << inMainView << " consRat: "
+            << mustConsumeRations << " sleep? "
+            << isNotSleeping << " hl: " << healPercentage << ")\n";
+        auto& currentTime = mGameState.GetWorldTime();
+        auto oldTime = currentTime;
+        auto hourOfDay = currentTime.GetTime().GetHour();
 
-        auto daysElapsedBefore = currentTime / Times::OneDay.mTime;
-        currentTime += timeDeltaHours.mTime;
-        auto daysElapsedAfter = currentTime / Times::OneDay.mTime;
+        auto daysElapsedBefore = currentTime.GetTime().GetDays();
+        currentTime.AdvanceTime(timeDelta);
+        auto daysElapsedAfter = currentTime.GetTime().GetDays();
+
         if (daysElapsedAfter != daysElapsedBefore)
         {
-            if (daysElapsedAfter > 30)
+            if ((daysElapsedAfter % 30) == 0)
             {
                 ImproveActiveCharactersHealthAndStamina();
             }
-            if (passedMidnight)
+
+            if (mustConsumeRations)
             {
                 PartyConsumeRations();
             }
-            //IncreaseAllCharactersConditionByConditionAmount;
-        }
-        auto newHourOfDay = (currentTime % Times::OneDay.mTime) / Times::OneHour.mTime;
-        if (newHourOfDay != hourOfDay.mTime)
-        {
-            auto arg4 = 1;
-            auto arg8 = 0;
 
+            // Heal NearDeath Condition if healing
+            // Confirm this only happens at midnight
+            mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+                ImproveNearDeath(character.GetSkills(), character.GetConditions());
+                return false;
+            });
+        }
+
+        auto newHourOfDay = currentTime.GetTime().GetHour();
+        if (newHourOfDay != hourOfDay)
+        {
             HandleGameTimeIncreased(
-                arg4, 
-                arg8,
-                percentage);
+                inMainView, 
+                isNotSleeping,
+                healPercentage);
         }
 
         //EvaluateTimeExpiringState(timeDelta);
     }
 
-    // HandleGameTimeChangeFromSleep calls HandleGameTimeIncreased with:
-    //     HandleGameTimeIncreased(timeDeltaHours, 1, 1, healPercent??)
-    // RunDialog calls it with
-    //     HandleGameTimeChange(0x708 or timeDelta,1, charSkillWho?, 0
-    // RepairScreen calls it with
-    //     HandleGameTimeChange(0x708, varA, 1, 1)
-    // MainView calls it twice with either
-    //     HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
-    //     HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
-    // MapView calls it twice with either
-    //     HandleGameTimeIncreased(timePerStep, 0x10001, 1) or
-    //     HandleGameTimeIncreased(timePerStep/4, 0x10001, 1)
-
     void HandleGameTimeIncreased(
-        unsigned x,
-        unsigned y,
+        bool inMainView,
+        bool isNotSleeping,
         unsigned healPercent)
     {
-        auto dx = y;
-        auto var6 = 0;
-        auto var8 = 1;
-
-        auto timeSinceLastSleep = 5;
-        auto currentTime = 3;
-        auto timeDiff = currentTime - timeSinceLastSleep;
-
-        // check what these are, I think its whether we camp or not???
-        if (x == 0 && y == 1)
+        Logging::LogDebug(__FUNCTION__) << "(" << inMainView
+            << ", " << isNotSleeping << ", " << healPercent << ")\n";
+        if (inMainView)
         {
+            if (isNotSleeping)
+            {
+                auto timeDiff = mGameState.GetWorldTime().GetTimeSinceLastSlept();
+                if (timeDiff >= Times::SeventeenHours)
+                {
+                    //ShowNeedSleepDialog(0x40)
+                    Logging::LogWarn(__FUNCTION__) << " We need sleep!\n";
+                }
+                if (timeDiff >= Times::EighteenHours)
+                {
+                    mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+                        DamageDueToLackOfSleep(character.mCharacterIndex, character.GetSkills());
+                        return false;
+                    });
+                }
+            }
         }
 
         mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
-            for (unsigned cond = 0; cond < 7; cond++)
-            {
-                if (healPercent != 0)
-                {
-                    character.GetConditions().AdjustCondition(
-                        static_cast<BAK::Condition>(cond),
-                        0xfffd - 0xffff);
-                    auto healPcnt = 0;
-                    if (healPercent == 0x64)
-                    {
-                        healPcnt = 0x50;
-                    }
-                    else
-                    {
-                        healPcnt = 0x64;
-                    }
-                    auto healingMultiplierPerChar_si = 1;
-                    auto x = (healingMultiplierPerChar_si * 0x64) / 0x64;
-                    if (0) // getCondition(cond) != 0
-                    {
-                        auto dx = 0; // conditionHealEffectArray[cond];
-                        // adjustConditionBy(dx)
-                        // adjustConditionBy(0xfffe);
-                    }
-                    auto bx = 0;
-                }
-                else
-                {
-                //??
-                }
-            }
+            EffectOfConditionsWithTime(character.GetSkills(), character.GetConditions(), healPercent);
+            return false;
         });
     }
 
+private:
     GameState& mGameState;
 };
 

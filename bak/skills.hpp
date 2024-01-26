@@ -66,7 +66,7 @@ constexpr std::uint16_t sSkillAbsMax = 0xfa;
 constexpr std::uint8_t sSkillHealthEffect[16] = {
     0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2};
 constexpr std::uint8_t sSkillExperienceVar1[16] = {
-    3, 3, 1, 1, 2, 3, 1, 3, 8, 5, 5, 0x20, 2, 3, 8, 1};
+       3,    3, 1, 1, 2,    3, 1,    3, 8, 5, 5, 0x20,    2,    3, 8,    1};
 constexpr std::uint8_t sSkillExperienceVar2[16] = {
     0x33, 0x33, 8, 8, 8, 0x33, 8, 0x33, 0, 0, 0, 0x80, 0x20, 0x33, 0, 0x40};
 

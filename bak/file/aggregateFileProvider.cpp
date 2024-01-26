@@ -20,8 +20,8 @@ AggregateFileProvider::AggregateFileProvider(const std::vector<std::string>& sea
 
     mProviders.emplace(
         // Uncomment if we want to search in cwd first...
-        //std::next(mProviders.begin()),
-        mProviders.begin(),
+        std::next(mProviders.begin()),
+        //mProviders.begin(),
         std::make_unique<PackedFileDataProvider>(*this));
 }
 

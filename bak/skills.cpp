@@ -175,9 +175,7 @@ void DoImproveSkill(
     {
     case SkillChange::ExercisedSkill:
     {
-        // FIXME: double check this... obviously these
-        // numbers can go negative for many of the vals
-        // in the array
+        // Experience change scales with how close you are to 100 skill level
         const auto diff = sSkillExperienceVar1[skillIndex]
             - sSkillExperienceVar2[skillIndex];
         experienceChange = ((diff * skill.mTrueSkill) / 100)
@@ -274,6 +272,7 @@ signed DoAdjustHealth(
     if (multiplier <= 0)
     {
         // ovr131:03f4
+        Logging::LogDebug(__FUNCTION__) << " Previous: " << currentHealthAndStamina << "\n";
         currentHealthAndStamina += multiplier / 0x100;
         Logging::LogDebug(__FUNCTION__) << " Current: " << currentHealthAndStamina << "\n";
         if (currentHealthAndStamina <= 0)

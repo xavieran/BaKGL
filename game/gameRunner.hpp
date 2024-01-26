@@ -5,6 +5,7 @@
 
 #include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
+#include "bak/camp.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
@@ -650,6 +651,13 @@ public:
                     const auto* encounter = it->second;
                     mActiveEncounter = encounter;
                 }
+            }
+
+            if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0)
+            {
+                auto camp = BAK::MakeCamp{mGameState};
+                camp.ElapseTimeInMainView(
+                    BAK::Time{0x1e * unitsTravelled});
             }
 
             if (mActiveEncounter)

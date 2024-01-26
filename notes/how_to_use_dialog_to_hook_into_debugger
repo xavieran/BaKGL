@@ -29,3 +29,6 @@ may be easier to hook into then interrupts
 
 bpm 2b50:4df2
 then bp 3b52:2649
+
+bpm 2b50:3d92 - current time
+bpm 2b50:3d96 - current time

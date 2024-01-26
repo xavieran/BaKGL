@@ -8,7 +8,8 @@ std::string ToString(Time t)
 {
     std::stringstream ss{};
     ss << t.GetDays() << " days " << std::setw(2) << std::setfill('0')
-        << t.GetHour() << ":" << t.GetMinute();
+        << t.GetHour() << ":" << std::setw(2) << std::setfill('0') << t.GetMinute()
+        << " (" << std::hex << t.mTime << std::dec << ")";
     return ss.str();
 }   
 
@@ -21,7 +22,7 @@ std::ostream& operator<<(std::ostream& os, const Time& t)
 
 std::ostream& operator<<(std::ostream& os, const WorldClock& c)
 {
-    os << "Time: " << c.mTime << " LastSlept: " << c.mTimeLastSlept;
+    os << "Time: " << c.GetTime() << " LastSlept: " << c.GetTimeLastSlept();
     return os;
 }
 

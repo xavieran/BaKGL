@@ -218,7 +218,7 @@ public:
     {
         if (mGameData)
         {
-            const auto hour = mGameData->mTime.mTime.GetHour();
+            const auto hour = mGameData->mTime.GetTime().GetHour();
             return 0;
             //return static_cast<int>(hour < 18);
         }
@@ -229,7 +229,7 @@ public:
         }
     }
 
-    WorldClock GetWorldTime() const
+    const WorldClock& GetWorldTime() const
     {
         if (mGameData)
         {
@@ -237,7 +237,19 @@ public:
         }
         else
         {
-            return WorldClock{{0}, {0}};
+            return mFakeWorldClock;
+        }
+    }
+
+    WorldClock& GetWorldTime()
+    {
+        if (mGameData)
+        {
+            return mGameData->mTime;
+        }
+        else
+        {
+            return mFakeWorldClock;
         }
     }
 
@@ -669,17 +681,17 @@ public:
 
     void ElapseTime(Time time)
     {
-        GetParty().ForEachActiveCharacter([&](auto& character){
-            // Heal when camping...
-            if (character.CanHeal(false))
-            {
-                character.ImproveSkill(
-                    SkillType::TotalHealth,
-                    static_cast<SkillChange>(100),
-                    1 << 8);
-            }
-            return false;
-        });
+        //GetParty().ForEachActiveCharacter([&](auto& character){
+        //    // Heal when camping...
+        //    if (character.CanHeal(false))
+        //    {
+        //        character.ImproveSkill(
+        //            SkillType::TotalHealth,
+        //            static_cast<SkillChange>(100),
+        //            1 << 8);
+        //    }
+        //    return false;
+        //});
     }
 
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const
@@ -1041,6 +1053,7 @@ public:
     std::vector<GenericContainer> mGDSContainers;
     std::vector<GenericContainer> mCombatContainers;
     TextVariableStore mTextVariableStore;
+    WorldClock mFakeWorldClock{{0}, {0}};
     const Logging::Logger& mLogger;
 };
 

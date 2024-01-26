@@ -40,6 +40,11 @@ std::ostream& LogError(const std::string& loggerName)
     return LogState::Log(Logging::LogLevel::Error, loggerName);
 }
 
+std::ostream& LogWarn(const std::string& loggerName)
+{
+    return LogState::Log(Logging::LogLevel::Warn, loggerName);
+}
+
 std::ostream& LogInfo(const std::string& loggerName)
 {
     return LogState::Log(Logging::LogLevel::Info, loggerName);

@@ -24,6 +24,7 @@ public:
         mDeltaTime{0},
         mPosition{0,1.4,0},
         mLastPosition{mPosition},
+        mDistanceTravelled{0.0},
         mProjectionMatrix{CalculatePerspectiveMatrix(width, height)},
         mAngle{3.14, 0}
     {}
@@ -88,6 +89,7 @@ public:
     void SetPosition(const glm::vec3& position)
     {
         PositionChanged();
+        mDistanceTravelled = 0;
         mPosition = position;
     }
     
@@ -160,6 +162,7 @@ public:
 
     void PositionChanged()
     {
+        mDistanceTravelled += std::abs(glm::distance(mPosition, mLastPosition));
         mLastPosition = mPosition;
         mDirty = true;
     }
@@ -260,6 +263,17 @@ public:
     {
         return std::exchange(mDirty, false);
     }
+
+    unsigned GetAndClearUnitsTravelled()
+    {
+        auto unitsTravelled = static_cast<unsigned>(std::round(std::floor(mDistanceTravelled / 400.0)));
+        if (unitsTravelled > 0)
+        {
+            mDistanceTravelled -= (unitsTravelled * 400);
+            return unitsTravelled;
+        }
+        return 0;
+    }
 private:
     float mMoveSpeed;
     float mTurnSpeed;
@@ -267,6 +281,7 @@ private:
 
     glm::vec3 mPosition;
     glm::vec3 mLastPosition;
+    double mDistanceTravelled;
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
 

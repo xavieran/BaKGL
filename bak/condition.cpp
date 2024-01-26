@@ -62,7 +62,7 @@ void Conditions::SetCondition(BAK::Condition cond, std::uint8_t amount)
 void Conditions::AdjustCondition(Skills& skills, BAK::Condition cond, signed amount)
 {
     const auto currentValue = GetCondition(cond).Get();
-    auto newValue = currentValue + amount;
+    int newValue = currentValue + amount;
     if (newValue > 100)
     {
         newValue = 100;
@@ -107,7 +107,7 @@ void Conditions::AdjustCondition(Skills& skills, BAK::Condition cond, signed amo
             {
                 SetCondition(static_cast<Condition>(i), 0);
             }
-            //ClearAllConditionStatesExceptNearDeath
+            SetCondition(BAK::Condition::NearDeath, 100);
             //skills.GetSkill(Skill::Health).mTrueSkill = 0;
             //skills.GetSkill(Skill::Stamina).mTrueSkill = 0;
             // Near death condition will inhibit this health increase...

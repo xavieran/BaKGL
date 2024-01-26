@@ -28,7 +28,7 @@ namespace detail {
 
 class TimeElapser : public IAnimator
 {
-    static constexpr auto sTickSpeed = .1;
+    static constexpr auto sTickSpeed = .02;
 public:
     TimeElapser(
         unsigned hourBegin,
@@ -239,7 +239,7 @@ public:
 
     void SetIsInn(bool isInn)
     {
-        const auto hour = mGameState.GetWorldTime().mTime.GetHour();
+        const auto hour = mGameState.GetWorldTime().GetTime().GetHour();
         for (unsigned i = 0; i < mCampData.GetClockTicks().size(); i++)
         {
             mDots.at(i).SetCurrent(i == hour);
@@ -322,7 +322,10 @@ private:
 
     void HandleTick(unsigned index, bool isLast)
     {
-        mGameState.ElapseTime(BAK::Times::OneHour);
+        auto camp = BAK::MakeCamp(mGameState);
+        camp.ElapseTimeInSleepView(
+            BAK::Times::OneHour, 0x50);
+
         if (isLast || (mState == State::CampingTilHealed && !AnyCharacterCanHeal()))
         {
             FinishedTicking(index);
@@ -363,7 +366,7 @@ private:
     {
         if (button == sCampUntilHealed)
         {
-            const auto hour = mGameState.GetWorldTime().mTime.GetHour();
+            const auto hour = mGameState.GetWorldTime().GetTime().GetHour();
             mLogger.Debug() << "Hour: "<< hour << "\n";
             StartCamping(std::nullopt);
         }
@@ -402,7 +405,7 @@ private:
     {
         ClearChildren();
 
-        if (mState == State::Camping)
+        if (mState == State::Camping || mState == State::CampingTilHealed)
         {
             AddChildBack(&mButtons[sStop]);
         }
