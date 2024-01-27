@@ -1,422 +1,139 @@
- SPAM [FileDataProvider] Searching for file: krondor.rmf in directory [.]
- SPAM [FileDataProvider] Searching for file: krondor.rmf in directory [/home/xavieran/bak/data]
- WARN [PackedFileDataProvider] Could not find resource index file [krondor.rmf]. Will not use packed resource file for data.
- SPAM [FileDataProvider] Searching for file: OBJINFO.DAT in directory [.]
- SPAM [PackedFileDataProvider] Searching for file: OBJINFO.DAT
- SPAM [FileDataProvider] Searching for file: OBJINFO.DAT in directory [/home/xavieran/bak/data]
- INFO [CreateFileBuffer] Opening: /home/xavieran/bak/data/OBJINFO.DAT
- SPAM [BAK::ObjectIndex] ItemOff: 1e
- SPAM [BAK::ObjectIndex] 0 Unknown0: 00 00|2 00 00|
  SPAM [BAK::ObjectIndex] ItmIndex:0 Object: {  fl: 0 imgIndex: 0 lvl: 0 val: 0 swing (0, 0) thrust (0, 0) size: 0 None Unspecified Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 6e
- SPAM [BAK::ObjectIndex] 1 Unknown0: 00 00|2 00 00|Crystal Staff
  SPAM [BAK::ObjectIndex] ItmIndex:1 Object: { Crystal Staff fl: 1000 imgIndex: 1 lvl: 1 val: 0 swing (5, -5) thrust (12, 10) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: be
- SPAM [BAK::ObjectIndex] 2 Unknown0: 00 00|2 00 00|Lightning Staff
  SPAM [BAK::ObjectIndex] ItmIndex:2 Object: { Lightning Staff fl: 2080 imgIndex: 2 lvl: 1 val: 10000 swing (7, 10) thrust (0, 20) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 40 defaultStackSize: 40 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 10e
- SPAM [BAK::ObjectIndex] 3 Unknown0: 00 00|2 00 00|Wooden Staff
  SPAM [BAK::ObjectIndex] ItmIndex:3 Object: { Wooden Staff fl: 0 imgIndex: 3 lvl: 1 val: 50 swing (3, 0) thrust (-7, 15) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 15e
- SPAM [BAK::ObjectIndex] 4 Unknown0: 00 00|2 00 00|Staff of Macros
  SPAM [BAK::ObjectIndex] ItmIndex:4 Object: { Staff of Macros fl: 2080 imgIndex: 4 lvl: 8 val: 20000 swing (25, 15) thrust (10, 25) size: 4 Human Staff Cat: (800)[Staff] useSound: 0 times: 0 stackSize: 50 defaultStackSize: 50 eff (0, 0 ) potionPower: 0 altEff: 0 mod (80, 20) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1ae
- SPAM [BAK::ObjectIndex] 5 Unknown0: 00 00|2 0d 00|Amulet of the Upright Man
  SPAM [BAK::ObjectIndex] ItmIndex:5 Object: { Amulet of the Upright Man fl: 0 imgIndex: 5 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (2000, 15) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1fe
- SPAM [BAK::ObjectIndex] 6 Unknown0: 00 00|2 00 00|Ring of Prandur
  SPAM [BAK::ObjectIndex] ItmIndex:6 Object: { Ring of Prandur fl: 2080 imgIndex: 6 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Light Cat: (400)[UsableMagicalItem] useSound: 58 times: 0 stackSize: 10 defaultStackSize: 10 eff (18, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 24e
- SPAM [BAK::ObjectIndex] 7 Unknown0: 00 00|2 00 00|Brass Spyglass
  SPAM [BAK::ObjectIndex] ItmIndex:7 Object: { Brass Spyglass fl: 102 imgIndex: 7 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 29e
- SPAM [BAK::ObjectIndex] 8 Unknown0: 00 00|2 00 00|Cup of Rlnn Skr
  SPAM [BAK::ObjectIndex] ItmIndex:8 Object: { Cup of Rlnn Skr fl: 180 imgIndex: 8 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 2ee
- SPAM [BAK::ObjectIndex] 9 Unknown0: 00 00|2 00 00|Eliaem's Heart
  SPAM [BAK::ObjectIndex] ItmIndex:9 Object: { Eliaem's Heart fl: 20c0 imgIndex: 9 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 6 defaultStackSize: 6 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 33e
- SPAM [BAK::ObjectIndex] 10 Unknown0: 00 00|2 00 00|Glory Hand
  SPAM [BAK::ObjectIndex] ItmIndex:10 Object: { Glory Hand fl: 40 imgIndex: 10 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 38e
- SPAM [BAK::ObjectIndex] 11 Unknown0: 00 00|2 07 00|Horn of Algon Kokoon
  SPAM [BAK::ObjectIndex] ItmIndex:11 Object: { Horn of Algon Kokoon fl: 20c0 imgIndex: 11 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 12 defaultStackSize: 6 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 3de
- SPAM [BAK::ObjectIndex] 12 Unknown0: 00 00|2 00 00|Idol of Lassur
  SPAM [BAK::ObjectIndex] ItmIndex:12 Object: { Idol of Lassur fl: 2040 imgIndex: 12 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 8 defaultStackSize: 8 eff (0, 0 ) potionPower: 0 altEff: 0 mod (fff0, -20) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 42e
- SPAM [BAK::ObjectIndex] 13 Unknown0: 00 00|2 00 00|Infinity Pool
  SPAM [BAK::ObjectIndex] ItmIndex:13 Object: { Infinity Pool fl: 20c0 imgIndex: 13 lvl: 1 val: 6000 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 10 defaultStackSize: 10 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 47e
- SPAM [BAK::ObjectIndex] 14 Unknown0: 00 00|2 00 00|Raw Manna
  SPAM [BAK::ObjectIndex] ItmIndex:14 Object: { Raw Manna fl: 8880 imgIndex: 14 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 20 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 4ce
- SPAM [BAK::ObjectIndex] 15 Unknown0: 00 00|2 00 00|Roric's Seal
  SPAM [BAK::ObjectIndex] ItmIndex:15 Object: { Roric's Seal fl: 20c0 imgIndex: 15 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 10 defaultStackSize: 10 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 51e
- SPAM [BAK::ObjectIndex] 16 Unknown0: 00 00|2 00 00|Shell
  SPAM [BAK::ObjectIndex] ItmIndex:16 Object: { Shell fl: 0 imgIndex: 16 lvl: 2 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 56e
- SPAM [BAK::ObjectIndex] 17 Unknown0: 00 00|2 00 00|Wyvern's Egg
  SPAM [BAK::ObjectIndex] ItmIndex:17 Object: { Wyvern's Egg fl: 0 imgIndex: 17 lvl: 1 val: 300 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 5be
- SPAM [BAK::ObjectIndex] 18 Unknown0: 80 1f|2 00 00|Broadsword
  SPAM [BAK::ObjectIndex] ItmIndex:18 Object: { Broadsword fl: 1008 imgIndex: 18 lvl: 1 val: 120 swing (7, -5) thrust (0, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 100 df1: 6 minCond: 10}
- SPAM [BAK::ObjectIndex] ItemOff: 60e
- SPAM [BAK::ObjectIndex] 19 Unknown0: 80 1f|2 05 00|Galon 'Griefmaker'
  SPAM [BAK::ObjectIndex] ItmIndex:19 Object: { Galon 'Griefmaker' fl: 1008 imgIndex: 19 lvl: 1 val: 3500 swing (42, 5) thrust (29, 15) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 50 df1: 3 minCond: 50}
- SPAM [BAK::ObjectIndex] ItemOff: 65e
- SPAM [BAK::ObjectIndex] 20 Unknown0: 80 1f|2 00 00|Goblin Sticker
  SPAM [BAK::ObjectIndex] ItmIndex:20 Object: { Goblin Sticker fl: 1008 imgIndex: 20 lvl: 1 val: 3000 swing (29, 0) thrust (15, 10) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 60 df1: 3 minCond: 40}
- SPAM [BAK::ObjectIndex] ItemOff: 6ae
- SPAM [BAK::ObjectIndex] 21 Unknown0: 80 1f|2 00 00|Greatsword
  SPAM [BAK::ObjectIndex] ItmIndex:21 Object: { Greatsword fl: 1008 imgIndex: 21 lvl: 1 val: 6000 swing (52, 0) thrust (36, 10) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 40 df1: 3 minCond: 60}
- SPAM [BAK::ObjectIndex] ItemOff: 6fe
- SPAM [BAK::ObjectIndex] 22 Unknown0: 80 1f|2 06 00|Guarda Revanche
  SPAM [BAK::ObjectIndex] ItmIndex:22 Object: { Guarda Revanche fl: 1008 imgIndex: 22 lvl: 1 val: 20000 swing (140, 30) thrust (90, 45) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 1 minCond: 100}
- SPAM [BAK::ObjectIndex] ItemOff: 74e
- SPAM [BAK::ObjectIndex] 23 Unknown0: 00 00|2 00 00|Exotic sword
  SPAM [BAK::ObjectIndex] ItmIndex:23 Object: { Exotic sword fl: 0 imgIndex: 23 lvl: 3 val: 0 swing (0, 0) thrust (0, 0) size: 2 Elf Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 79e
- SPAM [BAK::ObjectIndex] 24 Unknown0: 80 1f|2 00 00|Keshian Tapir
  SPAM [BAK::ObjectIndex] ItmIndex:24 Object: { Keshian Tapir fl: 1008 imgIndex: 24 lvl: 1 val: 3750 swing (45, -5) thrust (20, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 60 df1: 2 minCond: 30}
- SPAM [BAK::ObjectIndex] ItemOff: 7ee
- SPAM [BAK::ObjectIndex] 25 Unknown0: 80 1f|2 08 00|Moredhel Lamprey
  SPAM [BAK::ObjectIndex] ItmIndex:25 Object: { Moredhel Lamprey fl: 1008 imgIndex: 25 lvl: 1 val: 500 swing (15, -5) thrust (3, 5) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 80 df1: 5 minCond: 20}
- SPAM [BAK::ObjectIndex] ItemOff: 83e
- SPAM [BAK::ObjectIndex] 26 Unknown0: 80 1f|2 00 00|Rapier
  SPAM [BAK::ObjectIndex] ItmIndex:26 Object: { Rapier fl: 1008 imgIndex: 26 lvl: 1 val: 2500 swing (10, -5) thrust (25, 20) size: 2 Elf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 90 df1: 6 minCond: 10}
- SPAM [BAK::ObjectIndex] ItemOff: 88e
- SPAM [BAK::ObjectIndex] 27 Unknown0: 80 1f|2 08 00|Sword of Kinnur
  SPAM [BAK::ObjectIndex] ItmIndex:27 Object: { Sword of Kinnur fl: 1008 imgIndex: 27 lvl: 1 val: 3500 swing (33, 0) thrust (25, 15) size: 2 Dwarf Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 50 df1: 5 minCond: 30}
- SPAM [BAK::ObjectIndex] ItemOff: 8de
- SPAM [BAK::ObjectIndex] 28 Unknown0: 80 1f|2 08 00|Sword of Lims-Kragma
  SPAM [BAK::ObjectIndex] ItmIndex:28 Object: { Sword of Lims-Kragma fl: 1008 imgIndex: 28 lvl: 1 val: 10000 swing (71, 0) thrust (49, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 30 df1: 3 minCond: 50}
- SPAM [BAK::ObjectIndex] ItemOff: 92e
- SPAM [BAK::ObjectIndex] 29 Unknown0: 80 1f|2 0a 00|Two-Handed Broadsword
  SPAM [BAK::ObjectIndex] ItmIndex:29 Object: { Two-Handed Broadsword fl: 1008 imgIndex: 29 lvl: 1 val: 1500 swing (21, 0) thrust (8, 10) size: 2 Human Sword Cat: (80)[Sword] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 70 df1: 5 minCond: 25}
- SPAM [BAK::ObjectIndex] ItemOff: 97e
- SPAM [BAK::ObjectIndex] 30 Unknown0: 00 00|2 05 00|Light Crossbow
  SPAM [BAK::ObjectIndex] ItmIndex:30 Object: { Light Crossbow fl: 1008 imgIndex: 30 lvl: 1 val: 500 swing (7, 0) thrust (0, 0) size: 2 Human Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 100 df1: 9 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 9ce
- SPAM [BAK::ObjectIndex] 31 Unknown0: 00 00|2 06 00|Medium Crossbow
  SPAM [BAK::ObjectIndex] ItmIndex:31 Object: { Medium Crossbow fl: 1008 imgIndex: 31 lvl: 3 val: 1250 swing (15, 5) thrust (0, 0) size: 2 Human Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 70 df1: 6 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: a1e
- SPAM [BAK::ObjectIndex] 32 Unknown0: 00 00|2 00 00|Bessy Mauler
  SPAM [BAK::ObjectIndex] ItmIndex:32 Object: { Bessy Mauler fl: 1008 imgIndex: 32 lvl: 5 val: 10000 swing (75, -10) thrust (0, 0) size: 2 Human Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 30 df1: 4 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: a6e
- SPAM [BAK::ObjectIndex] 33 Unknown0: 00 00|2 0d 00|Tsurani Light Crossbow
  SPAM [BAK::ObjectIndex] ItmIndex:33 Object: { Tsurani Light Crossbow fl: 1008 imgIndex: 33 lvl: 1 val: 3000 swing (20, -5) thrust (0, 0) size: 2 Tsurani Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 80 df1: 7 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: abe
- SPAM [BAK::ObjectIndex] 34 Unknown0: 00 00|2 0d 00|Tsurani Heavy Crossbow
  SPAM [BAK::ObjectIndex] ItmIndex:34 Object: { Tsurani Heavy Crossbow fl: 1008 imgIndex: 34 lvl: 1 val: 5000 swing (40, 0) thrust (0, 0) size: 2 Tsurani Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 50 df1: 7 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: b0e
- SPAM [BAK::ObjectIndex] 35 Unknown0: 00 00|2 05 00|Elven Crossbow
  SPAM [BAK::ObjectIndex] ItmIndex:35 Object: { Elven Crossbow fl: 1008 imgIndex: 35 lvl: 1 val: 7250 swing (25, 25) thrust (0, 0) size: 2 Elf Crossbow Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 45 df1: 6 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: b5e
- SPAM [BAK::ObjectIndex] 36 Unknown0: 00 00|2 00 00|Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:36 Object: { Quarrels fl: 8800 imgIndex: 36 lvl: 1 val: 120 swing (3, 0) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: bae
- SPAM [BAK::ObjectIndex] 37 Unknown0: 00 00|2 00 00|Elven Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:37 Object: { Elven Quarrels fl: 8800 imgIndex: 37 lvl: 1 val: 1750 swing (9, 15) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: bfe
- SPAM [BAK::ObjectIndex] 38 Unknown0: 00 00|2 00 00|Tsurani Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:38 Object: { Tsurani Quarrels fl: 8800 imgIndex: 38 lvl: 1 val: 500 swing (7, -5) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: c4e
- SPAM [BAK::ObjectIndex] 39 Unknown0: 00 00|2 08 00|Poisoned Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:39 Object: { Poisoned Quarrels fl: 8800 imgIndex: 39 lvl: 1 val: 650 swing (7, -5) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: c9e
- SPAM [BAK::ObjectIndex] 40 Unknown0: 00 00|2 08 00|Poisoned Elven Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:40 Object: { Poisoned Elven Quarrels fl: 8800 imgIndex: 40 lvl: 1 val: 2250 swing (15, 10) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: cee
- SPAM [BAK::ObjectIndex] 41 Unknown0: 00 00|2 08 00|Poisoned Tsurani Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:41 Object: { Poisoned Tsurani Quarrels fl: 8800 imgIndex: 41 lvl: 1 val: 1000 swing (14, -10) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: d3e
- SPAM [BAK::ObjectIndex] 42 Unknown0: 00 00|2 07 00|Flaming Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:42 Object: { Flaming Quarrels fl: 8800 imgIndex: 42 lvl: 1 val: 3000 swing (25, -10) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: d8e
- SPAM [BAK::ObjectIndex] 43 Unknown0: 00 00|2 09 00|Enchanted Quarrels
  SPAM [BAK::ObjectIndex] ItmIndex:43 Object: { Enchanted Quarrels fl: 8800 imgIndex: 43 lvl: 1 val: 4000 swing (30, 20) thrust (0, 0) size: 1 None Unspecified Cat: (100)[CrossbowRelated] useSound: 0 times: 0 stackSize: 25 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: dde
- SPAM [BAK::ObjectIndex] 44 Unknown0: 80 1f|2 0c 00|Dragon Plate Armor
  SPAM [BAK::ObjectIndex] ItmIndex:44 Object: { Dragon Plate Armor fl: 1008 imgIndex: 44 lvl: 1 val: 12500 swing (0, 55) thrust (0, 0) size: 4 Human Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 40 df1: 2 minCond: 50}
- SPAM [BAK::ObjectIndex] ItemOff: e2e
- SPAM [BAK::ObjectIndex] 45 Unknown0: 80 1f|2 08 00|Euliliko Armor
  SPAM [BAK::ObjectIndex] ItmIndex:45 Object: { Euliliko Armor fl: 1008 imgIndex: 45 lvl: 1 val: 4750 swing (0, 30) thrust (0, 0) size: 4 Tsurani Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 60 df1: 4 minCond: 30}
- SPAM [BAK::ObjectIndex] ItemOff: e7e
- SPAM [BAK::ObjectIndex] 46 Unknown0: 80 1f|2 05 00|Elven Armor
  SPAM [BAK::ObjectIndex] ItmIndex:46 Object: { Elven Armor fl: 1008 imgIndex: 46 lvl: 1 val: 2250 swing (0, 25) thrust (0, 0) size: 4 Elf Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 70 df1: 5 minCond: 20}
- SPAM [BAK::ObjectIndex] ItemOff: ece
- SPAM [BAK::ObjectIndex] 47 Unknown0: 80 1f|2 0a 00|Grey Tower Plate
  SPAM [BAK::ObjectIndex] ItmIndex:47 Object: { Grey Tower Plate fl: 100a imgIndex: 47 lvl: 1 val: 6250 swing (0, 40) thrust (0, 0) size: 4 Dwarf Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 50 df1: 3 minCond: 40}
- SPAM [BAK::ObjectIndex] ItemOff: f1e
- SPAM [BAK::ObjectIndex] 48 Unknown0: 80 1f|2 10 00|Standard Kingdom Armor
  SPAM [BAK::ObjectIndex] ItmIndex:48 Object: { Standard Kingdom Armor fl: 1008 imgIndex: 48 lvl: 1 val: 450 swing (0, 15) thrust (0, 0) size: 4 Human Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 95 df1: 6 minCond: 10}
- SPAM [BAK::ObjectIndex] ItemOff: f6e
- SPAM [BAK::ObjectIndex] 49 Unknown0: 80 1f|2 07 00|Valheru Armor
  SPAM [BAK::ObjectIndex] ItmIndex:49 Object: { Valheru Armor fl: 1008 imgIndex: 49 lvl: 1 val: 0 swing (0, 70) thrust (0, 0) size: 4 Elf Armor Cat: (200)[Armor] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 10 df1: 1 minCond: 60}
- SPAM [BAK::ObjectIndex] ItemOff: fbe
- SPAM [BAK::ObjectIndex] 50 Unknown0: 00 00|2 00 00|Potio Noxum
  SPAM [BAK::ObjectIndex] ItmIndex:50 Object: { Potio Noxum fl: 2850 imgIndex: 50 lvl: 1 val: 550 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (40)[UsableMundaneItem] useSound: 0 times: 0 stackSize: 8 defaultStackSize: 2 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 100e
- SPAM [BAK::ObjectIndex] 51 Unknown0: 00 00|2 00 00|Powder Bag
  SPAM [BAK::ObjectIndex] ItmIndex:51 Object: { Powder Bag fl: 2850 imgIndex: 51 lvl: 1 val: 700 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (40)[UsableMundaneItem] useSound: 0 times: 0 stackSize: 12 defaultStackSize: 6 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 105e
- SPAM [BAK::ObjectIndex] 52 Unknown0: 00 00|2 00 00|Tuning Fork
  SPAM [BAK::ObjectIndex] ItmIndex:52 Object: { Tuning Fork fl: 2040 imgIndex: 52 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Ingredient Cat: (40)[UsableMundaneItem] useSound: 0 times: 0 stackSize: 60 defaultStackSize: 60 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 10ae
- SPAM [BAK::ObjectIndex] 53 Unknown0: 00 00|2 00 00|Gold Sovereigns
  SPAM [BAK::ObjectIndex] ItmIndex:53 Object: { Gold Sovereigns fl: 8000 imgIndex: 53 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (0)[] useSound: 0 times: 0 stackSize: 255 defaultStackSize: 255 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 10fe
- SPAM [BAK::ObjectIndex] 54 Unknown0: 00 00|2 00 00|Silver Royals
  SPAM [BAK::ObjectIndex] ItmIndex:54 Object: { Silver Royals fl: 8000 imgIndex: 54 lvl: 1 val: 1 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (0)[] useSound: 0 times: 0 stackSize: 255 defaultStackSize: 255 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 114e
- SPAM [BAK::ObjectIndex] 55 Unknown0: 00 00|2 00 00|Diamonds
  SPAM [BAK::ObjectIndex] ItmIndex:55 Object: { Diamonds fl: 1000 imgIndex: 55 lvl: 1 val: 30000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 119e
- SPAM [BAK::ObjectIndex] 56 Unknown0: 00 00|2 00 00|Emeralds
  SPAM [BAK::ObjectIndex] ItmIndex:56 Object: { Emeralds fl: 1000 imgIndex: 56 lvl: 1 val: 10000 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 11ee
- SPAM [BAK::ObjectIndex] 57 Unknown0: 00 00|2 00 00|Rubies
  SPAM [BAK::ObjectIndex] ItmIndex:57 Object: { Rubies fl: 1000 imgIndex: 57 lvl: 1 val: 7500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 123e
- SPAM [BAK::ObjectIndex] 58 Unknown0: 00 00|2 00 00|Shell
  SPAM [BAK::ObjectIndex] ItmIndex:58 Object: { Shell fl: 1000 imgIndex: 58 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (7)[Utility,Rations,PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 128e
- SPAM [BAK::ObjectIndex] 59 Unknown0: 00 00|2 08 00|Moredhel Brooch
  SPAM [BAK::ObjectIndex] ItmIndex:59 Object: { Moredhel Brooch fl: 1000 imgIndex: 59 lvl: 1 val: 2500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (4)[PreciousGems] useSound: 0 times: 0 stackSize: 250 defaultStackSize: 100 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 12de
- SPAM [BAK::ObjectIndex] 60 Unknown0: 00 00|2 00 00|Bag of Grain
  SPAM [BAK::ObjectIndex] ItmIndex:60 Object: { Bag of Grain fl: 1000 imgIndex: 60 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 4 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 132e
- SPAM [BAK::ObjectIndex] 61 Unknown0: 00 00|2 00 00|Peasant's Key
  SPAM [BAK::ObjectIndex] ItmIndex:61 Object: { Peasant's Key fl: 0 imgIndex: 61 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 137e
- SPAM [BAK::ObjectIndex] 62 Unknown0: 00 00|2 00 00|Virtue Key
  SPAM [BAK::ObjectIndex] ItmIndex:62 Object: { Virtue Key fl: 0 imgIndex: 62 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 13ce
- SPAM [BAK::ObjectIndex] 63 Unknown0: 00 00|2 00 00|Key of Lineages
  SPAM [BAK::ObjectIndex] ItmIndex:63 Object: { Key of Lineages fl: 0 imgIndex: 63 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 141e
- SPAM [BAK::ObjectIndex] 64 Unknown0: 00 00|2 00 00|Cellar Key
  SPAM [BAK::ObjectIndex] ItmIndex:64 Object: { Cellar Key fl: 0 imgIndex: 64 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 146e
- SPAM [BAK::ObjectIndex] 65 Unknown0: 00 00|2 00 00|Nivek's Key
  SPAM [BAK::ObjectIndex] ItmIndex:65 Object: { Nivek's Key fl: 0 imgIndex: 65 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 14be
- SPAM [BAK::ObjectIndex] 66 Unknown0: 00 00|2 00 00|Interdictor Key
  SPAM [BAK::ObjectIndex] ItmIndex:66 Object: { Interdictor Key fl: 0 imgIndex: 66 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 150e
- SPAM [BAK::ObjectIndex] 67 Unknown0: 00 00|2 00 00|Noble's Passkey
  SPAM [BAK::ObjectIndex] ItmIndex:67 Object: { Noble's Passkey fl: 0 imgIndex: 67 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 155e
- SPAM [BAK::ObjectIndex] 68 Unknown0: 00 00|2 00 00|Guilder's Passkey
  SPAM [BAK::ObjectIndex] ItmIndex:68 Object: { Guilder's Passkey fl: 0 imgIndex: 68 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 15ae
- SPAM [BAK::ObjectIndex] 69 Unknown0: 00 00|2 00 00|Guildis Thorn
  SPAM [BAK::ObjectIndex] ItmIndex:69 Object: { Guildis Thorn fl: 0 imgIndex: 69 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 15fe
- SPAM [BAK::ObjectIndex] 70 Unknown0: 00 00|2 07 00|Ward of Ralen-Sheb
  SPAM [BAK::ObjectIndex] ItmIndex:70 Object: { Ward of Ralen-Sheb fl: 0 imgIndex: 70 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 164e
- SPAM [BAK::ObjectIndex] 71 Unknown0: 00 00|2 09 00|Royal Key of Krondor
  SPAM [BAK::ObjectIndex] ItmIndex:71 Object: { Royal Key of Krondor fl: 0 imgIndex: 71 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Key Cat: (8)[Keys] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 169e
- SPAM [BAK::ObjectIndex] 72 Unknown0: 00 00|2 00 00|Rations
  SPAM [BAK::ObjectIndex] ItmIndex:72 Object: { Rations fl: 8800 imgIndex: 72 lvl: 1 val: 70 swing (0, 0) thrust (0, 0) size: 1 None Ration Cat: (2)[Rations] useSound: 0 times: 0 stackSize: 14 defaultStackSize: 14 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 16ee
- SPAM [BAK::ObjectIndex] 73 Unknown0: 00 00|2 07 00|Rations (Poisoned)
  SPAM [BAK::ObjectIndex] ItmIndex:73 Object: { Rations (Poisoned) fl: 8800 imgIndex: 73 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Ration Cat: (2)[Rations] useSound: 0 times: 0 stackSize: 14 defaultStackSize: 7 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 173e
- SPAM [BAK::ObjectIndex] 74 Unknown0: 00 00|2 07 00|Rations (Spoiled)
  SPAM [BAK::ObjectIndex] ItmIndex:74 Object: { Rations (Spoiled) fl: 8800 imgIndex: 74 lvl: 1 val: 7 swing (0, 0) thrust (0, 0) size: 1 None Ration Cat: (2)[Rations] useSound: 0 times: 0 stackSize: 14 defaultStackSize: 7 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 178e
- SPAM [BAK::ObjectIndex] 75 Unknown0: 00 00|2 09 00|Armorer's Hammer
  SPAM [BAK::ObjectIndex] ItmIndex:75 Object: { Armorer's Hammer fl: 2110 imgIndex: 75 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Tool Cat: (1)[Utility] useSound: 65 times: 2 stackSize: 30 defaultStackSize: 30 eff (4, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 17de
- SPAM [BAK::ObjectIndex] 76 Unknown0: 00 00|2 00 00|Heavy Bowstring
  SPAM [BAK::ObjectIndex] ItmIndex:76 Object: { Heavy Bowstring fl: 20 imgIndex: 76 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Bowstring Cat: (101)[Utility,CrossbowRelated] useSound: 22 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 182e
- SPAM [BAK::ObjectIndex] 77 Unknown0: 00 00|2 00 00|Light Bowstring
  SPAM [BAK::ObjectIndex] ItmIndex:77 Object: { Light Bowstring fl: 20 imgIndex: 77 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Bowstring Cat: (101)[Utility,CrossbowRelated] useSound: 22 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 187e
- SPAM [BAK::ObjectIndex] 78 Unknown0: 00 00|2 00 00|Herbal Pack
  SPAM [BAK::ObjectIndex] ItmIndex:78 Object: { Herbal Pack fl: 2810 imgIndex: 78 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Container Cat: (4000)[Potions] useSound: 18 times: 0 stackSize: 20 defaultStackSize: 8 eff (4, 100 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 18ce
- SPAM [BAK::ObjectIndex] 79 Unknown0: 00 00|2 00 00|Ale Cask
  SPAM [BAK::ObjectIndex] ItmIndex:79 Object: { Ale Cask fl: 2002 imgIndex: 79 lvl: 1 val: 400 swing (0, 0) thrust (0, 0) size: 1 None Container Cat: (1)[Utility] useSound: 64 times: 0 stackSize: 8 defaultStackSize: 8 eff (3, 25 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 191e
- SPAM [BAK::ObjectIndex] 80 Unknown0: 00 00|2 00 00|Picklocks
  SPAM [BAK::ObjectIndex] ItmIndex:80 Object: { Picklocks fl: 8800 imgIndex: 80 lvl: 1 val: 350 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 36 defaultStackSize: 4 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 196e
- SPAM [BAK::ObjectIndex] 81 Unknown0: 00 00|2 00 00|Practice Lute
  SPAM [BAK::ObjectIndex] ItmIndex:81 Object: { Practice Lute fl: 2110 imgIndex: 81 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 2 None Other Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 40 defaultStackSize: 40 eff (0, 0 ) potionPower: 0 altEff: 0 mod (800, 1) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 19be
- SPAM [BAK::ObjectIndex] 82 Unknown0: 00 00|2 00 00|Rope
  SPAM [BAK::ObjectIndex] ItmIndex:82 Object: { Rope fl: 2810 imgIndex: 82 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 20 defaultStackSize: 4 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1a0e
- SPAM [BAK::ObjectIndex] 83 Unknown0: 00 00|2 00 00|Shovel
  SPAM [BAK::ObjectIndex] ItmIndex:83 Object: { Shovel fl: 2010 imgIndex: 83 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 25 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1a5e
- SPAM [BAK::ObjectIndex] 84 Unknown0: 00 00|2 00 00|Torch
  SPAM [BAK::ObjectIndex] ItmIndex:84 Object: { Torch fl: 2810 imgIndex: 84 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 None Light Cat: (1)[Utility] useSound: 56 times: 0 stackSize: 25 defaultStackSize: 3 eff (8, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1aae
- SPAM [BAK::ObjectIndex] 85 Unknown0: 00 00|2 00 00|Whetstone
  SPAM [BAK::ObjectIndex] ItmIndex:85 Object: { Whetstone fl: 2110 imgIndex: 85 lvl: 1 val: 20 swing (0, 0) thrust (0, 0) size: 1 None Tool Cat: (1)[Utility] useSound: 19 times: 1 stackSize: 20 defaultStackSize: 20 eff (1, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1afe
- SPAM [BAK::ObjectIndex] 86 Unknown0: 00 00|2 00 00|Aventurine
  SPAM [BAK::ObjectIndex] ItmIndex:86 Object: { Aventurine fl: 2910 imgIndex: 86 lvl: 1 val: 100 swing (0, 0) thrust (0, 0) size: 1 None Tool Cat: (1)[Utility] useSound: 19 times: 0 stackSize: 12 defaultStackSize: 6 eff (2, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1b4e
- SPAM [BAK::ObjectIndex] 87 Unknown0: 00 00|2 00 00|Burial Cloth
  SPAM [BAK::ObjectIndex] ItmIndex:87 Object: { Burial Cloth fl: 0 imgIndex: 87 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1b9e
- SPAM [BAK::ObjectIndex] 88 Unknown0: 00 00|2 0b 00|Ring of the Golden Way
  SPAM [BAK::ObjectIndex] ItmIndex:88 Object: { Ring of the Golden Way fl: 0 imgIndex: 88 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (400)[UsableMagicalItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (4000, 15) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1bee
- SPAM [BAK::ObjectIndex] 89 Unknown0: 00 00|2 00 00|Vapor Mask
  SPAM [BAK::ObjectIndex] ItmIndex:89 Object: { Vapor Mask fl: 0 imgIndex: 89 lvl: 1 val: 200 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1c3e
- SPAM [BAK::ObjectIndex] 90 Unknown0: 00 00|2 00 00|Weedwalkers
  SPAM [BAK::ObjectIndex] ItmIndex:90 Object: { Weedwalkers fl: 0 imgIndex: 90 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (8000, 30) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1c8e
- SPAM [BAK::ObjectIndex] 91 Unknown0: 00 00|2 00 00|Catapult gear
  SPAM [BAK::ObjectIndex] ItmIndex:91 Object: { Catapult gear fl: 2 imgIndex: 91 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (1)[Utility] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1cde
- SPAM [BAK::ObjectIndex] 92 Unknown0: 00 00|2 00 00|Geomancy Stones
  SPAM [BAK::ObjectIndex] ItmIndex:92 Object: { Geomancy Stones fl: 2 imgIndex: 92 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 2 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1d2e
- SPAM [BAK::ObjectIndex] 93 Unknown0: 00 00|2 08 00|Glazer's Guild Seal
  SPAM [BAK::ObjectIndex] ItmIndex:93 Object: { Glazer's Guild Seal fl: 2 imgIndex: 93 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1d7e
- SPAM [BAK::ObjectIndex] 94 Unknown0: 00 00|2 00 00|Hellfire Trap
  SPAM [BAK::ObjectIndex] ItmIndex:94 Object: { Hellfire Trap fl: 2 imgIndex: 94 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1dce
- SPAM [BAK::ObjectIndex] 95 Unknown0: 00 00|2 00 00|IronJaw Trap
  SPAM [BAK::ObjectIndex] ItmIndex:95 Object: { IronJaw Trap fl: 2 imgIndex: 95 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1e1e
- SPAM [BAK::ObjectIndex] 96 Unknown0: 00 00|2 00 00|River Trap
  SPAM [BAK::ObjectIndex] ItmIndex:96 Object: { River Trap fl: 2 imgIndex: 96 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1e6e
- SPAM [BAK::ObjectIndex] 97 Unknown0: 00 00|2 00 00|Knights Piece
  SPAM [BAK::ObjectIndex] ItmIndex:97 Object: { Knights Piece fl: 2 imgIndex: 97 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1ebe
- SPAM [BAK::ObjectIndex] 98 Unknown0: 00 00|2 00 00|Lecture Ticket
  SPAM [BAK::ObjectIndex] ItmIndex:98 Object: { Lecture Ticket fl: 2 imgIndex: 98 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1f0e
- SPAM [BAK::ObjectIndex] 99 Unknown0: 00 00|2 00 00|Leather Leggings
  SPAM [BAK::ObjectIndex] ItmIndex:99 Object: { Leather Leggings fl: 2 imgIndex: 99 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1f5e
- SPAM [BAK::ObjectIndex] 100 Unknown0: 00 00|2 00 00|Skeletal Hand
  SPAM [BAK::ObjectIndex] ItmIndex:100 Object: { Skeletal Hand fl: 2 imgIndex: 100 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1fae
- SPAM [BAK::ObjectIndex] 101 Unknown0: 00 00|2 00 00|Waani
  SPAM [BAK::ObjectIndex] ItmIndex:101 Object: { Waani fl: 2 imgIndex: 101 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Unspecified Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 1ffe
- SPAM [BAK::ObjectIndex] 102 Unknown0: 00 00|2 00 00|Wooden Chest
  SPAM [BAK::ObjectIndex] ItmIndex:102 Object: { Wooden Chest fl: 2100 imgIndex: 102 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Other Cat: (20)[QuestItem] useSound: 0 times: 0 stackSize: 24 defaultStackSize: 24 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 204e
- SPAM [BAK::ObjectIndex] 103 Unknown0: 00 00|2 00 00|Althafain's Icer
  SPAM [BAK::ObjectIndex] ItmIndex:103 Object: { Althafain's Icer fl: 2010 imgIndex: 103 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 8 eff (400, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 209e
- SPAM [BAK::ObjectIndex] 104 Unknown0: 00 00|2 00 00|Clerical Oilcloth
  SPAM [BAK::ObjectIndex] ItmIndex:104 Object: { Clerical Oilcloth fl: 2010 imgIndex: 104 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 4 eff (800, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 20ee
- SPAM [BAK::ObjectIndex] 105 Unknown0: 00 00|2 00 00|Coltari Poison
  SPAM [BAK::ObjectIndex] ItmIndex:105 Object: { Coltari Poison fl: 2810 imgIndex: 105 lvl: 1 val: 250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 6 eff (80, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 213e
- SPAM [BAK::ObjectIndex] 106 Unknown0: 00 00|2 00 00|Dragon Stone
  SPAM [BAK::ObjectIndex] ItmIndex:106 Object: { Dragon Stone fl: 2010 imgIndex: 106 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 218e
- SPAM [BAK::ObjectIndex] 107 Unknown0: 00 00|2 00 00|Flame Root Oil
  SPAM [BAK::ObjectIndex] ItmIndex:107 Object: { Flame Root Oil fl: 2810 imgIndex: 107 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 6 eff (400, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 21de
- SPAM [BAK::ObjectIndex] 108 Unknown0: 00 00|2 09 00|Killian's Root Oil
  SPAM [BAK::ObjectIndex] ItmIndex:108 Object: { Killian's Root Oil fl: 2810 imgIndex: 108 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None SpecialOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 6 eff (1000, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 222e
- SPAM [BAK::ObjectIndex] 109 Unknown0: 00 00|2 00 00|Naphtha
  SPAM [BAK::ObjectIndex] ItmIndex:109 Object: { Naphtha fl: 2810 imgIndex: 109 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 18 defaultStackSize: 6 eff (200, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 227e
- SPAM [BAK::ObjectIndex] 110 Unknown0: 00 00|2 00 00|Sarigsbane
  SPAM [BAK::ObjectIndex] ItmIndex:110 Object: { Sarigsbane fl: 2010 imgIndex: 110 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 8 eff (1800, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 22ce
- SPAM [BAK::ObjectIndex] 111 Unknown0: 00 00|2 00 00|Silver Spider
  SPAM [BAK::ObjectIndex] ItmIndex:111 Object: { Silver Spider fl: 2 imgIndex: 111 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 0 defaultStackSize: 0 eff (80, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 231e
- SPAM [BAK::ObjectIndex] 112 Unknown0: 00 00|2 00 00|Silverthorn
  SPAM [BAK::ObjectIndex] ItmIndex:112 Object: { Silverthorn fl: 2810 imgIndex: 112 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None WeaponOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 20 defaultStackSize: 8 eff (80, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 236e
- SPAM [BAK::ObjectIndex] 113 Unknown0: 00 00|2 0b 00|Silverthorn Anti-Venom
  SPAM [BAK::ObjectIndex] ItmIndex:113 Object: { Silverthorn Anti-Venom fl: 2810 imgIndex: 113 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None ArmorOil Cat: (8000)[Modifier] useSound: 3 times: 0 stackSize: 12 defaultStackSize: 8 eff (80, -8065 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 23be
- SPAM [BAK::ObjectIndex] 114 Unknown0: 00 00|2 00 00|Dalatail Milk
  SPAM [BAK::ObjectIndex] ItmIndex:114 Object: { Dalatail Milk fl: 2810 imgIndex: 114 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 20 defaultStackSize: 8 eff (200, 16 ) potionPower: 25 altEff: 8 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 240e
- SPAM [BAK::ObjectIndex] 115 Unknown0: 00 00|2 09 00|Fadamor's Formula
  SPAM [BAK::ObjectIndex] ItmIndex:115 Object: { Fadamor's Formula fl: 2810 imgIndex: 115 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 8 ) potionPower: 10 altEff: 8 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 245e
- SPAM [BAK::ObjectIndex] 116 Unknown0: 00 00|2 08 00|Lewton's Concentrate
  SPAM [BAK::ObjectIndex] ItmIndex:116 Object: { Lewton's Concentrate fl: 2890 imgIndex: 116 lvl: 1 val: 750 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 128 ) potionPower: 30 altEff: 8 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 24ae
- SPAM [BAK::ObjectIndex] 117 Unknown0: 00 00|2 00 00|Redweed Brew
  SPAM [BAK::ObjectIndex] ItmIndex:117 Object: { Redweed Brew fl: 2810 imgIndex: 117 lvl: 1 val: 1750 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 64 ) potionPower: 20 altEff: 8 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 24fe
- SPAM [BAK::ObjectIndex] 118 Unknown0: 00 00|2 00 00|Truesight Tea
  SPAM [BAK::ObjectIndex] ItmIndex:118 Object: { Truesight Tea fl: 2a10 imgIndex: 118 lvl: 1 val: 1000 swing (0, 0) thrust (0, 0) size: 1 None Potion Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 12 defaultStackSize: 6 eff (200, 32 ) potionPower: 25 altEff: 8 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 254e
- SPAM [BAK::ObjectIndex] 119 Unknown0: 00 00|2 00 00|Restoratives
  SPAM [BAK::ObjectIndex] ItmIndex:119 Object: { Restoratives fl: 2810 imgIndex: 119 lvl: 1 val: 500 swing (0, 0) thrust (0, 0) size: 1 None Restoratives Cat: (4000)[Potions] useSound: 64 times: 0 stackSize: 24 defaultStackSize: 12 eff (6, 2 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 259e
- SPAM [BAK::ObjectIndex] 120 Unknown0: 00 00|2 00 00|Note
  SPAM [BAK::ObjectIndex] ItmIndex:120 Object: { Note fl: 4102 imgIndex: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 25ee
- SPAM [BAK::ObjectIndex] 121 Unknown0: 00 00|2 00 00|Great One's Note
  SPAM [BAK::ObjectIndex] ItmIndex:121 Object: { Great One's Note fl: 102 imgIndex: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 263e
- SPAM [BAK::ObjectIndex] 122 Unknown0: 00 00|2 13 00|Mitchel Waylander's Note
  SPAM [BAK::ObjectIndex] ItmIndex:122 Object: { Mitchel Waylander's Note fl: 102 imgIndex: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 268e
- SPAM [BAK::ObjectIndex] 123 Unknown0: 00 00|2 00 00|Navon's Note
  SPAM [BAK::ObjectIndex] ItmIndex:123 Object: { Navon's Note fl: 102 imgIndex: 120 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 26de
- SPAM [BAK::ObjectIndex] 124 Unknown0: 00 00|2 00 00|Abbot's Journal
  SPAM [BAK::ObjectIndex] ItmIndex:124 Object: { Abbot's Journal fl: 102 imgIndex: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 272e
- SPAM [BAK::ObjectIndex] 125 Unknown0: 00 00|2 00 00|Lorgan's Journal
  SPAM [BAK::ObjectIndex] ItmIndex:125 Object: { Lorgan's Journal fl: 102 imgIndex: 121 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Note Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 277e
- SPAM [BAK::ObjectIndex] 126 Unknown0: 00 00|2 10 00|Accts of Shamata Garrison
  SPAM [BAK::ObjectIndex] ItmIndex:126 Object: { Accts of Shamata Garrison fl: 2100 imgIndex: 122 lvl: 1 val: 1500 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (100, 5 ) potionPower: 20 altEff: 1 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 27ce
- SPAM [BAK::ObjectIndex] 127 Unknown0: 00 00|2 0d 00|Chapel's Rmur n Whepuns
  SPAM [BAK::ObjectIndex] ItmIndex:127 Object: { Chapel's Rmur n Whepuns fl: 2100 imgIndex: 122 lvl: 1 val: 3500 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (600, 3 ) potionPower: 15 altEff: 1 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 281e
- SPAM [BAK::ObjectIndex] 128 Unknown0: 00 00|2 07 00|Dorcas' Treatise
  SPAM [BAK::ObjectIndex] ItmIndex:128 Object: { Dorcas' Treatise fl: 2100 imgIndex: 122 lvl: 1 val: 3000 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (80, 5 ) potionPower: 18 altEff: 1 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 286e
- SPAM [BAK::ObjectIndex] 129 Unknown0: 00 00|2 07 00|Kalem's Dialectic
  SPAM [BAK::ObjectIndex] ItmIndex:129 Object: { Kalem's Dialectic fl: 2100 imgIndex: 122 lvl: 1 val: 2250 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (20, 5 ) potionPower: 20 altEff: 1 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 28be
- SPAM [BAK::ObjectIndex] 130 Unknown0: 00 00|2 09 00|Psalms of Dala
  SPAM [BAK::ObjectIndex] ItmIndex:130 Object: { Psalms of Dala fl: 2100 imgIndex: 122 lvl: 1 val: 2000 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (10, 4 ) potionPower: 20 altEff: 1 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 290e
- SPAM [BAK::ObjectIndex] 131 Unknown0: 00 00|2 0d 00|Strategies of Trading
  SPAM [BAK::ObjectIndex] ItmIndex:131 Object: { Strategies of Trading fl: 2100 imgIndex: 122 lvl: 1 val: 1250 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (1000, 10 ) potionPower: 25 altEff: 1 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 295e
- SPAM [BAK::ObjectIndex] 132 Unknown0: 00 00|2 0d 00|Thiful's Bird Migrations
  SPAM [BAK::ObjectIndex] ItmIndex:132 Object: { Thiful's Bird Migrations fl: 2100 imgIndex: 122 lvl: 1 val: 4000 swing (0, 0) thrust (0, 0) size: 1 None Book Cat: (2000)[BookOrNote] useSound: 0 times: 0 stackSize: 100 defaultStackSize: 100 eff (fff0, 5 ) potionPower: 8 altEff: 1 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 29ae
- SPAM [BAK::ObjectIndex] 133 Unknown0: 00 00|2 00 00|Magical Scroll
  SPAM [BAK::ObjectIndex] ItmIndex:133 Object: { Magical Scroll fl: 41a0 imgIndex: 124 lvl: 1 val: 0 swing (0, 0) thrust (0, 0) size: 1 None Scroll Cat: (1000)[Scroll] useSound: 56 times: 0 stackSize: 0 defaultStackSize: 0 eff (0, 0 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 29fe
- SPAM [BAK::ObjectIndex] 134 Unknown0: 00 00|2 00 00|Days Rations
  SPAM [BAK::ObjectIndex] ItmIndex:134 Object: { Days Rations fl: 0 imgIndex: 125 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 0 times: 0 stackSize: 0 defaultStackSize: 0 eff (48, 1 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 2a4e
- SPAM [BAK::ObjectIndex] 135 Unknown0: 00 00|2 00 00|Quegian Brandy
  SPAM [BAK::ObjectIndex] ItmIndex:135 Object: { Quegian Brandy fl: 0 imgIndex: 126 lvl: 1 val: 50 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 64 times: 2 stackSize: 0 defaultStackSize: 0 eff (3, 18 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 2a9e
- SPAM [BAK::ObjectIndex] 136 Unknown0: 00 00|2 00 00|Ale
  SPAM [BAK::ObjectIndex] ItmIndex:136 Object: { Ale fl: 0 imgIndex: 127 lvl: 1 val: 10 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 64 times: 2 stackSize: 0 defaultStackSize: 0 eff (3, 12 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
- SPAM [BAK::ObjectIndex] ItemOff: 2aee
- SPAM [BAK::ObjectIndex] 137 Unknown0: 00 00|2 00 00|Keshian Ale
  SPAM [BAK::ObjectIndex] ItmIndex:137 Object: { Keshian Ale fl: 0 imgIndex: 127 lvl: 1 val: 30 swing (0, 0) thrust (0, 0) size: 1 Human Food Cat: (0)[] useSound: 64 times: 2 stackSize: 0 defaultStackSize: 0 eff (3, 28 ) potionPower: 0 altEff: 0 mod (0, 0) df0: 0 df1: 0 minCond: 0}
  INFO [main] Loading fixed objects from zone: 1

@@ -31,7 +31,7 @@ public:
 
     void SetTextVariable(unsigned variable, std::string value)
     {
-        mLogger.Debug() << "Setting " << variable << " to " << value << "\n";
+        mLogger.Spam() << "Setting " << variable << " to " << value << "\n";
         mTextVariables[MakeVariableName(variable)] = value;
     }
 
@@ -46,7 +46,7 @@ public:
 
         for (const auto& [key, value] : mTextVariables)
         {
-            mLogger.Debug() << "replacing " << key << " with " << value << "\n";
+            mLogger.Spam() << "replacing " << key << " with " << value << "\n";
             newText = std::regex_replace(
                 newText,
                 std::regex{key},

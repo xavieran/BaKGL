@@ -827,6 +827,10 @@ void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
             AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
         }
     }
+    if (result.mDialogContext)
+    {
+        mGameState.SetDialogContext(*result.mDialogContext);
+    }
     StartDialog(result.mDialog);
 
     mNeedRefresh = true;

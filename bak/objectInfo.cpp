@@ -146,8 +146,6 @@ std::string_view ToString(ItemType i)
     case ItemType::Crossbow: return "Crossbow";
     case ItemType::Staff: return "Staff";
     case ItemType::Armor: return "Armor";
-    case ItemType::Unknown5: return "Unknown5";
-    case ItemType::Unknown6: return "Unknown6";
     case ItemType::Key: return "Key";
     case ItemType::Tool: return "Tool";
     case ItemType::WeaponOil: return "WeaponOil";
@@ -155,13 +153,11 @@ std::string_view ToString(ItemType i)
     case ItemType::SpecialOil: return "SpecialOil";
     case ItemType::Bowstring: return "Bowstring";
     case ItemType::Scroll: return "Scroll";
-    case ItemType::Unknown14: return "Unknown14";
-    case ItemType::Unknown15: return "Unknown15";
     case ItemType::Note: return "Note";
     case ItemType::Book: return "Book";
     case ItemType::Potion: return "Potion";
     case ItemType::Restoratives: return "Restoratives";
-    case ItemType::Container: return "Container";
+    case ItemType::ConditionModifier: return "ConditionModifier";
     case ItemType::Light: return "Light";
     case ItemType::Ingredient: return "Ingredient";
     case ItemType::Ration: return "Ration";

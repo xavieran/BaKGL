@@ -20,7 +20,11 @@ enum class ItemStatus : std::uint8_t
 
 enum class ItemFlags : std::uint16_t
 {
+    Consumable     =  4, // 0x0010
     MagicalItem    =  7, // 0x0080
+    Combat         =  8, // 0x0100 // ??
+    SwordsmanItem  =  9, // 0x0200 // ??
+    NonCombatItem  = 10, // 0x0400 // ??
     Stackable      = 11, // 0x0800
     ConditionBased = 12, // 0x1000
     ChargeBased    = 13, // 0x2000
@@ -134,6 +138,11 @@ public:
     bool IsQuantityBased() const
     {
         return HasFlag(ItemFlags::QuantityBased);
+    }
+
+    bool IsConsumable() const
+    {
+        return HasFlag(ItemFlags::Consumable);
     }
 
     bool IsSkillModifier() const

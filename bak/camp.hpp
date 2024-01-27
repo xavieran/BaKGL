@@ -54,7 +54,7 @@ public:
         bool isNotSleeping,
         unsigned healPercentage)
     {
-        Logging::LogDebug(__FUNCTION__) << "(" << timeDelta
+        Logging::LogSpam(__FUNCTION__) << "(" << timeDelta
             << " canDisplayDialog: " << canDisplayDialog << " consRat: "
             << mustConsumeRations << " sleep? "
             << isNotSleeping << " hl: " << healPercentage << ")\n";
@@ -192,7 +192,7 @@ private:
         bool isNotSleeping,
         unsigned healPercent)
     {
-        Logging::LogDebug(__FUNCTION__) << "(" << canDisplayDialog
+        Logging::LogSpam(__FUNCTION__) << "(" << canDisplayDialog
             << ", " << isNotSleeping << ", " << healPercent << ")\n";
         if (canDisplayDialog)
         {
