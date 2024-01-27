@@ -20,6 +20,7 @@ enum class ItemStatus : std::uint8_t
 
 enum class ItemFlags : std::uint16_t
 {
+    MagicalItem    =  7, // 0x0080
     Stackable      = 11, // 0x0800
     ConditionBased = 12, // 0x1000
     ChargeBased    = 13, // 0x2000

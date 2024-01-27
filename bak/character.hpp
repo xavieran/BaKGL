@@ -107,8 +107,8 @@ public:
         }
         // Quegian brandy
         else if (itemIndex == BAK::sBrandy
-            || itemIndex == BAK::sKeg
-            || itemIndex == BAK::sAle)
+            || itemIndex == BAK::sAle
+            || itemIndex == BAK::sKeshianAle)
         {
             mConditions.IncreaseCondition(
                 static_cast<Condition>(ref.GetObject().mEffectMask),

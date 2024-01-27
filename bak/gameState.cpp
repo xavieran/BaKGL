@@ -11,6 +11,11 @@ void GameState::ElapseTime(Time time)
     auto splitTime = time;
     auto camp = BAK::MakeCamp{*this};
     bool dialogResetsSleep = time > Times::TwelveHours;
+    // there is further logic to this that determines
+    // whether we consume rations or not.
+    // e.g. cutter's gap in highcastle consumes rations,
+    //      zone transitions do not...
+    bool dialogConsumesRations = true;
     while (splitTime > Times::OneHour)
     {
         if (dialogResetsSleep)
@@ -22,7 +27,7 @@ void GameState::ElapseTime(Time time)
         camp.HandleGameTimeChange(
             Times::OneHour,
             true,
-            dialogResetsSleep,
+            dialogConsumesRations,
             false,
             0);
     }
@@ -32,7 +37,7 @@ void GameState::ElapseTime(Time time)
         camp.HandleGameTimeChange(
             splitTime,
             true,
-            dialogResetsSleep,
+            dialogConsumesRations,
             false,
             0);
     }

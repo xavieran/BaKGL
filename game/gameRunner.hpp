@@ -361,7 +361,7 @@ public:
 
         // Check whether players are in valid combatable position???
         auto timeOfScouting = mGameState.Apply(BAK::State::GetCombatClickedTime, combat.mCombatIndex);
-        auto timeDiff = mGameState.GetWorldTime().mTime.mTime - timeOfScouting;
+        auto timeDiff = mGameState.GetWorldTime().GetTime().mTime - timeOfScouting;
         if ((timeDiff / 0x1e) < 0x1e) // within scouting valid time
         {
             auto chance = GetRandomNumber(0, 0xfff) % 100;

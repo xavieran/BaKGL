@@ -65,7 +65,7 @@ public:
     static constexpr auto mCantUseItemRightNow = 0x1b7746;
     static constexpr auto mCantUseItemDuringCombat = 0x1b7747;
     // Contextual
-    static constexpr auto mItemHasNoCharges         = 0x1b776c;
+    static constexpr auto mItemHasNoCharges         = KeyTarget{0x1b776c};
     // Contextual on container type (use to deduce container types?)
     static constexpr auto mContainerHasNoRoomForItem = KeyTarget{0x1b7748};
     static constexpr auto mDropItem = 0x1b7749;

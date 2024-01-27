@@ -164,6 +164,9 @@ public:
 
     // Adds the given item with no checks
     void AddItem(const InventoryItem& item);
+    // FIXME: Some items shouldn't be removed even if their quantity
+    // goes to zero, e.g. practise lute, ring, books.
+    // Find the flag that indicates this
     bool RemoveItem(const InventoryItem& item);
     bool RemoveItem(BAK::InventoryIndex item);
     bool RemoveItem(BAK::InventoryIndex item, unsigned quantity);
