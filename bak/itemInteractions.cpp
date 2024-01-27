@@ -1,11 +1,15 @@
 #include "bak/itemInteractions.hpp"
 
+#include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/gameState.hpp"
 #include "bak/itemNumbers.hpp"
 #include "bak/skills.hpp"
 #include "bak/sounds.hpp"
+#include "bak/state/item.hpp"
 
 #include "com/logger.hpp"
+#include "com/random.hpp"
 
 namespace BAK {
 
@@ -21,6 +25,7 @@ ItemUseResult RepairItem(
     {
         return ItemUseResult{
             std::nullopt,
+            std::nullopt,
             DialogSources::GetChoiceResult(
                 DialogSources::mItemUseFailure,
                 sourceItem.GetItemIndex().mValue)};
@@ -29,6 +34,7 @@ ItemUseResult RepairItem(
     if (!targetItem.IsRepairable())
     {
         return ItemUseResult{
+            std::nullopt,
             std::nullopt,
             DialogSources::mCantRepairItemFurther};
     }
@@ -49,12 +55,12 @@ ItemUseResult RepairItem(
 
     auto result = ItemUseResult{
         sourceItem.GetItemUseSound(),
+        std::nullopt,
         KeyTarget{0}};
 
     if (targetItem.IsItemType(BAK::ItemType::Crossbow))
     {
-        character.RemoveItem(
-            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
+        character.GetInventory().RemoveItem(sourceItemIndex, 1);
     }
     else
     {
@@ -84,6 +90,7 @@ ItemUseResult FixCrossbow(
 
         auto result = ItemUseResult{
             sourceItem.GetItemUseSound(),
+            std::nullopt,
             KeyTarget{0}};
 
         character.RemoveItem(sourceItem);
@@ -93,6 +100,7 @@ ItemUseResult FixCrossbow(
     else
     {
         return ItemUseResult{
+            std::nullopt,
             std::nullopt,
             Target{DialogSources::mGenericCantUseItem}};
     }
@@ -110,6 +118,7 @@ ItemUseResult ModifyItem(
     {
         return ItemUseResult{
             std::nullopt,
+            std::nullopt,
             DialogSources::GetChoiceResult(
                 DialogSources::mItemUseFailure,
                 sourceItem.GetItemIndex().mValue)};
@@ -120,13 +129,15 @@ ItemUseResult ModifyItem(
 
     auto result = ItemUseResult{
         sourceItem.GetItemUseSound(),
+        std::nullopt,
         DialogSources::GetChoiceResult(
             DialogSources::mItemUseSucessful,
             sourceItem.GetItemIndex().mValue)};
 
     if (sourceItem.IsChargeBased() || sourceItem.IsQuantityBased())
-        character.RemoveItem(
-            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
+    {
+        character.GetInventory().RemoveItem(sourceItemIndex, 1);
+    }
 
     return result;
 }
@@ -147,11 +158,13 @@ ItemUseResult PoisonQuarrel(
 
     auto result = ItemUseResult{
         sourceItem.GetItemUseSound(),
+        std::nullopt,
         KeyTarget{0}};
 
     if (sourceItem.IsChargeBased() || sourceItem.IsQuantityBased())
-        character.RemoveItem(
-            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
+    {
+        character.GetInventory().RemoveItem(sourceItemIndex, 1);
+    }
 
     character.RemoveItem(targetItem);
     character.GiveItem(newQuarrels);
@@ -181,11 +194,13 @@ ItemUseResult PoisonRations(
 
     auto result = ItemUseResult{
         sourceItem.GetItemUseSound(),
+        std::nullopt,
         KeyTarget{0}};
 
     if (sourceItem.IsChargeBased() || sourceItem.IsQuantityBased())
-        character.RemoveItem(
-            InventoryItemFactory::MakeItem(sourceItem.GetItemIndex(), 1));
+    {
+        character.GetInventory().RemoveItem(sourceItemIndex, 1);
+    }
 
     character.RemoveItem(targetItem);
     character.GiveItem(newRations);
@@ -209,6 +224,7 @@ ItemUseResult MakeGuardaRevanche(
     auto result = ItemUseResult{
         // Maybe a different sound?
         std::make_pair(sTeleportSound, 0),
+        std::nullopt,
         DialogSources::GetChoiceResult(
             DialogSources::mItemUseSucessful,
             sourceItem.GetItemIndex().mValue)};
@@ -272,7 +288,286 @@ ItemUseResult ApplyItemTo(
 
     return ItemUseResult{
         std::nullopt,
+        std::nullopt,
         KeyTarget{0}};
 }
 
+ItemUseResult ReadBook(
+    GameState& gameState,
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    if (item.GetQuantity() == 0)
+    {
+        return ItemUseResult{
+            std::nullopt,
+            std::nullopt,
+            KeyTarget{DialogSources::mItemHasNoCharges}
+        };
+    }
+
+    auto& object = item.GetObject();
+    assert(object.mEffectMask != 0);
+
+    bool haveReadBefore = gameState.Apply(
+        State::ReadItemHasBeenUsed,
+        character.mCharacterIndex.mValue,
+        item.GetItemIndex().mValue);
+    std::optional<std::pair<SkillChange, unsigned>> improvement;
+    if (haveReadBefore)
+    {
+        auto chance = GetRandomNumber(0, 0xfff) % 0x64;
+        if (chance > object.mPotionPowerOrBookChance)
+        {
+            improvement = std::make_pair(SkillChange::DifferenceOfSkill, object.mAlternativeEffect);
+        }
+    }
+    else
+    {
+        gameState.Apply(
+            State::SetItemHasBeenUsed,
+            character.mCharacterIndex.mValue,
+            item.GetItemIndex().mValue);
+        improvement = std::make_pair(SkillChange::Direct, static_cast<unsigned>(object.mEffect) << 8);
+    }
+    
+    if (improvement)
+    {
+        auto [skillChange, amount] = *improvement;
+        for (unsigned i = 0; i < 0x10; i++)
+        {
+            auto skill = static_cast<SkillType>(i);
+            if (CheckBitSet(object.mEffectMask, skill))
+            {
+                character.ImproveSkill(skill, skillChange, amount);
+            }
+        }
+    }
+
+    item.SetQuantity(item.GetQuantity() - 1);
+
+    return ItemUseResult{
+        std::nullopt,
+        std::nullopt,
+        DialogSources::GetChoiceResult(
+            DialogSources::mItemUseSucessful,
+            item.GetItemIndex().mValue)};
+}
+
+ItemUseResult LearnSpell(
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    if (character.IsSpellcaster())
+    {
+        if (character.GetSpells().HaveSpell(item.GetSpell()))
+        {
+            return ItemUseResult{
+                std::nullopt,
+                item.GetItemIndex().mValue,
+                BAK::DialogSources::mItemUseFailure
+            };
+        }
+        else
+        {
+            auto sound = item.GetItemUseSound();
+            auto itemIndex = item.GetItemIndex();
+            character.GetSpells().SetSpell(item.GetSpell());
+            character.GetInventory().RemoveItem(inventoryIndex);
+            return ItemUseResult{
+                sound,
+                itemIndex.mValue,
+                BAK::DialogSources::mItemUseSucessful
+            };
+        }
+    }
+    else
+    {
+        return ItemUseResult{
+            std::nullopt,
+            item.GetItemIndex().mValue,
+            BAK::DialogSources::mWarriorCantUseMagiciansItem};
+    }
+}
+
+ItemUseResult PractiseBarding(
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    auto bardSkill = character.GetSkill(SkillType::Barding);
+    const auto ClassifyBardSkill = [](auto bardSkill)
+    {
+        if (bardSkill < 80)
+        {
+            if (bardSkill < 65)
+            {
+                if (bardSkill < 45)
+                {
+                    return Bard::BardStatus::Failed;
+                }
+                else
+                {
+                    return Bard::BardStatus::Poor;
+                }
+            }
+            else
+            {
+                return Bard::BardStatus::Good;
+            }
+        }
+        else
+        {
+            return Bard::BardStatus::Best;
+        }
+    };
+
+    unsigned bardSong = Bard::GetSong(ClassifyBardSkill(bardSkill));
+    
+    auto improvement = 0x28 + (GetRandomNumber(0, 0xfff) % 120);
+    character.ImproveSkill(SkillType::Barding, SkillChange::Direct, improvement);
+    auto itemIndex = item.GetItemIndex().mValue;
+    character.GetInventory().RemoveItem(inventoryIndex, 1);
+    return ItemUseResult{
+        //std::make_pair(bardSong, 1),
+        std::nullopt,
+        std::nullopt,
+        DialogSources::GetChoiceResult(
+            DialogSources::mItemUseSucessful,
+            itemIndex)
+    };
+}
+
+ItemUseResult UseConditionModifier(
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    if (item.GetQuantity() == 0)
+    {
+        return ItemUseResult{
+            std::nullopt,
+            1,
+            KeyTarget{DialogSources::mItemHasNoCharges}
+        };
+    }
+
+    character.GetConditions().AdjustCondition(
+        character.GetSkills(),
+        static_cast<BAK::Condition>(item.GetObject().mEffectMask),
+        item.GetObject().mEffect);
+
+    auto itemIndex = item.GetItemIndex().mValue;
+    if (item.IsConsumable())
+    {
+        character.GetInventory().RemoveItem(inventoryIndex, 1);
+    }
+    else
+    {
+        item.SetQuantity(item.GetQuantity() - 1);
+    }
+
+    return ItemUseResult{
+        item.GetItemUseSound(),
+        std::nullopt,
+        DialogSources::GetChoiceResult(
+            DialogSources::mItemUseSucessful,
+            itemIndex)
+    };
+}
+
+ItemUseResult UseRestoratives(
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+
+    const int adjustAmount = -5;
+    for (unsigned i = 0; i < 7; i++)
+    {
+        auto cond = static_cast<BAK::Condition>(i);
+        if (cond == BAK::Condition::Healing)
+        {
+            continue;
+        }
+
+        character.GetConditions().AdjustCondition(
+            character.GetSkills(),
+            cond,
+            adjustAmount);
+    }
+
+    const auto healthRecoverAmount = item.GetObject().mEffectMask + GetRandomNumber(0, 0xfff) % 2;
+    character.GetSkills().ImproveSkill(
+        character.GetConditions(),
+        SkillType::TotalHealth,
+        SkillChange::HealMultiplier_100,
+        healthRecoverAmount << 8);
+
+    auto result = ItemUseResult{
+        item.GetItemUseSound(),
+        std::nullopt,
+        DialogSources::GetChoiceResult(
+            DialogSources::mItemUseSucessful,
+            item.GetItemIndex().mValue)};
+
+    character.GetInventory().RemoveItem(inventoryIndex, 1);
+
+    return result;
+}
+
+ItemUseResult UseItem(
+    GameState& gameState,
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    auto& object = item.GetObject();
+    if  (object.mType == ItemType::Book)
+    {
+        return ReadBook(gameState, character, inventoryIndex);
+    }
+    else if (item.IsItemType(BAK::ItemType::Note))
+    {
+        if (item.GetItemIndex() == sSpynote)
+        {
+            return ItemUseResult{
+                std::nullopt,
+                item.GetQuantity(),
+                BAK::DialogSources::GetSpynote()};
+        }
+        else
+        {
+            return ItemUseResult{
+                std::nullopt,
+                item.GetItemIndex().mValue,
+                DialogSources::GetChoiceResult(
+                    DialogSources::mItemUseSucessful,
+                    item.GetItemIndex().mValue)};
+        }
+    }
+    else if (item.IsItemType(BAK::ItemType::Scroll))
+    {
+        return LearnSpell(character, inventoryIndex);
+    }
+    else if (item.GetItemIndex() == sPractiseLute)
+    {
+        return PractiseBarding(character, inventoryIndex);
+    }
+    else if (item.IsItemType(BAK::ItemType::ConditionModifier))
+    {
+        return UseConditionModifier(character, inventoryIndex);
+    }
+    else if (item.IsItemType(BAK::ItemType::Restoratives))
+    {
+        return UseRestoratives(character, inventoryIndex);
+    }
+
+    return ItemUseResult{
+        std::nullopt,
+        std::nullopt,
+        KeyTarget{0}};
+}
 }

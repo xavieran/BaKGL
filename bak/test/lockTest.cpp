@@ -12,15 +12,8 @@ struct LockTestFixture : public ::testing::Test
     LockTestFixture()
     :
         mKeyObject{
-            "Key",
-            1, 1, 1,
-            1, 1, 1, 1,
-            0, 1, 0, 0, 0, 0,
-            RacialModifier::None,
-            0,
-            ItemType::Key,
-            0, 0, 0, 0, 0,
-            0, 0, 0
+            .mName = "Key",
+            .mType = ItemType::Key
         }
     {
     }

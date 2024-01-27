@@ -13,50 +13,28 @@ struct CharacterTestFixture : public ::testing::Test
         mObjects{}
     {
         mObjects.emplace_back(GameObject{
-            "Normal",
-            1, 1, 1,
-            1, 1, 1, 1,
-            0, 1, 0, 0, 0, 0,
-            RacialModifier::None,
-            0,
-            ItemType::Other,
-            0, 0, 0, 0, 0,
-            0, 0, 0}
-        );
+            .mName = "Normal",
+            .mImageSize = 1
+            });
 
         mObjects.emplace_back(GameObject{
-            "Sword",
-            1, 1, 1,
-            1, 1, 1, 1,
-            0, 2, 0, 0, 0, 0,
-            RacialModifier::None,
-            0,
-            ItemType::Sword,
-            0, 0, 0, 0, 0,
-            0, 0, 0}
-        );
+            .mName = "Sword",
+            .mImageSize = 2,
+            .mType = ItemType::Sword});
+
         mObjects.emplace_back(GameObject{
-            "Armor",
-            1, 1, 1,
-            1, 1, 1, 1,
-            0, 4, 0, 0, 0, 0,
-            RacialModifier::None,
-            0,
-            ItemType::Armor,
-            0, 0, 0, 0, 0,
-            0, 0, 0}
-        );
+            .mName = "Armor",
+            .mImageSize = 4,
+            .mType = ItemType::Armor,
+            });
+
         mObjects.emplace_back(GameObject{
-            "Stack",
-            0x0800, 1, 1,
-            1, 1, 0, 1, 1,
-            0, 1, 0, mStackSize, 5,
-            RacialModifier::None,
-            0,
-            ItemType::Sword,
-            0, 0, 0, 0, 0,
-            0, 0, 0}
-        );
+            .mName = "Stack",
+            .mFlags = 0x0800,
+            .mImageSize = 1,
+            .mStackSize = mStackSize,
+            .mDefaultStackSize = 5
+            });
     }
 
     auto GetObject(const std::string& object)

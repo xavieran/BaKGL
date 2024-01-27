@@ -24,6 +24,7 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("display_object");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::SetLogTime(false);
     Logging::LogState::Disable("Combat");
     Logging::LogState::Disable("CreateFileBuffer");
     Logging::LogState::Disable("LoadFixedObjects");

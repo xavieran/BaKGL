@@ -811,47 +811,29 @@ void InventoryScreen::SplitStackBeforeMoveItemToContainer(InventorySlot& slot)
 
 void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
 {
-    mLogger.Debug() << "UseItem: " << inventoryIndex << "\n";
-    auto& item = GetCharacter(*mSelectedCharacter).GetInventory()
-        .GetAtIndex(inventoryIndex);
-    mLogger.Debug() << "UseItem: " << item << "\n";
-    mGameState.SetActiveCharacter(
-        GetCharacter(*mSelectedCharacter).mCharacterIndex);
-    if (item.IsItemType(BAK::ItemType::Note))
-    {
-        mGameState.SetDialogContext(item.GetQuantity());
-        StartDialog(BAK::DialogSources::GetSpynote());
-    }
-    else if (item.IsItemType(BAK::ItemType::Scroll))
-    {
-        mGameState.SetDialogContext(item.GetItemIndex().mValue);
-        mGameState.SetInventoryItem(item);
-        auto& character = GetCharacter(*mSelectedCharacter);
-        if (character.IsSpellcaster())
-        {
-            if (character.GetSpells().HaveSpell(item.GetSpell()))
-            {
-                StartDialog(BAK::DialogSources::mItemUseFailure);
-            }
-            else
-            {
-                const auto [sound, times] = item.GetItemUseSound();
-                for (unsigned i = 0; i < (times + 1); i++)
-                {
-                    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
-                }
-                character.GetInventory().RemoveItem(inventoryIndex);
-                character.GetSpells().SetSpell(item.GetSpell());
-                StartDialog(BAK::DialogSources::mItemUseSucessful);
-                mNeedRefresh = true;
-            }
-        }
-        else
-        {
-            StartDialog(BAK::DialogSources::mWarriorCantUseMagiciansItem);
-        }
-    }
+    auto& character = GetCharacter(*mSelectedCharacter);
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    mLogger.Debug() << "UseItem: @" << inventoryIndex << " - " << item << "\n";
+    mGameState.SetActiveCharacter(character.mCharacterIndex);
+    mGameState.SetInventoryItem(item);
 
+    const auto result = BAK::UseItem(mGameState, character, inventoryIndex);
+
+    if (result.mUseSound)
+    {
+        const auto [sound, times] = *result.mUseSound;
+        for (unsigned i = 0; i < (times + 1); i++)
+        {
+            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
+        }
+    }
+    if (result.mDialogContext)
+    {
+        mGameState.SetDialogContext(*result.mDialogContext);
+    }
+    StartDialog(result.mDialog);
+
+    mNeedRefresh = true;
 }
 
 void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex targetItemIndex)

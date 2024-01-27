@@ -17,7 +17,8 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Spam);
-    
+    Logging::LogState::SetLogTime(false);
+
     BAK::Keywords keywords{};
     const auto& dialog = BAK::DialogStore::Get();
     

@@ -118,7 +118,7 @@ void EffectOfConditionsWithTime(
 
     if (healAmount != 0)
     {
-        Logging::LogInfo(__FUNCTION__) << " Heal : " << conditionChangePcnt <<
+        Logging::LogDebug(__FUNCTION__) << " Heal : " << conditionChangePcnt <<
             " healAmount: " << healAmount << "\n";
         skills.ImproveSkill(
             conditions,

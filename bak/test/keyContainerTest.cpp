@@ -15,40 +15,19 @@ struct KeyTestFixture : public ::testing::Test
         mObjects{}
     {
         mObjects.emplace_back(GameObject{
-            "Key1",
-            1, 1, 1,
-            1, 1, 1, 1,
-            0, 1, 0, 0, 0, 0,
-            RacialModifier::None,
-            0,
-            ItemType::Key,
-            0, 0, 0, 0, 0,
-            0, 0, 0}
-        );
+            .mName = "Key1",
+            .mType = ItemType::Key
+            });
 
         mObjects.emplace_back(GameObject{
-            "Key2",
-            1, 1, 1,
-            1, 1, 1, 1,
-            0, 2, 0, 0, 0, 0,
-            RacialModifier::None,
-            0,
-            ItemType::Key,
-            0, 0, 0, 0, 0,
-            0, 0, 0}
-        );
+            .mName = "Key2",
+            .mType = ItemType::Key
+            });
 
         mObjects.emplace_back(GameObject{
-            "NonKey",
-            1, 1, 1,
-            1, 1, 1, 1,
-            0, 2, 0, 0, 0, 0,
-            RacialModifier::None,
-            0,
-            ItemType::Other,
-            0, 0, 0, 0, 0,
-            0, 0, 0}
-        );
+            .mName = "NonKey",
+            .mType = ItemType::Other
+            });
     }
 
     auto GetObject(const std::string& object)

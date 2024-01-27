@@ -5,7 +5,7 @@
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     Logging::LogState::Disable("DialogStore");
     
     BAK::GetObjectIndex();
@@ -13,13 +13,13 @@ int main(int argc, char** argv)
 
     logger.Info() << "Loading fixed objects from zone: " << zone << std::endl;
 
-    const auto obj = BAK::LoadFixedObjects(std::atoi(zone.c_str()));
+    //const auto obj = BAK::LoadFixedObjects(std::atoi(zone.c_str()));
 
-    for (const auto& o : obj)
-    {
-        logger.Info() << o << "\n";
-    }
-    logger.Info() << "Done\n";
+    //for (const auto& o : obj)
+    //{
+    //    logger.Info() << o << "\n";
+    //}
+    //logger.Info() << "Done\n";
 
     return 0;
 }

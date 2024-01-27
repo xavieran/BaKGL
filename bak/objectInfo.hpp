@@ -87,63 +87,62 @@ std::vector<SaleCategory> GetCategories(std::uint16_t);
 
 enum class ItemType
 {
-    Unspecified,
-    Sword,
-    Crossbow,
-    Staff,
-    Armor,
-    Unknown5,
-    Unknown6,
-    Key,
-    Tool,
-    WeaponOil,
-    ArmorOil,
-    SpecialOil,
-    Bowstring,
-    Scroll,
-    Unknown14,
-    Unknown15,
-    Note,
-    Book,
-    Potion,
-    Restoratives,
-    Container,
-    Light,
-    Ingredient,
-    Ration,
-    Food,
-    Other
+    Unspecified = 0,
+    Sword = 1,
+    Crossbow = 2,
+    Staff = 3,
+    Armor = 4,
+
+    Key = 7,
+    Tool = 8,
+    WeaponOil = 9,
+    ArmorOil = 0xa,
+    SpecialOil = 0xb,
+    Bowstring = 0xc,
+    Scroll = 0xd,
+
+    Note = 0x10,
+    Book = 0x11,
+    Potion = 0x12,
+    Restoratives = 0x13,
+    ConditionModifier = 0x14,
+    Light = 0x15,
+    Ingredient = 0x16,
+    Ration = 0x17,
+    Food = 0x18,
+    Other = 0x19
 };
 
 std::string_view ToString(ItemType);
 
 struct GameObject
 {
-    std::string mName;
-    unsigned int mFlags;
-    int mLevel;
-    int mValue;
-    int mStrengthSwing;
-    int mAccuracySwing;
-    int mStrengthThrust;
-    int mAccuracyThrust;
-    unsigned mImageIndex;
-    unsigned mImageSize;
-    unsigned mUseSound;
-    unsigned mSoundPlayTimes;
-    unsigned mStackSize;
-    unsigned mDefaultStackSize;
-    RacialModifier mRace;
-    std::uint16_t mCategories;
-    ItemType mType;
-    std::uint16_t mEffectMask;
-    std::int16_t mEffect;
-    std::uint16_t mPotionPowerOrBookChance;
-    std::uint16_t mModifierMask;
-    std::int16_t mModifier;
-    std::uint16_t mDullFactor0;
-    std::uint16_t mDullFactor1;
-    std::uint16_t mMinCondition;
+    std::string mName{};
+    unsigned int mFlags{};
+    int mLevel{};
+    int mValue{};
+    int mStrengthSwing{};
+    int mAccuracySwing{};
+    int mStrengthThrust{};
+    int mAccuracyThrust{};
+    unsigned mImageIndex{};
+    unsigned mImageSize{};
+    unsigned mUseSound{};
+    unsigned mSoundPlayTimes{};
+    unsigned mStackSize{};
+    unsigned mDefaultStackSize{};
+    RacialModifier mRace{};
+    std::uint16_t mCategories{};
+    ItemType mType{};
+    std::uint16_t mEffectMask{};
+    std::int16_t mEffect{};
+    std::uint16_t mPotionPowerOrBookChance{};
+    std::uint16_t mAlternativeEffect{};
+    std::uint16_t mModifierMask{};
+    std::int16_t mModifier{};
+    std::uint16_t mDullFactor0{};
+    std::uint16_t mDullFactor1{};
+    std::uint16_t mMinCondition{};
 };
 
 std::ostream& operator<<(std::ostream&, const GameObject&);

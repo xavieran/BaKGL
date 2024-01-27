@@ -7,6 +7,8 @@ static constexpr auto sCharacterSelectedSkillPool = 0x324; // -> 0x319
                                                            //
 static constexpr auto sSkillSelectedEventFlag = 0x1856;
 static constexpr auto sSkillImprovementEventFlag = 0x18ce;
+// e.g. books
+static constexpr auto sItemUsedForCharacterAtLeastOnce = 0x194c;
 
 // Single bit indicators for event state tracking 
 // In the code this offset is 0x440a in the game -> diff of 0x3d28

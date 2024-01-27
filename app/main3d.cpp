@@ -79,7 +79,7 @@ int main(int argc, char** argv)
     BAK::ZoneLabel zoneLabel{1};
     std::optional<std::string> saveName{};
     
-	bool noOptions = true;
+    bool noOptions = true;
     while ((opt = getopt_long(argc, argv, "hs:z:", options, &optionIndex)) != -1)
     {   
         if (opt == 'h')
@@ -89,24 +89,24 @@ int main(int argc, char** argv)
         }
         else if (opt == 's')
         {
-			noOptions = false;
+            noOptions = false;
             logger.Info() << "Loading save file: " << optarg << std::endl;
             saveName = optarg;
         }
         else if (opt == 'z')
         {
-			noOptions = false;
+            noOptions = false;
             logger.Info() << "Loading zone: " << optarg << std::endl;
             auto zone = std::string{optarg};
             zoneLabel = BAK::ZoneLabel{zone};
         }
     }
 
-	if (noOptions)
-	{
-		logger.Info() << "Attempting to load default save 'NEW_GAME.GAM'\n";
-		saveName = "NEW_GAME.GAM";
-	}
+    if (noOptions)
+    {
+        logger.Info() << "Attempting to load default save 'NEW_GAME.GAM'\n";
+        saveName = "NEW_GAME.GAM";
+    }
 
     auto guiScalar = 4.0f;
 
@@ -434,15 +434,15 @@ int main(int argc, char** argv)
         // { *** IMGUI START ***
         if (showImgui)
         {
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-			ShowLightGui(light);
+            ShowLightGui(light);
 
-			ShowCameraGui(camera);
-			console.Draw("Console", &consoleOpen);
-		}
+            ShowCameraGui(camera);
+            console.Draw("Console", &consoleOpen);
+        }
 
         if (gameRunner.mGameState.mGameData && guiManager.InMainView())
         {
@@ -503,14 +503,14 @@ int main(int argc, char** argv)
 
         if (showImgui)
         {
-			auto& io = ImGui::GetIO();
+            auto& io = ImGui::GetIO();
             if (io.WantCaptureKeyboard || io.WantCaptureMouse)
             {
                 inputHandler.SetHandleInput(false);
             }
             else
             {
-				inputHandler.SetHandleInput(true);
+                inputHandler.SetHandleInput(true);
             }
         }
         else

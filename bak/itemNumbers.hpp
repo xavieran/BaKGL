@@ -38,9 +38,12 @@ static constexpr auto sRoyals      = BAK::ItemIndex{54};
 static constexpr auto sShovel      = BAK::ItemIndex{83};
 static constexpr auto sScroll      = BAK::ItemIndex{133};
 static constexpr auto sDayRations  = BAK::ItemIndex{134};
+static constexpr auto sAleCask     = BAK::ItemIndex{79};
 static constexpr auto sBrandy      = BAK::ItemIndex{135};
 static constexpr auto sAle         = BAK::ItemIndex{136};
-static constexpr auto sKeg         = BAK::ItemIndex{137};
+static constexpr auto sKeshianAle  = BAK::ItemIndex{137};
 static constexpr auto sPicklock    = BAK::ItemIndex{'P'};
 
+static constexpr auto sSpynote     = BAK::ItemIndex{120};
+static constexpr auto sPractiseLute = BAK::ItemIndex{81};
 }

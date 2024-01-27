@@ -192,6 +192,7 @@ public:
     void LoadCombatGridLocations();
     void LoadCombatWorldLocations();
     void LoadCombatStats(unsigned offset, unsigned num);
+    void LoadCombatClickedTimes();
 
     mutable FileBuffer mBuffer;
     Logging::Logger mLogger;

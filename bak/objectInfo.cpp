@@ -146,8 +146,6 @@ std::string_view ToString(ItemType i)
     case ItemType::Crossbow: return "Crossbow";
     case ItemType::Staff: return "Staff";
     case ItemType::Armor: return "Armor";
-    case ItemType::Unknown5: return "Unknown5";
-    case ItemType::Unknown6: return "Unknown6";
     case ItemType::Key: return "Key";
     case ItemType::Tool: return "Tool";
     case ItemType::WeaponOil: return "WeaponOil";
@@ -155,13 +153,11 @@ std::string_view ToString(ItemType i)
     case ItemType::SpecialOil: return "SpecialOil";
     case ItemType::Bowstring: return "Bowstring";
     case ItemType::Scroll: return "Scroll";
-    case ItemType::Unknown14: return "Unknown14";
-    case ItemType::Unknown15: return "Unknown15";
     case ItemType::Note: return "Note";
     case ItemType::Book: return "Book";
     case ItemType::Potion: return "Potion";
     case ItemType::Restoratives: return "Restoratives";
-    case ItemType::Container: return "Container";
+    case ItemType::ConditionModifier: return "ConditionModifier";
     case ItemType::Light: return "Light";
     case ItemType::Ingredient: return "Ingredient";
     case ItemType::Ration: return "Ration";
@@ -185,6 +181,7 @@ std::ostream& operator<<(std::ostream& os, const GameObject& go)
         << " stackSize: " << go.mStackSize << " defaultStackSize: " << go.mDefaultStackSize
         << " eff (" << std::hex << go.mEffectMask << ", " << std::dec << go.mEffect
         << " ) potionPower: " << go.mPotionPowerOrBookChance
+        << " altEff: " << std::dec << go.mAlternativeEffect
         << " mod (" << std::hex << go.mModifierMask << ", " << std::dec << go.mModifier
         << ") df0: " << go.mDullFactor0 << " df1: " << go.mDullFactor1 
         << " minCond: " << go.mMinCondition << "}";
@@ -220,7 +217,7 @@ ObjectIndex::ObjectIndex()
         const auto effectMask = fb.GetUint16LE();
         const auto effect = fb.GetSint16LE();
         const auto potionPowerOrBookChance = fb.GetUint16LE();
-        const auto unknown5 = fb.GetArray<2>();
+        const auto alternativeEffect = fb.GetUint16LE();
         const auto modifierMask = fb.GetUint16LE();
         const auto modifier = fb.GetSint16LE();
         const auto dullFactor0 = fb.GetUint16LE();
@@ -248,6 +245,7 @@ ObjectIndex::ObjectIndex()
             effectMask,
             effect,
             potionPowerOrBookChance,
+            alternativeEffect,
             modifierMask,
             modifier,
             dullFactor0,
@@ -255,8 +253,7 @@ ObjectIndex::ObjectIndex()
             minimumCondition};
 
         logger.Spam() << i << std::hex << " Unknown0: " << unknown << "|2 "
-            << unknown2 << "|5 "
-            << unknown5 << "|" << name << std::dec << "\n";
+            << unknown2 << "|" << name << std::dec << "\n";
         logger.Spam() << "ItmIndex:" << i << " " << mObjects[i] << "\n";
     }
 }
