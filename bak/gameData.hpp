@@ -73,7 +73,7 @@ public:
     static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
                                                            //
     static constexpr auto sCharacterStatusOffset  = 0x330;
-    static constexpr auto sCharacterPotionOffset  = 0x350;
+    static constexpr auto sCharacterPotionOffset  = 0x35a;
 
     static constexpr auto sTimeExpiringEventRecordOffset = 0x618; // (0x4340)
 
@@ -161,6 +161,8 @@ public:
         unsigned eventPtr,
         unsigned flag,
         Time time);
+    void GetTimeExpiringState(unsigned index);
+    void GetCharacterPotionData(unsigned character, unsigned index);
 
     /* ************* LOAD Game STATE ***************** */
     static constexpr unsigned GetCharacterNameOffset(unsigned c) { return c * sCharacterNameLength + sCharacterNameOffset; }

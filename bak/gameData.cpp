@@ -44,13 +44,14 @@ GameData::GameData(const std::string& save)
     //LoadContainers(0xc);
     //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
     //    << mBuffer.Tell() << std::dec << "\n";
-    LoadShops();
-    LoadChapterOffsetP();
-    LoadCombatEntityLists();
-    LoadCombatStats(0x914b, 1698);
-    LoadCombatGridLocations();
-    LoadCombatWorldLocations();
-    LoadCombatClickedTimes();
+    //LoadShops();
+    //LoadChapterOffsetP();
+    //LoadCombatEntityLists();
+    //LoadCombatStats(0x914b, 1698);
+    //LoadCombatGridLocations();
+    //LoadCombatWorldLocations();
+    //LoadCombatClickedTimes();
+    GetCharacterPotionData(0, 0);
 }
 
 void GameData::SetTimeExpiringState(
@@ -70,6 +71,45 @@ void GameData::SetTimeExpiringState(
     mBuffer.PutUint32LE(time.mTime);
 }
 
+void GameData::GetCharacterPotionData(
+    unsigned character,
+    unsigned index)
+{
+    mBuffer.Seek(sCharacterPotionOffset);
+    for (unsigned i = 0; i < 25; i++)
+    {
+        auto number = mBuffer.GetUint16LE();
+        if (number == 0)
+        {
+            mBuffer.Skip(12);
+            mLogger.Info() << "PotionData #" << i << " EMPTY\n";
+            continue;
+        }
+        auto whichSkill = ToSkill(static_cast<BAK::SkillTypeMask>(mBuffer.GetUint16LE()));
+        auto amount = mBuffer.GetUint16LE();
+        auto startTime = Time{mBuffer.GetUint32LE()};
+        auto endTime = Time{mBuffer.GetUint32LE()};
+        mLogger.Info() << "PotionData #" << i <<
+            " Type: " << (number >> 8) << " whichSkill: " << ToString(whichSkill)
+            << " amount: " << amount << " start: " << startTime
+            << " end: " << endTime << "\n";
+    }
+}
+
+void GameData::GetTimeExpiringState(
+    unsigned index)
+{
+    // DialogAction value is always 4, flag is always 0x40
+    // ItemExpiring value is always 1, flag is always 0x80
+    // 0x80 adds 
+    mBuffer.Seek(sTimeExpiringEventRecordOffset + index);
+    auto number = mBuffer.GetUint8();
+    auto flag = mBuffer.GetUint8();
+    auto eventPtr = mBuffer.GetUint16LE();
+    auto time = Time{mBuffer.GetUint32LE()};
+    mLogger.Info() << "TimeExpiringState #" << index << " num: " << +number
+        << " flag: " << +flag << " eventPtr: " << eventPtr << " time: " << time << "\n";
+}
 /* ************* LOAD Game STATE ***************** */
 Party GameData::LoadParty()
 {
@@ -467,7 +507,7 @@ void GameData::LoadCombatWorldLocations()
 
 std::vector<GenericContainer> GameData::LoadCombatInventories()
 {
-    mLogger.Info() << "Loading Combat Inventories" << std::endl;
+    mLogger.Debug() << "Loading Combat Inventories" << std::endl;
     mBuffer.Seek(sCombatInventoryOffset);
     std::vector<GenericContainer> containers{};
 
@@ -480,7 +520,7 @@ std::vector<GenericContainer> GameData::LoadCombatInventories()
         auto loc = mBuffer.Tell();
         auto container = LoadGenericContainer<ContainerCombatLocationTag>(mBuffer);
         containers.emplace_back(std::move(container));
-        mLogger.Info() << "CobmatInventory #" << i << " @" << std::hex << loc << std::dec << " " << containers.back() << "\n";
+        mLogger.Debug() << "CobmatInventory #" << i << " @" << std::hex << loc << std::dec << " " << containers.back() << "\n";
     }
 
     return containers;
@@ -488,13 +528,13 @@ std::vector<GenericContainer> GameData::LoadCombatInventories()
 
 void GameData::LoadCombatClickedTimes()
 {
-    mLogger.Info() << "Loading Combat Clicked Times" << std::endl;
+    mLogger.Debug() << "Loading Combat Clicked Times" << std::endl;
     for (unsigned i = 0; i < 100; i++)
     {
         auto time = State::GetCombatClickedTime(mBuffer, i);
         if (time.mTime > 0)
         {
-            mLogger.Info() << "Combat #" << i << " time: " << time << "\n";
+            mLogger.Debug() << "Combat #" << i << " time: " << time << "\n";
         }
     }
 }

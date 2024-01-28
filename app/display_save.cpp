@@ -18,7 +18,6 @@ int main(int argc, char** argv)
     logger.Info() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
 
-    gameData.LoadCombatInventories();
     return 0;
 }
 

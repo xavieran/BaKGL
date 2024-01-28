@@ -33,6 +33,26 @@ enum class SkillType
     TotalHealth = 0x10
 };
 
+enum class SkillTypeMask
+{
+    Health      = 1,
+    Stamina     = 2,
+    Speed       = 4,
+    Strength    = 8,
+    Defense     = 0x10,
+    Crossbow    = 0x20,
+    Melee       = 0x40,
+    Casting     = 0x80,
+    Assessment  = 0x100,
+    Armorcraft  = 0x200,
+    Weaponcraft = 0x400,
+    Barding     = 0x800,
+    Haggling    = 0x1000,
+    Lockpick    = 0x2000,
+    Scouting    = 0x4000,
+    Stealth     = 0x8000,
+    TotalHealth = 0x10000
+};
 enum class SkillChange
 {
     Direct = 0,
@@ -82,6 +102,7 @@ constexpr std::uint8_t sTotalSelectedSkillPool = 0x1a;
 
 
 std::string_view ToString(SkillType);
+SkillType ToSkill(SkillTypeMask);
 
 struct Skill
 {

@@ -29,6 +29,34 @@ std::string_view ToString(SkillType s)
     }
 }
 
+SkillType ToSkill(SkillTypeMask s)
+{
+    using enum SkillTypeMask;
+    switch (s)
+    {
+    case SkillTypeMask::Health: return SkillType::Health;
+    case SkillTypeMask::Stamina: return SkillType::Stamina;
+    case SkillTypeMask::Speed: return SkillType::Speed;
+    case SkillTypeMask::Strength: return SkillType::Strength;
+    case SkillTypeMask::Defense: return SkillType::Defense;
+    case SkillTypeMask::Crossbow: return SkillType::Crossbow;
+    case SkillTypeMask::Melee: return SkillType::Melee;
+    case SkillTypeMask::Casting: return SkillType::Casting;
+    case SkillTypeMask::Assessment: return SkillType::Assessment;
+    case SkillTypeMask::Armorcraft: return SkillType::Armorcraft;
+    case SkillTypeMask::Weaponcraft: return SkillType::Weaponcraft;
+    case SkillTypeMask::Barding: return SkillType::Barding;
+    case SkillTypeMask::Haggling: return SkillType::Haggling;
+    case SkillTypeMask::Lockpick: return SkillType::Lockpick;
+    case SkillTypeMask::Scouting: return SkillType::Scouting;
+    case SkillTypeMask::Stealth: return SkillType::Stealth;
+    case SkillTypeMask::TotalHealth: return SkillType::TotalHealth;
+    default:
+        assert(false);
+        return SkillType::TotalHealth;
+    }
+}
+
 std::ostream& operator<<(std::ostream& os, const Skill& s)
 {
     os << "{ Max: " << +s.mMax << " TrueSkill: " << +s.mTrueSkill 
