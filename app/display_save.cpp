@@ -7,6 +7,10 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     Logging::LogState::SetLogTime(false);
+    Logging::LogState::Disable("LoadSpells");
+    Logging::LogState::Disable("LoadSpellDoc");
+    Logging::LogState::Disable("Symbol");
+    Logging::LogState::Disable("CreateFileBuffer");
     
     std::string saveFile{argv[1]};
 
@@ -18,7 +22,6 @@ int main(int argc, char** argv)
     logger.Info() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
 
-    gameData.LoadCombatInventories();
     return 0;
 }
 

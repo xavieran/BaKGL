@@ -128,7 +128,7 @@ TEST_F(TempleTestFixture, CalculateCureCost)
     conditions.IncreaseCondition(BAK::Condition::NearDeath, 100);
 
     EXPECT_EQ(
-        Temple::CalculateCureCost(65, false, skills, conditions),
+        Temple::CalculateCureCost(65, false, skills, conditions, {}),
         Royals{1956});
 }
 }

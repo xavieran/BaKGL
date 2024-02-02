@@ -73,9 +73,9 @@ public:
     static constexpr auto sActiveCharactersOffset = 0x315; // -> 0x319
                                                            //
     static constexpr auto sCharacterStatusOffset  = 0x330;
-    static constexpr auto sCharacterPotionOffset  = 0x350;
+    static constexpr auto sCharacterSkillAffectorOffset  = 0x35a;
 
-    static constexpr auto sTimeExpiringEventRecordOffset = 0x618; // (0x4340)
+    static constexpr auto sTimeExpiringEventRecordOffset = 0x616; // (0x4340)
 
     // Based on disassembly this may be the state of doors (open/closed)
     static constexpr auto sDoorFlag = 0x1b58;
@@ -161,12 +161,16 @@ public:
         unsigned eventPtr,
         unsigned flag,
         Time time);
+    void GetTimeExpiringState(unsigned index);
+
+    std::vector<SkillAffector> GetCharacterSkillAffectors(CharIndex character);
 
     /* ************* LOAD Game STATE ***************** */
     static constexpr unsigned GetCharacterNameOffset(unsigned c) { return c * sCharacterNameLength + sCharacterNameOffset; }
     static constexpr unsigned GetCharacterSkillOffset(unsigned c) { return c * sCharacterSkillLength + sCharacterSkillOffset; }
     static constexpr unsigned GetCharacterInventoryOffset(unsigned c) { return c * sCharacterInventoryLength + sCharacterInventoryOffset; }
     static constexpr unsigned GetCharacterConditionOffset(unsigned c) { return c * Conditions::sNumConditions + sCharacterStatusOffset; }
+    static constexpr unsigned GetCharacterAffectorsOffset(unsigned c) { return (c * 8 * 14) + sCharacterSkillAffectorOffset; }
 
     Party LoadParty();
     std::vector<Character> LoadCharacters();

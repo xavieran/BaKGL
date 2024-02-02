@@ -29,6 +29,34 @@ std::string_view ToString(SkillType s)
     }
 }
 
+SkillType ToSkill(SkillTypeMask s)
+{
+    using enum SkillTypeMask;
+    switch (s)
+    {
+    case SkillTypeMask::Health: return SkillType::Health;
+    case SkillTypeMask::Stamina: return SkillType::Stamina;
+    case SkillTypeMask::Speed: return SkillType::Speed;
+    case SkillTypeMask::Strength: return SkillType::Strength;
+    case SkillTypeMask::Defense: return SkillType::Defense;
+    case SkillTypeMask::Crossbow: return SkillType::Crossbow;
+    case SkillTypeMask::Melee: return SkillType::Melee;
+    case SkillTypeMask::Casting: return SkillType::Casting;
+    case SkillTypeMask::Assessment: return SkillType::Assessment;
+    case SkillTypeMask::Armorcraft: return SkillType::Armorcraft;
+    case SkillTypeMask::Weaponcraft: return SkillType::Weaponcraft;
+    case SkillTypeMask::Barding: return SkillType::Barding;
+    case SkillTypeMask::Haggling: return SkillType::Haggling;
+    case SkillTypeMask::Lockpick: return SkillType::Lockpick;
+    case SkillTypeMask::Scouting: return SkillType::Scouting;
+    case SkillTypeMask::Stealth: return SkillType::Stealth;
+    case SkillTypeMask::TotalHealth: return SkillType::TotalHealth;
+    default:
+        assert(false);
+        return SkillType::TotalHealth;
+    }
+}
+
 std::ostream& operator<<(std::ostream& os, const Skill& s)
 {
     os << "{ Max: " << +s.mMax << " TrueSkill: " << +s.mTrueSkill 
@@ -40,6 +68,16 @@ std::ostream& operator<<(std::ostream& os, const Skill& s)
     if (s.mUnseenImprovement) os << "*";
     else os << " ";
     os << "]}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const SkillAffector& p)
+{
+    os << "SkillAffector{ Type: " << std::hex << p.mType << std::dec
+        << " Skill: " << ToString(p.mSkill)
+        << " Adjustment: " << p.mAdjustment
+        << " Start: " << p.mStartTime
+        << " End: " << p.mEndTime << "}";
     return os;
 }
 
@@ -57,6 +95,7 @@ unsigned CalculateEffectiveSkillValue(
     SkillType skillType,
     Skills& skills,
     const Conditions& conditions,
+    const std::vector<SkillAffector>& skillAffectors,
     SkillRead skillRead)
 {
     if (skillType == SkillType::TotalHealth)
@@ -65,11 +104,13 @@ unsigned CalculateEffectiveSkillValue(
             SkillType::Health,
             skills,
             conditions,
+            skillAffectors,
             skillRead);
         const auto stamina = CalculateEffectiveSkillValue(
             SkillType::Stamina,
             skills,
             conditions,
+            skillAffectors,
             skillRead);
         return health + stamina;
     }
@@ -94,11 +135,41 @@ unsigned CalculateEffectiveSkillValue(
     if (skillCurrent < 0)
         skillCurrent = 0;
 
-    // This checks the effect of potions 
-    // FIXME: Will get to this when I do combat since potions
-    // only affect combat skills
-    for (unsigned i = 0 ; i < 8; i++)
-        ;
+    for (const auto& affector : skillAffectors)
+    {
+        if (affector.mSkill == skillType)
+        {
+            if (skill.mMax == 0)
+                continue;
+            if (affector.mType & 0x100)
+            {
+                // notInCombat - 0x100 is typically spells that affect skill
+                if (false)
+                {
+                    continue;
+                }
+            }
+            // The game checks if affectors are expired and resets them
+            // but I think we should just do that when time increments
+            // to save a dependency on current time here.
+            // May need to revisit this when I do combat...
+            // if (affector.mEndTime < worldClock.GetTime())
+            // {
+            //      erase(affector);
+            // }
+
+            // Ratio
+            if ((affector.mType & 0x400) || (affector.mType & 0x800))
+            {
+                skillCurrent = (skillCurrent * (affector.mAdjustment + 0x64)) / 0x64;
+            }
+            // Direct adjustment
+            else
+            {
+                skillCurrent += affector.mAdjustment;
+            }
+        }
+    }
 
     for (unsigned i = 0 ; i < 7; i++)
     {
@@ -118,7 +189,18 @@ unsigned CalculateEffectiveSkillValue(
                 skillCurrent = effectedSkill;
             }
 
-            // if drunk[4] * skillBitOffset) ... do the same as above with drunk[5]
+            // This doesn't do anything as far as I can tell because no
+            // condition has fields 4 and 5 set.
+            if (sConditionSkillEffect[i][4] & skillBitOffset)
+            {
+                auto effect = 0xffff - sConditionSkillEffect[i][5];
+                effect *= conditionAmount;
+                effect /= 100;
+                effect = 100 - effect;
+                
+                auto effectedSkill = (effect * skillCurrent) / 100;
+                skillCurrent = effectedSkill;
+            }
         }
     }
 

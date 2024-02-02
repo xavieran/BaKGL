@@ -182,6 +182,17 @@ bool Inventory::RemoveItem(const InventoryItem& item)
     return false;
 }
 
+bool Inventory::ReplaceItem(BAK::InventoryIndex index, BAK::InventoryItem item)
+{
+    ASSERT(index.mValue < mItems.size());
+    if (index.mValue < mItems.size())
+    {
+        mItems[index.mValue] = item;
+        return true;
+    }
+    return false;
+}
+
 void Inventory::CheckPostConditions()
 {
     for (const auto& item : mItems)

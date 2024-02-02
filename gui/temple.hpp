@@ -87,9 +87,12 @@ public:
                                 mShopStats->GetTempleHealFactor(),
                                 mTempleNumber == BAK::Temple::sTempleOfSung,
                                 character.mSkills,
-                                character.GetConditions());
+                                character.GetConditions(),
+                                character.GetSkillAffectors());
                             if (cureCost.mValue != 0)
                             {
+                                // will this always be true?
+                                // I vaguely remember temple of Eortis might be free
                                 canHeal = true;
                             }
                         }
