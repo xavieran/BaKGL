@@ -57,7 +57,7 @@ public:
     static constexpr auto mItemUseSucessful = KeyTarget{0x1b7742};
     static constexpr auto mItemUseFailure   = KeyTarget{0x1b7743};
     static constexpr auto mHealthPotionDialog = 0x1b7744;
-    static constexpr auto mConsumeAntiVenom   = 0x1b776f;
+    static constexpr auto mConsumeAntiVenom   = KeyTarget{0x1b776f};
     static constexpr auto mNoSpaceForNewItem  = 0x1b775b;
     static constexpr auto mWarriorCantUseMagiciansItem = KeyTarget{0x1b7745};
     static constexpr auto mMagicianCantUseWarriorsItem = KeyTarget{0x1b7771};

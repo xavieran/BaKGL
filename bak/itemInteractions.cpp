@@ -25,10 +25,8 @@ ItemUseResult RepairItem(
     {
         return ItemUseResult{
             std::nullopt,
-            std::nullopt,
-            DialogSources::GetChoiceResult(
-                DialogSources::mItemUseFailure,
-                sourceItem.GetItemIndex().mValue)};
+            sourceItem.GetItemIndex().mValue,
+            DialogSources::mItemUseFailure};
     }
 
     if (!targetItem.IsRepairable())
@@ -118,10 +116,8 @@ ItemUseResult ModifyItem(
     {
         return ItemUseResult{
             std::nullopt,
-            std::nullopt,
-            DialogSources::GetChoiceResult(
-                DialogSources::mItemUseFailure,
-                sourceItem.GetItemIndex().mValue)};
+            sourceItem.GetItemIndex().mValue,
+            DialogSources::mItemUseFailure};
     }
 
     targetItem.ClearTemporaryModifiers();
@@ -129,10 +125,8 @@ ItemUseResult ModifyItem(
 
     auto result = ItemUseResult{
         sourceItem.GetItemUseSound(),
-        std::nullopt,
-        DialogSources::GetChoiceResult(
-            DialogSources::mItemUseSucessful,
-            sourceItem.GetItemIndex().mValue)};
+        sourceItem.GetItemIndex().mValue,
+        DialogSources::mItemUseSucessful};
 
     if (sourceItem.IsChargeBased() || sourceItem.IsQuantityBased())
     {
@@ -166,12 +160,7 @@ ItemUseResult PoisonQuarrel(
         character.GetInventory().RemoveItem(sourceItemIndex, 1);
     }
 
-    // FIXME: We might want something more like
-    // character.GetInventory().SetItemAt(targetItemIndex, newQuarrels)
-    // Otherwise the sourceItem shifts position which is a bit annoying when
-    // trying to poison multiple items sequentially
-    character.GetInventory().RemoveItem(targetItemIndex);
-    character.GiveItem(newQuarrels);
+    character.GetInventory().ReplaceItem(targetItemIndex, newQuarrels);
 
     return result;
 }
@@ -206,8 +195,7 @@ ItemUseResult PoisonRations(
         character.GetInventory().RemoveItem(sourceItemIndex, 1);
     }
 
-    character.GetInventory().RemoveItem(targetItemIndex);
-    character.GiveItem(newRations);
+    character.GetInventory().ReplaceItem(targetItemIndex, newRations);
 
     return result;
 }
@@ -228,10 +216,8 @@ ItemUseResult MakeGuardaRevanche(
     auto result = ItemUseResult{
         // Maybe a different sound?
         std::make_pair(sTeleportSound, 0),
-        std::nullopt,
-        DialogSources::GetChoiceResult(
-            DialogSources::mItemUseSucessful,
-            sourceItem.GetItemIndex().mValue)};
+        sourceItem.GetItemIndex().mValue,
+        DialogSources::mItemUseSucessful};
 
     character.GetInventory().RemoveItem(sourceItemIndex);
     character.GetInventory().RemoveItem(targetItemIndex);
@@ -353,10 +339,8 @@ ItemUseResult ReadBook(
 
     return ItemUseResult{
         std::nullopt,
-        std::nullopt,
-        DialogSources::GetChoiceResult(
-            DialogSources::mItemUseSucessful,
-            item.GetItemIndex().mValue)};
+        item.GetItemIndex().mValue,
+        DialogSources::mItemUseSucessful};
 }
 
 ItemUseResult LearnSpell(
@@ -429,10 +413,8 @@ ItemUseResult PractiseBarding(
     return ItemUseResult{
         //std::make_pair(bardSong, 1),
         std::nullopt,
-        std::nullopt,
-        DialogSources::GetChoiceResult(
-            DialogSources::mItemUseSucessful,
-            itemIndex)
+        itemIndex,
+        DialogSources::mItemUseSucessful
     };
 }
 
@@ -467,10 +449,37 @@ ItemUseResult UseConditionModifier(
 
     return ItemUseResult{
         item.GetItemUseSound(),
+        itemIndex,
+        DialogSources::mItemUseSucessful
+    };
+}
+
+ItemUseResult CurePoisoned(
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    if (character.GetConditions().GetCondition(BAK::Condition::Poisoned).Get() == 0)
+    {
+        return ItemUseResult{
+            item.GetItemUseSound(),
+            item.GetItemIndex().mValue,
+            DialogSources::mItemUseFailure
+        };
+    }
+
+    character.GetConditions().AdjustCondition(
+        character.GetSkills(),
+        BAK::Condition::Poisoned,
+        -100);
+
+    auto itemIndex = item.GetItemIndex().mValue;
+    character.GetInventory().RemoveItem(inventoryIndex, 1);
+
+    return ItemUseResult{
+        item.GetItemUseSound(),
         std::nullopt,
-        DialogSources::GetChoiceResult(
-            DialogSources::mItemUseSucessful,
-            itemIndex)
+        DialogSources::mConsumeAntiVenom
     };
 }
 
@@ -504,10 +513,8 @@ ItemUseResult UseRestoratives(
 
     auto result = ItemUseResult{
         item.GetItemUseSound(),
-        std::nullopt,
-        DialogSources::GetChoiceResult(
-            DialogSources::mItemUseSucessful,
-            item.GetItemIndex().mValue)};
+        item.GetItemIndex().mValue,
+        DialogSources::mItemUseSucessful};
 
     character.GetInventory().RemoveItem(inventoryIndex, 1);
 
@@ -543,7 +550,7 @@ ItemUseResult UsePotion(
     {
         return ItemUseResult{
             std::nullopt,
-            std::nullopt,
+            item.GetItemIndex().mValue,
             DialogSources::mCantConsumeMorePotion};
     }
 
@@ -551,10 +558,8 @@ ItemUseResult UsePotion(
 
     auto result = ItemUseResult{
         item.GetItemUseSound(),
-        std::nullopt,
-        DialogSources::GetChoiceResult(
-            DialogSources::mItemUseSucessful,
-            item.GetItemIndex().mValue)};
+        item.GetItemIndex().mValue,
+        DialogSources::mItemUseSucessful};
 
     character.GetInventory().RemoveItem(inventoryIndex, 1);
 
@@ -603,9 +608,7 @@ ItemUseResult UseItem(
             return ItemUseResult{
                 std::nullopt,
                 item.GetItemIndex().mValue,
-                DialogSources::GetChoiceResult(
-                    DialogSources::mItemUseSucessful,
-                    item.GetItemIndex().mValue)};
+                DialogSources::mItemUseSucessful};
         }
     }
     else if (item.IsItemType(BAK::ItemType::Scroll))
@@ -627,6 +630,10 @@ ItemUseResult UseItem(
     else if (item.IsItemType(BAK::ItemType::Potion))
     {
         return UsePotion(gameState, character, inventoryIndex);
+    }
+    else if (item.GetItemIndex() == sSilverthornAntiVenom)
+    {
+        return CurePoisoned(character, inventoryIndex);
     }
 
     return ItemUseResult{
