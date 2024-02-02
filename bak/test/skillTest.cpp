@@ -172,6 +172,52 @@ TEST_F(SkillTestFixture, ConditionDrunkTest)
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
 
+TEST_F(SkillTestFixture, ConditionDrunkWithSkillAffectorTest)
+{
+    mSkillAffectors.emplace_back(SkillAffector{
+        0x200,
+        SkillType::Strength,
+        10,
+        Time{},
+        Time{}});
+    mSkillAffectors.emplace_back(SkillAffector{
+        0x100,
+        SkillType::Melee,
+        25,
+        Time{},
+        Time{}});
+    mSkillAffectors.emplace_back(SkillAffector{
+        0x400,
+        SkillType::Speed,
+        25,
+        Time{},
+        Time{}});
+
+    mConditions.IncreaseCondition(BAK::Condition::Drunk, 50);
+
+    auto skillValues = std::vector<unsigned>{};
+    for (unsigned i = 0; i < 16; i++)
+    {
+        skillValues.emplace_back(
+            CalculateEffectiveSkillValue(
+                static_cast<BAK::SkillType>(i),
+                mSkills,
+                mConditions,
+                mSkillAffectors,
+                SkillRead::Current));
+    }
+
+    // Drunkenness doesn't affect speed or strength
+    auto expectedSkillValues = std::vector<unsigned>{
+        55, 31, 5, 27};
+    for (unsigned i = 4; i < 16; i++)
+        expectedSkillValues.emplace_back(56);
+    expectedSkillValues[static_cast<unsigned>(BAK::SkillType::Casting)] = 0;
+    expectedSkillValues[static_cast<std::size_t>(SkillType::Melee)] = 74;
+
+    EXPECT_EQ(skillValues, expectedSkillValues);
+}
+
 TEST_F(SkillTestFixture, ConditionHealingTest)
 {
     mConditions.IncreaseCondition(BAK::Condition::Healing, 50);
