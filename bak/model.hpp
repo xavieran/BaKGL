@@ -7,6 +7,7 @@
 #include "glm/fwd.hpp"
 #include <glm/glm.hpp>
 
+#include <optional>
 #include <string>
 #include <vector>
 
