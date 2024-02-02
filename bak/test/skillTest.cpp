@@ -38,6 +38,7 @@ struct SkillTestFixture : public ::testing::Test
             ConditionValue{0},
             ConditionValue{0},
             ConditionValue{0}}
+        , mSkillAffectors{}
     {
     }
 
@@ -50,6 +51,7 @@ protected:
 
     Skills mSkills;
     Conditions mConditions;
+    std::vector<SkillAffector> mSkillAffectors;
 };
 
 TEST_F(SkillTestFixture, CalculateEffectiveSkillValueTest)
@@ -62,12 +64,56 @@ TEST_F(SkillTestFixture, CalculateEffectiveSkillValueTest)
                 static_cast<BAK::SkillType>(i),
                 mSkills,
                 mConditions,
+                mSkillAffectors,
                 SkillRead::Current));
     }
 
     auto expectedSkillValues = std::vector<unsigned>{};
     for (unsigned i = 0; i < 16; i++)
         expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
+
+    EXPECT_EQ(skillValues, expectedSkillValues);
+}
+
+TEST_F(SkillTestFixture, WithSkillAffectorTest)
+{
+    mSkillAffectors.emplace_back(SkillAffector{
+        0x200,
+        SkillType::Strength,
+        10,
+        Time{},
+        Time{}});
+    mSkillAffectors.emplace_back(SkillAffector{
+        0x100,
+        SkillType::Melee,
+        25,
+        Time{},
+        Time{}});
+    mSkillAffectors.emplace_back(SkillAffector{
+        0x400,
+        SkillType::Speed,
+        25,
+        Time{},
+        Time{}});
+    auto skillValues = std::vector<unsigned>{};
+    for (unsigned i = 0; i < 16; i++)
+    {
+        skillValues.emplace_back(
+            CalculateEffectiveSkillValue(
+                static_cast<BAK::SkillType>(i),
+                mSkills,
+                mConditions,
+                mSkillAffectors,
+                SkillRead::Current));
+    }
+
+    auto expectedSkillValues = std::vector<unsigned>{};
+    for (unsigned i = 0; i < 16; i++)
+        expectedSkillValues.emplace_back(mSkills.GetSkill(static_cast<SkillType>(i)).mTrueSkill);
+
+    expectedSkillValues[static_cast<std::size_t>(SkillType::Strength)] = 27;
+    expectedSkillValues[static_cast<std::size_t>(SkillType::Melee)] = 105;
+    expectedSkillValues[static_cast<std::size_t>(SkillType::Speed)] = 5;
 
     EXPECT_EQ(skillValues, expectedSkillValues);
 }
@@ -89,6 +135,7 @@ TEST_F(SkillTestFixture, ConditionNonDrunkTest)
                 static_cast<BAK::SkillType>(i),
                 mSkills,
                 mConditions,
+                mSkillAffectors,
                 SkillRead::Current));
     }
 
@@ -112,6 +159,7 @@ TEST_F(SkillTestFixture, ConditionDrunkTest)
                 static_cast<BAK::SkillType>(i),
                 mSkills,
                 mConditions,
+                mSkillAffectors,
                 SkillRead::Current));
     }
 
@@ -136,6 +184,7 @@ TEST_F(SkillTestFixture, ConditionHealingTest)
                 static_cast<BAK::SkillType>(i),
                 mSkills,
                 mConditions,
+                mSkillAffectors,
                 SkillRead::Current));
     }
 
@@ -162,6 +211,7 @@ TEST_F(SkillTestFixture, LowHealthTest)
                 static_cast<BAK::SkillType>(i),
                 mSkills,
                 mConditions,
+                mSkillAffectors,
                 SkillRead::Current));
     }
 
@@ -196,6 +246,7 @@ TEST_F(SkillTestFixture, LowHealthAndDrunkAndModifierTest)
                 static_cast<BAK::SkillType>(i),
                 mSkills,
                 mConditions,
+                mSkillAffectors,
                 SkillRead::Current));
     }
 

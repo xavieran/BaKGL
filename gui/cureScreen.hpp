@@ -201,7 +201,8 @@ private:
             mCureFactor,
             mTempleNumber == BAK::Temple::sTempleOfSung,
             character.mSkills,
-            character.mConditions);
+            character.mConditions,
+            character.mSkillAffectors);
     }
 
     void UpdateCharacter()

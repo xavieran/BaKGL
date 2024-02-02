@@ -13,6 +13,7 @@ std::ostream& operator<<(std::ostream& os, const Character& c)
     os << "Unknown: " << std::hex << c.mUnknown << std::dec << "\n";
     os << "Unknown2: " << std::hex << c.mUnknown2 << std::dec << "\n";
     os << c.mConditions << "\n";
+    os << "SkillAffectors: " << c.mSkillAffectors << "\n";
     os << "Inventory: " << c.mInventory << "\n";
     return os;
 }

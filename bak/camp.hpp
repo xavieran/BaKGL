@@ -95,6 +95,7 @@ public:
                 healPercentage);
         }
 
+        CheckAndClearSkillAffectors();
         //EvaluateTimeExpiringState(timeDelta);
     }
 
@@ -216,6 +217,48 @@ private:
 
         mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
             EffectOfConditionsWithTime(character.GetSkills(), character.GetConditions(), healPercent);
+            return false;
+        });
+    }
+
+    unsigned calculateTimeOfDayForPalette()
+    {
+        auto time = mGameState.GetWorldTime().GetTime();
+        auto hourOfDay = time.GetHour();
+        auto secondsOfDay = time.mTime % Times::OneDay.mTime;
+
+        if (hourOfDay > 8 && hourOfDay < 17)
+        {
+            return 0x40;
+        }
+        if (hourOfDay < 4 || hourOfDay >= 20)
+        {
+            return 0xf;
+        }
+        if (hourOfDay < 17)
+        {
+            secondsOfDay -= 0x1c20;
+            auto x = (secondsOfDay * 0x31) / 0x1c20;
+            return x + 0xf;
+        }
+        else
+        {
+            secondsOfDay += 0x8878;
+            auto x = (secondsOfDay * 0x31) / 0x1518;
+            return 0x40 - x;
+        }
+    }
+
+    void CheckAndClearSkillAffectors()
+    {
+        const auto time = mGameState.GetWorldTime().GetTime();
+        mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+            auto& affectors = character.GetSkillAffectors();
+            std::erase_if(
+                affectors,
+                [&](auto& affector){
+                    return affector.mEndTime < time;
+                });
             return false;
         });
     }

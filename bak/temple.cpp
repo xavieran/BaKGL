@@ -59,7 +59,12 @@ Royals CalculateTeleportCost(unsigned source, unsigned dest)
     return GetRoyals(Sovereigns{costMatrix[source - 1][dest - 1]});
 }
 
-Royals CalculateCureCost(unsigned cureFactor, bool isTempleOfSung, Skills& skills, const Conditions& conditions)
+Royals CalculateCureCost(
+    unsigned cureFactor,
+    bool isTempleOfSung,
+    Skills& skills,
+    const Conditions& conditions,
+    const std::vector<SkillAffector>& skillAffectors)
 {
     static constexpr unsigned conditionCost[7] = {
         4, 10, 10, 3, 0, 2, 30
@@ -81,11 +86,13 @@ Royals CalculateCureCost(unsigned cureFactor, bool isTempleOfSung, Skills& skill
             SkillType::TotalHealth,
             skills,
             conditions,
+            skillAffectors,
             SkillRead::MaxSkill);
         totalCost -= CalculateEffectiveSkillValue(
             SkillType::TotalHealth,
             skills,
             conditions,
+            skillAffectors,
             SkillRead::Current);
     }
 

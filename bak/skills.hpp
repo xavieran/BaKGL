@@ -4,6 +4,7 @@
 #include "com/strongType.hpp"
 
 #include "bak/condition.hpp"
+#include "bak/worldClock.hpp"
 
 #include <array>
 #include <numeric>
@@ -117,12 +118,24 @@ struct Skill
 
 std::ostream& operator<<(std::ostream&, const Skill&);
 
+struct SkillAffector
+{
+    std::uint16_t mType;
+    SkillType mSkill;
+    int mAdjustment;
+    Time mStartTime;
+    Time mEndTime;
+};
+
+std::ostream& operator<<(std::ostream&, const SkillAffector&);
+
 class Skills;
 
 unsigned CalculateEffectiveSkillValue(
     SkillType,
     Skills&,
     const Conditions&,
+    const std::vector<SkillAffector>&,
     SkillRead);
 
 void DoImproveSkill(

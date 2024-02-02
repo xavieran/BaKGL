@@ -59,9 +59,8 @@ public:
     static constexpr auto mHealthPotionDialog = 0x1b7744;
     static constexpr auto mConsumeAntiVenom   = 0x1b776f;
     static constexpr auto mNoSpaceForNewItem  = 0x1b775b;
-    static constexpr auto mCantConsumeAlcohol = 0x1b775c;
     static constexpr auto mWarriorCantUseMagiciansItem = KeyTarget{0x1b7745};
-    static constexpr auto mMagicianCantUseWarriorsItem = 0x1b7771;
+    static constexpr auto mMagicianCantUseWarriorsItem = KeyTarget{0x1b7771};
     static constexpr auto mCantUseItemRightNow = 0x1b7746;
     static constexpr auto mCantUseItemDuringCombat = 0x1b7747;
     // Contextual
@@ -80,7 +79,7 @@ public:
     static constexpr auto mCantDiscardOnlyWeapon = KeyTarget{0x1b774e};
     static constexpr auto mCantDropFlamingTorch  = 0x1b775d;
     static constexpr auto mCantRepairItemFurther = KeyTarget{0x1b775e};
-    static constexpr auto mCantConsumeMorePoition = 0x1b7760;
+    static constexpr auto mCantConsumeMorePotion = KeyTarget{0x1b7760};
     static constexpr auto mLitTorchInNapthaCaverns = 0x1b776e;
     static constexpr auto mInventoryInterfaceTooltips = 0x1b775a;
     static constexpr auto mInventoryInterfaceTooltips2 = 0x1b7751;
@@ -180,6 +179,8 @@ public:
     static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
 
     static constexpr auto mAfterNagoCombatSetKeys = BAK::KeyTarget{0x1cfdf1};
+    static constexpr auto mEndOfChapterResetFlags =
+        KeyTarget{0x1e8497};
 };
 
 }

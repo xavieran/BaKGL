@@ -93,7 +93,7 @@ ItemUseResult FixCrossbow(
             std::nullopt,
             KeyTarget{0}};
 
-        character.RemoveItem(sourceItem);
+        character.GetInventory().RemoveItem(sourceItemIndex, 1);
 
         return result;
     }
@@ -166,7 +166,11 @@ ItemUseResult PoisonQuarrel(
         character.GetInventory().RemoveItem(sourceItemIndex, 1);
     }
 
-    character.RemoveItem(targetItem);
+    // FIXME: We might want something more like
+    // character.GetInventory().SetItemAt(targetItemIndex, newQuarrels)
+    // Otherwise the sourceItem shifts position which is a bit annoying when
+    // trying to poison multiple items sequentially
+    character.GetInventory().RemoveItem(targetItemIndex);
     character.GiveItem(newQuarrels);
 
     return result;
@@ -202,7 +206,7 @@ ItemUseResult PoisonRations(
         character.GetInventory().RemoveItem(sourceItemIndex, 1);
     }
 
-    character.RemoveItem(targetItem);
+    character.GetInventory().RemoveItem(targetItemIndex);
     character.GiveItem(newRations);
 
     return result;
@@ -229,8 +233,8 @@ ItemUseResult MakeGuardaRevanche(
             DialogSources::mItemUseSucessful,
             sourceItem.GetItemIndex().mValue)};
 
-    character.RemoveItem(sourceItem);
-    character.RemoveItem(targetItem);
+    character.GetInventory().RemoveItem(sourceItemIndex);
+    character.GetInventory().RemoveItem(targetItemIndex);
     character.GiveItem(guardaRevanche);
 
     return result;
@@ -360,35 +364,27 @@ ItemUseResult LearnSpell(
     InventoryIndex inventoryIndex)
 {
     auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
-    if (character.IsSpellcaster())
-    {
-        if (character.GetSpells().HaveSpell(item.GetSpell()))
-        {
-            return ItemUseResult{
-                std::nullopt,
-                item.GetItemIndex().mValue,
-                BAK::DialogSources::mItemUseFailure
-            };
-        }
-        else
-        {
-            auto sound = item.GetItemUseSound();
-            auto itemIndex = item.GetItemIndex();
-            character.GetSpells().SetSpell(item.GetSpell());
-            character.GetInventory().RemoveItem(inventoryIndex);
-            return ItemUseResult{
-                sound,
-                itemIndex.mValue,
-                BAK::DialogSources::mItemUseSucessful
-            };
-        }
-    }
-    else
+    assert(character.IsSpellcaster() && item.IsMagicUserOnly());
+
+    if (character.GetSpells().HaveSpell(item.GetSpell()))
     {
         return ItemUseResult{
             std::nullopt,
             item.GetItemIndex().mValue,
-            BAK::DialogSources::mWarriorCantUseMagiciansItem};
+            BAK::DialogSources::mItemUseFailure
+        };
+    }
+    else
+    {
+        auto sound = item.GetItemUseSound();
+        auto itemIndex = item.GetItemIndex();
+        character.GetSpells().SetSpell(item.GetSpell());
+        character.GetInventory().RemoveItem(inventoryIndex);
+        return ItemUseResult{
+            sound,
+            itemIndex.mValue,
+            BAK::DialogSources::mItemUseSucessful
+        };
     }
 }
 
@@ -518,6 +514,53 @@ ItemUseResult UseRestoratives(
     return result;
 }
 
+ItemUseResult UsePotion(
+    GameState& gameState,
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+
+    auto skill = ToSkill(BAK::SkillTypeMask{item.GetObject().mEffect});
+    auto adjust = item.GetObject().mPotionPowerOrBookChance;
+    auto startTime = gameState.GetWorldTime().GetTime();
+    auto endTime = startTime + (Times::OneHour * item.GetObject().mAlternativeEffect);
+
+    bool alreadyUsedThisPotionRecently{false};
+    for (const auto& affector : character.GetSkillAffectors())
+    {
+        Logging::LogDebug(__FUNCTION__) << " TargetSkill: " << ToString(skill) << " Affector: " << affector <<
+            " time: " << startTime << "\n";
+        if (affector.mSkill == skill
+            && affector.mEndTime >= startTime)
+        {
+            alreadyUsedThisPotionRecently = true;
+            break;
+        }
+    }
+
+    if (alreadyUsedThisPotionRecently)
+    {
+        return ItemUseResult{
+            std::nullopt,
+            std::nullopt,
+            DialogSources::mCantConsumeMorePotion};
+    }
+
+    character.AddSkillAffector(SkillAffector{0x200, skill, adjust, startTime, endTime});
+
+    auto result = ItemUseResult{
+        item.GetItemUseSound(),
+        std::nullopt,
+        DialogSources::GetChoiceResult(
+            DialogSources::mItemUseSucessful,
+            item.GetItemIndex().mValue)};
+
+    character.GetInventory().RemoveItem(inventoryIndex, 1);
+
+    return result;
+}
+
 ItemUseResult UseItem(
     GameState& gameState,
     Character& character,
@@ -525,6 +568,23 @@ ItemUseResult UseItem(
 {
     auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
     auto& object = item.GetObject();
+
+    if (item.IsMagicUserOnly() && !character.IsSpellcaster())
+    {
+        return ItemUseResult{
+            std::nullopt,
+            item.GetItemIndex().mValue,
+            BAK::DialogSources::mWarriorCantUseMagiciansItem};
+    }
+    else if (item.IsSwordsmanUserOnly() && !character.IsSwordsman())
+    {
+        return ItemUseResult{
+            std::nullopt,
+            item.GetItemIndex().mValue,
+            BAK::DialogSources::mMagicianCantUseWarriorsItem};
+
+    }
+
     if  (object.mType == ItemType::Book)
     {
         return ReadBook(gameState, character, inventoryIndex);
@@ -563,6 +623,10 @@ ItemUseResult UseItem(
     else if (item.IsItemType(BAK::ItemType::Restoratives))
     {
         return UseRestoratives(character, inventoryIndex);
+    }
+    else if (item.IsItemType(BAK::ItemType::Potion))
+    {
+        return UsePotion(gameState, character, inventoryIndex);
     }
 
     return ItemUseResult{

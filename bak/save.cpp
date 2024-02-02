@@ -114,6 +114,16 @@ void Save(const Character& c, FileBuffer& fb)
         const auto cond = c.mConditions.GetCondition(static_cast<BAK::Condition>(i));
         fb.PutUint8(cond.Get());
     }
+
+    fb.Seek(BAK::GameData::GetCharacterAffectorsOffset(charIndex));
+    for (const auto& affector : c.GetSkillAffectors())
+    {
+        fb.PutUint16LE(affector.mType);
+        fb.PutUint16LE(1 << static_cast<std::uint16_t>(affector.mSkill));
+        fb.PutSint16LE(affector.mAdjustment);
+        fb.PutUint32LE(affector.mStartTime.mTime);
+        fb.PutUint32LE(affector.mEndTime.mTime);
+    }
 }
 
 void Save(const Party& party, FileBuffer& fb)

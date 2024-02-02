@@ -32,3 +32,7 @@ then bp 3b52:2649
 
 bpm 2b50:3d92 - current time
 bpm 2b50:3d96 - current time
+
+bpm 2b50:40f3 - potion usage first char
+bpm 2b50:4163 - potion usage second char
+bpm 2b50:433e - time expiring state count

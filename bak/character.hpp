@@ -40,6 +40,7 @@ public:
         mUnknown2{unknown2},
         mConditions{conditions},
         mInventory{std::move(inventory)},
+        mSkillAffectors{},
         mLogger{Logging::LogState::GetLogger("BAK::Character")}
     {}
 
@@ -348,6 +349,7 @@ public:
             skill,
             mSkills,
             mConditions,
+            mSkillAffectors,
             SkillRead::Current);
     }
 
@@ -361,6 +363,7 @@ public:
             skill,
             mSkills,
             mConditions,
+            mSkillAffectors,
             SkillRead::MaxSkill);
     }
 
@@ -383,6 +386,21 @@ public:
         return mSpells;
     }
 
+    void AddSkillAffector(const SkillAffector& affector)
+    {
+        mSkillAffectors.emplace_back(affector);
+    }
+    
+    std::vector<SkillAffector>& GetSkillAffectors()
+    {
+        return mSkillAffectors;
+    }
+
+    const std::vector<SkillAffector>& GetSkillAffectors() const
+    {
+        return mSkillAffectors;
+    }
+
     CharIndex mCharacterIndex;
     std::string mName;
     mutable Skills mSkills;
@@ -391,6 +409,7 @@ public:
     std::array<std::uint8_t, 7> mUnknown2;
     Conditions mConditions;
     Inventory mInventory;
+    std::vector<SkillAffector> mSkillAffectors;
 
     const Logging::Logger& mLogger;
 };

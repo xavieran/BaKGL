@@ -19,7 +19,12 @@ void RemoveBlessing(BAK::InventoryItem& item);
 
 Royals CalculateTeleportCost(unsigned source, unsigned dest);
 
-Royals CalculateCureCost(unsigned cureFactor, bool isTempleOfSung, Skills&, const Conditions&);
+Royals CalculateCureCost(
+    unsigned cureFactor,
+    bool isTempleOfSung,
+    Skills&,
+    const Conditions&,
+    const std::vector<SkillAffector>&);
 void CureCharacter(Skills&, Conditions&, bool isTempleOfSung);
 
 }

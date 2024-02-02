@@ -145,6 +145,16 @@ public:
         return HasFlag(ItemFlags::Consumable);
     }
 
+    bool IsMagicUserOnly() const
+    {
+        return HasFlag(ItemFlags::MagicalItem);
+    }
+
+    bool IsSwordsmanUserOnly() const
+    {
+        return HasFlag(ItemFlags::SwordsmanItem);
+    }
+
     bool IsSkillModifier() const
     {
         return GetObject().mModifierMask != 0;

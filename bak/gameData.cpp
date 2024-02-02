@@ -51,7 +51,7 @@ GameData::GameData(const std::string& save)
     //LoadCombatGridLocations();
     //LoadCombatWorldLocations();
     //LoadCombatClickedTimes();
-    GetCharacterPotionData(0, 0);
+    GetTimeExpiringState(0);
 }
 
 void GameData::SetTimeExpiringState(
@@ -71,66 +71,74 @@ void GameData::SetTimeExpiringState(
     mBuffer.PutUint32LE(time.mTime);
 }
 
-void GameData::GetCharacterPotionData(
-    unsigned character,
-    unsigned index)
-{
-    mBuffer.Seek(sCharacterPotionOffset);
-    for (unsigned i = 0; i < 25; i++)
-    {
-        auto number = mBuffer.GetUint16LE();
-        if (number == 0)
-        {
-            mBuffer.Skip(12);
-            mLogger.Info() << "PotionData #" << i << " EMPTY\n";
-            continue;
-        }
-        auto whichSkill = ToSkill(static_cast<BAK::SkillTypeMask>(mBuffer.GetUint16LE()));
-        auto amount = mBuffer.GetUint16LE();
-        auto startTime = Time{mBuffer.GetUint32LE()};
-        auto endTime = Time{mBuffer.GetUint32LE()};
-        mLogger.Info() << "PotionData #" << i <<
-            " Type: " << (number >> 8) << " whichSkill: " << ToString(whichSkill)
-            << " amount: " << amount << " start: " << startTime
-            << " end: " << endTime << "\n";
-    }
-}
-
 void GameData::GetTimeExpiringState(
     unsigned index)
 {
     // DialogAction value is always 4, flag is always 0x40
     // ItemExpiring value is always 1, flag is always 0x80
     // 0x80 adds 
-    mBuffer.Seek(sTimeExpiringEventRecordOffset + index);
-    auto number = mBuffer.GetUint8();
-    auto flag = mBuffer.GetUint8();
-    auto eventPtr = mBuffer.GetUint16LE();
-    auto time = Time{mBuffer.GetUint32LE()};
-    mLogger.Info() << "TimeExpiringState #" << index << " num: " << +number
-        << " flag: " << +flag << " eventPtr: " << eventPtr << " time: " << time << "\n";
+    mBuffer.Seek(sTimeExpiringEventRecordOffset);
+    auto stateCount = mBuffer.GetUint16LE();
+    for (unsigned i = 0; i < stateCount; i++)
+    {
+        auto number = mBuffer.GetUint8();
+        auto flag = mBuffer.GetUint8();
+        auto eventPtr = mBuffer.GetUint16LE();
+        auto time = Time{mBuffer.GetUint32LE()};
+        auto time2 = Time{mBuffer.GetUint32LE()};
+        mLogger.Info() << "TimeExpiringState #" << i << " num: " << +number
+            << " flag: " << +flag << " eventPtr: " << eventPtr << " time: " << time 
+            << " time2: " << time2 << "\n";
+    }
 }
+
+std::vector<SkillAffector> GameData::GetCharacterSkillAffectors(
+    CharIndex character)
+{
+    mBuffer.Seek(GetCharacterAffectorsOffset(character.mValue));
+    std::vector<SkillAffector> affectors{};
+    for (unsigned i = 0; i < 8; i++)
+    {
+        // Strength Drain Spell does this...
+        // 00 01 08 00 07 00 D8 70 02 00 B0 E1 04
+        const auto type = mBuffer.GetUint16LE();
+        if (type == 0)
+        {
+            mBuffer.Skip(12);
+            continue;
+        }
+        const auto skill = ToSkill(static_cast<BAK::SkillTypeMask>(mBuffer.GetUint16LE()));
+        const auto adjust = mBuffer.GetSint16LE();
+        const auto startTime = Time{mBuffer.GetUint32LE()};
+        const auto endTime = Time{mBuffer.GetUint32LE()};
+        affectors.emplace_back(SkillAffector{type, skill, adjust, startTime, endTime});
+    }
+    return affectors;
+}
+
+
+
 /* ************* LOAD Game STATE ***************** */
 Party GameData::LoadParty()
 {
     auto characters = LoadCharacters();
-    auto active = LoadActiveCharacters();
+    auto activeCharacters = LoadActiveCharacters();
     auto gold = LoadGold();
     auto keys = LoadCharacterInventory(sPartyKeyInventoryOffset);
-    return Party{
+    auto party = Party{
         gold,
         std::move(keys),
         characters,
-        active};
+        activeCharacters};
+    mLogger.Debug() << "Party: " << party << "\n";
+    return party;
 }
-
     
 std::vector<Character> GameData::LoadCharacters()
 {
     unsigned characters = sCharacterCount;
 
     std::vector<Character> chars;
-    const auto& spellDb = BAK::SpellDatabase::Get();
 
     for (unsigned character = 0; character < characters; character++)
     {
@@ -143,13 +151,6 @@ std::vector<Character> GameData::LoadCharacters()
 
         auto characterNameOffset = mBuffer.GetArray<2>();
         auto spells = Spells{mBuffer.GetArray<6>()};
-        for (const auto& spell : spellDb.GetSpells())
-        {
-            if (spell.HasSpell(spells))
-            {
-                mLogger.Debug() << "  " << spell.mName << "\n";
-            }
-        }
 
         auto skills = Skills{};
 
@@ -199,6 +200,12 @@ std::vector<Character> GameData::LoadCharacters()
             unknown2,
             conditions,
             std::move(inventory));
+
+        auto affectors = GetCharacterSkillAffectors(CharIndex{character});
+        for (const auto& affector : affectors)
+        {
+            chars.back().AddSkillAffector(affector);
+        }
     }
     
     return chars;
@@ -244,6 +251,8 @@ std::vector<CharIndex> GameData::LoadActiveCharacters()
         const auto c = mBuffer.GetUint8();
         active.emplace_back(c);
     }
+
+    mLogger.Debug() << "Active Characters: " << active << "\n";
 
     return active;
 }
