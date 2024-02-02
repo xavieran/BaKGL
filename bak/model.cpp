@@ -54,6 +54,37 @@ inline std::ostream& operator<<(std::ostream& os, const Model& m)
     return os;
 }
 
+inline std::ostream& operator<<(std::ostream& os, const ClipPoint& p)
+{
+    os << "[" << p.mUV << "] (" << p.mXY << ")";
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const ClipElement& c)
+{
+    os << "    UnknownFlags: " << std::hex << c.mUnknown << std::dec << "\n";
+    for (const auto& pt : c.mPoints)
+    {
+        os << "    " << pt << "\n";
+    }
+    if (c.mExtraPoint)
+    {
+        os << "    ExtraPoint: " << *c.mExtraPoint << "\n";
+    }
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const ModelClipX& m)
+{
+    os << "ModelClip{ " << m.mName << " radius: " << m.mRadius
+        << " hasVert: " << m.hasVertical << " Elements:\n";
+    for (unsigned i = 0; i < m.mElements.size(); i++)
+    {
+        os << "  ClipElement #" << i << "\n";
+        os << m.mElements[i] << "\n";
+    }
+    return os;
+}
 
 std::vector<std::string> LoadModelNames(FileBuffer& fb)
 {
@@ -89,13 +120,84 @@ unsigned CalculateOffset(unsigned upper, unsigned lower)
     return (upper << 4) + (lower & 0xf);
 }
 
-std::vector<ModelClip> LoadModelClip(FileBuffer& fb, unsigned numItems)
+ModelClipX LoadGidItem(BAK::FileBuffer& fb)
+{
+    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
+    struct ElementOffsets
+    {
+        unsigned mOffset;
+        unsigned mLength;
+        std::optional<unsigned> mExtraOffset;
+        std::array<std::uint8_t, 3> mUnknown;
+    };
+    std::vector<ElementOffsets> offsets{};
+    auto start = fb.Tell();
+
+    auto x = fb.GetUint16LE();
+    auto y = fb.GetUint16LE();
+    auto hasVertical = fb.GetUint8();
+    auto elems = fb.GetUint8();
+    auto offsetAdjust = fb.GetUint16LE() - 8;
+
+    assert(offsetAdjust >= 0);
+    assert(hasVertical == 0 || hasVertical == 2);
+
+    ModelClipX modelClip{};
+    modelClip.mRadius = glm::ivec2{x, y};
+    modelClip.hasVertical = hasVertical == 2;
+
+    for (unsigned i = 0; i < elems; i++)
+    {
+        auto off = fb.GetUint16LE();
+        auto entries = fb.GetUint8();
+        auto unknown = fb.GetArray<3>();
+        std::optional<unsigned> extra = std::nullopt;
+        if (hasVertical == 2)
+        {
+            off = fb.GetUint16LE();
+            extra = off;
+            auto unknown2 = fb.GetArray<2>();
+        }
+        
+        offsets.emplace_back(ElementOffsets{off, entries, extra, unknown});
+    }
+
+    for (unsigned i = 0; i < elems; i++)
+    {
+        fb.Seek(start + offsets[i].mOffset - offsetAdjust);
+        ClipElement element{};
+        element.mUnknown = offsets[i].mUnknown;
+        for (unsigned j = 0; j < offsets[i].mLength; j++)
+        {
+            auto u = fb.GetSint8();
+            auto v = fb.GetSint8();
+            auto x = fb.GetSint16LE();
+            auto y = fb.GetSint16LE();
+            element.mPoints.emplace_back(ClipPoint{glm::ivec2{u, v}, glm::ivec2{x, y}});
+        }
+        if (offsets[i].mExtraOffset)
+        {
+            fb.Seek(start + *offsets[i].mExtraOffset - offsetAdjust);
+            auto u = fb.GetSint8();
+            auto v = fb.GetSint8();
+            auto x = fb.GetSint16LE();
+            auto y = fb.GetSint16LE();
+            element.mExtraPoint = ClipPoint{glm::ivec2{u, v}, glm::ivec2{x, y}};
+        }
+        modelClip.mElements.emplace_back(element);
+    }
+
+    return modelClip;
+}
+
+std::vector<ModelClipX> LoadModelClip(FileBuffer& fb, std::vector<std::string> names)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
+    auto numItems = names.size();
     std::vector<unsigned> offsets{};
     offsets.reserve(numItems);
-    std::vector<ModelClip> modelClips{};
+    std::vector<ModelClipX> modelClips{};
     modelClips.reserve(numItems);
 
     for (unsigned i = 0; i < numItems; i++)
@@ -108,42 +210,9 @@ std::vector<ModelClip> LoadModelClip(FileBuffer& fb, unsigned numItems)
 
     for (unsigned int i = 0; i < numItems; i++)
     {
-        fb.Seek(offsets[i]); 
-        std::vector<glm::ivec2> textureCoords{};
-        std::vector<glm::ivec2> otherCoords{};
-
-        const auto xradius = fb.GetUint16LE();
-        const auto yradius = fb.GetUint16LE();
-        logger.Debug() << "HitRad: (" << xradius << "," << yradius << ")\n";
-
-        const bool more = fb.GetUint16LE() > 0;
-        const auto flags = fb.GetUint16LE();
-
-        if (more)
-        {
-            // This is clearly wrong...
-            fb.Skip(2);
-            const auto n = fb.GetUint16LE();
-            fb.Skip(2);
-            for (unsigned component = 0; component < n; component++)
-            {
-                const auto u = fb.GetSint8();
-                const auto v = fb.GetSint8();
-                const auto x = fb.GetSint16LE();
-                const auto y = fb.GetSint16LE();
-                logger.Debug() << " uvxy " << u << " " << v << " " << x << " " << y << std::endl; 
-                textureCoords.emplace_back(u, v);
-                otherCoords.emplace_back(x, y);
-            }
-        }
-        modelClips.emplace_back(
-            ModelClip{
-                xradius, yradius,
-                flags, 0,
-                0,
-                std::move(textureCoords),
-                std::move(otherCoords)}
-        );
+        fb.Seek(offsets[i]);
+        modelClips.emplace_back(LoadGidItem(fb));
+        modelClips.back().mName = names[i];
     }
 
     return modelClips;
@@ -371,6 +440,9 @@ std::vector<Model> LoadTBL(FileBuffer& fb)
         ss << " " << name << ",";
     }
     logger.Info() << "Loading models: " << ss.str() << "\n";
+    auto clips = LoadModelClip(gidbuf, names);
+    for (auto& c : clips)
+        logger.Spam() << c << "\n";
     return LoadModels(datbuf, names);
 }
 

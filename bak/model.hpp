@@ -27,6 +27,27 @@ struct ModelClip
     std::vector<glm::ivec2> otherCoords;
 };
 
+struct ClipPoint
+{
+    glm::ivec2 mUV;
+    glm::ivec2 mXY;
+};
+
+struct ClipElement
+{
+    std::vector<ClipPoint> mPoints;
+    std::optional<ClipPoint> mExtraPoint;
+    std::array<std::uint8_t, 3> mUnknown;
+};
+
+struct ModelClipX
+{
+    glm::ivec2 mRadius;
+    bool hasVertical;
+    std::vector<ClipElement> mElements;
+    std::string mName;
+};
+
 struct FaceOption
 {
     unsigned mFaceType;
@@ -61,6 +82,8 @@ struct Model
     std::vector<Component> mComponents;
 };
 
+std::vector<std::string> LoadModelNames(FileBuffer& fb);
+std::vector<ModelClipX> LoadModelClip(FileBuffer& fb, unsigned numItems);
 std::vector<Model> LoadTBL(FileBuffer& fb);
 
 }

@@ -36,7 +36,6 @@ void DialogFactory::Load()
     {
         fb.Skip(3);
         const auto target = fb.GetUint32LE();
-        Logging::LogDebug("Dialog") << " Target: " << target << "\n";
         mDialogs.emplace_back(KeyTarget{target});
         fb.Skip(2);
     }
