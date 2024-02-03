@@ -7,6 +7,7 @@
 #include "graphics/sprites.hpp"
 
 #include "gui/core/widget.hpp"
+#include "gui/colors.hpp"
 
 #include <glm/glm.hpp>
 
@@ -67,6 +68,39 @@ public:
         })
         {
             AddScreen(scx, pal);
+        }
+
+        // Add this screen and cut out the center so we can use
+        // it in the main view without any scissoring
+        {
+            mScxToSprite.emplace(std::make_pair("DIALOG_BG_MAIN.SCX", i++));
+            BAK::TextureFactory::AddScreenToTextureStore(
+                textures, "DIALOG.SCX", "OPTIONS.PAL");
+            auto& tex = textures.GetTexture(i - 1);
+            for (auto& pixel : tex.GetTexture())
+            {
+                if (pixel.a == 0)
+                {
+                    pixel = Color::black;
+                }
+            }
+            for (unsigned x = 13; x < (294 + 13); x++)
+            {
+                for (unsigned y = (200 - 13); y > (200 - (100 + 13)); y--)
+                {
+                    tex.SetPixel(x, y, glm::vec4{0});
+                }
+            }
+            for (unsigned x = 13; x < (294 + 13); x++)
+            {
+                tex.SetPixel(x, (200 - (100 + 13)), Color::frameMaroon);
+                tex.SetPixel(x, (200 - 13), Color::frameMaroon);
+            }
+                for (unsigned y = (200 - 13); y > (200 - (100 + 14)); y--)
+            {
+                tex.SetPixel(12, y, Color::frameMaroon);
+                tex.SetPixel(294 + 13, y, Color::frameMaroon);
+            }
         }
 
         for (const auto& [bmx, pal] : {

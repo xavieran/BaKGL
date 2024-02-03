@@ -32,6 +32,13 @@ public:
             + (y % GetHeight()) * GetWidth()];
     }
 
+    void SetPixel(unsigned x, unsigned y, glm::vec4 color)
+    {
+        mTexture[
+            (x % GetWidth()) 
+            + (y % GetHeight()) * GetWidth()] = color;
+    }
+
     void Invert()
     {
         for (unsigned x = 0; x < GetWidth(); x++)
@@ -49,6 +56,7 @@ public:
     }
 
     const TextureType& GetTexture() const { return mTexture; }
+    TextureType& GetTexture() { return mTexture; }
 
 private:
     TextureType mTexture;
@@ -79,6 +87,7 @@ public:
 
     const std::vector<Texture>& GetTextures() const { return mTextures; }
     const Texture& GetTexture(std::size_t i) const { ASSERT(i < mTextures.size()); return mTextures[i]; }
+    Texture& GetTexture(std::size_t i) { ASSERT(i < mTextures.size()); return mTextures[i]; }
 
     unsigned GetMaxDim() const { return mMaxDim; }
     unsigned GetMaxHeight() const { return mMaxHeight; }
