@@ -337,15 +337,16 @@ public:
         IDialogScene* scene) override
     {
         mCursor.PushCursor(0);
-        if (InMainView())
-            drawWorldFrame = true;
-        if (drawWorldFrame)
-        {
-            mScreenStack.PushScreen(&mWorldDialogFrame);
-        }
+        mDialogRunner.SetInWorldView(InMainView() || drawWorldFrame);
+        //if (InMainView())
+        //    drawWorldFrame = true;
+        //if (drawWorldFrame)
+        //{
+        //    mScreenStack.PushScreen(&mWorldDialogFrame);
+        //}
         mGuiScreens.push(GuiScreen{[this, drawWorldFrame](){
-            if (drawWorldFrame)
-                mScreenStack.PopScreen();
+        //    if (drawWorldFrame)
+        //        mScreenStack.PopScreen();
         }});
 
         mScreenStack.PushScreen(&mDialogRunner);

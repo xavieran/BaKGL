@@ -48,6 +48,7 @@ public:
     std::optional<BAK::TeleportIndex> GetAndResetPendingTeleport();
 
     void SetDialogScene(IDialogScene* dialogScene);
+    void SetInWorldView(bool);
 
     void BeginDialog(
         BAK::Target target,
@@ -140,6 +141,7 @@ private:
     std::optional<BAK::TeleportIndex> mPendingZoneTeleport;
     std::stack<BAK::Target> mTargetStack;
     bool mStartedMusic;
+    bool mInWorldView;
 
     std::string mRemainingText;
     glm::vec2 mTextDims;

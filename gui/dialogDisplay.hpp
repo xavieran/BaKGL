@@ -76,6 +76,16 @@ public:
             glm::vec2{320, 200},
             true
         },
+        mWorldViewFrame{
+            Graphics::DrawMode::Sprite,
+            bgs.GetSpriteSheet(),
+            bgs.GetScreen("DIALOG_BG_MAIN.SCX"),
+            Graphics::ColorMode::Texture,
+            glm::vec4{0},
+            glm::vec2{0, 0},
+            glm::vec2{320, 200},
+            true
+        },
         mActionAreaFrame{
             ClipRegionTag{},
             glm::vec2{15, 11},
@@ -121,6 +131,12 @@ public:
         mActionAreaFrame.AddChildBack(&mActionAreaTextBox);
     }
 
+    void ShowWorldViewPane(bool isInWorldView)
+    {
+        if (isInWorldView)
+            AddChildBack(&mWorldViewFrame);
+    }
+
     void DisplayPlayer(IDialogScene& dialogScene, unsigned act)
     {
         const auto actor = mGameState.GetActor(act);
@@ -139,7 +155,8 @@ public:
     std::pair<glm::vec2, std::string> DisplaySnippet(
         IDialogScene& dialogScene,
         const BAK::DialogSnippet& snippet,
-        std::string_view remainingText)
+        std::string_view remainingText,
+        bool isInWorldView)
     {
         ClearChildren();
 
@@ -186,7 +203,8 @@ public:
             dialogFrame,
             horizontallyCentered,
             verticallyCentered,
-            isBold);
+            isBold,
+            isInWorldView);
 
         if (actor)
         {
@@ -204,7 +222,7 @@ public:
         ASSERT(flavourText != text.end());
         const auto remainingText = std::string{flavourText, text.end()};
         auto nullScene = NullDialogScene{};
-        DisplaySnippet(nullScene, snippet, remainingText);
+        DisplaySnippet(nullScene, snippet, remainingText, false);
 
         const auto label = std::string{text.begin(), flavourText};
         AddLabel(label);
@@ -213,6 +231,7 @@ public:
     void Clear()
     {
         ClearChildren();
+        mWorldViewFrame.ClearChildren();
     }
 
 private:
@@ -228,9 +247,10 @@ private:
         DialogFrame dialogFrame,
         bool centeredX,
         bool centeredY,
-        bool isBold)
+        bool isBold,
+        bool isInWorldView)
     {
-        ClearChildren();
+        Clear();
 
         switch (dialogFrame)
         {
@@ -272,7 +292,15 @@ private:
         } break;
         case DialogFrame::LowerArea:
         {
-            AddChildBack(&mLowerFrame);
+            if (isInWorldView)
+            {
+                AddChildBack(&mWorldViewFrame);
+                mWorldViewFrame.AddChildBack(&mLowerFrame);
+            }
+            else
+            {
+                AddChildBack(&mLowerFrame);
+            }
             auto [charPos, remaining] = mLowerTextBox.SetText(
                 mFont,
                 text,
@@ -321,6 +349,7 @@ private:
     Widget mActor;
 
     Widget mFullscreenFrame;
+    Widget mWorldViewFrame;
     Widget mActionAreaFrame;
     Widget mActionAreaBackground;
     Widget mLowerFrame;
