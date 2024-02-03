@@ -15,7 +15,6 @@
 #include "gui/animatorStore.hpp"
 #include "gui/campScreen.hpp"
 #include "gui/cureScreen.hpp"
-#include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
 #include "gui/fontManager.hpp"
