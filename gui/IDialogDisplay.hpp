@@ -12,7 +12,8 @@ class IDialogDisplay
     virtual std::pair<glm::vec2, std::string> DisplaySnippet(
         IDialogScene& dialogScene,
         const BAK::DialogSnippet& snippet,
-        std::string_view remainingText)              = 0;
+        std::string_view remainingText,
+        bool inMainView)                             = 0;
     virtual void ShowFlavourText(BAK::Target target) = 0;
     virtual void Clear()                             = 0;
 };

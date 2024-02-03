@@ -15,7 +15,6 @@
 #include "gui/animatorStore.hpp"
 #include "gui/campScreen.hpp"
 #include "gui/cureScreen.hpp"
-#include "gui/dialogFrame.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
 #include "gui/fontManager.hpp"
@@ -85,7 +84,6 @@ public:
             mScreenStack,
             [this](const auto& choice){ DialogFinished(choice); }
         },
-        mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{*this, mBackgrounds, mIcons},
         mMainMenu{*this, mBackgrounds, mIcons, mFontManager.GetGameFont()},
@@ -337,11 +335,8 @@ public:
         IDialogScene* scene) override
     {
         mCursor.PushCursor(0);
-        if (drawWorldFrame)
-            mScreenStack.PushScreen(&mWorldDialogFrame);
-        mGuiScreens.push(GuiScreen{[this, drawWorldFrame](){
-            if (drawWorldFrame)
-                mScreenStack.PopScreen();
+        mDialogRunner.SetInWorldView(InMainView() || drawWorldFrame);
+        mGuiScreens.push(GuiScreen{[](){
         }});
 
         mScreenStack.PushScreen(&mDialogRunner);
@@ -563,7 +558,6 @@ public:
     BAK::GameState& mGameState;
     ScreenStack mScreenStack;
     DialogRunner mDialogRunner;
-    WorldDialogFrame mWorldDialogFrame;
 
     Graphics::SpriteManager& mSpriteManager;
 

@@ -71,6 +71,11 @@ void DialogRunner::SetDialogScene(IDialogScene* dialogScene)
     mDialogScene = dialogScene;
 }
 
+void DialogRunner::SetInWorldView(bool value)
+{
+    mInWorldView = value;
+}
+
 bool DialogRunner::IsActive()
 {
     return mDialogState.mDialogActive 
@@ -202,7 +207,8 @@ void DialogRunner::DisplaySnippet()
     const auto [textDims, rem] = mDialogDisplay.DisplaySnippet(
         mDialogScene ? *mDialogScene : nullDialog,
         GetSnippet(),
-        text);
+        text,
+        mInWorldView);
     mTextDims = textDims;
     mRemainingText = rem;
 }
@@ -327,7 +333,10 @@ void DialogRunner::ShowDialogChoices()
 
     mDialogDisplay.Clear();
     if (mDialogScene)
+    {
+        mDialogDisplay.ShowWorldViewPane(mInWorldView);
         mDialogDisplay.DisplayPlayer(*mDialogScene, GetSnippet().mActor);
+    }
     mScreenStack.PushScreen(&mChoices);
 }
 
