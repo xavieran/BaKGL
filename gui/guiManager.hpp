@@ -85,7 +85,6 @@ public:
             mScreenStack,
             [this](const auto& choice){ DialogFinished(choice); }
         },
-        mWorldDialogFrame{mBackgrounds},
         mSpriteManager{spriteManager},
         mMainView{*this, mBackgrounds, mIcons},
         mMainMenu{*this, mBackgrounds, mIcons, mFontManager.GetGameFont()},
@@ -338,15 +337,7 @@ public:
     {
         mCursor.PushCursor(0);
         mDialogRunner.SetInWorldView(InMainView() || drawWorldFrame);
-        //if (InMainView())
-        //    drawWorldFrame = true;
-        //if (drawWorldFrame)
-        //{
-        //    mScreenStack.PushScreen(&mWorldDialogFrame);
-        //}
-        mGuiScreens.push(GuiScreen{[this, drawWorldFrame](){
-        //    if (drawWorldFrame)
-        //        mScreenStack.PopScreen();
+        mGuiScreens.push(GuiScreen{[](){
         }});
 
         mScreenStack.PushScreen(&mDialogRunner);
@@ -568,7 +559,6 @@ public:
     BAK::GameState& mGameState;
     ScreenStack mScreenStack;
     DialogRunner mDialogRunner;
-    WorldDialogFrame mWorldDialogFrame;
 
     Graphics::SpriteManager& mSpriteManager;
 
