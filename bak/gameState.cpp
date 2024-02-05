@@ -620,7 +620,7 @@ bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
     {
         const auto time = GetWorldTime().GetTime();
         const auto hour = time.GetHour();
-        const bool result = hour >= 4 || hour < 20;
+        const bool result = hour >= 4 && hour < 20;
         mLogger.Debug() << "Checking DayTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
         return result;
     }
