@@ -18,9 +18,8 @@ enum class ActiveStateFlag : std::uint16_t
     CantAfford = 0x7533,
     Chapter    = 0x7537,
     NightTime  = 0x7539,
-    // Doesn't seem like anyone's about...
-    GameTime   = 0x753a,
-    BeforeArvo = 0x753c,
+    DayTime   = 0x753a,
+    TimeBetween = 0x753c,
     SkillCheck = 0x753d,
     Unknown3   = 0x753e,
     Unknown4   = 0x753f,

@@ -15,8 +15,8 @@ std::string_view ToString(ActiveStateFlag f)
     case ActiveStateFlag::CantAfford: return "CantAfford";
     case ActiveStateFlag::Chapter: return "Chapter";
     case ActiveStateFlag::NightTime: return "NightTime";
-    case ActiveStateFlag::GameTime: return "GameTime";
-    case ActiveStateFlag::BeforeArvo: return "BeforeArvo";
+    case ActiveStateFlag::DayTime: return "DayTime";
+    case ActiveStateFlag::TimeBetween: return "TimeBetween";
     case ActiveStateFlag::SkillCheck: return "SkillCheck";
     case ActiveStateFlag::Unknown3: return "Unknown[753e]";
     case ActiveStateFlag::Unknown4: return "Unknown[753f]";
