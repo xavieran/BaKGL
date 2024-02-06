@@ -77,10 +77,6 @@ public:
 
     static constexpr auto sTimeExpiringEventRecordOffset = 0x616; // (0x4340)
 
-    // Based on disassembly this may be the state of doors (open/closed)
-    static constexpr auto sDoorFlag = 0x1b58;
-
-    static constexpr auto sConditionBasedFlag = 0x1c98;
     static constexpr auto sPantathiansEventFlag = 0x1ed4;
 
     static constexpr auto sCombatEntityListCount  = 700;

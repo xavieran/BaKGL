@@ -7,6 +7,7 @@
 #include "bak/skills.hpp"
 #include "bak/sounds.hpp"
 #include "bak/state/item.hpp"
+#include "bak/state/offsets.hpp"
 
 #include "com/logger.hpp"
 #include "com/random.hpp"
@@ -598,6 +599,9 @@ ItemUseResult UseItem(
     {
         if (item.GetItemIndex() == sSpynote)
         {
+            gameState.Apply(
+                State::SetEventFlagTrue,
+                State::sSpynoteHasBeenRead + item.GetQuantity());
             return ItemUseResult{
                 std::nullopt,
                 item.GetQuantity(),
