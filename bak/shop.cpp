@@ -23,6 +23,8 @@ std::ostream& operator<<(std::ostream& os, const ShopStats& shop)
         << " bardingReward: " << +shop.mBardingReward
         << " bardingMaxReward: " << +shop.mBardingMaxReward
         << " unknown: " << std::hex << shop.mUnknown << std::dec
+        << " innSleepTilHour: " << +shop.mInnSleepTilHour
+        << " innCost: " << +shop.mInnCost
         << " repairTypes: " << +shop.mRepairTypes
         << " repairFactor: " << +shop.mRepairFactor
         << " categories: " << std::hex << shop.mCategories << std::dec
@@ -67,7 +69,9 @@ ShopStats LoadShop(FileBuffer& fb)
     const auto bardingSkill     = fb.GetUint8();
     const auto bardingReward    = fb.GetUint8();
     const auto bardingMaxReward = fb.GetUint8();
-    const auto unknown          = fb.GetArray<3>();
+    const auto unknown          = fb.GetUint8();
+    const auto innSleepTilHour  = fb.GetUint8();
+    const auto innCost          = fb.GetUint8();
     const auto repairTypes      = fb.GetUint8();
     const auto repairFactor     = fb.GetUint8();
     const auto categories       = fb.GetUint16LE();
@@ -83,6 +87,8 @@ ShopStats LoadShop(FileBuffer& fb)
         bardingReward,
         bardingMaxReward,
         unknown,
+        innSleepTilHour,
+        innCost,
         repairTypes,
         repairFactor,
         categories

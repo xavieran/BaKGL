@@ -38,6 +38,27 @@ enum class DialogResult
     // 18 - seems to remove/move mney at a chapter transition
 };
 
+enum class SpecialActionType : std::uint16_t
+{
+    ReduceGold = 0, // reduces party gold by val of item or to 0 if lt
+    IncreaseGold = 1,
+    DoesSomethingWithItemsOfEachChar = 2,
+    ResetCombatState = 3,
+    SetCombatState = 4,
+    DoSomethingWithContainer0 = 5,
+    DoSomethingWithContainer1 = 6,
+    Increase753f = 7, // this literally adds the value to 753f
+    Gamble = 8,
+    CharInventoryP = 9, // this does something funky with inventory
+    DoSomethingWithContainer2 = 10,
+    ResetGambleValueTo = 11,
+    BeginCombat = 12,
+    ExpireAllTimeExpiringStateP = 13, // seems to expire TESs
+    ArlieSteelSoulContainer = 14,
+    CheatIncreaseSkill = 15,
+    AfterPugAddedToParty = 16, // modifies vars at 3ec3 and 3f22
+};
+
 struct SetTextVariable
 {
     // Sets the variable (@mWhich) to mWhat
@@ -113,6 +134,14 @@ struct GainSkill
     SkillType mSkill;
     std::int16_t mMin;
     std::int16_t mMax;
+};
+
+struct SpecialAction
+{
+    SpecialActionType mType;
+    std::uint16_t mVar1;
+    std::uint16_t mVar2;
+    std::uint16_t mVar3;
 };
 
 struct LoadSkillValue
@@ -221,6 +250,7 @@ using DialogAction = std::variant<
     LoseItem,
     SetFlag,
     SetPopupDimensions,
+    SpecialAction,
     GainCondition,
     GainSkill,
     LoadSkillValue,

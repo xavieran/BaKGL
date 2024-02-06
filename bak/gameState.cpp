@@ -303,6 +303,7 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
 {
     mLogger.Debug() << __FUNCTION__ << "(" << index << ", " << attribute << ")\n";
     assert(attribute > 0);
+    // remember we always switch on attribute - 1...
     switch (attribute - 1)
     {
     case 0: [[fallthrough]];
@@ -339,6 +340,70 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
     case 24: [[fallthrough]];
     case 25:
         break; // Do nothing..?
+    case 16:
+        mTextVariableStore.SetTextVariable(
+            index,
+            mCurrentMonster ? MonsterNames::Get().GetMonsterName(*mCurrentMonster) : "No Monster Specified");
+        break;
+    case 17:
+        ASSERT(mSelectedItem);
+        mTextVariableStore.SetTextVariable(
+            index,
+            mSelectedItem->GetObject().mName);
+        break;
+    case 18:
+        mTextVariableStore.SetTextVariable(
+            index,
+            ToShopDialogString(mItemValue));
+        break;
+    case 19:
+        mTextVariableStore.SetTextVariable(
+            index,
+            ToShopDialogString(GetParty().GetGold()));
+        break;
+    case 20:
+        // mContextVar_valueOfItem - but used
+        // in the restoratives dialog to indicate the
+        // number of health points left...
+        mTextVariableStore.SetTextVariable(
+            index,
+            "");
+            // ToString(mContextVar_charCurrentHealthPoint)
+        break;
+    case 21:
+        mTextVariableStore.SetTextVariable(
+            index,
+            ""); // ToString(mContextVar_753f)
+    case 22:
+        // unused??
+        // ToString(mContext_whichSkillIncreased)
+        break;
+    case 26:
+        // mTextVariableStore.SetTextVariable(index,
+        //    ToString(BAK::SkillType(mContextVar_753f)));
+        break;
+    case 27:
+        // or tavernkeeper if in an inn... which is determined by
+        // inn cost being >= 0
+        mTextVariableStore.SetTextVariable(index, "shopkeeper");
+        break;
+    case 28:
+        // the skill that increased, either the party's or the
+        // selected character
+        // mContext_whichSkillIncreased
+        mTextVariableStore.SetTextVariable(index, "skill");
+        break;
+    case 9:
+    case 29:
+        // character index is stored in checkSkillValue
+        //mDialogCharacterList[index] =checkedSkillValue;
+        mTextVariableStore.SetTextVariable(
+            index,
+            ""); // character at checked skill value
+        break;
+    case 31:
+        // actor name
+        break;
     default:
          break;
     }
@@ -633,6 +698,13 @@ bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
     else if (choice.mState == BAK::ActiveStateFlag::Shop
         && GetShopType() == choice.mExpectedValue)
     {
+        return true;
+    }
+    else if (static_cast<unsigned>(choice.mState) == 0x753f)
+    {
+        // This is set by the cheat screen dialog which raises
+        // skill values
+        //return (mContextVar_753f == choice.mExpectedValue);
         return true;
     }
 

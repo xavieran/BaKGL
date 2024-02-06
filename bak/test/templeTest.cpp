@@ -100,7 +100,7 @@ TEST_F(TempleTestFixture, IsBlessed)
 TEST_F(TempleTestFixture, BlessItem)
 {
     const auto shopStats = ShopStats{
-        0, 25, 75, 3, 0, 0, 0, 0, 0, std::array<std::uint8_t, 3>{0, 0, 0,}, 0, 0, 0
+        0, 25, 75, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     auto item = MakeItem("Sword", 1);
     EXPECT_EQ(Temple::IsBlessed(item), false);
@@ -113,7 +113,7 @@ TEST_F(TempleTestFixture, BlessItem)
 TEST_F(TempleTestFixture, CalculateBlessPrice)
 {
     const auto shopStats = ShopStats{
-        0, 25, 75, 1, 0, 0, 0, 0, 0, std::array<std::uint8_t, 3>{0, 0, 0,}, 0, 0, 0
+        0, 25, 75, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
     EXPECT_EQ(

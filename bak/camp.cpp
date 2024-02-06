@@ -75,7 +75,7 @@ void EffectOfConditionsWithTime(
         {
             conditionChangePcnt = 100;
         }
-        healAmount = 1;
+        healAmount = (1 * healPercent) / 0x64;
         if (conditions.GetCondition(Condition::Healing).Get() > 0)
         {
             healAmount *= 2;

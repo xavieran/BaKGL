@@ -34,6 +34,32 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
     }
 }
 
+std::ostream& operator<<(std::ostream& os, const SpecialActionType& a)
+{
+    switch (a)
+    {
+        case SpecialActionType::ReduceGold: return os << "ReduceGold";
+        case SpecialActionType::IncreaseGold: return os << "IncreaseGold";
+        case SpecialActionType::DoesSomethingWithItemsOfEachChar: return os << "DoesSomethingWithItemsOfEachChar";
+        case SpecialActionType::ResetCombatState: return os << "ResetCombatState";
+        case SpecialActionType::SetCombatState: return os << "SetCombatState";
+        case SpecialActionType::DoSomethingWithContainer0: return os << "DoSomethingWithContainer0";
+        case SpecialActionType::DoSomethingWithContainer1: return os << "DoSomethingWithContainer1";
+        case SpecialActionType::Increase753f: return os << "Increase753f";
+        case SpecialActionType::Gamble: return os << "Gamble";
+        case SpecialActionType::CharInventoryP: return os << "CharInventoryP";
+        case SpecialActionType::DoSomethingWithContainer2: return os << "DoSomethingWithContainer2";
+        case SpecialActionType::ResetGambleValueTo: return os << "ResetGambleValueTo";
+        case SpecialActionType::BeginCombat: return os << "BeginCombat";
+        case SpecialActionType::ExpireAllTimeExpiringStateP: return os << "ExpireAllTimeExpiringStateP";
+        case SpecialActionType::ArlieSteelSoulContainer: return os << "ArlieSteelSoulContainer";
+        case SpecialActionType::CheatIncreaseSkill: return os << "CheatIncreaseSkill";
+        case SpecialActionType::AfterPugAddedToParty: return os << "AfterPugAddedToParty";
+        default:
+            return os << "Unknown[" << static_cast<unsigned>(a) <<"]";
+    }
+}
+
 std::ostream& operator<<(std::ostream& os, const SetTextVariable& action)
 {
     os << "SetTextVariable { var: " << action.mWhich << ", set to: " << action.mWhat 
@@ -87,17 +113,25 @@ std::ostream& operator<<(std::ostream& os, const SetFlag& action)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const GainCondition& cond)
+std::ostream& operator<<(std::ostream& os, const GainCondition& action)
 {
-    os << "GainCondition{ who: " << cond.mWho << " " << ToString(cond.mCondition)
-        << " [" << cond.mMin << ", " << cond.mMax << "]}";
+    os << "GainCondition{ who: " << action.mWho << " " << ToString(action.mCondition)
+        << " [" << action.mMin << ", " << action.mMax << "]}";
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const GainSkill& cond)
+std::ostream& operator<<(std::ostream& os, const GainSkill& action)
 {
-    os << "GainSkill{ who: " << cond.mWho << " " << ToString(cond.mSkill)
-        << " [" << +cond.mMin << ", " << +cond.mMax << "]}";
+    os << "GainSkill{ who: " << action.mWho << " " << ToString(action.mSkill)
+        << " [" << +action.mMin << ", " << +action.mMax << "]}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const SpecialAction& action)
+{
+    os << "SpecialAction{ Type: " << action.mType << " ["
+        << action.mVar1 << ", " << action.mVar2 << ", " 
+        << action.mVar3 << "]}";
     return os;
 }
 

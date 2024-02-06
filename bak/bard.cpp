@@ -52,7 +52,7 @@ void ReduceAvailableReward(ShopStats& stats, Royals reward)
     {
         stats.mBardingReward = 0;
         // ????? this is referenced a bit strangely in the asm
-        stats.mUnknown[0] = 1;
+        stats.mUnknown = 1;
     }
 }
 

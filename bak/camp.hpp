@@ -112,6 +112,7 @@ public:
 
     void ElapseTimeInSleepView(Time delta, unsigned healPercent)
     {
+        // healPercent is actually 0x85 when called from Inn
         HandleGameTimeChange(
             BAK::Times::OneHour,
             true, true, false, healPercent);
@@ -261,6 +262,24 @@ private:
                 });
             return false;
         });
+    }
+
+    void SleepAtInn()
+    {
+        auto timeAtStartOfSleep = mGameState.GetWorldTime().GetTime();
+        unsigned ticks = 10;
+        for (unsigned i = 0; i < ticks; ticks++)
+        {
+            ElapseTimeInSleepView(Times::OneHour, 0x85);
+            if ((mGameState.GetWorldTime().GetTime() - timeAtStartOfSleep) >= Times::ThirteenHours)
+            {
+                mGameState.GetParty().ForEachActiveCharacter([&](auto& character)
+                {
+                    //character.AdjustCondition(Condition::Sick, -100);
+                    return false;
+                });
+            }
+        }
     }
 
 private:

@@ -185,6 +185,13 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     glm::vec2{dimsX, dimsY}});
         } break;
         case DialogResult::SpecialAction:
+        {
+            const auto type = static_cast<SpecialActionType>(fb.GetUint16LE());
+            const auto var1 = fb.GetUint16LE();
+            const auto var2 = fb.GetUint16LE();
+            const auto var3 = fb.GetUint16LE();
+            mActions.emplace_back(SpecialAction{type, var1, var2, var3});
+        } break;
         case DialogResult::GainCondition:
         {
             const auto who = fb.GetUint16LE();

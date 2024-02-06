@@ -179,9 +179,6 @@ public:
 
     Inventory LoadCharacterInventory(unsigned offset);
     
-    LockStats LoadLock();
-    ShopStats LoadShop();
-
     std::vector<GenericContainer> LoadShops();
     std::vector<GenericContainer> LoadContainers(unsigned zone);
     std::vector<GenericContainer> LoadCombatInventories();

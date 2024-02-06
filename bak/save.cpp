@@ -59,10 +59,9 @@ void Save(const GenericContainer& gc, FileBuffer& fb)
         fb.PutUint8(shop.mBardingSkill);
         fb.PutUint8(shop.mBardingReward);
         fb.PutUint8(shop.mBardingMaxReward);
-        for (unsigned i = 0; i < 3; i++)
-        {
-            fb.PutUint8(shop.mUnknown[i]);
-        }
+        fb.PutUint8(shop.mUnknown);
+        fb.PutUint8(shop.mInnSleepTilHour);
+        fb.PutUint8(shop.mInnCost);
         fb.PutUint8(shop.mRepairTypes);
         fb.PutUint8(shop.mRepairFactor);
         fb.PutUint16LE(shop.mCategories);

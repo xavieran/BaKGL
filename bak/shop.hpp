@@ -20,7 +20,9 @@ struct ShopStats
     std::uint8_t mBardingSkill;
     std::uint8_t mBardingReward;
     std::uint8_t mBardingMaxReward;
-    std::array<std::uint8_t, 3> mUnknown;
+    std::uint8_t mUnknown;
+    std::uint8_t mInnSleepTilHour;
+    std::uint8_t mInnCost;
     std::uint8_t mRepairTypes;
     std::uint8_t mRepairFactor;
     std::uint16_t mCategories;

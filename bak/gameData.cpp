@@ -305,48 +305,6 @@ Inventory GameData::LoadCharacterInventory(unsigned offset)
     return LoadInventory(mBuffer, itemCount, capacity);
 }
 
-LockStats GameData::LoadLock()
-{
-    const auto lockFlag = mBuffer.GetUint8();
-    const auto picklock = mBuffer.GetUint8();
-    const auto fairyChestIndex = mBuffer.GetUint8();
-    const auto damage = mBuffer.GetUint8();
-    return LockStats{lockFlag, picklock, fairyChestIndex, damage};
-}
-
-ShopStats GameData::LoadShop()
-{
-    const auto templeNumber = mBuffer.GetUint8();
-    const auto sellFactor = mBuffer.GetUint8();
-    const auto maxDiscount = mBuffer.GetUint8();
-    const auto buyFactor = mBuffer.GetUint8();
-    const auto haggle1 = mBuffer.GetUint8();
-    const auto haggle2 = mBuffer.GetUint8();
-    const auto bardingSkill = mBuffer.GetUint8();
-    const auto bardingReward = mBuffer.GetUint8();
-    const auto bardingMaxReward = mBuffer.GetUint8();
-    const auto unknown = mBuffer.GetArray<3>();
-    const auto repairTypes = mBuffer.GetUint8();
-    const auto repairFactor = mBuffer.GetUint8();
-    const auto categories = mBuffer.GetUint16LE();
-
-    return ShopStats{
-        templeNumber,
-        sellFactor,
-        maxDiscount,
-        buyFactor,
-        haggle1,
-        haggle2,
-        bardingSkill,
-        bardingReward,
-        bardingMaxReward,
-        unknown,
-        repairTypes,
-        repairFactor,
-        categories
-    };
-}
-
 std::vector<GenericContainer> GameData::LoadShops()
 {
     mBuffer.Seek(sShopsOffset);
