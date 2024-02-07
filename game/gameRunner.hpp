@@ -5,13 +5,13 @@
 
 #include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
-#include "bak/camp.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/state/encounter.hpp"
 #include "bak/monster.hpp"
+#include "bak/time.hpp"
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
 
@@ -654,7 +654,7 @@ public:
 
             if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0)
             {
-                auto camp = BAK::MakeCamp{mGameState};
+                auto camp = BAK::TimeChanger{mGameState};
                 camp.ElapseTimeInMainView(
                     BAK::Time{0x1e * unitsTravelled});
             }

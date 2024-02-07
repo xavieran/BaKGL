@@ -415,7 +415,7 @@ void GDSScene::DoInn()
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     assert(container && container->IsShop());
     auto& shopStats = container->GetShop();
-        mGuiManager.ShowCamp(true, &container->GetShop());
+    mGuiManager.ShowCamp(true, &container->GetShop());
 }
 
 void GDSScene::DoBard()

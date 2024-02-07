@@ -473,8 +473,13 @@ public:
     void ShowCamp(bool isInn, BAK::ShopStats* inn) override
     {
         assert(!isInn || inn);
+        mGuiScreens.push(GuiScreen{[this]{
+            mCursor.PopCursor();
+        }});
+
         DoFade(.8, [this, isInn, inn]{
             mScreenStack.PushScreen(&mCampScreen);
+            mCursor.PushCursor(0);
             mCampScreen.BeginCamp(isInn, inn);
         });
     }

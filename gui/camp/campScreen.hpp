@@ -2,9 +2,10 @@
 
 #include "bak/camp.hpp"
 #include "bak/dialogSources.hpp"
-#include "bak/shop.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/layout.hpp"
+#include "bak/shop.hpp"
+#include "bak/time.hpp"
 
 #include "graphics/texture.hpp"
 
@@ -144,7 +145,6 @@ public:
     void BeginCamp(bool isInn, BAK::ShopStats* shopStats)
     {
         const auto hour = mGameState.GetWorldTime().GetTime().GetHour();
-        mLogger.Spam() << "BeginCamp: time: " << mGameState.GetWorldTime().GetTime() << " hour: " << hour << "\n";
         for (unsigned i = 0; i < mCampData.GetClockTicks().size(); i++)
         {
             mDots.at(i).SetCurrent(i == hour);
@@ -165,7 +165,6 @@ public:
 
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
     {
-        mLogger.Spam() << "DialogFinished with choice: " << choice << " EOD: " << mGameState.GetEndOfDialogState() << "\n";
         assert(choice);
         if (mGameState.GetEndOfDialogState() == -1 || choice->mValue == BAK::Keywords::sNoIndex)
         {
@@ -260,8 +259,6 @@ private:
 
     void StartCamping(std::optional<unsigned> hourTil)
     {
-        mLogger.Spam() << "StartCamping: time: " << mGameState.GetWorldTime().GetTime() << " hour: " << GetHour() << " camp til: " << hourTil << "\n";
-
         mTargetHour = hourTil;
         mTimeBeganCamping = mGameState.GetWorldTime().GetTime();
 
@@ -277,10 +274,9 @@ private:
 
         mState = hourTil ? State::Camping : State::CampingTilHealed;
 
-        auto timeElapser = std::make_unique<detail::TimeElapser>(
-            [this](){
-                this->HandleTick();
-            });
+        auto timeElapser = std::make_unique<detail::TimeElapser>([this]{
+            this->HandleTick();
+        });
         mTimeElapser = timeElapser.get();
         mGuiManager.AddAnimator(std::move(timeElapser));
         AddChildren();
@@ -288,19 +284,18 @@ private:
 
     void HandleTick()
     {
-        auto camp = BAK::MakeCamp(mGameState);
+        auto camp = BAK::TimeChanger(mGameState);
         camp.ElapseTimeInSleepView(
-            BAK::Times::OneHour, mIsInInn ? 0x85 : 0x64, mIsInInn ? 0x64 : 0x50);
-        mLogger.Spam() << "Clock ticked: time: " << mGameState.GetWorldTime().GetTime() << " hour: " << GetHour() << "\n";
+            BAK::Times::OneHour,
+            mIsInInn ? 0x85 : 0x64,
+            mIsInInn ? 0x64 : 0x50);
 
         if ((mGameState.GetWorldTime().GetTime() - mTimeBeganCamping) > BAK::Times::ThirteenHours)
         {
-            mGameState.GetParty().ForEachActiveCharacter([&](auto& character)
-                {
-                    character.AdjustCondition(BAK::Condition::Sick, -100);
-                    return false;
-                });
-
+            mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+                character.AdjustCondition(BAK::Condition::Sick, -100);
+                return false;
+            });
         }
         bool isLast = GetHour() == mTargetHour;
 
@@ -309,7 +304,7 @@ private:
             FinishedTicking();
         }
 
-        if (mState == State::CampingTilHealed)
+        if (mState == State::CampingTilHealed || mIsInInn)
         {
             for (unsigned i = 0; i < mDots.size(); i++)
             {
@@ -381,7 +376,8 @@ private:
 
     void Exit()
     {
-        mGuiManager.DoFade(.8, [this]{mGuiManager.ExitSimpleScreen(); });
+        // exit lock happens to do exactly what I want.. should probably rename it
+        mGuiManager.DoFade(.8, [this]{mGuiManager.ExitLock(); });
     }
 
     std::string GetButtonText(unsigned button) const
@@ -434,19 +430,13 @@ private:
         {
             AddChildBack(&mPartyGold);
             AddChildBack(&mFrame);
+            SetInactive();
+        }
+        else
+        {
+            SetActive();
         }
 
-        for (auto* child : GetChildren())
-        {
-            if (mIsInInn)
-            {
-                static_cast<Widget*>(child)->SetInactive();
-            }
-            else
-            {
-                static_cast<Widget*>(child)->SetActive();
-            }
-        }
     }
 
     IGuiManager& mGuiManager;
@@ -464,7 +454,12 @@ private:
     TextBox mPartyGold;
 
     std::vector<ClickButton> mButtons;
-    using ClockTick = Highlightable<Clickable<detail::CampDest, LeftMousePress, std::function<void()>>, true>;
+    using ClockTick = Highlightable<
+        Clickable<
+            detail::CampDest,
+            LeftMousePress,
+            std::function<void()>>,
+        true>;
     std::vector<ClockTick> mDots;
 
     bool mIsInInn;
