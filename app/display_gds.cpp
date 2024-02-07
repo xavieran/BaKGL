@@ -12,6 +12,9 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadScenes");
     Logging::LogState::Disable("LoadSceneIndices");
+    Logging::LogState::Disable("FileDataProvider");
+    Logging::LogState::Disable("PackedFileDataProvider");
+    Logging::LogState::Disable("CreateFileBuffer");
     
     std::string gdsFile{argv[1]};
 

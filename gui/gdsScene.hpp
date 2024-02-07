@@ -83,7 +83,6 @@ public:
     DialogDisplay mDialogDisplay;
 
     State mState;
-    std::optional<BAK::Hotspot> mPendingInn;
     std::optional<BAK::HotspotRef> mPendingGoto;
     // e.g. when you fail barding
     bool mKickedOut;

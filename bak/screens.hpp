@@ -80,8 +80,15 @@ void ShowDialogGui(
         //    ImGui::SameLine(); ImGui::Text(ss.str().c_str());
         //}
 
-        ImGui::TextWrapped(dialogStore.GetFirstText(
-            dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());
+        if (evaluate_if<BAK::KeyTarget>(choice.mTarget, [](const auto& current){ return current != BAK::KeyTarget{0}; }))
+        {
+            ImGui::TextWrapped(dialogStore.GetFirstText(
+                dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());
+        }
+        else
+        {
+            ImGui::TextWrapped("No text");
+        }
     }
 
     ImGui::End();
