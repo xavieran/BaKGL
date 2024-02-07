@@ -348,7 +348,8 @@ signed DoAdjustHealth(
         {
             healthChange = (((0x64 - nearDeath) * 0x1E) / 0x64) + 1;
         }
-        Logging::LogDebug(__FUNCTION__) << " NearDeath >0 --" << healthChange << "\n"    ;
+        Logging::LogDebug(__FUNCTION__) << " NearDeath amt: " << +nearDeath 
+            << " efct on healthChange: " << healthChange << "\n";
     }
 
     // ovr131:03c7

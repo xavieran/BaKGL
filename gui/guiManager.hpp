@@ -13,7 +13,7 @@
 #include "gui/IGuiManager.hpp"
 
 #include "gui/animatorStore.hpp"
-#include "gui/campScreen.hpp"
+#include "gui/camp/campScreen.hpp"
 #include "gui/cureScreen.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
@@ -470,11 +470,17 @@ public:
         }
     }
 
-    void ShowCamp(bool isInn) override
+    void ShowCamp(bool isInn, BAK::ShopStats* inn) override
     {
-        DoFade(.8, [this, isInn]{
-            mCampScreen.SetIsInn(isInn);
+        assert(!isInn || inn);
+        mGuiScreens.push(GuiScreen{[this]{
+            mCursor.PopCursor();
+        }});
+
+        DoFade(.8, [this, isInn, inn]{
             mScreenStack.PushScreen(&mCampScreen);
+            mCursor.PushCursor(0);
+            mCampScreen.BeginCamp(isInn, inn);
         });
     }
 
@@ -565,7 +571,7 @@ public:
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
-    CampScreen mCampScreen;
+    Camp::CampScreen mCampScreen;
     CureScreen mCureScreen;
     LockScreen mLockScreen;
     FullMap mFullMap;

@@ -59,6 +59,7 @@ public:
     void StartDialog(BAK::Target target, bool isTooltip);
     void DialogFinished(const std::optional<BAK::ChoiceIndex>&) override;
     void EnterContainer();
+    void DoInn();
     void DoBard();
 
     const Font& mFont;

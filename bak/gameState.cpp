@@ -1,6 +1,6 @@
 #include "bak/gameState.hpp"
 
-#include "bak/camp.hpp"
+#include "bak/time.hpp"
 
 namespace BAK {
 
@@ -1049,7 +1049,7 @@ void GameState::ElapseTime(Time time)
     // need to accumulate these and commit when the
     // dialog is over..?
     auto splitTime = time;
-    auto camp = BAK::MakeCamp{*this};
+    auto camp = BAK::TimeChanger{*this};
     bool dialogResetsSleep = time > Times::TwelveHours;
     // there is further logic to this that determines
     // whether we consume rations or not.
@@ -1069,6 +1069,7 @@ void GameState::ElapseTime(Time time)
             true,
             dialogConsumesRations,
             false,
+            0,
             0);
     }
 
@@ -1079,6 +1080,7 @@ void GameState::ElapseTime(Time time)
             true,
             dialogConsumesRations,
             false,
+            0,
             0);
     }
 }

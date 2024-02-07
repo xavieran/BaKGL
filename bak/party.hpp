@@ -92,19 +92,25 @@ public:
 
     void LoseMoney(Royals royals)
     {
-        ASSERT(royals.mValue < mGold.mValue);
-        mGold.mValue -= royals.mValue;
+        if (mGold.mValue < royals.mValue)
+        {
+            mGold = Royals{0};
+        }
+        else
+        {
+            mGold.mValue -= royals.mValue;
+        }
     }
 
     void RemoveItem(unsigned itemIndex, unsigned quantity)
     {
         if (ItemIndex{itemIndex} == sSovereigns)
         {
-            mGold.mValue -= GetRoyals(Sovereigns{quantity}).mValue;
+            LoseMoney(GetRoyals(Sovereigns{quantity}));
         }
         else if (ItemIndex{itemIndex} == sRoyals)
         {
-            mGold.mValue -= quantity;
+            LoseMoney(Royals{quantity});
         }
         else
         {

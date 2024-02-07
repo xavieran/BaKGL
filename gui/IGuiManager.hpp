@@ -37,7 +37,7 @@ public:
     virtual void ExitInventory() = 0;
 
     virtual void ShowLock(BAK::IContainer*, std::function<void()>&& finished) = 0;
-    virtual void ShowCamp(bool isInn) = 0;
+    virtual void ShowCamp(bool isInn, BAK::ShopStats* inn) = 0;
     virtual void ShowFullMap() = 0;
     virtual void ShowTeleport(unsigned sourceTemple) = 0;
     virtual void ShowCureScreen(
