@@ -88,9 +88,9 @@ public:
 
     void SetPosition(const glm::vec3& position)
     {
+        mPosition = position;
         PositionChanged();
         mDistanceTravelled = 0;
-        mPosition = position;
     }
     
     void SetAngle(glm::vec2 angle)

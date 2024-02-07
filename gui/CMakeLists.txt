@@ -18,6 +18,7 @@ add_library(gui
     window.hpp
 )
 
+add_subdirectory(camp)
 add_subdirectory(core)
 add_subdirectory(info)
 add_subdirectory(inventory)
@@ -27,5 +28,6 @@ target_link_libraries(gui
     bak
     com
     graphics
+    guiCamp
     guiCore
     guiInventory)

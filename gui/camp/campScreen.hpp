@@ -1,7 +1,8 @@
 #pragma once
 
 #include "bak/camp.hpp"
-#include "bak/itemNumbers.hpp"
+#include "bak/dialogSources.hpp"
+#include "bak/shop.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/layout.hpp"
 
@@ -13,6 +14,7 @@
 #include "gui/IAnimator.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
+#include "gui/camp/clock.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/icons.hpp"
 
@@ -22,120 +24,9 @@
 #include <utility>
 #include <variant>
 
-namespace Gui {
+namespace Gui::Camp {
 
-namespace detail {
-
-class TimeElapser : public IAnimator
-{
-    static constexpr auto sTickSpeed = .02;
-public:
-    TimeElapser(
-        unsigned hourBegin,
-        std::optional<unsigned> hourEnd,
-        std::function<void(unsigned, bool)>&& callback)
-    :
-        mAccumulatedTimeDelta{},
-        mAlive{true},
-        mHour{hourBegin},
-        mHourEnd{hourEnd},
-        mCallback{std::move(callback)}
-    {
-        assert(mHour != mHourEnd);
-    }
-
-    void OnTimeDelta(double delta) override
-    {
-        mAccumulatedTimeDelta += delta;
-        if (mAccumulatedTimeDelta > sTickSpeed && mAlive)
-        {
-            mAccumulatedTimeDelta = 0;
-            mHour += 1;
-            mHour %= 24;
-            mCallback(mHour, mHour == mHourEnd);
-        }
-    }
-
-    bool IsAlive() const override
-    {
-        return mAlive && mHour != mHourEnd;
-    }
-
-    void Stop()
-    {
-        mAlive = false;
-    }
-
-private:
-    double mAccumulatedTimeDelta;
-    bool mAlive;
-    unsigned mHour;
-    const std::optional<unsigned> mHourEnd;
-    std::function<void(unsigned, bool)> mCallback;
-};
-
-class CampDest : public Widget
-{
-    static constexpr auto sBlank = 0;
-    static constexpr auto sUnlit = 1;
-    static constexpr auto sHighlighted = 2;
-    static constexpr auto sCurrent = 3;
-    static constexpr auto sBlank2 = 4;
-
-public:
-    CampDest(
-        const Icons& icons,
-        glm::vec2 pos,
-        std::function<void(bool)>&& selected)
-    :
-        Widget{
-            ImageTag{},
-            std::get<Graphics::SpriteSheetIndex>(icons.GetEncampIcon(sUnlit)),
-            std::get<Graphics::TextureIndex>(icons.GetEncampIcon(sUnlit)),
-            pos,
-            {8, 3},
-            false
-        },
-        mIcons{icons},
-        mCurrent{},
-        mCallback{selected}
-    {
-    }
-
-    bool GetCurrent() const
-    {
-        return mCurrent;
-    }
-
-    void SetCurrent(bool current)
-    {
-        mCurrent = current;
-        SetTexture(std::get<Graphics::TextureIndex>(
-            mCurrent
-                ? mIcons.GetEncampIcon(sCurrent)
-                : mIcons.GetEncampIcon(sUnlit)));
-    }
-
-public:
-    void Entered()
-    {
-        SetTexture(std::get<Graphics::TextureIndex>(mIcons.GetEncampIcon(sHighlighted)));
-        mCallback(true);
-    }
-
-    void Exited()
-    {
-        SetCurrent(mCurrent);
-        mCallback(false);
-    }
-
-    const Icons& mIcons;
-    bool mCurrent;
-    std::function<void(bool)> mCallback;
-};
-
-}
-class CampScreen : public Widget
+class CampScreen : public Widget, public NullDialogScene
 {
     enum class State
     {
@@ -173,6 +64,16 @@ public:
         mGameState{gameState},
         mIcons{icons},
         mLayout{sLayoutFile},
+        mFrame{
+            Graphics::DrawMode::Sprite,
+            backgrounds.GetSpriteSheet(),
+            backgrounds.GetScreen("DIALOG_BG_MAIN.SCX"),
+            Graphics::ColorMode::Texture,
+            glm::vec4{1},
+            glm::vec2{0},
+            glm::vec2{320, 200},
+            true
+        },
         mNamesColumn{
             {130, 20},
             {60, 200}
@@ -185,11 +86,14 @@ public:
             {250, 20},
             {60, 200}
         },
+        mPartyGold{
+            {140, 90},
+            {240, 60}
+        },
         mButtons{},
         mDots{},
         mIsInInn{false},
         mState{State::Idle},
-        mLatestTick{},
         mTimeElapser{nullptr},
         mLogger{Logging::LogState::GetLogger("Gui::Encamp")}
     {
@@ -208,7 +112,7 @@ public:
         for (unsigned i = 0; i < mCampData.GetClockTicks().size(); i++)
         {
             auto dot = mDots.emplace_back(
-                [this, i=i]{ HandleDot(i); },
+                [this, i=i]{ HandleDotClicked(i); },
                 mIcons,
                 mCampData.GetClockTicks().at(i),
                 [](bool selected){});
@@ -237,19 +141,62 @@ public:
         return handled;
     }
 
-    void SetIsInn(bool isInn)
+    void BeginCamp(bool isInn, BAK::ShopStats* shopStats)
     {
         const auto hour = mGameState.GetWorldTime().GetTime().GetHour();
+        mLogger.Spam() << "BeginCamp: time: " << mGameState.GetWorldTime().GetTime() << " hour: " << hour << "\n";
         for (unsigned i = 0; i < mCampData.GetClockTicks().size(); i++)
         {
             mDots.at(i).SetCurrent(i == hour);
         }
+
         mIsInInn = isInn;
+        assert(!isInn || shopStats);
+        mShopStats = shopStats;
+
         SetText();
         AddChildren();
+
+        if (mIsInInn)
+        {
+            ShowInnDialog(false);
+        }
     }
 
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
+    {
+        mLogger.Spam() << "DialogFinished with choice: " << choice << " EOD: " << mGameState.GetEndOfDialogState() << "\n";
+        assert(choice);
+        if (mGameState.GetEndOfDialogState() == -1 || choice->mValue == BAK::Keywords::sNoIndex)
+        {
+            Exit();
+        }
+        else
+        {
+            StartCamping(mShopStats->mInnSleepTilHour);
+        }
+    }
+
+
 private:
+    BAK::Royals GetInnCost()
+    {
+        assert(mShopStats);
+        return BAK::GetRoyals(BAK::Sovereigns{mShopStats->mInnCost});
+    }
+
+    void ShowInnDialog(bool haveSlept)
+    {
+        auto sleepTil = mShopStats->mInnSleepTilHour;
+        assert(sleepTil < mDots.size());
+        mDots[sleepTil].SetHighlighted();
+
+        mGameState.SetItemValue(GetInnCost());
+        mGameState.SetDialogContext(haveSlept);
+        mGuiManager.StartDialog(
+            BAK::DialogSources::mInnDialog, false, false, this);
+    }
+
     void SetText()
     {
         std::stringstream namesSS{};
@@ -260,10 +207,12 @@ private:
         rationsSS << "Rations\n";
         mGameState.GetParty().ForEachActiveCharacter(
             [&](auto& character){
-                namesSS << character.GetName() << "\n";
+                auto highlight = character.HaveNegativeCondition() ? "\xf5" : "";
+                namesSS << highlight << character.GetName() << "\n";
                 const auto health = character.GetSkill(BAK::SkillType::TotalHealth);
                 const auto maxHealth = character.GetMaxSkill(BAK::SkillType::TotalHealth);
-                const auto highlight = character.CanHeal(mIsInInn) ? '\xf5' : ' ';
+                // for the purposes of the highlight it's always 80%
+                highlight = character.CanHeal(false) ? "\xf5" : " ";
                 healthSS << highlight << " " << health << " " << highlight 
                     << " of " << maxHealth << "\n";
                 const auto rations = character.GetTotalItem(
@@ -272,9 +221,19 @@ private:
                 rationsSS << rhighlight << " " << rations << " " << rhighlight << "\n";
                 return false;
             });
+        
         mNamesColumn.SetText(mFont, namesSS.str(), true, false, false, 1.5);
         mHealthColumn.SetText(mFont, healthSS.str(), true, false, false, 1.5);
         mRationsColumn.SetText(mFont, rationsSS.str(), true, false, false, 1.5);
+
+        if (mIsInInn)
+        {
+            const auto partyGold = mGameState.GetParty().GetGold();
+            const auto highlight = partyGold.mValue < GetInnCost().mValue ? '\xf5' : ' ';
+            std::stringstream ss{};
+            ss << "Party Gold:  " << highlight << BAK::ToShopString(partyGold);
+            mPartyGold.SetText(mFont, ss.str());
+        }
     }
 
     bool AnyCharacterCanHeal()
@@ -283,21 +242,30 @@ private:
         mGameState.GetParty().ForEachActiveCharacter(
             [&](auto& character){
                 canHeal |= character.CanHeal(mIsInInn);
+                canHeal |= character.HaveNegativeCondition();
                 return false;
             });
         return canHeal;
     }
 
-    void HandleDot(unsigned i)
+    void HandleDotClicked(unsigned i)
     {
         StartCamping(i);
     }
 
+    unsigned GetHour()
+    {
+        return mGameState.GetWorldTime().GetTime().GetHour();
+    }
+
     void StartCamping(std::optional<unsigned> hourTil)
     {
-        mLogger.Debug() << "Hour: " << hourTil << "\n";
+        mLogger.Spam() << "StartCamping: time: " << mGameState.GetWorldTime().GetTime() << " hour: " << GetHour() << " camp til: " << hourTil << "\n";
 
-        if ((hourTil && mDots.at(*hourTil).GetCurrent())
+        mTargetHour = hourTil;
+        mTimeBeganCamping = mGameState.GetWorldTime().GetTime();
+
+        if ((!mIsInInn && hourTil && mDots.at(*hourTil).GetCurrent())
             || mState == State::Camping)
         {
             return;
@@ -310,25 +278,35 @@ private:
         mState = hourTil ? State::Camping : State::CampingTilHealed;
 
         auto timeElapser = std::make_unique<detail::TimeElapser>(
-            std::distance(mDots.begin(), it),
-            hourTil,
-            [this](unsigned index, bool isLast){
-                this->HandleTick(index, isLast);
+            [this](){
+                this->HandleTick();
             });
         mTimeElapser = timeElapser.get();
         mGuiManager.AddAnimator(std::move(timeElapser));
         AddChildren();
     }
 
-    void HandleTick(unsigned index, bool isLast)
+    void HandleTick()
     {
         auto camp = BAK::MakeCamp(mGameState);
         camp.ElapseTimeInSleepView(
-            BAK::Times::OneHour, 0x50);
+            BAK::Times::OneHour, mIsInInn ? 0x85 : 0x64, mIsInInn ? 0x64 : 0x50);
+        mLogger.Spam() << "Clock ticked: time: " << mGameState.GetWorldTime().GetTime() << " hour: " << GetHour() << "\n";
+
+        if ((mGameState.GetWorldTime().GetTime() - mTimeBeganCamping) > BAK::Times::ThirteenHours)
+        {
+            mGameState.GetParty().ForEachActiveCharacter([&](auto& character)
+                {
+                    character.AdjustCondition(BAK::Condition::Sick, -100);
+                    return false;
+                });
+
+        }
+        bool isLast = GetHour() == mTargetHour;
 
         if (isLast || (mState == State::CampingTilHealed && !AnyCharacterCanHeal()))
         {
-            FinishedTicking(index);
+            FinishedTicking();
         }
 
         if (mState == State::CampingTilHealed)
@@ -339,12 +317,11 @@ private:
             }
         }
 
-        mDots.at(index).SetCurrent(true);
-        mLatestTick = index;
+        mDots.at(GetHour()).SetCurrent(true);
         SetText();
     }
 
-    void FinishedTicking(unsigned endTick)
+    void FinishedTicking()
     {
         if (mTimeElapser)
         {
@@ -353,13 +330,32 @@ private:
 
         mTimeElapser = nullptr;
 
-        for (unsigned i = 0; i < mDots.size(); i++)
+        for (unsigned i = 0; i < mCampData.GetClockTicks().size(); i++)
         {
-            mDots.at(i).SetCurrent(false);
+            mDots.at(i).SetCurrent(i == GetHour());
         }
-        mDots.at(endTick).SetCurrent(true);
+
+        const auto prevState = mState;
         mState = State::Idle;
         AddChildren();
+
+        if (mIsInInn)
+        {
+            mGameState.GetParty().LoseMoney(BAK::GetRoyals(BAK::Sovereigns{mShopStats->mInnCost}));
+            if (!AnyCharacterCanHeal())
+            {
+                Exit();
+            }
+            else
+            {
+                ShowInnDialog(true);
+            }
+        }
+        else if (prevState != State::CampingTilHealed)
+        {
+            Exit();
+        }
+
     }
 
     void HandleButton(unsigned button)
@@ -367,20 +363,25 @@ private:
         if (button == sCampUntilHealed)
         {
             const auto hour = mGameState.GetWorldTime().GetTime().GetHour();
-            mLogger.Debug() << "Hour: "<< hour << "\n";
+            mLogger.Spam() << "Hour: "<< hour << "\n";
             StartCamping(std::nullopt);
         }
         else if (button == sStop)
         {
             if (mTimeElapser != nullptr)
             {
-                FinishedTicking(mLatestTick);
+                FinishedTicking();
             }
         }
         else if (button == sExit)
         {
-            mGuiManager.DoFade(.8, [this]{mGuiManager.ExitSimpleScreen(); });
+            Exit();
         }
+    }
+
+    void Exit()
+    {
+        mGuiManager.DoFade(.8, [this]{mGuiManager.ExitSimpleScreen(); });
     }
 
     std::string GetButtonText(unsigned button) const
@@ -405,18 +406,21 @@ private:
     {
         ClearChildren();
 
-        if (mState == State::Camping || mState == State::CampingTilHealed)
+        if (!mIsInInn)
         {
-            AddChildBack(&mButtons[sStop]);
-        }
-        else
-        {
-            if (AnyCharacterCanHeal())
+            if (mState == State::Camping || mState == State::CampingTilHealed)
             {
-                AddChildBack(&mButtons[sCampUntilHealed]);
+                AddChildBack(&mButtons[sStop]);
             }
+            else
+            {
+                if (AnyCharacterCanHeal())
+                {
+                    AddChildBack(&mButtons[sCampUntilHealed]);
+                }
 
-            AddChildBack(&mButtons[sExit]);
+                AddChildBack(&mButtons[sExit]);
+            }
         }
 
         for (auto& dot : mDots)
@@ -425,6 +429,24 @@ private:
         AddChildBack(&mNamesColumn);
         AddChildBack(&mHealthColumn);
         AddChildBack(&mRationsColumn);
+
+        if (mIsInInn)
+        {
+            AddChildBack(&mPartyGold);
+            AddChildBack(&mFrame);
+        }
+
+        for (auto* child : GetChildren())
+        {
+            if (mIsInInn)
+            {
+                static_cast<Widget*>(child)->SetInactive();
+            }
+            else
+            {
+                static_cast<Widget*>(child)->SetActive();
+            }
+        }
     }
 
     IGuiManager& mGuiManager;
@@ -435,17 +457,22 @@ private:
     BAK::Layout mLayout;
     BAK::CampData mCampData;
 
+    Widget mFrame;
     TextBox mNamesColumn;
     TextBox mHealthColumn;
     TextBox mRationsColumn;
+    TextBox mPartyGold;
+
     std::vector<ClickButton> mButtons;
     using ClockTick = Highlightable<Clickable<detail::CampDest, LeftMousePress, std::function<void()>>, true>;
     std::vector<ClockTick> mDots;
 
     bool mIsInInn;
     State mState;
-    unsigned mLatestTick;
+    std::optional<unsigned> mTargetHour;
+    BAK::Time mTimeBeganCamping;
     detail::TimeElapser* mTimeElapser;
+    BAK::ShopStats* mShopStats;
 
     const Logging::Logger& mLogger;
 };

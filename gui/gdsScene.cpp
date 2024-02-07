@@ -272,6 +272,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
     }
     else if (hotspot.mAction == BAK::HotspotAction::INN)
     {
+        mLogger.Debug() << "Inn hotspot: " << hotspot << "\n";
         if (hotspot.mActionArg3 != 0)
         {
             StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
@@ -280,7 +281,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         }
         else
         {
-            StartDialog(BAK::DialogSources::mInnDialog, false);
+            DoInn();
         }
     }
     else if (hotspot.mAction == BAK::HotspotAction::LUTE)
@@ -337,10 +338,7 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     }
     else if (mState == State::Inn)
     {
-        if (mGameState.GetEndOfDialogState() != -1)
-        {
-            StartDialog(BAK::DialogSources::mInnDialog, false);
-        }
+        DoInn();
         mPendingInn.reset();
     }
     else if (mState == State::Repair)
@@ -412,9 +410,18 @@ void GDSScene::EnterContainer()
     }
 }
 
+void GDSScene::DoInn()
+{
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    assert(container && container->IsShop());
+    auto& shopStats = container->GetShop();
+        mGuiManager.ShowCamp(true, &container->GetShop());
+}
+
 void GDSScene::DoBard()
 {
     auto* container = mGameState.GetContainerForGDSScene(mReference);
+    assert(container && container->IsShop());
     auto& shopStats = container->GetShop();
 
     const auto [character, skill] = mGameState.GetPartySkill(

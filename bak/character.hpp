@@ -323,6 +323,17 @@ public:
         return health < (maxHealth * multiplier);
     }
 
+    bool HaveNegativeCondition()
+    {
+        for (unsigned i = 0; i < Conditions::sNumConditions; i++)
+        {
+            auto cond = static_cast<BAK::Condition>(i);
+            if (cond == BAK::Condition::Healing) continue;
+            if (mConditions.GetCondition(cond).Get() > 0) return true;
+        }
+        return false;
+    }
+
     const Skills& GetSkills() const
     {
         return mSkills;
@@ -365,6 +376,11 @@ public:
             mConditions,
             mSkillAffectors,
             SkillRead::MaxSkill);
+    }
+
+    void AdjustCondition(BAK::Condition cond, signed amount)
+    {
+        mConditions.AdjustCondition(mSkills, cond, amount);
     }
 
     const Conditions& GetConditions() const { return mConditions; }

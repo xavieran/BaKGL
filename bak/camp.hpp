@@ -27,7 +27,8 @@ private:
 void EffectOfConditionsWithTime(
     Skills& skills,
     Conditions& conditions,
-    unsigned healPercent);
+    unsigned healFraction,
+    unsigned healPercentCeiling);
 
 void ImproveNearDeath(
     Skills& skills,
@@ -52,12 +53,13 @@ public:
         bool canDisplayDialog,
         bool mustConsumeRations,
         bool isNotSleeping,
-        unsigned healPercentage)
+        unsigned healFraction,
+        unsigned healPercentCeiling)
     {
-        Logging::LogSpam(__FUNCTION__) << "(" << timeDelta
+        Logging::LogDebug(__FUNCTION__) << "(" << timeDelta
             << " canDisplayDialog: " << canDisplayDialog << " consRat: "
             << mustConsumeRations << " sleep? "
-            << isNotSleeping << " hl: " << healPercentage << ")\n";
+            << isNotSleeping << " hl: " << healFraction << " - " << healPercentCeiling << ")\n";
         auto& currentTime = mGameState.GetWorldTime();
         auto oldTime = currentTime;
         auto hourOfDay = currentTime.GetTime().GetHour();
@@ -92,11 +94,16 @@ public:
             HandleGameTimeIncreased(
                 canDisplayDialog, 
                 isNotSleeping,
-                healPercentage);
+                healFraction,
+                healPercentCeiling);
         }
 
         CheckAndClearSkillAffectors();
         //EvaluateTimeExpiringState(timeDelta);
+        mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
+            Logging::LogDebug(__FUNCTION__) << " Health after: " << character.GetName() << " " << character.GetSkill(BAK::SkillType::TotalHealth) << "\n";
+            return false;
+            });
     }
 
     // Time change per step
@@ -107,15 +114,14 @@ public:
     {
         HandleGameTimeChange(
             delta,
-            true, true, true, 0);
+            true, true, true, 0, 0);
     }
 
-    void ElapseTimeInSleepView(Time delta, unsigned healPercent)
+    void ElapseTimeInSleepView(Time delta, unsigned healFraction, unsigned healPercentCeiling)
     {
-        // healPercent is actually 0x85 when called from Inn
         HandleGameTimeChange(
             BAK::Times::OneHour,
-            true, true, false, healPercent);
+            true, true, false, healFraction, healPercentCeiling);
         mGameState.GetWorldTime().SetTimeLastSlept(
             mGameState.GetWorldTime().GetTime());
     }
@@ -192,10 +198,12 @@ private:
     void HandleGameTimeIncreased(
         bool canDisplayDialog,
         bool isNotSleeping,
-        unsigned healPercent)
+        unsigned healFraction,
+        unsigned healPercentCeiling)
     {
-        Logging::LogSpam(__FUNCTION__) << "(" << canDisplayDialog
-            << ", " << isNotSleeping << ", " << healPercent << ")\n";
+        Logging::LogDebug(__FUNCTION__) << "(" << canDisplayDialog
+            << ", " << isNotSleeping << ", " << healFraction 
+            << " - " << healPercentCeiling << ")\n";
         if (canDisplayDialog)
         {
             if (isNotSleeping)
@@ -208,6 +216,7 @@ private:
                 }
                 if (timeDiff >= Times::EighteenHours)
                 {
+                    Logging::LogWarn(__FUNCTION__) << " Damaging due to lack of  sleep!\n";
                     mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
                         DamageDueToLackOfSleep(character.GetConditions(), character.mCharacterIndex, character.GetSkills());
                         return false;
@@ -217,7 +226,8 @@ private:
         }
 
         mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
-            EffectOfConditionsWithTime(character.GetSkills(), character.GetConditions(), healPercent);
+            Logging::LogDebug("Calc effect of conds") << " for: " << character.GetName() << "\n";
+            EffectOfConditionsWithTime(character.GetSkills(), character.GetConditions(), healFraction, healPercentCeiling);
             return false;
         });
     }
@@ -262,24 +272,6 @@ private:
                 });
             return false;
         });
-    }
-
-    void SleepAtInn()
-    {
-        auto timeAtStartOfSleep = mGameState.GetWorldTime().GetTime();
-        unsigned ticks = 10;
-        for (unsigned i = 0; i < ticks; ticks++)
-        {
-            ElapseTimeInSleepView(Times::OneHour, 0x85);
-            if ((mGameState.GetWorldTime().GetTime() - timeAtStartOfSleep) >= Times::ThirteenHours)
-            {
-                mGameState.GetParty().ForEachActiveCharacter([&](auto& character)
-                {
-                    //character.AdjustCondition(Condition::Sick, -100);
-                    return false;
-                });
-            }
-        }
     }
 
 private:

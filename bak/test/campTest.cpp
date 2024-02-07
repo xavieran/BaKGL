@@ -59,7 +59,7 @@ TEST_F(GameTimeTestFixture, EffectOfConditionsWithTime_Sick)
     mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill = 10;
     mConditions.SetCondition(BAK::Condition::Sick, 10);
 
-    EffectOfConditionsWithTime(mSkills, mConditions, 0);
+    EffectOfConditionsWithTime(mSkills, mConditions, 0, 0);
 
     EXPECT_EQ(mConditions.GetCondition(BAK::Condition::Sick), 11);
     EXPECT_EQ(mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill, 9);
@@ -70,7 +70,7 @@ TEST_F(GameTimeTestFixture, EffectOfConditionsWithTime_Plagued)
     mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill = 10;
     mConditions.SetCondition(BAK::Condition::Plagued, 11);
 
-    EffectOfConditionsWithTime(mSkills, mConditions, 0);
+    EffectOfConditionsWithTime(mSkills, mConditions, 0, 0);
 
     EXPECT_EQ(mConditions.GetCondition(BAK::Condition::Plagued), 12);
     EXPECT_EQ(mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill, 8);
@@ -81,7 +81,7 @@ TEST_F(GameTimeTestFixture, EffectOfConditionsWithTime_Poisoned)
     mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill = 10;
     mConditions.SetCondition(BAK::Condition::Poisoned, 11);
 
-    EffectOfConditionsWithTime(mSkills, mConditions, 0);
+    EffectOfConditionsWithTime(mSkills, mConditions, 0, 0);
 
     EXPECT_EQ(mConditions.GetCondition(BAK::Condition::Poisoned), 12);
     EXPECT_EQ(mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill, 7);
@@ -92,7 +92,7 @@ TEST_F(GameTimeTestFixture, EffectOfConditionsWithTime_Healing)
     mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill = 10;
     mConditions.SetCondition(BAK::Condition::Healing, 10);
 
-    EffectOfConditionsWithTime(mSkills, mConditions, 0);
+    EffectOfConditionsWithTime(mSkills, mConditions, 0, 0);
 
     EXPECT_EQ(mConditions.GetCondition(BAK::Condition::Healing), 7);
     EXPECT_EQ(mSkills.GetSkill(BAK::SkillType::Stamina).mTrueSkill, 11);
@@ -106,7 +106,7 @@ TEST_F(GameTimeTestFixture, EffectOfConditionsWithTime_Multiple)
     mConditions.SetCondition(BAK::Condition::Poisoned, 10);
     mConditions.SetCondition(BAK::Condition::Healing, 10);
 
-    EffectOfConditionsWithTime(mSkills, mConditions, 0);
+    EffectOfConditionsWithTime(mSkills, mConditions, 0, 0);
 
     mConditions.SetCondition(BAK::Condition::Sick, 9);
     mConditions.SetCondition(BAK::Condition::Plagued, 8);
@@ -123,7 +123,7 @@ TEST_F(GameTimeTestFixture, EffectOfConditionsWithTime_MultipleInInn)
     mConditions.SetCondition(BAK::Condition::Poisoned, 10);
     mConditions.SetCondition(BAK::Condition::Healing, 10);
 
-    EffectOfConditionsWithTime(mSkills, mConditions, 100);
+    EffectOfConditionsWithTime(mSkills, mConditions, 0x85, 0x64);
 
     mConditions.SetCondition(BAK::Condition::Sick, 6);
     mConditions.SetCondition(BAK::Condition::Plagued, 8);

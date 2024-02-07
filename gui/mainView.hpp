@@ -135,7 +135,7 @@ public:
         case sCast:
             break;
         case sCamp:
-            mGuiManager.ShowCamp(false);
+            mGuiManager.ShowCamp(false, nullptr);
             break;
         case sFullMap:
             mGuiManager.ShowFullMap();

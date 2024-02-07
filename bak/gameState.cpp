@@ -1069,6 +1069,7 @@ void GameState::ElapseTime(Time time)
             true,
             dialogConsumesRations,
             false,
+            0,
             0);
     }
 
@@ -1079,6 +1080,7 @@ void GameState::ElapseTime(Time time)
             true,
             dialogConsumesRations,
             false,
+            0,
             0);
     }
 }

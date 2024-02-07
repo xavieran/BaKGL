@@ -19,28 +19,28 @@ CampData::CampData()
     auto mUnknown = fb.GetSint16LE();
     auto mUnknown2 = fb.GetSint16LE();
     auto tickCount = fb.GetSint16LE();
-    logger.Debug() << "Highlight: " << mHighlightSize << " Unk? " << mUnknown
+    logger.Spam() << "Highlight: " << mHighlightSize << " Unk? " << mUnknown
         << " Unk2: " << mUnknown2 << " tickCnt:" <<tickCount << "\n";
     for (unsigned i = 0; i < 24; i++)
     {
         auto x = fb.GetSint16LE();
         auto y = fb.GetSint16LE();
-        logger.Debug() << "clk: " << +x << " " << +y << "\n";
+        logger.Spam() << "clk: " << +x << " " << +y << "\n";
         mClockTicks.emplace_back(x, y);
     }
     mClockTwelve = {fb.GetSint16LE(), fb.GetSint16LE()};
     mClockCenter = {fb.GetSint16LE(), fb.GetSint16LE()};
-    logger.Debug() << "twlv: " << mClockTwelve << " cntr: " << mClockCenter << "\n";
-    logger.Debug() << "Unk: " << fb.GetSint16LE() << " " 
+    logger.Spam() << "twlv: " << mClockTwelve << " cntr: " << mClockCenter << "\n";
+    logger.Spam() << "Unk: " << fb.GetSint16LE() << " " 
         << fb.GetSint16LE() << " " << fb.GetSint16LE() << "\n";
     for (unsigned i = 0; i < 24; i++)
     {
         auto x = fb.GetSint16LE();
         auto y = fb.GetSint16LE();
-        logger.Debug() << +x << " " << +y << "\n";
+        logger.Spam() << +x << " " << +y << "\n";
         mDaytimeShadow.emplace_back(x, y);
     }
-    logger.Debug() << "Rem: " << fb.GetBytesLeft() << "\n";
+    logger.Spam() << "Rem: " << fb.GetBytesLeft() << "\n";
 }
 
 const std::vector<glm::vec2>& CampData::GetClockTicks() const
@@ -56,18 +56,20 @@ const std::vector<glm::vec2>& CampData::GetDaytimeShadow() const
 void EffectOfConditionsWithTime(
     Skills& skills,
     Conditions& conditions,
-    unsigned healPercent)
+    unsigned healFraction,
+    unsigned healPercentCeiling)
 {
+    Logging::LogSpam(__FUNCTION__) << " called with: " << healFraction << " " << healPercentCeiling << "\n";
     unsigned conditionChangePcnt = 0;
     int healAmount = 0;
-    if (healPercent != 0)
+    if (healFraction != 0)
     {
         conditions.AdjustCondition(
             skills,
             BAK::Condition::Sick,
             -3);
 
-        if (healPercent != 100)
+        if (healPercentCeiling == 80)
         {
             conditionChangePcnt = 80;
         }
@@ -75,7 +77,7 @@ void EffectOfConditionsWithTime(
         {
             conditionChangePcnt = 100;
         }
-        healAmount = (1 * healPercent) / 0x64;
+        healAmount = (1 * healFraction) / 0x64;
         if (conditions.GetCondition(Condition::Healing).Get() > 0)
         {
             healAmount *= 2;
@@ -118,7 +120,7 @@ void EffectOfConditionsWithTime(
 
     if (healAmount != 0)
     {
-        Logging::LogDebug(__FUNCTION__) << " Heal : " << conditionChangePcnt <<
+        Logging::LogSpam(__FUNCTION__) << " Heal : " << conditionChangePcnt <<
             " healAmount: " << healAmount << "\n";
         skills.ImproveSkill(
             conditions,
