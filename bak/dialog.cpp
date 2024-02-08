@@ -68,7 +68,7 @@ std::string_view Keywords::GetNPCName(unsigned i) const
 
 DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
 {
-    const auto offset = fb.Tell();
+    const auto fileOffset = fb.Tell();
     mDisplayStyle        = fb.GetUint8();
     mActor               = fb.GetUint16LE();
     mDisplayStyle2       = fb.GetUint8();
@@ -91,7 +91,7 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
     // DIRTY HACK BUT THE GAME IS WEIRD
     // This choice seems to be missing on the repair dialog (0x1b7763)
     // dont think this will work with anything but english translation
-    if (dialogFile == 18 && offset == 0x185b2)
+    if (dialogFile == 18 && fileOffset == 0x185b2)
     {
         // Manually add "CantAfford" choice here
         mChoices.emplace_back(0x7533, 0x1, 0xffff, KeyTarget{0});
@@ -103,12 +103,11 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         const auto choice0 = fb.GetUint16LE();
         const auto choice1 = fb.GetUint16LE();
         const auto offset  = fb.GetUint32LE();
-        const auto target  = GetTarget(offset);
-        if (offset != 0)
-            mChoices.emplace_back(state, choice0, choice1, target);
+        const auto target  = offset != 0 ? GetTarget(offset) : KeyTarget{0};
+        mChoices.emplace_back(state, choice0, choice1, target);
     }
 
-    if (dialogFile == 18 && offset == 0x1665f)
+    if (dialogFile == 18 && fileOffset == 0x1665f)
     {
         // Manually add "Haggle" choice here
         mChoices.emplace_back(0x106, 0x1, 0xffff, KeyTarget{0});

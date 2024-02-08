@@ -1,5 +1,6 @@
 #include "bak/dialog.hpp"
 
+#include "com/visit.hpp"
 #include "com/logger.hpp"
 
 unsigned GetInput()
@@ -32,7 +33,16 @@ int main(int argc, char** argv)
 
     current = BAK::KeyTarget{key};
     
-    auto dialogSnippet = dialog.GetSnippet(current);
+    BAK::DialogSnippet const* dialogSnippet;
+    try
+    {
+        dialogSnippet = &dialog.GetSnippet(current);
+    }
+    catch (const std::runtime_error& e)
+    {
+        logger.Error() << "Could not find snippet with target:" << current << "\n";
+        return -1;
+    }
 
     bool good = true;
 
@@ -45,16 +55,22 @@ int main(int argc, char** argv)
             ss << " (" << dialog.GetTarget(std::get<BAK::KeyTarget>(current)) << ")";
         ss << "\n";
         logger.Info() << ss.str();
-        logger.Info() << "Snippet: " << dialogSnippet << "\n";
+        logger.Info() << "Snippet: " << *dialogSnippet << "\n";
 
         unsigned i = 0;
-        for (const auto& c : dialogSnippet.GetChoices())
+        for (const auto& c : dialogSnippet->GetChoices())
             std::cout << c << " (" << i++ << ")\n";
         std::cout << ">>> ";
         auto choice = GetInput();
-        auto next = dialogSnippet.GetChoices()[choice];
+        if (choice > dialogSnippet->GetChoices().size())
+            return 0;
+        auto next = dialogSnippet->GetChoices()[choice];
         current = next.mTarget;
-        dialogSnippet = dialog.GetSnippet(current);
+        if (evaluate_if<BAK::KeyTarget>(current, [](const auto& current){ return current == BAK::KeyTarget{0}; }))
+        {
+            return 0;
+        }
+        dialogSnippet = &dialog.GetSnippet(current);
     }
 
 

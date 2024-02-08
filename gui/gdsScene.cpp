@@ -64,7 +64,6 @@ GDSScene::GDSScene(
         font,
         gameState},
     mState{State::Idle},
-    mPendingInn{},
     mPendingGoto{},
     mKickedOut{false},
     mTemple{
@@ -275,14 +274,14 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
         mLogger.Debug() << "Inn hotspot: " << hotspot << "\n";
         if (hotspot.mActionArg3 != 0)
         {
-            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
             mState = State::Inn;
-            mPendingInn = hotspot;
+            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
         }
         else
         {
             DoInn();
         }
+        mLogger.Debug() << "State now: " << static_cast<unsigned>(mState) << "\n";
     }
     else if (hotspot.mAction == BAK::HotspotAction::LUTE)
     {
@@ -322,6 +321,8 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 
 void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
+    mLogger.Debug() << "Dialog finished with choice: " << choice
+        << " state: " << static_cast<unsigned>(mState) << "\n";
     if (mState == State::Bard)
     {
         AudioA::AudioManager::Get().PopTrack();
@@ -339,7 +340,6 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     else if (mState == State::Inn)
     {
         DoInn();
-        mPendingInn.reset();
     }
     else if (mState == State::Repair)
     {
@@ -416,6 +416,7 @@ void GDSScene::DoInn()
     assert(container && container->IsShop());
     auto& shopStats = container->GetShop();
     mGuiManager.ShowCamp(true, &container->GetShop());
+    mState = State::Idle;
 }
 
 void GDSScene::DoBard()
