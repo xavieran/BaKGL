@@ -585,6 +585,34 @@ ItemUseResult UseTorchOrRingOfPrandur(
         DialogSources::mItemUseSucessful};
 }
 
+ItemUseResult UseCupOfRlnnSkrr(
+    GameState& gameState,
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+    return ItemUseResult{
+        item.GetItemUseSound(),
+        std::nullopt,
+        KeyTarget{0}};
+
+    /*
+    auto& pug = FindCharacter(pug);
+    auto random = GetRandomNumber(0, 0xfff) % 0x2d;
+    learned = pug.LearnSpell(0x3f20, random);
+    if (!learned)
+        doAboveAgain
+    contextVar_753b_value = learnedSpell
+    for (unsigned i = 0; i < 3; i++)
+    { // share all the spells owyn and pug know
+        dx = *((i << 1) + 0x3ec3)
+        dx |= *((i << 1) + 0x3f22)
+        *((i << 1) + 0x3ec3) = dx;
+        *((i << 1) + 0x3f22) = dx;
+    }
+    */
+}
+ 
 ItemUseResult UsePotion(
     GameState& gameState,
     Character& character,

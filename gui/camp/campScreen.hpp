@@ -101,12 +101,15 @@ public:
         mButtons.reserve(mLayout.GetSize());
         for (unsigned i = 0; i < mLayout.GetSize(); i++)
         {
+            const auto& w = mLayout.GetWidget(i);
             mButtons.emplace_back(
                 mLayout.GetWidgetLocation(i),
                 mLayout.GetWidgetDimensions(i),
-                mFont,
-                GetButtonText(i),
-                [this, i]{ HandleButton(i); });
+                std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(w.mImage)),
+                std::get<Graphics::TextureIndex>(mIcons.GetButton(w.mImage)),
+                std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(w.mImage)),
+                [this, i]{ HandleButton(i); },
+                []{});
         }
 
         mDots.reserve(mCampData.GetClockTicks().size());
@@ -453,7 +456,7 @@ private:
     TextBox mRationsColumn;
     TextBox mPartyGold;
 
-    std::vector<ClickButton> mButtons;
+    std::vector<ClickButtonImage> mButtons;
     using ClockTick = Highlightable<
         Clickable<
             detail::CampDest,
