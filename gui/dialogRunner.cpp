@@ -369,6 +369,7 @@ void DialogRunner::ShowQueryChoices()
 
     if (choices.size() == 0)
     {
+        assert(false); // I don't think this will be necessary anymore
         const auto index = BAK::Keywords::sYesIndex; // Yes
         choices.emplace_back(
             std::make_pair(
@@ -378,6 +379,7 @@ void DialogRunner::ShowQueryChoices()
 
     if (choices.size() == 1)
     {
+        assert(false); // I don't think this will be necessary anymore
         const auto availableChoice = choices.back().first;
         const auto index = availableChoice.mValue == BAK::Keywords::sNoIndex ? BAK::Keywords::sYesIndex : BAK::Keywords::sNoIndex;
         choices.emplace_back(

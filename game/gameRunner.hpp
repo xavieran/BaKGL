@@ -483,14 +483,14 @@ public:
         if (!mGameState.CheckEncounterActive(encounter))
             return;
         const auto& choices = BAK::DialogStore::Get().GetSnippet(zone.mDialog).mChoices;
-        const bool isNoAffirmative = choices.size() == 1 
-            && std::holds_alternative<BAK::QueryChoice>(choices.back().mChoice)
-            && std::get<BAK::QueryChoice>(choices.back().mChoice).mQueryIndex == BAK::Keywords::sNoIndex;
+        const bool isNoAffirmative = choices.size() == 2
+            && std::holds_alternative<BAK::QueryChoice>(choices.begin()->mChoice)
+            && std::get<BAK::QueryChoice>(choices.begin()->mChoice).mQueryIndex == BAK::Keywords::sNoIndex;
         mDynamicDialogScene.SetDialogFinished(
             [&, isNoAffirmative=isNoAffirmative, zone=zone](const auto& choice){
                 // These dialogs should always result in a choice
                 ASSERT(choice);
-                Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << "\n";
+                Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << " got choice: " << choice << "\n";
                 if ((choice->mValue == BAK::Keywords::sYesIndex && !isNoAffirmative)
                     || (choice->mValue == BAK::Keywords::sNoIndex && isNoAffirmative))
                 {
