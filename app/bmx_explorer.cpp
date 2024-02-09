@@ -52,7 +52,7 @@ int main(int argc, char** argv)
         height / guiScalar};
 
     auto icons = Gui::Icons{spriteManager};
-    int iconI = 56;
+    int iconI = 0;
     auto picture = Gui::Widget{
         Gui::ImageTag{},
         Graphics::SpriteSheetIndex{0},
@@ -64,7 +64,6 @@ int main(int argc, char** argv)
     picture.SetSpriteSheet(ss);
     picture.SetTexture(ti);
     picture.SetDimensions(dims);
-
 
     root.AddChildBack(&picture);
     root.HideCursor();
@@ -116,8 +115,27 @@ int main(int argc, char** argv)
     inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT, [&](auto p)
     {
         logger.Debug() << p << "\n";
+        iconI++;
+        if (static_cast<unsigned>(iconI) > icons.GetSize()) iconI = 0;
+        const auto& [ss, ti, dims] = icons.GetInventoryIcon(iconI);
+        picture.SetSpriteSheet(ss);
+        picture.SetTexture(ti);
+        picture.SetDimensions(dims);
+        logger.Debug() << "ICONI: " << iconI << " Pic: " << picture << "\n";
+
     },
     [](auto){});
+
+    inputHandler.BindMouse(GLFW_MOUSE_BUTTON_RIGHT, [&](auto p){
+        iconI--;
+        if (iconI < 0) iconI = icons.GetSize();
+        const auto& [ss, ti, dims] = icons.GetInventoryIcon(iconI);
+        picture.SetSpriteSheet(ss);
+        picture.SetTexture(ti);
+        picture.SetDimensions(dims);
+        logger.Debug() << "ICONI: " << iconI << " Pic: " << picture << "\n";
+        },
+        [](auto){});
 
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
     Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);

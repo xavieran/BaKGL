@@ -13,6 +13,8 @@
 #include "bak/resourceNames.hpp"
 #include "bak/saveManager.hpp"
 #include "bak/skills.hpp"
+#include "bak/spells.hpp"
+#include "bak/timeExpiringState.hpp"
 #include "bak/types.hpp"
 #include "bak/worldClock.hpp"
 
@@ -75,7 +77,8 @@ public:
     static constexpr auto sCharacterStatusOffset  = 0x330;
     static constexpr auto sCharacterSkillAffectorOffset  = 0x35a;
 
-    static constexpr auto sTimeExpiringEventRecordOffset = 0x616; // (0x4340)
+    static constexpr auto sTimeExpiringEventRecordOffset = 0x616;
+    static constexpr auto sActiveSpells = 0x6b8;
 
     static constexpr auto sPantathiansEventFlag = 0x1ed4;
 
@@ -152,12 +155,8 @@ public:
     }
 
     FileBuffer& GetFileBuffer() { return mBuffer; }
-    void SetTimeExpiringState(
-        unsigned number,
-        unsigned eventPtr,
-        unsigned flag,
-        Time time);
-    void GetTimeExpiringState(unsigned index);
+    std::vector<TimeExpiringState> LoadTimeExpiringState();
+    SpellState LoadSpells();
 
     std::vector<SkillAffector> GetCharacterSkillAffectors(CharIndex character);
 

@@ -8,6 +8,7 @@
 #include "bak/container.hpp"
 #include "bak/inventory.hpp"
 
+#include "bak/timeExpiringState.hpp"
 #include "com/bits.hpp"
 #include "com/ostream.hpp"
 
@@ -51,45 +52,33 @@ GameData::GameData(const std::string& save)
     //LoadCombatGridLocations();
     //LoadCombatWorldLocations();
     //LoadCombatClickedTimes();
-    GetTimeExpiringState(0);
+    LoadTimeExpiringState();
 }
 
-void GameData::SetTimeExpiringState(
-    unsigned number,
-    unsigned eventPtr,
-    unsigned flag,
-    Time time)
-{
-    // DialogAction value is always 4, flag is always 0x40
-    // ItemExpiring value is always 1, flag is always 0x80
-    // 0x80 adds 
-    unsigned index = 0;
-    mBuffer.Seek(sTimeExpiringEventRecordOffset + index);
-    mBuffer.PutUint8(number);
-    mBuffer.PutUint8(flag);
-    mBuffer.PutUint16LE(eventPtr);
-    mBuffer.PutUint32LE(time.mTime);
-}
-
-void GameData::GetTimeExpiringState(
-    unsigned index)
+std::vector<TimeExpiringState> GameData::LoadTimeExpiringState()
 {
     // DialogAction value is always 4, flag is always 0x40
     // ItemExpiring value is always 1, flag is always 0x80
     // 0x80 adds 
     mBuffer.Seek(sTimeExpiringEventRecordOffset);
+    auto storage = std::vector<TimeExpiringState>{};
     auto stateCount = mBuffer.GetUint16LE();
     for (unsigned i = 0; i < stateCount; i++)
     {
-        auto number = mBuffer.GetUint8();
+        auto type = mBuffer.GetUint8();
         auto flag = mBuffer.GetUint8();
-        auto eventPtr = mBuffer.GetUint16LE();
+        auto data= mBuffer.GetUint16LE();
         auto time = Time{mBuffer.GetUint32LE()};
-        auto time2 = Time{mBuffer.GetUint32LE()};
-        mLogger.Info() << "TimeExpiringState #" << i << " num: " << +number
-            << " flag: " << +flag << " eventPtr: " << eventPtr << " time: " << time 
-            << " time2: " << time2 << "\n";
+        storage.emplace_back(TimeExpiringState{ExpiringStateType{type}, flag, data, time});
+        mLogger.Info() << storage.back() << "\n";
     }
+    return storage;
+}
+
+SpellState GameData::LoadSpells()
+{
+    mBuffer.Seek(sActiveSpells);
+    return SpellState{mBuffer.GetUint16LE()};
 }
 
 std::vector<SkillAffector> GameData::GetCharacterSkillAffectors(

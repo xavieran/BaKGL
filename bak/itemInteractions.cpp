@@ -4,6 +4,7 @@
 #include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
 #include "bak/itemNumbers.hpp"
+#include "bak/timeExpiringState.hpp"
 #include "bak/skills.hpp"
 #include "bak/sounds.hpp"
 #include "bak/state/item.hpp"
@@ -522,6 +523,68 @@ ItemUseResult UseRestoratives(
     return result;
 }
 
+ItemUseResult UseTorchOrRingOfPrandur(
+    GameState& gameState,
+    Character& character,
+    InventoryIndex inventoryIndex)
+{
+    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
+
+    if (item.IsActivated())
+    {
+        auto& storage = gameState.GetTimeExpiringState();
+        for (unsigned i = 0; i < storage.size(); i++)
+        {
+            auto& state = storage[i];
+            if (state.mType == ExpiringStateType::Light && state.mData == 0)
+            {
+                state.mDuration = Time{0};
+            }
+        }
+        item.SetActivated(false);
+        item.SetQuantity(item.GetQuantity() - 1);
+        gameState.ReduceAndEvaluateTimeExpiringState(Time{0});
+        if (item.IsConsumable() && item.GetQuantity() == 0)
+        {
+            character.GetInventory().RemoveItem(inventoryIndex);
+        }
+        return ItemUseResult{
+            std::nullopt,
+            std::nullopt,
+            KeyTarget{0}};
+    }
+
+    if (gameState.HaveActiveLightSource())
+    {
+        return ItemUseResult{
+            std::nullopt,
+            item.GetItemIndex().mValue,
+            DialogSources::mItemUseFailure};
+    }
+    else if (false) // isTorch && isChapter4 && zoneIs 12
+    {
+        // Do naptha caverns death dialog
+        return ItemUseResult{}; // 0x1b776e
+    }
+
+    item.SetActivated(true);
+    const auto duration = Times::OneHour * item.GetObject().mEffectMask;
+    auto* state = AddLightTimeExpiringState(gameState.GetTimeExpiringState(), 0, duration);
+    if (state)
+    {
+        gameState.RecalculatePalettesForPotionOrSpellEffect(*state);
+    }
+    else
+    {
+        assert(false);
+    }
+
+    return ItemUseResult{
+        item.GetItemUseSound(),
+        item.GetItemIndex().mValue,
+        DialogSources::mItemUseSucessful};
+}
+
 ItemUseResult UsePotion(
     GameState& gameState,
     Character& character,
@@ -634,6 +697,10 @@ ItemUseResult UseItem(
     else if (item.IsItemType(BAK::ItemType::Potion))
     {
         return UsePotion(gameState, character, inventoryIndex);
+    }
+    else if (item.IsItemType(BAK::ItemType::Light))
+    {
+        return UseTorchOrRingOfPrandur(gameState, character, inventoryIndex);
     }
     else if (item.GetItemIndex() == sSilverthornAntiVenom)
     {

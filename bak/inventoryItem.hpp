@@ -12,6 +12,7 @@ namespace BAK {
 
 enum class ItemStatus : std::uint8_t
 {
+    Activated  = 1,
     Broken     = 4,
     Repairable = 5,
     Equipped   = 6,
@@ -53,6 +54,11 @@ public:
     auto GetStatus() const { return mStatus; }
     auto GetModifierMask() const { return mModifiers; }
 
+    bool IsActivated() const
+    {
+        return CheckItemStatus(mStatus, ItemStatus::Activated);
+    }
+
     bool IsEquipped() const
     {
         return CheckItemStatus(mStatus, ItemStatus::Equipped);
@@ -87,6 +93,10 @@ public:
     bool IsKey() const
     {
         return IsItemType(ItemType::Key) || mItemIndex == BAK::sPicklock;
+    }
+    void SetActivated(bool state)
+    {
+        mStatus = SetItemStatus(mStatus, ItemStatus::Activated, state);
     }
 
     void SetEquipped(bool state)

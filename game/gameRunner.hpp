@@ -343,7 +343,7 @@ public:
 
         if (combat.mIsAmbush)
         {
-            if (mGameState.GetSpellActive(BAK::DragonsBreath))
+            if (mGameState.GetSpellActive(BAK::StaticSpells::DragonsBreath))
             {
                 lowestStealth = lowestStealth + ((100 - lowestStealth) >> 1);
             }

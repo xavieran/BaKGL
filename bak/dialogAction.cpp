@@ -21,14 +21,14 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::LoadSkillValue: return os << "LoadSkillValue";
         case DialogResult::PlaySound: return os << "PlaySound";
         case DialogResult::ElapseTime: return os << "ElapseTime";
-        case DialogResult::SetTimeExpiringState: return os << "SetTimeExpiringState";
+        case DialogResult::SetAddResetState: return os << "SetAddResetState";
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
         case DialogResult::UpdateCharacters: return os << "UpdateCharacters";
         case DialogResult::HealCharacters: return os << "HealCharacters";
         case DialogResult::LearnSpell: return os << "LearnSpell";
         case DialogResult::Teleport: return os << "Teleport";
         case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
-        case DialogResult::SetTimeExpiringState2: return os << "SetTimeExpiringState2";
+        case DialogResult::SetTimeExpiringState: return os << "SetTimeExpiringState";
         case DialogResult::LoseItem2: return os << "LoseItem2";
         default: return os << "Unknown[" << static_cast<unsigned>(d) << "]";
     }
@@ -162,17 +162,17 @@ std::ostream& operator<<(std::ostream& os, const PushNextDialog& action)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const SetTimeExpiringState& action)
+std::ostream& operator<<(std::ostream& os, const SetAddResetState& action)
 {
-    os << "SetTimeExpiringState{" << std::hex << action.mEventPtr << " unk0: " << action.mUnknown0
+    os << "SetAddResetState{" << std::hex << action.mEventPtr << " unk0: " << action.mUnknown0
         << " TimeToExpire: " << std::dec << action.mTimeToExpire << "}";
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const SetTimeExpiringState2& action)
+std::ostream& operator<<(std::ostream& os, const SetTimeExpiringState& action)
 {
-    os << "SetTimeExpiringState2{" << std::hex << " number: " << +action.mNumber
-        << " flag: " << +action.mFlag
+    os << "SetTimeExpiringState{" << std::hex << " type: " << action.mType
+        << " flags: " << +action.mFlags
         << " eventPtr: " << action.mEventPtr
         << " TimeToExpire: " << std::dec << action.mTimeToExpire << "}";
     return os;

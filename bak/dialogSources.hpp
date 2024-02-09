@@ -41,6 +41,11 @@ public:
         return KeyTarget{mSpyNoteContents};
     }
 
+    static KeyTarget GetSpellCastDialog(unsigned spell)
+    {
+        return KeyTarget{mDragonsBreath + spell};
+    }
+
     static Target GetChoiceResult(KeyTarget dialog, unsigned index)
     {
         const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
@@ -181,6 +186,7 @@ public:
     static constexpr auto mAfterNagoCombatSetKeys = BAK::KeyTarget{0x1cfdf1};
     static constexpr auto mEndOfChapterResetFlags =
         KeyTarget{0x1e8497};
+    static constexpr auto mDragonsBreath = 0xc7;
 };
 
 }

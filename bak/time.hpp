@@ -76,7 +76,7 @@ public:
         }
 
         CheckAndClearSkillAffectors();
-        //EvaluateTimeExpiringState(timeDelta);
+        mGameState.ReduceAndEvaluateTimeExpiringState(timeDelta);
     }
 
     // Time change per step

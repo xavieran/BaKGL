@@ -56,6 +56,7 @@ add_library(bak
     temple.hpp temple.cpp
     textureFactory.hpp textureFactory.cpp
     time.hpp time.cpp
+    timeExpiringState.hpp timeExpiringState.cpp
     trap.hpp trap.cpp
     worldClock.hpp worldClock.cpp
     worldItem.hpp worldItem.cpp
