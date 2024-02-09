@@ -47,9 +47,21 @@ struct Time
         return Time(mTime + lhs.mTime);
     }
 
+    Time& operator+=(const Time& lhs)
+    {
+        mTime += lhs.mTime;
+        return *this;
+    }
+
     Time operator-(const Time& lhs) const
     {
         return Time(mTime - lhs.mTime);
+    }
+
+    Time& operator-=(const Time& lhs)
+    {
+        mTime -= lhs.mTime;
+        return *this;
     }
 
     Time operator*(const Time& lhs) const

@@ -71,9 +71,11 @@ public:
         mItem{
             ImageTag{},
             std::get<Graphics::SpriteSheetIndex>(
-                icons.GetInventoryIcon(item.GetObject().mImageIndex)),
+                icons.GetInventoryIcon(item.GetObject().mImageIndex
+                    + (item.IsActivated() ? 44 : 0))), // FIXME: This doesn't work for ring of prandur
             std::get<Graphics::TextureIndex>(
-                icons.GetInventoryIcon(item.GetObject().mImageIndex)),
+                icons.GetInventoryIcon(item.GetObject().mImageIndex
+                    + (item.IsActivated() ? 44 : 0))),
             pos,
             std::get<glm::vec2>(
                 icons.GetInventoryIcon(item.GetObject().mImageIndex)),

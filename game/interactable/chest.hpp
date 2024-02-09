@@ -74,7 +74,7 @@ public:
         else
         {
             // Scent of sarig active and chest is trapped
-            if (mGameState.GetSpellActive(BAK::ScentOfSarig)
+            if (mGameState.GetSpellActive(BAK::StaticSpells::ScentOfSarig)
                 && chest.GetLock().mLockFlag == 4 && chest.GetLock().mTrapDamage > 0)
             {
                 StartDialog(BAK::DialogSources::mOpenTrappedBox);
@@ -148,7 +148,7 @@ public:
             if (openChest)
             {
                 auto& lock = mCurrentChest->GetLock();
-                if (mGameState.GetSpellActive(BAK::ScentOfSarig)
+                if (mGameState.GetSpellActive(BAK::StaticSpells::ScentOfSarig)
                     && lock.mLockFlag == 4 && lock.mTrapDamage > 0)
                 {
                     TryDisarmTrap();

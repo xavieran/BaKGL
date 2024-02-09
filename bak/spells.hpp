@@ -16,6 +16,20 @@
 
 namespace BAK {
 
+enum class StaticSpells : std::uint16_t
+{
+    DragonsBreath = 0,
+    CandleGlow = 1,
+    Stardusk = 2,
+    AndTheLightShallLie = 3,
+    Union = 4,
+    ScentOfSarig = 5
+};
+
+static constexpr std::array<std::uint8_t, 6> sStaticSpellMapping = {
+    30, 31, 32, 34, 33, 35
+};
+
 enum class SpellCalculationType
 {
     NonCostRelated,
@@ -428,6 +442,33 @@ public:
         }
         return points;
     }
+};
+
+class SpellState
+{
+public:
+    SpellState() = default;
+    explicit SpellState(std::uint16_t spells)
+    :
+        mSpells{spells}
+    {}
+
+    bool SpellActive(StaticSpells spell) const
+    {
+        return CheckBitSet(mSpells, spell);
+    }
+
+    void SetSpellState(StaticSpells spell, bool state)
+    {
+        SetBit(mSpells, spell, state);
+    }
+
+    std::uint16_t GetSpells() const
+    {
+        return mSpells;
+    }
+private:
+    std::uint16_t mSpells;
 };
 
 }

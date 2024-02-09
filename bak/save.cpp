@@ -153,4 +153,22 @@ void Save(const WorldClock& worldClock, FileBuffer& fb)
     fb.PutUint32LE(worldClock.GetTimeLastSlept().mTime);
 }
 
+void Save(const std::vector<TimeExpiringState>& storage, FileBuffer& fb)
+{
+    fb.Seek(GameData::sTimeExpiringEventRecordOffset);
+    fb.PutUint16LE(storage.size());
+    for (const auto& state : storage)
+    {
+        fb.PutUint8(static_cast<std::uint8_t>(state.mType));
+        fb.PutUint8(state.mFlags);
+        fb.PutUint16LE(state.mData);
+        fb.PutUint32LE(state.mDuration.mTime);
+    }
+}
+
+void Save(const SpellState& spells, FileBuffer& fb)
+{
+    fb.Seek(GameData::sActiveSpells);
+    fb.PutUint16LE(spells.GetSpells());
+}
 }

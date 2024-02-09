@@ -4,6 +4,8 @@
 
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
+#include "bak/spells.hpp"
+#include "bak/worldClock.hpp"
 
 #include "com/string.hpp"
 
@@ -123,6 +125,40 @@ struct Console : public std::streambuf
         mGameState->SetEventState(setFlag);
     }
 
+    void CastSpell(const std::vector<std::string>& words)
+    {
+        if (words.size() < 3)
+        {
+            std::stringstream ss{};
+            for (const auto& w : words)
+                ss << w << "|";
+            AddLog("[error] Usage: CAST_SPELL SPELL DURATION (%s)", ss.str().c_str());
+            return;
+        }
+
+        if (!mGameState)
+        {
+            AddLog("[error] CAST_SPELL FAILED No GameState Connected");
+            return;
+        }
+
+        std::uint16_t spellI;
+        {
+            std::stringstream ss{};
+            ss << words[1];
+            ss >> spellI;
+        }
+        auto spell = BAK::StaticSpells{spellI};
+        std::uint32_t duration;
+        {
+            std::stringstream ss{};
+            ss << words[2];
+            ss >> duration;
+        }
+
+        mGameState->CastStaticSpell(spell, BAK::Time{duration});
+    }
+     
     void SaveGame(const std::vector<std::string>& words)
     {
         if (words.size() < 2)
@@ -513,6 +549,9 @@ struct Console : public std::streambuf
 
         mCommands.push_back("SET_COMPLEX_EVENT");
         mCommandActions.emplace_back([this](const auto& cmd){ SetComplexEvent(cmd); });
+
+        mCommands.push_back("CAST_SPELL");
+        mCommandActions.emplace_back([this](const auto& cmd){ CastSpell(cmd); });
 
         mCommands.push_back("CLEAR");
         mCommandActions.emplace_back([this](const auto& cmd)

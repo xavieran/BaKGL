@@ -85,7 +85,7 @@ public:
             [this](const auto& choice){ DialogFinished(choice); }
         },
         mSpriteManager{spriteManager},
-        mMainView{*this, mBackgrounds, mIcons},
+        mMainView{*this, mBackgrounds, mIcons, mFontManager.GetSpellFont()},
         mMainMenu{*this, mBackgrounds, mIcons, mFontManager.GetGameFont()},
         mInfoScreen{
             *this,

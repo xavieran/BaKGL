@@ -30,9 +30,18 @@ may be easier to hook into then interrupts
 bpm 2b50:4df2
 then bp 3b52:2649
 
+// to calculate the game offset from any offset in the save file
+// it is 0x3d28 + saveFileOffset. e.g. time expiring state game file
+// offset is 0x616 + 0x3d28 = 0x433e 
+
 bpm 2b50:3d92 - current time
 bpm 2b50:3d96 - current time
 
 bpm 2b50:40f3 - potion usage first char
 bpm 2b50:4163 - potion usage second char
-bpm 2b50:433e - time expiring state count
+bpm 2b50:433e - time expiring state count - this is 0x616
+bpm 2b50:43e0 - spell states
+
+// this is perhaps related to the tile character location is
+// rendered on when the game loads?
+bpm 2b40:3da9 up to 3dad potentially

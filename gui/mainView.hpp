@@ -46,7 +46,8 @@ public:
     MainView(
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
-        const Icons& icons)
+        const Icons& icons,
+        const Font& spellFont)
     :
         Widget{
             Graphics::DrawMode::Sprite,
@@ -60,7 +61,9 @@ public:
         },
         mGuiManager{guiManager},
         mIcons{icons},
+        mSpellFont{spellFont},
         mLayout{sLayoutFile},
+        mActiveSpells{},
         mCompass{
             glm::vec2{144,121},
             glm::vec2{32,12},
@@ -117,17 +120,6 @@ public:
         mCompass.SetHeading(heading);
     }
 
-    void AddChildren()
-    {
-        for (auto& button : mButtons)
-            AddChildBack(&button);
-
-        AddChildBack(&mCompass);
-
-        for (auto& character : mCharacters)
-            AddChildBack(&character);
-    }
-
     void HandleButton(unsigned buttonIndex)
     {
         switch (buttonIndex)
@@ -181,6 +173,32 @@ public:
             person = party.NextActiveCharacter(person);
         } while (person != BAK::ActiveCharIndex{0});
 
+        auto pos = glm::vec2{140, 1};
+
+        // FIXME: Update these whenever time changes...
+        mActiveSpells.clear();
+        for (std::uint16_t i = 0; i < 6; i++)
+        {
+            if (gameState.GetSpellActive(BAK::StaticSpells{i}))
+            {
+                auto spellI = BAK::sStaticSpellMapping[i];
+                mActiveSpells.emplace_back(Gui::Widget{
+                    Graphics::DrawMode::Sprite,
+                    mSpellFont.GetSpriteSheet(),
+                    static_cast<Graphics::TextureIndex>(
+                        mSpellFont.GetFont().GetIndex(spellI)),
+                    Graphics::ColorMode::Texture,
+                    glm::vec4{1.2f, 0.f, 0.f, 1.f},
+                    pos,
+                    glm::vec2{
+                        mSpellFont.GetFont().GetWidth(spellI),
+                        mSpellFont.GetFont().GetHeight()},
+                    true
+                });
+                pos += glm::vec2{mSpellFont.GetFont().GetWidth(spellI) + 1, 0};
+            }
+        }
+
         AddChildren();
     }
 
@@ -195,11 +213,31 @@ public:
     }
 
 private:
+    void AddChildren()
+    {
+        ClearChildren();
+        for (auto& button : mButtons)
+        {
+            AddChildBack(&button);
+        }
+        for (auto& spell : mActiveSpells)
+        {
+            AddChildBack(&spell);
+        }
+        AddChildBack(&mCompass);
+
+        for (auto& character : mCharacters)
+            AddChildBack(&character);
+    }
+
+
     IGuiManager& mGuiManager;
     const Icons& mIcons;
+    const Font& mSpellFont;
 
     BAK::Layout mLayout;
 
+    std::vector<Widget> mActiveSpells;
     Compass mCompass;
     std::vector<ClickButtonImage> mButtons;
     std::vector<ClickButtonImage> mCharacters;

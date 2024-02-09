@@ -243,13 +243,13 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     time,
                     rest});
         } break;
-        case DialogResult::SetTimeExpiringState:
+        case DialogResult::SetAddResetState:
         {
             const auto state = fb.GetUint16LE();
             const auto unk0 = fb.GetUint16LE();
             const auto time = Time{fb.GetUint32LE()};
             mActions.emplace_back(
-                SetTimeExpiringState{state, unk0, time});
+                SetAddResetState{state, unk0, time});
         } break;
         case DialogResult::PushNextDialog:
         {
@@ -307,14 +307,14 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     state,
                     rest});
         } break;
-        case DialogResult::SetTimeExpiringState2:
+        case DialogResult::SetTimeExpiringState:
         {
-            const auto number = fb.GetUint8();
+            const auto type = ExpiringStateType{fb.GetUint8()};
             const auto flag = fb.GetUint8();
             const auto state = fb.GetUint16LE();
             const auto time = Time{fb.GetUint32LE()};
             mActions.emplace_back(
-                SetTimeExpiringState2{number, flag, state, time});
+                SetTimeExpiringState{type, flag, state, time});
         } break;
         case DialogResult::LoseItem2:
         {

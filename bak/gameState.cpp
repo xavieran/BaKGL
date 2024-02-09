@@ -1,5 +1,6 @@
 #include "bak/gameState.hpp"
 
+#include "bak/spells.hpp"
 #include "bak/time.hpp"
 
 namespace BAK {
@@ -63,6 +64,8 @@ void GameState::LoadGameData(GameData* gameData)
     }
     mGDSContainers = mGameData->LoadShops();
     mCombatContainers = mGameData->LoadCombatInventories();
+    mTimeExpiringState = mGameData->LoadTimeExpiringState();
+    mSpellState = mGameData->LoadSpells();
     mZone = ZoneNumber{mGameData->mLocation.mZone};
 }
 
@@ -260,9 +263,9 @@ std::optional<unsigned> GameState::GetActor(unsigned actor) const
     }
 }
 
-bool GameState::GetSpellActive(SpellIndex spell)
+bool GameState::GetSpellActive(StaticSpells spell) const
 {
-    return true;
+    return mSpellState.SpellActive(spell);
 }
 
 // prefer to use this function when getting best skill
@@ -605,23 +608,26 @@ void GameState::EvaluateAction(const DialogAction& action)
                     });
             }
         },
-        [&](const BAK::SetTimeExpiringState& state)
+        [&](const BAK::SetAddResetState& state)
         {
             mLogger.Debug() << "Setting time expiring state: " << state << "\n";
             SetEventValue(state.mEventPtr, 1);
-            if (mGameData)
-                mGameData->SetTimeExpiringState(4, state.mEventPtr, 0x40, state.mTimeToExpire);
+            AddTimeExpiringState(mTimeExpiringState, ExpiringStateType::ResetState, state.mEventPtr, 0x40, state.mTimeToExpire);
         },
         [&](const BAK::ElapseTime& elapse)
         {
             mLogger.Debug() << "Elapsing time: " << elapse << "\n";
             ElapseTime(elapse.mTime);
         },
-        [&](const BAK::SetTimeExpiringState2& state)
+        [&](const BAK::SetTimeExpiringState& state)
         {
             mLogger.Debug() << "Setting time expiring state2: " << state << "\n";
-            if (mGameData)
-                mGameData->SetTimeExpiringState(state.mNumber, state.mEventPtr, state.mFlag, state.mTimeToExpire);
+            AddTimeExpiringState(
+                mTimeExpiringState,
+                state.mType,
+                state.mEventPtr,
+                state.mFlags,
+                state.mTimeToExpire);
         },
         [&](const BAK::SetEndOfDialogState& state)
         {
@@ -647,31 +653,26 @@ void GameState::EvaluateAction(const DialogAction& action)
 
 bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
 {
-    if (choice.mState == BAK::ActiveStateFlag::Chapter
-        && (GetChapter().mValue >= choice.mExpectedValue
-            && GetChapter().mValue <= choice.mExpectedValue2))
+    if (choice.mState == BAK::ActiveStateFlag::Chapter)
     {
-        return true;
+        return GetChapter().mValue >= choice.mExpectedValue
+            && GetChapter().mValue <= choice.mExpectedValue2;
     }
-    else if (choice.mState == BAK::ActiveStateFlag::Context
-        && mContextValue == choice.mExpectedValue)
+    else if (choice.mState == BAK::ActiveStateFlag::Context)
     {
-        return true;
+        return mContextValue == choice.mExpectedValue;
     }
-    else if (choice.mState == BAK::ActiveStateFlag::CantAfford
-        && (GetMoney() > mItemValue) == (choice.mExpectedValue == 1))
+    else if (choice.mState == BAK::ActiveStateFlag::CantAfford)
     {
-        return true;
+        return (GetMoney() > mItemValue) == (choice.mExpectedValue == 1);
     }
-    else if (choice.mState == BAK::ActiveStateFlag::SkillCheck
-        && mSkillValue >= choice.mExpectedValue)
+    else if (choice.mState == BAK::ActiveStateFlag::SkillCheck)
     {
-        return true;
+        return mSkillValue >= choice.mExpectedValue;
     }
-    else if (choice.mState == BAK::ActiveStateFlag::Money
-        && (GetMoney().mValue > GetRoyals(Sovereigns{static_cast<unsigned>(choice.mExpectedValue)}).mValue))
+    else if (choice.mState == BAK::ActiveStateFlag::Money)
     {
-        return true;
+        return GetMoney().mValue > GetRoyals(Sovereigns{static_cast<unsigned>(choice.mExpectedValue)}).mValue;
     }
     else if (choice.mState == BAK::ActiveStateFlag::NightTime)
     {
@@ -695,10 +696,9 @@ bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
         const auto hour = time.GetHour();
         return hour >= choice.mExpectedValue && hour <= choice.mExpectedValue2;
     }
-    else if (choice.mState == BAK::ActiveStateFlag::Shop
-        && GetShopType() == choice.mExpectedValue)
+    else if (choice.mState == BAK::ActiveStateFlag::Shop)
     {
-        return true;
+        return GetShopType() == choice.mExpectedValue;
     }
     else if (static_cast<unsigned>(choice.mState) == 0x753f)
     {
@@ -782,9 +782,7 @@ bool GameState::EvaluateDialogChoice(const Choice& choice) const
         },
         [&](const CastSpellChoice& c)
         {
-            //if (c.mRequiredSpell == 5) // scent of sarig
-            //if (c.mRequiredSpell == 3) // the unseen
-            return true;
+            return GetSpellActive(static_cast<StaticSpells>(c.mRequiredSpell));
         },
         [&](const CustomStateChoice& c)
         {
@@ -956,7 +954,7 @@ void GameState::ClearUnseenImprovements(unsigned character)
     }
 }
 
-bool GameState::Save(const SaveFile& saveFile)
+bool GameState::SaveState()
 {
     if (mGameData)
     {
@@ -972,7 +970,17 @@ bool GameState::Save(const SaveFile& saveFile)
         for (const auto& zoneContainers : mContainers)
             for (const auto& container : zoneContainers)
                 BAK::Save(container, mGameData->GetFileBuffer());
+        BAK::Save(mTimeExpiringState, mGameData->GetFileBuffer());
+        BAK::Save(mSpellState, mGameData->GetFileBuffer());
+        return true;
+    }
+    return false;
+}
 
+bool GameState::Save(const SaveFile& saveFile)
+{
+    if (SaveState())
+    {
         mGameData->Save(saveFile);
         return true;
     }
@@ -981,21 +989,8 @@ bool GameState::Save(const SaveFile& saveFile)
 
 bool GameState::Save(const std::string& saveName)
 {
-    if (mGameData)
+    if (SaveState())
     {
-        BAK::Save(GetWorldTime(), mGameData->GetFileBuffer());
-        BAK::Save(GetParty(), mGameData->GetFileBuffer());
-
-        for (const auto& container : mGDSContainers)
-            BAK::Save(container, mGameData->GetFileBuffer());
-
-        for (const auto& container : mCombatContainers)
-            BAK::Save(container, mGameData->GetFileBuffer());
-
-        for (const auto& zoneContainers : mContainers)
-            for (const auto& container : zoneContainers)
-                BAK::Save(container, mGameData->GetFileBuffer());
-
         mGameData->Save(saveName, saveName);
         return true;
     }
@@ -1084,5 +1079,161 @@ void GameState::ElapseTime(Time time)
             0);
     }
 }
+
+void GameState::ReduceAndEvaluateTimeExpiringState(Time delta)
+{
+    for (unsigned i = 0; i < mTimeExpiringState.size(); i++)
+    {
+        auto& state = mTimeExpiringState[i];
+        if (state.mDuration < delta)
+        {
+            state.mDuration = Time{0};
+        }
+        else
+        {
+            state.mDuration -= delta;
+        }
+
+        if (state.mType == ExpiringStateType::Light)
+        {
+            RecalculatePalettesForPotionOrSpellEffect(state);
+        }
+        else if (state.mType == ExpiringStateType::Spell)
+        {
+            SetSpellState(state);
+        }
+        else if (state.mDuration == Time{0})
+        {
+            if (state.mType == ExpiringStateType::SetState)
+            {
+                SetEventValue(state.mData, 1);
+            }
+            else if (state.mType == ExpiringStateType::ResetState)
+            {
+                SetEventValue(state.mData, 0);
+            }
+        }
+    }
+
+    std::erase_if(
+        mTimeExpiringState,
+        [](auto& state){ return state.mDuration == Time{0}; });
+}
+
+void GameState::RecalculatePalettesForPotionOrSpellEffect(TimeExpiringState& state)
+{
+    auto time = state.mDuration.mTime / 0x1e;
+    switch (state.mData)
+    {
+        case 0: // torch or ring of prandur
+        {
+            if (time >= 8)
+            {
+                // paletteModifier1 = 0x31;
+            }
+            else
+            {
+                //paletteModifier1 = time * time;
+            }
+            if (state.mDuration == Time{0})
+            {
+                DeactivateLightSource();
+            }
+        } break;
+        case 1: // dragon's breath
+        {
+        } break;
+        case 2: // candle glow
+        {
+        } break;
+        case 3: // stardusk
+        {
+        } break;
+    }
+}
+
+void GameState::DeactivateLightSource()
+{
+    mLogger.Debug() << "Deactivating light source\n";
+    GetParty().ForEachActiveCharacter([&](auto& character)
+    {
+        auto& items = character.GetInventory().GetItems();
+        for (unsigned i = 0; i < items.size(); i++)
+        {
+            auto& item = items[i];
+            if (item.IsActivated() 
+                && (item.GetItemIndex() == sTorch 
+                    || item.GetItemIndex() == sRingOfPrandur))
+            {
+                item.SetQuantity(item.GetQuantity() - 1);
+                item.SetActivated(false);
+                if (item.GetQuantity() == 0 && item.GetItemIndex() == sTorch)
+                {
+                    character.GetInventory().RemoveItem(InventoryIndex{i});
+                }
+                return true;
+            }
+        }
+        return false;
+    });
+}
+
+bool GameState::HaveActiveLightSource()
+{
+    for (auto& state : mTimeExpiringState)
+    {
+        if (state.mType == ExpiringStateType::Light
+            && state.mData == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void GameState::SetSpellState(const TimeExpiringState& state)
+{
+    if (state.mData > 9)
+    {
+        assert(false);
+        return;
+    }
+    if (state.mDuration == Time{0})
+    {
+        mSpellState.SetSpellState(StaticSpells{state.mData}, false);
+    }
+    else
+    {
+        mSpellState.SetSpellState(StaticSpells{state.mData}, false);
+    }
+}
+
+void GameState::CastStaticSpell(StaticSpells spell, Time duration)
+{
+    // RunDialog DialogSources::GetSpellCastDialog(static_cast<unsigned>(spell));
+    auto* state = AddSpellTimeExpiringState(mTimeExpiringState, static_cast<unsigned>(spell), duration);
+    assert(state);
+    SetSpellState(*state);
+    switch (spell)
+    {
+    case StaticSpells::DragonsBreath: [[fallthrough]];
+    case StaticSpells::CandleGlow: [[fallthrough]];
+    case StaticSpells::Stardusk:
+    {
+        auto* lightState = AddLightTimeExpiringState(
+            mTimeExpiringState,
+            static_cast<unsigned>(spell) + 1,
+            duration);
+        assert(lightState);
+        RecalculatePalettesForPotionOrSpellEffect(*lightState);
+        // UpdatePaletteIfRequired()
+    } break;
+    default:
+        break;
+    }
+
+    // HandlePostSpellcastingReduceHealth
+}
+
 
 }

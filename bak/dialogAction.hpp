@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/condition.hpp"
+#include "bak/timeExpiringState.hpp"
 #include "bak/types.hpp"
 #include "bak/skills.hpp"
 #include "bak/dialogTarget.hpp"
@@ -26,14 +27,14 @@ enum class DialogResult
     //PlaySound2  = 0x0b, unused, but calls same code as play sound...
     PlaySound  = 0x0c,
     ElapseTime = 0x0d,
-    SetTimeExpiringState = 0x0e,
+    SetAddResetState = 0x0e,
     PushNextDialog = 0x10,
     UpdateCharacters = 0x11,
     HealCharacters   = 0x12,
     LearnSpell = 0x13,
     Teleport = 0x14,
     SetEndOfDialogState = 0x15,
-    SetTimeExpiringState2 = 0x16,
+    SetTimeExpiringState = 0x16,
     LoseItem2 = 0x17
     // 18 - seems to remove/move mney at a chapter transition
 };
@@ -182,7 +183,7 @@ struct Teleport
     TeleportIndex mIndex;
 };
 
-struct SetTimeExpiringState
+struct SetAddResetState
 {
     std::uint16_t mEventPtr;
     std::uint16_t mUnknown0;
@@ -215,10 +216,10 @@ struct LearnSpell
     SpellIndex mWhichSpell;
 };
 
-struct SetTimeExpiringState2
+struct SetTimeExpiringState
 {
-    std::uint8_t mNumber;
-    std::uint8_t mFlag;
+    ExpiringStateType mType;
+    std::uint8_t mFlags;
     std::uint16_t mEventPtr;
     Time mTimeToExpire;
 };
@@ -256,14 +257,14 @@ using DialogAction = std::variant<
     LoadSkillValue,
     PlaySound,
     ElapseTime,
-    SetTimeExpiringState,
+    SetAddResetState,
     PushNextDialog,
     UpdateCharacters,
     HealCharacters,
     LearnSpell,
     Teleport,
     SetEndOfDialogState,
-    SetTimeExpiringState2,
+    SetTimeExpiringState,
     LoseItem2,
     UnknownAction>;
 

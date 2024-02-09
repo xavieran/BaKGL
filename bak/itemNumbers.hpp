@@ -44,6 +44,8 @@ static constexpr auto sAle         = BAK::ItemIndex{136};
 static constexpr auto sKeshianAle  = BAK::ItemIndex{137};
 static constexpr auto sPicklock    = BAK::ItemIndex{'P'};
 
+static constexpr auto sTorch = BAK::ItemIndex{84};
+static constexpr auto sRingOfPrandur = BAK::ItemIndex{6};
 static constexpr auto sSpynote     = BAK::ItemIndex{120};
 static constexpr auto sSilverthornAntiVenom = BAK::ItemIndex{113};
 static constexpr auto sPractiseLute = BAK::ItemIndex{81};
