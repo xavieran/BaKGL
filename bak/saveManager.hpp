@@ -19,7 +19,14 @@ public:
     unsigned mIndex;
     std::string mName;
     std::string mPath;
+
+    std::string GetFilename() const
+    {
+        return std::filesystem::path{mPath}.filename().string();
+    }
 };
+
+std::ostream& operator<<(std::ostream& os, const SaveFile&);
 
 class SaveDirectory
 {
@@ -41,12 +48,7 @@ public:
     std::vector<SaveFile> mSaves;
 };
 
-std::ostream& operator<<(auto& os, const SaveDirectory& saveDir)
-{
-    os << "SaveDir{ " << saveDir.mIndex << ", " 
-        << saveDir.mName << ", " << saveDir.mSaves.size() << "}";
-    return os;
-}
+std::ostream& operator<<(std::ostream&, const SaveDirectory&);
 
 class SaveManager
 {
@@ -61,7 +63,8 @@ public:
 
     const SaveFile& MakeSave(
         const std::string& saveDirectory,
-        const std::string& saveName);
+        const std::string& saveName,
+        bool isBookmark);
 private:
     std::vector<SaveFile> MakeSaveFiles(std::filesystem::path saveDir);
     std::vector<SaveDirectory> MakeSaveDirectories();

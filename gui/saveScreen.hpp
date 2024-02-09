@@ -126,7 +126,7 @@ public:
             mLayout.GetWidgetDimensions(sSave),
             mFont,
             "#Save",
-            [this]{ SaveGame(); }
+            [this]{ SaveGame(false); }
         },
         mRestore{
             mLayoutRestore.GetWidgetLocation(sSave - sLoadOffset),
@@ -238,7 +238,7 @@ private:
         RefreshGui();
     }
 
-    void SaveGame()
+    void SaveGame(bool isBookmark)
     {
         const auto saveDir = mDirectorySaveInput.GetText();
         const auto saveName = mFileSaveInput.GetText();
@@ -249,7 +249,7 @@ private:
         }
 
         mLogger.Info() << "Saving game to: " << saveDir << " " << saveName << "\n";
-        mSaveFn(mSaveManager.MakeSave(saveDir, saveName));
+        mSaveFn(mSaveManager.MakeSave(saveDir, saveName, isBookmark));
     }
 
     void RestoreGame()

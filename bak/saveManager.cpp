@@ -19,6 +19,20 @@ std::string LoadSaveName(FileBuffer& fb)
     return fb.GetString(30);
 }
 
+std::ostream& operator<<(std::ostream& os, const SaveFile& saveFile)
+{
+    os << "SaveFile{ " << saveFile.mIndex << ", " 
+        << saveFile.mName << ", " << saveFile.mPath << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const SaveDirectory& saveDir)
+{
+    os << "SaveDir{ " << saveDir.mIndex << ", " 
+        << saveDir.mName << ", " << saveDir.mSaves.size() << "}";
+    return os;
+}
+
 SaveManager::SaveManager(
     const std::string& savePath)
 :
@@ -54,9 +68,10 @@ void SaveManager::RemoveSave(unsigned directory, unsigned save)
 
 const SaveFile& SaveManager::MakeSave(
     const std::string& saveDirectory,
-    const std::string& saveName)
+    const std::string& saveName,
+    bool isBookmark)
 {
-    mLogger.Debug() << __FUNCTION__ << "(" << saveDirectory << ", " << saveName << std::endl;
+    mLogger.Debug() << __FUNCTION__ << "(" << saveDirectory << ", " << saveName << ")" << std::endl;
     const auto it = std::find_if(mDirectories.begin(), mDirectories.end(),
         [&](const auto& elem){
             return saveDirectory == elem.mName;
@@ -81,6 +96,22 @@ const SaveFile& SaveManager::MakeSave(
         }
     });
 
+    if (isBookmark)
+    {
+        if (directory.mSaves.size() > 0
+            && directory.mSaves.begin()->GetFilename() == "SAVE00.GAM")
+        {
+            mLogger.Debug() << __FUNCTION__ << " Found existing bookmark: " << *it << std::endl;
+        }
+        else
+        {
+            directory.mSaves.insert(directory.mSaves.begin(),
+                SaveFile{0, "Bookmark", ((mSavePath / directory.GetPath()) / "SAVE00.GAM").string()});
+            mLogger.Debug() << __FUNCTION__ << " Creating bookmark: " << *directory.mSaves.begin() << std::endl;
+        }
+        return *directory.mSaves.begin();
+    }
+
     mLogger.Debug() << __FUNCTION__ << " SaveDir: " << directory << std::endl;
     const auto fileIt = std::find_if(directory.mSaves.begin(), directory.mSaves.end(),
         [&](const auto& elem){
@@ -94,7 +125,8 @@ const SaveFile& SaveManager::MakeSave(
     else
     {
         std::stringstream ss{};
-        ss << "SAVE" << std::setw(2) << std::setfill('0') << directory.mSaves.size() << ".GAM";
+        unsigned saveNumber = directory.mSaves.size() + 1;
+        ss << "SAVE" << std::setw(2) << std::setfill('0') << saveNumber << ".GAM";
         return directory.mSaves.emplace_back(
             SaveFile{
                 static_cast<unsigned>(directory.mSaves.size()),
@@ -118,10 +150,12 @@ std::vector<SaveFile> SaveManager::MakeSaveFiles(std::filesystem::path saveDir)
         if (matches.size() > 0)
         {
             auto fb = File::CreateFileBuffer(save.path().string());
+            const auto index = convertToInt(matches.str(1));
+            const auto name = index == 0 ? "Bookmark" : LoadSaveName(fb);
             saveFiles.emplace_back(
                 SaveFile{
-                    convertToInt(matches.str(1)),
-                    LoadSaveName(fb),
+                    index,
+                    name,
                     save.path().string()});
         }
     }
