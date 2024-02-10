@@ -15,7 +15,7 @@ namespace BAK::State {
 // * doDialogEncounter
 // * doDisableEncounter
 // * doSoundEncounter
-bool CheckActive(
+bool CheckEncounterActive(
     FileBuffer&,
     const Encounter::Encounter& encounter,
     ZoneNumber zone);

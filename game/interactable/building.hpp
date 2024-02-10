@@ -56,7 +56,7 @@ public:
 
         ASSERT(mCurrentBuilding->HasDialog());
 
-        mGameState.SetDialogContext(2);
+        mGameState.SetDialogContext_7530(2);
 
         if (!CheckBitSet(mCurrentBuilding->GetDialog().mDialogOrder, 5))
         {
@@ -173,7 +173,7 @@ public:
         if (mCurrentBuilding->HasLock())
         {
             mState = State::TryUnlock;
-            mGameState.SetDialogContext(2);
+            mGameState.SetDialogContext_7530(2);
             StartDialog(BAK::DialogSources::mChooseUnlock);
         }
         else

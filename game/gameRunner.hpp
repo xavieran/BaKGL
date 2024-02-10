@@ -368,19 +368,19 @@ public:
             if (chance > lowestStealth)
             {
                 // failed to sneak up
-                mGameState.SetDialogContext(1);
+                mGameState.SetDialogContext_7530(1);
             }
             else
             {
                 // Successfully snuck
                 mGameState.GetParty().ImproveSkillForAll(
                     BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
-                mGameState.SetDialogContext(0);
+                mGameState.SetDialogContext_7530(0);
             }
         }
         else
         {
-            mGameState.SetDialogContext(2);
+            mGameState.SetDialogContext_7530(2);
         }
 
         if (!combat.mCombatants.empty())
@@ -450,7 +450,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Block& block)
     {
-        if (!mGameState.CheckEncounterActive(encounter))
+        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
             return;
 
         mGuiManager.StartDialog(
@@ -460,27 +460,33 @@ public:
                 &mDynamicDialogScene);
 
         mCamera.UndoPositionChange();
-        mGameState.SetPostEnableOrDisableEventFlags(encounter);
+        mGameState.Apply(
+            BAK::State::SetPostEnableOrDisableEventFlags,
+            encounter,
+            mGameState.GetZone());
     }
 
     void DoEventFlagEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::EventFlag& flag)
     {
-        if (!mGameState.CheckEncounterActive(encounter))
+        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
             return;
 
         if (flag.mEventPointer != 0)
             mGameState.SetEventValue(flag.mEventPointer, flag.mIsEnable ? 1 : 0);
 
-        mGameState.SetPostEnableOrDisableEventFlags(encounter);
+        mGameState.Apply(
+            BAK::State::SetPostEnableOrDisableEventFlags,
+            encounter,
+            mGameState.GetZone());
     }
 
     void DoZoneEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Zone& zone)
     {
-        if (!mGameState.CheckEncounterActive(encounter))
+        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
             return;
         const auto& choices = BAK::DialogStore::Get().GetSnippet(zone.mDialog).mChoices;
         const bool isNoAffirmative = choices.size() == 2
@@ -517,7 +523,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Dialog& dialog)
     {
-        if (!mGameState.CheckEncounterActive(encounter))
+        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
             return;
 
         mSavedAngle = mCamera.GetAngle();
@@ -533,9 +539,10 @@ public:
             true,
             &mDynamicDialogScene);
 
-        if (mGameState.mGameData)
-            mGameState.SetPostDialogEventFlags(
-                encounter);
+        mGameState.Apply(
+            BAK::State::SetPostDialogEventFlags,
+            encounter,
+            mGameState.GetZone());
     }
 
     void DoGDSEncounter(
@@ -543,7 +550,7 @@ public:
         const BAK::Encounter::GDSEntry& gds)
     {
         // Pretty sure GDS encoutners will always happen...
-        //if (!mGameState.CheckEncounterActive(encounter))
+        //if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
         //    return;
 
         mDynamicDialogScene.SetDialogFinished(
@@ -570,7 +577,7 @@ public:
                     mCamera.UndoPositionChange();
                 }
 
-                mGameState.SetPostGDSEventFlags(encounter);
+                mGameState.Apply(BAK::State::SetPostGDSEventFlags, encounter);
                 mDynamicDialogScene.ResetDialogFinished();
             });
 

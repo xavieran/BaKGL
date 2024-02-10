@@ -260,7 +260,7 @@ private:
         }
         else
         {
-            if (mGameState.CheckLockSeen(*lockIndex))
+            if (mGameState.Apply(BAK::State::CheckLockHasBeenSeen, *lockIndex))
             {
                 const auto item = BAK::GetCorrespondingKey(*lockIndex);
                 if (mGameState.GetParty().HaveItem(item))
@@ -277,7 +277,7 @@ private:
             }
         }
 
-        mGameState.SetDialogContext(context);
+        mGameState.SetDialogContext_7530(context);
         mGuiManager.StartDialog(
             dialog,
             false,
@@ -352,7 +352,7 @@ private:
                 AudioA::AudioManager::Get().PlaySound(sOpenLockSound);
                 // succeeded..
                 ASSERT(BAK::GetLockIndex(lockRating));
-                mGameState.MarkLockSeen(*BAK::GetLockIndex(lockRating));
+                mGameState.Apply(BAK::State::SetLockHasBeenSeen, *BAK::GetLockIndex(lockRating));
                 //mLock.SetUnlocked();
                 mGuiManager.AddAnimator(
                     std::make_unique<LinearAnimator>(
@@ -387,7 +387,7 @@ private:
 
         if (!mUnlocked)
         {
-            mGameState.SetDialogContext(context);
+            mGameState.SetDialogContext_7530(context);
             mGuiManager.StartDialog(
                 dialog,
                 false,
@@ -398,7 +398,7 @@ private:
 
     void Unlocked(BAK::KeyTarget dialog)
     {
-        mGameState.SetDialogContext(0);
+        mGameState.SetDialogContext_7530(0);
         mDialogScene.SetDialogFinished(
             [this](const auto&)
             {

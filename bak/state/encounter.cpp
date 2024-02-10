@@ -9,7 +9,7 @@ namespace BAK::State {
 
 // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
 // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
-bool CheckActive(
+bool CheckEncounterActive(
     FileBuffer& fb,
     const Encounter::Encounter& encounter,
     ZoneNumber zone) 

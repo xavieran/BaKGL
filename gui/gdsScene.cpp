@@ -149,10 +149,6 @@ GDSScene::GDSScene(
     mLogger.Debug() << "Constructed @" << std::hex << this << std::dec << "\n";
 }
 
-void GDSScene::SetTempleSeen()
-{
-}
-
 void GDSScene::EnterGDSScene()
 {
     unsigned count = 0;
@@ -160,7 +156,7 @@ void GDSScene::EnterGDSScene()
     {
         if (hotspot.IsActive(mGameState) && hotspot.mAction == BAK::HotspotAction::TELEPORT)
         {
-            mGameState.SetTempleSeen(mSceneHotspots.mTempleIndex);
+            mGameState.Apply(BAK::State::SetTempleSeen, mSceneHotspots.mTempleIndex);
         }
         if (hotspot.IsActive(mGameState) && hotspot.EvaluateImmediately())
         {

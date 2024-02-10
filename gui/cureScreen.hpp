@@ -81,7 +81,7 @@ public:
                     .GetParty()
                     .GetCharacter(BAK::ActiveCharIndex{mSelectedCharacter})
                     .GetIndex();
-                mGameState.SetDialogContext(character.mValue);
+                mGameState.SetDialogContext_7530(character.mValue);
                 mGuiManager.StartDialog(
                     BAK::DialogSources::mCharacterFlavourDialog, false, false, this);
             }

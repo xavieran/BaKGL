@@ -194,7 +194,7 @@ private:
         mDots[sleepTil].SetHighlighted();
 
         mGameState.SetItemValue(GetInnCost());
-        mGameState.SetDialogContext(haveSlept);
+        mGameState.SetDialogContext_7530(haveSlept);
         mGuiManager.StartDialog(
             BAK::DialogSources::mInnDialog, false, false, this);
     }

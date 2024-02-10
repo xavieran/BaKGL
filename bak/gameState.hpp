@@ -116,21 +116,12 @@ public:
 
     unsigned GetEventState(unsigned eventPtr) const;
     bool GetEventStateBool(unsigned eventPtr) const;
-    bool CheckInhibited(const ConversationChoice& choice);
-    bool CheckDiscussed(const ConversationChoice& choice);
     void MarkDiscussed(const ConversationChoice& choice);
-    bool CheckLockSeen(unsigned lockIndex);
-    void MarkLockSeen(unsigned lockIndex);
     void SetEventValue(unsigned eventPtr, unsigned value);
     void SetEventState(const SetFlag& setFlag);
-    void SetTempleSeen(unsigned temple);
-    bool GetTempleSeen(unsigned temple) const;
     bool GetMoreThanOneTempleSeen() const;
-    bool CheckEncounterActive(const Encounter::Encounter& encounter);
-    void SetPostDialogEventFlags(const Encounter::Encounter& encounter);
-    void SetPostGDSEventFlags(const Encounter::Encounter& encounter);
-    void SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter);
-    void SetDialogContext(unsigned contextValue);
+
+    void SetDialogContext_7530(unsigned contextValue);
     void SetItemValue(Royals value);
     void SetInventoryItem(const InventoryItem& item);
     void ClearUnseenImprovements(unsigned character);
@@ -158,7 +149,7 @@ public:
 
     GameData* mGameData;
     Party mParty;
-    unsigned mContextValue;
+    unsigned mContextValue_7530;
     unsigned mShopType;
     Royals mItemValue;
     unsigned mSkillValue;

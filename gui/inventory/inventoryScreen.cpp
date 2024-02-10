@@ -356,7 +356,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
     }
     else
     {
-        mGameState.SetDialogContext(1);
+        mGameState.SetDialogContext_7530(1);
         mGameState.SetActiveCharacter(
             GetCharacter(dest).mCharacterIndex);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
@@ -487,7 +487,7 @@ void InventoryScreen::TransferItemToShop(
     }
     else if (false) // Shop has no room for item, what triggers this??
     {
-        mGameState.SetDialogContext(0xa);
+        mGameState.SetDialogContext_7530(0xa);
         mGameState.SetActiveCharacter(
             GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
@@ -546,7 +546,7 @@ void InventoryScreen::TransferItemFromShopToCharacter(
     }
     else
     {
-        mGameState.SetDialogContext(0xb);
+        mGameState.SetDialogContext_7530(0xb);
         mGameState.SetActiveCharacter(
             GetCharacter(character).mCharacterIndex);
         StartDialog(BAK::DialogSources::mContainerHasNoRoomForItem);
@@ -829,7 +829,7 @@ void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
     }
     if (result.mDialogContext)
     {
-        mGameState.SetDialogContext(*result.mDialogContext);
+        mGameState.SetDialogContext_7530(*result.mDialogContext);
     }
     StartDialog(result.mDialog);
 
@@ -841,7 +841,7 @@ void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex
     ASSERT(mSelectedCharacter);
     auto& character = GetCharacter(*mSelectedCharacter) ;
     mGameState.SetInventoryItem(sourceItemSlot.GetItem());
-    mGameState.SetDialogContext(sourceItemSlot.GetItem().GetItemIndex().mValue);
+    mGameState.SetDialogContext_7530(sourceItemSlot.GetItem().GetItemIndex().mValue);
     mGameState.GetTextVariableStore().SetTextVariable(1, sourceItemSlot.GetItem().GetObject().mName);
     mGameState.SetActiveCharacter(character.mCharacterIndex);
     const auto result = BAK::ApplyItemTo(character, sourceItemSlot.GetItemIndex(), targetItemIndex);

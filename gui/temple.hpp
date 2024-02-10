@@ -59,7 +59,7 @@ public:
         mTarget = keyTarget;
         mState = State::Idle;
         mTempleNumber = templeIndex;
-        mGameState.SetDialogContext(templeIndex);
+        mGameState.SetDialogContext_7530(templeIndex);
         mGuiManager.StartDialog(keyTarget, false, false, this);
     }
 
@@ -229,11 +229,11 @@ private:
             mState = State::BlessChosen;
             if (mItem->IsItemType(BAK::ItemType::Sword))
             {
-                mGameState.SetDialogContext(0);
+                mGameState.SetDialogContext_7530(0);
             }
             else
             {
-                mGameState.SetDialogContext(1);
+                mGameState.SetDialogContext_7530(1);
             }
             StartDialog(BAK::DialogSources::mBlessDialogCost);
         }

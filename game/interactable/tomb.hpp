@@ -46,7 +46,7 @@ public:
     void BeginInteraction(BAK::GenericContainer& tomb, BAK::EntityType) override
     {
         mCurrentTomb = &tomb;
-        mGameState.SetDialogContext(0);
+        mGameState.SetDialogContext_7530(0);
         ASSERT(mState == State::Idle);
 
         // All tombs should have dialog

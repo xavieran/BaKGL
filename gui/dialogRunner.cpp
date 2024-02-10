@@ -290,7 +290,7 @@ void DialogRunner::MakeChoice(BAK::ChoiceIndex choice)
         evaluate_if<BAK::ConversationChoice>(
             it->mChoice,
             [&](const auto& c){
-                mGameState.MarkDiscussed(c);
+                mGameState.Apply(BAK::State::SetConversationItemClicked, c.mEventPointer);
             });
 
         mTargetStack.push(it->mTarget);
@@ -313,9 +313,9 @@ void DialogRunner::ShowDialogChoices()
         {
             const auto choice = std::get<BAK::ConversationChoice>(c.mChoice);
             if (mGameState.GetEventStateBool(choice.mEventPointer)
-                && !mGameState.CheckInhibited(choice))
+                && !mGameState.Apply(BAK::State::CheckConversationOptionInhibited, choice.mEventPointer))
             {
-                const auto fontStyle = mGameState.CheckDiscussed(choice)
+                const auto fontStyle = mGameState.Apply(BAK::State::ReadConversationItemClicked, choice.mEventPointer)
                     ? '\xf4' // unbold
                     : '#';
                 choices.emplace_back(

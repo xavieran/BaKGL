@@ -52,7 +52,7 @@ public:
 
         mCurrentChest = &chest;
 
-        mGameState.SetDialogContext(0);
+        mGameState.SetDialogContext_7530(0);
 
         mState = State::OpenChest;
         if (!chest.HasLock())

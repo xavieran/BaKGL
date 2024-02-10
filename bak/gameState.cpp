@@ -30,7 +30,7 @@ GameState::GameState(
                 Conditions{},
                 Inventory{5}}},
         std::vector<CharIndex>{CharIndex{0}}},
-    mContextValue{0},
+    mContextValue_7530{0},
     mShopType{0},
     mItemValue{0},
     mSkillValue{0},
@@ -652,7 +652,7 @@ bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
     }
     else if (choice.mState == BAK::ActiveStateFlag::Context)
     {
-        return mContextValue == choice.mExpectedValue;
+        return mContextValue_7530 == choice.mExpectedValue;
     }
     else if (choice.mState == BAK::ActiveStateFlag::CantAfford)
     {
@@ -814,49 +814,6 @@ bool GameState::GetEventStateBool(unsigned eventPtr) const
     return (GetEventState(eventPtr) & 0x1) == 1;
 }
 
-bool GameState::CheckInhibited(const ConversationChoice& choice)
-{
-    if (mGameData != nullptr)
-    {
-        return State::CheckConversationOptionInhibited(
-            mGameData->GetFileBuffer(),
-            choice.mEventPointer);
-    }
-    return false;
-}
-
-bool GameState::CheckDiscussed(const ConversationChoice& choice)
-{
-    if (mGameData != nullptr)
-    {
-        return State::ReadConversationItemClicked(
-            mGameData->GetFileBuffer(),
-            choice.mEventPointer);
-    }
-    return false;
-}
-
-void GameState::MarkDiscussed(const ConversationChoice& choice)
-{
-    if (mGameData)
-        State::SetConversationItemClicked(
-            mGameData->GetFileBuffer(),
-            choice.mEventPointer);
-}
-
-bool GameState::CheckLockSeen(unsigned lockIndex)
-{
-    if (mGameData)
-        return State::CheckLockHasBeenSeen(mGameData->GetFileBuffer(), lockIndex);
-    return false;
-}
-
-void GameState::MarkLockSeen(unsigned lockIndex)
-{
-    if (mGameData)
-        State::SetLockHasBeenSeen(mGameData->GetFileBuffer(), lockIndex);
-}
-
 void GameState::SetEventValue(unsigned eventPtr, unsigned value)
 {
     if (mGameData)
@@ -869,19 +826,6 @@ void GameState::SetEventState(const SetFlag& setFlag)
         State::SetEventDialogAction(mGameData->GetFileBuffer(), setFlag);
 }
 
-void GameState::SetTempleSeen(unsigned temple)
-{
-    if (mGameData)
-        State::SetTempleSeen(mGameData->GetFileBuffer(), temple);
-}
-
-bool GameState::GetTempleSeen(unsigned temple) const
-{
-    if (mGameData)
-        return State::ReadTempleSeen(mGameData->GetFileBuffer(), temple);
-    return true;
-}
-
 bool GameState::GetMoreThanOneTempleSeen() const
 {
     if (mGameData)
@@ -889,43 +833,16 @@ bool GameState::GetMoreThanOneTempleSeen() const
         unsigned templesSeen = 0;
         for (unsigned i = 1; i < 13; i++)
         {
-            templesSeen += GetTempleSeen(i);
+            templesSeen += BAK::State::ReadTempleSeen(mGameData->GetFileBuffer(), i);
         }
         return templesSeen > 1;
     }
     return true;
 }
 
-bool GameState::CheckEncounterActive(const Encounter::Encounter& encounter)
+void GameState::SetDialogContext_7530(unsigned contextValue)
 {
-     if (!mGameData) return true;
-     return State::CheckActive(mGameData->GetFileBuffer(), encounter, mZone);
-}
-
-void GameState::SetPostDialogEventFlags(const Encounter::Encounter& encounter)
-{
-    if (mGameData)
-        State::SetPostDialogEventFlags(
-            mGameData->GetFileBuffer(),
-            encounter,
-            mZone);
-}
-
-void GameState::SetPostGDSEventFlags(const Encounter::Encounter& encounter)
-{
-    if (mGameData)
-        State::SetPostGDSEventFlags(mGameData->GetFileBuffer(), encounter);
-}
-
-void GameState::SetPostEnableOrDisableEventFlags(const Encounter::Encounter& encounter)
-{
-    if (mGameData)
-        State::SetPostEnableOrDisableEventFlags(mGameData->GetFileBuffer(), encounter, mZone);
-}
-
-void GameState::SetDialogContext(unsigned contextValue)
-{
-    mContextValue = contextValue;
+    mContextValue_7530 = contextValue;
 }
 
 void GameState::SetItemValue(Royals value)

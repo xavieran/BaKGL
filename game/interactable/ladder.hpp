@@ -44,7 +44,7 @@ public:
         ASSERT(mState == State::Idle);
 
         mCurrentLadder = &ladder;
-        mGameState.SetDialogContext(3);
+        mGameState.SetDialogContext_7530(3);
 
         // All ladders should have dialog and a lock
         ASSERT(mCurrentLadder->HasLock())
