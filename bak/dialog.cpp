@@ -156,6 +156,15 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                     zero,
                     value});
         } break;
+        case DialogResult::LoadActor:
+        {
+            const auto a1= fb.GetUint16LE();
+            const auto a2 = fb.GetUint16LE();
+            const auto a3 = fb.GetUint16LE();
+            const auto un = fb.GetUint16LE();
+            mActions.emplace_back(
+                LoadActor{a1, a2, a3, un});
+        } break;
         case DialogResult::SetPopupDimensions:
         {
             const auto posX = fb.GetUint16LE();

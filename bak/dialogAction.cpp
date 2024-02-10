@@ -14,6 +14,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::GiveItem: return os << "GiveItem";
         case DialogResult::LoseItem: return os << "LoseItem";
         case DialogResult::SetFlag: return os << "SetFlag";
+        case DialogResult::LoadActor: return os << "LoadActor";
         case DialogResult::SetPopupDimensions: return os << "SetPopupDimensions";
         case DialogResult::SpecialAction: return os << "SpecialAction";
         case DialogResult::GainCondition: return os << "GainCondition";
@@ -22,6 +23,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::PlaySound: return os << "PlaySound";
         case DialogResult::ElapseTime: return os << "ElapseTime";
         case DialogResult::SetAddResetState: return os << "SetAddResetState";
+        case DialogResult::FreeMemoryP: return os << "FreeMemoryP";
         case DialogResult::PushNextDialog: return os << "PushNextDialog";
         case DialogResult::UpdateCharacters: return os << "UpdateCharacters";
         case DialogResult::HealCharacters: return os << "HealCharacters";
@@ -110,6 +112,13 @@ std::ostream& operator<<(std::ostream& os, const SetFlag& action)
         << " mask: " << +action.mEventMask << " data: " << +action.mEventData
         << " z: " << action.mAlwaysZero << " val: " << action.mEventValue
         << std::dec << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const LoadActor& action)
+{
+    os << "LoadActor {Actors: (" << action.mActor1 << ", " << action.mActor2
+        << ", " << action.mActor3 << ") - " << action.mUnknown << ")}\n";
     return os;
 }
 

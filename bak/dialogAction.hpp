@@ -19,6 +19,7 @@ enum class DialogResult
     GiveItem        = 0x02,
     LoseItem        = 0x03,
     SetFlag         = 0x04,
+    LoadActor        = 0x05,
     SetPopupDimensions = 0x06,
     SpecialAction = 0x07,
     GainCondition = 0x08,
@@ -28,6 +29,9 @@ enum class DialogResult
     PlaySound  = 0x0c,
     ElapseTime = 0x0d,
     SetAddResetState = 0x0e,
+    // This seems irrelevant to us - calls a function which
+    // seems to reset some state and free memory
+    FreeMemoryP = 0x0f,
     PushNextDialog = 0x10,
     UpdateCharacters = 0x11,
     HealCharacters   = 0x12,
@@ -106,6 +110,18 @@ struct SetFlag
     std::uint8_t mEventData;
     std::uint16_t mAlwaysZero;
     std::uint16_t mEventValue;
+};
+
+// Unclear what this does. Modifying it in the DIAL_Z** files
+// and running the game seems to do nothing. It is definitely
+// related to the actor portrait index, but unclear how.
+// Maybe preloads palettes and images????
+struct LoadActor
+{
+    std::uint16_t mActor1;
+    std::uint16_t mActor2;
+    std::uint16_t mActor3;
+    std::uint16_t mUnknown;
 };
 
 struct SetPopupDimensions
@@ -250,6 +266,7 @@ using DialogAction = std::variant<
     GiveItem,
     LoseItem,
     SetFlag,
+    LoadActor,
     SetPopupDimensions,
     SpecialAction,
     GainCondition,
