@@ -561,10 +561,14 @@ ItemUseResult UseTorchOrRingOfPrandur(
             item.GetItemIndex().mValue,
             DialogSources::mItemUseFailure};
     }
-    else if (false) // isTorch && isChapter4 && zoneIs 12
+    else if (item.GetItemIndex() == sTorch
+        && gameState.GetChapter() == Chapter{4}
+        && gameState.GetZone() == ZoneNumber{11})
     {
-        // Do naptha caverns death dialog
-        return ItemUseResult{}; // 0x1b776e
+        return ItemUseResult{
+            std::nullopt,
+            item.GetItemIndex().mValue,
+            BAK::DialogSources::mLitTorchInNapthaCaverns};
     }
 
     item.SetActivated(true);

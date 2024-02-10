@@ -16,6 +16,13 @@
 
 namespace BAK {
 
+std::ostream& operator<<(std::ostream& os, const Location& l)
+{
+    os << "Location{ zone: " << l.mZone << " tile: " << l.mTile
+        << " Pos: " << l.mLocation << "\n";
+    return os;
+}
+
 GameData::GameData(const std::string& save)
 :
     mBuffer{FileBufferFactory::Get().CreateSaveBuffer(save)},

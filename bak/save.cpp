@@ -171,4 +171,13 @@ void Save(const SpellState& spells, FileBuffer& fb)
     fb.Seek(GameData::sActiveSpells);
     fb.PutUint16LE(spells.GetSpells());
 }
+
+void Save(Chapter chapter, FileBuffer& fb)
+{
+    fb.Seek(GameData::sChapterOffset);
+    fb.PutUint16LE(chapter.mValue);
+    // Chapter again..?
+    fb.Seek(0x64);
+    fb.PutUint16LE(chapter.mValue);
+}
 }

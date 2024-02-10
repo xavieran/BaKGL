@@ -85,7 +85,7 @@ public:
     static constexpr auto mCantDropFlamingTorch  = 0x1b775d;
     static constexpr auto mCantRepairItemFurther = KeyTarget{0x1b775e};
     static constexpr auto mCantConsumeMorePotion = KeyTarget{0x1b7760};
-    static constexpr auto mLitTorchInNapthaCaverns = 0x1b776e;
+    static constexpr auto mLitTorchInNapthaCaverns = KeyTarget{0x1b776e};
     static constexpr auto mInventoryInterfaceTooltips = 0x1b775a;
     static constexpr auto mInventoryInterfaceTooltips2 = 0x1b7751;
     static constexpr auto mPartyFundsTooltip = 0x1b7762;

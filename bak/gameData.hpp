@@ -34,6 +34,8 @@ struct Location
     GamePositionAndHeading mLocation;
 };
 
+std::ostream& operator<<(std::ostream& os, const Location&);
+
 class GameData
 {   
 public:

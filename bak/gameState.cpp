@@ -36,7 +36,7 @@ GameState::GameState(
     mSkillValue{0},
     mSelectedItem{},
     mCurrentMonster{},
-    mChapter{7},
+    mChapter{1},
     mZone{1},
     mEndOfDialogState{0},
     mContainers{},
@@ -67,6 +67,7 @@ void GameState::LoadGameData(GameData* gameData)
     mTimeExpiringState = mGameData->LoadTimeExpiringState();
     mSpellState = mGameData->LoadSpells();
     mZone = ZoneNumber{mGameData->mLocation.mZone};
+    mChapter = mGameData->mChapter;
 }
 
 const Party& GameState::GetParty() const
@@ -117,17 +118,11 @@ TextVariableStore& GameState::GetTextVariableStore() { return mTextVariableStore
 
 void GameState::SetChapter(Chapter chapter)
 {
-    if (mGameData)
-        mGameData->mChapter = chapter;
-    else
-        mChapter = chapter;
+    mChapter = chapter;
 }
 
 Chapter GameState::GetChapter() const
 {
-    if (mGameData)
-        return mGameData->mChapter;
-
     return mChapter;
 }
 
@@ -141,6 +136,7 @@ Royals GameState::GetMoney() const
 
 void GameState::SetLocation(BAK::Location loc)
 {
+    mLogger.Debug() << "SetLocation to: " << loc << "\n";
     mZone = ZoneNumber{loc.mZone};
     if (mGameData)
     {
@@ -170,10 +166,6 @@ BAK::GamePositionAndHeading GameState::GetLocation() const
 
 ZoneNumber GameState::GetZone() const
 {
-    if (mGameData)
-    {
-        return ZoneNumber{mGameData->mLocation.mZone};
-    }
     return mZone;
 }
 
@@ -972,6 +964,7 @@ bool GameState::SaveState()
                 BAK::Save(container, mGameData->GetFileBuffer());
         BAK::Save(mTimeExpiringState, mGameData->GetFileBuffer());
         BAK::Save(mSpellState, mGameData->GetFileBuffer());
+        BAK::Save(mChapter, mGameData->GetFileBuffer());
         return true;
     }
     return false;

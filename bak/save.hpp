@@ -16,5 +16,6 @@ void Save(const Party&, FileBuffer&);
 void Save(const WorldClock&, FileBuffer&);
 void Save(const std::vector<TimeExpiringState>& storage, FileBuffer& fb);
 void Save(const SpellState& spells, FileBuffer& fb);
+void Save(Chapter chapter, FileBuffer& fb);
 
 }
