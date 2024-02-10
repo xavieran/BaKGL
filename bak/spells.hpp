@@ -467,6 +467,7 @@ public:
     {
         return mSpells;
     }
+
 private:
     std::uint16_t mSpells;
 };

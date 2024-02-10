@@ -587,30 +587,43 @@ ItemUseResult UseTorchOrRingOfPrandur(
 
 ItemUseResult UseCupOfRlnnSkrr(
     GameState& gameState,
-    Character& character,
-    InventoryIndex inventoryIndex)
+    const InventoryItem& item)
 {
-    auto& item = character.GetInventory().GetAtIndex(inventoryIndex);
-    return ItemUseResult{
-        item.GetItemUseSound(),
-        std::nullopt,
-        KeyTarget{0}};
-
-    /*
-    auto& pug = FindCharacter(pug);
-    auto random = GetRandomNumber(0, 0xfff) % 0x2d;
-    learned = pug.LearnSpell(0x3f20, random);
-    if (!learned)
-        doAboveAgain
-    contextVar_753b_value = learnedSpell
-    for (unsigned i = 0; i < 3; i++)
-    { // share all the spells owyn and pug know
-        dx = *((i << 1) + 0x3ec3)
-        dx |= *((i << 1) + 0x3f22)
-        *((i << 1) + 0x3ec3) = dx;
-        *((i << 1) + 0x3f22) = dx;
+    const auto pugIndex = gameState.GetParty().FindActiveCharacter(Pug);
+    if (!pugIndex)
+    {
+        return ItemUseResult{
+            std::nullopt,
+            item.GetItemIndex().mValue,
+            DialogSources::mItemUseFailure};
     }
-    */
+
+    auto& pug = gameState.GetParty().GetCharacter(*pugIndex);
+    auto randomSpell = SpellIndex{GetRandomNumber(0, 0xfff) % 0x2d};
+    if (pug.GetSpells().HaveSpell(randomSpell))
+    {
+        randomSpell = SpellIndex{GetRandomNumber(0, 0xfff) % 0x2d};
+    }
+    //contextVar_753b_value = learnedSpell
+    pug.GetSpells().SetSpell(randomSpell);
+
+    auto& owyn = gameState.GetParty().GetCharacter(Owyn);
+    const auto pugSpells = pug.GetSpells().GetSpellBytes();
+    const auto owynSpells = owyn.GetSpells().GetSpellBytes();
+    const auto allSpells = pugSpells | owynSpells;
+    for (unsigned i = 0; i < 0x2d; i++)
+    {
+        if (((1 << i) & allSpells) != 0)
+        {
+            pug.GetSpells().SetSpell(SpellIndex{i});
+            owyn.GetSpells().SetSpell(SpellIndex{i});
+        }
+    }
+
+    return ItemUseResult{
+        std::nullopt, // sound is in the dialog text not here
+        item.GetItemIndex().mValue,
+        DialogSources::mItemUseSucessful};
 }
  
 ItemUseResult UsePotion(
@@ -733,6 +746,10 @@ ItemUseResult UseItem(
     else if (item.GetItemIndex() == sSilverthornAntiVenom)
     {
         return CurePoisoned(character, inventoryIndex);
+    }
+    else if (item.GetItemIndex() == sCupOfRlnnSkrr)
+    {
+        return UseCupOfRlnnSkrr(gameState, item);
     }
 
     return ItemUseResult{

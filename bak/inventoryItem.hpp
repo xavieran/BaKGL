@@ -246,7 +246,7 @@ public:
         return mods;
     }
 
-    std::pair<unsigned, unsigned> GetItemUseSound()
+    std::pair<unsigned, unsigned> GetItemUseSound() const
     {
         return std::make_pair(GetObject().mUseSound, GetObject().mSoundPlayTimes);
     }
