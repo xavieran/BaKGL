@@ -14,6 +14,7 @@
 
 #include "gui/animatorStore.hpp"
 #include "gui/camp/campScreen.hpp"
+#include "gui/cast/castScreen.hpp"
 #include "gui/cureScreen.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
@@ -107,6 +108,14 @@ public:
             mBackgrounds,
             mIcons,
             mFontManager.GetGameFont(),
+            mGameState
+        },
+        mCastScreen{
+            *this,
+            mBackgrounds,
+            mIcons,
+            mFontManager.GetGameFont(),
+            mFontManager.GetSpellFont(),
             mGameState
         },
         mCureScreen{
@@ -484,6 +493,19 @@ public:
         });
     }
 
+    void ShowCast(bool inCombat) override
+    {
+        mGuiScreens.push(GuiScreen{[this]{
+            mCursor.PopCursor();
+        }});
+
+        DoFade(.8, [this, inCombat]{
+            mScreenStack.PushScreen(&mCastScreen);
+            mCursor.PushCursor(0);
+            mCastScreen.BeginCast(inCombat);
+        });
+    }
+
     void ShowFullMap() override
     {
         DoFade(.8, [this]{
@@ -572,6 +594,7 @@ public:
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
     Camp::CampScreen mCampScreen;
+    Cast::CastScreen mCastScreen;
     CureScreen mCureScreen;
     LockScreen mLockScreen;
     FullMap mFullMap;

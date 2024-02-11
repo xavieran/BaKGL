@@ -383,24 +383,6 @@ private:
         mGuiManager.DoFade(.8, [this]{mGuiManager.ExitLock(); });
     }
 
-    std::string GetButtonText(unsigned button) const
-    {
-        if (button == sCampUntilHealed)
-        {
-            return "Camp until Healed";
-        }
-        else if (button == sStop)
-        {
-            return "Stop";
-        }
-        else if (button == sExit)
-        {
-            return "Exit";
-        }
-        assert(false);
-        return "";
-    }
-
     void AddChildren()
     {
         ClearChildren();

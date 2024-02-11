@@ -10,7 +10,7 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("DialogStore");
     
     BAK::SpellDatabase::Get();
-    BAK::PowerRing{};
+    BAK::PowerRing::Get();
 
     for (unsigned i = 0; i < 6; i++)
     {

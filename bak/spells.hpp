@@ -387,6 +387,17 @@ private:
 class PowerRing
 {
 public:
+    static const PowerRing& Get()
+    {
+        static auto ring = PowerRing{};
+        return ring;
+    }
+
+    const auto& GetPoints() const
+    {
+        return mPoints;
+    }
+private:
     PowerRing()
     {
         auto fb = FileBufferFactory::Get().CreateDataBuffer("RING.DAT");
@@ -399,12 +410,6 @@ public:
             mPoints.emplace_back(pos);
         }
     }
-
-    const auto& GetPoints() const
-    {
-        return mPoints;
-    }
-private:
     std::vector<glm::vec<2, std::uint16_t>> mPoints;
 };
 
