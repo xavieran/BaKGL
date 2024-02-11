@@ -52,7 +52,7 @@ public:
         Dialog
     };
 
-    void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot);
+    void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool);
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot);
 
     void StartDialog(BAK::Target target, bool isTooltip);
@@ -76,6 +76,7 @@ public:
     std::vector<StaticTTM> mStaticTTMs;
 
     std::vector<Hotspot> mHotspots;
+    std::vector<bool> mHotspotClicked;
 
     Cursor& mCursor;
     IGuiManager& mGuiManager;
