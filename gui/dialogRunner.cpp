@@ -193,14 +193,18 @@ void DialogRunner::DisplaySnippet()
 {
     std::string text{};
     if (!mRemainingText.empty())
+    {
         text = mRemainingText;
+    }
     else
     {
         text = GetSnippet().GetText();
         // Bit hacky: Add an extra line to ensure enough room to
         // display the query choice
         if (GetSnippet().IsQueryChoice())
+        {
             text += "\n";
+        }
     }
     auto nullDialog = NullDialogScene{};
 
@@ -208,7 +212,8 @@ void DialogRunner::DisplaySnippet()
         mDialogScene ? *mDialogScene : nullDialog,
         GetSnippet(),
         text,
-        mInWorldView);
+        mInWorldView,
+        mDialogState.mMousePos);
     mTextDims = textDims;
     mRemainingText = rem;
 }

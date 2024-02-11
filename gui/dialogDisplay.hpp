@@ -11,6 +11,7 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
+#include "gui/button.hpp"
 #include "gui/colors.hpp"
 #include "gui/label.hpp"
 #include "gui/textBox.hpp"
@@ -26,7 +27,8 @@ enum class DialogFrame
     Fullscreen = 0,
     ActionArea = 1,
     ActionAreaInventory = 2,
-    LowerArea = 3
+    LowerArea = 3,
+    Popup = 4
 };
 
 class DialogDisplay : public Widget, IDialogDisplay
@@ -121,6 +123,18 @@ public:
             glm::vec2{0, 0},
             glm::vec2{285, 66}
         },
+        mPopup{
+            glm::vec2{},
+            glm::vec2{},
+            Color::buttonBackground,
+            Color::buttonHighlight,
+            Color::buttonShadow,
+            Color::black
+        },
+        mPopupText{
+            glm::vec2{},
+            glm::vec2{}
+        },
         mLogger{Logging::LogState::GetLogger("Gui::DialogDisplay")}
     {
         mFullscreenFrame.AddChildBack(&mFullscreenTextBox);
@@ -129,6 +143,8 @@ public:
 
         mActionAreaFrame.AddChildBack(&mActionAreaBackground);
         mActionAreaFrame.AddChildBack(&mActionAreaTextBox);
+
+        mPopup.AddChildBack(&mPopupText);
     }
 
     void ShowWorldViewPane(bool isInWorldView)
@@ -156,9 +172,21 @@ public:
         IDialogScene& dialogScene,
         const BAK::DialogSnippet& snippet,
         std::string_view remainingText,
-        bool isInWorldView)
+        bool isInWorldView,
+        glm::vec2 mousePos)
     {
         ClearChildren();
+
+        auto popup = snippet.GetPopup();
+        if (popup)
+        {
+            // Need a more reliable way of getting mouse pos
+            //mPopup.SetPosition(mousePos);
+            mPopup.SetPosition(popup->mDims);
+            mPopup.SetDimensions(popup->mDims);
+            mPopupText.SetPosition(glm::vec2{1});
+            mPopupText.SetDimensions(popup->mDims);
+        }
 
         std::string text{remainingText};
 
@@ -169,8 +197,10 @@ public:
         const auto ds3 = snippet.mDisplayStyle3;
         const auto act = snippet.mActor;
 
-        const auto dialogFrame = std::invoke([ds1, ds2, ds3, act]{
-            if (act != 0x0)
+        const auto dialogFrame = std::invoke([&]{
+            if (popup)
+                return DialogFrame::Popup;
+            else if (act != 0x0)
                 return DialogFrame::LowerArea;
             else if (ds1 == 0x06)
                 return DialogFrame::Fullscreen;
@@ -222,7 +252,7 @@ public:
         ASSERT(flavourText != text.end());
         const auto remainingText = std::string{flavourText, text.end()};
         auto nullScene = NullDialogScene{};
-        DisplaySnippet(nullScene, snippet, remainingText, false);
+        DisplaySnippet(nullScene, snippet, remainingText, false, glm::vec2{});
 
         const auto label = std::string{text.begin(), flavourText};
         AddLabel(label);
@@ -310,6 +340,13 @@ private:
             // the subtraction of 10 is a hack to stop the buttons getting displayed half off the bottom of the screen... not ideal
             return std::make_pair<glm::vec2, std::string_view>(charPos + mLowerFrame.GetTopLeft() - glm::vec2{0, 10}, std::move(remaining));
         } break;
+        case DialogFrame::Popup:
+        {
+            AddChildBack(&mPopup);
+            auto [charPos, remaining] = mPopupText.SetText(mFont, text, true, true);
+            // probably not required...
+            return std::make_pair<glm::vec2, std::string_view>(charPos + mPopup.GetTopLeft() - glm::vec2{0, 10}, std::move(remaining));
+        }   break;
         default:
             throw std::runtime_error("Invalid DialogArea");
         }
@@ -357,6 +394,8 @@ private:
     TextBox mFullscreenTextBox;
     TextBox mActionAreaTextBox;
     TextBox mLowerTextBox;
+    Button mPopup;
+    TextBox mPopupText;
 
     const Logging::Logger& mLogger;
 };
