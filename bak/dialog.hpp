@@ -10,8 +10,8 @@
 
 #include "bak/fileBufferFactory.hpp"
 
-#include <iomanip>
-#include <ostream>
+#include <iosfwd>
+#include <optional>
 #include <unordered_map>
 
 namespace BAK {
