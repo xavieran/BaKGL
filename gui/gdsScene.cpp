@@ -39,7 +39,7 @@ GDSScene::GDSScene(
         BAK::FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
     mSong{mSceneHotspots.mSong},
-    mFlavourText{BAK::KeyTarget{0x00000}},
+    mFlavourText{BAK::KeyTarget{0x0}},
     mSpriteSheet{GetDrawInfo().mSpriteSheet},
     mSpriteManager{spriteManager},
     // bitofa hack - all gds scenes have such a frame
@@ -54,6 +54,7 @@ GDSScene::GDSScene(
         false},
     mStaticTTMs{},
     mHotspots{},
+    mHotspotClicked{},
     mCursor{cursor},
     mGuiManager{guiManager},
     mDialogDisplay{
@@ -116,15 +117,21 @@ GDSScene::GDSScene(
 
     // Want our refs to be stable..
     mHotspots.reserve(mSceneHotspots.mHotspots.size());
-    for (const auto& hs : mSceneHotspots.mHotspots)
+    mHotspotClicked.reserve(mSceneHotspots.mHotspots.size());
+    for (unsigned i = 0; i < mSceneHotspots.mHotspots.size(); i++)
     {
+        mHotspotClicked.emplace_back(false);
+        auto& hs = mSceneHotspots.mHotspots[i];
         const auto isActive = hs.IsActive(mGameState);
         mLogger.Debug() << "Checked HS: " << hs.mHotspot << " " << isActive << "\n";
         if (isActive)
         {
             mHotspots.emplace_back(
-                [this, hs](){
-                    HandleHotspotLeftClicked(hs);
+                [this, hs, i](){
+                    mLogger.Debug() << "Clicked : " << hs.mHotspot << std::endl;
+                    const bool clicked = mHotspotClicked[i];
+                    mHotspotClicked[i] = true;
+                    HandleHotspotLeftClicked(hs, clicked);
                 },
                 [this, hs](){
                     HandleHotspotRightClicked(hs);
@@ -142,7 +149,7 @@ GDSScene::GDSScene(
 
     DisplayNPCBackground();
 
-    if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
+    if (mFlavourText != BAK::Target{BAK::KeyTarget{0}})
         mDialogDisplay.ShowFlavourText(mFlavourText);
     AddChildBack(&mDialogDisplay);
 
@@ -161,7 +168,7 @@ void GDSScene::EnterGDSScene()
         if (hotspot.IsActive(mGameState) && hotspot.EvaluateImmediately())
         {
             count++;
-            HandleHotspotLeftClicked(hotspot);
+            HandleHotspotLeftClicked(hotspot, false);
         }
     }
     ASSERT(count <= 1);
@@ -181,19 +188,21 @@ void GDSScene::DisplayPlayerBackground()
     mFrame.AddChildBack(mStaticTTMs.back().GetBackground());
 }
 
-void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot)
+void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspotClicked)
 { 
     mLogger.Debug() << "Hotspot: " << hotspot << "\n"
-        << "Tele: " << (mState == State::Teleport) << "\n";;
+        << "Tele: " << (mState == State::Teleport) << "\n";
 
     if (hotspot.mAction == BAK::HotspotAction::DIALOG)
     {
+        mGameState.SetDialogContext_7530(hotspotClicked);
         if (hotspot.mActionArg2 != 0x0)
         {
             const auto& scene1 = mSceneHotspots.GetScene(
                 mSceneHotspots.mSceneIndex1, mGameState);
             const auto& scene2 = mSceneHotspots.GetScene(
                 hotspot.mActionArg2, mGameState);
+
 
             // respect the earlier reserve
             ASSERT(mStaticTTMs.size () < mMaxSceneNesting);
