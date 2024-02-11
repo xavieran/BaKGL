@@ -6,11 +6,12 @@
 #include "bak/resourceNames.hpp"
 
 #include "com/logger.hpp"
+#include "com/visit.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 
-#include <iomanip>
-#include <ostream>
+#include <iosfwd>
+#include <optional>
 #include <unordered_map>
 
 namespace BAK {
@@ -76,6 +77,17 @@ public:
     bool IsDialogChoice() const { return mDisplayStyle3 == 0x4; }
     bool IsRandomChoice() const { return mDisplayStyle3 == 0x8; }
     bool IsDisplayable()  const { return !mText.empty() || IsDialogChoice(); }
+    std::optional<SetPopupDimensions> GetPopup() const
+    {
+        std::optional<SetPopupDimensions> popup{};
+        for (const auto& action : mActions)
+        {
+            evaluate_if<SetPopupDimensions>(
+                action,
+                [&popup](const auto& action) { popup = action; });
+        }
+        return popup;
+    }
 
     // Display Style One - where to display text
     // 0x00 -> Center of full screen
