@@ -38,8 +38,8 @@ public:
                 mSpellFont.GetSpriteSheet(),
                 static_cast<Graphics::TextureIndex>(
                     mSpellFont.GetFont().GetIndex(icon)),
-                Graphics::ColorMode::Texture,
-                glm::vec4{1.3f, 0.f, 0.f, 1.f},
+                Graphics::ColorMode::TintColor,
+                glm::vec4{1.0f, 0.f, 0.f, 1.f},
                 slot.mPosition,
                 glm::vec2{mSpellFont.GetFont().GetWidth(icon), mSpellFont.GetFont().GetHeight()},
                 true});
