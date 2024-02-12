@@ -72,7 +72,7 @@ public:
         },
         mIcons{icons},
         mCurrent{},
-        mCallback{selected}
+        mCallback{std::move(selected)}
     {
     }
 

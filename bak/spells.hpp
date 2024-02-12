@@ -30,6 +30,10 @@ static constexpr std::array<std::uint8_t, 6> sStaticSpellMapping = {
     30, 31, 32, 34, 33, 35
 };
 
+std::ostream& operator<<(std::ostream&, StaticSpells);
+
+StaticSpells ToStaticSpell(SpellIndex);
+
 enum class SpellCalculationType
 {
     NonCostRelated,
@@ -42,10 +46,6 @@ enum class SpellCalculationType
 
 std::string_view ToString(SpellCalculationType);
 std::ostream& operator<<(std::ostream&, SpellCalculationType);
-
-static constexpr auto DragonsBreath = SpellIndex{0};
-// actually this appears as index 8 in the SPELLS.DAT table... ???
-static constexpr auto ScentOfSarig = SpellIndex{5};
 
 class Spells
 {
@@ -465,7 +465,7 @@ public:
 
     void SetSpellState(StaticSpells spell, bool state)
     {
-        SetBit(mSpells, spell, state);
+        mSpells = SetBit(mSpells, spell, state);
     }
 
     std::uint16_t GetSpells() const

@@ -34,8 +34,8 @@ class CastScreen : public Widget, public NullDialogScene
     static constexpr auto sCombatLayoutFile = "SPELL.DAT";
     static constexpr auto sScreen = "CAST.SCX";
 
-    static constexpr auto sSymbol5 = 0;
-    static constexpr auto sSymbol6 = 1;
+    static constexpr auto sSymbol6 = 0;
+    static constexpr auto sSymbol5 = 1;
     static constexpr auto sExit = 6;
 
 public:
@@ -62,9 +62,15 @@ public:
         mGameState{gameState},
         mIcons{icons},
         mLayout{sLayoutFile},
-        mSymbol{spellFont},
-        mButtons{},
         mState{State::Idle},
+        mSymbol{
+            spellFont,
+            [&](auto spell){ HandleSpellClicked(spell); },
+            [&](auto spell, bool selected){ HandleSpellHighlighted(spell, selected); }},
+        mButtons{},
+        mSpellDesc{
+            glm::vec2{134, 18},
+            glm::vec2{176, 88}},
         mLogger{Logging::LogState::GetLogger("Gui::Cast")}
     {
         mButtons.reserve(mLayout.GetSize());
@@ -99,14 +105,7 @@ public:
     bool OnMouseEvent(const MouseEvent& event) override
     {
         bool handled = false;
-        //if (mState == State::Idle)
-        //{
-        //    for (auto& widget : mDots)
-        //    {
-        //        handled |= widget.OnMouseEvent(event);
-        //    }
-        //}
-
+        handled |= mSymbol.OnMouseEvent(event);
         for (auto& widget : mButtons)
         {
             handled |= widget.OnMouseEvent(event);
@@ -121,6 +120,38 @@ public:
     }
 
 private:
+    void HandleSpellClicked(BAK::SpellIndex spellIndex)
+    {
+        Logging::LogDebug(__FUNCTION__) << "(" << spellIndex << ")\n";
+        mGameState.CastStaticSpell(BAK::ToStaticSpell(spellIndex), BAK::Times::TwelveHours);
+    }
+
+    void HandleSpellHighlighted(BAK::SpellIndex spellIndex, bool selected)
+    {
+        Logging::LogDebug(__FUNCTION__) << "(" << spellIndex << ", " << selected << ")\n";
+        const auto& db = BAK::SpellDatabase::Get();
+        std::stringstream ss{};
+        if (selected)
+        {
+            const auto& doc = db.GetSpellDoc(spellIndex);
+            ss << doc.mTitle << "\n";
+            ss << "Cost: " << doc.mCost << "\n";
+            if (!doc.mDamage.empty()) ss << doc.mDamage << "\n";
+            if (!doc.mDuration.empty()) ss << doc.mDuration<< "\n";
+            //ss << "Line Of Sight: " << doc.mLineOfSight<< "\n";
+            ss << doc.mDescription << "\n";
+        }
+        else
+        {
+            for (const auto& spell : mSymbol.GetSpells())
+            {
+                ss << db.GetSpellName(spell.mSpell) << "\n";
+            }
+        }
+        mSpellDesc.SetText(mFont, ss.str(), true, true);
+        AddChildren();
+    }
+
     void Exit()
     {
         // exit lock happens to do exactly what I want.. should probably rename it
@@ -153,21 +184,21 @@ private:
         }
 
         AddChildBack(&mSymbol);
+        AddChildBack(&mSpellDesc);
     }
 
     IGuiManager& mGuiManager;
     const Font& mFont;
     BAK::GameState& mGameState;
     const Icons& mIcons;
-
     BAK::Layout mLayout;
 
-    Symbol mSymbol;
-    std::vector<ClickButtonImage> mButtons;
     State mState;
-    std::optional<unsigned> mTargetHour;
-    BAK::Time mTimeBeganCasting;
-    BAK::ShopStats* mShopStats;
+
+    Symbol mSymbol;
+
+    std::vector<ClickButtonImage> mButtons;
+    TextBox mSpellDesc;
 
     const Logging::Logger& mLogger;
 };
