@@ -124,19 +124,14 @@ public:
     void BeginCast(bool inCombat)
     {
         mInCombat = inCombat;
-        assert(mGameState.GetParty().GetSpellcaster());
-        if (mSymbol.GetSymbolIndex() == 0)
-        {
-            mSymbol.SetSymbol(mInCombat ? 3 : 5);
-            mSymbol.Hide();
-        }
-
-        SetActiveCharacter(*mGameState.GetParty().GetSpellcaster());
 
         if (mSymbol.GetSymbolIndex() == 0)
         {
             ChangeSymbol(mInCombat ? 3 : 5);
         }
+
+        assert(mGameState.GetParty().GetSpellcaster());
+        SetActiveCharacter(*mGameState.GetParty().GetSpellcaster());
     }
 
 private:
@@ -210,7 +205,10 @@ private:
             mSelectedCharacter = character;
             mGameState.SetActiveCharacter(mGameState.GetParty().GetCharacter(mSelectedCharacter).mCharacterIndex);
             mSymbol.SetActiveCharacter(character);
-            mSymbol.SetSymbol(mSymbol.GetSymbolIndex());
+            if (mSymbol.GetSymbolIndex() > 0)
+            {
+                mSymbol.SetSymbol(mSymbol.GetSymbolIndex());
+            }
             PrepareLayout();
             AddChildren();
         }
@@ -220,6 +218,11 @@ private:
     {
         Logging::LogDebug(__FUNCTION__) << "(" << spellIndex << ")\n";
         mGameState.CastStaticSpell(BAK::ToStaticSpell(spellIndex), BAK::Times::TwelveHours);
+        mGuiManager.StartDialog(
+            BAK::DialogSources::GetSpellCastDialog(static_cast<unsigned>(BAK::ToStaticSpell(spellIndex))),
+            false,
+            false,
+            this);
     }
 
     void HandleSpellHighlighted(BAK::SpellIndex spellIndex, bool selected)
@@ -239,11 +242,14 @@ private:
         }
         else
         {
-            for (const auto& spell : mSymbol.GetSpells())
+            if (mSymbol.GetSymbolIndex() > 0)
             {
-                if (mGameState.CanCastSpell(spell.mSpell, mSelectedCharacter))
+                for (const auto& spell : mSymbol.GetSpells())
                 {
-                    ss << db.GetSpellName(spell.mSpell) << "\n";
+                    if (mGameState.CanCastSpell(spell.mSpell, mSelectedCharacter))
+                    {
+                        ss << db.GetSpellName(spell.mSpell) << "\n";
+                    }
                 }
             }
         }
