@@ -9,6 +9,7 @@
 
 #include "gui/core/clickable.hpp"
 #include "gui/core/highlightable.hpp"
+#include "gui/core/line.hpp"
 
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
@@ -67,6 +68,8 @@ public:
             spellFont,
             [&](auto spell){ HandleSpellClicked(spell); },
             [&](auto spell, bool selected){ HandleSpellHighlighted(spell, selected); }},
+        mLines{
+        },
         mButtons{},
         mSpellDesc{
             glm::vec2{134, 18},
@@ -167,10 +170,23 @@ private:
         else if (i == sSymbol5)
         {
             mSymbol.SetSymbol(5);
+            auto points = BAK::SymbolLines::GetPoints(4);
+            mLines.clear();
+            for (unsigned i = 0; i < 6; i++)
+            {
+                mLines.emplace_back(points[i], points[(i + 1) % 6], 1);
+            }
+
         }
         else if (i == sSymbol6)
         {
             mSymbol.SetSymbol(6);
+            auto points = BAK::SymbolLines::GetPoints(5);
+            mLines.clear();
+            for (unsigned i = 0; i < 6; i++)
+            {
+                mLines.emplace_back(points[i], points[(i + 1) % 6], 1);
+            }
         }
         AddChildren();
     }
@@ -185,6 +201,10 @@ private:
 
         AddChildBack(&mSymbol);
         AddChildBack(&mSpellDesc);
+        for (auto& line : mLines)
+        {
+            AddChildBack(&line);
+        }
     }
 
     IGuiManager& mGuiManager;
@@ -197,6 +217,7 @@ private:
 
     Symbol mSymbol;
 
+    std::vector<Line> mLines;
     std::vector<ClickButtonImage> mButtons;
     TextBox mSpellDesc;
 

@@ -68,7 +68,7 @@ public:
     :
         Widget{
             RectTag{},
-            glm::vec2{0},
+            glm::vec2{-3, -3},
             glm::vec2{100,100},
             glm::vec4{},
             true
