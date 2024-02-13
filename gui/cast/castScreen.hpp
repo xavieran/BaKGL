@@ -125,10 +125,13 @@ public:
     {
         mInCombat = inCombat;
         assert(mGameState.GetParty().GetSpellcaster());
-        mSelectedCharacter = *mGameState.GetParty().GetSpellcaster();
-        mSymbol.SetActiveCharacter(mSelectedCharacter);
-        PrepareLayout();
-        AddChildren();
+        if (mSymbol.GetSymbolIndex() == 0)
+        {
+            mSymbol.SetSymbol(mInCombat ? 3 : 5);
+            mSymbol.Hide();
+        }
+
+        SetActiveCharacter(*mGameState.GetParty().GetSpellcaster());
 
         if (mSymbol.GetSymbolIndex() == 0)
         {
@@ -162,6 +165,12 @@ private:
                     SetActiveCharacter(character);
                 }
             );
+
+            if (mSelectedCharacter != person)
+            {
+                mButtons.back().SetColor(glm::vec4{.05, .05, .05, 1}); 
+                mButtons.back().SetColorMode(Graphics::ColorMode::TintColor);
+            }
             
             person = party.NextActiveCharacter(person);
         } while (person != BAK::ActiveCharIndex{0});
@@ -199,8 +208,11 @@ private:
         else
         {
             mSelectedCharacter = character;
+            mGameState.SetActiveCharacter(mGameState.GetParty().GetCharacter(mSelectedCharacter).mCharacterIndex);
             mSymbol.SetActiveCharacter(character);
             mSymbol.SetSymbol(mSymbol.GetSymbolIndex());
+            PrepareLayout();
+            AddChildren();
         }
     }
 
@@ -279,6 +291,8 @@ private:
     
     void ChangeSymbol(unsigned newSymbol)
     {
+        if (newSymbol == mSymbol.GetSymbolIndex()) return;
+
         mSymbol.Hide();
 
         const auto& points = BAK::SymbolLines::GetPoints(newSymbol - 1);
