@@ -27,8 +27,8 @@ public:
             RectTag{},
             pos,
             dim,
-            //glm::vec4{0},
-            glm::vec4{0,1,0,.3},
+            glm::vec4{0},
+            //glm::vec4{0,1,0,.3},
             true
         },
         mText{}

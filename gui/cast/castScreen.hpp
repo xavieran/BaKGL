@@ -2,11 +2,13 @@
 
 #include "bak/fileBufferFactory.hpp"
 #include "bak/layout.hpp"
+#include "bak/dialog.hpp"
 
 #include "graphics/texture.hpp"
 
 #include "gui/cast/symbol.hpp"
 
+#include "gui/animator.hpp"
 #include "gui/core/clickable.hpp"
 #include "gui/core/highlightable.hpp"
 #include "gui/core/line.hpp"
@@ -33,11 +35,18 @@ class CastScreen : public Widget, public NullDialogScene
     };
     static constexpr auto sLayoutFile = "REQ_CAST.DAT";
     static constexpr auto sCombatLayoutFile = "SPELL.DAT";
-    static constexpr auto sScreen = "CAST.SCX";
+    static constexpr auto sCastPanel = "CAST.SCX";
+    static constexpr auto sScreen = "CFRAME.SCX";
 
     static constexpr auto sSymbol6 = 0;
     static constexpr auto sSymbol5 = 1;
+    static constexpr auto sSymbol3 = 2;
+    static constexpr auto sSymbol4 = 3;
     static constexpr auto sExit = 6;
+
+    static constexpr auto sCharacterWidgetBegin = 7;
+
+    static constexpr auto sSymbolTransitionTimeSeconds = .5;
 
 public:
     CastScreen(
@@ -51,43 +60,39 @@ public:
         Widget{
             Graphics::DrawMode::Sprite,
             backgrounds.GetSpriteSheet(),
-            backgrounds.GetScreen(sScreen),
+            backgrounds.GetScreen(sCastPanel),
             Graphics::ColorMode::Texture,
             glm::vec4{1},
             glm::vec2{0},
             glm::vec2{320, 200},
             true
         },
+        mGameState{gameState},
         mGuiManager{guiManager},
         mFont{font},
-        mGameState{gameState},
         mIcons{icons},
         mLayout{sLayoutFile},
+        mCombatLayout{sCombatLayoutFile},
         mState{State::Idle},
+        mInCombat{true},
         mSymbol{
             spellFont,
+            mGameState,
             [&](auto spell){ HandleSpellClicked(spell); },
             [&](auto spell, bool selected){ HandleSpellHighlighted(spell, selected); }},
-        mLines{
-        },
+        mLines{},
         mButtons{},
         mSpellDesc{
             glm::vec2{134, 18},
             glm::vec2{176, 88}},
         mLogger{Logging::LogState::GetLogger("Gui::Cast")}
     {
-        mButtons.reserve(mLayout.GetSize());
-        for (unsigned i = 0; i < mLayout.GetSize(); i++)
+        for (unsigned i = 0; i < 6; i++)
         {
-            const auto& w = mLayout.GetWidget(i);
-            mButtons.emplace_back(
-                mLayout.GetWidgetLocation(i),
-                mLayout.GetWidgetDimensions(i),
-                std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(w.mImage)),
-                std::get<Graphics::TextureIndex>(mIcons.GetButton(w.mImage)),
-                std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(w.mImage)),
-                [this, i]{ HandleButton(i); },
-                []{});
+            mLines.emplace_back(
+                glm::vec2{72, 62.5},
+                glm::vec2{72, 62.5},
+                .5, glm::vec4{1,0,0,1});
         }
 
         /*
@@ -101,7 +106,6 @@ public:
             dot.SetCurrent(false);
         }
         */
-
         AddChildren();
     }
 
@@ -119,10 +123,87 @@ public:
 
     void BeginCast(bool inCombat)
     {
+        mInCombat = inCombat;
+        assert(mGameState.GetParty().GetSpellcaster());
+        mSelectedCharacter = *mGameState.GetParty().GetSpellcaster();
+        mSymbol.SetActiveCharacter(mSelectedCharacter);
+        PrepareLayout();
         AddChildren();
+
+        if (mSymbol.GetSymbolIndex() == 0)
+        {
+            ChangeSymbol(mInCombat ? 3 : 5);
+        }
     }
 
 private:
+    void PrepareLayout()
+    {
+        const auto& layout = mInCombat ? mCombatLayout : mLayout;
+        mButtons.clear();
+        mButtons.reserve(layout.GetSize());
+
+        auto& party = mGameState.GetParty();
+        BAK::ActiveCharIndex person{0};
+        do
+        {
+            const auto [spriteSheet, image, dimss] = mIcons.GetCharacterHead(
+                party.GetCharacter(person).GetIndex().mValue);
+            mButtons.emplace_back(
+                mLayout.GetWidgetLocation(person.mValue + sCharacterWidgetBegin),
+                mLayout.GetWidgetDimensions(person.mValue + sCharacterWidgetBegin),
+                spriteSheet,
+                image,
+                image,
+                [this, character=person]{
+                    SetActiveCharacter(character);
+                },
+                [this, character=person]{
+                    SetActiveCharacter(character);
+                }
+            );
+            
+            person = party.NextActiveCharacter(person);
+        } while (person != BAK::ActiveCharIndex{0});
+
+        for (unsigned i = 0; i < layout.GetSize(); i++)
+        {
+            const auto& w = layout.GetWidget(i);
+            if (w.mWidget == 0)
+            {
+                continue;
+            }
+            auto image = w.mImage;
+            if ((w.mImage < 35 || w.mImage > 39) && !(w.mImage == 55 || w.mImage == 56) && (w.mImage != 13))
+            {
+                image = 25;
+            }
+
+            mButtons.emplace_back(
+                layout.GetWidgetLocation(i),
+                layout.GetWidgetDimensions(i) + (mInCombat ? glm::vec2{2, 3} : glm::vec2{}),
+                std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(image)),
+                std::get<Graphics::TextureIndex>(mIcons.GetButton(image)),
+                std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(image)),
+                [this, i]{ HandleButton(i); },
+                []{});
+        }
+    }
+
+    void SetActiveCharacter(BAK::ActiveCharIndex character)
+    {
+        if (!mGameState.GetParty().GetCharacter(character).IsSpellcaster())
+        {
+            mGuiManager.StartDialog(BAK::DialogSources::mCharacterIsNotASpellcaster, false, false, this);
+        }
+        else
+        {
+            mSelectedCharacter = character;
+            mSymbol.SetActiveCharacter(character);
+            mSymbol.SetSymbol(mSymbol.GetSymbolIndex());
+        }
+    }
+
     void HandleSpellClicked(BAK::SpellIndex spellIndex)
     {
         Logging::LogDebug(__FUNCTION__) << "(" << spellIndex << ")\n";
@@ -148,7 +229,10 @@ private:
         {
             for (const auto& spell : mSymbol.GetSpells())
             {
-                ss << db.GetSpellName(spell.mSpell) << "\n";
+                if (mGameState.CanCastSpell(spell.mSpell, mSelectedCharacter))
+                {
+                    ss << db.GetSpellName(spell.mSpell) << "\n";
+                }
             }
         }
         mSpellDesc.SetText(mFont, ss.str(), true, true);
@@ -169,26 +253,59 @@ private:
         }
         else if (i == sSymbol5)
         {
-            mSymbol.SetSymbol(5);
-            auto points = BAK::SymbolLines::GetPoints(4);
-            mLines.clear();
-            for (unsigned i = 0; i < 6; i++)
-            {
-                mLines.emplace_back(points[i], points[(i + 1) % 6], 1);
-            }
-
+            if (mInCombat)
+                ChangeSymbol(3);
+            else
+                ChangeSymbol(5);
         }
         else if (i == sSymbol6)
         {
-            mSymbol.SetSymbol(6);
-            auto points = BAK::SymbolLines::GetPoints(5);
-            mLines.clear();
-            for (unsigned i = 0; i < 6; i++)
-            {
-                mLines.emplace_back(points[i], points[(i + 1) % 6], 1);
-            }
+            if (mInCombat)
+                ChangeSymbol(1);
+            else
+                ChangeSymbol(6);
         }
+        else if (i == sSymbol3 && mInCombat)
+        {
+            ChangeSymbol(2);
+        }
+        else if (i == sSymbol4 && mInCombat)
+        {
+            ChangeSymbol(4);
+        }
+
         AddChildren();
+    }
+    
+    void ChangeSymbol(unsigned newSymbol)
+    {
+        mSymbol.Hide();
+
+        const auto& points = BAK::SymbolLines::GetPoints(newSymbol - 1);
+        for (unsigned i = 0; i < 6; i++)
+        {
+            const auto start = mLines[i].GetStart();
+            const auto end = mLines[i].GetEnd();
+            const auto startF = points[i];
+            const auto endF = points[(i + 1) % 6];
+            mGuiManager.AddAnimator(std::make_unique<LinearAnimator>(
+                .5,
+                glm::vec4{start.x, start.y, end.x, end.y},
+                glm::vec4{startF.x, startF.y, endF.x, endF.y},
+                [this, i](const auto& delta){
+                    auto start = mLines[i].GetStart();
+                    auto end = mLines[i].GetEnd();
+                    mLines[i].SetPoints(
+                        start + glm::vec2{delta.x, delta.y},
+                        end + glm::vec2{delta.z, delta.w});
+                    return false;
+                },
+                [this, startF, endF, i, newSymbol](){
+                    mLines[i].SetPoints(startF, endF);
+                    mSymbol.SetSymbol(newSymbol);
+                    HandleSpellHighlighted(BAK::SpellIndex{}, false);
+                }));
+        }
     }
 
     void AddChildren()
@@ -207,13 +324,17 @@ private:
         }
     }
 
+    BAK::GameState& mGameState;
+
     IGuiManager& mGuiManager;
     const Font& mFont;
-    BAK::GameState& mGameState;
     const Icons& mIcons;
     BAK::Layout mLayout;
+    BAK::Layout mCombatLayout;
 
     State mState;
+    bool mInCombat;
+    BAK::ActiveCharIndex mSelectedCharacter;
 
     Symbol mSymbol;
 

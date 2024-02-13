@@ -91,6 +91,11 @@ public:
             BAK::TextureFactory::AddToTextureStore(
                 textures, "ENCAMP.BMX", "OPTIONS.PAL");
 
+            mCastIconOffset = textures.size();
+            BAK::TextureFactory::AddToTextureStore(
+                textures, "CASTFACE.BMX", "OPTIONS.PAL");
+
+
             for (const auto& t : textures.GetTextures())
             {
                 const auto [w, h] = t.GetDims();
@@ -220,6 +225,16 @@ public:
             mInventoryIconsDims[index]);
     }
 
+    IconInfo GetCastIcon(unsigned i) const
+    {
+        const auto index = i + mCastIconOffset;
+        ASSERT(index < mInventoryIconsDims.size());
+        return std::make_tuple(
+            mInventoryIconsSpriteSheet,
+            Graphics::TextureIndex{index},
+            mInventoryIconsDims[index]);
+    }
+
     std::size_t GetSize() const
     {
         return mInventoryIconsDims.size();
@@ -238,6 +253,7 @@ private:
     unsigned mFullMapIconOffset;
     unsigned mTeleportIconOffset;
     unsigned mEncampIconOffset;
+    unsigned mCastIconOffset;
     std::vector<glm::vec2> mInventoryIconsDims;
 
     const Logging::Logger& mLogger;

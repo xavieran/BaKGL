@@ -109,6 +109,7 @@ public:
 
     void SetSpellState(const TimeExpiringState& state);
     void CastStaticSpell(StaticSpells spell, Time duration);
+    bool CanCastSpell(SpellIndex spell, ActiveCharIndex character);
 
     // Remove these from game state, now that we have Apply fn that can be used instead
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const;

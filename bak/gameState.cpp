@@ -1149,4 +1149,11 @@ void GameState::CastStaticSpell(StaticSpells spell, Time duration)
 }
 
 
+bool GameState::CanCastSpell(SpellIndex spell, ActiveCharIndex activeChar)
+{
+    const auto& character = GetParty().GetCharacter(activeChar);
+    // FIXME: Add additional conditions, e.g. Stardusk only works outdoors...
+    return character.GetSpells().HaveSpell(spell);
+}
+
 }

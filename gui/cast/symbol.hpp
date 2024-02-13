@@ -1,5 +1,6 @@
 #pragma once 
 
+#include "bak/gameState.hpp"
 #include "bak/spells.hpp"
 
 #include "gui/fontManager.hpp"
@@ -63,26 +64,41 @@ class Symbol : public Widget
 public:
     Symbol(
         const Font& spellFont,
+        BAK::GameState& gameState,
         std::function<void(BAK::SpellIndex)> clickedCallback,
         std::function<void(BAK::SpellIndex, bool)> highlightCallback)
     :
         Widget{
             RectTag{},
-            glm::vec2{-3, -3},
+            glm::vec2{-4, -4},
             glm::vec2{100,100},
             glm::vec4{},
             true
         },
+        mGameState{gameState},
         mSpellFont{spellFont},
         mLines{},
         mClickedCallback{std::move(clickedCallback)},
         mHighlightCallback{std::move(highlightCallback)},
-        mSymbolIndex{1}
+        mSymbolIndex{0},
+        mHidden{false}
     {
+    }
+
+    void Hide()
+    {
+        mHidden = true;
+        AddChildren();
+    }
+
+    void SetActiveCharacter(BAK::ActiveCharIndex character)
+    {
+        mSelectedCharacter = character;
     }
 
     void SetSymbol(unsigned symbolIndex)
     {
+        mHidden = false;
         mSymbolIndex = symbolIndex;
         const auto& symbol = BAK::SpellDatabase::Get().GetSymbols()[mSymbolIndex - 1];
         mSpells.clear();
@@ -91,6 +107,9 @@ public:
         {
             const auto icon = slot.mSpellIcon;
             const auto spellIndex = slot.mSpell;
+
+            if (!mGameState.CanCastSpell(spellIndex, mSelectedCharacter)) continue;
+
             mSpells.emplace_back(
                 [this, spellIndex=spellIndex]{ mClickedCallback(spellIndex); },
                 icon,
@@ -117,10 +136,17 @@ public:
     {
         return BAK::SpellDatabase::Get().GetSymbols()[mSymbolIndex - 1].GetSymbolSlots();
     }
+
+    unsigned GetSymbolIndex() const
+    {
+        return mSymbolIndex;
+    }
 private:
     void AddChildren()
     {
         ClearChildren();
+        if (mHidden) return;
+
         for (auto& spell : mSpells)
         {
             AddChildBack(&spell);
@@ -134,7 +160,11 @@ private:
             std::function<void()>>,
         true>;
 
+    BAK::GameState& mGameState;
+
     const Font& mSpellFont;
+
+    BAK::ActiveCharIndex mSelectedCharacter;
 
     std::vector<SpellIcon> mSpells;
     std::vector<Line> mLines;
@@ -142,6 +172,7 @@ private:
     std::function<void(BAK::SpellIndex)> mClickedCallback;
     std::function<void(BAK::SpellIndex, bool)> mHighlightCallback;
     unsigned mSymbolIndex;
+    bool mHidden;
 };
 
 }

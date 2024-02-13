@@ -45,6 +45,18 @@ public:
             return std::optional<ActiveCharIndex>{};
     }
 
+    std::optional<ActiveCharIndex> GetSpellcaster() const
+    {
+        for (unsigned i = 0; i < mActiveCharacters.size(); i++)
+        {
+            if (GetCharacter(ActiveCharIndex{i}).IsSpellcaster())
+            {
+                return ActiveCharIndex{i};
+            }
+        }
+        return std::nullopt;
+    }
+
     const Character& GetCharacter(ActiveCharIndex i) const
     {
         ASSERT(mActiveCharacters.size() <= sMaxActiveCharacters);

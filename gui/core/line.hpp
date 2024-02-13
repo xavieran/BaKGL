@@ -14,7 +14,7 @@ namespace Gui
 class Line : public Widget
 {
 public:
-    Line(glm::vec2 p1, glm::vec2 p2, float width)
+    Line(glm::vec2 p1, glm::vec2 p2, float width, glm::vec4 color)
     :
         Widget{
             RectTag{},
@@ -27,6 +27,7 @@ public:
         mWidth{width}
     {
         CalculateLine();
+        SetColor(color);
     }
 
     void SetPoints(glm::vec2 start, glm::vec2 end)
@@ -36,14 +37,16 @@ public:
         CalculateLine();
     }
 
+    glm::vec2 GetStart() const { return mStart; }
+    glm::vec2 GetEnd() const { return mEnd; }
+
 private:
     void CalculateLine()
     {
         auto length = glm::distance(mStart, mEnd);
         auto rotation = -atanf((mEnd.y  - mStart.y) / (mEnd.x - mStart.x));
-        if (std::abs(mEnd.x - mStart.x) < .01)
+        if (std::abs(mEnd.x - mStart.x) < .001)
             rotation = -1.5708;
-        SetColor(glm::vec4{1, 0, 0, 1});
         SetPosition((mStart.x > mEnd.x) ? mEnd : mStart);
         SetDimensions(glm::vec2{length, mWidth});
         SetRotation(rotation);

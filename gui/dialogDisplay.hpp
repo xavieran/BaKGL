@@ -182,7 +182,7 @@ public:
         {
             // Need a more reliable way of getting mouse pos
             //mPopup.SetPosition(mousePos);
-            mPopup.SetPosition(popup->mDims);
+            mPopup.SetPosition(popup->mPos);
             mPopup.SetDimensions(popup->mDims);
             mPopupText.SetPosition(glm::vec2{1});
             mPopupText.SetDimensions(popup->mDims);

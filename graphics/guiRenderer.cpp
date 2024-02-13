@@ -146,6 +146,8 @@ void GuiRenderer::RenderGuiImpl(
             sinf(pi.mRotation), cos(pi.mRotation), 0, 0,
             0,0,1,0,
             0,0,0,1};
+        // FIXME: why are these different..?
+        //const auto rotation = glm::rotate(glm::mat4{1}, glm::degrees(pi.mRotation), glm::vec3{0,0,1});
         const auto sprScale = glm::scale(glm::mat4{1}, glm::vec3{pi.mDimensions, 0});
         const auto sprTrans = glm::translate(glm::mat4{1}, glm::vec3{finalPos, 0});
         const auto modelMatrix = sprTrans * (rotation * sprScale);

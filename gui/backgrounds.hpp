@@ -65,7 +65,8 @@ public:
             std::make_pair("OPTIONS2.SCX", "OPTIONS.PAL"),
             std::make_pair("PUZZLE.SCX", "PUZZLE.PAL"),
             std::make_pair("C42.SCX", "TELEPORT.PAL"),
-            std::make_pair("CAST.SCX", "OPTIONS.PAL")
+            std::make_pair("CAST.SCX", "OPTIONS.PAL"),
+            std::make_pair("CFRAME.SCX", "OPTIONS.PAL")
         })
         {
             AddScreen(scx, pal);
