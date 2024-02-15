@@ -117,7 +117,7 @@ int main(int argc, char** argv)
         logger.Debug() << p << "\n";
         iconI++;
         if (static_cast<unsigned>(iconI) > icons.GetSize()) iconI = 0;
-        const auto& [ss, ti, dims] = icons.GetButton(iconI);
+        const auto& [ss, ti, dims] = icons.GetCastIcon(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
     inputHandler.BindMouse(GLFW_MOUSE_BUTTON_RIGHT, [&](auto p){
         iconI--;
         if (iconI < 0) iconI = icons.GetSize();
-        const auto& [ss, ti, dims] = icons.GetButton(iconI);
+        const auto& [ss, ti, dims] = icons.GetCastIcon(iconI);
         picture.SetSpriteSheet(ss);
         picture.SetTexture(ti);
         picture.SetDimensions(dims);

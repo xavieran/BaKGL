@@ -1,52 +1,11 @@
 #pragma once
 
-#include "gui/IAnimator.hpp"
-
 #include "gui/icons.hpp"
 #include "gui/core/widget.hpp"
 
 namespace Gui::Camp {
 
 namespace detail {
-
-class TimeElapser : public IAnimator
-{
-    static constexpr auto sTickSpeed = .02;
-public:
-    TimeElapser(
-        std::function<void()>&& callback)
-    :
-        mAccumulatedTimeDelta{},
-        mAlive{true},
-        mCallback{std::move(callback)}
-    {
-    }
-
-    void OnTimeDelta(double delta) override
-    {
-        mAccumulatedTimeDelta += delta;
-        if (mAccumulatedTimeDelta > sTickSpeed && mAlive)
-        {
-            mAccumulatedTimeDelta = 0;
-            mCallback();
-        }
-    }
-
-    bool IsAlive() const override
-    {
-        return mAlive;
-    }
-
-    void Stop()
-    {
-        mAlive = false;
-    }
-
-private:
-    double mAccumulatedTimeDelta;
-    bool mAlive;
-    std::function<void()> mCallback;
-};
 
 class CampDest : public Widget
 {

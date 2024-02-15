@@ -195,6 +195,12 @@ public:
         return mSpells[spellIndex.mValue].mName;
     }
 
+    const Spell& GetSpell(SpellIndex spellIndex) const
+    {
+        ASSERT(spellIndex.mValue < mSpells.size());
+        return mSpells[spellIndex.mValue];
+    }
+
     const SpellDoc& GetSpellDoc(SpellIndex spellIndex) const
     {
         ASSERT(spellIndex.mValue < mSpells.size());
@@ -403,14 +409,27 @@ private:
         auto fb = FileBufferFactory::Get().CreateDataBuffer("RING.DAT");
         unsigned points = 30;
         Logging::LogDebug(__FUNCTION__) << "Ring has: " << points << " points\n";
+        std::stringstream ss{};
+        ss << "[";
+        std::vector<int> xs{};
+        std::vector<int> ys{};
         for (unsigned i = 0; i < points; i++)
         {
-            auto pos = fb.LoadVector<std::uint16_t, 2>();
-            Logging::LogDebug(__FUNCTION__) << "  " << i << " - " << pos << "\n";
-            mPoints.emplace_back(pos);
+            xs.emplace_back(fb.GetSint16LE());
         }
+        for (unsigned i = 0; i < points; i++)
+        {
+            ys.emplace_back(fb.GetSint16LE());
+        }
+        for (unsigned i = 0; i < points; i++)
+        {
+            mPoints.emplace_back(xs[i], ys[i]);
+        }
+        ss << "]\n";
+        Logging::LogDebug(__FUNCTION__) << "points = " << ss.str();
     }
-    std::vector<glm::vec<2, std::uint16_t>> mPoints;
+
+    std::vector<glm::ivec2> mPoints;
 };
 
 class SymbolLines

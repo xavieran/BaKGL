@@ -12,7 +12,7 @@
 #include "gui/core/clickable.hpp"
 #include "gui/core/highlightable.hpp"
 
-#include "gui/IAnimator.hpp"
+#include "gui/tickAnimator.hpp"
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/camp/clock.hpp"
@@ -65,6 +65,7 @@ public:
         mGameState{gameState},
         mIcons{icons},
         mLayout{sLayoutFile},
+        mCampData{},
         mFrame{
             Graphics::DrawMode::Sprite,
             backgrounds.GetSpriteSheet(),
@@ -277,9 +278,11 @@ private:
 
         mState = hourTil ? State::Camping : State::CampingTilHealed;
 
-        auto timeElapser = std::make_unique<detail::TimeElapser>([this]{
-            this->HandleTick();
-        });
+        auto timeElapser = std::make_unique<TickAnimator>(
+            .02,
+            [this]{
+                this->HandleTick();
+            });
         mTimeElapser = timeElapser.get();
         mGuiManager.AddAnimator(std::move(timeElapser));
         AddChildren();
@@ -451,7 +454,7 @@ private:
     State mState;
     std::optional<unsigned> mTargetHour;
     BAK::Time mTimeBeganCamping;
-    detail::TimeElapser* mTimeElapser;
+    TickAnimator* mTimeElapser;
     BAK::ShopStats* mShopStats;
 
     const Logging::Logger& mLogger;

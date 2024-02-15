@@ -3,10 +3,12 @@
 #include "bak/fileBufferFactory.hpp"
 #include "bak/layout.hpp"
 #include "bak/dialog.hpp"
+#include "bak/skills.hpp"
 
 #include "graphics/texture.hpp"
 
 #include "gui/cast/symbol.hpp"
+#include "gui/cast/powerRing.hpp"
 
 #include "gui/animator.hpp"
 #include "gui/core/clickable.hpp"
@@ -75,6 +77,7 @@ public:
         mCombatLayout{sCombatLayoutFile},
         mState{State::Idle},
         mInCombat{true},
+        mSelectedSpell{},
         mSymbol{
             spellFont,
             mGameState,
@@ -85,6 +88,7 @@ public:
         mSpellDesc{
             glm::vec2{134, 18},
             glm::vec2{176, 88}},
+        mPowerRing{mIcons, glm::vec2{}, [&](unsigned power){ HandleSpellPower(power); }},
         mLogger{Logging::LogState::GetLogger("Gui::Cast")}
     {
         for (unsigned i = 0; i < 6; i++)
@@ -95,27 +99,23 @@ public:
                 .5, glm::vec4{1,0,0,1});
         }
 
-        /*
-        for (unsigned i = 0; i < mCastData.GetClockTicks().size(); i++)
-        {
-            auto dot = mDots.emplace_back(
-                [this, i=i]{ HandleDotClicked(i); },
-                mIcons,
-                mCastData.GetClockTicks().at(i),
-                [](bool selected){});
-            dot.SetCurrent(false);
-        }
-        */
         AddChildren();
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
     {
         bool handled = false;
-        handled |= mSymbol.OnMouseEvent(event);
-        for (auto& widget : mButtons)
+        if (mState == State::Idle)
         {
-            handled |= widget.OnMouseEvent(event);
+            handled |= mSymbol.OnMouseEvent(event);
+            for (auto& widget : mButtons)
+            {
+                handled |= widget.OnMouseEvent(event);
+            }
+        }
+        else
+        {
+            handled |= mPowerRing.OnMouseEvent(event);
         }
 
         return handled;
@@ -217,12 +217,37 @@ private:
     void HandleSpellClicked(BAK::SpellIndex spellIndex)
     {
         Logging::LogDebug(__FUNCTION__) << "(" << spellIndex << ")\n";
-        mGameState.CastStaticSpell(BAK::ToStaticSpell(spellIndex), BAK::Times::TwelveHours);
+        const auto& spell = BAK::SpellDatabase::Get().GetSpell(spellIndex);
+        if (spell.mMinCost != spell.mMaxCost)
+        {
+            const auto health = mGameState.GetParty().GetCharacter(mSelectedCharacter).GetSkill(BAK::SkillType::TotalHealth);
+            mState = State::SpellSelected;
+            mPowerRing.Animate(std::make_pair(spell.mMinCost, std::min(spell.mMaxCost, health)), mGuiManager);
+            mSelectedSpell = spellIndex;
+            AddChildren();
+        }
+        else
+        {
+            mGameState.CastStaticSpell(BAK::ToStaticSpell(spellIndex), BAK::Times::TwelveHours);
+            mGuiManager.StartDialog(
+                BAK::DialogSources::GetSpellCastDialog(static_cast<unsigned>(BAK::ToStaticSpell(spellIndex))),
+                false,
+                false,
+                this);
+        }
+    }
+
+    void HandleSpellPower(unsigned power)
+    {
+        assert(mSelectedSpell);
+        const auto spellIndex = *mSelectedSpell;
+        mGameState.CastStaticSpell(BAK::ToStaticSpell(spellIndex), BAK::Times::OneHour * power);
         mGuiManager.StartDialog(
             BAK::DialogSources::GetSpellCastDialog(static_cast<unsigned>(BAK::ToStaticSpell(spellIndex))),
             false,
             false,
             this);
+        mSelectedSpell.reset();
     }
 
     void HandleSpellHighlighted(BAK::SpellIndex spellIndex, bool selected)
@@ -237,8 +262,14 @@ private:
             ss << "Cost: " << doc.mCost << "\n";
             if (!doc.mDamage.empty()) ss << doc.mDamage << "\n";
             if (!doc.mDuration.empty()) ss << doc.mDuration<< "\n";
-            //ss << "Line Of Sight: " << doc.mLineOfSight<< "\n";
+            if (!doc.mLineOfSight.empty()) ss << doc.mLineOfSight << "\n";
             ss << doc.mDescription << "\n";
+            ss << "\n";
+
+            const auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
+            const auto health = character.GetSkill(BAK::SkillType::TotalHealth);
+            const auto maxHealth = character.GetMaxSkill(BAK::SkillType::TotalHealth);
+            ss << "Health/Stamina:  " << health << " of " << maxHealth << "\n";
         }
         else
         {
@@ -342,6 +373,11 @@ private:
         {
             AddChildBack(&line);
         }
+
+        if (mState == State::SpellSelected)
+        {
+            AddChildBack(&mPowerRing);
+        }
     }
 
     BAK::GameState& mGameState;
@@ -354,6 +390,7 @@ private:
 
     State mState;
     bool mInCombat;
+    std::optional<BAK::SpellIndex> mSelectedSpell;
     BAK::ActiveCharIndex mSelectedCharacter;
 
     Symbol mSymbol;
@@ -361,6 +398,7 @@ private:
     std::vector<Line> mLines;
     std::vector<ClickButtonImage> mButtons;
     TextBox mSpellDesc;
+    PowerRing mPowerRing;
 
     const Logging::Logger& mLogger;
 };
