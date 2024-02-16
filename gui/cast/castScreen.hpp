@@ -219,42 +219,41 @@ private:
         Logging::LogDebug(__FUNCTION__) << "(" << spellIndex << ")\n";
         const auto& spell = BAK::SpellDatabase::Get().GetSpell(spellIndex);
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
+        mSelectedSpell = spellIndex;
         if (spell.mMinCost != spell.mMaxCost)
         {
             const auto health = character.GetSkill(BAK::SkillType::TotalHealth);
             mState = State::SpellSelected;
             mPowerRing.Animate(std::make_pair(spell.mMinCost, std::min(spell.mMaxCost, health)), mGuiManager);
-            mSelectedSpell = spellIndex;
             AddChildren();
         }
         else
         {
-            mGameState.CastStaticSpell(BAK::ToStaticSpell(spellIndex), BAK::Times::TwelveHours);
-            mGuiManager.StartDialog(
-                BAK::DialogSources::GetSpellCastDialog(static_cast<unsigned>(BAK::ToStaticSpell(spellIndex))),
-                false,
-                false,
-                this);
-            character.ImproveSkill(BAK::SkillType::TotalHealth, BAK::SkillChange::HealMultiplier_100, (-spell.mMinCost) << 8);
+            CastSpell(0);
         }
     }
 
     void HandleSpellPower(unsigned power)
     {
+        CastSpell(power);
+        mState = State::Idle;
+        HandleSpellHighlighted(BAK::SpellIndex{0}, false);
+        AddChildren();
+    }
+
+    void CastSpell(unsigned power)
+    {
         assert(mSelectedSpell);
         const auto spellIndex = *mSelectedSpell;
         mGameState.CastStaticSpell(BAK::ToStaticSpell(spellIndex), BAK::Times::OneHour * power);
+        mSelectedSpell.reset();
+        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
+        character.ImproveSkill(BAK::SkillType::TotalHealth, BAK::SkillChange::HealMultiplier_100, (-power) << 8);
         mGuiManager.StartDialog(
             BAK::DialogSources::GetSpellCastDialog(static_cast<unsigned>(BAK::ToStaticSpell(spellIndex))),
             false,
             false,
             this);
-        mState = State::Idle;
-        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
-        character.ImproveSkill(BAK::SkillType::TotalHealth, BAK::SkillChange::HealMultiplier_100, (-power) << 8);
-        mSelectedSpell.reset();
-        HandleSpellHighlighted(BAK::SpellIndex{0}, false);
-        AddChildren();
     }
 
     void HandleSpellHighlighted(BAK::SpellIndex spellIndex, bool selected)
@@ -295,10 +294,15 @@ private:
         AddChildren();
     }
 
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
+    {
+        Exit();
+    }
+
     void Exit()
     {
         // exit lock happens to do exactly what I want.. should probably rename it
-        mGuiManager.DoFade(.8, [this]{mGuiManager.ExitLock(); });
+        mGuiManager.DoFade(.8, [this]{ mGuiManager.ExitLock(); });
     }
 
     void HandleButton(unsigned i)
