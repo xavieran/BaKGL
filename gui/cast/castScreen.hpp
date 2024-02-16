@@ -42,7 +42,7 @@ class CastScreen : public Widget, public NullDialogScene
 
     static constexpr auto sSymbol6 = 0;
     static constexpr auto sSymbol5 = 1;
-    static constexpr auto sSymbol3 = 2;
+    static constexpr auto sSymbol2 = 2;
     static constexpr auto sSymbol4 = 3;
     static constexpr auto sExit = 6;
 
@@ -218,9 +218,10 @@ private:
     {
         Logging::LogDebug(__FUNCTION__) << "(" << spellIndex << ")\n";
         const auto& spell = BAK::SpellDatabase::Get().GetSpell(spellIndex);
+        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
         if (spell.mMinCost != spell.mMaxCost)
         {
-            const auto health = mGameState.GetParty().GetCharacter(mSelectedCharacter).GetSkill(BAK::SkillType::TotalHealth);
+            const auto health = character.GetSkill(BAK::SkillType::TotalHealth);
             mState = State::SpellSelected;
             mPowerRing.Animate(std::make_pair(spell.mMinCost, std::min(spell.mMaxCost, health)), mGuiManager);
             mSelectedSpell = spellIndex;
@@ -234,6 +235,7 @@ private:
                 false,
                 false,
                 this);
+            character.ImproveSkill(BAK::SkillType::TotalHealth, BAK::SkillChange::HealMultiplier_100, (-spell.mMinCost) << 8);
         }
     }
 
@@ -247,7 +249,12 @@ private:
             false,
             false,
             this);
+        mState = State::Idle;
+        auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);
+        character.ImproveSkill(BAK::SkillType::TotalHealth, BAK::SkillChange::HealMultiplier_100, (-power) << 8);
         mSelectedSpell.reset();
+        HandleSpellHighlighted(BAK::SpellIndex{0}, false);
+        AddChildren();
     }
 
     void HandleSpellHighlighted(BAK::SpellIndex spellIndex, bool selected)
@@ -314,7 +321,7 @@ private:
             else
                 ChangeSymbol(6);
         }
-        else if (i == sSymbol3 && mInCombat)
+        else if (i == sSymbol2 && mInCombat)
         {
             ChangeSymbol(2);
         }
