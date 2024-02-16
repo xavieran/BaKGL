@@ -312,7 +312,7 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
             mActions.emplace_back(
                 SetTimeExpiringState{type, flag, state, time});
         } break;
-        case DialogResult::LoseItem2:
+        case DialogResult::LoseNOfItem:
         {
             const auto item = fb.GetUint16LE();
             auto quantity = fb.GetUint16LE();
@@ -320,7 +320,7 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                 quantity = 1;
             const auto rest = fb.GetArray<4>();
             mActions.emplace_back(
-                LoseItem2{
+                LoseNOfItem{
                     item,
                     quantity,
                     rest});

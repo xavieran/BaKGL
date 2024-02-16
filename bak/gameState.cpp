@@ -659,6 +659,13 @@ void GameState::EvaluateAction(const DialogAction& action)
             mParty.GetCharacter(CharIndex{mDialogCharacterList[learnSpell.mWho]})
                 .GetSpells().SetSpell(learnSpell.mWhichSpell);
         },
+        [&](const BAK::LoseNOfItem& loss)
+        {
+            for (unsigned i = 0; i < loss.mQuantity; i++)
+            {
+                mParty.RemoveItem(loss.mItemIndex, 1);
+            }
+        },
         [&](const auto& a){
             mLogger.Debug() << "Doing nothing for: " << a << "\n";
         }},

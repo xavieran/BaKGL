@@ -31,7 +31,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::Teleport: return os << "Teleport";
         case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
         case DialogResult::SetTimeExpiringState: return os << "SetTimeExpiringState";
-        case DialogResult::LoseItem2: return os << "LoseItem2";
+        case DialogResult::LoseNOfItem: return os << "LoseNOfItem";
         default: return os << "Unknown[" << static_cast<unsigned>(d) << "]";
     }
 }
@@ -206,9 +206,9 @@ std::ostream& operator<<(std::ostream& os, const LearnSpell& action)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const LoseItem2& action)
+std::ostream& operator<<(std::ostream& os, const LoseNOfItem& action)
 {
-    os << "LoseItem2 { what: " << action.mItemIndex
+    os << "LoseNOfItem { what: " << action.mItemIndex
         << " amount: " << action.mQuantity
         << " rest[" << std::hex << action.mRest << std::dec << "]}";
     return os;

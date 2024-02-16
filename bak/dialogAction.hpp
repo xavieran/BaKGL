@@ -39,7 +39,7 @@ enum class DialogResult
     Teleport = 0x14,
     SetEndOfDialogState = 0x15,
     SetTimeExpiringState = 0x16,
-    LoseItem2 = 0x17
+    LoseNOfItem = 0x17
     // 18 - seems to remove/move mney at a chapter transition
 };
 
@@ -237,7 +237,7 @@ struct SetTimeExpiringState
     Time mTimeToExpire;
 };
 
-struct LoseItem2
+struct LoseNOfItem
 {
     std::uint16_t mItemIndex;
     std::uint16_t mQuantity;
@@ -279,7 +279,7 @@ using DialogAction = std::variant<
     Teleport,
     SetEndOfDialogState,
     SetTimeExpiringState,
-    LoseItem2,
+    LoseNOfItem,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);
