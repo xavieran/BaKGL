@@ -99,6 +99,8 @@ public:
     void SelectRandomActiveCharacter(unsigned index, unsigned attribute);
 
     void EvaluateAction(const DialogAction& action);
+    void EvaluateSpecialAction(const SpecialAction& action);
+    void DoGamble(unsigned playerChance, unsigned gamblerChance, unsigned reward);
     bool EvaluateGameStateChoice(const GameStateChoice& choice) const;
 
     void ElapseTime(Time time);
@@ -153,9 +155,12 @@ public:
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue_7530;
-    unsigned mShopType;
-    Royals mItemValue;
+    unsigned mShopType_7542;
+    unsigned mBardReward_754d;
+    Royals mItemValue_753e;
     unsigned mSkillValue;
+    unsigned mContextVar_753f;
+
     std::optional<InventoryItem> mSelectedItem;
     std::optional<MonsterIndex> mCurrentMonster;
     Chapter mChapter;

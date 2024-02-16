@@ -21,8 +21,8 @@ enum class ActiveStateFlag : std::uint16_t
     DayTime   = 0x753a,
     TimeBetween = 0x753c,
     SkillCheck = 0x753d,
-    Unknown3   = 0x753e,
-    Unknown4   = 0x753f,
+    ItemValue_753e = 0x753e,
+    Context_753f = 0x753f,
     // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4
     Shop       = 0x7542,
     Zone       = 0x7543,

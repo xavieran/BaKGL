@@ -18,8 +18,8 @@ std::string_view ToString(ActiveStateFlag f)
     case ActiveStateFlag::DayTime: return "DayTime";
     case ActiveStateFlag::TimeBetween: return "TimeBetween";
     case ActiveStateFlag::SkillCheck: return "SkillCheck";
-    case ActiveStateFlag::Unknown3: return "Unknown[753e]";
-    case ActiveStateFlag::Unknown4: return "Unknown[753f]";
+    case ActiveStateFlag::ItemValue_753e: return "ItemValue_753e";
+    case ActiveStateFlag::Context_753f: return "Context_753f";
     case ActiveStateFlag::Shop: return "Shop";
     case ActiveStateFlag::Gambler: return "Gambler";
     default: return "UnknownActiveStateFlag";
