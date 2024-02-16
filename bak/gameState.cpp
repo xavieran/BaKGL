@@ -574,6 +574,24 @@ void GameState::EvaluateAction(const DialogAction& action)
                     .ImproveSkill(skill.mSkill, SkillChange::Direct, amount);
             }
         },
+        [&](const BAK::HealCharacters& heal)
+        {
+            if (heal.mWho <= 1)
+            {
+                mLogger.Debug() << "Healing party by: " << heal.mHowMuch << "\n";
+                GetParty().ForEachActiveCharacter([&](auto& character){
+                    HealCharacter(character.mCharacterIndex, heal.mHowMuch);
+                    return false;
+                });
+            }
+            else
+            {
+                auto character = mDialogCharacterList[heal.mWho - 2];
+                mLogger.Debug() << "Healing character by amount: " << heal.mHowMuch << " for "
+                    << +character << "\n";
+                HealCharacter(CharIndex{character}, heal.mHowMuch);
+            }
+        },
         [&](const BAK::GainCondition& cond)
         {
             auto amount = cond.mMax;
@@ -1164,4 +1182,28 @@ bool GameState::CanCastSpell(SpellIndex spell, ActiveCharIndex activeChar)
     return character.GetSpells().HaveSpell(spell);
 }
 
+void GameState::HealCharacter(CharIndex who, unsigned amount)
+{
+    auto& character = GetParty().GetCharacter(who);
+    if (amount >= 0x64)
+    {
+        GetWorldTime().SetTimeLastSlept(GetWorldTime().GetTime());
+        for (unsigned i = 0; i < 7; i++)
+        {
+            character.AdjustCondition(static_cast<Condition>(i), -100);
+        }
+        character.ImproveSkill(
+            SkillType::TotalHealth,
+            SkillChange::HealMultiplier_100,
+            0x7fff);
+    }
+    else
+    { // Start of Chapter 4, reduces health by 20%
+        const auto currentHealth = character.GetSkill(SkillType::TotalHealth);
+        character.ImproveSkill(
+            SkillType::TotalHealth,
+            SkillChange::HealMultiplier_100,
+            ((currentHealth * -20) / 100) << 8);
+    }
+}
 }

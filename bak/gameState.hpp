@@ -111,6 +111,8 @@ public:
     void CastStaticSpell(StaticSpells spell, Time duration);
     bool CanCastSpell(SpellIndex spell, ActiveCharIndex character);
 
+    void HealCharacter(CharIndex who, unsigned amount);
+
     // Remove these from game state, now that we have Apply fn that can be used instead
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const;
     bool EvaluateDialogChoice(const Choice& choice) const;
