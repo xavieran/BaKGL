@@ -117,6 +117,17 @@ public:
             return true;
         }
 
+        if (item.GetItemIndex() == sRations
+            && GetConditions().GetCondition(Condition::Starving).Get() > 0)
+        {
+            AdjustCondition(Condition::Starving, -100);
+            item.SetQuantity(item.GetQuantity() - 1);
+            if (item.GetQuantity() == 0)
+            {
+                return true;
+            }
+        }
+
         if (mInventory.CanAddCharacter(item)
             || equipped)
         {
