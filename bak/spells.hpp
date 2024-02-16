@@ -30,6 +30,10 @@ static constexpr std::array<std::uint8_t, 6> sStaticSpellMapping = {
     30, 31, 32, 34, 33, 35
 };
 
+std::ostream& operator<<(std::ostream&, StaticSpells);
+
+StaticSpells ToStaticSpell(SpellIndex);
+
 enum class SpellCalculationType
 {
     NonCostRelated,
@@ -42,10 +46,6 @@ enum class SpellCalculationType
 
 std::string_view ToString(SpellCalculationType);
 std::ostream& operator<<(std::ostream&, SpellCalculationType);
-
-static constexpr auto DragonsBreath = SpellIndex{0};
-// actually this appears as index 8 in the SPELLS.DAT table... ???
-static constexpr auto ScentOfSarig = SpellIndex{5};
 
 class Spells
 {
@@ -193,6 +193,12 @@ public:
     {
         ASSERT(spellIndex.mValue < mSpells.size());
         return mSpells[spellIndex.mValue].mName;
+    }
+
+    const Spell& GetSpell(SpellIndex spellIndex) const
+    {
+        ASSERT(spellIndex.mValue < mSpells.size());
+        return mSpells[spellIndex.mValue];
     }
 
     const SpellDoc& GetSpellDoc(SpellIndex spellIndex) const
@@ -387,17 +393,10 @@ private:
 class PowerRing
 {
 public:
-    PowerRing()
+    static const PowerRing& Get()
     {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer("RING.DAT");
-        unsigned points = 30;
-        Logging::LogDebug(__FUNCTION__) << "Ring has: " << points << " points\n";
-        for (unsigned i = 0; i < points; i++)
-        {
-            auto pos = fb.LoadVector<std::uint16_t, 2>();
-            Logging::LogDebug(__FUNCTION__) << "  " << i << " - " << pos << "\n";
-            mPoints.emplace_back(pos);
-        }
+        static auto ring = PowerRing{};
+        return ring;
     }
 
     const auto& GetPoints() const
@@ -405,7 +404,32 @@ public:
         return mPoints;
     }
 private:
-    std::vector<glm::vec<2, std::uint16_t>> mPoints;
+    PowerRing()
+    {
+        auto fb = FileBufferFactory::Get().CreateDataBuffer("RING.DAT");
+        unsigned points = 30;
+        Logging::LogDebug(__FUNCTION__) << "Ring has: " << points << " points\n";
+        std::stringstream ss{};
+        ss << "[";
+        std::vector<int> xs{};
+        std::vector<int> ys{};
+        for (unsigned i = 0; i < points; i++)
+        {
+            xs.emplace_back(fb.GetSint16LE());
+        }
+        for (unsigned i = 0; i < points; i++)
+        {
+            ys.emplace_back(fb.GetSint16LE());
+        }
+        for (unsigned i = 0; i < points; i++)
+        {
+            mPoints.emplace_back(xs[i], ys[i]);
+        }
+        ss << "]\n";
+        Logging::LogDebug(__FUNCTION__) << "points = " << ss.str();
+    }
+
+    std::vector<glm::ivec2> mPoints;
 };
 
 class SymbolLines
@@ -460,7 +484,7 @@ public:
 
     void SetSpellState(StaticSpells spell, bool state)
     {
-        SetBit(mSpells, spell, state);
+        mSpells = SetBit(mSpells, spell, state);
     }
 
     std::uint16_t GetSpells() const

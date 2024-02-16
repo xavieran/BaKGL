@@ -135,7 +135,7 @@ InventoryScreen::InventoryScreen(
     mSelectedCharacter{},
     mDisplayContainer{false},
     mItemSelectionMode{false},
-	mDisplayDetails{false},
+    mDisplayDetails{false},
     mItemSelectionCallback{nullptr},
     mSelectedItem{},
     mContainer{nullptr},
@@ -929,8 +929,8 @@ void InventoryScreen::UnhighlightDrops()
     {
         if (person != mSelectedCharacter)
         {
-                mCharacters[person.mValue].SetColor(glm::vec4{.05, .05, .05, 1}); 
-                mCharacters[person.mValue].SetColorMode(Graphics::ColorMode::TintColor);
+            mCharacters[person.mValue].SetColor(glm::vec4{.05, .05, .05, 1}); 
+            mCharacters[person.mValue].SetColorMode(Graphics::ColorMode::TintColor);
         }
 
         person = party.NextActiveCharacter(person);

@@ -12,7 +12,7 @@ enum class DrawMode
 {
     Rect = 0,
     Sprite = 1,
-    ClipRegion = 2
+    ClipRegion = 2,
 };
 
 enum class ColorMode
@@ -41,6 +41,7 @@ struct PositionInfo
 {
     glm::vec2 mPosition;
     glm::vec2 mDimensions; // actually more like scale than dim.....
+    float mRotation;
     bool mChildrenRelative;
 };
 

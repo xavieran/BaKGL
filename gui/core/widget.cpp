@@ -25,6 +25,7 @@ Widget::Widget(
     mPositionInfo{
         pos,
         dims,
+        0.0,
         childrenRelative},
     mParent{nullptr},
     mChildren{},
@@ -263,6 +264,11 @@ void Widget::SetPosition(glm::vec2 pos)
 void Widget::AdjustPosition(glm::vec2 adj)
 {
     mPositionInfo.mPosition += adj;
+}
+
+void Widget::SetRotation(float rot)
+{
+    mPositionInfo.mRotation = rot;
 }
 
 void Widget::SetSpriteSheet(Graphics::SpriteSheetIndex spriteSheet)

@@ -38,6 +38,7 @@ public:
 
     virtual void ShowLock(BAK::IContainer*, std::function<void()>&& finished) = 0;
     virtual void ShowCamp(bool isInn, BAK::ShopStats* inn) = 0;
+    virtual void ShowCast(bool inCombat) = 0;
     virtual void ShowFullMap() = 0;
     virtual void ShowTeleport(unsigned sourceTemple) = 0;
     virtual void ShowCureScreen(

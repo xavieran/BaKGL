@@ -141,9 +141,16 @@ void GuiRenderer::RenderGuiImpl(
     {
         mSpriteManager.ActivateSpriteSheet(di.mSpriteSheet);
 
+        const auto rotation = glm::mat4{
+            cosf(pi.mRotation), -sinf(pi.mRotation), 0, 0, 
+            sinf(pi.mRotation), cos(pi.mRotation), 0, 0,
+            0,0,1,0,
+            0,0,0,1};
+        // FIXME: why are these different..?
+        //const auto rotation = glm::rotate(glm::mat4{1}, glm::degrees(pi.mRotation), glm::vec3{0,0,1});
         const auto sprScale = glm::scale(glm::mat4{1}, glm::vec3{pi.mDimensions, 0});
         const auto sprTrans = glm::translate(glm::mat4{1}, glm::vec3{finalPos, 0});
-        const auto modelMatrix = sprTrans * sprScale;
+        const auto modelMatrix = sprTrans * (rotation * sprScale);
 
         const auto& sprites = mSpriteManager.GetSpriteSheet(di.mSpriteSheet);
         const auto object = di.mDrawMode == DrawMode::Sprite

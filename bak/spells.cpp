@@ -6,6 +6,35 @@
 
 namespace BAK {
 
+std::ostream& operator<<(std::ostream& os, StaticSpells s)
+{
+    using enum StaticSpells;
+    switch (s)
+    {
+    case DragonsBreath: return os << "Dragons Breath";
+    case CandleGlow: return os << "Candle Glow";
+    case Stardusk: return os << "Stardusk";
+    case AndTheLightShallLie: return os << " And The Light Shall Lie";
+    case Union: return os << "Union";
+    case ScentOfSarig: return os << "Scent Of Sarig";
+    default: return os << "Unknown Static Spell [" << static_cast<unsigned>(s) << "]";
+    }
+}
+
+StaticSpells ToStaticSpell(SpellIndex s)
+{
+    switch (s.mValue)
+    {
+        case 0: return StaticSpells::DragonsBreath;
+        case 2: return StaticSpells::CandleGlow;
+        case 26: return StaticSpells::Stardusk;
+        case 34: return StaticSpells::Union;
+        case 35: return StaticSpells::AndTheLightShallLie;
+        case 8: return StaticSpells::ScentOfSarig;
+        default: return static_cast<StaticSpells>(-1);
+    }
+}
+
 std::string_view ToString(SpellCalculationType s)
 {
     using enum SpellCalculationType;

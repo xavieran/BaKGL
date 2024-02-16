@@ -83,7 +83,8 @@ Font LoadFont(FileBuffer& fb)
                 for (unsigned c = 0; c < width; c++)
                 {
                     auto index = glyphBuf.GetUint8();
-                    float shade = static_cast<float>(index) / 255.0f;
+                    // FIXME: probably do this elsewhere...
+                    float shade = static_cast<float>(index) / 128.0f;
                     auto color = glm::vec4{shade, 0, 0, index != 0 ? 1.0f : 0.0f};
                     data.push_back(color);
                 }

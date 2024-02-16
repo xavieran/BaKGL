@@ -1114,12 +1114,13 @@ void GameState::SetSpellState(const TimeExpiringState& state)
     }
     else
     {
-        mSpellState.SetSpellState(StaticSpells{state.mData}, false);
+        mSpellState.SetSpellState(StaticSpells{state.mData}, true);
     }
 }
 
 void GameState::CastStaticSpell(StaticSpells spell, Time duration)
 {
+    mLogger.Debug() << "Casting spell: " << spell << " for: " << duration << "\n";
     // RunDialog DialogSources::GetSpellCastDialog(static_cast<unsigned>(spell));
     auto* state = AddSpellTimeExpiringState(mTimeExpiringState, static_cast<unsigned>(spell), duration);
     assert(state);
@@ -1141,9 +1142,22 @@ void GameState::CastStaticSpell(StaticSpells spell, Time duration)
     default:
         break;
     }
+    mLogger.Debug() << "State now: " << mTimeExpiringState << "\n";
+    mLogger.Debug() << "SpellState now: " << std::hex << mSpellState.GetSpells() << std::dec << "\n";
 
     // HandlePostSpellcastingReduceHealth
 }
 
+
+bool GameState::CanCastSpell(SpellIndex spell, ActiveCharIndex activeChar)
+{
+    const auto& character = GetParty().GetCharacter(activeChar);
+    // FIXME: Add additional conditions, e.g. Stardusk only works outdoors...
+    const auto& spellInfo = SpellDatabase::Get().GetSpell(spell);
+    if (character.GetSkill(SkillType::TotalHealth) < spellInfo.mMinCost)
+        return false;
+
+    return character.GetSpells().HaveSpell(spell);
+}
 
 }

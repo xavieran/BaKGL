@@ -1,4 +1,5 @@
 #include "bak/spells.hpp"
+#include "bak/camp.hpp"
 #include "bak/fileBufferFactory.hpp"
 
 #include "com/logger.hpp"
@@ -10,12 +11,11 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("DialogStore");
     
     BAK::SpellDatabase::Get();
-    BAK::PowerRing{};
-
-    for (unsigned i = 0; i < 6; i++)
-    {
-        BAK::SymbolLines::GetPoints(i);
-    }
+    BAK::PowerRing::Get();
+    //for (unsigned i = 0; i < 6; i++)
+    //{
+    //    BAK::SymbolLines::GetPoints(i);
+    //}
     return 0;
 }
 

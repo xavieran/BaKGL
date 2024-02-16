@@ -125,6 +125,7 @@ public:
         switch (buttonIndex)
         {
         case sCast:
+            mGuiManager.ShowCast(false);
             break;
         case sCamp:
             mGuiManager.ShowCamp(false, nullptr);

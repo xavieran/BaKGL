@@ -220,6 +220,7 @@ public:
             std::move(onLeftMousePress),
             std::move(onRightMousePress)
         },
+        mIsPressed{false},
         mNormal{
             Graphics::DrawMode::Sprite,
             spriteSheet,
@@ -237,15 +238,9 @@ public:
             Color::black,
             glm::vec2{0},
             dims,
-            true},
-        mButton{}
+            true}
     {
-        mButton.emplace_back(&mNormal);
-    }
-
-    const std::vector<Graphics::IGuiElement*>& GetChildren() const override
-    {
-        return mButton;
+        AddChildren();
     }
 
     bool OnMouseEvent(const MouseEvent& event) override
@@ -263,17 +258,18 @@ public:
 
     bool LeftMousePressed(glm::vec2 click)
     {
-        ASSERT(mButton.size() >= 1);
         if (Within(click))
-            mButton[0] = &mPressed;
-
+        {
+            mIsPressed = true;
+            AddChildren();
+        }
         return false;
     }
 
     bool LeftMouseReleased(glm::vec2 click)
     {
-        ASSERT(mButton.size() >= 1);
-        mButton[0] = &mNormal;
+        mIsPressed = false;
+        AddChildren();
         return false;
     }
 
@@ -281,8 +277,8 @@ public:
     {
         if (!Within(pos))
         {
-            ASSERT(mButton.size() >= 1);
-            mButton[0] = &mNormal;
+            mIsPressed = false;
+            AddChildren();
         }
 
         return false;
@@ -305,11 +301,35 @@ public:
         mPressed.SetTexture(ti);
     }
 
+    void SetColor(glm::vec4 color)
+    {
+        mNormal.SetColor(color);
+        mPressed.SetColor(color);
+    }
+
+    void SetColorMode(Graphics::ColorMode mode)
+    {
+        mNormal.SetColorMode(mode);
+        mPressed.SetColorMode(mode);
+    }
+
 private:
+    void AddChildren()
+    {
+        ClearChildren();
+        if (mIsPressed)
+        {
+            AddChildBack(&mPressed);
+        }
+        else
+        {
+            AddChildBack(&mNormal);
+        }
+    }
+
+    bool mIsPressed;
     Widget mNormal;
     Widget mPressed;
-    
-    std::vector<Graphics::IGuiElement*> mButton;
 };
 
 }

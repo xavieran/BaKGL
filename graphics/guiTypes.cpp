@@ -38,6 +38,7 @@ std::ostream& operator<<(std::ostream& os, const PositionInfo& pi)
 {
     os  << "PositionInfo={ pos: " << pi.mPosition
         << ", scale: " << pi.mDimensions
+        << ", rotation: " << glm::degrees(pi.mRotation)
         << " , childRel: " << pi.mChildrenRelative
         << "}";
     return os;
