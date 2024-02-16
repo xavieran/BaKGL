@@ -256,15 +256,18 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         case DialogResult::UpdateCharacters:
         {
             const auto number = fb.GetUint16LE();
-            const auto char0 = CharIndex{fb.GetUint16LE()};
-            const auto char1 = CharIndex{fb.GetUint16LE()};
-            const auto char2 = CharIndex{fb.GetUint16LE()};
+            std::vector<CharIndex> characters{};
+            unsigned i = 0;
+            for (; i < number; i++)
+            {
+                characters.emplace_back(fb.GetUint16LE());
+            }
+            for (; i < 3; i++)
+            {
+                fb.GetUint16LE();
+            }
             mActions.emplace_back(
-                UpdateCharacters{
-                    number,
-                    char0,
-                    char1,
-                    char2});
+                UpdateCharacters{characters});
         } break;
         case DialogResult::HealCharacters:
         {

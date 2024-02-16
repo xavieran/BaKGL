@@ -69,6 +69,11 @@ public:
         return GetCharacter(mActiveCharacters[i.mValue]);
     }
 
+    void SetActiveCharacters(const std::vector<CharIndex>& characters)
+    {
+        mActiveCharacters = characters;
+    }
+
     const auto& GetKeys() const
     {
         return mKeys;

@@ -626,6 +626,10 @@ void GameState::EvaluateAction(const DialogAction& action)
             mLogger.Debug() << "Setting end of dialog state: " << state << "\n";
             mEndOfDialogState = state.mState;
         },
+        [&](const BAK::UpdateCharacters& update)
+        {
+            mParty.SetActiveCharacters(update.mCharacters);
+        },
         [&](const BAK::LoadSkillValue& load)
         {
             mLogger.Debug() << "Loading skill value: " << load << "\n";

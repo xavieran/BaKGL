@@ -188,10 +188,7 @@ struct PushNextDialog
 
 struct UpdateCharacters
 {
-    std::uint16_t mNumberChars;
-    CharIndex mCharacter0;
-    CharIndex mCharacter1;
-    CharIndex mCharacter2;
+    std::vector<CharIndex> mCharacters;
 };
 
 struct Teleport

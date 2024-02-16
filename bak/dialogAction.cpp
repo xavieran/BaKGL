@@ -84,9 +84,7 @@ std::ostream& operator<<(std::ostream& os, const Teleport& action)
 
 std::ostream& operator<<(std::ostream& os, const UpdateCharacters& action)
 {
-    os << "UpdateCharacters { chars: " << action.mNumberChars
-        << " | " << action.mCharacter0 << " " << action.mCharacter1 
-        << " " << action.mCharacter2 << "}";
+    os << "UpdateCharacters {" << action.mCharacters << "}";
     return os;
 }
 
