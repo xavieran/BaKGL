@@ -93,6 +93,11 @@ std::int16_t GameState::GetEndOfDialogState() const
     return mEndOfDialogState;
 }
 
+void GameState::SetEndOfDialogState(std::int16_t state)
+{
+    mEndOfDialogState = state;
+}
+
 GameData& GameState::GetGameData()
 {
     ASSERT(mGameData);
@@ -271,7 +276,7 @@ std::pair<CharIndex, unsigned> GameState::GetPartySkill(BAK::SkillType skill, bo
 
 void GameState::SetCharacterTextVariables()
 {
-    mEndOfDialogState = 0x0;
+    SetEndOfDialogState(0);
 
     if (GetParty().GetNumCharacters() > 0)
     {
@@ -645,7 +650,7 @@ void GameState::EvaluateAction(const DialogAction& action)
         [&](const BAK::SetEndOfDialogState& state)
         {
             mLogger.Debug() << "Setting end of dialog state: " << state << "\n";
-            mEndOfDialogState = state.mState;
+            SetEndOfDialogState(state.mState);
         },
         [&](const BAK::UpdateCharacters& update)
         {

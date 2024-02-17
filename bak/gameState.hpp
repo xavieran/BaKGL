@@ -54,6 +54,7 @@ public:
     Party& GetParty();
 
     std::int16_t GetEndOfDialogState() const;
+    void SetEndOfDialogState(std::int16_t state);
     GameData& GetGameData();
 
     void SetActiveCharacter(ActiveCharIndex character);
