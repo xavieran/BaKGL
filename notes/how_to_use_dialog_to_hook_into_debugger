@@ -44,4 +44,6 @@ bpm 2b50:43e0 - spell states
 
 // this is perhaps related to the tile character location is
 // rendered on when the game loads?
-bpm 2b40:3da9 up to 3dad potentially
+bpm 2b50:3da9 up to 3dad potentially
+
+bpm 2b50:404a bardRewardLeft / Gambling

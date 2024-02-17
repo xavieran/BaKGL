@@ -77,8 +77,8 @@ public:
     const WorldClock& GetWorldTime() const;
     WorldClock& GetWorldTime();
 
-    void SetShopType(unsigned shopType);
-    auto GetShopType() const;
+    void SetShopType_7542(unsigned shopType);
+    unsigned GetShopType_7542() const;
 
     IContainer* GetContainerForGDSScene(BAK::HotspotRef ref);
 
@@ -127,6 +127,8 @@ public:
     bool GetMoreThanOneTempleSeen() const;
 
     void SetDialogContext_7530(unsigned contextValue);
+    void SetBardReward_754d(unsigned value);
+    unsigned GetBardReward_754d();
     void SetItemValue(Royals value);
     void SetInventoryItem(const InventoryItem& item);
     void ClearUnseenImprovements(unsigned character);

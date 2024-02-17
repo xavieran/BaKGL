@@ -97,7 +97,7 @@ GDSScene::GDSScene(
     if (container && container->IsShop())
     {
         auto& shopStats = container->GetShop();
-        mGameState.SetShopType(shopStats.mRepairTypes);
+        mGameState.SetShopType_7542(shopStats.mRepairTypes);
     }
 
     const auto& scene1 = mSceneHotspots.GetScene(
@@ -214,6 +214,17 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspo
         }
 
         mState = State::Dialog;
+        auto* container = mGameState.GetContainerForGDSScene(mReference);
+        if (container && container->IsShop())
+        {
+            mGameState.SetBardReward_754d(container->GetShop().mBardingReward);
+            mGameState.SetShopType_7542(container->GetShop().mRepairTypes);
+        }
+        else
+        {
+            mGameState.SetBardReward_754d(0);
+
+        }
         StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
     }
     else if (hotspot.mAction == BAK::HotspotAction::EXIT)
@@ -381,6 +392,20 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     }
     else if (mState == State::Dialog)
     {
+        mLogger.Debug() << "End of Dialog - " << mSceneHotspots.mUnknown_25 << "\n";
+        if (mSceneHotspots.mUnknown_25 != 0)
+        {
+            if (mGameState.GetBardReward_754d() > 0xfa)
+            {
+                mGameState.SetBardReward_754d(0xfa);
+            }
+            auto* container = mGameState.GetContainerForGDSScene(mReference);
+            if (container && container->IsShop())
+            {
+                container->GetShop().mBardingReward = mGameState.GetBardReward_754d();
+            }
+        }
+
         if (mGameState.GetEndOfDialogState() == -4)
         {
             mState = State::Idle;
@@ -434,7 +459,8 @@ void GDSScene::DoBard()
         BAK::SkillType::Barding, true);
     mGameState.SetActiveCharacter(character);
 
-    if (shopStats.mBardingMaxReward != shopStats.mBardingReward)
+    //if (shopStats.mBardingMaxReward != shopStats.mBardingReward)
+    if (shopStats.mBardingReward == 0)
     {
         StartDialog(BAK::DialogSources::mBardingAlreadyDone, false);
     }

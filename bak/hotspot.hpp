@@ -120,14 +120,19 @@ public:
     std::string mSceneTTM;
     std::string mSceneADS;
 
+    // This seems only to be used for temples??
+    std::uint8_t mTempleIndex;
+
     SongIndex mSong;
 
     AdsSceneIndex mSceneIndex1;
     AdsSceneIndex mSceneIndex2;
 
     std::uint32_t mFlavourText;
-    // This seems only to be used for temples??
-    std::uint8_t mTempleIndex;
+    std::uint16_t mUnknown_1f;
+    std::uint16_t mUnknown_21;
+    std::uint16_t mUnknown_23;
+    std::uint16_t mUnknown_25;
 
     std::vector<Hotspot> mHotspots;
     std::unordered_map<unsigned, SceneIndex> mAdsIndices;

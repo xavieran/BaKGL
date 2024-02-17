@@ -90,9 +90,12 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
     logger.Spam() << "Hotspots: " << std::dec << numHotSpots << std::endl;
     logger.Spam() << "Flavour Text: " << std::hex << mFlavourText << std::endl;
 
-    const auto moreUnknownData = fb.GetArray<8>();
-    logger.Spam() << "More unknown data: " << std::hex 
-        << moreUnknownData << std::dec << "\n";
+    mUnknown_1f = fb.GetUint16LE();
+    mUnknown_21 = fb.GetUint16LE();
+    mUnknown_23 = fb.GetUint16LE();
+    mUnknown_25 = fb.GetUint16LE();
+    logger.Spam() << "Unknowns: " << mUnknown_1f << " " << mUnknown_21
+        << " " << mUnknown_23 << " " << mUnknown_25 << "\n";
 
     std::vector<Hotspot> hotspots;
 
