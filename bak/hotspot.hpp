@@ -139,6 +139,12 @@ public:
     std::unordered_map<unsigned, Scene> mScenes;
 
     const Scene& GetScene(unsigned adsIndex, const GameState& gs);
+    std::optional<unsigned> GetTempleNumber() const
+    {
+        if (!(0x80 & mTempleIndex)) return std::nullopt;
+        return mTempleIndex & 0x7f;
+        
+    }
 };
 
 }

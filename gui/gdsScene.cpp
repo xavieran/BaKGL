@@ -163,7 +163,8 @@ void GDSScene::EnterGDSScene()
     {
         if (hotspot.IsActive(mGameState) && hotspot.mAction == BAK::HotspotAction::TELEPORT)
         {
-            mGameState.Apply(BAK::State::SetTempleSeen, mSceneHotspots.mTempleIndex);
+            assert(mSceneHotspots.GetTempleNumber());
+            mGameState.Apply(BAK::State::SetTempleSeen, *mSceneHotspots.GetTempleNumber());
         }
         if (hotspot.IsActive(mGameState) && hotspot.EvaluateImmediately())
         {
@@ -192,6 +193,12 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspo
 { 
     mLogger.Debug() << "Hotspot: " << hotspot << "\n"
         << "Tele: " << (mState == State::Teleport) << "\n";
+
+    mGameState.SetItemValue(BAK::Royals{0});
+
+    if (hotspot.mActionArg3 != 0 && hotspot.mAction != BAK::HotspotAction::TEMPLE)
+    {
+    }
 
     if (hotspot.mAction == BAK::HotspotAction::DIALOG)
     {
@@ -236,15 +243,17 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspo
     {
         auto* container = mGameState.GetContainerForGDSScene(mReference);
         ASSERT(container);
+        assert(mSceneHotspots.GetTempleNumber());
         mTemple.EnterTemple(
             BAK::KeyTarget{hotspot.mActionArg3},
-            mSceneHotspots.mTempleIndex, 
+            *mSceneHotspots.GetTempleNumber(),
             container->GetShop());
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
     {
+        assert(mSceneHotspots.GetTempleNumber());
         if (mGameState.GetChapter() == BAK::Chapter{6}
-            && mSceneHotspots.mTempleIndex == BAK::Temple::sChapelOfIshap
+            && *mSceneHotspots.GetTempleNumber() == BAK::Temple::sChapelOfIshap
             && !mGameState.GetEventStateBool(BAK::GameData::sPantathiansEventFlag))
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossSource, false, false, this);
@@ -369,7 +378,8 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
         if (mGameState.GetMoreThanOneTempleSeen())
         {
-            mGuiManager.ShowTeleport(mSceneHotspots.mTempleIndex);
+            assert(mSceneHotspots.GetTempleNumber());
+            mGuiManager.ShowTeleport(*mSceneHotspots.GetTempleNumber());
         }
         else
         {

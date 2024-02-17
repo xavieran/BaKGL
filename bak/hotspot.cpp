@@ -70,7 +70,6 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
     mTempleIndex = fb.GetUint8();
     logger.Spam() << "TempleIndex: " << std::hex 
         << +mTempleIndex << std::dec << "\n";
-    mTempleIndex = mTempleIndex & 0xf;
     const auto unknownData2 = fb.GetArray<3>();
     logger.Spam() << "Unknown data2: " << std::hex 
         << unknownData2 << std::dec << "\n";
