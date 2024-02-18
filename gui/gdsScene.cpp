@@ -218,13 +218,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspo
                 mSceneHotspots.mSceneIndex1, mGameState);
             const auto& scene2 = mSceneHotspots.GetScene(
                 hotspot.mActionArg2, mGameState);
-            // respect the earlier reserve
-            ASSERT(mStaticTTMs.size () < mMaxSceneNesting);
-            mStaticTTMs.emplace_back(
-                mSpriteManager,
-                scene1,
-                scene2);
-            DisplayNPCBackground();
+            AddStaticTTM(scene1, scene2);
         }
 
         mGameState.SetDialogContext_7530(hotspotClicked);
@@ -274,6 +268,25 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
         mKickedOut = false;
     }
 
+    if (mBarding)
+    {
+        AudioA::AudioManager::Get().PopTrack();
+        mBarding = false;
+    }
+
+    if (mFlavourText != BAK::KeyTarget{0})
+        mDialogDisplay.ShowFlavourText(mFlavourText);
+
+    if (mStaticTTMs.size() > 1)
+    {
+        for (unsigned i = 1; i < mStaticTTMs.size(); i++)
+        {
+            mStaticTTMs.pop_back();
+        }
+    }
+
+    DisplayNPCBackground();
+
     if (!mPendingAction)
     {
         mLogger.Debug() << "No pending action at end of dialog, not evaluating further\n";
@@ -307,6 +320,17 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     EvaluateHotspotAction();
 }
 
+void GDSScene::AddStaticTTM(BAK::Scene scene1, BAK::Scene scene2)
+{
+    ASSERT(mStaticTTMs.size () < mMaxSceneNesting);
+    mLogger.Debug() << __FUNCTION__ << " " << scene1 << " --- " << scene2 << " \n";
+    mStaticTTMs.emplace_back(
+        mSpriteManager,
+        scene1,
+        scene2);
+    DisplayNPCBackground();
+}
+
 void GDSScene::EvaluateHotspotAction()
 {
     if (!mPendingAction)
@@ -338,7 +362,7 @@ void GDSScene::EvaluateHotspotAction()
             auto* container = mGameState.GetContainerForGDSScene(mReference);
             assert(container && container->IsShop());
             // 0xdb1c Eortis/rusalka qeust?
-            if (mGameState.GetEventStateBool(0xdb1c))
+            if (!mGameState.GetEventStateBool(0xdb1c))
             {
                 container->GetShop().mInnCost = 0x48;
             }
@@ -374,14 +398,6 @@ void GDSScene::EvaluateHotspotAction()
     }
 
     mPendingAction.reset();
-
-    if (mFlavourText != BAK::KeyTarget{0})
-        mDialogDisplay.ShowFlavourText(mFlavourText);
-
-    if (mStaticTTMs.size() > 1)
-        mStaticTTMs.pop_back();
-
-    DisplayNPCBackground();
 }
 
 void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
@@ -513,10 +529,17 @@ void GDSScene::DoTemple(BAK::KeyTarget target)
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     ASSERT(container && container->IsShop());
     assert(mSceneHotspots.GetTempleNumber());
+    const auto& scene1 = mSceneHotspots.GetScene(
+        mSceneHotspots.mSceneIndex1, mGameState);
+    const auto& scene2 = mSceneHotspots.GetScene(
+        3, mGameState);
+    AddStaticTTM(scene1, scene2);
+    mDialogDisplay.Clear();
     mTemple.EnterTemple(
         target,
         *mSceneHotspots.GetTempleNumber(),
-        container->GetShop());
+        container->GetShop(),
+        this);
 }
 
 void GDSScene::DoGoto()

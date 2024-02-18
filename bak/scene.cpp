@@ -253,12 +253,16 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     bool loadingScene = false;
     bool flipped = false;
     std::optional<unsigned> imageSlot = 0;
-    std::optional<unsigned> paletteSlot = 0;
+    std::optional<unsigned> paletteSlot{};
     std::optional<std::pair<unsigned, unsigned>> activeColor{};
     std::unordered_map<unsigned, std::string> palettes{};
     std::unordered_map<
         unsigned,
         std::pair<std::string, unsigned>> images{};
+    // FIXME: Probably a nicer way of doing image slots.
+    std::unordered_map<
+        unsigned,
+        ImageSlot> imageSlots;
 
     const auto PushScene = [&]{
         currentScene.mPalettes = palettes;
@@ -274,15 +278,6 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         {
             throw std::runtime_error("Tag not found");
         }
-        //const auto& tagMap = tags.GetTagMap();
-        //auto it = std::find_if(tagMap.begin(), tagMap.end(),
-        //    [&](const auto& it){
-        //        return it.second == currentScene.mSceneTag; });
-
-        //if (it != tagMap.end())
-        //    scenes[it->first] = currentScene;
-        //else
-        //    throw std::runtime_error("Tag not found");
     };
 
     for (const auto& chunk : chunks)
@@ -305,6 +300,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             currentScene.mImages.clear();
             currentScene.mPalettes.clear();
             images.clear();
+            imageSlots.clear();
             palettes.clear();
             imageSlot.reset();
             activeColor.reset();
@@ -320,11 +316,18 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             break;
 
         case Actions::LOAD_PALETTE:
+        {
             //ASSERT(loadingScene);
             ASSERT(chunk.mResourceName);
             ASSERT(paletteSlot);
-            palettes[*paletteSlot] = *chunk.mResourceName;
-            break;
+            const auto paletteName = *chunk.mResourceName;
+            palettes[*paletteSlot] = paletteName;
+            if (!imageSlots.contains(*paletteSlot))
+            {
+                imageSlots[*paletteSlot] = ImageSlot{};
+            }
+            imageSlots[*paletteSlot].mPalette = *paletteSlot;
+        } break;
 
         case Actions::SET_COLOR:
             ASSERT(paletteSlot);
@@ -332,15 +335,20 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 *paletteSlot,
                 chunk.mArguments[0]);
             break;
+
         case Actions::LOAD_IMAGE:
         {
             //ASSERT(loadingScene);
             ASSERT(chunk.mResourceName);
             ASSERT(imageSlot);
-            ASSERT(paletteSlot);
             auto name = *chunk.mResourceName;
             (*(name.end() - 1)) = 'X';
-            images[*imageSlot] = std::make_pair(name, *paletteSlot);
+            images[*imageSlot] = std::make_pair(name, paletteSlot ? *paletteSlot: *imageSlot);
+            if (!imageSlots.contains(*imageSlot))
+            {
+                imageSlots[*imageSlot] = ImageSlot{};
+            }
+            imageSlots[*imageSlot].mImage = name;
         }
             break;
         case Actions::DRAW_RECT:

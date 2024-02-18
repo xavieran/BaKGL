@@ -273,6 +273,7 @@ void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex)
     {
         case 74: return; // this runs dialog 1cfdf1 (nago combat flags)
                          // and is handled externally in my code
+        // These are the Eortis quest rusalki combats
         case 131: [[fallthrough]];
         case 132: [[fallthrough]];
         case 133: [[fallthrough]];
