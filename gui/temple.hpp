@@ -8,6 +8,8 @@
 #include "bak/temple.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "com/logger.hpp"
+
 #include "graphics/sprites.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -44,6 +46,7 @@ public:
         mShopStats{nullptr},
         mTarget{BAK::KeyTarget{0}},
         mTempleNumber{0},
+        mParentScene{},
         mLogger{Logging::LogState::GetLogger("Gui::Temple")}
     {}
     
@@ -53,14 +56,16 @@ public:
     void EnterTemple(
         BAK::KeyTarget keyTarget,
         unsigned templeIndex,
-        BAK::ShopStats& shopStats)
+        BAK::ShopStats& shopStats,
+        IDialogScene* parentScene)
     {
         mShopStats = &shopStats;
         mTarget = keyTarget;
         mState = State::Idle;
         mTempleNumber = templeIndex;
         mGameState.SetDialogContext_7530(templeIndex);
-        mGuiManager.StartDialog(keyTarget, false, false, this);
+        mParentScene = parentScene;
+        StartDialog(keyTarget);
     }
 
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice) override
@@ -136,7 +141,7 @@ public:
                 }
                 else if (*choice == BAK::ChoiceIndex{268})
                 {
-                    // Exit...
+                    mParentScene->DialogFinished(std::nullopt);
                 }
             }
         }
@@ -157,8 +162,17 @@ public:
         }
     }
 
-    void DisplayNPCBackground() override { }
-    void DisplayPlayerBackground() override { }
+    void DisplayNPCBackground() override
+    {
+        assert(mParentScene);
+        mParentScene->DisplayNPCBackground();
+    }
+
+    void DisplayPlayerBackground() override
+    {
+        assert(mParentScene);
+        mParentScene->DisplayPlayerBackground();
+    }
 
 private:
     void StartDialog(BAK::KeyTarget keyTarget)
@@ -247,6 +261,7 @@ private:
     BAK::ShopStats* mShopStats;
     BAK::KeyTarget mTarget;
     unsigned mTempleNumber;
+    IDialogScene* mParentScene;
 
     const Logging::Logger& mLogger;
 };

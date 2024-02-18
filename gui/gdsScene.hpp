@@ -37,36 +37,33 @@ public:
     void EnterGDSScene();
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
-    auto GetSong() const { return mSong; }
+    const auto& GetSceneHotspots() const { return mSceneHotspots; }
 
 public:
-    enum class State
-    {
-        Idle,
-        Inn,
-        Repair,
-        Container,
-        Goto,
-        Bard,
-        Teleport,
-        Dialog
-    };
-
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool);
+    void HandleHotspotLeftClicked2(const BAK::Hotspot& hotspot, bool);
     void HandleHotspotRightClicked(const BAK::Hotspot& hotspot);
 
     void StartDialog(BAK::Target target, bool isTooltip);
     void DialogFinished(const std::optional<BAK::ChoiceIndex>&) override;
+    void AddStaticTTM(BAK::Scene scene1, BAK::Scene scene2);
+
+    void EvaluateHotspotAction();
+
     void EnterContainer();
     void DoInn();
     void DoBard();
+    void DoRepair();
+    void DoTeleport();
+    void DoTemple(BAK::KeyTarget);
+    void DoGoto();
+    void DoExit();
 
     const Font& mFont;
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;
     BAK::SceneHotspots mSceneHotspots;
-    unsigned mSong;
-    BAK::Target mFlavourText;
+    BAK::KeyTarget mFlavourText;
 
     Graphics::SpriteSheetIndex mSpriteSheet;
     Graphics::SpriteManager& mSpriteManager;
@@ -82,10 +79,11 @@ public:
     IGuiManager& mGuiManager;
     DialogDisplay mDialogDisplay;
 
-    State mState;
+    std::optional<BAK::HotspotAction> mPendingAction;
     std::optional<BAK::HotspotRef> mPendingGoto;
     // e.g. when you fail barding
     bool mKickedOut;
+    bool mBarding;
     
     Temple mTemple;
     Repair mRepair;

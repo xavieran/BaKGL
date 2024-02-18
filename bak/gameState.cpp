@@ -31,8 +31,8 @@ GameState::GameState(
                 Inventory{5}}},
         std::vector<CharIndex>{CharIndex{0}}},
     mContextValue_7530{0},
-    mShopType{0},
-    mItemValue{0},
+    mShopType_7542{0},
+    mItemValue_753e{0},
     mSkillValue{0},
     mSelectedItem{},
     mCurrentMonster{},
@@ -93,6 +93,11 @@ std::int16_t GameState::GetEndOfDialogState() const
     return mEndOfDialogState;
 }
 
+void GameState::SetEndOfDialogState(std::int16_t state)
+{
+    mEndOfDialogState = state;
+}
+
 GameData& GameState::GetGameData()
 {
     ASSERT(mGameData);
@@ -129,7 +134,7 @@ Chapter GameState::GetChapter() const
 Royals GameState::GetMoney() const
 {
     if (mGameData)
-        return mGameData->mParty.GetGold();
+        return GetParty().GetGold();
 
     return Royals{1000};
 }
@@ -193,15 +198,14 @@ WorldClock& GameState::GetWorldTime()
     }
 }
 
-void GameState::SetShopType(unsigned shopType)
+void GameState::SetShopType_7542(unsigned shopType)
 {
-    mShopType = shopType;
+    mShopType_7542 = shopType;
 }
 
-auto GameState::GetShopType() const
+unsigned GameState::GetShopType_7542() const
 {
-    ASSERT(mShopType != 0);
-    return mShopType;
+    return mShopType_7542;
 }
 
 IContainer* GameState::GetContainerForGDSScene(BAK::HotspotRef ref)
@@ -272,7 +276,7 @@ std::pair<CharIndex, unsigned> GameState::GetPartySkill(BAK::SkillType skill, bo
 
 void GameState::SetCharacterTextVariables()
 {
-    mEndOfDialogState = 0x0;
+    SetEndOfDialogState(0);
 
     if (GetParty().GetNumCharacters() > 0)
     {
@@ -349,7 +353,7 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
     case 18:
         mTextVariableStore.SetTextVariable(
             index,
-            ToShopDialogString(mItemValue));
+            ToShopDialogString(mItemValue_753e));
         break;
     case 19:
         mTextVariableStore.SetTextVariable(
@@ -518,13 +522,13 @@ void GameState::EvaluateAction(const DialogAction& action)
             {
                 mTextVariableStore.SetTextVariable(
                     set.mWhich,
-                    ToShopDialogString(mItemValue));
+                    ToShopDialogString(mItemValue_753e));
             }
             else if (set.mWhat == 0x19)
             {
                 mTextVariableStore.SetTextVariable(
                     set.mWhich,
-                    ToShopDialogString(mItemValue));
+                    ToShopDialogString(mItemValue_753e));
             }
             else if (set.mWhat == 0x1c)
             {
@@ -592,6 +596,10 @@ void GameState::EvaluateAction(const DialogAction& action)
                 HealCharacter(CharIndex{character}, heal.mHowMuch);
             }
         },
+        [&](const BAK::SpecialAction& action)
+        {
+            EvaluateSpecialAction(action);
+        },
         [&](const BAK::GainCondition& cond)
         {
             auto amount = cond.mMax;
@@ -642,11 +650,11 @@ void GameState::EvaluateAction(const DialogAction& action)
         [&](const BAK::SetEndOfDialogState& state)
         {
             mLogger.Debug() << "Setting end of dialog state: " << state << "\n";
-            mEndOfDialogState = state.mState;
+            SetEndOfDialogState(state.mState);
         },
         [&](const BAK::UpdateCharacters& update)
         {
-            mParty.SetActiveCharacters(update.mCharacters);
+            GetParty().SetActiveCharacters(update.mCharacters);
         },
         [&](const BAK::LoadSkillValue& load)
         {
@@ -656,14 +664,14 @@ void GameState::EvaluateAction(const DialogAction& action)
         [&](const BAK::LearnSpell& learnSpell)
         {
             mLogger.Debug() << "Learning Spell: " << learnSpell << "\n";
-            mParty.GetCharacter(CharIndex{mDialogCharacterList[learnSpell.mWho]})
+            GetParty().GetCharacter(CharIndex{mDialogCharacterList[learnSpell.mWho]})
                 .GetSpells().SetSpell(learnSpell.mWhichSpell);
         },
         [&](const BAK::LoseNOfItem& loss)
         {
             for (unsigned i = 0; i < loss.mQuantity; i++)
             {
-                mParty.RemoveItem(loss.mItemIndex, 1);
+                GetParty().RemoveItem(loss.mItemIndex, 1);
             }
         },
         [&](const auto& a){
@@ -672,64 +680,110 @@ void GameState::EvaluateAction(const DialogAction& action)
         action);
 }
 
+void GameState::EvaluateSpecialAction(const SpecialAction& action)
+{
+    mLogger.Debug() << "Evaluating special action: " << action << "\n";
+    using enum SpecialActionType;
+    switch (action.mType)
+    {
+    case ReduceGold:
+        GetParty().LoseMoney(mItemValue_753e);
+        break;
+    case IncreaseGold:
+        GetParty().GainMoney(mItemValue_753e);
+        break;
+    case Increase753f:
+        mContextVar_753f += action.mVar1;
+        break;
+    case Gamble:
+        DoGamble(action.mVar1, action.mVar2, action.mVar3);
+        break;
+    case ResetGambleValueTo:
+        mBardReward_754d = action.mVar1;
+        break;
+    default:
+        mLogger.Debug() << "Unhandled action:" << action << "\n";
+    }
+}
+
+void GameState::DoGamble(unsigned playerChance, unsigned gamblerChance, unsigned reward)
+{
+    mContextVar_753f = GetRandomNumber(0, 0xfff) % playerChance;
+    mShopType_7542 = GetRandomNumber(0, 0xfff) % gamblerChance;
+    mLogger.Debug() << "Rolled for player: " << mContextVar_753f
+        << " for gambler: " << mShopType_7542 << "\n";
+
+    if (mContextVar_753f <= mShopType_7542)
+    {
+        mLogger.Debug() << "Gambler won\n";
+        if (mContextVar_753f >= mShopType_7542)
+        {
+            mLogger.Debug() << "Drew with gambler\n";
+            if (mContextVar_753f == mShopType_7542)
+            {
+                SetDialogContext_7530(2);
+            }
+        }
+        else
+        {
+            mLogger.Debug() << "We lost " << mItemValue_753e << "\n";
+            SetDialogContext_7530(1);
+            GetParty().LoseMoney(mItemValue_753e);
+            if (mBardReward_754d <= 60000)
+            {
+                mBardReward_754d += mItemValue_753e.mValue;
+            }
+        }
+    }
+    else
+    {
+        mLogger.Debug() << "We won " << mItemValue_753e << "\n";
+        SetDialogContext_7530(0);
+        const auto winnings = Royals{(mItemValue_753e.mValue * reward) / 100};
+        GetParty().GainMoney(winnings);
+        mBardReward_754d = (winnings.mValue > mBardReward_754d)
+            ? 0
+            : (mBardReward_754d - winnings.mValue);
+        //auto& character = GetParty().GetCharacter(mSelectedCharacter);
+    }
+}
+
 bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
 {
-    if (choice.mState == BAK::ActiveStateFlag::Chapter)
-    {
-        return GetChapter().mValue >= choice.mExpectedValue
-            && GetChapter().mValue <= choice.mExpectedValue2;
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::Context)
-    {
-        return mContextValue_7530 == choice.mExpectedValue;
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::CantAfford)
-    {
-        return (GetMoney() > mItemValue) == (choice.mExpectedValue == 1);
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::SkillCheck)
-    {
-        return mSkillValue >= choice.mExpectedValue;
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::Money)
-    {
-        return GetMoney().mValue > GetRoyals(Sovereigns{static_cast<unsigned>(choice.mExpectedValue)}).mValue;
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::NightTime)
-    {
-        const auto time = GetWorldTime().GetTime();
-        const auto hour = time.GetHour();
-        const bool result = hour < 4 || hour >= 20;
-        mLogger.Debug() << "Checking NightTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
-        return result;
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::DayTime)
-    {
-        const auto time = GetWorldTime().GetTime();
-        const auto hour = time.GetHour();
-        const bool result = hour >= 4 && hour < 20;
-        mLogger.Debug() << "Checking DayTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
-        return result;
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::TimeBetween)
-    {
-        const auto time = GetWorldTime().GetTime();
-        const auto hour = time.GetHour();
-        return hour >= choice.mExpectedValue && hour <= choice.mExpectedValue2;
-    }
-    else if (choice.mState == BAK::ActiveStateFlag::Shop)
-    {
-        return GetShopType() == choice.mExpectedValue;
-    }
-    else if (static_cast<unsigned>(choice.mState) == 0x753f)
-    {
-        // This is set by the cheat screen dialog which raises
-        // skill values
-        //return (mContextVar_753f == choice.mExpectedValue);
-        return true;
-    }
-
-    return false;
+    const unsigned value = std::invoke([&](){
+        switch (choice.mState)
+        {
+        case ActiveStateFlag::Chapter: return GetChapter().mValue;
+        case ActiveStateFlag::Context: return mContextValue_7530;
+        case ActiveStateFlag::CantAfford: return static_cast<unsigned>(GetMoney() > mItemValue_753e);
+        case ActiveStateFlag::SkillCheck: return mSkillValue;
+        case ActiveStateFlag::Money: return Sovereigns{GetMoney().mValue}.mValue;;
+        case ActiveStateFlag::TimeBetween: return GetWorldTime().GetTime().GetHour();
+        case ActiveStateFlag::NightTime:
+        {
+            const auto time = GetWorldTime().GetTime();
+            const auto hour = time.GetHour();
+            const unsigned result = hour < 4 || hour >= 20;
+            mLogger.Debug() << "Checking NightTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
+            return result;
+        }
+        case ActiveStateFlag::DayTime:
+        {
+            const auto time = GetWorldTime().GetTime();
+            const auto hour = time.GetHour();
+            const unsigned result = hour >= 4 && hour < 20;
+            mLogger.Debug() << "Checking DayTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
+            return result;
+        }
+        case ActiveStateFlag::Shop: return GetShopType_7542();
+        case ActiveStateFlag::Context_753f: return mContextVar_753f;
+        case ActiveStateFlag::Gambler: return static_cast<unsigned>(mBardReward_754d);
+        case ActiveStateFlag::ItemValue_753e: return mItemValue_753e.mValue;
+        default: return 0u;
+        }
+    });
+    return value >= choice.mMinValue && 
+        (choice.mMaxValue == 0xffff || value <= choice.mMaxValue);
 }
 
 bool GameState::EvaluateComplexChoice(const ComplexEventChoice& choice) const
@@ -750,11 +804,10 @@ bool GameState::EvaluateComplexChoice(const ComplexEventChoice& choice) const
     }
 
     // Need to double check this...
-    //const auto chapterFlag = GetChapter() == 9
-    //    ? 0x80
-    //    : 1 << (GetChapter() - 1);
-    //const auto chapterMaskSatisfied
-    //    = (chapterFlag & choice.mChapterMask) != 0;
+    const auto chapterFlag = GetChapter() == Chapter{9}
+        ? 0x80
+        : 1 << (GetChapter().mValue - 1);
+    //const auto chapterMaskSatisfied = (chapterFlag & choice.mChapterMask) == 0;
     const auto chapterMaskSatisfied = true;
 
     if (choice.mMustEqualExpected)
@@ -813,6 +866,8 @@ bool GameState::EvaluateDialogChoice(const Choice& choice) const
                 return CheckCustomStateScenarioPlagued();
             case Scenario::AllPartyArmorIsGoodCondition:
                 return CheckCustomStateScenarioAllPartyArmorIsGoodCondition();
+            case Scenario::AnyCharacterUnhealthy:
+                return CheckCustomStateScenarioAnyCharacterUnhealthy();
             default:
                 return false;
             }
@@ -851,8 +906,18 @@ void GameState::SetEventValue(unsigned eventPtr, unsigned value)
 
 void GameState::SetEventState(const SetFlag& setFlag)
 {
-    if (mGameData)
+    if (setFlag.mEventPointer == 0x753e)
+    {
+        mItemValue_753e = Royals{setFlag.mEventValue};
+    }
+    else if (setFlag.mEventPointer == 0x753f)
+    {
+        mContextVar_753f = setFlag.mEventValue;
+    }
+    else if (mGameData)
+    {
         State::SetEventDialogAction(mGameData->GetFileBuffer(), setFlag);
+    }
 }
 
 bool GameState::GetMoreThanOneTempleSeen() const
@@ -876,7 +941,17 @@ void GameState::SetDialogContext_7530(unsigned contextValue)
 
 void GameState::SetItemValue(Royals value)
 {
-    mItemValue = value;
+    mItemValue_753e = value;
+}
+
+void GameState::SetBardReward_754d(unsigned value)
+{
+    mBardReward_754d = value;
+}
+
+unsigned GameState::GetBardReward_754d()
+{
+    return mBardReward_754d;
 }
 
 void GameState::SetInventoryItem(const InventoryItem& item)
@@ -976,6 +1051,31 @@ bool GameState::CheckCustomStateScenarioAllPartyArmorIsGoodCondition() const
         });
 
     return !foundRepairableArmor;
+}
+
+bool GameState::CheckCustomStateScenarioAnyCharacterUnhealthy() const
+{
+    bool nonZero = false;
+    GetParty().ForEachActiveCharacter([&](auto& character)
+    {
+        for (unsigned i = 0; i < 7; i++)
+        {
+            if (i == 4) continue;
+            if (character.GetConditions().GetCondition(static_cast<Condition>(i)).Get() > 0)
+            {
+                nonZero = true;
+                return true;
+            }
+        }
+
+        if (character.GetSkill(SkillType::TotalHealth) != character.GetMaxSkill(SkillType::TotalHealth))
+        {
+            nonZero = true;
+            return true;
+        }
+        return false;
+    });
+    return nonZero;
 }
 
 void GameState::ElapseTime(Time time)

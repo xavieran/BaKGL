@@ -75,6 +75,12 @@ struct SceneIndex
 
 std::ostream& operator<<(std::ostream&, const SceneIndex&);
 
+struct ImageSlot
+{
+    std::optional<std::string> mImage;
+    std::optional<unsigned> mPalette;
+};
+
 struct Scene
 {
     std::string mSceneTag;

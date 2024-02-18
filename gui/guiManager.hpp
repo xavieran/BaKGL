@@ -297,7 +297,7 @@ public:
                 mGameState,
                 static_cast<IGuiManager&>(*this)));
 
-        const auto song = mGdsScenes.back()->GetSong();
+        const auto song = mGdsScenes.back()->GetSceneHotspots().mSong;
         if (song != 0)
         {
             AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{song});

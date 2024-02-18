@@ -15,7 +15,7 @@ std::pair<unsigned, unsigned> CalculateComplexEventOffset(unsigned eventPtr)
         ? (source % 10) - 1
         : 0;
         
-    Logging::LogSpam(__FUNCTION__) << std::hex << " " << eventPtr << " ("
+    Logging::LogSpam(__FUNCTION__) << std::hex << " " << eventPtr << " source: " << source << " ("
         << byteOffset + sGameComplexEventRecordOffset << ", " 
         << bitOffset << ")\n" << std::dec;
     return std::make_pair(

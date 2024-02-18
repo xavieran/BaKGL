@@ -27,7 +27,7 @@ enum class HotspotAction
     INN         = 7,
     CONTAINER   = 8,
     LUTE        = 9,
-    UNKNOWN_A   = 0xa,
+    REPAIR_2   = 0xa,
     TELEPORT    = 0xb,
     UNKNOWN_C   = 0xc,
     TEMPLE      = 0xd,
@@ -45,42 +45,48 @@ struct Hotspot
         std::uint16_t hotspot,
         glm::vec<2, int> topLeft,
         glm::vec<2, int> dimensions,
+        std::uint16_t chapterMask,
         std::uint16_t keyword,
         HotspotAction action,
+        std::uint8_t unknown_d,
         std::uint16_t actionArg1,
         std::uint16_t actionArg2,
         std::uint32_t actionArg3,
         KeyTarget tooltip,
+        std::uint32_t unknown_1a,
         KeyTarget dialog,
-        std::uint16_t chapterMask,
-        std::uint32_t unknown1,
         std::uint16_t checkEventState)
     :
         mHotspot{hotspot},
         mTopLeft{topLeft},
         mDimensions{dimensions},
+        mChapterMask{chapterMask},
         mKeyword{keyword},
         mAction{action},
+        mUnknown_d{unknown_d},
         mActionArg1{actionArg1},
         mActionArg2{actionArg2},
         mActionArg3{actionArg3},
         mTooltip{tooltip},
+        mUnknown_1a{unknown_1a},
         mDialog{dialog},
-        mChapterMask{chapterMask},
-        mUnknown1{unknown1},
         mCheckEventState{checkEventState}
     {}
 
     std::uint16_t mHotspot;
     glm::vec<2, int> mTopLeft;
     glm::vec<2, int> mDimensions;
+    std::uint16_t mChapterMask;
     std::uint16_t mKeyword;
     HotspotAction mAction;
+    std::uint8_t mUnknown_d;
     std::uint16_t mActionArg1;
     std::uint16_t mActionArg2;
     std::uint32_t mActionArg3;
     KeyTarget mTooltip;
+    std::uint32_t mUnknown_1a;
     KeyTarget mDialog;
+    std::uint16_t mCheckEventState;
 
     // Yes but there is more to it - e.g. Sarth
     bool IsActive(GameState& gameState) const
@@ -104,9 +110,6 @@ struct Hotspot
         return (mChapterMask & 0x8000) != 0;
     }
 
-    std::uint16_t mChapterMask;
-    std::uint32_t mUnknown1;
-    std::uint16_t mCheckEventState;
 };
 
 std::ostream& operator<<(std::ostream&, const Hotspot&);
@@ -120,20 +123,35 @@ public:
     std::string mSceneTTM;
     std::string mSceneADS;
 
-    SongIndex mSong;
-
-    AdsSceneIndex mSceneIndex1;
-    AdsSceneIndex mSceneIndex2;
-
-    std::uint32_t mFlavourText;
-    // This seems only to be used for temples??
+    std::array<std::uint8_t, 6> mUnknown_6;
+    std::uint8_t mUnknown_c;
     std::uint8_t mTempleIndex;
+    std::uint8_t mUnknown_e;
+    std::uint8_t mUnknown_f;
+    std::uint8_t mUnknown_10;
+    SongIndex mSong;
+    std::uint16_t mUnknownIdx_13;
+    AdsSceneIndex mSceneIndex1;
+    std::uint16_t mUnknown_16;
+    AdsSceneIndex mSceneIndex2;
+    std::uint16_t mNumHotspots;
+    std::uint32_t mFlavourText;
+    std::uint16_t mUnknown_1f;
+    std::uint16_t mUnknown_21;
+    std::uint16_t mUnknown_23;
+    std::uint16_t mUnknown_25;
 
     std::vector<Hotspot> mHotspots;
     std::unordered_map<unsigned, SceneIndex> mAdsIndices;
     std::unordered_map<unsigned, Scene> mScenes;
 
     const Scene& GetScene(unsigned adsIndex, const GameState& gs);
+    std::optional<unsigned> GetTempleNumber() const
+    {
+        if (!(0x80 & mTempleIndex)) return std::nullopt;
+        return mTempleIndex & 0x7f;
+        
+    }
 };
 
 }

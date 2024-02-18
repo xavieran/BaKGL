@@ -54,6 +54,7 @@ public:
     Party& GetParty();
 
     std::int16_t GetEndOfDialogState() const;
+    void SetEndOfDialogState(std::int16_t state);
     GameData& GetGameData();
 
     void SetActiveCharacter(ActiveCharIndex character);
@@ -77,8 +78,8 @@ public:
     const WorldClock& GetWorldTime() const;
     WorldClock& GetWorldTime();
 
-    void SetShopType(unsigned shopType);
-    auto GetShopType() const;
+    void SetShopType_7542(unsigned shopType);
+    unsigned GetShopType_7542() const;
 
     IContainer* GetContainerForGDSScene(BAK::HotspotRef ref);
 
@@ -99,6 +100,8 @@ public:
     void SelectRandomActiveCharacter(unsigned index, unsigned attribute);
 
     void EvaluateAction(const DialogAction& action);
+    void EvaluateSpecialAction(const SpecialAction& action);
+    void DoGamble(unsigned playerChance, unsigned gamblerChance, unsigned reward);
     bool EvaluateGameStateChoice(const GameStateChoice& choice) const;
 
     void ElapseTime(Time time);
@@ -125,6 +128,8 @@ public:
     bool GetMoreThanOneTempleSeen() const;
 
     void SetDialogContext_7530(unsigned contextValue);
+    void SetBardReward_754d(unsigned value);
+    unsigned GetBardReward_754d();
     void SetItemValue(Royals value);
     void SetInventoryItem(const InventoryItem& item);
     void ClearUnseenImprovements(unsigned character);
@@ -136,6 +141,7 @@ public:
     std::vector<GenericContainer>& GetContainers(ZoneNumber zone);
     bool CheckCustomStateScenarioPlagued() const;
     bool CheckCustomStateScenarioAllPartyArmorIsGoodCondition() const;
+    bool CheckCustomStateScenarioAnyCharacterUnhealthy() const;
     
 
     std::optional<CharIndex> mDialogCharacter;
@@ -153,9 +159,12 @@ public:
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue_7530;
-    unsigned mShopType;
-    Royals mItemValue;
+    unsigned mShopType_7542;
+    unsigned mBardReward_754d;
+    Royals mItemValue_753e;
     unsigned mSkillValue;
+    unsigned mContextVar_753f;
+
     std::optional<InventoryItem> mSelectedItem;
     std::optional<MonsterIndex> mCurrentMonster;
     Chapter mChapter;

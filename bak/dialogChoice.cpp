@@ -18,8 +18,8 @@ std::string_view ToString(ActiveStateFlag f)
     case ActiveStateFlag::DayTime: return "DayTime";
     case ActiveStateFlag::TimeBetween: return "TimeBetween";
     case ActiveStateFlag::SkillCheck: return "SkillCheck";
-    case ActiveStateFlag::Unknown3: return "Unknown[753e]";
-    case ActiveStateFlag::Unknown4: return "Unknown[753f]";
+    case ActiveStateFlag::ItemValue_753e: return "ItemValue_753e";
+    case ActiveStateFlag::Context_753f: return "Context_753f";
     case ActiveStateFlag::Shop: return "Shop";
     case ActiveStateFlag::Gambler: return "Gambler";
     default: return "UnknownActiveStateFlag";
@@ -76,7 +76,7 @@ std::ostream& operator<<(std::ostream& os, const EventFlagChoice& c)
 std::ostream& operator<<(std::ostream& os, const GameStateChoice& c)
 {
     os << ToString(ChoiceMask::GameState) << " " << ToString(c.mState) 
-        << " " << std::hex << c.mExpectedValue << " | " << c.mExpectedValue2;
+        << " [" << std::hex << c.mMinValue << ", " << c.mMaxValue << "]";
     return os;
 }
 
@@ -89,7 +89,7 @@ std::ostream& operator<<(std::ostream& os, Scenario s)
         case Scenario::HaveSixSuitsOfArmor: os << "HaveSixSuitsOfArmor"; break;
         case Scenario::AllPartyArmorIsGoodCondition: os << "AllPartyArmorIsGoodCondition"; break;
         case Scenario::RelatedToMartin: os << "RelatedToMartin"; break;
-        case Scenario::AcceptedRusalkaQuest: os << "AcceptedRusalkaQuest"; break;
+        case Scenario::AnyCharacterUnhealthy: os << "AnyCharacterUnhealthy"; break;
         case Scenario::CompletedRusalkaQuest: os << "CompletedRusalkaQuest"; break;
         case Scenario::AllPartyMembersHaveNapthaMask: os << "AllPartyMembersHaveNapthaMask"; break;
         case Scenario::NormalFoodInArlieChest: os << "NormalFoodInArlieChest"; break;

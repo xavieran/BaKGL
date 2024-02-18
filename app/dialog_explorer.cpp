@@ -1,4 +1,5 @@
 #include "bak/dialog.hpp"
+#include "bak/dialogTarget.hpp"
 #include "bak/gameData.hpp"
 
 #include "com/logger.hpp"
@@ -152,8 +153,11 @@ int main(int argc, char** argv)
                 //        << " @state: " << choice.mState;
                 //    ImGui::SameLine(); ImGui::Text(ss.str().c_str());
                 //}
-                ImGui::TextWrapped(dialogStore.GetFirstText(
-                    dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());
+                if (choice.mTarget != BAK::Target{BAK::KeyTarget{0}})
+                {
+                    ImGui::TextWrapped(dialogStore.GetFirstText(
+                        dialogStore.GetSnippet(choice.mTarget)).substr(0, 40).data());
+                }
             }
 
             ImGui::End();

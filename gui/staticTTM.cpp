@@ -42,9 +42,9 @@ StaticTTM::StaticTTM(
         for (const auto& [imageKey, imagePal] : scene.mImages)
         {
             const auto& [image, palKey] = imagePal;
-            mLogger.Debug() << "Loading image slot: " << imageKey 
-                << " (" << image << ")\n";
             const auto& palette = scene.mPalettes.find(palKey)->second;
+            mLogger.Debug() << "Loading image slot: " << imageKey 
+                << " (" << image << ") with palette: " << palKey << "\n";
             offsets[imageKey] = textures.GetTextures().size();
 
             BAK::TextureFactory::AddToTextureStore(

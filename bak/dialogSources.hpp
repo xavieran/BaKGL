@@ -51,7 +51,7 @@ public:
         const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
         const auto it = std::find_if(choices.begin(), choices.end(), [&](const auto& a){
             ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
-            return std::get<GameStateChoice>(a.mChoice).mExpectedValue == index ;} );
+            return std::get<GameStateChoice>(a.mChoice).mMinValue == index ;} );
         ASSERT(it != choices.end());
         return it->mTarget;
     }

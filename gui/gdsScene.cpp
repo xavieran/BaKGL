@@ -38,7 +38,6 @@ GDSScene::GDSScene(
     mSceneHotspots{
         BAK::FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
-    mSong{mSceneHotspots.mSong},
     mFlavourText{BAK::KeyTarget{0x0}},
     mSpriteSheet{GetDrawInfo().mSpriteSheet},
     mSpriteManager{spriteManager},
@@ -64,7 +63,7 @@ GDSScene::GDSScene(
         backgrounds,
         font,
         gameState},
-    mState{State::Idle},
+    mPendingAction{},
     mPendingGoto{},
     mKickedOut{false},
     mTemple{
@@ -77,7 +76,6 @@ GDSScene::GDSScene(
     },
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
-    mLogger.Debug() << "Song: " << mSong << "\n";
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(
         textures, "DIALOG.SCX", "OPTIONS.PAL");
@@ -91,13 +89,14 @@ GDSScene::GDSScene(
 
     auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
+    if (mFlavourText == BAK::KeyTarget{0x10000}) mFlavourText = BAK::KeyTarget{0};
 
     // Needed for repair shops...
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     if (container && container->IsShop())
     {
         auto& shopStats = container->GetShop();
-        mGameState.SetShopType(shopStats.mRepairTypes);
+        mGameState.SetShopType_7542(shopStats.mRepairTypes);
     }
 
     const auto& scene1 = mSceneHotspots.GetScene(
@@ -142,14 +141,14 @@ GDSScene::GDSScene(
                 hs.mDimensions,
                 hs.mHotspot,
                 hs.mKeyword - 1 // cursor index
-             );
+            );
             AddChildBack(&mHotspots.back());
         }
     }
 
     DisplayNPCBackground();
 
-    if (mFlavourText != BAK::Target{BAK::KeyTarget{0}})
+    if (mFlavourText != BAK::KeyTarget{0})
         mDialogDisplay.ShowFlavourText(mFlavourText);
     AddChildBack(&mDialogDisplay);
 
@@ -158,20 +157,28 @@ GDSScene::GDSScene(
 
 void GDSScene::EnterGDSScene()
 {
-    unsigned count = 0;
+    std::optional<BAK::Hotspot> evaluateImmediately{};
     for (const auto hotspot : mSceneHotspots.mHotspots)
     {
         if (hotspot.IsActive(mGameState) && hotspot.mAction == BAK::HotspotAction::TELEPORT)
         {
-            mGameState.Apply(BAK::State::SetTempleSeen, mSceneHotspots.mTempleIndex);
+            assert(mSceneHotspots.GetTempleNumber());
+            mGameState.Apply(BAK::State::SetTempleSeen, *mSceneHotspots.GetTempleNumber());
         }
         if (hotspot.IsActive(mGameState) && hotspot.EvaluateImmediately())
         {
-            count++;
-            HandleHotspotLeftClicked(hotspot, false);
+            assert(!evaluateImmediately);
+            evaluateImmediately = hotspot;
         }
     }
-    ASSERT(count <= 1);
+
+    mPendingAction.reset();
+    mPendingGoto.reset();
+
+    if (evaluateImmediately)
+    {
+        HandleHotspotLeftClicked(*evaluateImmediately, false);
+    }
 }
 
 void GDSScene::DisplayNPCBackground()
@@ -190,126 +197,207 @@ void GDSScene::DisplayPlayerBackground()
 
 void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspotClicked)
 { 
-    mLogger.Debug() << "Hotspot: " << hotspot << "\n"
-        << "Tele: " << (mState == State::Teleport) << "\n";
+    mLogger.Debug() << "Hotspot: " << hotspot << "\n";
 
-    if (hotspot.mAction == BAK::HotspotAction::DIALOG)
+    mGameState.SetItemValue(BAK::Royals{0});
+
+    mPendingAction = hotspot.mAction;
+    if (hotspot.mAction == BAK::HotspotAction::GOTO)
     {
-        mGameState.SetDialogContext_7530(hotspotClicked);
-        if (hotspot.mActionArg2 != 0x0)
+        auto hotspotRef = mReference;
+        hotspotRef.mGdsChar = BAK::MakeHotspotChar(hotspot.mActionArg1);
+        mPendingGoto = hotspotRef;
+    }
+
+    if ((hotspot.mActionArg3 != 0 && hotspot.mActionArg3 != 0x10000)
+        && hotspot.mAction != BAK::HotspotAction::TEMPLE)
+    {
+        if (hotspot.mActionArg2 != 0)
         {
             const auto& scene1 = mSceneHotspots.GetScene(
                 mSceneHotspots.mSceneIndex1, mGameState);
             const auto& scene2 = mSceneHotspots.GetScene(
                 hotspot.mActionArg2, mGameState);
-
-
-            // respect the earlier reserve
-            ASSERT(mStaticTTMs.size () < mMaxSceneNesting);
-            mStaticTTMs.emplace_back(
-                mSpriteManager,
-                scene1,
-                scene2);
-            DisplayNPCBackground();
+            AddStaticTTM(scene1, scene2);
         }
 
-        mState = State::Dialog;
+        mGameState.SetDialogContext_7530(hotspotClicked);
+        mGameState.SetBardReward_754d(0);
+        
+        auto* container = mGameState.GetContainerForGDSScene(mReference);
+        if (container && container->IsShop())
+        {
+            mGameState.SetBardReward_754d(container->GetShop().mBardingReward);
+            mGameState.SetShopType_7542(container->GetShop().mRepairTypes);
+        }
+
         StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
-    }
-    else if (hotspot.mAction == BAK::HotspotAction::EXIT)
-    {
-        mGuiManager.ExitGDSScene();
-        return;
     }
     else if (hotspot.mAction == BAK::HotspotAction::TEMPLE)
     {
-        auto* container = mGameState.GetContainerForGDSScene(mReference);
-        ASSERT(container);
-        mTemple.EnterTemple(
-            BAK::KeyTarget{hotspot.mActionArg3},
-            mSceneHotspots.mTempleIndex, 
-            container->GetShop());
+        DoTemple(BAK::KeyTarget{hotspot.mActionArg3});
+        mPendingAction.reset();
     }
     else if (hotspot.mAction == BAK::HotspotAction::TELEPORT)
     {
+        assert(mSceneHotspots.GetTempleNumber());
         if (mGameState.GetChapter() == BAK::Chapter{6}
-            && mSceneHotspots.mTempleIndex == BAK::Temple::sChapelOfIshap
+            && *mSceneHotspots.GetTempleNumber() == BAK::Temple::sChapelOfIshap
             && !mGameState.GetEventStateBool(BAK::GameData::sPantathiansEventFlag))
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossSource, false, false, this);
+            mPendingAction.reset();
         }
         else
         {
             StartDialog(BAK::DialogSources::mTeleportDialogIntro, false);
-            mState = State::Teleport;
         }
     }
-    else if (hotspot.mAction == BAK::HotspotAction::SHOP
-        || hotspot.mAction == BAK::HotspotAction::BARMAID
-        || hotspot.mAction == BAK::HotspotAction::CONTAINER)
+    else
     {
-        // FIXME! Need someting a bit more generic than this...
-        if (hotspot.mActionArg3 != 0)
-        {
-            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
-            mState = State::Container;
-        }
-        else
-        {
-            EnterContainer();
-        }
+        EvaluateHotspotAction();
     }
-    else if (hotspot.mAction == BAK::HotspotAction::REPAIR)
-    {
-        if (hotspot.mActionArg3 != 0)
-        {
-            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
+}
 
-            auto* container = mGameState.GetContainerForGDSScene(mReference);
-            mLogger.Debug() << container->GetShop() << "\n";
-            mState = State::Repair;
-        }
-        else
-        {
-            ASSERT(false);
-        }
-    }
-    else if (hotspot.mAction == BAK::HotspotAction::INN)
+
+void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
+{
+    if (mKickedOut)
     {
-        mLogger.Debug() << "Inn hotspot: " << hotspot << "\n";
-        if (hotspot.mActionArg3 != 0)
-        {
-            mState = State::Inn;
-            StartDialog(BAK::KeyTarget{hotspot.mActionArg3}, false);
-        }
-        else
-        {
-            DoInn();
-        }
-        mLogger.Debug() << "State now: " << static_cast<unsigned>(mState) << "\n";
+        mPendingAction = BAK::HotspotAction::EXIT;
+        mKickedOut = false;
     }
-    else if (hotspot.mAction == BAK::HotspotAction::LUTE)
+
+    if (mBarding)
+    {
+        AudioA::AudioManager::Get().PopTrack();
+        mBarding = false;
+    }
+
+    if (mFlavourText != BAK::KeyTarget{0})
+        mDialogDisplay.ShowFlavourText(mFlavourText);
+
+    if (mStaticTTMs.size() > 1)
+    {
+        for (unsigned i = 1; i < mStaticTTMs.size(); i++)
+        {
+            mStaticTTMs.pop_back();
+        }
+    }
+
+    DisplayNPCBackground();
+
+    if (!mPendingAction)
+    {
+        mLogger.Debug() << "No pending action at end of dialog, not evaluating further\n";
+        return;
+    }
+
+    const auto index = mGameState.GetEndOfDialogState() + 5;
+    // After dialog finished...
+    switch (index)
+    {
+    case 4: mPendingAction = BAK::HotspotAction::UNKNOWN_0; break;
+    case 3: mPendingAction = BAK::HotspotAction::BARMAID; break;
+    case 2: mPendingAction = BAK::HotspotAction::INN; break;
+    case 1: mPendingAction = BAK::HotspotAction::EXIT; break;
+    case 0: mPendingAction = BAK::HotspotAction::REPAIR_2; break;
+    default:
+        break;
+    }
+    
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    if (container && container->IsShop())
+    {
+        if (mGameState.GetBardReward_754d() > 0xfa)
+        {
+            mGameState.SetBardReward_754d(0xfa);
+        }
+        container->GetShop().mBardingReward = mGameState.GetBardReward_754d();
+    }
+    mGameState.SetBardReward_754d(0);
+
+    EvaluateHotspotAction();
+}
+
+void GDSScene::AddStaticTTM(BAK::Scene scene1, BAK::Scene scene2)
+{
+    ASSERT(mStaticTTMs.size () < mMaxSceneNesting);
+    mLogger.Debug() << __FUNCTION__ << " " << scene1 << " --- " << scene2 << " \n";
+    mStaticTTMs.emplace_back(
+        mSpriteManager,
+        scene1,
+        scene2);
+    DisplayNPCBackground();
+}
+
+void GDSScene::EvaluateHotspotAction()
+{
+    if (!mPendingAction)
+    {
+        mLogger.Debug() << "No action present, not evaluating\n";
+        return;
+    }
+
+    if (*mPendingAction == BAK::HotspotAction::SHOP)
+    {
+        EnterContainer();
+    }
+    else if (*mPendingAction == BAK::HotspotAction::CONTAINER)
+    {
+        EnterContainer();
+    }
+    else if (*mPendingAction == BAK::HotspotAction::LUTE)
     {
         DoBard();
     }
-    else if (hotspot.mAction == BAK::HotspotAction::GOTO)
+    else if (*mPendingAction == BAK::HotspotAction::BARMAID)
     {
-        const auto dialog = BAK::KeyTarget{hotspot.mActionArg3};
-        auto hotspotRef = mReference;
-        hotspotRef.mGdsChar = BAK::MakeHotspotChar(hotspot.mActionArg1);
-        if (dialog != BAK::KeyTarget{0} && dialog != BAK::KeyTarget{0x10000})
-        {
-            mState = State::Goto;
-            mPendingGoto = hotspotRef;
-            StartDialog(dialog, false);
-        }
-        else
-        {
-            mGuiManager.DoFade(.8, [this, hotspotRef]{
-                mGuiManager.EnterGDSScene(hotspotRef, []{});
-            });
-        }
+        EnterContainer();
     }
+    else if (*mPendingAction == BAK::HotspotAction::INN)
+    {
+        if (mGameState.GetChapter() == BAK::Chapter{5})
+        {
+            auto* container = mGameState.GetContainerForGDSScene(mReference);
+            assert(container && container->IsShop());
+            // 0xdb1c Eortis/rusalka qeust?
+            if (!mGameState.GetEventStateBool(0xdb1c))
+            {
+                container->GetShop().mInnCost = 0x48;
+            }
+            else
+            {
+                container->GetShop().mInnCost = 0xa;
+            }
+        }
+        DoInn();
+    }
+    else if (*mPendingAction == BAK::HotspotAction::REPAIR_2
+        || *mPendingAction == BAK::HotspotAction::REPAIR)
+    {
+        DoRepair();
+    }
+    else if (*mPendingAction == BAK::HotspotAction::CHAPTER_END)
+    {
+        // End chapter
+    }
+    else if (*mPendingAction == BAK::HotspotAction::TELEPORT)
+    {
+        DoTeleport();
+    }
+    // this can be set by barding failure
+    else if (*mPendingAction == BAK::HotspotAction::EXIT)
+    {
+        DoExit();
+        return;
+    }
+    else if (*mPendingAction == BAK::HotspotAction::GOTO)
+    {
+        DoGoto();
+    }
+
+    mPendingAction.reset();
 }
 
 void GDSScene::HandleHotspotRightClicked(const BAK::Hotspot& hotspot)
@@ -322,84 +410,6 @@ void GDSScene::StartDialog(const BAK::Target target, bool isTooltip)
 {
     mDialogDisplay.Clear();
     mGuiManager.StartDialog(target, isTooltip, false, this);
-}
-
-void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
-{
-    mLogger.Debug() << "Dialog finished with choice: " << choice
-        << " state: " << static_cast<unsigned>(mState) << "\n";
-    if (mState == State::Bard)
-    {
-        AudioA::AudioManager::Get().PopTrack();
-    }
-
-    if (mKickedOut)
-    {
-        mKickedOut = false;
-        mState = State::Idle;
-        mGuiManager.ExitGDSScene();
-        // Return immediately or the following 
-        // actions will take place on destructed GDSScene
-        return;
-    }
-    else if (mState == State::Inn)
-    {
-        DoInn();
-    }
-    else if (mState == State::Repair)
-    {
-        if (!choice || (choice && choice->mValue == BAK::Keywords::sYesIndex))
-        {
-            auto* container = mGameState.GetContainerForGDSScene(mReference);
-            mRepair.EnterRepair(container->GetShop());
-        }
-    }
-    else if (mState == State::Teleport)
-    {
-        if (mGameState.GetMoreThanOneTempleSeen())
-        {
-            mGuiManager.ShowTeleport(mSceneHotspots.mTempleIndex);
-        }
-        else
-        {
-            StartDialog(BAK::DialogSources::mTeleportDialogNoDestinations, false);
-        }
-    }
-    else if (mState == State::Container)
-    {
-        EnterContainer();
-    }
-    else if (mState == State::Goto)
-    {
-        if (mGameState.GetEndOfDialogState() != -1)
-        {
-            mGuiManager.DoFade(.8, [this, pendingGoto=*mPendingGoto]{
-                mGuiManager.EnterGDSScene(pendingGoto, []{});
-            });
-        }
-        mPendingGoto.reset();
-    }
-    else if (mState == State::Dialog)
-    {
-        if (mGameState.GetEndOfDialogState() == -4)
-        {
-            mState = State::Idle;
-            mGuiManager.ExitGDSScene();
-            return;
-        }
-    }
-
-    mState = State::Idle;
-
-    mLogger.Debug() << "Dialog finished with choice: " << choice << " , back to flavour text\n";
-
-    if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
-        mDialogDisplay.ShowFlavourText(mFlavourText);
-
-    if (mStaticTTMs.size() > 1)
-        mStaticTTMs.pop_back();
-
-    DisplayNPCBackground();
 }
 
 void GDSScene::EnterContainer()
@@ -421,7 +431,6 @@ void GDSScene::DoInn()
     assert(container && container->IsShop());
     auto& shopStats = container->GetShop();
     mGuiManager.ShowCamp(true, &container->GetShop());
-    mState = State::Idle;
 }
 
 void GDSScene::DoBard()
@@ -434,7 +443,10 @@ void GDSScene::DoBard()
         BAK::SkillType::Barding, true);
     mGameState.SetActiveCharacter(character);
 
-    if (shopStats.mBardingMaxReward != shopStats.mBardingReward)
+    // uncomment this to fix the bug in Tom's Tavern with interaction
+    // between gambling and barding... :)
+    //if (shopStats.mBardingMaxReward != shopStats.mBardingReward)
+    if (shopStats.mBardingReward == 0)
     {
         StartDialog(BAK::DialogSources::mBardingAlreadyDone, false);
     }
@@ -443,7 +455,6 @@ void GDSScene::DoBard()
         const auto status = BAK::Bard::ClassifyBardAttempt(
             skill, shopStats.mBardingSkill);
 
-        mState = State::Bard;
         switch (status)
         {
             case BAK::Bard::BardStatus::Failed:
@@ -464,6 +475,10 @@ void GDSScene::DoBard()
             status,
             BAK::Sovereigns{shopStats.mBardingMaxReward},
             mGameState.GetChapter());
+
+        // this is to ensure that we can rebard if we didn't succeed at first
+        mGameState.SetBardReward_754d(shopStats.mBardingReward);
+
         BAK::Bard::ReduceAvailableReward(shopStats, reward);
         mGameState.GetParty().GainMoney(reward);
         const auto skillMultiplier = std::invoke([&]{
@@ -482,9 +497,62 @@ void GDSScene::DoBard()
         if (status == BAK::Bard::BardStatus::Failed)
             mKickedOut = true;
 
+        mBarding = true;
         mGameState.SetItemValue(reward);
         StartDialog(GetDialog(status), false);
     }
+}
+
+void GDSScene::DoRepair()
+{
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    assert(container && container->IsShop());
+    mRepair.EnterRepair(container->GetShop());
+}
+
+void GDSScene::DoTeleport()
+{
+    // After end of dialog state...
+    if (mGameState.GetMoreThanOneTempleSeen())
+    {
+        assert(mSceneHotspots.GetTempleNumber());
+        mGuiManager.ShowTeleport(*mSceneHotspots.GetTempleNumber());
+    }
+    else
+    {
+        StartDialog(BAK::DialogSources::mTeleportDialogNoDestinations, false);
+    }
+}
+
+void GDSScene::DoTemple(BAK::KeyTarget target)
+{
+    auto* container = mGameState.GetContainerForGDSScene(mReference);
+    ASSERT(container && container->IsShop());
+    assert(mSceneHotspots.GetTempleNumber());
+    const auto& scene1 = mSceneHotspots.GetScene(
+        mSceneHotspots.mSceneIndex1, mGameState);
+    const auto& scene2 = mSceneHotspots.GetScene(
+        3, mGameState);
+    AddStaticTTM(scene1, scene2);
+    mDialogDisplay.Clear();
+    mTemple.EnterTemple(
+        target,
+        *mSceneHotspots.GetTempleNumber(),
+        container->GetShop(),
+        this);
+}
+
+void GDSScene::DoGoto()
+{
+    mGuiManager.DoFade(.8, [this, pendingGoto=*mPendingGoto]{
+        mGuiManager.EnterGDSScene(pendingGoto, []{});
+    });
+    mPendingGoto.reset();
+}
+
+void GDSScene::DoExit()
+{
+    mGuiManager.ExitGDSScene();
 }
 
 }

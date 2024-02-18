@@ -21,8 +21,8 @@ enum class ActiveStateFlag : std::uint16_t
     DayTime   = 0x753a,
     TimeBetween = 0x753c,
     SkillCheck = 0x753d,
-    Unknown3   = 0x753e,
-    Unknown4   = 0x753f,
+    ItemValue_753e = 0x753e,
+    Context_753f = 0x753f,
     // e.g. KeyTarget{1b7767} Repair, Flterchers Post == 4
     Shop       = 0x7542,
     Zone       = 0x7543,
@@ -88,8 +88,8 @@ struct EventFlagChoice
 struct GameStateChoice
 {
     ActiveStateFlag mState;
-    std::uint16_t mExpectedValue;
-    std::uint16_t mExpectedValue2;
+    std::uint16_t mMinValue;
+    std::uint16_t mMaxValue;
 };
 
 enum class Scenario : std::uint8_t
@@ -100,9 +100,7 @@ enum class Scenario : std::uint8_t
     AllPartyArmorIsGoodCondition = 4,
 
     RelatedToMartin = 5,
-
-
-    AcceptedRusalkaQuest = 9, // ?
+    AnyCharacterUnhealthy = 9, // ?
     CompletedRusalkaQuest = 10, // ?
     AllPartyMembersHaveNapthaMask = 11,
     NormalFoodInArlieChest = 12, // Guess...
