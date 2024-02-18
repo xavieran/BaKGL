@@ -1,5 +1,7 @@
 #include "bak/gameState.hpp"
 
+#include "bak/state/customStateChoice.hpp"
+
 #include "bak/save.hpp"
 #include "bak/spells.hpp"
 #include "bak/state/dialog.hpp"
@@ -866,26 +868,27 @@ bool GameState::EvaluateDialogChoice(const Choice& choice) const
         },
         [&](const CustomStateChoice& c)
         {
+            const auto stateChecker = State::CustomStateEvaluator{*this};
             switch (c.mScenario)
             {
             case Scenario::MortificationOfTheFlesh:
-                return CheckCustomStateAnyCharacterStarving();
+                return stateChecker.AnyCharacterStarving();
             case Scenario::Plagued:
-                return CheckCustomStatePlagued();
+                return stateChecker.Plagued();
             case Scenario::HaveSixSuitsOfArmor:
-                return CheckCustomStateHaveSixSuitsOfArmor();
+                return stateChecker.HaveSixSuitsOfArmor();
             case Scenario::AllPartyArmorIsGoodCondition:
-                return CheckCustomStateAllPartyArmorIsGoodCondition();
+                return stateChecker.AllPartyArmorIsGoodCondition();
             case Scenario::AnyCharacterSansWeapon:
-                return CheckCustomStateAnyCharacterSansWeapon();
+                return stateChecker.AnyCharacterSansWeapon();
             case Scenario::AnyCharacterHasNegativeCondition:
-                return CheckCustomStateAnyCharacterHasNegativeCondition();
+                return stateChecker.AnyCharacterHasNegativeCondition();
             case Scenario::AllPartyMembersHaveNapthaMask:
-                return CheckCustomStateAllCharactersHaveNapthaMask();
+                return stateChecker.AllCharactersHaveNapthaMask();
             case Scenario::NormalFoodInArlieChest:
-                return CheckCustomStateNormalFoodInArlieChest();
+                return stateChecker.NormalFoodInArlieChest();
             case Scenario::PoisonedFoodInArlieChest:
-                return CheckCustomStatePoisonedFoodInArlieChest();
+                return stateChecker.PoisonedFoodInArlieChest();
             default:
                 return false;
             }
@@ -1054,177 +1057,9 @@ bool GameState::HaveNote(unsigned note) const
     return haveNote;
 }
 
-bool GameState::CheckCustomStateAnyCharacterStarving() const
-{
-    bool foundStarving = false;
-    GetParty().ForEachActiveCharacter(
-        [&](const auto& character){
-            if (character.GetConditions().GetCondition(Condition::Starving).Get() > 0)
-            {
-                foundStarving = true;
-                return Loop::Finish;
-            }
-            return Loop::Continue;
-        });
-
-    return foundStarving;
-}
-
-bool GameState::CheckCustomStatePlagued() const
-{
-    bool foundPlagued = false;
-    GetParty().ForEachActiveCharacter(
-        [&](const auto& character){
-            if (character.GetConditions().GetCondition(Condition::Plagued).Get() > 0)
-            {
-                foundPlagued = true;
-                return Loop::Finish;
-            }
-            return Loop::Continue;
-        });
-
-    return foundPlagued;
-}
-
-bool GameState::CheckCustomStateHaveSixSuitsOfArmor() const
-{
-    unsigned armorCount = 0;
-    GetParty().ForEachActiveCharacter(
-        [&](const auto& character){
-            const auto& items = character.GetInventory().GetItems();
-            for (const auto& item : items)
-            {
-                if (item.GetItemIndex() == sStandardArmor)
-                {
-                    armorCount++;
-                }
-            }
-            return Loop::Continue;
-        });
-    return armorCount >= 6;
-}
-
-bool GameState::CheckCustomStateAllPartyArmorIsGoodCondition() const
-{
-    bool foundRepairableArmor = false;
-    GetParty().ForEachActiveCharacter(
-        [&](const auto& character){
-            const auto& items = character.GetInventory().GetItems();
-            for (const auto& item : items)
-            {
-                if (item.IsItemType(ItemType::Armor) && item.IsRepairableByShop())
-                {
-                    foundRepairableArmor = true;
-                    return Loop::Finish;
-                }
-            }
-            return Loop::Continue;
-        });
-
-    return !foundRepairableArmor;
-}
-
-bool GameState::CheckCustomStatePoisonedDelekhanArmyChests() const
-{
-    // Check for poisoned rations in
-    // 5, 0x16b2fb, 0x111547
-    // 5, 0x16b2fb, 0x110f20
-    // 5, 0x16b33a, 0x11083c
-    return false;
-}
-
-bool GameState::CheckCustomStateAnyCharacterSansWeapon() const
-{
-    bool noWeapon = false;
-    GetParty().ForEachActiveCharacter(
-        [&](const auto& character){
-            if (character.HasEmptyStaffSlot() || character.HasEmptySwordSlot())
-            {
-                noWeapon = true;
-                return Loop::Finish;
-            }
-            return Loop::Continue;
-        });
-
-    return !noWeapon;
-}
-
-bool GameState::CheckCustomStateAnyCharacterHasNegativeCondition() const
-{
-    bool nonZero = false;
-    GetParty().ForEachActiveCharacter([&](auto& character)
-    {
-        for (unsigned i = 0; i < 7; i++)
-        {
-            if (i == 4) continue;
-            if (character.GetConditions().GetCondition(static_cast<Condition>(i)).Get() > 0)
-            {
-                nonZero = true;
-                return Loop::Finish;
-            }
-        }
-        return Loop::Continue;
-    });
-    return nonZero;
-}
-
-bool GameState::CheckCustomStateAnyCharacterIsUnhealthy() const
-{
-    if (CheckCustomStateAnyCharacterHasNegativeCondition())
-    {
-        return true;
-    }
-
-    bool nonZero = false;
-    GetParty().ForEachActiveCharacter([&](auto& character)
-    {
-        if (character.GetSkill(SkillType::TotalHealth) != character.GetMaxSkill(SkillType::TotalHealth))
-        {
-            nonZero = true;
-            return Loop::Finish;
-        }
-        return Loop::Continue;
-    });
-    return nonZero;
-}
-
-bool GameState::CheckCustomStateAllCharactersHaveNapthaMask() const
-{
-    bool noMask = false;
-    GetParty().ForEachActiveCharacter([&](auto& character)
-    {
-        if (!character.GetInventory().HaveItem(
-            InventoryItemFactory::MakeItem(sNapthaMask, 1)))
-        {
-            noMask = true;
-            return Loop::Finish;
-        }
-        return Loop::Continue;
-    });
-    return noMask;
-}
-
-bool GameState::CheckCustomStateNormalFoodInArlieChest() const
-{
-    const auto zone = 3;
-    const auto x = 1308000;
-    const auto y = 1002400;
-    // GetContainer(zone, x, y).HasItem(sRations);
-    return false;
-}
-
-bool GameState::CheckCustomStatePoisonedFoodInArlieChest() const
-{
-    const auto zone = 3;
-    const auto x = 1308000;
-    const auto y = 1002400;
-    // GetContainer(zone, x, y).HasItem(sPoisonedRations);
-    return false;
-}
-
-
 bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
 {
+    const auto stateChecker = State::CustomStateEvaluator{*this};
     const bool enabled = GetEventStateBool(conversationItem);
     const bool available = std::invoke([&](){
         switch (conversationItem)
@@ -1243,7 +1078,7 @@ bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
             return GetChapter() == Chapter{6};
         case 17: [[fallthrough]];
         case 103:
-            return CheckCustomStateAnyCharacterHasNegativeCondition();
+            return stateChecker.AnyCharacterHasNegativeCondition();
         case 71:
             return false; // (owynsSpells & 0x10) != 0; (Have spell 20 (Unfortunate flux))
         case 132:

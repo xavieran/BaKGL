@@ -144,7 +144,6 @@ public:
 
     unsigned GetEventState(unsigned eventPtr) const;
     bool GetEventStateBool(unsigned eventPtr) const;
-    void MarkDiscussed(const ConversationChoice& choice);
     void SetEventValue(unsigned eventPtr, unsigned value);
     void SetEventState(const SetFlag& setFlag);
     bool GetMoreThanOneTempleSeen() const;
@@ -162,18 +161,6 @@ public:
 
     std::vector<GenericContainer>& GetContainers(ZoneNumber zone);
     bool HaveNote(unsigned note) const;
-    bool CheckCustomStateAnyCharacterStarving() const;
-    bool CheckCustomStatePlagued() const;
-    bool CheckCustomStateHaveSixSuitsOfArmor() const;
-    bool CheckCustomStateAllPartyArmorIsGoodCondition() const;
-    bool CheckCustomStatePoisonedDelekhanArmyChests() const;
-    bool CheckCustomStateAnyCharacterSansWeapon() const;
-    bool CheckCustomStateAnyCharacterHasNegativeCondition() const;
-    bool CheckCustomStateAnyCharacterIsUnhealthy() const;
-    bool CheckCustomStateAllCharactersHaveNapthaMask() const;
-    bool CheckCustomStateNormalFoodInArlieChest() const;
-    bool CheckCustomStatePoisonedFoodInArlieChest() const;
-
     bool CheckConversationItemAvailable(unsigned conversationItem) const;
     
 private:
