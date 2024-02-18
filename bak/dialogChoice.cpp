@@ -89,7 +89,7 @@ std::ostream& operator<<(std::ostream& os, Scenario s)
         case Scenario::HaveSixSuitsOfArmor: os << "HaveSixSuitsOfArmor"; break;
         case Scenario::AllPartyArmorIsGoodCondition: os << "AllPartyArmorIsGoodCondition"; break;
         case Scenario::RelatedToMartin: os << "RelatedToMartin"; break;
-        case Scenario::AcceptedRusalkaQuest: os << "AcceptedRusalkaQuest"; break;
+        case Scenario::AnyCharacterUnhealthy: os << "AnyCharacterUnhealthy"; break;
         case Scenario::CompletedRusalkaQuest: os << "CompletedRusalkaQuest"; break;
         case Scenario::AllPartyMembersHaveNapthaMask: os << "AllPartyMembersHaveNapthaMask"; break;
         case Scenario::NormalFoodInArlieChest: os << "NormalFoodInArlieChest"; break;

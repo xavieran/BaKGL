@@ -37,7 +37,7 @@ public:
     void EnterGDSScene();
     void DisplayNPCBackground() override;
     void DisplayPlayerBackground() override;
-    auto GetSong() const { return mSong; }
+    const auto& GetSceneHotspots() const { return mSceneHotspots; }
 
 public:
     void HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool);
@@ -63,8 +63,7 @@ public:
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;
     BAK::SceneHotspots mSceneHotspots;
-    unsigned mSong;
-    BAK::Target mFlavourText;
+    BAK::KeyTarget mFlavourText;
 
     Graphics::SpriteSheetIndex mSpriteSheet;
     Graphics::SpriteManager& mSpriteManager;

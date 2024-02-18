@@ -782,7 +782,9 @@ bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
         default: return 0u;
         }
     });
-    return value >= choice.mExpectedValue && value <= choice.mExpectedValue2;
+    return value >= choice.mExpectedValue && 
+        ((choice.mExpectedValue2 != 0xffff && value <= choice.mExpectedValue2)
+         || choice.mExpectedValue2 == 0xffff);
 }
 
 bool GameState::EvaluateComplexChoice(const ComplexEventChoice& choice) const
@@ -806,7 +808,8 @@ bool GameState::EvaluateComplexChoice(const ComplexEventChoice& choice) const
     const auto chapterFlag = GetChapter() == Chapter{9}
         ? 0x80
         : 1 << (GetChapter().mValue - 1);
-    const auto chapterMaskSatisfied = (chapterFlag & choice.mChapterMask) != 0;
+    //const auto chapterMaskSatisfied = (chapterFlag & choice.mChapterMask) == 0;
+    const auto chapterMaskSatisfied = true;
 
     if (choice.mMustEqualExpected)
     {
@@ -864,6 +867,8 @@ bool GameState::EvaluateDialogChoice(const Choice& choice) const
                 return CheckCustomStateScenarioPlagued();
             case Scenario::AllPartyArmorIsGoodCondition:
                 return CheckCustomStateScenarioAllPartyArmorIsGoodCondition();
+            case Scenario::AnyCharacterUnhealthy:
+                return CheckCustomStateScenarioAnyCharacterUnhealthy();
             default:
                 return false;
             }
@@ -1047,6 +1052,31 @@ bool GameState::CheckCustomStateScenarioAllPartyArmorIsGoodCondition() const
         });
 
     return !foundRepairableArmor;
+}
+
+bool GameState::CheckCustomStateScenarioAnyCharacterUnhealthy() const
+{
+    bool nonZero = false;
+    GetParty().ForEachActiveCharacter([&](auto& character)
+    {
+        for (unsigned i = 0; i < 7; i++)
+        {
+            if (i == 4) continue;
+            if (character.GetConditions().GetCondition(static_cast<Condition>(i)).Get() > 0)
+            {
+                nonZero = true;
+                return true;
+            }
+        }
+
+        if (character.GetSkill(SkillType::TotalHealth) != character.GetMaxSkill(SkillType::TotalHealth))
+        {
+            nonZero = true;
+            return true;
+        }
+        return false;
+    });
+    return nonZero;
 }
 
 void GameState::ElapseTime(Time time)

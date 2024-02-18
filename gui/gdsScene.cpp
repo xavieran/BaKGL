@@ -38,7 +38,6 @@ GDSScene::GDSScene(
     mSceneHotspots{
         BAK::FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
-    mSong{mSceneHotspots.mSong},
     mFlavourText{BAK::KeyTarget{0x0}},
     mSpriteSheet{GetDrawInfo().mSpriteSheet},
     mSpriteManager{spriteManager},
@@ -77,7 +76,6 @@ GDSScene::GDSScene(
     },
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
-    mLogger.Debug() << "Song: " << mSong << "\n";
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(
         textures, "DIALOG.SCX", "OPTIONS.PAL");
@@ -91,6 +89,7 @@ GDSScene::GDSScene(
 
     auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};
+    if (mFlavourText == BAK::KeyTarget{0x10000}) mFlavourText = BAK::KeyTarget{0};
 
     // Needed for repair shops...
     auto* container = mGameState.GetContainerForGDSScene(mReference);
@@ -149,7 +148,7 @@ GDSScene::GDSScene(
 
     DisplayNPCBackground();
 
-    if (mFlavourText != BAK::Target{BAK::KeyTarget{0}})
+    if (mFlavourText != BAK::KeyTarget{0})
         mDialogDisplay.ShowFlavourText(mFlavourText);
     AddChildBack(&mDialogDisplay);
 
@@ -376,7 +375,7 @@ void GDSScene::EvaluateHotspotAction()
 
     mPendingAction.reset();
 
-    if (mFlavourText != BAK::Target{BAK::KeyTarget{0x00000}})
+    if (mFlavourText != BAK::KeyTarget{0})
         mDialogDisplay.ShowFlavourText(mFlavourText);
 
     if (mStaticTTMs.size() > 1)

@@ -100,9 +100,7 @@ enum class Scenario : std::uint8_t
     AllPartyArmorIsGoodCondition = 4,
 
     RelatedToMartin = 5,
-
-
-    AcceptedRusalkaQuest = 9, // ?
+    AnyCharacterUnhealthy = 9, // ?
     CompletedRusalkaQuest = 10, // ?
     AllPartyMembersHaveNapthaMask = 11,
     NormalFoodInArlieChest = 12, // Guess...

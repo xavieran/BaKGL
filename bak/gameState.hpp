@@ -141,6 +141,7 @@ public:
     std::vector<GenericContainer>& GetContainers(ZoneNumber zone);
     bool CheckCustomStateScenarioPlagued() const;
     bool CheckCustomStateScenarioAllPartyArmorIsGoodCondition() const;
+    bool CheckCustomStateScenarioAnyCharacterUnhealthy() const;
     
 
     std::optional<CharIndex> mDialogCharacter;
