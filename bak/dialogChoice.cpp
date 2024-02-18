@@ -76,7 +76,7 @@ std::ostream& operator<<(std::ostream& os, const EventFlagChoice& c)
 std::ostream& operator<<(std::ostream& os, const GameStateChoice& c)
 {
     os << ToString(ChoiceMask::GameState) << " " << ToString(c.mState) 
-        << " " << std::hex << c.mExpectedValue << " | " << c.mExpectedValue2;
+        << " [" << std::hex << c.mMinValue << ", " << c.mMaxValue << "]";
     return os;
 }
 

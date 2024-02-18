@@ -782,9 +782,8 @@ bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
         default: return 0u;
         }
     });
-    return value >= choice.mExpectedValue && 
-        ((choice.mExpectedValue2 != 0xffff && value <= choice.mExpectedValue2)
-         || choice.mExpectedValue2 == 0xffff);
+    return value >= choice.mMinValue && 
+        (choice.mMaxValue == 0xffff || value <= choice.mMaxValue);
 }
 
 bool GameState::EvaluateComplexChoice(const ComplexEventChoice& choice) const

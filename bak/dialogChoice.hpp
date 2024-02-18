@@ -88,8 +88,8 @@ struct EventFlagChoice
 struct GameStateChoice
 {
     ActiveStateFlag mState;
-    std::uint16_t mExpectedValue;
-    std::uint16_t mExpectedValue2;
+    std::uint16_t mMinValue;
+    std::uint16_t mMaxValue;
 };
 
 enum class Scenario : std::uint8_t
