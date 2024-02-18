@@ -61,7 +61,7 @@ public:
 
             mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
                 ImproveNearDeath(character.GetSkills(), character.GetConditions());
-                return false;
+                return Loop::Continue;
             });
         }
 
@@ -104,7 +104,7 @@ private:
         mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
             character.ImproveSkill(SkillType::Health, SkillChange::Direct, 1);
             character.ImproveSkill(SkillType::Stamina, SkillChange::Direct, 1);
-            return false;
+            return Loop::Continue;
         });
     }
 
@@ -152,7 +152,7 @@ private:
     {
         mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
             ConsumeRations(character);
-            return false;
+            return Loop::Continue;
         });
     }
 
@@ -180,7 +180,7 @@ private:
                     Logging::LogWarn(__FUNCTION__) << " Damaging due to lack of  sleep!\n";
                     mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
                         DamageDueToLackOfSleep(character.GetConditions(), character.mCharacterIndex, character.GetSkills());
-                        return false;
+                        return Loop::Continue;
                     });
                 }
             }
@@ -192,7 +192,7 @@ private:
                 character.GetConditions(),
                 healFraction,
                 healPercentCeiling);
-            return false;
+            return Loop::Continue;
         });
     }
 
@@ -234,7 +234,7 @@ private:
                 [&](auto& affector){
                     return affector.mEndTime < time;
                 });
-            return false;
+            return Loop::Continue;
         });
     }
 

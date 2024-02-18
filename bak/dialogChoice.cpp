@@ -88,9 +88,10 @@ std::ostream& operator<<(std::ostream& os, Scenario s)
         case Scenario::Plagued: os << "Plagued"; break;
         case Scenario::HaveSixSuitsOfArmor: os << "HaveSixSuitsOfArmor"; break;
         case Scenario::AllPartyArmorIsGoodCondition: os << "AllPartyArmorIsGoodCondition"; break;
-        case Scenario::RelatedToMartin: os << "RelatedToMartin"; break;
-        case Scenario::AnyCharacterUnhealthy: os << "AnyCharacterUnhealthy"; break;
-        case Scenario::CompletedRusalkaQuest: os << "CompletedRusalkaQuest"; break;
+        case Scenario::PoisonedDelekhanArmyChests: os << "PoisonedDelekhanArmyChests"; break;
+        case Scenario::AnyCharacterSansWeapon: os << "AnyCharacterSansWeapon"; break;
+        case Scenario::AnyCharacterHasNegativeCondition: os << "AnyCharacterHasNegativeCondition"; break;
+        case Scenario::AnyCharacterIsUnhealthy: os << "AnyCharacterIsUnhealthy"; break;
         case Scenario::AllPartyMembersHaveNapthaMask: os << "AllPartyMembersHaveNapthaMask"; break;
         case Scenario::NormalFoodInArlieChest: os << "NormalFoodInArlieChest"; break;
         case Scenario::PoisonedFoodInArlieChest: os << "PoisonedFoodInArlieChest"; break;
@@ -128,6 +129,11 @@ std::ostream& operator<<(std::ostream& os, const CastSpellChoice& c)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const HaveNoteChoice& c)
+{
+    os << ToString(ChoiceMask::HaveNote) << " " << c.mRequiredNote << "\n";
+    return os;
+}
 
 std::ostream& operator<<(std::ostream& os, const UnknownChoice& c)
 {
@@ -230,6 +236,8 @@ Choice CreateChoice(
         };
     case ChoiceMask::CastSpell:
         return CastSpellChoice{static_cast<unsigned>(state) - 0xcb21};
+    case ChoiceMask::HaveNote:
+        return HaveNoteChoice{(static_cast<unsigned>(state) + 0x38c8) & 0xffff};
     default:
         return UnknownChoice{
             mask,

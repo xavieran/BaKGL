@@ -98,10 +98,11 @@ enum class Scenario : std::uint8_t
     Plagued = 2,
     HaveSixSuitsOfArmor = 3,
     AllPartyArmorIsGoodCondition = 4,
+    PoisonedDelekhanArmyChests = 5,
+    AnyCharacterSansWeapon = 6,
 
-    RelatedToMartin = 5,
-    AnyCharacterUnhealthy = 9, // ?
-    CompletedRusalkaQuest = 10, // ?
+    AnyCharacterHasNegativeCondition = 9,
+    AnyCharacterIsUnhealthy = 10,
     AllPartyMembersHaveNapthaMask = 11,
     NormalFoodInArlieChest = 12, // Guess...
     PoisonedFoodInArlieChest = 13 // ?
@@ -137,6 +138,11 @@ struct CastSpellChoice
     unsigned mRequiredSpell;
 };
 
+struct HaveNoteChoice 
+{
+    unsigned mRequiredNote;
+};
+
 struct UnknownChoice
 {
     ChoiceMask mChoiceCategory;
@@ -155,6 +161,7 @@ using Choice = std::variant<
     InventoryChoice,
     ComplexEventChoice,
     CastSpellChoice,
+    HaveNoteChoice,
     UnknownChoice>;
 
 std::ostream& operator<<(std::ostream&, const Choice&);
