@@ -222,9 +222,9 @@ public:
     {
         for (const auto character : mActiveCharacters)
         {
-            if (std::forward<F>(f)(GetCharacter(character)))
+            if (std::forward<F>(f)(GetCharacter(character)) == Loop::Finish)
             {
-                break;
+                return;
             }
         }
     }
@@ -234,9 +234,9 @@ public:
     {
         for (const auto character : mActiveCharacters)
         {
-            if (std::forward<F>(f)(GetCharacter(character)))
+            if (std::forward<F>(f)(GetCharacter(character)) == Loop::Finish)
             {
-                break;
+                return;
             }
         }
     }

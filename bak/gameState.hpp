@@ -139,9 +139,18 @@ public:
     bool Save(const std::string& saveName);
 
     std::vector<GenericContainer>& GetContainers(ZoneNumber zone);
-    bool CheckCustomStateScenarioPlagued() const;
-    bool CheckCustomStateScenarioAllPartyArmorIsGoodCondition() const;
-    bool CheckCustomStateScenarioAnyCharacterUnhealthy() const;
+    bool HaveNote(unsigned note) const;
+    bool CheckCustomStateAnyCharacterStarving() const;
+    bool CheckCustomStatePlagued() const;
+    bool CheckCustomStateHaveSixSuitsOfArmor() const;
+    bool CheckCustomStateAllPartyArmorIsGoodCondition() const;
+    bool CheckCustomStatePoisonedDelekhanArmyChests() const;
+    bool CheckCustomStateAnyCharacterSansWeapon() const;
+    bool CheckCustomStateAnyCharacterHasNegativeCondition() const;
+    bool CheckCustomStateAnyCharacterIsUnhealthy() const;
+    bool CheckCustomStateAllCharactersHaveNapthaMask() const;
+    bool CheckCustomStateNormalFoodInArlieChest() const;
+    bool CheckCustomStatePoisonedFoodInArlieChest() const;
     
 
     std::optional<CharIndex> mDialogCharacter;

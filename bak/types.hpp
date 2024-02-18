@@ -29,4 +29,10 @@ using CharIndex = Bounded<
     StrongType<unsigned, struct CharIndexTag>,
     0, sMaxCharacters>;
 
+enum class Loop
+{
+    Continue,
+    Finish
+};
+
 }

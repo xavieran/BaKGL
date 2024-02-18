@@ -222,7 +222,7 @@ private:
                     std::vector<BAK::ItemIndex>{BAK::sPoisonedRations, BAK::sRations, BAK::sSpoiledRations});
                 const auto rhighlight = rations == 0 ? '\xf5' : ' ';
                 rationsSS << rhighlight << " " << rations << " " << rhighlight << "\n";
-                return false;
+                return BAK::Loop::Continue;
             });
         
         mNamesColumn.SetText(mFont, namesSS.str(), true, false, false, 1.5);
@@ -246,7 +246,7 @@ private:
             [&](auto& character){
                 canHeal |= character.CanHeal(mIsInInn);
                 canHeal |= character.HaveNegativeCondition();
-                return false;
+                return BAK::Loop::Continue;
             });
         return canHeal;
     }
@@ -300,7 +300,7 @@ private:
         {
             mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
                 character.AdjustCondition(BAK::Condition::Sick, -100);
-                return false;
+                return BAK::Loop::Continue;
             });
         }
         bool isLast = GetHour() == mTargetHour;

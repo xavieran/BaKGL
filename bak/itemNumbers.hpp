@@ -33,6 +33,8 @@ static constexpr auto sEliaemsShell   = BAK::ItemIndex{16};
 static constexpr auto sGuardaRevanche = BAK::ItemIndex{22};
 static constexpr auto sExoticSword    = BAK::ItemIndex{23};
 
+static constexpr auto sStandardArmor = BAK::ItemIndex{48};
+
 static constexpr auto sSovereigns  = BAK::ItemIndex{53};
 static constexpr auto sRoyals      = BAK::ItemIndex{54};
 static constexpr auto sShovel      = BAK::ItemIndex{83};
@@ -45,6 +47,7 @@ static constexpr auto sKeshianAle  = BAK::ItemIndex{137};
 static constexpr auto sPicklock    = BAK::ItemIndex{'P'};
 
 static constexpr auto sTorch = BAK::ItemIndex{84};
+static constexpr auto sNapthaMask = BAK::ItemIndex{89};
 static constexpr auto sRingOfPrandur = BAK::ItemIndex{6};
 static constexpr auto sCupOfRlnnSkrr = BAK::ItemIndex{8};
 static constexpr auto sSpynote     = BAK::ItemIndex{120};
