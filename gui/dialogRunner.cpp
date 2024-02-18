@@ -317,8 +317,7 @@ void DialogRunner::ShowDialogChoices()
         if (std::holds_alternative<BAK::ConversationChoice>(c.mChoice))
         {
             const auto choice = std::get<BAK::ConversationChoice>(c.mChoice);
-            if (mGameState.GetEventStateBool(choice.mEventPointer)
-                && !mGameState.Apply(BAK::State::CheckConversationOptionInhibited, choice.mEventPointer))
+            if (mGameState.CheckConversationItemAvailable(choice.mEventPointer))
             {
                 const auto fontStyle = mGameState.Apply(BAK::State::ReadConversationItemClicked, choice.mEventPointer)
                     ? '\xf4' // unbold

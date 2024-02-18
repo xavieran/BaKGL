@@ -48,6 +48,24 @@ public:
         return false;
     }
 
+    template <typename F, typename ...Args>
+    bool Apply(F&& func, Args&&... args) const
+    {
+        if (mGameData)
+        {
+            if constexpr (std::is_same_v<decltype(func(mGameData->GetFileBuffer(), args...)), bool>)
+            {
+                return std::invoke(func, mGameData->GetFileBuffer(), args...);
+            }
+            else
+            {
+                std::invoke(func, mGameData->GetFileBuffer(), args...);
+            }
+        }
+
+        return false;
+    }
+
     void LoadGameData(GameData* gameData);
 
     const Party& GetParty() const;
@@ -151,6 +169,8 @@ public:
     bool CheckCustomStateAllCharactersHaveNapthaMask() const;
     bool CheckCustomStateNormalFoodInArlieChest() const;
     bool CheckCustomStatePoisonedFoodInArlieChest() const;
+
+    bool CheckConversationItemAvailable(unsigned conversationItem) const;
     
 
     std::optional<CharIndex> mDialogCharacter;
