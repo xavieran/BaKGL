@@ -53,4 +53,8 @@ static constexpr auto sCupOfRlnnSkrr = BAK::ItemIndex{8};
 static constexpr auto sSpynote     = BAK::ItemIndex{120};
 static constexpr auto sSilverthornAntiVenom = BAK::ItemIndex{113};
 static constexpr auto sPractiseLute = BAK::ItemIndex{81};
+static constexpr auto sWaani = BAK::ItemIndex{101};
+static constexpr auto sBagOfGrain = BAK::ItemIndex{60};
+static constexpr auto sAbbotsJournal = BAK::ItemIndex{124};
+
 }

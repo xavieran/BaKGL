@@ -1,6 +1,7 @@
 #include "bak/gameState.hpp"
 
 #include "bak/spells.hpp"
+#include "bak/state/dialog.hpp"
 #include "bak/time.hpp"
 
 namespace BAK {
@@ -1218,6 +1219,52 @@ bool GameState::CheckCustomStatePoisonedFoodInArlieChest() const
     const auto y = 1002400;
     // GetContainer(zone, x, y).HasItem(sPoisonedRations);
     return false;
+}
+
+
+bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
+{
+    const bool enabled = GetEventStateBool(conversationItem);
+    const bool available = std::invoke([&](){
+        switch (conversationItem)
+        {
+        case 9:
+            return !GetParty().HaveItem(sWaani);
+        case 11:
+            return !GetParty().HaveItem(sBagOfGrain);
+        case 133:
+            return GetEventStateBool(0xdb94);
+        case 130:
+            return GetEventStateBool(0xdb9e);
+        case 44:
+            return GetEventStateBool(0x1f6c);
+        case 117:
+            return GetChapter() == Chapter{6};
+        case 17: [[fallthrough]];
+        case 103:
+            return CheckCustomStateAnyCharacterHasNegativeCondition();
+        case 71:
+            return false; // (owynsSpells & 0x10) != 0; (Have spell 20 (Unfortunate flux))
+        case 132:
+            return !HaveNote(0x15) || !GetEventStateBool(0x1979);
+        case 106:
+            if (!enabled) return false;
+            return true; // owynsOtherSpells & 0x200
+        case 164:
+            return GetEventStateBool(0x1972);
+        case 76: [[fallthrough]];
+        case 148:
+            if (!enabled) return false;
+            return !GetParty().HaveItem(sRations);
+        case 163:
+            return GetEventStateBool(0x8e)
+                && GetEventStateBool(0xaa)
+                && GetParty().HaveItem(sAbbotsJournal);
+        default:
+            return enabled;
+        }
+    });
+    return available && !Apply(State::CheckConversationOptionInhibited, conversationItem);
 }
 
 void GameState::ElapseTime(Time time)

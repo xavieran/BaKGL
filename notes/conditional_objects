@@ -1,0 +1,26 @@
+Arlie SteelSoul
+
+Chapter 3
+@ 1184     const auto zone = 3;
+1185     const auto x = 1308000;
+1186     const auto y = 1002400;
+
+Click on Chest. Drops into
+
+41ed:020d (loadContainer func)
+
+after 20e:
+bx = 0xfebb
+ax = 0x1
+
+ss:febb has -> (fef6?)
+
+fef6 is
+2B50:FEF6     06 FF 2B 02 25 46 A4 A2 00 00 00 00 65 00 72 00
+2B50:FF06     2E FF E4 05 9C 45 92 FF 03 00 3F 00 C0 00 C0 00
+2B50:FF16     00 00 C7 4E C0 00 A9 8C 00 00 00 00 00 00 00 00
+2B50:FF26     00 00 01 00 01 00 00 00 D4 FF 3F 03 FC 11 4A 3A
+2B50:FF36     03 00 61 72 6C 69 65 43 68 65 73 74 00 6C 79 48  ..arlieChest.lyH
+2B50:FF46     65 61 6C 74 68 79 00 00 00 00 00 00 00 00 00 00  ealthy..........
+
+bp-8 == 0x3e
