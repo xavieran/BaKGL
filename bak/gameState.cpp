@@ -1,7 +1,9 @@
 #include "bak/gameState.hpp"
 
+#include "bak/save.hpp"
 #include "bak/spells.hpp"
 #include "bak/state/dialog.hpp"
+#include "bak/dialogAction.hpp"
 #include "bak/time.hpp"
 
 namespace BAK {
@@ -44,7 +46,7 @@ GameState::GameState(
     mGDSContainers{},
     mCombatContainers{},
     mTextVariableStore{},
-    mLogger{Logging::LogState::GetLogger("BAK::GameState")}
+    mLogger{Logging::LogState::GetLogger("GameState")}
 {
     if (mGameData != nullptr)
     {
@@ -94,15 +96,9 @@ std::int16_t GameState::GetEndOfDialogState() const
     return mEndOfDialogState;
 }
 
-void GameState::SetEndOfDialogState(std::int16_t state)
+void GameState::DoSetEndOfDialogState(std::int16_t state)
 {
     mEndOfDialogState = state;
-}
-
-GameData& GameState::GetGameData()
-{
-    ASSERT(mGameData);
-    return *mGameData;
 }
 
 void GameState::SetActiveCharacter(ActiveCharIndex character)
@@ -132,6 +128,11 @@ Chapter GameState::GetChapter() const
     return mChapter;
 }
 
+void GameState::SetMonster(MonsterIndex monster)
+{
+    mCurrentMonster = monster;
+}
+
 Royals GameState::GetMoney() const
 {
     if (mGameData)
@@ -140,7 +141,7 @@ Royals GameState::GetMoney() const
     return Royals{1000};
 }
 
-void GameState::SetLocation(BAK::Location loc)
+void GameState::SetLocation(Location loc)
 {
     mLogger.Debug() << "SetLocation to: " << loc << "\n";
     mZone = ZoneNumber{loc.mZone};
@@ -150,7 +151,7 @@ void GameState::SetLocation(BAK::Location loc)
     }
 }
 
-void GameState::SetLocation(BAK::GamePositionAndHeading posAndHeading)
+void GameState::SetLocation(GamePositionAndHeading posAndHeading)
 {
     if (mGameData)
     {
@@ -162,12 +163,12 @@ void GameState::SetLocation(BAK::GamePositionAndHeading posAndHeading)
     }
 }
 
-BAK::GamePositionAndHeading GameState::GetLocation() const
+GamePositionAndHeading GameState::GetLocation() const
 {
     if (mGameData)
         return mGameData->mLocation.mLocation;
 
-    return BAK::GamePositionAndHeading{ glm::uvec2{10 * 64000, 15 * 64000}, 0 };
+    return GamePositionAndHeading{ glm::uvec2{10 * 64000, 15 * 64000}, 0 };
 }
 
 ZoneNumber GameState::GetZone() const
@@ -209,7 +210,7 @@ unsigned GameState::GetShopType_7542() const
     return mShopType_7542;
 }
 
-IContainer* GameState::GetContainerForGDSScene(BAK::HotspotRef ref)
+IContainer* GameState::GetContainerForGDSScene(HotspotRef ref)
 {
     for (auto& shop : mGDSContainers)
     {
@@ -267,7 +268,7 @@ bool GameState::GetSpellActive(StaticSpells spell) const
 
 // prefer to use this function when getting best skill
 // as it will set the appropriate internal state.
-std::pair<CharIndex, unsigned> GameState::GetPartySkill(BAK::SkillType skill, bool best)
+std::pair<CharIndex, unsigned> GameState::GetPartySkill(SkillType skill, bool best)
 {
     const auto [character, value] = GetParty().GetSkill(skill, best);
     mSkillCheckedCharacter = character;
@@ -277,7 +278,7 @@ std::pair<CharIndex, unsigned> GameState::GetPartySkill(BAK::SkillType skill, bo
 
 void GameState::SetCharacterTextVariables()
 {
-    SetEndOfDialogState(0);
+    DoSetEndOfDialogState(0);
 
     if (GetParty().GetNumCharacters() > 0)
     {
@@ -380,7 +381,7 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
         break;
     case 26:
         // mTextVariableStore.SetTextVariable(index,
-        //    ToString(BAK::SkillType(mContextVar_753f)));
+        //    ToString(SkillType(mContextVar_753f)));
         break;
     case 27:
         // or tavernkeeper if in an inn... which is determined by
@@ -493,14 +494,14 @@ void GameState::SelectRandomActiveCharacter(unsigned index, unsigned attribute)
 void GameState::EvaluateAction(const DialogAction& action)
 {
     std::visit(overloaded{
-        [&](const BAK::SetFlag& set)
+        [&](const SetFlag& set)
         {
-            mLogger.Debug() << "Setting flag of event: " << BAK::DialogAction{set} << "\n";
+            mLogger.Debug() << "Setting flag of event: " << DialogAction{set} << "\n";
             SetEventState(set);
         },
-        [&](const BAK::SetTextVariable& set)
+        [&](const SetTextVariable& set)
         {
-            mLogger.Debug() << "Setting text variable: " << BAK::DialogAction{set} << "\n";
+            mLogger.Debug() << "Setting text variable: " << DialogAction{set} << "\n";
             if (set.mWhat == 0x7 || (set.mWhat >= 0xb && set.mWhat <= 0xf))
             {
                 SetDialogTextVariable(set.mWhich, set.mWhat);
@@ -537,19 +538,19 @@ void GameState::EvaluateAction(const DialogAction& action)
                 mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
             }
         },
-        [&](const BAK::LoseItem& lose)
+        [&](const LoseItem& lose)
         {
             mLogger.Debug() << "Losing item: " << lose << "\n";
             auto& party = GetParty();
             party.RemoveItem(lose.mItemIndex, lose.mQuantity);
         },
-        [&](const BAK::GiveItem& give)
+        [&](const GiveItem& give)
         {
             mLogger.Debug() << "Giving item: " << give << "\n";
             auto& party = GetParty();
             party.GainItem(give.mCharacter, give.mItemIndex, give.mQuantity);
         },
-        [&](const BAK::GainSkill& skill)
+        [&](const GainSkill& skill)
         {
             auto amount = skill.mMax;
             if (skill.mMin != skill.mMax)
@@ -579,7 +580,7 @@ void GameState::EvaluateAction(const DialogAction& action)
                     .ImproveSkill(skill.mSkill, SkillChange::Direct, amount);
             }
         },
-        [&](const BAK::HealCharacters& heal)
+        [&](const HealCharacters& heal)
         {
             if (heal.mWho <= 1)
             {
@@ -597,11 +598,11 @@ void GameState::EvaluateAction(const DialogAction& action)
                 HealCharacter(CharIndex{character}, heal.mHowMuch);
             }
         },
-        [&](const BAK::SpecialAction& action)
+        [&](const SpecialAction& action)
         {
             EvaluateSpecialAction(action);
         },
-        [&](const BAK::GainCondition& cond)
+        [&](const GainCondition& cond)
         {
             auto amount = cond.mMax;
             if (cond.mMin != cond.mMax)
@@ -627,18 +628,18 @@ void GameState::EvaluateAction(const DialogAction& action)
                     });
             }
         },
-        [&](const BAK::SetAddResetState& state)
+        [&](const SetAddResetState& state)
         {
             mLogger.Debug() << "Setting time expiring state: " << state << "\n";
             SetEventValue(state.mEventPtr, 1);
             AddTimeExpiringState(mTimeExpiringState, ExpiringStateType::ResetState, state.mEventPtr, 0x40, state.mTimeToExpire);
         },
-        [&](const BAK::ElapseTime& elapse)
+        [&](const ElapseTime& elapse)
         {
             mLogger.Debug() << "Elapsing time: " << elapse << "\n";
-            ElapseTime(elapse.mTime);
+            DoElapseTime(elapse.mTime);
         },
-        [&](const BAK::SetTimeExpiringState& state)
+        [&](const SetTimeExpiringState& state)
         {
             mLogger.Debug() << "Setting time expiring state2: " << state << "\n";
             AddTimeExpiringState(
@@ -648,27 +649,27 @@ void GameState::EvaluateAction(const DialogAction& action)
                 state.mFlags,
                 state.mTimeToExpire);
         },
-        [&](const BAK::SetEndOfDialogState& state)
+        [&](const SetEndOfDialogState& state)
         {
             mLogger.Debug() << "Setting end of dialog state: " << state << "\n";
-            SetEndOfDialogState(state.mState);
+            DoSetEndOfDialogState(state.mState);
         },
-        [&](const BAK::UpdateCharacters& update)
+        [&](const UpdateCharacters& update)
         {
             GetParty().SetActiveCharacters(update.mCharacters);
         },
-        [&](const BAK::LoadSkillValue& load)
+        [&](const LoadSkillValue& load)
         {
             mLogger.Debug() << "Loading skill value: " << load << "\n";
             GetPartySkill(load.mSkill, load.mTarget == 1);
         },
-        [&](const BAK::LearnSpell& learnSpell)
+        [&](const LearnSpell& learnSpell)
         {
             mLogger.Debug() << "Learning Spell: " << learnSpell << "\n";
             GetParty().GetCharacter(CharIndex{mDialogCharacterList[learnSpell.mWho]})
                 .GetSpells().SetSpell(learnSpell.mWhichSpell);
         },
-        [&](const BAK::LoseNOfItem& loss)
+        [&](const LoseNOfItem& loss)
         {
             for (unsigned i = 0; i < loss.mQuantity; i++)
             {
@@ -944,7 +945,7 @@ bool GameState::GetMoreThanOneTempleSeen() const
         unsigned templesSeen = 0;
         for (unsigned i = 1; i < 13; i++)
         {
-            templesSeen += BAK::State::ReadTempleSeen(mGameData->GetFileBuffer(), i);
+            templesSeen += State::ReadTempleSeen(mGameData->GetFileBuffer(), i);
         }
         return templesSeen > 1;
     }
@@ -1058,7 +1059,7 @@ bool GameState::CheckCustomStateAnyCharacterStarving() const
     bool foundStarving = false;
     GetParty().ForEachActiveCharacter(
         [&](const auto& character){
-            if (character.GetConditions().GetCondition(BAK::Condition::Starving).Get() > 0)
+            if (character.GetConditions().GetCondition(Condition::Starving).Get() > 0)
             {
                 foundStarving = true;
                 return Loop::Finish;
@@ -1074,7 +1075,7 @@ bool GameState::CheckCustomStatePlagued() const
     bool foundPlagued = false;
     GetParty().ForEachActiveCharacter(
         [&](const auto& character){
-            if (character.GetConditions().GetCondition(BAK::Condition::Plagued).Get() > 0)
+            if (character.GetConditions().GetCondition(Condition::Plagued).Get() > 0)
             {
                 foundPlagued = true;
                 return Loop::Finish;
@@ -1267,12 +1268,12 @@ bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
     return available && !Apply(State::CheckConversationOptionInhibited, conversationItem);
 }
 
-void GameState::ElapseTime(Time time)
+void GameState::DoElapseTime(Time time)
 {
     // need to accumulate these and commit when the
     // dialog is over..?
     auto splitTime = time;
-    auto camp = BAK::TimeChanger{*this};
+    auto camp = TimeChanger{*this};
     bool dialogResetsSleep = time > Times::TwelveHours;
     // there is further logic to this that determines
     // whether we consume rations or not.

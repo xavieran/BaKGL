@@ -219,7 +219,7 @@ int main(int argc, char** argv)
 
     auto UpdateGameTile = [&]()
     {
-        if (camera.GetGameTile() != currentTile && gameRunner.mGameState.mGameData)
+        if (camera.GetGameTile() != currentTile && gameRunner.mGameState.GetGameData())
         {
             currentTile = camera.GetGameTile();
             logger.Debug() << "New tile: " << currentTile << "\n";
@@ -444,7 +444,7 @@ int main(int argc, char** argv)
             console.Draw("Console", &consoleOpen);
         }
 
-        if (gameRunner.mGameState.mGameData && guiManager.InMainView())
+        if (gameRunner.mGameState.GetGameData() && guiManager.InMainView())
         {
             gameRunner.RunGameUpdate();
         }
@@ -464,25 +464,25 @@ int main(int argc, char** argv)
                         ShowDialogGui(
                             gds.mEntryDialog,
                             BAK::DialogStore::Get(),
-                            gameRunner.mGameState.mGameData);
+                            gameRunner.mGameState.GetGameData());
                     },
                     [&](const BAK::Encounter::Block& e){
                         ShowDialogGui(
                             e.mDialog,
                             BAK::DialogStore::Get(),
-                            gameRunner.mGameState.mGameData);
+                            gameRunner.mGameState.GetGameData());
                     },
                     [&](const BAK::Encounter::Combat& e){
                         ShowDialogGui(
                             e.mEntryDialog,
                             BAK::DialogStore::Get(),
-                            gameRunner.mGameState.mGameData);
+                            gameRunner.mGameState.GetGameData());
                     },
                     [&](const BAK::Encounter::Dialog& e){
                         ShowDialogGui(
                             e.mDialog,
                             BAK::DialogStore::Get(),
-                            gameRunner.mGameState.mGameData);
+                            gameRunner.mGameState.GetGameData());
                     },
                     [](const BAK::Encounter::EventFlag&){
                     },
@@ -490,7 +490,7 @@ int main(int argc, char** argv)
                         ShowDialogGui(
                             e.mDialog,
                             BAK::DialogStore::Get(),
-                            gameRunner.mGameState.mGameData);
+                            gameRunner.mGameState.GetGameData());
                     },
                 },
                 encounter);

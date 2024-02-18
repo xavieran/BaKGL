@@ -187,7 +187,7 @@ int main(int argc, char** argv)
 
     ImguiWrapper::Shutdown();
 
-    delete gameState.mGameData;
+    delete gameState.GetGameData();
 
     return 0;
 }

@@ -226,12 +226,13 @@ public:
                                     glm::vec3{0},
                                     glm::vec3{1}});
 
-                            auto container = std::find_if(mGameState.mCombatContainers.begin(), mGameState.mCombatContainers.end(),
+                            auto& containers = mGameState.GetCombatContainers();
+                            auto container = std::find_if(containers.begin(), containers.end(),
                                 [&](auto& lhs){
                                     return lhs.GetHeader().GetCombatNumber() == combat.mCombatIndex
                                         && lhs.GetHeader().GetCombatantNumber() == i;
                                 });
-                            if (container != mGameState.mCombatContainers.end())
+                            if (container != containers.end())
                             {
                                 mSystems->AddClickable(Clickable{entityId});
                                 mClickables.emplace(entityId, ClickableEntity(BAK::EntityType::DEAD_COMBATANT, &(*container)));
@@ -385,7 +386,7 @@ public:
 
         if (!combat.mCombatants.empty())
         {
-            mGameState.mCurrentMonster = BAK::MonsterIndex{combat.mCombatants.back().mMonster};
+            mGameState.SetMonster(BAK::MonsterIndex{combat.mCombatants.back().mMonster + 1u});
         }
 
         if (combat.mEntryDialog.mValue != 0)

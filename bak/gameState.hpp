@@ -67,13 +67,15 @@ public:
     }
 
     void LoadGameData(GameData* gameData);
+    GameData* GetGameData(){ return mGameData; }
 
     const Party& GetParty() const;
     Party& GetParty();
 
+    std::vector<GenericContainer>& GetCombatContainers() { return mCombatContainers; }
+
     std::int16_t GetEndOfDialogState() const;
-    void SetEndOfDialogState(std::int16_t state);
-    GameData& GetGameData();
+    void DoSetEndOfDialogState(std::int16_t state);
 
     void SetActiveCharacter(ActiveCharIndex character);
     void SetActiveCharacter(CharIndex character);
@@ -84,11 +86,13 @@ public:
     void SetChapter(Chapter chapter);
     Chapter GetChapter() const;
 
+    void SetMonster(MonsterIndex);
+
     Royals GetMoney() const;
 
-    void SetLocation(BAK::Location loc);
-    void SetLocation(BAK::GamePositionAndHeading posAndHeading);
-    BAK::GamePositionAndHeading GetLocation() const;
+    void SetLocation(Location loc);
+    void SetLocation(GamePositionAndHeading posAndHeading);
+    GamePositionAndHeading GetLocation() const;
     ZoneNumber GetZone() const;
 
     auto& GetTimeExpiringState() { return mTimeExpiringState; }
@@ -99,7 +103,7 @@ public:
     void SetShopType_7542(unsigned shopType);
     unsigned GetShopType_7542() const;
 
-    IContainer* GetContainerForGDSScene(BAK::HotspotRef ref);
+    IContainer* GetContainerForGDSScene(HotspotRef ref);
 
     std::optional<unsigned> GetActor(unsigned actor) const;
 
@@ -107,7 +111,7 @@ public:
 
     // prefer to use this function when getting best skill
     // as it will set the appropriate internal state.
-    std::pair<CharIndex, unsigned> GetPartySkill(BAK::SkillType skill, bool best);
+    std::pair<CharIndex, unsigned> GetPartySkill(SkillType skill, bool best);
 
     void SetCharacterTextVariables();
     void SetDefaultDialogTextVariables();
@@ -122,7 +126,7 @@ public:
     void DoGamble(unsigned playerChance, unsigned gamblerChance, unsigned reward);
     bool EvaluateGameStateChoice(const GameStateChoice& choice) const;
 
-    void ElapseTime(Time time);
+    void DoElapseTime(Time time);
     void ReduceAndEvaluateTimeExpiringState(Time delta);
     void RecalculatePalettesForPotionOrSpellEffect(TimeExpiringState& state);
     void DeactivateLightSource();
@@ -172,7 +176,7 @@ public:
 
     bool CheckConversationItemAvailable(unsigned conversationItem) const;
     
-
+private:
     std::optional<CharIndex> mDialogCharacter;
     CharIndex mActiveCharacter;
     CharIndex mSkillCheckedCharacter;
