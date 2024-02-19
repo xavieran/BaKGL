@@ -1,6 +1,7 @@
 #include "graphics/sprites.hpp"
 
 #include "com/assert.hpp"
+#include "com/logger.hpp"
 
 #include <GL/glew.h>
 
@@ -23,20 +24,20 @@ Sprites::Sprites() noexcept
 
 Sprites::Sprites(Sprites&& other) noexcept
 :
-    mNonSpriteObjects{other.mNonSpriteObjects},
-    mVertexArray{std::move(other.mVertexArray)},
-    mBuffers{std::move(other.mBuffers)},
-    mTextureBuffer{std::move(other.mTextureBuffer)},
-    mObjects{std::move(other.mObjects)}
+    mTextureBuffer{GL_TEXTURE_2D_ARRAY}
 {
+    (*this) = std::move(other);
 }
 
 Sprites& Sprites::operator=(Sprites&& other) noexcept
 {
+    if (this == &other) return *this;
+    this->mNonSpriteObjects = std::move(other.mNonSpriteObjects);
     this->mVertexArray = std::move(other.mVertexArray);
     this->mBuffers = std::move(other.mBuffers);
     this->mTextureBuffer = std::move(other.mTextureBuffer);
     this->mObjects = other.mObjects;
+    this->mSpriteDimensions = other.mSpriteDimensions;
     return *this;
 }
 
@@ -104,14 +105,18 @@ glm::vec2 Sprites::GetDimensions(unsigned i) const
     return mSpriteDimensions[i];
 }
 
+void DestroySpriteSheet::operator()(TemporarySpriteHandle* handle)
+{
+    assert(handle->mManager);
+    handle->mManager->RemoveSpriteSheet(handle->mSpriteSheet);
+}
+
 SpriteManager::SpriteManager()
 :
     mSprites(),
     mNextSpriteSheet{0},
     mActiveSpriteSheet{}
 {
-    // Seems excessive...
-    mSprites.reserve(128);
 }
 
 SpriteSheetIndex SpriteManager::AddSpriteSheet()
@@ -119,9 +124,21 @@ SpriteSheetIndex SpriteManager::AddSpriteSheet()
     const auto& logger = Logging::LogState::GetLogger("SpriteManager");
     const auto spriteSheetIndex = NextSpriteSheet();
     logger.Debug() << "Adding sprite sheet index: " << spriteSheetIndex << "\n";
-    ASSERT(mSprites.size() == spriteSheetIndex.mValue);
-    mSprites.emplace_back();
+    mSprites[spriteSheetIndex] = {};
     return spriteSheetIndex;
+}
+
+SpriteManager::TemporarySpriteSheet SpriteManager::AddTemporarySpriteSheet()
+{
+    return TemporarySpriteSheet(new TemporarySpriteHandle{this, AddSpriteSheet()});
+}
+
+void SpriteManager::RemoveSpriteSheet(SpriteSheetIndex index)
+{
+    const auto& logger = Logging::LogState::GetLogger("SpriteManager");
+    logger.Debug() << "Removing sprite sheet index: " << index << std::endl;
+    DeactivateSpriteSheet();
+    mSprites.erase(index);
 }
 
 void SpriteManager::DeactivateSpriteSheet()
@@ -144,8 +161,8 @@ void SpriteManager::ActivateSpriteSheet(SpriteSheetIndex spriteSheet)
 
 Sprites& SpriteManager::GetSpriteSheet(SpriteSheetIndex spriteSheet)
 {
-    ASSERT(mSprites.size() > spriteSheet.mValue);
-    return mSprites[spriteSheet.mValue];
+    ASSERT(mSprites.contains(spriteSheet));
+    return mSprites[spriteSheet];
 }
 
 SpriteSheetIndex SpriteManager::NextSpriteSheet()

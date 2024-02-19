@@ -16,10 +16,10 @@ StaticTTM::StaticTTM(
     const BAK::Scene& sceneInit,
     const BAK::Scene& sceneContent)
 :
-    mSpriteSheet{spriteManager.AddSpriteSheet()},
+    mSpriteSheet{spriteManager.AddTemporarySpriteSheet()},
     mSceneFrame{
         Graphics::DrawMode::Rect,
-        mSpriteSheet,
+        mSpriteSheet->mSpriteSheet,
         Graphics::TextureIndex{0},
         Graphics::ColorMode::SolidColor,
         glm::vec4{0},
@@ -32,7 +32,7 @@ StaticTTM::StaticTTM(
     mClipRegion{},
     mLogger{Logging::LogState::GetLogger("Gui::StaticTTM")}
 {
-    mLogger.Debug() << "Loading scene: " << sceneInit << " with " << sceneContent << "\n";
+    mLogger.Debug() << "Loading scene: " << sceneInit << " with " << sceneContent << std::endl;
     auto textures = Graphics::TextureStore{};
     std::unordered_map<unsigned, unsigned> offsets{};
 
@@ -44,7 +44,7 @@ StaticTTM::StaticTTM(
             const auto& [image, palKey] = imagePal;
             const auto& palette = scene.mPalettes.find(palKey)->second;
             mLogger.Debug() << "Loading image slot: " << imageKey 
-                << " (" << image << ") with palette: " << palKey << "\n";
+                << " (" << image << ") with palette: " << palKey << std::endl;
             offsets[imageKey] = textures.GetTextures().size();
 
             BAK::TextureFactory::AddToTextureStore(
@@ -68,7 +68,7 @@ StaticTTM::StaticTTM(
         const auto texture = dialogBackground->second;
         mDialogBackground.emplace(
             Graphics::DrawMode::Sprite,
-            mSpriteSheet,
+            mSpriteSheet->mSpriteSheet,
             Graphics::TextureIndex{texture},
             Graphics::ColorMode::Texture,
             glm::vec4{1},
@@ -93,7 +93,7 @@ StaticTTM::StaticTTM(
 
                         auto& elem = mSceneElements.emplace_back(
                             Graphics::DrawMode::Sprite,
-                            mSpriteSheet,
+                            mSpriteSheet->mSpriteSheet,
                             Graphics::TextureIndex{sceneSprite.mImage},
                             Graphics::ColorMode::Texture,
                             glm::vec4{1},
@@ -153,7 +153,7 @@ StaticTTM::StaticTTM(
     }
 
     spriteManager
-        .GetSpriteSheet(mSpriteSheet)
+        .GetSpriteSheet(mSpriteSheet->mSpriteSheet)
         .LoadTexturesGL(textures);
 }
 
