@@ -173,7 +173,7 @@ public:
         }
 
         mPickFB.UnbindGL();
-        glFinish()
+        glFinish();
     }
 
     template <typename Renderables, typename Camera>
