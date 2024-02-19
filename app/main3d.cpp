@@ -276,6 +276,12 @@ int main(int argc, char** argv)
             // GuiManager state, interacting with 2d or 3d world..?
             if (!guiHandled && guiManager.mScreenStack.size() == 1)
             {
+                glDisable(GL_BLEND);
+                glDisable(GL_MULTISAMPLE);
+                renderer.DrawForPicking(
+                    gameRunner.mSystems->GetRenderables(),
+                    gameRunner.mSystems->GetSprites(),
+                    *cameraPtr);
                 gameRunner.CheckClickable(renderer.GetClickedEntity(clickPos));
             }
         },
@@ -395,11 +401,6 @@ int main(int argc, char** argv)
             std::sin(beginDay * (twoPi / (57600 * 2)))
         };
         light.mFogColor = ambient * glm::vec3{.15, .31, .36};
-        renderer.DrawForPicking(
-            gameRunner.mSystems->GetRenderables(),
-            gameRunner.mSystems->GetSprites(),
-            *cameraPtr);
-
         glEnable(GL_BLEND);
         glEnable(GL_MULTISAMPLE);  
 
