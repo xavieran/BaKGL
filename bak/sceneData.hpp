@@ -126,6 +126,12 @@ struct DrawSprite
 
 std::ostream& operator<<(std::ostream&, const DrawSprite&);
 
+struct DrawScreen
+{
+    glm::ivec2 mPosition;
+    glm::ivec2 mDimensions;
+};
+
 struct PlaySoundS
 {
     std::uint16_t mSoundIndex;
@@ -188,6 +194,7 @@ using SceneAction = std::variant<
     ClipRegion,
     DisableClipRegion,
     DrawRect,
+    DrawScreen,
     DrawSprite>;
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa);

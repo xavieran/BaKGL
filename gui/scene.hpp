@@ -40,10 +40,26 @@ using DrawingAction = std::variant<
     SceneRect>;
 
 DrawingAction ConvertSceneAction(const BAK::SceneAction& action);
-
 EnableClipRegion ConvertSceneAction(const BAK::ClipRegion&);
 DisableClipRegion ConvertSceneAction(const BAK::DisableClipRegion&);
 
+template <typename T, typename S>
+SceneSprite ConvertSceneAction(
+    const BAK::DrawScreen& action,
+    const T& textures,
+    const S& offsets) // make this const
+{
+    const auto sprite = offsets.at(25);
+    const auto tex = textures.GetTexture(sprite);
+
+    //auto scale = glm::vec2{tex.GetWidth(), tex.GetHeight()};
+    auto scale = action.mDimensions;
+
+    return SceneSprite{
+        sprite,
+        action.mPosition,
+        scale};
+}
 template <typename T, typename S>
 SceneSprite ConvertSceneAction(
     const BAK::DrawSprite& action,

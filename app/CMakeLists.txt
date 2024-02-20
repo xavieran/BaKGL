@@ -14,6 +14,7 @@ list(APPEND APP_BINARIES
     display_ttm
     instancing
     main3d
+    play_ttm
     show_scene
     show_imgui
     bmx_explorer

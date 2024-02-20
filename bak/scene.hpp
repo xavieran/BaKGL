@@ -81,12 +81,15 @@ struct ImageSlot
     std::optional<unsigned> mPalette;
 };
 
+using PaletteSlot = unsigned;
+
 struct Scene
 {
     std::string mSceneTag;
     std::vector<SceneAction> mActions;
-    std::unordered_map<unsigned, std::string> mPalettes;
-    std::unordered_map<unsigned, std::pair<std::string, unsigned>> mImages;
+    std::unordered_map<PaletteSlot, std::string> mPalettes;
+    std::unordered_map<unsigned, std::pair<std::string, PaletteSlot>> mImages;
+    std::unordered_map<PaletteSlot, std::pair<std::string, PaletteSlot>> mScreens;
 
     std::optional<ClipRegion> mClipRegion;
 };

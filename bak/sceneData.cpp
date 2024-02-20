@@ -115,12 +115,24 @@ std::ostream& operator<<(std::ostream& os, const SetScene& ss)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const LoadScreen& ls)
+{
+    os << "LoadScreen {" << ls.mScreenName << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const DrawRect& a)
 {
     os << "DrawRect { PaletteColor: (" << std::get<0>(a.mPaletteColor)
         << ", " << std::get<1>(a.mPaletteColor)
         << "), TopLeft: " << a.mTopLeft << ", BottomRight: "
         << a.mBottomRight << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const DrawScreen& a)
+{
+    os << "DrawScreen{ " << a.mPosition << " - " << a.mDimensions << "}";
     return os;
 }
 
@@ -141,6 +153,11 @@ std::ostream& operator<<(std::ostream& os, const ClipRegion& a)
 std::ostream& operator<<(std::ostream& os, const DisableClipRegion& a)
 {
     return os << "DisableClipRegion";
+}
+
+std::ostream& operator<<(std::ostream& os, const Delay& a)
+{
+    return os << "Delay { time: " << a.mDelayMs << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa)

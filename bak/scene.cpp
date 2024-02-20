@@ -32,13 +32,17 @@ std::ostream& operator<<(std::ostream& os, const Scene& scene)
         os << '\t' << a << "\n";
     }
     os << " ]\n";
+    os << "Scene Images: \n";
     for (const auto& [key, imagePal] : scene.mImages)
     {
         const auto& [image, palKey] = imagePal;
         os << "K: " << key << " " << image << " pal: " << palKey << "\n";
     }
+    os << "Scene Palettes: \n";
     for (const auto& [key, pal] : scene.mPalettes)
+    {
         os << "K: " << key << " " << pal << "\n";
+    }
     return os;
 }
 
@@ -190,7 +194,9 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     auto tagBuffer     = fb.Find(DataTag::TAG);
     
     const auto pages = pageBuffer.GetUint16LE();
-    logger.Debug() << "Pages:" << pages << "\n";
+    logger.Debug() << "Pages:" << pages << " size: " << pageBuffer.GetSize() << "\n";
+
+    logger.Debug() << "Version size: " << versionBuffer.GetSize() << "\n";
 
     tt3Buffer.Skip(1);
     FileBuffer decompBuffer = FileBuffer(tt3Buffer.GetUint32LE());
@@ -253,7 +259,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     bool loadingScene = false;
     bool flipped = false;
     std::optional<unsigned> imageSlot = 0;
-    std::optional<unsigned> paletteSlot{};
+    std::optional<PaletteSlot> paletteSlot{};
     std::optional<std::pair<unsigned, unsigned>> activeColor{};
     std::unordered_map<unsigned, std::string> palettes{};
     std::unordered_map<
@@ -263,6 +269,10 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     std::unordered_map<
         unsigned,
         ImageSlot> imageSlots;
+
+    std::unordered_map<
+        unsigned,
+        std::pair<std::string, unsigned>> screens{};
 
     const auto PushScene = [&]{
         currentScene.mPalettes = palettes;
@@ -275,7 +285,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             }
             currentScene.mImages[key] = val;
         }
-
+        currentScene.mScreens = screens;
         currentScene.mActions.emplace_back(DisableClipRegion{});
 
         const auto tag = tags.FindTag(currentScene.mSceneTag);
@@ -307,12 +317,14 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             currentScene.mSceneTag = *chunk.mResourceName;
             currentScene.mActions.clear();
             currentScene.mImages.clear();
+            currentScene.mScreens.clear();
             currentScene.mPalettes.clear();
             images.clear();
             imageSlots.clear();
             palettes.clear();
             imageSlot.reset();
             activeColor.reset();
+            screens.clear();
             loadingScene = true;
             break;
 
@@ -358,8 +370,31 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 imageSlots[*imageSlot] = ImageSlot{};
             }
             imageSlots[*imageSlot].mImage = name;
-        }
-            break;
+        } break;
+        case Actions::LOAD_SCREEN:
+        {
+            ASSERT(chunk.mResourceName);
+            ASSERT(paletteSlot);
+            auto name = *chunk.mResourceName;
+            (*(name.end() - 1)) = 'X';
+            screens[*paletteSlot] = std::make_pair(name, *paletteSlot);
+        } break;
+        case Actions::DRAW_SCREEN:
+        {
+            currentScene.mActions.emplace_back(
+                DrawScreen{
+                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
+                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
+                });
+        } break;
+        case Actions::FADE_IN: // ???
+        {
+            currentScene.mActions.emplace_back(
+                DrawScreen{
+                    glm::vec2{0, 0},
+                    glm::vec2{320, 200}
+                });
+        } break;
         case Actions::DRAW_RECT:
         case Actions::DRAW_FRAME:
             // There must be a default colour?
