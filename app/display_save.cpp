@@ -22,6 +22,13 @@ int main(int argc, char** argv)
     logger.Info() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
 
+    auto containers = gameData.LoadContainers(12);
+    logger.Info() << "Containers: \n";
+    for (auto& con : containers)
+    {
+        logger.Info() << "  Container: " << con << "\n";
+    }
+
     return 0;
 }
 

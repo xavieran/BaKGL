@@ -10,7 +10,9 @@ namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const ContainerWorldLocation& loc)
 {
-    os << "CWL { Z: " << loc.mZone << ", arr: " << std::hex << loc.mUnknown << std::dec
+    os << "CWL { Z: " << loc.mZone << " from: " << +(loc.mChapterRange >> 4) 
+        << " to: " << +(loc.mChapterRange & 0xf)
+        << " model: " << +loc.mModel << " unk: " << std::hex << +loc.mUnknown << std::dec
         << " loc: " << loc.mLocation << "}";
     return os;
 }
@@ -37,7 +39,8 @@ std::ostream& operator<<(std::ostream& os, const ContainerLocation& loc)
 
 std::ostream& operator<<(std::ostream& os, const ContainerHeader& header)
 {
-    os << "ContainerHeader {" << header.mLocation << " LocType: "
+    os << "ContainerHeader @" <<  std::hex << header.mAddress << std::dec 
+        << " {" << header.mLocation << " LocType: "
         << +header.mLocationType << " Items: " << +header.mItems
         << " Capacity: " << +header.mCapacity << " Flags: " << std::hex
         << +header.mFlags << std::dec << "}";
@@ -50,7 +53,9 @@ ContainerHeader::ContainerHeader()
         mLocation{
             ContainerWorldLocation{
                 ZoneNumber{0},
-                std::array<std::uint8_t, 3>{},
+                0,
+                0,
+                0,
                 glm::uvec2{0, 0}}},
         mLocationType{0},
         mItems{0},
@@ -64,12 +69,16 @@ ContainerHeader::ContainerHeader(ContainerWorldLocationTag, FileBuffer& fb)
     mAddress = fb.Tell();
 
     const auto zone = ZoneNumber{fb.GetUint8()};
-    const auto unknown = fb.GetArray<3>();
+    const auto chapterRange = fb.GetUint8();
+    const auto model = fb.GetUint8();
+    const auto unknown = fb.GetUint8();
     const auto x = fb.GetUint32LE();
     const auto y = fb.GetUint32LE();
 
     mLocation = ContainerWorldLocation{
         zone,
+        chapterRange,
+        model,
         unknown,
         GamePosition{x, y}};
 

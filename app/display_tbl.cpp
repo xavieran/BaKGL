@@ -15,7 +15,11 @@ int main(int argc, char** argv)
     auto tblBuf = BAK::FileBufferFactory::Get().CreateDataBuffer(tbl);
 
     logger.Info() << "Loading TBL:" << tbl << std::endl;
-    BAK::LoadTBL(tblBuf);
-    
+    auto models = BAK::LoadTBL(tblBuf);
+    for (unsigned i = 0; i < models.size(); i++)
+    {
+        logger.Info() << "Model #" << i << " " << models[i].mName << "\n";
+    }
+
     return 0;
 }

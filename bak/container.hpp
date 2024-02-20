@@ -32,7 +32,9 @@ struct ContainerWorldLocationTag {};
 struct ContainerWorldLocation
 {
     ZoneNumber mZone;
-    std::array<std::uint8_t, 3> mUnknown;
+    std::uint8_t mChapterRange;
+    std::uint8_t mModel;
+    std::uint8_t mUnknown;
     glm::uvec2 mLocation;
 };
 

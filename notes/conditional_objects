@@ -24,3 +24,5 @@ fef6 is
 2B50:FF46     65 61 6C 74 68 79 00 00 00 00 00 00 00 00 00 00  ealthy..........
 
 bp-8 == 0x3e
+
+bpm 2b50:5222 - number of visible tiles, when this changes then we load new tile
