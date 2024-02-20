@@ -27,7 +27,7 @@ public:
     Widget* GetBackground();
 
 private:
-    Graphics::SpriteSheetIndex mSpriteSheet;
+    Graphics::SpriteManager::TemporarySpriteSheet mSpriteSheet;
     Widget mSceneFrame;
     std::optional<Widget> mDialogBackground;
 

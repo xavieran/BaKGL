@@ -59,13 +59,13 @@ public:
     void DoGoto();
     void DoExit();
 
+    Graphics::SpriteManager::TemporarySpriteSheet mSpriteSheet;
     const Font& mFont;
     BAK::HotspotRef mReference;
     BAK::GameState& mGameState;
     BAK::SceneHotspots mSceneHotspots;
     BAK::KeyTarget mFlavourText;
 
-    Graphics::SpriteSheetIndex mSpriteSheet;
     Graphics::SpriteManager& mSpriteManager;
 
     // Frame to surround the scene

@@ -32,6 +32,7 @@ GDSScene::GDSScene(
         glm::vec2{1},
         false
     },
+    mSpriteSheet{spriteManager.AddTemporarySpriteSheet()},
     mFont{font},
     mReference{hotspotRef},
     mGameState{gameState},
@@ -39,12 +40,11 @@ GDSScene::GDSScene(
         BAK::FileBufferFactory::Get().CreateDataBuffer(
             mReference.ToFilename())},
     mFlavourText{BAK::KeyTarget{0x0}},
-    mSpriteSheet{GetDrawInfo().mSpriteSheet},
     mSpriteManager{spriteManager},
     // bitofa hack - all gds scenes have such a frame
     mFrame{
         Graphics::DrawMode::Rect,
-        mSpriteSheet,
+        mSpriteSheet->mSpriteSheet,
         Graphics::TextureIndex{0},
         Graphics::ColorMode::SolidColor,
         Color::frameMaroon,
@@ -76,13 +76,14 @@ GDSScene::GDSScene(
     },
     mLogger{Logging::LogState::GetLogger("Gui::GDSScene")}
 {
+    SetSpriteSheet(mSpriteSheet->mSpriteSheet);
     auto textures = Graphics::TextureStore{};
     BAK::TextureFactory::AddScreenToTextureStore(
         textures, "DIALOG.SCX", "OPTIONS.PAL");
 
     const auto [x, y] = textures.GetTexture(0).GetDims();
     mSpriteManager
-        .GetSpriteSheet(mSpriteSheet)
+        .GetSpriteSheet(mSpriteSheet->mSpriteSheet)
         .LoadTexturesGL(textures);
 
     SetDimensions(glm::vec2{x, y});

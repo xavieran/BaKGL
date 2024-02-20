@@ -46,12 +46,25 @@ public:
     glm::vec2 GetDimensions(unsigned i) const;
     
 //private:
-    const std::size_t mNonSpriteObjects;
+    std::size_t mNonSpriteObjects;
     VertexArrayObject mVertexArray;
     GLBuffers mBuffers;
     TextureBuffer mTextureBuffer;
     QuadStorage mObjects;
     std::vector<glm::vec2> mSpriteDimensions;
+};
+
+class SpriteManager;
+
+struct TemporarySpriteHandle
+{
+    SpriteManager* mManager;
+    SpriteSheetIndex mSpriteSheet;
+};
+
+struct DestroySpriteSheet
+{
+    void operator()(TemporarySpriteHandle* handle);
 };
 
 class SpriteManager
@@ -65,7 +78,10 @@ public:
     SpriteManager(SpriteManager&& other) = delete;
     SpriteManager& operator=(SpriteManager&& other) = delete;
 
+    using TemporarySpriteSheet = std::unique_ptr<TemporarySpriteHandle,  DestroySpriteSheet>;
     SpriteSheetIndex AddSpriteSheet();
+    TemporarySpriteSheet AddTemporarySpriteSheet();
+    void RemoveSpriteSheet(SpriteSheetIndex);
 
     void DeactivateSpriteSheet();
     void ActivateSpriteSheet(SpriteSheetIndex spriteSheet);
@@ -75,7 +91,7 @@ public:
 private:
     SpriteSheetIndex NextSpriteSheet();
 
-    std::vector<Sprites> mSprites;
+    std::unordered_map<SpriteSheetIndex, Sprites> mSprites;
 
     unsigned mNextSpriteSheet;
     std::optional<SpriteSheetIndex> mActiveSpriteSheet;
