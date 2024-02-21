@@ -41,27 +41,16 @@ enum class ChoiceMask : std::uint16_t
     Query = 0x01ff,
     // Choice based on whether we have seen a note or opened a chest?
     ItemOrChest = 0x19ff, 
-
-    // Vanilla single bit event flags
-    // 1cff -> 1fd2
     EventFlag = 0x1fff,
-
-    // Choices that directly check game state
     GameState = 0x75ff,
-
-    // These seem to be complex active checks,
-    // e.g. check whether character is starving,
-    // or check whether there are six suits of armor
     CustomState = 0x9cff,
     // item that you need is: (c3xx & 0xff) - 0x50
     Inventory = 0xc3ff,
     HaveNote      = 0xc7ff,
     CastSpell     = 0xcbff,
-    // No idea what this is it doesn't even seem to be a choice
+    // Pick a random number (0, 0xfff) % (0xffff & (evPtr + 0x30f8))
     SleepingGlade = 0xcfff,
-    // Complex events
     ComplexEvent = 0xdfff,
-
     Unknown      = 0xffff
 };
 

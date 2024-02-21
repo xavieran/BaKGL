@@ -1141,28 +1141,36 @@ bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
         switch (conversationItem)
         {
         case 9:
-            return GetParty().HaveItem(sWaani);
+            if (!enabled) return false;
+            return !GetParty().HaveItem(sWaani);
         case 11:
-            return GetParty().HaveItem(sBagOfGrain);
+            if (!enabled) return false;
+            return !GetParty().HaveItem(sBagOfGrain);
         case 133:
             return GetEventStateBool(0xdb94);
         case 130:
             return GetEventStateBool(0xdb9e);
         case 44:
+            if (!enabled) return false;
             return GetEventStateBool(0x1f6c);
         case 117:
+            if (!enabled) return false;
             return GetChapter() == Chapter{6};
         case 17: [[fallthrough]];
         case 103:
+            if (!enabled) return false;
             return stateChecker.AnyCharacterHasNegativeCondition();
         case 71:
+            if (!enabled) return false;
             return false; // (owynsSpells & 0x10) != 0; (Have spell 20 (Unfortunate flux))
         case 132:
+            if (!enabled) return false;
             return HaveNote(0x15) || GetEventStateBool(0x1979);
         case 106:
             if (!enabled) return false;
             return true; // owynsOtherSpells & 0x200
         case 164:
+            if (!enabled) return false;
             return GetEventStateBool(0x1972);
         case 76: [[fallthrough]];
         case 148:
