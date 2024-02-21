@@ -170,7 +170,7 @@ bool ContainerHeader::PresentInChapter(Chapter chapter) const
 {
     if (std::holds_alternative<ContainerWorldLocation>(mLocation))
     {
-        auto& location = std::get<ContainerWorldLocation>(mLocation);
+        const auto& location = std::get<ContainerWorldLocation>(mLocation);
         return (chapter.mValue <= location.GetTo())
             && (chapter.mValue >= location.GetFrom());
     }

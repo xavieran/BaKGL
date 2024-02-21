@@ -92,8 +92,7 @@ struct LoseItem
 struct GiveItem
 {
     std::uint8_t mItemIndex;
-    // if 2 then give to text variable set character
-    std::uint8_t mCharacter; 
+    std::uint8_t mWho; 
     std::uint16_t mQuantity;
     std::array<std::uint8_t, 4> mRest;
 };

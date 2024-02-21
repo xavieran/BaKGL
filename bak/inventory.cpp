@@ -200,6 +200,7 @@ void Inventory::CheckPostConditions()
         // We should never end up with a stack bigger than allowed
         if (item.IsStackable())
         {
+            // The game actually does not enforce this at all...
             ASSERT(item.GetQuantity() <= item.GetObject().mStackSize);
             ASSERT(item.GetQuantity() > 0);
         }

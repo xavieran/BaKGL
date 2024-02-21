@@ -549,8 +549,17 @@ void GameState::EvaluateAction(const DialogAction& action)
         [&](const GiveItem& give)
         {
             mLogger.Debug() << "Giving item: " << give << "\n";
-            auto& party = GetParty();
-            party.GainItem(give.mCharacter, give.mItemIndex, give.mQuantity);
+            if (give.mWho <= 1)
+            {
+                auto& party = GetParty();
+                party.GainItem(give.mItemIndex, give.mQuantity);
+            }
+            else
+            {
+                auto characterToGive = mDialogCharacterList[give.mWho - 2];
+                GetParty().GetCharacter(CharIndex{characterToGive}).GiveItem(
+                    InventoryItemFactory::MakeItem(ItemIndex{give.mItemIndex}, give.mQuantity));
+            }
         },
         [&](const GainSkill& skill)
         {

@@ -149,7 +149,7 @@ public:
                     else
                         mSystems->AddRenderable(renderable);
 
-                    handledLocations.emplace_back(item.GetBakLocation());
+                    Logging::LogDebug(__FUNCTION__) << "Handled location: " << item.GetBakLocation() << " item: " << item.GetZoneItem().GetName() << "\n";
                     if (item.GetZoneItem().GetClickable())
                     {
                         const auto bakLocation = item.GetBakLocation();
@@ -167,19 +167,22 @@ public:
                         if (cit != containers.end())
                         {
                             mClickables.emplace(id, ClickableEntity{et, &(*cit)});
+                            handledLocations.emplace_back(item.GetBakLocation());
                             continue;
                         }
 
                         auto fit = std::find_if(
                             mZoneData->mFixedObjects.begin(),
                             mZoneData->mFixedObjects.end(),
-                            [&bakLocation](const auto& x){
-                                return x.GetHeader().GetPosition() == bakLocation;
+                            [&](const auto& x){
+                                return x.GetHeader().GetPosition() == bakLocation
+                                    && x.GetHeader().PresentInChapter(mGameState.GetChapter());
                             });
 
                         if (fit != mZoneData->mFixedObjects.end())
                         {
                             mClickables.emplace(id, ClickableEntity{et, &(*fit)});
+                            handledLocations.emplace_back(item.GetBakLocation());
                             continue;
                         }
 
@@ -201,6 +204,35 @@ public:
             {
                 continue;
             }
+            handledLocations.emplace_back(bakPosition);
+            mLogger.Debug() << "Hidden container found: " << container << "\n";
+
+            const auto id = mSystems->GetNextItemId();
+            const auto& item = mZoneData->mZoneItems.GetZoneItem(header.GetModel());
+            const auto location = BAK::ToGlCoord<float>(bakPosition);
+            auto renderable = Renderable{
+                id,
+                mZoneData->mObjects.GetObject(item.GetName()),
+                location,
+                glm::vec3{},
+                glm::vec3{static_cast<float>(item.GetScale())}};
+            mSystems->AddRenderable(renderable);
+
+            mSystems->AddClickable(Clickable{id});
+            mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
+        }
+
+        auto& fixedObjects = mZoneData->mFixedObjects;
+        for (auto& container : fixedObjects)
+        {
+            const auto& header = container.GetHeader();
+            const auto bakPosition = header.GetPosition();
+            if ((std::find(handledLocations.begin(), handledLocations.end(), bakPosition) != handledLocations.end())
+                || !header.PresentInChapter(mGameState.GetChapter()))
+            {
+                continue;
+            }
+            handledLocations.emplace_back(bakPosition);
             mLogger.Debug() << "Hidden container found: " << container << "\n";
 
             const auto id = mSystems->GetNextItemId();
