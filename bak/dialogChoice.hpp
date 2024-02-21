@@ -100,7 +100,8 @@ enum class Scenario : std::uint8_t
     AllPartyArmorIsGoodCondition = 4,
     PoisonedDelekhanArmyChests = 5,
     AnyCharacterSansWeapon = 6,
-
+    AlwaysFalse = 7,
+    AlwaysFalse2 = 8,
     AnyCharacterHasNegativeCondition = 9,
     AnyCharacterIsUnhealthy = 10,
     AllPartyMembersHaveNapthaMask = 11,
@@ -165,6 +166,11 @@ using Choice = std::variant<
     UnknownChoice>;
 
 std::ostream& operator<<(std::ostream&, const Choice&);
+
+Choice CreateChoice(
+    std::uint16_t state,
+    std::uint16_t choice0,
+    std::uint16_t choice1);
 
 struct DialogChoice
 {

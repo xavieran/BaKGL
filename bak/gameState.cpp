@@ -222,6 +222,30 @@ IContainer* GameState::GetContainerForGDSScene(HotspotRef ref)
     return nullptr;
 }
 
+IContainer* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location)
+{
+    for (auto& container : GetContainers(zone))
+    {
+        if (container.GetHeader().GetPosition() == location)
+        {
+            return &container;
+        }
+    }
+    return nullptr;
+}
+
+IContainer const* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location) const
+{
+    for (auto& container : GetContainers(zone))
+    {
+        if (container.GetHeader().GetPosition() == location)
+        {
+            return &container;
+        }
+    }
+    return nullptr;
+}
+
 std::optional<unsigned> GameState::GetActor(unsigned actor) const
 {
     if (actor == 0xff)
@@ -315,8 +339,8 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
     case 3: [[fallthrough]];
     case 4: [[fallthrough]];
     case 5:
-        mDialogCharacterList[index] = attribute;
-        mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(CharIndex{attribute}).GetName());
+        mDialogCharacterList[index] = attribute - 1;
+        mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(CharIndex{attribute - 1}).GetName());
         break;
     case 6:
         mDialogCharacterList[index] = GetPartyLeader().mValue;
@@ -504,41 +528,7 @@ void GameState::EvaluateAction(const DialogAction& action)
         [&](const SetTextVariable& set)
         {
             mLogger.Debug() << "Setting text variable: " << DialogAction{set} << "\n";
-            if (set.mWhat == 0x7 || (set.mWhat >= 0xb && set.mWhat <= 0xf))
-            {
-                SetDialogTextVariable(set.mWhich, set.mWhat);
-            }
-            else if (set.mWhat == 0x11)
-            {
-                const auto& monsters = MonsterNames::Get();
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    mCurrentMonster ? monsters.GetMonsterName(*mCurrentMonster) : "No Monster Specified");
-            }
-            else if (set.mWhat == 0x12)
-            {
-                ASSERT(mSelectedItem);
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    mSelectedItem->GetObject().mName);
-            }
-            else if (set.mWhat == 0x13)
-            {
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    ToShopDialogString(mItemValue_753e));
-            }
-            else if (set.mWhat == 0x19)
-            {
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    ToShopDialogString(mItemValue_753e));
-            }
-            else if (set.mWhat == 0x1c)
-            {
-                // if in a tavern use tavernkeeper for the shop
-                mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
-            }
+            SetDialogTextVariable(set.mWhich, set.mWhat);
         },
         [&](const LoseItem& lose)
         {
@@ -888,8 +878,78 @@ bool GameState::EvaluateDialogChoice(const Choice& choice) const
                 return stateChecker.HaveSixSuitsOfArmor();
             case Scenario::AllPartyArmorIsGoodCondition:
                 return stateChecker.AllPartyArmorIsGoodCondition();
+            case Scenario::PoisonedDelekhanArmyChests:
+                return stateChecker.PoisonedDelekhanArmyChests();
             case Scenario::AnyCharacterSansWeapon:
                 return stateChecker.AnyCharacterSansWeapon();
+            case Scenario::AlwaysFalse: [[fallthrough]];
+            case Scenario::AlwaysFalse2:
+                return false;
+            case Scenario::AnyCharacterHasNegativeCondition:
+                return stateChecker.AnyCharacterHasNegativeCondition();
+            case Scenario::AllPartyMembersHaveNapthaMask:
+                return stateChecker.AllCharactersHaveNapthaMask();
+            case Scenario::NormalFoodInArlieChest:
+                return stateChecker.NormalFoodInArlieChest();
+            case Scenario::PoisonedFoodInArlieChest:
+                return stateChecker.PoisonedFoodInArlieChest();
+            default:
+                return false;
+            }
+        },
+        [&](const auto& c){
+            return false; 
+        },
+    },
+    choice);
+}
+
+unsigned GameState::ReadEventState(Choice choice) const
+{
+    return std::visit(overloaded{
+        [&](const NoChoice& c){
+            return true;
+        },
+        [&](const EventFlagChoice& c){
+            return GetEventStateBool(c.mEventPointer);
+        },
+        [&](const ComplexEventChoice& c){
+            return EvaluateComplexChoice(c);
+        },
+        [&](const InventoryChoice& c){
+            return GetParty().HaveItem(c.mRequiredItem);
+        },
+        [&](const GameStateChoice& c){
+            return EvaluateGameStateChoice(c);
+        },
+        [&](const CastSpellChoice& c)
+        {
+            return GetSpellActive(static_cast<StaticSpells>(c.mRequiredSpell));
+        },
+        [&](const HaveNoteChoice& c)
+        {
+            return HaveNote(c.mRequiredNote);
+        },
+        [&](const CustomStateChoice& c)
+        {
+            const auto stateChecker = State::CustomStateEvaluator{*this};
+            switch (c.mScenario)
+            {
+            case Scenario::MortificationOfTheFlesh:
+                return stateChecker.AnyCharacterStarving();
+            case Scenario::Plagued:
+                return stateChecker.Plagued();
+            case Scenario::HaveSixSuitsOfArmor:
+                return stateChecker.HaveSixSuitsOfArmor();
+            case Scenario::AllPartyArmorIsGoodCondition:
+                return stateChecker.AllPartyArmorIsGoodCondition();
+            case Scenario::PoisonedDelekhanArmyChests:
+                return stateChecker.PoisonedDelekhanArmyChests();
+            case Scenario::AnyCharacterSansWeapon:
+                return stateChecker.AnyCharacterSansWeapon();
+            case Scenario::AlwaysFalse: [[fallthrough]];
+            case Scenario::AlwaysFalse2:
+                return false;
             case Scenario::AnyCharacterHasNegativeCondition:
                 return stateChecker.AnyCharacterHasNegativeCondition();
             case Scenario::AllPartyMembersHaveNapthaMask:
@@ -1047,6 +1107,13 @@ std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone)
     return mContainers[zone.mValue - 1];
 }
 
+const std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone) const
+{
+    ASSERT(zone.mValue < 13);
+    return mContainers[zone.mValue - 1];
+}
+
+
 bool GameState::HaveNote(unsigned note) const
 {
     bool haveNote = false;
@@ -1074,9 +1141,9 @@ bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
         switch (conversationItem)
         {
         case 9:
-            return !GetParty().HaveItem(sWaani);
+            return GetParty().HaveItem(sWaani);
         case 11:
-            return !GetParty().HaveItem(sBagOfGrain);
+            return GetParty().HaveItem(sBagOfGrain);
         case 133:
             return GetEventStateBool(0xdb94);
         case 130:
@@ -1091,7 +1158,7 @@ bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
         case 71:
             return false; // (owynsSpells & 0x10) != 0; (Have spell 20 (Unfortunate flux))
         case 132:
-            return !HaveNote(0x15) || !GetEventStateBool(0x1979);
+            return HaveNote(0x15) || GetEventStateBool(0x1979);
         case 106:
             if (!enabled) return false;
             return true; // owynsOtherSpells & 0x200

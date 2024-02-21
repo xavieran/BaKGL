@@ -104,6 +104,8 @@ public:
     unsigned GetShopType_7542() const;
 
     IContainer* GetContainerForGDSScene(HotspotRef ref);
+    IContainer* GetWorldContainer(ZoneNumber zone, GamePosition location);
+    IContainer const* GetWorldContainer(ZoneNumber zone, GamePosition location) const;
 
     std::optional<unsigned> GetActor(unsigned actor) const;
 
@@ -142,6 +144,7 @@ public:
     bool EvaluateComplexChoice(const ComplexEventChoice& choice) const;
     bool EvaluateDialogChoice(const Choice& choice) const;
 
+    unsigned ReadEventState(Choice choice) const;
     unsigned GetEventState(unsigned eventPtr) const;
     bool GetEventStateBool(unsigned eventPtr) const;
     void SetEventValue(unsigned eventPtr, unsigned value);
@@ -160,6 +163,7 @@ public:
     bool Save(const std::string& saveName);
 
     std::vector<GenericContainer>& GetContainers(ZoneNumber zone);
+    const std::vector<GenericContainer>& GetContainers(ZoneNumber zone) const;
     bool HaveNote(unsigned note) const;
     bool CheckConversationItemAvailable(unsigned conversationItem) const;
     

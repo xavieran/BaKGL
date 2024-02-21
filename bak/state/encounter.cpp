@@ -23,7 +23,7 @@ bool CheckEncounterActive(
     const bool recentlyEncountered = CheckRecentlyEncountered(fb, encounterIndex);
     // event flag 1 - this flag must be set to encounter the event
     const bool eventFlag1 = encounter.mSaveAddress != 0
-        ? (ReadEventBool(fb, encounter.mSaveAddress) == 1)
+        ? !ReadEventBool(fb, encounter.mSaveAddress)
         : false;
     // event flag 2 - this flag must _not_ be set to encounter this event
     const bool eventFlag2 = encounter.mSaveAddress2 != 0
@@ -55,7 +55,7 @@ bool CheckCombatActive(
 
     // event flag 1 - this flag must be set to encounter the event
     const bool eventFlag1 = encounter.mSaveAddress != 0
-        ? (ReadEventBool(fb, encounter.mSaveAddress) == 1)
+        ? !ReadEventBool(fb, encounter.mSaveAddress)
         : false;
     // event flag 2 - this flag must _not_ be set to encounter this event
     const bool eventFlag2 = encounter.mSaveAddress2 != 0

@@ -266,7 +266,16 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
 
     const auto PushScene = [&]{
         currentScene.mPalettes = palettes;
-        currentScene.mImages = images;
+        currentScene.mImages.clear();
+        for (auto [key, val] : images)
+        {
+            if (!currentScene.mPalettes.contains(val.second))
+            {
+                val = std::make_pair(val.first, 0);
+            }
+            currentScene.mImages[key] = val;
+        }
+
         currentScene.mActions.emplace_back(DisableClipRegion{});
 
         const auto tag = tags.FindTag(currentScene.mSceneTag);

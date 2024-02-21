@@ -1,6 +1,7 @@
 #include "bak/state/customStateChoice.hpp"
 
 #include "bak/gameState.hpp"
+#include "bak/coordinates.hpp"
 
 namespace BAK::State {
 
@@ -85,7 +86,20 @@ bool CustomStateEvaluator::PoisonedDelekhanArmyChests() const
     // 5, 0x16b2fb, 0x111547
     // 5, 0x16b2fb, 0x110f20
     // 5, 0x16b33a, 0x11083c
-    return false;
+    unsigned foundPoisonedRations = 0;
+    for (const auto& [zone, x, y] : {
+        std::make_tuple(5u, 0x16b2fb, 0x111547),
+        std::make_tuple(5u, 0x16b2fb, 0x110f20),
+        std::make_tuple(5u, 0x16b33a, 0x11083c)})
+    {
+        auto* container = mGameState.GetWorldContainer(ZoneNumber{zone}, GamePosition{x, y});
+        ASSERT(container);
+        if (container->GetInventory().HaveItem(InventoryItemFactory::MakeItem(sPoisonedRations, 1)))
+        {
+            foundPoisonedRations++;
+        }
+    }
+    return foundPoisonedRations == 3;
 }
 
 bool CustomStateEvaluator::AnyCharacterSansWeapon() const
@@ -161,20 +175,16 @@ bool CustomStateEvaluator::AllCharactersHaveNapthaMask() const
 
 bool CustomStateEvaluator::NormalFoodInArlieChest() const
 {
-    const auto zone = 3;
-    const auto x = 1308000;
-    const auto y = 1002400;
-    // GetContainer(zone, x, y).HasItem(sRations);
-    return false;
+    auto* container = mGameState.GetWorldContainer(ZoneNumber{3}, GamePosition{1308000, 1002400});
+    ASSERT(container);
+    return container->GetInventory().HaveItem(InventoryItemFactory::MakeItem(sRations, 1));
 }
 
 bool CustomStateEvaluator::PoisonedFoodInArlieChest() const
 {
-    const auto zone = 3;
-    const auto x = 1308000;
-    const auto y = 1002400;
-    // GetContainer(zone, x, y).HasItem(sPoisonedRations);
-    return false;
+    auto* container = mGameState.GetWorldContainer(ZoneNumber{3}, GamePosition{1308000, 1002400});
+    ASSERT(container);
+    return container->GetInventory().HaveItem(InventoryItemFactory::MakeItem(sPoisonedRations, 1));
 }
 
 }

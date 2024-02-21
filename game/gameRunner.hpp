@@ -257,16 +257,16 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                //if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
-                //{
-                //    mSystems->AddRenderable(
-                //        Renderable{
-                //            id,
-                //            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                //            enc.GetLocation(),
-                //            glm::vec3{0.0},
-                //            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-                //}
+                if (std::holds_alternative<BAK::Encounter::Dialog>(enc.GetEncounter()))
+                {
+                    mSystems->AddRenderable(
+                        Renderable{
+                            id,
+                            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                            enc.GetLocation(),
+                            glm::vec3{0.0},
+                            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                }
 
                 mSystems->AddIntersectable(
                     Intersectable{
@@ -729,9 +729,9 @@ public:
 
             if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0)
             {
-                auto camp = BAK::TimeChanger{mGameState};
-                camp.ElapseTimeInMainView(
-                    BAK::Time{0x1e * unitsTravelled});
+                //auto camp = BAK::TimeChanger{mGameState};
+                //camp.ElapseTimeInMainView(
+                //    BAK::Time{0x1e * unitsTravelled});
             }
 
             if (mActiveEncounter)
