@@ -10,11 +10,21 @@ namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const ContainerWorldLocation& loc)
 {
-    os << "CWL { Z: " << loc.mZone << " from: " << +(loc.mChapterRange >> 4) 
-        << " to: " << +(loc.mChapterRange & 0xf)
+    os << "CWL { Z: " << loc.mZone << " from: " << loc.GetFrom() 
+        << " to: " << loc.GetTo()
         << " model: " << +loc.mModel << " unk: " << std::hex << +loc.mUnknown << std::dec
         << " loc: " << loc.mLocation << "}";
     return os;
+}
+
+unsigned ContainerWorldLocation::GetFrom() const
+{
+    return (mChapterRange >> 4) & 0xf;
+}
+
+unsigned ContainerWorldLocation::GetTo() const
+{
+    return mChapterRange & 0xf;
 }
 
 std::ostream& operator<<(std::ostream& os, const ContainerGDSLocation& loc)
@@ -148,6 +158,24 @@ unsigned ContainerHeader::GetCombatantNumber() const
 {
     ASSERT(std::holds_alternative<ContainerCombatLocation>(mLocation));
     return std::get<ContainerCombatLocation>(mLocation).mCombatant;
+}
+
+unsigned ContainerHeader::GetModel() const
+{
+    assert(std::holds_alternative<ContainerWorldLocation>(mLocation));
+    return std::get<ContainerWorldLocation>(mLocation).mModel;
+}
+
+bool ContainerHeader::PresentInChapter(Chapter chapter) const
+{
+    if (std::holds_alternative<ContainerWorldLocation>(mLocation))
+    {
+        auto& location = std::get<ContainerWorldLocation>(mLocation);
+        return (chapter.mValue <= location.GetTo())
+            && (chapter.mValue >= location.GetFrom());
+    }
+    // FIXME: Double check if this applies to other container types
+    return true;
 }
 
 std::ostream& operator<<(std::ostream& os, const ContainerEncounter& ce)

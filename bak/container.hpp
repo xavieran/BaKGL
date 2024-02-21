@@ -36,6 +36,9 @@ struct ContainerWorldLocation
     std::uint8_t mModel;
     std::uint8_t mUnknown;
     glm::uvec2 mLocation;
+
+    unsigned GetFrom() const;
+    unsigned GetTo() const;
 };
 
 std::ostream& operator<<(std::ostream&, const ContainerWorldLocation&);
@@ -82,6 +85,8 @@ public:
     HotspotRef GetHotspotRef() const;
     unsigned GetCombatNumber() const;
     unsigned GetCombatantNumber() const;
+    unsigned GetModel() const;
+    bool PresentInChapter(Chapter) const;
 
     bool HasLock() const { return CheckBitSet(mFlags, ContainerProperty::HasLock); }
     bool HasDialog() const { return CheckBitSet(mFlags, ContainerProperty::HasDialog); }
