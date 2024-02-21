@@ -145,68 +145,38 @@ public:
     void AddItem(const InventoryItem& item)
     {
         if (item.IsMoney())
-            GainItem(0, item.GetItemIndex().mValue, item.GetQuantity());
+            GainItem(item.GetItemIndex().mValue, item.GetQuantity());
         else if (item.IsKey())
             mKeys.GiveItem(item);
     }
 
-    void GainItem(unsigned character, unsigned itemIndex, unsigned quantity)
+    void GainItem(unsigned itemIndex, unsigned quantity)
     {
         if (ItemIndex{itemIndex} == sSovereigns)
         {
             mGold.mValue += GetRoyals(Sovereigns{quantity}).mValue;
+            return;
         }
         else if (ItemIndex{itemIndex} == sRoyals)
         {
             mGold.mValue += quantity;
+            return;
         }
-        else
+
+        auto baseItem = InventoryItemFactory::MakeItem(
+            ItemIndex{itemIndex},
+            static_cast<std::uint8_t>(quantity));
+        if (baseItem.IsKey())
         {
-            auto baseItem = InventoryItemFactory::MakeItem(
-                ItemIndex{itemIndex},
-                static_cast<std::uint8_t>(quantity));
-
-            const auto stackSize = baseItem.GetObject().mStackSize;
-
-            // Split into stacks if necessary
-            std::vector<InventoryItem> items{};
-            if (baseItem.IsStackable()
-                && baseItem.GetQuantity() > stackSize)
-            {
-                const auto nStacks = baseItem.GetQuantity() / stackSize;
-                for (unsigned i = 0; i < nStacks; i++)
-                {
-                    items.emplace_back(
-                        InventoryItemFactory::MakeItem(
-                            ItemIndex{itemIndex},
-                            stackSize));
-                }
-                const auto remainder = baseItem.GetQuantity() % stackSize;
-                if (remainder != 0)
-                    items.emplace_back(
-                        InventoryItemFactory::MakeItem(
-                            ItemIndex{itemIndex},
-                            remainder));
-            }
-            else
-            {
-                items.emplace_back(baseItem);
-            }
-
-            for (const auto& item : items)
-            {
-                if (item.IsKey())
-                {
-                    mKeys.GiveItem(item);
-                }
-                else
-                {
-                    for (const auto& character : mActiveCharacters)
-                        if (GetCharacter(character).GiveItem(item))
-                            break;
-                }
-            }
+            mKeys.GiveItem(baseItem);
+            return;
         }
+
+        ForEachActiveCharacter([&](auto& character)
+        {
+            character.GiveItem(baseItem);
+            return Loop::Continue;
+        });
     }
 
     ActiveCharIndex NextActiveCharacter(ActiveCharIndex currentCharacter) const

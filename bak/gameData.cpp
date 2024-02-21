@@ -372,7 +372,7 @@ void GameData::LoadCombatEntityLists()
 {
     mBuffer.Seek(sCombatEntityListOffset);
 
-    mLogger.Info() << "Combat Entity Lists Start @" 
+    mLogger.Spam() << "Combat Entity Lists Start @" 
         << std::hex << sCombatEntityListOffset << std::dec << std::endl;
 
     for (int i = 0; i < sCombatEntityListCount; i++)
@@ -388,10 +388,10 @@ void GameData::LoadCombatEntityLists()
                 ss << sep << combatant;
             sep = ',';
         }
-        mLogger.Info() << ss.str() << std::endl;
+        mLogger.Spam() << ss.str() << std::endl;
     }
 
-    mLogger.Info() << "Combat Entity Lists End @" 
+    mLogger.Spam() << "Combat Entity Lists End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
@@ -399,15 +399,15 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
 {
     unsigned combatStatsStart = offset;
     mBuffer.Seek(combatStatsStart);
-    mLogger.Info() << "Combat Stats Start @" 
+    mLogger.Spam() << "Combat Stats Start @" 
         << std::hex << combatStatsStart << std::dec << std::endl;
 
     // ends at 3070a
     for (unsigned i = 0; i < num; i++)
     {
-        mLogger.Info() << "Combat #" << std::dec << i 
+        mLogger.Spam() << "Combat #" << std::dec << i 
             << " " << std::hex << mBuffer.Tell() << std::endl;
-        mLogger.Info() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
+        mLogger.Spam() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
         auto spells = Spells(mBuffer.GetArray<6>());
 
         std::stringstream ss{""};
@@ -422,16 +422,16 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
             mBuffer.Skip(2);
         }
         mBuffer.Skip(7); // Conditions?
-        mLogger.Info() << ss.str() << std::endl;
+        mLogger.Spam() << ss.str() << std::endl;
     }
-    mLogger.Info() << "Combat Stats End @" 
+    mLogger.Spam() << "Combat Stats End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
 void GameData::LoadCombatGridLocations()
 {
     const auto initial = 0;
-    mLogger.Info() << "Loading Combat Grid Locations" << std::endl;
+    mLogger.Spam() << "Loading Combat Grid Locations" << std::endl;
     mBuffer.Seek(sCombatGridLocationsOffset + (initial * 22));
     for (unsigned i = 0; i < sCombatGridLocationsCount; i++)
     {
@@ -441,7 +441,7 @@ void GameData::LoadCombatGridLocations()
         const auto gridY = mBuffer.GetUint8();
         mBuffer.Skip(16);
 
-        mLogger.Info() << "Combat #" << i << " monster: " << monsterType <<
+        mLogger.Spam() << "Combat #" << i << " monster: " << monsterType <<
             " grid: " << glm::uvec2{gridX, gridY} << "\n";
     }
 }
@@ -462,7 +462,7 @@ void GameData::LoadCombatWorldLocations()
         // 3 - moving
         // 4 - dead
         const auto combatantState = mBuffer.GetUint8();
-        mLogger.Info() << "Combatant: " << k << " Position: " << combatantPosition << 
+        mLogger.Spam() << "Combatant: " << k << " Position: " << combatantPosition << 
             " unknown: " << + unknownFlag <<
             " state: " << +combatantState << std::endl;
     }

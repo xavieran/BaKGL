@@ -99,7 +99,7 @@ std::ostream& operator<<(std::ostream& os, const LoseItem& action)
 std::ostream& operator<<(std::ostream& os, const GiveItem& action)
 {
     os << "GiveItem { what: " << +action.mItemIndex << " to: "
-        << +action.mCharacter << " amount: " << +action.mQuantity
+        << +action.mWho << " amount: " << +action.mQuantity
         << " rest[" << std::hex << action.mRest << std::dec << "]}";
     return os;
 }

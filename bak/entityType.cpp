@@ -25,4 +25,12 @@ unsigned GetContainerTypeFromEntityType(EntityType et)
     }
 }
 
+EntityType EntityTypeFromModelName(std::string_view name)
+{
+    if (name.substr(0, 3) == "box") return EntityType::CHEST;
+    if (name.substr(0, 5) == "chest") return EntityType::CHEST;
+    if (name.substr(0, 4) == "gate") return EntityType::GATE;
+    if (name.substr(0, 5) == "stump") return EntityType::STUMP;
+    return EntityType::CHEST;
+}
 }

@@ -38,7 +38,7 @@ void GenericCombatFactory<isTrap>::Load()
     logger.Debug() << "Combats: " << count <<"\n";
     for (unsigned i = 0; i < count; i++)
     {
-        logger.Debug() << "Combat #" << i << " @" 
+        logger.Spam() << "Combat #" << i << " @" 
             << std::hex << fb.Tell() << std::dec << "\n";
         fb.Skip(3);
         const auto combatIndex = fb.GetUint32LE();

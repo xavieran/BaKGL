@@ -19,6 +19,8 @@
 
 #include "gui/guiManager.hpp"
 
+#include <unordered_set>
+
 namespace Game {
 
 class ClickableEntity
@@ -126,6 +128,8 @@ public:
         mClickables.clear();
         mActiveEncounter = nullptr;
 
+        std::vector<glm::uvec2> handledLocations{};
+
         for (const auto& world : mZoneData->mWorldTiles.GetTiles())
         {
             for (const auto& item : world.GetItems())
@@ -145,6 +149,7 @@ public:
                     else
                         mSystems->AddRenderable(renderable);
 
+                    Logging::LogDebug(__FUNCTION__) << "Handled location: " << item.GetBakLocation() << " item: " << item.GetZoneItem().GetName() << "\n";
                     if (item.GetZoneItem().GetClickable())
                     {
                         const auto bakLocation = item.GetBakLocation();
@@ -154,26 +159,30 @@ public:
                         auto& containers = mGameState.GetContainers(
                             BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
                         auto cit = std::find_if(containers.begin(), containers.end(),
-                            [&bakLocation](const auto& x){
-                                return x.GetHeader().GetPosition() == bakLocation;
+                            [&](const auto& x){
+                                return x.GetHeader().GetPosition() == bakLocation
+                                    && x.GetHeader().PresentInChapter(mGameState.GetChapter());
                             });
 
                         if (cit != containers.end())
                         {
                             mClickables.emplace(id, ClickableEntity{et, &(*cit)});
+                            handledLocations.emplace_back(item.GetBakLocation());
                             continue;
                         }
 
                         auto fit = std::find_if(
                             mZoneData->mFixedObjects.begin(),
                             mZoneData->mFixedObjects.end(),
-                            [&bakLocation](const auto& x){
-                                return x.GetHeader().GetPosition() == bakLocation;
+                            [&](const auto& x){
+                                return x.GetHeader().GetPosition() == bakLocation
+                                    && x.GetHeader().PresentInChapter(mGameState.GetChapter());
                             });
 
                         if (fit != mZoneData->mFixedObjects.end())
                         {
                             mClickables.emplace(id, ClickableEntity{et, &(*fit)});
+                            handledLocations.emplace_back(item.GetBakLocation());
                             continue;
                         }
 
@@ -181,6 +190,64 @@ public:
                     }
                 }
             }
+        }
+
+
+        auto& containers = mGameState.GetContainers(
+            BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
+        for (auto& container : containers)
+        {
+            const auto& header = container.GetHeader();
+            const auto bakPosition = header.GetPosition();
+            if ((std::find(handledLocations.begin(), handledLocations.end(), bakPosition) != handledLocations.end())
+                || !header.PresentInChapter(mGameState.GetChapter()))
+            {
+                continue;
+            }
+            handledLocations.emplace_back(bakPosition);
+            mLogger.Debug() << "Hidden container found: " << container << "\n";
+
+            const auto id = mSystems->GetNextItemId();
+            const auto& item = mZoneData->mZoneItems.GetZoneItem(header.GetModel());
+            const auto location = BAK::ToGlCoord<float>(bakPosition);
+            auto renderable = Renderable{
+                id,
+                mZoneData->mObjects.GetObject(item.GetName()),
+                location,
+                glm::vec3{},
+                glm::vec3{static_cast<float>(item.GetScale())}};
+            mSystems->AddRenderable(renderable);
+
+            mSystems->AddClickable(Clickable{id});
+            mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
+        }
+
+        auto& fixedObjects = mZoneData->mFixedObjects;
+        for (auto& container : fixedObjects)
+        {
+            const auto& header = container.GetHeader();
+            const auto bakPosition = header.GetPosition();
+            if ((std::find(handledLocations.begin(), handledLocations.end(), bakPosition) != handledLocations.end())
+                || !header.PresentInChapter(mGameState.GetChapter()))
+            {
+                continue;
+            }
+            handledLocations.emplace_back(bakPosition);
+            mLogger.Debug() << "Hidden container found: " << container << "\n";
+
+            const auto id = mSystems->GetNextItemId();
+            const auto& item = mZoneData->mZoneItems.GetZoneItem(header.GetModel());
+            const auto location = BAK::ToGlCoord<float>(bakPosition);
+            auto renderable = Renderable{
+                id,
+                mZoneData->mObjects.GetObject(item.GetName()),
+                location,
+                glm::vec3{},
+                glm::vec3{static_cast<float>(item.GetScale())}};
+            mSystems->AddRenderable(renderable);
+
+            mSystems->AddClickable(Clickable{id});
+            mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
         }
 
         const auto monsters = BAK::MonsterNames::Get();

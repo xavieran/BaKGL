@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 namespace BAK {
 
 enum class EntityType
@@ -49,5 +51,6 @@ enum class EntityType
 };
 
 unsigned GetContainerTypeFromEntityType(EntityType);
+EntityType EntityTypeFromModelName(std::string_view name);
 
 }

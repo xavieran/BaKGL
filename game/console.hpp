@@ -347,7 +347,6 @@ struct Console : public std::streambuf
         }
 
         mGameState->GetParty().GainItem(
-            1,
             itemIndex,
             amount);
     }

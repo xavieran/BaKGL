@@ -127,15 +127,44 @@ public:
                 return true;
             }
         }
+        const auto stackSize = item.GetObject().mStackSize;
 
-        if (mInventory.CanAddCharacter(item)
-            || equipped)
+        // Split into stacks if necessary
+        std::vector<InventoryItem> items{};
+        if (item.IsStackable()
+            && item.GetQuantity() > stackSize)
         {
-            mInventory.AddItem(item);
-            return true;
+            const auto nStacks = item.GetQuantity() / stackSize;
+            for (unsigned i = 0; i < nStacks; i++)
+            {
+                items.emplace_back(
+                    InventoryItemFactory::MakeItem(
+                        ItemIndex{itemIndex},
+                        stackSize));
+            }
+            const auto remainder = item.GetQuantity() % stackSize;
+            if (remainder != 0)
+                items.emplace_back(
+                    InventoryItemFactory::MakeItem(
+                        ItemIndex{itemIndex},
+                        remainder));
+        }
+        else
+        {
+            items.emplace_back(item);
         }
 
-        return false;
+        bool added = false;
+        for (const auto& item : items)
+        {
+            if (mInventory.CanAddCharacter(item) || equipped)
+            {
+                mInventory.AddItem(item);
+                added = true;
+            }
+        }
+
+        return added;
     }
 
     bool RemoveItem(const InventoryItem& item) override
