@@ -3,14 +3,15 @@
 #include "bak/state/event.hpp"
 #include "bak/state/offsets.hpp"
 
+#include "bak/gameState.hpp"
+
 namespace BAK::State {
 
 static constexpr auto maxItems = 0x14;
 
-bool ReadItemHasBeenUsed(FileBuffer& fb, unsigned character, unsigned itemIndex) 
+bool ReadItemHasBeenUsed(const GameState& gs, unsigned character, unsigned itemIndex) 
 {
-    return ReadEventBool(
-        fb, 
+    return gs.ReadEventBool(
         sItemUsedForCharacterAtLeastOnce
             + ((character * maxItems) + itemIndex));
 }

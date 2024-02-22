@@ -3,6 +3,8 @@
 #include "bak/state/event.hpp"
 #include "bak/state/offsets.hpp"
 
+#include "bak/gameState.hpp"
+
 #include "com/logger.hpp"
 
 namespace BAK::State {
@@ -10,24 +12,24 @@ namespace BAK::State {
 // Called by checkBlockTriggered, checkTownTriggered, checkBackgroundTriggered, checkZoneTriggered,
 // doEnableEncounter, doDialogEncounter, doDisableEncounter, doSoundEncounter
 bool CheckEncounterActive(
-    FileBuffer& fb,
+    const GameState& gs,
     const Encounter::Encounter& encounter,
     ZoneNumber zone) 
 {
     const auto encounterIndex = encounter.GetIndex().mValue;
     const bool alreadyEncountered = CheckUniqueEncounterStateFlag(
-        fb,
+        gs,
         zone,
         encounter.GetTileIndex(),
         encounterIndex);
-    const bool recentlyEncountered = CheckRecentlyEncountered(fb, encounterIndex);
+    const bool recentlyEncountered = CheckRecentlyEncountered(gs, encounterIndex);
     // event flag 1 - this flag must be set to encounter the event
     const bool eventFlag1 = encounter.mSaveAddress != 0
-        ? (ReadEventBool(fb, encounter.mSaveAddress) == 1)
+        ? !gs.GetEventState(CreateChoice(encounter.mSaveAddress))
         : false;
     // event flag 2 - this flag must _not_ be set to encounter this event
     const bool eventFlag2 = encounter.mSaveAddress2 != 0
-        ? ReadEventBool(fb, encounter.mSaveAddress2)
+        ? gs.GetEventState(CreateChoice(encounter.mSaveAddress2))
         : false;
     return !(alreadyEncountered
         || recentlyEncountered
@@ -36,13 +38,13 @@ bool CheckEncounterActive(
 }
 
 bool CheckCombatActive(
-    FileBuffer& fb,
+    const GameState& gs,
     const Encounter::Encounter& encounter,
     ZoneNumber zone) 
 {
     const auto encounterIndex = encounter.GetIndex().mValue;
     const bool alreadyEncountered = CheckUniqueEncounterStateFlag(
-        fb,
+        gs,
         zone,
         encounter.GetTileIndex(),
         encounterIndex);
@@ -51,15 +53,15 @@ bool CheckCombatActive(
     const auto combatIndex = std::get<Encounter::Combat>(encounter.GetEncounter()).mCombatIndex;
 
     // If this flag is set then this combat hasn't been seen
-    const bool encounterFlag1464 = CheckCombatEncounterStateFlag(fb, combatIndex);
+    const bool encounterFlag1464 = CheckCombatEncounterStateFlag(gs, combatIndex);
 
     // event flag 1 - this flag must be set to encounter the event
     const bool eventFlag1 = encounter.mSaveAddress != 0
-        ? (ReadEventBool(fb, encounter.mSaveAddress) == 1)
+        ? !gs.GetEventState(CreateChoice(encounter.mSaveAddress))
         : false;
     // event flag 2 - this flag must _not_ be set to encounter this event
     const bool eventFlag2 = encounter.mSaveAddress2 != 0
-        ? ReadEventBool(fb, encounter.mSaveAddress2)
+        ? gs.GetEventState(CreateChoice(encounter.mSaveAddress2))
         : false;
 
     Logging::LogInfo(__FUNCTION__) << " alreadyEncountered: " << alreadyEncountered
@@ -155,13 +157,12 @@ unsigned CalculateUniqueEncounterStateFlagOffset(
 }
 
 bool CheckUniqueEncounterStateFlag(
-    FileBuffer& fb,
+    const GameState& gs,
     ZoneNumber zone, 
     std::uint8_t tileIndex,
     std::uint8_t encounterIndex) 
 {
-    return ReadEventBool(
-        fb,
+    return gs.ReadEventBool(
         CalculateUniqueEncounterStateFlagOffset(
             zone,
             tileIndex,
@@ -199,15 +200,14 @@ unsigned CalculateCombatEncounterStateFlag(
 }
 
 bool CheckCombatEncounterStateFlag(
-    FileBuffer& fb,
+    const GameState& gs,
     unsigned combatIndex) 
 {
     constexpr auto alwaysTriggeredIndex = 0x3e8;
     if (combatIndex >= alwaysTriggeredIndex)
         return true;
     else
-        return ReadEventBool(
-            fb,
+        return gs.ReadEventBool(
             CalculateCombatEncounterStateFlag(combatIndex));
 }
 
@@ -244,9 +244,9 @@ unsigned CalculateRecentEncounterStateFlag(
     return offset + encounterIndex;
 }
 
-bool CheckRecentlyEncountered(FileBuffer& fb, std::uint8_t encounterIndex)
+bool CheckRecentlyEncountered(const GameState& gs, std::uint8_t encounterIndex)
 {
-    return ReadEventBool(fb, CalculateRecentEncounterStateFlag(encounterIndex));
+    return gs.ReadEventBool(CalculateRecentEncounterStateFlag(encounterIndex));
 }
 
 void SetRecentlyEncountered(FileBuffer& fb, std::uint8_t encounterIndex)
@@ -267,7 +267,7 @@ void ClearTileRecentEncounters(
     }
 }
 
-void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex)
+void SetPostCombatCombatSpecificFlags(GameState& gs, unsigned combatIndex)
 {
     switch (combatIndex)
     {
@@ -279,13 +279,13 @@ void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex)
         case 133: [[fallthrough]];
         case 134: [[fallthrough]];
         case 135:
-            if (ReadEventBool(fb, 0x14e7)
-                && ReadEventBool(fb, 0x14e8)
-                && ReadEventBool(fb, 0x14e9)
-                && ReadEventBool(fb, 0x14ea)
-                && ReadEventBool(fb, 0x14eb))
+            if (gs.ReadEventBool(0x14e7)
+                && gs.ReadEventBool(0x14e8)
+                && gs.ReadEventBool(0x14e9)
+                && gs.ReadEventBool(0x14ea)
+                && gs.ReadEventBool(0x14eb))
             {
-                SetEventFlag(fb, 0xdb1c, 1);
+                gs.SetEventValue(0xdb1c, 1);
             }
             return;
         // The never-ending combats?
@@ -312,14 +312,14 @@ void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex)
         case 618: [[fallthrough]];
         case 619: [[fallthrough]];
         case 621:
-            if (ReadEventBool(fb, 0x16c6)
-                && ReadEventBool(fb, 0x16c9)
-                && ReadEventBool(fb, 0x16cb)
-                && ReadEventBool(fb, 0x16ce)
-                && ReadEventBool(fb, 0x16cf)
-                && ReadEventBool(fb, 0x16d1))
+            if (gs.ReadEventBool(0x16c6)
+                && gs.ReadEventBool(0x16c9)
+                && gs.ReadEventBool(0x16cb)
+                && gs.ReadEventBool(0x16ce)
+                && gs.ReadEventBool(0x16cf)
+                && gs.ReadEventBool(0x16d1))
             {
-                SetEventFlag(fb, 0x1d17, 1);
+                gs.SetEventValue(0x1d17, 1);
             }
         default:break;
     }

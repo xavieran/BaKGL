@@ -12,13 +12,6 @@
 #include "bak/timeExpiringState.hpp"
 #include "bak/types.hpp"
 
-#include "bak/state/dialog.hpp"
-#include "bak/state/event.hpp"
-#include "bak/state/encounter.hpp"
-#include "bak/state/lock.hpp"
-#include "bak/state/skill.hpp"
-#include "bak/state/temple.hpp"
-
 #include "com/random.hpp"
 #include "com/visit.hpp"
 
@@ -104,6 +97,8 @@ public:
     unsigned GetShopType_7542() const;
 
     IContainer* GetContainerForGDSScene(HotspotRef ref);
+    IContainer* GetWorldContainer(ZoneNumber zone, GamePosition location);
+    IContainer const* GetWorldContainer(ZoneNumber zone, GamePosition location) const;
 
     std::optional<unsigned> GetActor(unsigned actor) const;
 
@@ -124,6 +119,8 @@ public:
     void EvaluateAction(const DialogAction& action);
     void EvaluateSpecialAction(const SpecialAction& action);
     void DoGamble(unsigned playerChance, unsigned gamblerChance, unsigned reward);
+    unsigned GetState(const Choice& choice) const;
+    unsigned GetGameState(const GameStateChoice& choice) const;
     bool EvaluateGameStateChoice(const GameStateChoice& choice) const;
 
     void DoElapseTime(Time time);
@@ -139,11 +136,11 @@ public:
     void HealCharacter(CharIndex who, unsigned amount);
 
     // Remove these from game state, now that we have Apply fn that can be used instead
-    bool EvaluateComplexChoice(const ComplexEventChoice& choice) const;
-    bool EvaluateDialogChoice(const Choice& choice) const;
+    bool EvaluateDialogChoice(const DialogChoice& choice) const;
 
-    unsigned GetEventState(unsigned eventPtr) const;
-    bool GetEventStateBool(unsigned eventPtr) const;
+    unsigned GetEventState(Choice choice) const;
+    unsigned ReadEvent(unsigned eventPtr) const;
+    bool ReadEventBool(unsigned eventPtr) const;
     void SetEventValue(unsigned eventPtr, unsigned value);
     void SetEventState(const SetFlag& setFlag);
     bool GetMoreThanOneTempleSeen() const;
@@ -160,6 +157,7 @@ public:
     bool Save(const std::string& saveName);
 
     std::vector<GenericContainer>& GetContainers(ZoneNumber zone);
+    const std::vector<GenericContainer>& GetContainers(ZoneNumber zone) const;
     bool HaveNote(unsigned note) const;
     bool CheckConversationItemAvailable(unsigned conversationItem) const;
     

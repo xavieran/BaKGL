@@ -2,6 +2,13 @@
 
 #include "bak/state/customStateChoice.hpp"
 
+#include "bak/state/dialog.hpp"
+#include "bak/state/event.hpp"
+#include "bak/state/encounter.hpp"
+#include "bak/state/lock.hpp"
+#include "bak/state/skill.hpp"
+#include "bak/state/temple.hpp"
+
 #include "bak/save.hpp"
 #include "bak/spells.hpp"
 #include "bak/state/dialog.hpp"
@@ -222,6 +229,30 @@ IContainer* GameState::GetContainerForGDSScene(HotspotRef ref)
     return nullptr;
 }
 
+IContainer* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location)
+{
+    for (auto& container : GetContainers(zone))
+    {
+        if (container.GetHeader().GetPosition() == location)
+        {
+            return &container;
+        }
+    }
+    return nullptr;
+}
+
+IContainer const* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location) const
+{
+    for (auto& container : GetContainers(zone))
+    {
+        if (container.GetHeader().GetPosition() == location)
+        {
+            return &container;
+        }
+    }
+    return nullptr;
+}
+
 std::optional<unsigned> GameState::GetActor(unsigned actor) const
 {
     if (actor == 0xff)
@@ -315,8 +346,8 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
     case 3: [[fallthrough]];
     case 4: [[fallthrough]];
     case 5:
-        mDialogCharacterList[index] = attribute;
-        mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(CharIndex{attribute}).GetName());
+        mDialogCharacterList[index] = attribute - 1;
+        mTextVariableStore.SetTextVariable(index, GetParty().GetCharacter(CharIndex{attribute - 1}).GetName());
         break;
     case 6:
         mDialogCharacterList[index] = GetPartyLeader().mValue;
@@ -504,41 +535,7 @@ void GameState::EvaluateAction(const DialogAction& action)
         [&](const SetTextVariable& set)
         {
             mLogger.Debug() << "Setting text variable: " << DialogAction{set} << "\n";
-            if (set.mWhat == 0x7 || (set.mWhat >= 0xb && set.mWhat <= 0xf))
-            {
-                SetDialogTextVariable(set.mWhich, set.mWhat);
-            }
-            else if (set.mWhat == 0x11)
-            {
-                const auto& monsters = MonsterNames::Get();
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    mCurrentMonster ? monsters.GetMonsterName(*mCurrentMonster) : "No Monster Specified");
-            }
-            else if (set.mWhat == 0x12)
-            {
-                ASSERT(mSelectedItem);
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    mSelectedItem->GetObject().mName);
-            }
-            else if (set.mWhat == 0x13)
-            {
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    ToShopDialogString(mItemValue_753e));
-            }
-            else if (set.mWhat == 0x19)
-            {
-                mTextVariableStore.SetTextVariable(
-                    set.mWhich,
-                    ToShopDialogString(mItemValue_753e));
-            }
-            else if (set.mWhat == 0x1c)
-            {
-                // if in a tavern use tavernkeeper for the shop
-                mTextVariableStore.SetTextVariable(set.mWhich, "shopkeeper");
-            }
+            SetDialogTextVariable(set.mWhich, set.mWhat);
         },
         [&](const LoseItem& lose)
         {
@@ -761,122 +758,138 @@ void GameState::DoGamble(unsigned playerChance, unsigned gamblerChance, unsigned
     }
 }
 
-bool GameState::EvaluateGameStateChoice(const GameStateChoice& choice) const
+unsigned GameState::GetGameState(const GameStateChoice& choice) const
 {
-    const unsigned value = std::invoke([&](){
-        switch (choice.mState)
-        {
-        case ActiveStateFlag::Chapter: return GetChapter().mValue;
-        case ActiveStateFlag::Context: return mContextValue_7530;
-        case ActiveStateFlag::CantAfford: return static_cast<unsigned>(GetMoney() > mItemValue_753e);
-        case ActiveStateFlag::SkillCheck: return mSkillValue;
-        case ActiveStateFlag::Money: return Sovereigns{GetMoney().mValue}.mValue;;
-        case ActiveStateFlag::TimeBetween: return GetWorldTime().GetTime().GetHour();
-        case ActiveStateFlag::NightTime:
-        {
-            const auto time = GetWorldTime().GetTime();
-            const auto hour = time.GetHour();
-            const unsigned result = hour < 4 || hour >= 20;
-            mLogger.Debug() << "Checking NightTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
-            return result;
-        }
-        case ActiveStateFlag::DayTime:
-        {
-            const auto time = GetWorldTime().GetTime();
-            const auto hour = time.GetHour();
-            const unsigned result = hour >= 4 && hour < 20;
-            mLogger.Debug() << "Checking DayTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
-            return result;
-        }
-        case ActiveStateFlag::Shop: return GetShopType_7542();
-        case ActiveStateFlag::Context_753f: return mContextVar_753f;
-        case ActiveStateFlag::Gambler: return static_cast<unsigned>(mBardReward_754d);
-        case ActiveStateFlag::ItemValue_753e: return mItemValue_753e.mValue;
-        default: return 0u;
-        }
-    });
-    return value >= choice.mMinValue && 
-        (choice.mMaxValue == 0xffff || value <= choice.mMaxValue);
+    switch (choice.mState)
+    {
+    case ActiveStateFlag::Chapter: return GetChapter().mValue;
+    case ActiveStateFlag::Context: return mContextValue_7530;
+    case ActiveStateFlag::CantAfford: return static_cast<unsigned>(GetMoney() > mItemValue_753e);
+    case ActiveStateFlag::SkillCheck: return mSkillValue;
+    case ActiveStateFlag::Money: return Sovereigns{GetMoney().mValue}.mValue;;
+    case ActiveStateFlag::TimeBetween: return GetWorldTime().GetTime().GetHour();
+    case ActiveStateFlag::NightTime:
+    {
+        const auto time = GetWorldTime().GetTime();
+        const auto hour = time.GetHour();
+        const unsigned result = hour < 4 || hour >= 20;
+        mLogger.Debug() << "Checking NightTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
+        return result;
+    }
+    case ActiveStateFlag::DayTime:
+    {
+        const auto time = GetWorldTime().GetTime();
+        const auto hour = time.GetHour();
+        const unsigned result = hour >= 4 && hour < 20;
+        mLogger.Debug() << "Checking DayTime choice: " << time << " hr: " << hour << " -- " << result << "\n";
+        return result;
+    }
+    case ActiveStateFlag::Shop: return GetShopType_7542();
+    case ActiveStateFlag::Context_753f: return mContextVar_753f;
+    case ActiveStateFlag::Gambler: return static_cast<unsigned>(mBardReward_754d);
+    case ActiveStateFlag::ItemValue_753e: return mItemValue_753e.mValue;
+    default: return 0u;
+    }
 }
 
-bool GameState::EvaluateComplexChoice(const ComplexEventChoice& choice) const
+bool GameState::EvaluateDialogChoice(const DialogChoice& choice) const
 {
-    // RunDialog addr: 23d1
-    const auto state = GetEventState(choice.mEventPointer);
-
-    // Probably want to put this logic somewhere else...
-    // if eventPtr % 10 != 0
-    const auto [byteOffset, bitOffset] = State::CalculateComplexEventOffset(choice.mEventPointer);
-    mLogger.Debug() << __FUNCTION__ << " : " << choice 
-        << " S: [" << std::hex << +state << std::dec << "] - byteOff: " 
-        << + byteOffset << " bitOff: " << +bitOffset << "\n";
-
-    if (mGameData && bitOffset != 0)
+    if (std::holds_alternative<NoChoice>(choice.mChoice))
     {
-        return (state >= choice.mXorMask) && (state <= choice.mMustEqualExpected);
+        return true;
     }
-
-    // Need to double check this...
-    const auto chapterFlag = GetChapter() == Chapter{9}
-        ? 0x80
-        : 1 << (GetChapter().mValue - 1);
-    //const auto chapterMaskSatisfied = (chapterFlag & choice.mChapterMask) == 0;
-    const auto chapterMaskSatisfied = true;
-
-    if (choice.mMustEqualExpected)
+    else if (!std::holds_alternative<ComplexEventChoice>(choice.mChoice))
     {
-        if (((state ^ choice.mXorMask) & choice.mExpected) == choice.mExpected
-            && chapterMaskSatisfied)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        const unsigned state = GetEventState(choice.mChoice);
+        auto result = state >= choice.mMin 
+            && ((choice.mMax == 0xffff) 
+                || (state <= choice.mMax));
+        mLogger.Info() << "Evaluating choice: "<< choice << " state is: " << state
+            << "result: " << result << "\n";
+        return result;
     }
     else
     {
-        if (((state ^ choice.mXorMask) & choice.mExpected) != 0
-            && chapterMaskSatisfied)
+        const auto& complexChoice = std::get<ComplexEventChoice>(choice.mChoice);
+        const unsigned state = ReadEvent(complexChoice.mEventPointer);
+        // Probably want to put this logic somewhere else...
+        // if eventPtr % 10 != 0
+        const auto [byteOffset, bitOffset] = State::CalculateComplexEventOffset(complexChoice.mEventPointer);
+        mLogger.Debug() << __FUNCTION__ << " : " << choice 
+            << " S: [" << std::hex << +state << std::dec << "] - byteOff: " 
+            << + byteOffset << " bitOff: " << +bitOffset << "\n";
+
+        const auto xorMask = static_cast<std::uint8_t>(choice.mMin & 0xff);
+        const auto expected = static_cast<std::uint8_t>(choice.mMin >> 8);
+        const auto mustEqualExpected = static_cast<std::uint8_t>(choice.mMax& 0xff);
+        const auto chapterMask = static_cast<std::uint8_t>(choice.mMax >> 8);
+        //static_cast<std::uint8_t>(choice1 & 0xff),
+        //static_cast<std::uint8_t>(choice1 >> 8)
+
+        if (mGameData && bitOffset != 0)
         {
-            return true;
+            return (state >= xorMask) && (state <= mustEqualExpected);
+        }
+
+        // Need to double check this...
+        const auto chapterFlag = GetChapter() == Chapter{9}
+            ? 0x80
+            : 1 << (GetChapter().mValue - 1);
+        //const auto chapterMaskSatisfied = (chapterFlag & ChapterMask) == 0;
+        const auto chapterMaskSatisfied = true;
+
+        if (mustEqualExpected)
+        {
+            if (((state ^ xorMask) & expected) == expected
+                && chapterMaskSatisfied)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
-            return false;
+            if (((state ^ xorMask) & expected) != 0
+                && chapterMaskSatisfied)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
 
-bool GameState::EvaluateDialogChoice(const Choice& choice) const
+unsigned GameState::GetEventState(Choice choice) const
 {
     return std::visit(overloaded{
-        [&](const NoChoice& c){
+        [&](const NoChoice& c) -> unsigned {
             return true;
         },
-        [&](const EventFlagChoice& c){
-            return GetEventStateBool(c.mEventPointer) == c.mExpectedValue;
+        [&](const EventFlagChoice& c) -> unsigned {
+            return ReadEventBool(c.mEventPointer);
         },
-        [&](const ComplexEventChoice& c){
-            return EvaluateComplexChoice(c);
+        [&](const ComplexEventChoice& c) -> unsigned {
+            return ReadEventBool(c.mEventPointer);
         },
-        [&](const InventoryChoice& c){
-            return GetParty().HaveItem(c.mRequiredItem) == c.mItemPresent;
+        [&](const InventoryChoice& c) -> unsigned {
+            return GetParty().HaveItem(c.mRequiredItem);
         },
-        [&](const GameStateChoice& c){
-            return EvaluateGameStateChoice(c);
+        [&](const GameStateChoice& c) -> unsigned {
+            return GetGameState(c);
         },
-        [&](const CastSpellChoice& c)
-        {
+        [&](const CastSpellChoice& c) -> unsigned {
             return GetSpellActive(static_cast<StaticSpells>(c.mRequiredSpell));
         },
-        [&](const HaveNoteChoice& c)
-        {
+        [&](const HaveNoteChoice& c) -> unsigned {
             return HaveNote(c.mRequiredNote);
         },
-        [&](const CustomStateChoice& c)
-        {
+        [&](const CustomStateChoice& c) -> unsigned {
             const auto stateChecker = State::CustomStateEvaluator{*this};
             switch (c.mScenario)
             {
@@ -888,8 +901,13 @@ bool GameState::EvaluateDialogChoice(const Choice& choice) const
                 return stateChecker.HaveSixSuitsOfArmor();
             case Scenario::AllPartyArmorIsGoodCondition:
                 return stateChecker.AllPartyArmorIsGoodCondition();
+            case Scenario::PoisonedDelekhanArmyChests:
+                return stateChecker.PoisonedDelekhanArmyChests();
             case Scenario::AnyCharacterSansWeapon:
                 return stateChecker.AnyCharacterSansWeapon();
+            case Scenario::AlwaysFalse: [[fallthrough]];
+            case Scenario::AlwaysFalse2:
+                return false;
             case Scenario::AnyCharacterHasNegativeCondition:
                 return stateChecker.AnyCharacterHasNegativeCondition();
             case Scenario::AllPartyMembersHaveNapthaMask:
@@ -902,19 +920,15 @@ bool GameState::EvaluateDialogChoice(const Choice& choice) const
                 return false;
             }
         },
-        [&](const auto& c){
+        [&](const auto& c) -> unsigned {
             return false; 
-        },
+        }
     },
     choice);
 }
 
-unsigned GameState::GetEventState(unsigned eventPtr) const
+unsigned GameState::ReadEvent(unsigned eventPtr) const
 {
-    if (eventPtr == static_cast<unsigned>(ActiveStateFlag::Chapter))
-    {
-        return GetChapter().mValue;
-    }
     if (mGameData != nullptr)
     {
         return State::ReadEvent(mGameData->GetFileBuffer(), eventPtr);
@@ -923,9 +937,9 @@ unsigned GameState::GetEventState(unsigned eventPtr) const
         return 0;
 }
 
-bool GameState::GetEventStateBool(unsigned eventPtr) const
+bool GameState::ReadEventBool(unsigned eventPtr) const
 {
-    return (GetEventState(eventPtr) & 0x1) == 1;
+    return (ReadEvent(eventPtr) & 0x1) == 1;
 }
 
 void GameState::SetEventValue(unsigned eventPtr, unsigned value)
@@ -957,7 +971,7 @@ bool GameState::GetMoreThanOneTempleSeen() const
         unsigned templesSeen = 0;
         for (unsigned i = 1; i < 13; i++)
         {
-            templesSeen += State::ReadTempleSeen(mGameData->GetFileBuffer(), i);
+            templesSeen += State::ReadTempleSeen(*this, i);
         }
         return templesSeen > 1;
     }
@@ -1047,6 +1061,13 @@ std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone)
     return mContainers[zone.mValue - 1];
 }
 
+const std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone) const
+{
+    ASSERT(zone.mValue < 13);
+    return mContainers[zone.mValue - 1];
+}
+
+
 bool GameState::HaveNote(unsigned note) const
 {
     bool haveNote = false;
@@ -1069,47 +1090,55 @@ bool GameState::HaveNote(unsigned note) const
 bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
 {
     const auto stateChecker = State::CustomStateEvaluator{*this};
-    const bool enabled = GetEventStateBool(conversationItem);
+    const bool enabled = ReadEventBool(conversationItem);
     const bool available = std::invoke([&](){
         switch (conversationItem)
         {
         case 9:
+            if (!enabled) return false;
             return !GetParty().HaveItem(sWaani);
         case 11:
+            if (!enabled) return false;
             return !GetParty().HaveItem(sBagOfGrain);
         case 133:
-            return GetEventStateBool(0xdb94);
+            return GetEventState(CreateChoice(0xdb94)) != 0;
         case 130:
-            return GetEventStateBool(0xdb9e);
+            return GetEventState(CreateChoice(0xdb9e)) != 0;
         case 44:
-            return GetEventStateBool(0x1f6c);
+            if (!enabled) return false;
+            return ReadEventBool(0x1f6c);
         case 117:
+            if (!enabled) return false;
             return GetChapter() == Chapter{6};
         case 17: [[fallthrough]];
         case 103:
+            if (!enabled) return false;
             return stateChecker.AnyCharacterHasNegativeCondition();
         case 71:
+            if (!enabled) return false;
             return false; // (owynsSpells & 0x10) != 0; (Have spell 20 (Unfortunate flux))
         case 132:
-            return !HaveNote(0x15) || !GetEventStateBool(0x1979);
+            if (!enabled) return false;
+            return HaveNote(0x15) || ReadEventBool(0x1979);
         case 106:
             if (!enabled) return false;
             return true; // owynsOtherSpells & 0x200
         case 164:
-            return GetEventStateBool(0x1972);
+            if (!enabled) return false;
+            return ReadEventBool(0x1972);
         case 76: [[fallthrough]];
         case 148:
             if (!enabled) return false;
             return !GetParty().HaveItem(sRations);
         case 163:
-            return GetEventStateBool(0x8e)
-                && GetEventStateBool(0xaa)
+            return ReadEventBool(0x8e)
+                && ReadEventBool(0xaa)
                 && GetParty().HaveItem(sAbbotsJournal);
         default:
             return enabled;
         }
     });
-    return available && !Apply(State::CheckConversationOptionInhibited, conversationItem);
+    return available && !State::CheckConversationOptionInhibited(*this, conversationItem);
 }
 
 void GameState::DoElapseTime(Time time)

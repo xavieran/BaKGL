@@ -2,9 +2,13 @@
 
 #include "bak/file/fileBuffer.hpp"
 
+namespace BAK {
+class GameState;
+}
+
 namespace BAK::State {
 
-bool ReadItemHasBeenUsed(FileBuffer&, unsigned character, unsigned itemIndex);
+bool ReadItemHasBeenUsed(const GameState&, unsigned character, unsigned itemIndex);
 void SetItemHasBeenUsed(FileBuffer&, unsigned character, unsigned itemIndex);
 
 }

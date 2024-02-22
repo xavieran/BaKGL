@@ -7,6 +7,8 @@
 #include "bak/fileBufferFactory.hpp"
 #include "bak/money.hpp"
 #include "bak/temple.hpp"
+#include "bak/state/temple.hpp"
+#include "bak/state/event.hpp"
 
 #include "com/assert.hpp"
 
@@ -244,7 +246,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspo
         assert(mSceneHotspots.GetTempleNumber());
         if (mGameState.GetChapter() == BAK::Chapter{6}
             && *mSceneHotspots.GetTempleNumber() == BAK::Temple::sChapelOfIshap
-            && !mGameState.GetEventStateBool(BAK::GameData::sPantathiansEventFlag))
+            && !mGameState.ReadEventBool(BAK::GameData::sPantathiansEventFlag))
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossSource, false, false, this);
             mPendingAction.reset();
@@ -363,7 +365,7 @@ void GDSScene::EvaluateHotspotAction()
             auto* container = mGameState.GetContainerForGDSScene(mReference);
             assert(container && container->IsShop());
             // 0xdb1c Eortis/rusalka qeust?
-            if (!mGameState.GetEventStateBool(0xdb1c))
+            if (!mGameState.ReadEventBool(0xdb1c))
             {
                 container->GetShop().mInnCost = 0x48;
             }

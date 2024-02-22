@@ -21,7 +21,7 @@ public:
     constexpr StrongType(ConcreteType&&) noexcept = default;
     constexpr ConcreteType& operator=(ConcreteType&&) noexcept = default;
 
-    constexpr auto operator<=>(const ConcreteType&) const = default;
+    auto operator<=>(const ConcreteType&) const = default;
 
     UnderlyingType mValue;
 };

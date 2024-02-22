@@ -222,7 +222,7 @@ private:
         }
         else if (mGameState.GetChapter() == BAK::Chapter{6}
             && templeNumber == BAK::Temple::sChapelOfIshap
-            && !mGameState.GetEventStateBool(BAK::GameData::sPantathiansEventFlag))
+            && !mGameState.ReadEventBool(BAK::GameData::sPantathiansEventFlag))
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossDest, false, false, this);
         }

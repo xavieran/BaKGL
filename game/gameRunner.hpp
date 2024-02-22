@@ -9,8 +9,9 @@
 #include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
-#include "bak/state/encounter.hpp"
 #include "bak/monster.hpp"
+#include "bak/state/encounter.hpp"
+#include "bak/state/event.hpp"
 #include "bak/time.hpp"
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
@@ -257,16 +258,16 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                //if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
-                //{
-                //    mSystems->AddRenderable(
-                //        Renderable{
-                //            id,
-                //            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                //            enc.GetLocation(),
-                //            glm::vec3{0.0},
-                //            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-                //}
+                if (std::holds_alternative<BAK::Encounter::Dialog>(enc.GetEncounter()))
+                {
+                    mSystems->AddRenderable(
+                        Renderable{
+                            id,
+                            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                            enc.GetLocation(),
+                            glm::vec3{0.0},
+                            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                }
 
                 mSystems->AddIntersectable(
                     Intersectable{
@@ -328,7 +329,7 @@ public:
         const BAK::Encounter::Combat& combat)
     {
         mLogger.Info() << __FUNCTION__ << " Checking combat active\n";
-        if (!mGameState.Apply(BAK::State::CheckCombatActive, encounter, mGameState.GetZone()))
+        if (!BAK::State::CheckCombatActive(mGameState, encounter, mGameState.GetZone()))
         {
             mLogger.Info() << __FUNCTION__ << " Combat inactive\n";
             return std::make_pair(false, false);
@@ -350,7 +351,7 @@ public:
             }
             else
             {
-                if (!mGameState.Apply(BAK::State::CheckRecentlyEncountered, encounter.GetIndex().mValue))
+                if (!BAK::State::CheckRecentlyEncountered(mGameState, encounter.GetIndex().mValue))
                 {
                     mGameState.Apply(BAK::State::SetRecentlyEncountered, encounter.GetIndex().mValue);
                     auto chance = GetRandomNumber(0, 0xfff) % 100;
@@ -495,7 +496,7 @@ public:
             combat.mCombatIndex,
             true);
 
-        mGameState.Apply(BAK::State::SetPostCombatCombatSpecificFlags, combat.mCombatIndex);
+        BAK::State::SetPostCombatCombatSpecificFlags(mGameState, combat.mCombatIndex);
         // This is a part of the above function, but I separate it out here
         // to keep things cleaner. Yes this is hardcoded in the game code.
         static constexpr auto NagoCombatIndex = 74;
@@ -518,7 +519,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Block& block)
     {
-        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
+        if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
             return;
 
         mGuiManager.StartDialog(
@@ -538,7 +539,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::EventFlag& flag)
     {
-        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
+        if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
             return;
 
         if (flag.mEventPointer != 0)
@@ -554,7 +555,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Zone& zone)
     {
-        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
+        if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
             return;
         const auto& choices = BAK::DialogStore::Get().GetSnippet(zone.mDialog).mChoices;
         const bool isNoAffirmative = choices.size() == 2
@@ -591,7 +592,7 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Dialog& dialog)
     {
-        if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
+        if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
             return;
 
         mSavedAngle = mCamera.GetAngle();
@@ -729,9 +730,9 @@ public:
 
             if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0)
             {
-                auto camp = BAK::TimeChanger{mGameState};
-                camp.ElapseTimeInMainView(
-                    BAK::Time{0x1e * unitsTravelled});
+                //auto camp = BAK::TimeChanger{mGameState};
+                //camp.ElapseTimeInMainView(
+                //    BAK::Time{0x1e * unitsTravelled});
             }
 
             if (mActiveEncounter)

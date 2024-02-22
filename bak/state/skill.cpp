@@ -10,7 +10,7 @@ bool ReadSkillSelected(FileBuffer& fb, unsigned character, unsigned skill)
 {
     constexpr auto maxSkills = 0x11;
     return ReadEventBool(
-        fb, 
+        fb,
         sSkillSelectedEventFlag
         + (character * maxSkills)
         + skill);

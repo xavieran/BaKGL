@@ -7,7 +7,9 @@
 #include "bak/timeExpiringState.hpp"
 #include "bak/skills.hpp"
 #include "bak/sounds.hpp"
+
 #include "bak/state/item.hpp"
+#include "bak/state/event.hpp"
 #include "bak/state/offsets.hpp"
 
 #include "com/logger.hpp"
@@ -302,8 +304,8 @@ ItemUseResult ReadBook(
     auto& object = item.GetObject();
     assert(object.mEffectMask != 0);
 
-    bool haveReadBefore = gameState.Apply(
-        State::ReadItemHasBeenUsed,
+    bool haveReadBefore = State::ReadItemHasBeenUsed(
+        gameState,
         character.mCharacterIndex.mValue,
         item.GetItemIndex().mValue);
     std::optional<std::pair<SkillChange, unsigned>> improvement;

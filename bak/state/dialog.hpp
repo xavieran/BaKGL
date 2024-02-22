@@ -4,11 +4,15 @@
 
 #include "bak/dialogAction.hpp"
 
+namespace BAK {
+class GameState;
+}
+
 namespace BAK::State {
 
 void SetEventDialogAction(FileBuffer&, const SetFlag& setFlag);
-bool ReadConversationItemClicked(FileBuffer&, unsigned eventPtr);
+bool ReadConversationItemClicked(const GameState&, unsigned eventPtr);
 void SetConversationItemClicked(FileBuffer&, unsigned eventPtr);
-bool CheckConversationOptionInhibited(FileBuffer&, unsigned eventPtr);
+bool CheckConversationOptionInhibited(const GameState&, unsigned eventPtr);
 
 }

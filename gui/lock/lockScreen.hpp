@@ -10,6 +10,7 @@
 #include "bak/layout.hpp"
 #include "bak/objectInfo.hpp"
 #include "bak/textureFactory.hpp"
+#include "bak/state/lock.hpp"
 
 #include "gui/animator.hpp"
 
@@ -260,7 +261,7 @@ private:
         }
         else
         {
-            if (mGameState.Apply(BAK::State::CheckLockHasBeenSeen, *lockIndex))
+            if (BAK::State::CheckLockHasBeenSeen(mGameState, *lockIndex))
             {
                 const auto item = BAK::GetCorrespondingKey(*lockIndex);
                 if (mGameState.GetParty().HaveItem(item))

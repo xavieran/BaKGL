@@ -55,7 +55,7 @@ std::ostream& operator<<(std::ostream& os, const NoChoice& c)
 std::ostream& operator<<(std::ostream& os, const ConversationChoice& c)
 {
     os << ToString(ChoiceMask::Conversation) << " " << std::hex
-        << c.mEventPointer << " " << c.mKeyword;
+        << c.mEventPointer << " " << c.mKeyword << std::dec;
     return os;
 }
 
@@ -68,15 +68,14 @@ std::ostream& operator<<(std::ostream& os, const QueryChoice& c)
 
 std::ostream& operator<<(std::ostream& os, const EventFlagChoice& c)
 {
-    os << ToString(ChoiceMask::EventFlag) << " " << std::hex 
-        << c.mEventPointer << " : " << c.mExpectedValue << std::dec;
+    os << ToString(ChoiceMask::EventFlag) << "(" << std::hex 
+        << c.mEventPointer << std::dec << ")";
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const GameStateChoice& c)
 {
-    os << ToString(ChoiceMask::GameState) << " " << ToString(c.mState) 
-        << " [" << std::hex << c.mMinValue << ", " << c.mMaxValue << "]";
+    os << ToString(ChoiceMask::GameState) << "(" << ToString(c.mState) << ")";
     return os;
 }
 
@@ -102,24 +101,22 @@ std::ostream& operator<<(std::ostream& os, Scenario s)
 
 std::ostream& operator<<(std::ostream& os, const CustomStateChoice& c)
 {
-    os << ToString(ChoiceMask::CustomState) << " scenario: " << c.mScenario
-        << " flag: " << c.mFlag;
+    os << ToString(ChoiceMask::CustomState) << "( scenario: " << c.mScenario << ")";
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const InventoryChoice& c)
 {
-    os << ToString(ChoiceMask::Inventory) << " item: " << c.mRequiredItem
-        << " present? " << c.mItemPresent;
+    os << ToString(ChoiceMask::Inventory) << "( item: " << c.mRequiredItem << ")";
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const ComplexEventChoice& c)
 {
     os << ToString(ChoiceMask::ComplexEvent) << " " << std::hex << 
-        c.mEventPointer << " -> xorMask: " << +c.mXorMask << " expect: "
+        c.mEventPointer << std::dec; /*<< " -> xorMask: " << +c.mXorMask << " expect: "
         << +c.mExpected << " mustEqualExpect: " << +c.mMustEqualExpected << " chapterMask: "
-        << +c.mChapterMask << std::dec;
+        << +c.mChapterMask << std::dec;*/
     return os;
 }
 
@@ -131,15 +128,14 @@ std::ostream& operator<<(std::ostream& os, const CastSpellChoice& c)
 
 std::ostream& operator<<(std::ostream& os, const HaveNoteChoice& c)
 {
-    os << ToString(ChoiceMask::HaveNote) << " " << c.mRequiredNote << "\n";
+    os << ToString(ChoiceMask::HaveNote) << "(" << c.mRequiredNote << ")";
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const UnknownChoice& c)
 {
     os << ToString(c.mChoiceCategory) << " " << std::hex << 
-        c.mEventPointer << " -> " << c.mChoice0 << " | " 
-        << c.mChoice1 << std::dec;
+        c.mEventPointer << std::dec << "\n";
     return os;
 }
 
@@ -156,7 +152,8 @@ std::ostream& operator<<(std::ostream& os, const Choice& c)
 
 std::ostream& operator<<(std::ostream& os, const DialogChoice& d)
 {
-    os << "DialogChoice{" << d.mChoice << " : " << std::hex << d.mTarget << std::dec << "}";
+    os << "DialogChoice{" << d.mChoice << " range: ["
+        << d.mMin << ", " << d.mMax << "] -> " << std::hex << d.mTarget << std::dec << "}";
     return os;
 }
 
@@ -188,10 +185,7 @@ ChoiceMask CategoriseChoice(std::uint16_t state)
     return ChoiceMask::Unknown;
 }
 
-Choice CreateChoice(
-    std::uint16_t state,
-    std::uint16_t choice0,
-    std::uint16_t choice1)
+Choice CreateChoice(std::uint16_t state)
 {
     const auto mask = CategoriseChoice(state);
     switch (mask)
@@ -199,62 +193,40 @@ Choice CreateChoice(
     case ChoiceMask::NoChoice:
         return NoChoice{};
     case ChoiceMask::Conversation:
-        return ConversationChoice{
-            state, ""
-        };
+        return ConversationChoice{state, ""};
     case ChoiceMask::Query:
-        return QueryChoice{
-            state, ""
-        };
+        return QueryChoice{state, ""};
     case ChoiceMask::EventFlag:
-        return EventFlagChoice{
-            state,
-            choice0 == 1
-        };
+        return EventFlagChoice{state};
     case ChoiceMask::GameState:
-        return GameStateChoice{
-            static_cast<ActiveStateFlag>(state),
-            choice0,
-            choice1};
+        return GameStateChoice{static_cast<ActiveStateFlag>(state)};
     case ChoiceMask::CustomState:
         return CustomStateChoice{
-            static_cast<Scenario>(state & ~0x9c40),
-            bool(choice0)};
+            static_cast<Scenario>(state & ~0x9c40)};
     case ChoiceMask::Inventory:
         return InventoryChoice{
             // This is the math to get the item index
-            static_cast<ItemIndex>((state & 0xff) - 0x50),
-            choice0 == 1,
-        };
+            static_cast<ItemIndex>((state & 0xff) - 0x50)};
     case ChoiceMask::ComplexEvent:
-        return ComplexEventChoice{
-            state,
-            static_cast<std::uint8_t>(choice0 & 0xff),
-            static_cast<std::uint8_t>(choice0 >> 8),
-            static_cast<std::uint8_t>(choice1 & 0xff),
-            static_cast<std::uint8_t>(choice1 >> 8)
-        };
+        return ComplexEventChoice{state};
     case ChoiceMask::CastSpell:
         return CastSpellChoice{static_cast<unsigned>(state) - 0xcb21};
     case ChoiceMask::HaveNote:
         return HaveNoteChoice{(static_cast<unsigned>(state) + 0x38c8) & 0xffff};
     default:
-        return UnknownChoice{
-            mask,
-            state,
-            choice0,
-            choice1
-        };
+        return UnknownChoice{mask, state};
     }
 }
 
 DialogChoice::DialogChoice(
     std::uint16_t state,
-    std::uint16_t choice0,
-    std::uint16_t choice1,
+    std::uint16_t min,
+    std::uint16_t max,
     Target target)
 :
-    mChoice{CreateChoice(state, choice0, choice1)},
+    mChoice{CreateChoice(state)},
+    mMin{min},
+    mMax{max},
     mTarget{target}
 {
 }

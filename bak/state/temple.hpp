@@ -2,9 +2,13 @@
 
 #include "bak/file/fileBuffer.hpp"
 
+namespace BAK {
+class GameState;
+}
+
 namespace BAK::State {
 
-bool ReadTempleSeen(FileBuffer&, unsigned temple);
 void SetTempleSeen(FileBuffer&, unsigned temple);
+bool ReadTempleSeen(const GameState&, unsigned temple);
 
 }

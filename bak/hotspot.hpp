@@ -93,12 +93,12 @@ struct Hotspot
     {
         // ovr148:86D test mChapterMask, 0x8000???
 
-        const auto state = mDialog.mValue & 0xffff;
+        const auto state = CreateChoice(mDialog.mValue & 0xffff);
         const auto expectedVal = (mDialog.mValue >> 16) & 0xffff;
         Logging::LogDebug(__FUNCTION__) << "Unk2: " << mCheckEventState << " Eq: " <<
             (mCheckEventState == 1) << " GS: " << std::hex << state << " st: " << 
             gameState.GetEventState(state) << " exp: " << expectedVal << " Unk0: " << mChapterMask << "\n";
-        if (mCheckEventState != 0 && state != 0)
+        if (mCheckEventState != 0 && !std::holds_alternative<NoChoice>(state))
         {
             return gameState.GetEventState(state) == expectedVal;
         }

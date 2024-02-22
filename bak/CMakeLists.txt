@@ -65,6 +65,11 @@ add_library(bak
     zone.hpp
 )
 
+add_subdirectory(encounter)
+add_subdirectory(file)
+add_subdirectory(state)
+add_subdirectory(test)
+
 target_link_libraries(bak
     audio
     bakEncounter
@@ -77,8 +82,3 @@ target_link_libraries(bak
 #    PROPERTIES
 #    CXX_CLANG_TIDY
 #    "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*")
-
-add_subdirectory(encounter)
-add_subdirectory(file)
-add_subdirectory(state)
-add_subdirectory(test)

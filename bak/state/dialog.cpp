@@ -3,6 +3,8 @@
 #include "bak/state/event.hpp"
 #include "bak/state/offsets.hpp"
 
+#include "bak/gameState.hpp"
+
 #include "com/logger.hpp"
 
 namespace BAK::State {
@@ -39,9 +41,9 @@ void SetEventDialogAction(FileBuffer& fb, const SetFlag& setFlag)
     }
 }
 
-bool ReadConversationItemClicked(FileBuffer& fb, unsigned eventPtr) 
+bool ReadConversationItemClicked(const GameState& gs, unsigned eventPtr) 
 {
-    return ReadEventBool(fb, sConversationChoiceMarkedFlag + eventPtr);
+    return gs.ReadEventBool(sConversationChoiceMarkedFlag + eventPtr);
 }
 
 void SetConversationItemClicked(FileBuffer& fb, unsigned eventPtr)
@@ -49,9 +51,9 @@ void SetConversationItemClicked(FileBuffer& fb, unsigned eventPtr)
     return SetEventFlagTrue(fb, sConversationChoiceMarkedFlag + eventPtr);
 }
 
-bool CheckConversationOptionInhibited(FileBuffer& fb, unsigned eventPtr)
+bool CheckConversationOptionInhibited(const GameState& gs, unsigned eventPtr)
 {
-    return ReadEventBool(fb, sConversationOptionInhibitedFlag + eventPtr);
+    return gs.ReadEventBool(sConversationOptionInhibitedFlag + eventPtr);
 }
 
 }

@@ -4,6 +4,10 @@
 
 #include "bak/encounter/encounter.hpp"
 
+namespace BAK {
+class GameState;
+}
+
 namespace BAK::State {
 
 // Called by
@@ -16,12 +20,12 @@ namespace BAK::State {
 // * doDisableEncounter
 // * doSoundEncounter
 bool CheckEncounterActive(
-    FileBuffer&,
+    const GameState&,
     const Encounter::Encounter& encounter,
     ZoneNumber zone);
 
 bool CheckCombatActive(
-    FileBuffer&,
+    const GameState&,
     const Encounter::Encounter& encounter,
     ZoneNumber zone);
 
@@ -58,7 +62,7 @@ unsigned CalculateUniqueEncounterStateFlagOffset(
     std::uint8_t encounterIndex);
 
 bool CheckUniqueEncounterStateFlag(
-    FileBuffer&,
+    const GameState&,
     ZoneNumber zone, 
     std::uint8_t tileIndex,
     std::uint8_t encounterIndex);
@@ -81,7 +85,7 @@ unsigned CalculateCombatEncounterStateFlag(
     unsigned combatIndex);
 
 bool CheckCombatEncounterStateFlag(
-    FileBuffer&,
+    const GameState&,
     unsigned combatIndex);
 
 void SetCombatEncounterState(
@@ -98,10 +102,11 @@ void SetCombatEncounterScoutedState(
     std::uint8_t encounterIndex, bool state);
 
 void SetRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
-bool CheckRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
+bool CheckRecentlyEncountered(const GameState&, std::uint8_t encounterIndex);
 void ClearTileRecentEncounters(FileBuffer&);
-void SetPostCombatCombatSpecificFlags(FileBuffer& fb, unsigned combatIndex);
+void SetPostCombatCombatSpecificFlags(GameState& gs, unsigned combatIndex);
 
 Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex);
+void SetCombatClickedTime(FileBuffer& fb, unsigned combatIndex, Time time);
 
 }

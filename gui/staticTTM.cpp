@@ -42,6 +42,7 @@ StaticTTM::StaticTTM(
         for (const auto& [imageKey, imagePal] : scene.mImages)
         {
             const auto& [image, palKey] = imagePal;
+            assert(scene.mPalettes.find(palKey) != scene.mPalettes.end());
             const auto& palette = scene.mPalettes.find(palKey)->second;
             mLogger.Debug() << "Loading image slot: " << imageKey 
                 << " (" << image << ") with palette: " << palKey << std::endl;

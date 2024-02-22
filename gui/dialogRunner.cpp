@@ -2,6 +2,8 @@
 
 #include "audio/audio.hpp"
 
+#include "bak/state/dialog.hpp"
+
 namespace Gui {
 
 DialogRunner::DialogRunner(
@@ -245,7 +247,7 @@ std::optional<BAK::Target> DialogRunner::GetNextTarget()
     {
         for (const auto& c : snip.GetChoices())
         {
-            if (mGameState.EvaluateDialogChoice(c.mChoice))
+            if (mGameState.EvaluateDialogChoice(c))
                 return c.mTarget;
         }
     }
@@ -319,7 +321,7 @@ void DialogRunner::ShowDialogChoices()
             const auto choice = std::get<BAK::ConversationChoice>(c.mChoice);
             if (mGameState.CheckConversationItemAvailable(choice.mEventPointer))
             {
-                const auto fontStyle = mGameState.Apply(BAK::State::ReadConversationItemClicked, choice.mEventPointer)
+                const auto fontStyle = BAK::State::ReadConversationItemClicked(mGameState, choice.mEventPointer)
                     ? '\xf4' // unbold
                     : '#';
                 choices.emplace_back(
