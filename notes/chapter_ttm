@@ -1,0 +1,78 @@
+ INFO [main] Loading ADS and TTM:CHAPTER1.ADS CHAPTER1.TTM
+ INFO [CreateFileBuffer] Opening: /home/xavieran/bak/data/krondor.rmf
+ DEBUG [BAK::ResourceIndex] RMF Version (1, 4) ResourceFile: krondor.001 Resources: 1766
+ INFO [CreateFileBuffer] Opening: /home/xavieran/bak/data/krondor.001
+ DEBUG [LoadSceneIndices] Index: [[1]]
+ DEBUG [LoadSceneIndices] 1030 adsAct: Index 1 1
+ DEBUG [LoadSceneIndices] 2005 adsAct: AddScene 1 1 0 1
+ DEBUG [LoadSceneIndices] 1520 adsAct: PlayScene2 
+ DEBUG [LoadSceneIndices] ffff adsAct: End 
+ DEBUG [LoadScenes] Pages:13
+ DEBUG [LoadScenes] Code: 1110 SetScene Name: init chapter 1
+ DEBUG [LoadScenes] Code: 1060 SlotPalette args [  0 ]
+ DEBUG [LoadScenes] Code: f050 LoadPalette Name: CHAPTER.PAL
+ DEBUG [LoadScenes] Code: f010 LoadScreen Name: CHAPTER.SCR
+ DEBUG [LoadScenes] Code: 1050 SlotImage args [  0 ]
+ DEBUG [LoadScenes] Code: f020 LoadImage Name: CHAPTER.BMP
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  61,155,12,0 ]
+ DEBUG [LoadScenes] Code: 20 SaveBackground args [  ]
+ DEBUG [LoadScenes] Code: 4120 FadeIn args [  0,256,0,3 ]
+ DEBUG [LoadScenes] Code: c030 SelectSound args [  27 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  5 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  145,42,0,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  169,59,1,0 ]
+ DEBUG [LoadScenes] Code: c050 PlaySound args [  27 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  168,61,2,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  172,60,3,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  172,62,4,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  172,61,5,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  170,63,6,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  230,75,9,0 ]
+ DEBUG [LoadScenes] Code: 4200 SaveImage0 args [  224,74,40,40 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  174,63,7,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  195,60,8,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  240 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  0 ]
+ DEBUG [LoadScenes] Code: 2000 SetColors args [  0,0 ]
+ DEBUG [LoadScenes] Code: a100 DrawRect args [  0,0,320,200 ]
+ DEBUG [LoadScenes] Code: 20 SaveBackground args [  ]
+ DEBUG [LoadScenes] Code: 4110 FadeOut args [  1,255,0,2 ]
+ DEBUG [LoadScenes] Code: 110 Purge args [  ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Unhandled action: LoadScreen
+ DEBUG [LoadScenes] Unhandled action: SaveBackground
+ DEBUG [LoadScenes] Unhandled action: FadeIn
+ DEBUG [LoadScenes] Unhandled action: SelectSound
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: PlaySound
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: SaveImage0
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: SaveBackground
+ DEBUG [LoadScenes] Unhandled action: FadeOut
+ DEBUG [LoadScenes] Unhandled action: Purge
+ DEBUG [LoadScenes] Unhandled action: Update
