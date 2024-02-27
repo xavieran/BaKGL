@@ -716,6 +716,8 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
         });
         break;
     case Increase753f:
+        mLogger.Debug() << "Increasing dialog var 753f from: " << mContextVar_753f
+            << " to: " << (mContextVar_753f + action.mVar1) << "\n";
         mContextVar_753f += action.mVar1;
         break;
     case Gamble:

@@ -48,13 +48,12 @@ public:
 
     static Target GetChoiceResult(KeyTarget dialog, unsigned index)
     {
-        return KeyTarget{0};
-        //const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
-        //const auto it = std::find_if(choices.begin(), choices.end(), [&](const auto& a){
-        //    ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
-        //    return std::get<GameStateChoice>(a.mChoice).mMinValue == index ;} );
-        //ASSERT(it != choices.end());
-        //return it->mTarget;
+        const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
+        const auto it = std::find_if(choices.begin(), choices.end(), [&](const auto& a){
+            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
+            return a.mMin == index ;} );
+        ASSERT(it != choices.end());
+        return it->mTarget;
     }
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;

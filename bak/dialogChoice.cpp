@@ -114,9 +114,7 @@ std::ostream& operator<<(std::ostream& os, const InventoryChoice& c)
 std::ostream& operator<<(std::ostream& os, const ComplexEventChoice& c)
 {
     os << ToString(ChoiceMask::ComplexEvent) << " " << std::hex << 
-        c.mEventPointer << std::dec; /*<< " -> xorMask: " << +c.mXorMask << " expect: "
-        << +c.mExpected << " mustEqualExpect: " << +c.mMustEqualExpected << " chapterMask: "
-        << +c.mChapterMask << std::dec;*/
+        c.mEventPointer << std::dec;
     return os;
 }
 
@@ -210,8 +208,7 @@ Choice CreateChoice(std::uint16_t state)
             static_cast<Scenario>(state & ~0x9c40)};
     case ChoiceMask::Inventory:
         return InventoryChoice{
-            // This is the math to get the item index
-            static_cast<ItemIndex>((state & 0xff) - 0x50)};
+            static_cast<ItemIndex>(0xffff & (state + 0x3cb0))};
     case ChoiceMask::ComplexEvent:
         return ComplexEventChoice{state};
     case ChoiceMask::CastSpell:
