@@ -251,7 +251,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         }
 
         logger.Debug() << ss.str() << "\n";
-    }
+   }
 
     std::unordered_map<unsigned, Scene> scenes{};
 
