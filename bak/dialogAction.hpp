@@ -47,21 +47,21 @@ enum class SpecialActionType : std::uint16_t
 {
     ReduceGold = 0, // reduces party gold by val of item or to 0 if lt
     IncreaseGold = 1,
-    DoesSomethingWithItemsOfEachChar = 2,
+    RepairAllEquippedArmor = 2,
     ResetCombatState = 3,
     SetCombatState = 4,
     DoSomethingWithContainer0 = 5,
     DoSomethingWithContainer1 = 6,
     Increase753f = 7, // this literally adds the value to 753f
     Gamble = 8,
-    CharInventoryP = 9, // this does something funky with inventory
-    DoSomethingWithContainer2 = 10,
+    RepairAndBlessEquippedSwords = 9, // this does something funky with inventory
+    RemoveAlcoholFromShops = 10,
     ResetGambleValueTo = 11,
     BeginCombat = 12,
-    ExpireAllTimeExpiringStateP = 13, // seems to expire TESs
-    ArlieSteelSoulContainer = 14,
+    ExtinguishAllLightSources = 13, // seems to expire TESs
+    EmptyArlieContainer = 14,
     CheatIncreaseSkill = 15,
-    AfterPugAddedToParty = 16, // modifies vars at 3ec3 and 3f22
+    UnifyOwynAndPugsSpells = 16, // modifies vars at 3ec3 and 3f22
 };
 
 struct SetTextVariable

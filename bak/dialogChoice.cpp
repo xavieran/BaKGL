@@ -40,7 +40,7 @@ std::string_view ToString(ChoiceMask m)
     case ChoiceMask::Inventory: return "Inventory";
     case ChoiceMask::HaveNote: return "HaveNote";
     case ChoiceMask::CastSpell: return "CastSpell";
-    case ChoiceMask::SleepingGlade: return "SleepingGlade";
+    case ChoiceMask::Random: return "Random";
     case ChoiceMask::ComplexEvent: return "ComplexEvent";
     default: return "UnknownChoiceMask";
     };
@@ -132,6 +132,11 @@ std::ostream& operator<<(std::ostream& os, const HaveNoteChoice& c)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const RandomChoice& c)
+{
+    os << ToString(ChoiceMask::Random) << "(" << c.mRange << ")";
+    return os;
+}
 std::ostream& operator<<(std::ostream& os, const UnknownChoice& c)
 {
     os << ToString(c.mChoiceCategory) << " " << std::hex << 
@@ -175,7 +180,7 @@ ChoiceMask CategoriseChoice(std::uint16_t state)
         ChoiceMask::Inventory,
         ChoiceMask::HaveNote,
         ChoiceMask::CastSpell,
-        ChoiceMask::SleepingGlade,
+        ChoiceMask::Random,
         ChoiceMask::ComplexEvent})
     {
         if (CheckMask(state, c))
@@ -213,6 +218,8 @@ Choice CreateChoice(std::uint16_t state)
         return CastSpellChoice{static_cast<unsigned>(state) - 0xcb21};
     case ChoiceMask::HaveNote:
         return HaveNoteChoice{(static_cast<unsigned>(state) + 0x38c8) & 0xffff};
+    case ChoiceMask::Random:
+        return RandomChoice{(static_cast<unsigned>(state) + 0x30f8) & 0xffff};
     default:
         return UnknownChoice{mask, state};
     }

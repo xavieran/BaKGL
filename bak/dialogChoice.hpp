@@ -49,7 +49,7 @@ enum class ChoiceMask : std::uint16_t
     HaveNote      = 0xc7ff,
     CastSpell     = 0xcbff,
     // Pick a random number (0, 0xfff) % (0xffff & (evPtr + 0x30f8))
-    SleepingGlade = 0xcfff,
+    Random       = 0xcfff,
     ComplexEvent = 0xdfff,
     Unknown      = 0xffff
 };
@@ -128,6 +128,11 @@ struct HaveNoteChoice
     unsigned mRequiredNote;
 };
 
+struct RandomChoice
+{
+    unsigned mRange;
+};
+
 struct UnknownChoice
 {
     ChoiceMask mChoiceCategory;
@@ -145,6 +150,7 @@ using Choice = std::variant<
     ComplexEventChoice,
     CastSpellChoice,
     HaveNoteChoice,
+    RandomChoice,
     UnknownChoice>;
 
 std::ostream& operator<<(std::ostream&, const Choice&);
