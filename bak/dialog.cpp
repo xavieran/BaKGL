@@ -328,10 +328,22 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         default:
         {
             const auto& rest = fb.GetArray<8>();
-            mActions.emplace_back(
-                UnknownAction{
-                    type,
-                    rest});
+            bool nonZero{};
+            for (unsigned i = 0; i < 8; i++)
+            {
+                if (rest[i] != 0) nonZero = true;
+            }
+            if (nonZero)
+            {
+                mActions.emplace_back(BuggedAction{rest});
+            }
+            else
+            {
+                mActions.emplace_back(
+                    UnknownAction{
+                        type,
+                        rest});
+            }
         } break;
         }
     }

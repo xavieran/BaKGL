@@ -32,6 +32,7 @@ std::ostream& operator<<(std::ostream& os, const DialogResult& d)
         case DialogResult::SetEndOfDialogState: return os << "SetEndOfDialogState";
         case DialogResult::SetTimeExpiringState: return os << "SetTimeExpiringState";
         case DialogResult::LoseNOfItem: return os << "LoseNOfItem";
+        case DialogResult::BuggedAction: return os << "BuggedAction";
         default: return os << "Unknown[" << static_cast<unsigned>(d) << "]";
     }
 }
@@ -210,6 +211,13 @@ std::ostream& operator<<(std::ostream& os, const LoseNOfItem& action)
 {
     os << "LoseNOfItem { what: " << action.mItemIndex
         << " amount: " << action.mQuantity
+        << " rest[" << std::hex << action.mRest << std::dec << "]}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const BuggedAction& action)
+{
+    os << "BuggedAction { " 
         << " rest[" << std::hex << action.mRest << std::dec << "]}";
     return os;
 }

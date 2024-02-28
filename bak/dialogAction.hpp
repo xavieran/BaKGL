@@ -39,8 +39,9 @@ enum class DialogResult
     Teleport = 0x14,
     SetEndOfDialogState = 0x15,
     SetTimeExpiringState = 0x16,
-    LoseNOfItem = 0x17
+    LoseNOfItem = 0x17,
     // 18 - seems to remove/move mney at a chapter transition
+    BuggedAction = 0xff
 };
 
 enum class SpecialActionType : std::uint16_t
@@ -243,6 +244,12 @@ struct LoseNOfItem
     std::array<std::uint8_t, 4> mRest;
 };
 
+struct BuggedAction
+{
+    std::array<std::uint8_t, 8> mRest;
+};
+
+
 struct UnknownAction
 {
     UnknownAction(
@@ -279,6 +286,7 @@ using DialogAction = std::variant<
     SetEndOfDialogState,
     SetTimeExpiringState,
     LoseNOfItem,
+    BuggedAction,
     UnknownAction>;
 
 std::ostream& operator<<(std::ostream& os, const DialogAction& d);
