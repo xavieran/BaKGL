@@ -6,7 +6,7 @@
 
 namespace BAK {
 
-std::string_view ToString(ActiveStateFlag f)
+std::string ToString(ActiveStateFlag f)
 {
     switch (f)
     {
@@ -22,7 +22,7 @@ std::string_view ToString(ActiveStateFlag f)
     case ActiveStateFlag::Context_753f: return "Context_753f";
     case ActiveStateFlag::Shop: return "Shop";
     case ActiveStateFlag::Gambler: return "Gambler";
-    default: return "UnknownActiveStateFlag";
+    default: return "UnknownActiveStateFlag[" + std::to_string(static_cast<unsigned>(f)) + "]";
     }
 }
 
@@ -33,7 +33,6 @@ std::string_view ToString(ChoiceMask m)
     case ChoiceMask::NoChoice: return "NoChoice";
     case ChoiceMask::Conversation: return "Conversation";
     case ChoiceMask::Query: return "Query";
-    case ChoiceMask::ItemOrChest: return "ItemOrChest";
     case ChoiceMask::EventFlag: return "EventFlag";
     case ChoiceMask::GameState: return "GameState";
     case ChoiceMask::CustomState: return "CustomState";
@@ -171,7 +170,6 @@ ChoiceMask CategoriseChoice(std::uint16_t state)
         ChoiceMask::NoChoice,
         ChoiceMask::Conversation,
         ChoiceMask::Query,
-        ChoiceMask::ItemOrChest,
         ChoiceMask::EventFlag,
         ChoiceMask::GameState,
         ChoiceMask::CustomState,

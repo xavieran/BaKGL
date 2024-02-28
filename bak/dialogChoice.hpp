@@ -30,7 +30,7 @@ enum class ActiveStateFlag : std::uint16_t
     Gambler    = 0x754d // gambler has no money?
 };
 
-std::string_view ToString(ActiveStateFlag f);
+std::string ToString(ActiveStateFlag f);
 
 enum class ChoiceMask : std::uint16_t
 {
@@ -39,16 +39,12 @@ enum class ChoiceMask : std::uint16_t
     Conversation = 0x00ab,
     // Keyword choices such as Yes/No, Buy/Haggle (f1 -> 118)
     Query = 0x01ff,
-    // Choice based on whether we have seen a note or opened a chest?
-    ItemOrChest = 0x19ff, 
     EventFlag = 0x1fff,
     GameState = 0x75ff,
     CustomState = 0x9cff,
-    // item that you need is: (c3xx & 0xff) - 0x50
     Inventory = 0xc3ff,
     HaveNote      = 0xc7ff,
     CastSpell     = 0xcbff,
-    // Pick a random number (0, 0xfff) % (0xffff & (evPtr + 0x30f8))
     Random       = 0xcfff,
     ComplexEvent = 0xdfff,
     Unknown      = 0xffff
