@@ -42,21 +42,21 @@ std::ostream& operator<<(std::ostream& os, const SpecialActionType& a)
     {
         case SpecialActionType::ReduceGold: return os << "ReduceGold";
         case SpecialActionType::IncreaseGold: return os << "IncreaseGold";
-        case SpecialActionType::DoesSomethingWithItemsOfEachChar: return os << "DoesSomethingWithItemsOfEachChar";
+        case SpecialActionType::RepairAllEquippedArmor: return os << "RepairAllEquippedArmor";
         case SpecialActionType::ResetCombatState: return os << "ResetCombatState";
         case SpecialActionType::SetCombatState: return os << "SetCombatState";
         case SpecialActionType::DoSomethingWithContainer0: return os << "DoSomethingWithContainer0";
         case SpecialActionType::DoSomethingWithContainer1: return os << "DoSomethingWithContainer1";
         case SpecialActionType::Increase753f: return os << "Increase753f";
         case SpecialActionType::Gamble: return os << "Gamble";
-        case SpecialActionType::CharInventoryP: return os << "CharInventoryP";
-        case SpecialActionType::DoSomethingWithContainer2: return os << "DoSomethingWithContainer2";
+        case SpecialActionType::RepairAndBlessEquippedSwords: return os << "RepairAndBlessEquippedSwords";
+        case SpecialActionType::RemoveAlcoholFromShops: return os << "RemoveAlcoholFromShops";
         case SpecialActionType::ResetGambleValueTo: return os << "ResetGambleValueTo";
         case SpecialActionType::BeginCombat: return os << "BeginCombat";
-        case SpecialActionType::ExpireAllTimeExpiringStateP: return os << "ExpireAllTimeExpiringStateP";
-        case SpecialActionType::ArlieSteelSoulContainer: return os << "ArlieSteelSoulContainer";
+        case SpecialActionType::ExtinguishAllLightSources: return os << "ExtinguishAllLightSources";
+        case SpecialActionType::EmptyArlieContainer: return os << "EmptyArlieContainer";
         case SpecialActionType::CheatIncreaseSkill: return os << "CheatIncreaseSkill";
-        case SpecialActionType::AfterPugAddedToParty: return os << "AfterPugAddedToParty";
+        case SpecialActionType::UnifyOwynAndPugsSpells: return os << "UnifyOwynAndPugsSpells";
         default:
             return os << "Unknown[" << static_cast<unsigned>(a) <<"]";
     }

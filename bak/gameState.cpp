@@ -702,15 +702,95 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
     case IncreaseGold:
         GetParty().GainMoney(mItemValue_753e);
         break;
+    case RepairAllEquippedArmor:
+        mLogger.Debug() << "Reparing party armor\n";
+        GetParty().ForEachActiveCharacter([&](auto& character)
+        {
+            auto armor = character.GetInventory().FindEquipped(ItemType::Armor);
+            if (armor != character.GetInventory().GetItems().end())
+            {
+                armor->SetCondition(100);
+                armor->SetRepairable(false);
+            }
+            return Loop::Continue;
+        });
+        break;
     case Increase753f:
+        mLogger.Debug() << "Increasing dialog var 753f from: " << mContextVar_753f
+            << " to: " << (mContextVar_753f + action.mVar1) << "\n";
         mContextVar_753f += action.mVar1;
         break;
     case Gamble:
         DoGamble(action.mVar1, action.mVar2, action.mVar3);
         break;
+    case RemoveAlcoholFromShops:
+        { // I don't think this is quite right...
+            {
+            auto ref = HotspotRef{0x3c, MakeHotspotChar(3)};
+            auto* container = GetContainerForGDSScene(ref);
+            assert(container);
+            container->RemoveItem(InventoryItemFactory::MakeItem(sAle, 0xff));
+            container->RemoveItem(InventoryItemFactory::MakeItem(sBrandy, 0xff));
+            }
+            {
+            auto ref = HotspotRef{0x40, MakeHotspotChar(3)};
+            auto* container = GetContainerForGDSScene(ref);
+            assert(container);
+            container->RemoveItem(InventoryItemFactory::MakeItem(sAle, 0xff));
+            container->RemoveItem(InventoryItemFactory::MakeItem(sBrandy, 0xff));
+            }
+        }
+        break;
     case ResetGambleValueTo:
         mBardReward_754d = action.mVar1;
         break;
+    case RepairAndBlessEquippedSwords:
+        GetParty().ForEachActiveCharacter([&](auto& character)
+        {
+            auto sword = character.GetInventory().FindEquipped(ItemType::Sword);
+            if (sword != character.GetInventory().GetItems().end())
+            {
+                sword->SetCondition(100);
+                sword->SetRepairable(false);
+                sword->SetModifier(Modifier::Blessing3);
+            }
+            return Loop::Continue;
+        });
+        break;
+    case ExtinguishAllLightSources:
+    {
+        for (auto& state : mTimeExpiringState)
+        {
+            if (state.mType == ExpiringStateType::Light
+                && state.mData == 0)
+            {
+                state.mDuration = Time{0};
+            }
+        }
+        ReduceAndEvaluateTimeExpiringState(Time{0});
+    } break;
+    case EmptyArlieContainer:
+    {
+        auto* container = GetWorldContainer(ZoneNumber{3}, GamePosition{1308000, 1002400});
+        assert(container);
+        //container->GetInventory().ClearAll();
+    } break;
+    case UnifyOwynAndPugsSpells:
+    {
+        auto& pug = GetParty().GetCharacter(Pug);
+        auto& owyn = GetParty().GetCharacter(Owyn);
+        const auto pugSpells = pug.GetSpells().GetSpellBytes();
+        const auto owynSpells = owyn.GetSpells().GetSpellBytes();
+        const auto allSpells = pugSpells | owynSpells;
+        for (unsigned i = 0; i < 0x2d; i++)
+        {
+            if (((1 << i) & allSpells) != 0)
+            {
+                pug.GetSpells().SetSpell(SpellIndex{i});
+                owyn.GetSpells().SetSpell(SpellIndex{i});
+            }
+        }
+    } break;
     default:
         mLogger.Debug() << "Unhandled action:" << action << "\n";
     }
@@ -919,6 +999,9 @@ unsigned GameState::GetEventState(Choice choice) const
             default:
                 return false;
             }
+        },
+        [&](const RandomChoice& c){
+            return GetRandomNumber(0, 0xfff) % c.mRange;
         },
         [&](const auto& c) -> unsigned {
             return false; 

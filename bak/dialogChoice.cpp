@@ -6,7 +6,7 @@
 
 namespace BAK {
 
-std::string_view ToString(ActiveStateFlag f)
+std::string ToString(ActiveStateFlag f)
 {
     switch (f)
     {
@@ -22,7 +22,7 @@ std::string_view ToString(ActiveStateFlag f)
     case ActiveStateFlag::Context_753f: return "Context_753f";
     case ActiveStateFlag::Shop: return "Shop";
     case ActiveStateFlag::Gambler: return "Gambler";
-    default: return "UnknownActiveStateFlag";
+    default: return "UnknownActiveStateFlag[" + std::to_string(static_cast<unsigned>(f)) + "]";
     }
 }
 
@@ -33,14 +33,13 @@ std::string_view ToString(ChoiceMask m)
     case ChoiceMask::NoChoice: return "NoChoice";
     case ChoiceMask::Conversation: return "Conversation";
     case ChoiceMask::Query: return "Query";
-    case ChoiceMask::ItemOrChest: return "ItemOrChest";
     case ChoiceMask::EventFlag: return "EventFlag";
     case ChoiceMask::GameState: return "GameState";
     case ChoiceMask::CustomState: return "CustomState";
     case ChoiceMask::Inventory: return "Inventory";
     case ChoiceMask::HaveNote: return "HaveNote";
     case ChoiceMask::CastSpell: return "CastSpell";
-    case ChoiceMask::SleepingGlade: return "SleepingGlade";
+    case ChoiceMask::Random: return "Random";
     case ChoiceMask::ComplexEvent: return "ComplexEvent";
     default: return "UnknownChoiceMask";
     };
@@ -114,9 +113,7 @@ std::ostream& operator<<(std::ostream& os, const InventoryChoice& c)
 std::ostream& operator<<(std::ostream& os, const ComplexEventChoice& c)
 {
     os << ToString(ChoiceMask::ComplexEvent) << " " << std::hex << 
-        c.mEventPointer << std::dec; /*<< " -> xorMask: " << +c.mXorMask << " expect: "
-        << +c.mExpected << " mustEqualExpect: " << +c.mMustEqualExpected << " chapterMask: "
-        << +c.mChapterMask << std::dec;*/
+        c.mEventPointer << std::dec;
     return os;
 }
 
@@ -132,6 +129,11 @@ std::ostream& operator<<(std::ostream& os, const HaveNoteChoice& c)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const RandomChoice& c)
+{
+    os << ToString(ChoiceMask::Random) << "(" << c.mRange << ")";
+    return os;
+}
 std::ostream& operator<<(std::ostream& os, const UnknownChoice& c)
 {
     os << ToString(c.mChoiceCategory) << " " << std::hex << 
@@ -168,14 +170,13 @@ ChoiceMask CategoriseChoice(std::uint16_t state)
         ChoiceMask::NoChoice,
         ChoiceMask::Conversation,
         ChoiceMask::Query,
-        ChoiceMask::ItemOrChest,
         ChoiceMask::EventFlag,
         ChoiceMask::GameState,
         ChoiceMask::CustomState,
         ChoiceMask::Inventory,
         ChoiceMask::HaveNote,
         ChoiceMask::CastSpell,
-        ChoiceMask::SleepingGlade,
+        ChoiceMask::Random,
         ChoiceMask::ComplexEvent})
     {
         if (CheckMask(state, c))
@@ -205,14 +206,15 @@ Choice CreateChoice(std::uint16_t state)
             static_cast<Scenario>(state & ~0x9c40)};
     case ChoiceMask::Inventory:
         return InventoryChoice{
-            // This is the math to get the item index
-            static_cast<ItemIndex>((state & 0xff) - 0x50)};
+            static_cast<ItemIndex>(0xffff & (state + 0x3cb0))};
     case ChoiceMask::ComplexEvent:
         return ComplexEventChoice{state};
     case ChoiceMask::CastSpell:
         return CastSpellChoice{static_cast<unsigned>(state) - 0xcb21};
     case ChoiceMask::HaveNote:
         return HaveNoteChoice{(static_cast<unsigned>(state) + 0x38c8) & 0xffff};
+    case ChoiceMask::Random:
+        return RandomChoice{(static_cast<unsigned>(state) + 0x30f8) & 0xffff};
     default:
         return UnknownChoice{mask, state};
     }
