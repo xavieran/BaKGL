@@ -1,5 +1,8 @@
 #include "bak/dialog.hpp"
 
+#include "bak/constants.hpp"
+#include "bak/dialogReplacements.hpp"
+
 #include "com/assert.hpp"
 
 namespace BAK {
@@ -345,6 +348,18 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
                         rest});
             }
         } break;
+        }
+    }
+
+    for (const auto& replacement : Replacements::replacements)
+    {
+        if (replacement.mTarget == OffsetTarget{dialogFile, fileOffset})
+        {
+            for (const auto& action : replacement.mReplacements)
+            {
+                assert(mActions.size() > action.first);
+                mActions[action.first] = action.second;
+            }
         }
     }
     
