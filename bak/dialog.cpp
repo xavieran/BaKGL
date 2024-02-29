@@ -1,5 +1,8 @@
 #include "bak/dialog.hpp"
 
+#include "bak/constants.hpp"
+#include "bak/dialogReplacements.hpp"
+
 #include "com/assert.hpp"
 
 namespace BAK {
@@ -347,6 +350,8 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         } break;
         }
     }
+
+    Replacements::ReplaceActions(OffsetTarget{dialogFile, fileOffset}, mActions);
     
     if (length > 0)
         mText = fb.GetString(length);

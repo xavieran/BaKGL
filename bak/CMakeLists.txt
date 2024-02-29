@@ -12,6 +12,7 @@ add_library(bak
     coordinates.hpp coordinates.cpp
     dataTags.hpp
     dialog.hpp dialog.cpp
+    dialogReplacements.hpp dialogReplacements.cpp
     dialogAction.hpp dialogAction.cpp
     dialogChoice.hpp dialogChoice.cpp
     dialogSources.hpp
