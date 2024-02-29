@@ -173,6 +173,11 @@ struct Delay
     std::uint16_t mDelayMs; // units??
 };
 
+struct Update
+{
+};
+
+
 struct SetColors
 {
     unsigned mSlot; // which slot palette to pull colors from
@@ -195,7 +200,8 @@ using SceneAction = std::variant<
     DisableClipRegion,
     DrawRect,
     DrawScreen,
-    DrawSprite>;
+    DrawSprite,
+    Update>;
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa);
 

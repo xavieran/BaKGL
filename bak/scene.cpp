@@ -426,8 +426,11 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
             flipped = false;
-        }
-            break;
+        } break;
+        case Actions::UPDATE:
+        {
+            currentScene.mActions.emplace_back(Update{});
+        };
         default:
             logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
             break;
