@@ -351,17 +351,7 @@ DialogSnippet::DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile)
         }
     }
 
-    for (const auto& replacement : Replacements::replacements)
-    {
-        if (replacement.mTarget == OffsetTarget{dialogFile, fileOffset})
-        {
-            for (const auto& action : replacement.mReplacements)
-            {
-                assert(mActions.size() > action.first);
-                mActions[action.first] = action.second;
-            }
-        }
-    }
+    Replacements::ReplaceActions(OffsetTarget{dialogFile, fileOffset}, mActions);
     
     if (length > 0)
         mText = fb.GetString(length);

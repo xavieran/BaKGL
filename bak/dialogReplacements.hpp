@@ -18,7 +18,10 @@ struct Replacement
 class Replacements
 {
 public:
-    static const std::vector<Replacement> replacements;
+    static void ReplaceActions(OffsetTarget target, std::vector<DialogAction>& actions);
+
+private:
+    static const std::vector<Replacement> sReplacements;
 };
 
 }

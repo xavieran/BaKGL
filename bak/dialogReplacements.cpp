@@ -2,7 +2,22 @@
 
 namespace BAK {
 
-const std::vector<Replacement> Replacements::replacements = {
+void Replacements::ReplaceActions(OffsetTarget target, std::vector<DialogAction>& actions)
+{
+    for (const auto& replacement : sReplacements)
+    {
+        if (replacement.mTarget == target)
+        {
+            for (const auto& action : replacement.mReplacements)
+            {
+                assert(actions.size() > action.first);
+                actions[action.first] = action.second;
+            }
+        }
+    }
+}
+
+const std::vector<Replacement> Replacements::sReplacements = {
     Replacement{OffsetTarget{31, 0xb0f}, {
         {0, PlaySound{34, 0, {}}}
     }},
