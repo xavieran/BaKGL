@@ -184,6 +184,8 @@ StaticTTM::StaticTTM(
                         // Doesn't really do anything...
                         // in the future maybe pop the clip region
                         // so we could add another one?
+                    },
+                    [&](const BAK::Update&){
                     }
                 },
                 action

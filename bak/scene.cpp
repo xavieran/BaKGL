@@ -369,7 +369,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             {
                 imageSlots[*imageSlot] = ImageSlot{};
             }
-            imageSlots[*imageSlot].mImage = name;
+            //imageSlots[*imageSlot].mImage = name;
         } break;
         case Actions::LOAD_SCREEN:
         {
@@ -430,7 +430,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         case Actions::UPDATE:
         {
             currentScene.mActions.emplace_back(Update{});
-        };
+        } break;
         default:
             logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
             break;
