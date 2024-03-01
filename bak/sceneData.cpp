@@ -160,6 +160,11 @@ std::ostream& operator<<(std::ostream& os, const Delay& a)
     return os << "Delay { time: " << a.mDelayMs << "}";
 }
 
+std::ostream& operator<<(std::ostream& os, const Update& a)
+{
+    return os << "Update{}";
+}
+
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa)
 {
     std::visit(overloaded{
