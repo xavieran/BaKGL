@@ -165,6 +165,26 @@ std::ostream& operator<<(std::ostream& os, const Update& a)
     return os << "Update{}";
 }
 
+std::ostream& operator<<(std::ostream& os, const SaveBackground& a)
+{
+    return os << "SaveBackground{}";
+}
+
+std::ostream& operator<<(std::ostream& os, const DrawBackground& a)
+{
+    return os << "DrawBackground{}";
+}
+
+std::ostream& operator<<(std::ostream& os, const Purge& a)
+{
+    return os << "Purge{}";
+}
+
+std::ostream& operator<<(std::ostream& os, const SaveImage& a)
+{
+    return os << "SaveImage{ pos: " << a.pos << " dims: " << a.dims << "}";
+}
+
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa)
 {
     std::visit(overloaded{

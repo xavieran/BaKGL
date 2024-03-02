@@ -151,12 +151,22 @@ struct DisableClipRegion
 
 std::ostream& operator<<(std::ostream& os, const DisableClipRegion& a);
 
+struct SaveBackground
+{
+};
+
+struct DrawBackground 
+{
+};
+
 struct SaveImage
 {
-    std::uint16_t mX;
-    std::uint16_t mY;
-    std::uint16_t mWidth;
-    std::uint16_t mHeight;
+    glm::ivec2 pos;
+    glm::ivec2 dims;
+};
+
+struct Purge
+{
 };
 
 struct SetWindow
