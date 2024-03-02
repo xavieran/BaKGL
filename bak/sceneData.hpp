@@ -180,7 +180,7 @@ struct SetWindow
 
 struct Delay
 {
-    std::uint16_t mDelayMs; // units??
+    unsigned mDelayMs; // units??
 };
 
 struct Update
@@ -197,20 +197,19 @@ struct SetColors
 
 struct FadeOut
 {
-    
-};
-
-struct Purge
-{
-    
 };
 
 using SceneAction = std::variant<
     ClipRegion,
+    Delay,
     DisableClipRegion,
+    DrawBackground,
     DrawRect,
     DrawScreen,
     DrawSprite,
+    Purge,
+    SaveBackground,
+    SaveImage,
     Update>;
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa);

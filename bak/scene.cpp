@@ -431,6 +431,15 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         {
             currentScene.mActions.emplace_back(Update{});
         } break;
+        case Actions::PURGE:
+        {
+            currentScene.mActions.emplace_back(Purge{});
+        } break;
+        case Actions::DELAY:
+        {
+            currentScene.mActions.emplace_back(
+                Delay{static_cast<unsigned>(chunk.mArguments[0])});
+        } break;
         default:
             logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
             break;

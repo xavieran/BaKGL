@@ -185,8 +185,12 @@ StaticTTM::StaticTTM(
                         // in the future maybe pop the clip region
                         // so we could add another one?
                     },
-                    [&](const BAK::Update&){
-                    }
+                    [&](const BAK::Delay&){},
+                    [&](const BAK::DrawBackground&){},
+                    [&](const BAK::Purge&){},
+                    [&](const BAK::SaveBackground&){},
+                    [&](const BAK::SaveImage&){},
+                    [&](const BAK::Update&){},
                 },
                 action
             );

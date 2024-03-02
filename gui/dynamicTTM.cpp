@@ -93,102 +93,99 @@ DynamicTTM::DynamicTTM(
     }
 
     // Add widgets for each scene action
-    for (const auto& scene : {sceneInit, sceneContent})
+    for (const auto& action : scene.mActions)
     {
-        for (const auto& action : scene.mActions)
-        {
-            std::visit(
-                overloaded{
-                    [&](const BAK::DrawScreen& sa){
-                        mLogger.Info() << "DrawScreen: " << sa << "\n";
-                        const auto screen = ConvertSceneAction(
-                            sa,
-                            textures,
-                            offsets);
+        std::visit(
+            overloaded{
+                [&](const BAK::DrawScreen& sa){
+                    mLogger.Info() << "DrawScreen: " << sa << "\n";
+                    const auto screen = ConvertSceneAction(
+                        sa,
+                        textures,
+                        offsets);
 
-                        auto& elem = mSceneElements.emplace_back(
-                            Graphics::DrawMode::Sprite,
-                            mSpriteSheet->mSpriteSheet,
-                            Graphics::TextureIndex{screen.mImage},
-                            Graphics::ColorMode::Texture,
-                            glm::vec4{1},
-                            screen.mPosition,
-                            screen.mScale,
-                            false);
+                    auto& elem = mSceneElements.emplace_back(
+                        Graphics::DrawMode::Sprite,
+                        mSpriteSheet->mSpriteSheet,
+                        Graphics::TextureIndex{screen.mImage},
+                        Graphics::ColorMode::Texture,
+                        glm::vec4{1},
+                        screen.mPosition,
+                        screen.mScale,
+                        false);
 
-                        // Either add to the clip region or to the frame
-                        // This doesn't work if the scene has more than one
-                        // clip region...
-                        if (mClipRegion)
-                            mClipRegion->AddChildBack(&elem);
-                        else
-                            mSceneFrame.AddChildBack(&elem);
-                    },
-                    [&](const BAK::DrawSprite& sa){
-                        const auto sceneSprite = ConvertSceneAction(
-                            sa,
-                            textures,
-                            offsets);
+                    // Either add to the clip region or to the frame
+                    // This doesn't work if the scene has more than one
+                    // clip region...
+                    if (mClipRegion)
+                        mClipRegion->AddChildBack(&elem);
+                    else
+                        mSceneFrame.AddChildBack(&elem);
+                },
+                [&](const BAK::DrawSprite& sa){
+                    const auto sceneSprite = ConvertSceneAction(
+                        sa,
+                        textures,
+                        offsets);
 
-                        auto& elem = mSceneElements.emplace_back(
-                            Graphics::DrawMode::Sprite,
-                            mSpriteSheet->mSpriteSheet,
-                            Graphics::TextureIndex{sceneSprite.mImage},
-                            Graphics::ColorMode::Texture,
-                            glm::vec4{1},
-                            sceneSprite.mPosition,
-                            sceneSprite.mScale,
-                            false);
+                    auto& elem = mSceneElements.emplace_back(
+                        Graphics::DrawMode::Sprite,
+                        mSpriteSheet->mSpriteSheet,
+                        Graphics::TextureIndex{sceneSprite.mImage},
+                        Graphics::ColorMode::Texture,
+                        glm::vec4{1},
+                        sceneSprite.mPosition,
+                        sceneSprite.mScale,
+                        false);
 
-                        // Either add to the clip region or to the frame
-                        // This doesn't work if the scene has more than one
-                        // clip region...
-                        if (mClipRegion)
-                            mClipRegion->AddChildBack(&elem);
-                        else
-                            mSceneFrame.AddChildBack(&elem);
-                    },
-                    [&](const BAK::DrawRect& sr){
-                        constexpr auto FRAME_COLOR_INDEX = 6;
-                        const auto [palKey, colorKey] = sr.mPaletteColor;
-                        const auto sceneRect = SceneRect{
-                            // Reddy brown frame color
-                            colorKey == FRAME_COLOR_INDEX
-                                ? Gui::Color::frameMaroon
-                                : Gui::Color::black,
-                            glm::vec2{sr.mTopLeft.x, sr.mTopLeft.y},
-                            // FIXME: This should be renamed dims not bottom right...
-                            glm::vec2{sr.mBottomRight.x, sr.mBottomRight.y}};
-                        // This really only works for "DrawFrame", not "DrawRect"
-                        mSceneFrame.SetPosition(sceneRect.mPosition);
-                        mSceneFrame.SetDimensions(sceneRect.mDimensions);
-                        mSceneFrame.SetColor(sceneRect.mColor);
+                    // Either add to the clip region or to the frame
+                    // This doesn't work if the scene has more than one
+                    // clip region...
+                    if (mClipRegion)
+                        mClipRegion->AddChildBack(&elem);
+                    else
+                        mSceneFrame.AddChildBack(&elem);
+                },
+                [&](const BAK::DrawRect& sr){
+                    constexpr auto FRAME_COLOR_INDEX = 6;
+                    const auto [palKey, colorKey] = sr.mPaletteColor;
+                    const auto sceneRect = SceneRect{
+                        // Reddy brown frame color
+                        colorKey == FRAME_COLOR_INDEX
+                            ? Gui::Color::frameMaroon
+                            : Gui::Color::black,
+                        glm::vec2{sr.mTopLeft.x, sr.mTopLeft.y},
+                        // FIXME: This should be renamed dims not bottom right...
+                        glm::vec2{sr.mBottomRight.x, sr.mBottomRight.y}};
+                    // This really only works for "DrawFrame", not "DrawRect"
+                    mSceneFrame.SetPosition(sceneRect.mPosition);
+                    mSceneFrame.SetDimensions(sceneRect.mDimensions);
+                    mSceneFrame.SetColor(sceneRect.mColor);
 
-                        // DialogBackground will have same dims...
-                        if (mDialogBackground)
-                        {
-                            mDialogBackground->SetPosition(sceneRect.mPosition + glm::vec2{1,1});
-                            mDialogBackground->SetDimensions(sceneRect.mDimensions - glm::vec2{2, 2});
-                        }
-                    },
-                    [&](const BAK::ClipRegion& a){
-                        const auto clip = ConvertSceneAction(a);
-                        mClipRegion.emplace(
-                            ClipRegionTag{},
-                            clip.mTopLeft,
-                            clip.mDims,
-                            false);
-                        mSceneFrame.AddChildBack(&(*mClipRegion));
-                    },
-                    [&](const BAK::DisableClipRegion&){
-                        // Doesn't really do anything...
-                        // in the future maybe pop the clip region
-                        // so we could add another one?
+                    // DialogBackground will have same dims...
+                    if (mDialogBackground)
+                    {
+                        mDialogBackground->SetPosition(sceneRect.mPosition + glm::vec2{1,1});
+                        mDialogBackground->SetDimensions(sceneRect.mDimensions - glm::vec2{2, 2});
                     }
                 },
-                action
-            );
-        }
+                [&](const BAK::ClipRegion& a){
+                    const auto clip = ConvertSceneAction(a);
+                    mClipRegion.emplace(
+                        ClipRegionTag{},
+                        clip.mTopLeft,
+                        clip.mDims,
+                        false);
+                    mSceneFrame.AddChildBack(&(*mClipRegion));
+                },
+                [&](const BAK::DisableClipRegion&){
+                    // Doesn't really do anything...
+                    // in the future maybe pop the clip region
+                    // so we could add another one?
+                }
+            },
+            action
+        );
     }
 
     spriteManager

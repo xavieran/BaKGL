@@ -21,7 +21,6 @@ public:
         const BAK::Scene& sceneContent);
 
     Widget* GetScene();
-    Widget* GetBackground();
 
 private:
     Graphics::SpriteManager::TemporarySpriteSheet mSpriteSheet;
@@ -29,7 +28,6 @@ private:
     std::optional<Widget> mDialogBackground;
 
     std::vector<Widget> mSceneElements;
-    std::optional<Widget> mClipRegion;
 
     const Logging::Logger& mLogger;
 };

@@ -1,13 +1,14 @@
  INFO [main] Loading ADS and TTM:CHAPTER1.ADS CHAPTER1.TTM
  INFO [CreateFileBuffer] Opening: /home/xavieran/bak/data/krondor.rmf
- DEBUG [BAK::ResourceIndex] RMF Version (1, 4) ResourceFile: krondor.001 Resources: 1766
+ DEBUG [BAK::ResourceIndex] RMF Version (1, 4) ResourceFile: krondor.001 Resources: 1768
  INFO [CreateFileBuffer] Opening: /home/xavieran/bak/data/krondor.001
  DEBUG [LoadSceneIndices] Index: [[1]]
  DEBUG [LoadSceneIndices] 1030 adsAct: Index 1 1
  DEBUG [LoadSceneIndices] 2005 adsAct: AddScene 1 1 0 1
  DEBUG [LoadSceneIndices] 1520 adsAct: PlayScene2 
  DEBUG [LoadSceneIndices] ffff adsAct: End 
- DEBUG [LoadScenes] Pages:13
+ DEBUG [LoadScenes] Pages:13 size: 2
+ DEBUG [LoadScenes] Version size: 5
  DEBUG [LoadScenes] Code: 1110 SetScene Name: init chapter 1
  DEBUG [LoadScenes] Code: 1060 SlotPalette args [  0 ]
  DEBUG [LoadScenes] Code: f050 LoadPalette Name: CHAPTER.PAL
@@ -51,28 +52,9 @@
  DEBUG [LoadScenes] Code: 4110 FadeOut args [  1,255,0,2 ]
  DEBUG [LoadScenes] Code: 110 Purge args [  ]
  DEBUG [LoadScenes] Code: ff0 Update args [  ]
- DEBUG [LoadScenes] Unhandled action: LoadScreen
  DEBUG [LoadScenes] Unhandled action: SaveBackground
- DEBUG [LoadScenes] Unhandled action: FadeIn
  DEBUG [LoadScenes] Unhandled action: SelectSound
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Delay
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Update
  DEBUG [LoadScenes] Unhandled action: PlaySound
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Update
  DEBUG [LoadScenes] Unhandled action: SaveImage0
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Delay
- DEBUG [LoadScenes] Unhandled action: Update
- DEBUG [LoadScenes] Unhandled action: Delay
  DEBUG [LoadScenes] Unhandled action: SaveBackground
  DEBUG [LoadScenes] Unhandled action: FadeOut
- DEBUG [LoadScenes] Unhandled action: Purge
- DEBUG [LoadScenes] Unhandled action: Update
