@@ -101,6 +101,8 @@ void DynamicTTM::AdvanceAction()
                 auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mImage);
                 mImageSlots.erase(mCurrentImageSlot);
                 mImageSlots.emplace(mCurrentImageSlot, BAK::LoadImages(fb));
+                mLogger.Debug() << "Loaded image: " << p.mImage << " to slot: " << mCurrentImageSlot
+                    << " has " << mImageSlots.at(mCurrentImageSlot).mImages.size() << " images\n";
             },
             [&](const BAK::LoadScreen& p){
                 auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mScreenName);
