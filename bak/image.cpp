@@ -41,11 +41,17 @@ bool Image::IsHighResLowCol() const
     return mIsHighResLowCol;
 }
 
-uint8_t * Image::GetPixels() const
+uint8_t* Image::GetPixels() const
 {
     // FIXME!
     return const_cast<uint8_t *>(mPixels.data());
 }
+
+uint8_t Image::GetPixel(unsigned x, unsigned y) const
+{
+   return mPixels[x + mWidth * y];
+}
+
 
 void Image::SetPixel(unsigned x, unsigned y, std::uint8_t color)
 {

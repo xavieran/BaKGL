@@ -26,13 +26,12 @@ struct ADSIndex
         mLessThan{}
     {}
 
-    TTMIndex GetTTMIndex(const BAK::GameState& gs) const
+    TTMIndex GetTTMIndex(Chapter chapter) const
     {
-        const auto chapter = gs.GetChapter().mValue;
         if (mGreaterThan && mLessThan)
         {
-            if (chapter >= *mGreaterThan
-                && chapter <= *mLessThan)
+            if (chapter.mValue >= *mGreaterThan
+                && chapter.mValue <= *mLessThan)
                 return mIf;
             else
             {
@@ -40,11 +39,11 @@ struct ADSIndex
                 return *mElse;
             }
         }
-        else if (mGreaterThan && chapter >= *mGreaterThan)
+        else if (mGreaterThan && chapter.mValue >= *mGreaterThan)
         {
             return mIf;
         }
-        else if (mLessThan && chapter <= *mLessThan)
+        else if (mLessThan && chapter.mValue <= *mLessThan)
         {
             return mIf;
         }
@@ -73,6 +72,17 @@ struct SceneIndex
     ADSIndex mSceneIndex;
 };
 
+struct SceneADS
+{
+    unsigned mInitScene;
+    unsigned mDrawScene;
+};
+
+struct SceneSequence
+{
+    std::vector<SceneADS> mScenes;
+};
+
 std::ostream& operator<<(std::ostream&, const SceneIndex&);
 
 struct ImageSlot
@@ -96,8 +106,16 @@ struct Scene
 
 std::ostream& operator<<(std::ostream&, const Scene&);
 
+struct DynamicScene
+{
+    std::string mSceneTag;
+    std::vector<SceneAction> mActions;
+};
+
+std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb);
 std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
+std::unordered_map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb);
 
 // Helper during loading
 struct SceneChunk

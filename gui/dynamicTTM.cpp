@@ -1,5 +1,6 @@
-#include "gui/staticTTM.hpp"
+#include "gui/dynamicTTM.hpp"
 
+#include "bak/imageStore.hpp"
 #include "bak/textureFactory.hpp"
 
 #include "com/assert.hpp"
@@ -13,13 +14,13 @@ namespace Gui {
 
 DynamicTTM::DynamicTTM(
     Graphics::SpriteManager& spriteManager,
-    const BAK::Scene& sceneInit,
-    const BAK::Scene& sceneContent)
+    std::string adsFile,
+    std::string ttmFile)
 :
-    mSpriteSheet{spriteManager.AddTemporarySpriteSheet()},
+    mSpriteManager{spriteManager},
     mSceneFrame{
         Graphics::DrawMode::Rect,
-        mSpriteSheet->mSpriteSheet,
+        Graphics::SpriteSheetIndex{0},
         Graphics::TextureIndex{0},
         Graphics::ColorMode::SolidColor,
         glm::vec4{0},
@@ -32,165 +33,159 @@ DynamicTTM::DynamicTTM(
     mClipRegion{},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
 {
-    mLogger.Debug() << "Loading scene: " << sceneInit << " with " << sceneContent << std::endl;
-    auto textures = Graphics::TextureStore{};
-    std::unordered_map<unsigned, unsigned> offsets{};
+    mSceneElements.reserve(100);
+    mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
+    auto adsFb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
+    mSceneSequences = BAK::LoadSceneSequences(adsFb);
+    auto ttmFb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
+    mScenes = BAK::LoadDynamicScenes(ttmFb);
+}
 
-    // Load all the image slots
-    for (const auto& scene : {sceneInit, sceneContent})
+void DynamicTTM::BeginScene()
+{
+
+    mLogger.Debug() << "SceneSequences\n";
+    for (const auto& [key, sequences] : mSceneSequences)
     {
-        for (const auto& [imageKey, imagePal] : scene.mImages)
+        mLogger.Debug() << "Key: " << key << "\n";
+        for (const auto& sequence : sequences)
         {
-            const auto& [image, palKey] = imagePal;
-            assert(scene.mPalettes.find(palKey) != scene.mPalettes.end());
-            const auto& palette = scene.mPalettes.find(palKey)->second;
-            mLogger.Debug() << "Loading image slot: " << imageKey 
-                << " (" << image << ") with palette: " << palKey << std::endl;
-            offsets[imageKey] = textures.GetTextures().size();
-
-            BAK::TextureFactory::AddToTextureStore(
-                textures,
-                image,
-                palette);
-        }
-        for (const auto& [screenKey, screenPal] : scene.mScreens)
-        {
-            const auto& [screen, palKey] = screenPal;
-            const auto& palette = scene.mPalettes.find(palKey)->second;
-            mLogger.Debug() << "Loading screen slot: " << screenKey 
-                << " (" << screen << ") with palette: " << palKey << std::endl;
-            offsets[25] = textures.GetTextures().size();
-
-            BAK::TextureFactory::AddScreenToTextureStore(
-                textures,
-                screen,
-                palette);
+            mLogger.Debug() << "  Sequence\n";
+            for (const auto& scene : sequence.mScenes)
+            {
+                mLogger.Debug() << "    ADS(" << scene.mInitScene << ", " << scene.mDrawScene << ")\n";
+            }
         }
     }
-
-    // Make sure all the refs are constant
-    mSceneElements.reserve(
-        sceneInit.mActions.size()
-        + sceneContent.mActions.size());
-
-    // Some scenes will have a dialog background specified in slot 5
-    // Find and add it if so
-    constexpr auto DIALOG_BACKGROUND_SLOT = 5;
-    const auto dialogBackground = offsets.find(DIALOG_BACKGROUND_SLOT);
-    if (dialogBackground != offsets.end())
+    mLogger.Debug() << "Scenes" << "\n";
+    for (const auto& [key, scene] : mScenes)
     {
-        const auto texture = dialogBackground->second;
-        mDialogBackground.emplace(
-            Graphics::DrawMode::Sprite,
-            mSpriteSheet->mSpriteSheet,
-            Graphics::TextureIndex{texture},
-            Graphics::ColorMode::Texture,
-            glm::vec4{1},
-            glm::vec2{0},
-            glm::vec2{1},
-            false 
-        );
+        mLogger.Debug() << "Key: " << key << "\n";
     }
 
-    // Add widgets for each scene action
-    for (const auto& action : scene.mActions)
-    {
-        std::visit(
-            overloaded{
-                [&](const BAK::DrawScreen& sa){
-                    mLogger.Info() << "DrawScreen: " << sa << "\n";
-                    const auto screen = ConvertSceneAction(
-                        sa,
+    mCurrentScene = &(mScenes[mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene]);
+    mCurrentAction = 0;
+}
+
+void DynamicTTM::AdvanceAction()
+{
+    mLogger.Debug() << "AdvanceAction" << "\n";
+    const auto& action = mCurrentScene->mActions[mCurrentAction++];
+    mLogger.Debug() << "Handle action: " << action << std::endl;
+    std::visit(
+        overloaded{
+            [&](const BAK::SlotPalette& sp){
+                mCurrentPaletteSlot = sp.mSlot;
+
+                if (mImageSlots.contains(mCurrentImageSlot)
+                    && mPaletteSlots.contains(mCurrentPaletteSlot))
+                {
+                    auto textures = Graphics::TextureStore{};
+                    auto& palette = mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData;
+                    BAK::TextureFactory::AddToTextureStore(
                         textures,
-                        offsets);
-
-                    auto& elem = mSceneElements.emplace_back(
-                        Graphics::DrawMode::Sprite,
-                        mSpriteSheet->mSpriteSheet,
-                        Graphics::TextureIndex{screen.mImage},
-                        Graphics::ColorMode::Texture,
-                        glm::vec4{1},
-                        screen.mPosition,
-                        screen.mScale,
-                        false);
-
-                    // Either add to the clip region or to the frame
-                    // This doesn't work if the scene has more than one
-                    // clip region...
-                    if (mClipRegion)
-                        mClipRegion->AddChildBack(&elem);
-                    else
-                        mSceneFrame.AddChildBack(&elem);
-                },
-                [&](const BAK::DrawSprite& sa){
-                    const auto sceneSprite = ConvertSceneAction(
-                        sa,
-                        textures,
-                        offsets);
-
-                    auto& elem = mSceneElements.emplace_back(
-                        Graphics::DrawMode::Sprite,
-                        mSpriteSheet->mSpriteSheet,
-                        Graphics::TextureIndex{sceneSprite.mImage},
-                        Graphics::ColorMode::Texture,
-                        glm::vec4{1},
-                        sceneSprite.mPosition,
-                        sceneSprite.mScale,
-                        false);
-
-                    // Either add to the clip region or to the frame
-                    // This doesn't work if the scene has more than one
-                    // clip region...
-                    if (mClipRegion)
-                        mClipRegion->AddChildBack(&elem);
-                    else
-                        mSceneFrame.AddChildBack(&elem);
-                },
-                [&](const BAK::DrawRect& sr){
-                    constexpr auto FRAME_COLOR_INDEX = 6;
-                    const auto [palKey, colorKey] = sr.mPaletteColor;
-                    const auto sceneRect = SceneRect{
-                        // Reddy brown frame color
-                        colorKey == FRAME_COLOR_INDEX
-                            ? Gui::Color::frameMaroon
-                            : Gui::Color::black,
-                        glm::vec2{sr.mTopLeft.x, sr.mTopLeft.y},
-                        // FIXME: This should be renamed dims not bottom right...
-                        glm::vec2{sr.mBottomRight.x, sr.mBottomRight.y}};
-                    // This really only works for "DrawFrame", not "DrawRect"
-                    mSceneFrame.SetPosition(sceneRect.mPosition);
-                    mSceneFrame.SetDimensions(sceneRect.mDimensions);
-                    mSceneFrame.SetColor(sceneRect.mColor);
-
-                    // DialogBackground will have same dims...
-                    if (mDialogBackground)
-                    {
-                        mDialogBackground->SetPosition(sceneRect.mPosition + glm::vec2{1,1});
-                        mDialogBackground->SetDimensions(sceneRect.mDimensions - glm::vec2{2, 2});
-                    }
-                },
-                [&](const BAK::ClipRegion& a){
-                    const auto clip = ConvertSceneAction(a);
-                    mClipRegion.emplace(
-                        ClipRegionTag{},
-                        clip.mTopLeft,
-                        clip.mDims,
-                        false);
-                    mSceneFrame.AddChildBack(&(*mClipRegion));
-                },
-                [&](const BAK::DisableClipRegion&){
-                    // Doesn't really do anything...
-                    // in the future maybe pop the clip region
-                    // so we could add another one?
+                        mImageSlots.at(mCurrentImageSlot).mImages,
+                        palette);
+                        
+                    auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
+                    mImageSprites[mCurrentImageSlot] = std::move(temporarySpriteSheet);
+                    mTextures[mCurrentImageSlot] = textures;
+                    mSpriteManager.GetSpriteSheet(mImageSprites[mCurrentImageSlot]->mSpriteSheet).LoadTexturesGL(textures);
                 }
             },
-            action
-        );
-    }
+            [&](const BAK::LoadPalette& p){
+                mPaletteSlots.emplace(mCurrentPaletteSlot, BAK::Palette{p.mPalette});
+                if (mImageSlots.contains(mCurrentImageSlot)
+                    && mPaletteSlots.contains(mCurrentPaletteSlot))
+                {
+                    auto textures = Graphics::TextureStore{};
+                    auto& palette = mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData;
+                    BAK::TextureFactory::AddToTextureStore(
+                        textures,
+                        mImageSlots.at(mCurrentImageSlot).mImages,
+                        palette);
+                        
+                    auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
+                    mImageSprites[mCurrentImageSlot] = std::move(temporarySpriteSheet);
+                    mTextures[mCurrentImageSlot] = textures;
+                    mSpriteManager.GetSpriteSheet(mImageSprites[mCurrentImageSlot]->mSpriteSheet).LoadTexturesGL(textures);
+                }
+            },
+            [&](const BAK::SlotImage& sp){
+                mCurrentImageSlot = sp.mSlot;
+            },
+            [&](const BAK::LoadImage& p){
+                auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mImage);
+                mImageSlots.erase(mCurrentImageSlot);
+                mImageSlots.emplace(mCurrentImageSlot, BAK::LoadImages(fb));
+                auto textures = Graphics::TextureStore{};
+                auto& palette = mPaletteSlots.contains(mCurrentImageSlot)
+                    ? mPaletteSlots.at(mCurrentImageSlot).mPaletteData
+                    : mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData;
+                BAK::TextureFactory::AddToTextureStore(
+                    textures,
+                    mImageSlots.at(mCurrentImageSlot).mImages,
+                    palette);
+                    
+                auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
+                mImageSprites[mCurrentImageSlot] = std::move(temporarySpriteSheet);
+                mTextures[mCurrentImageSlot] = textures;
+                mSpriteManager.GetSpriteSheet(mImageSprites[mCurrentImageSlot]->mSpriteSheet).LoadTexturesGL(textures);
+                mLogger.Debug() << "Loaded image: " << p.mImage << " has " << textures.size() << " textures to slot: " << mCurrentImageSlot << " and pal slot: " << mCurrentPaletteSlot << "\n";
+            },
+            [&](const BAK::DrawScreen& sa){
+            },
+            [&](const BAK::DrawSprite& sa){
+                const auto imageSlot = sa.mImageSlot;
+                const auto sceneSprite = ConvertSceneAction(
+                    sa,
+                    mTextures[imageSlot]);
+                auto& elem = mSceneElements.emplace_back(
+                    Graphics::DrawMode::Sprite,
+                    mImageSprites[imageSlot]->mSpriteSheet,
+                    Graphics::TextureIndex{sceneSprite.mImage},
+                    Graphics::ColorMode::Texture,
+                    glm::vec4{1},
+                    sceneSprite.mPosition,
+                    sceneSprite.mScale,
+                    false);
+                mSceneFrame.AddChildBack(&elem);
+            },
+            [&](const BAK::Update& sr){
+                mSceneFrame.ClearChildren();
+            },
+            [&](const BAK::DrawRect& sr){
+            },
+            [&](const BAK::ClipRegion& a){
+            },
+            [&](const BAK::DisableClipRegion&){
+            },
+            [&](const auto&){}
+        },
+        action
+    );
 
-    spriteManager
-        .GetSpriteSheet(mSpriteSheet->mSpriteSheet)
-        .LoadTexturesGL(textures);
+    if (mCurrentAction == mCurrentScene->mActions.size())
+    {
+        mLogger.Debug() << "Reached end of scene, next scene is: \n";
+        mCurrentSequenceScene++;
+        if (mCurrentSequenceScene == mSceneSequences[1][mCurrentSequence].mScenes.size())
+        {
+            mCurrentSequenceScene = 0;
+            mCurrentSequence++;
+        }
+
+        if (mCurrentSequence == mSceneSequences[1].size())
+        {
+            mLogger.Debug() << "Finished, start again\n";
+            mCurrentSequence = 0;
+        }
+        const auto scene = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
+        mCurrentScene = &mScenes[scene];
+        mLogger.Debug() << "Sequence: " << mCurrentSequence << " Scene: " << mCurrentSequenceScene << 
+            " -- " << scene << " " << mCurrentScene->mSceneTag << "\n";
+        mCurrentAction = 0;
+    }
 }
 
 Widget* DynamicTTM::GetScene()

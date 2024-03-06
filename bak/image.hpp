@@ -16,6 +16,7 @@ public:
     unsigned GetSize() const;
     bool IsHighResLowCol() const;
     uint8_t * GetPixels() const;
+    uint8_t GetPixel(unsigned x, unsigned y) const;
     void Load(FileBuffer *buffer);
 
 private:

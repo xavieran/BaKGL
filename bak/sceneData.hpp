@@ -8,6 +8,8 @@
 #include <ostream>
 #include <variant>
 
+#include "bak/dialogTarget.hpp"
+
 
 namespace BAK {
 
@@ -54,7 +56,7 @@ enum class Actions
     SET_SCENEB          = 0x1120, // SET BACKGROUND
     SET_SCENEC          = 0x1200, // GOTO TAG
     SET_COLOR           = 0x2000, // SET_COLOR
-    SET_FRAME1          = 0x2010, 
+    SHOW_DIALOG         = 0x2010, 
     UNKNOWN3            = 0x2300,
     UNKNOWN6            = 0x2310,
     UNKNOWN7            = 0x2320,
@@ -199,6 +201,31 @@ struct FadeOut
 {
 };
 
+struct SlotImage
+{
+    unsigned mSlot;
+};
+
+struct LoadPalette
+{
+    std::string mPalette;
+};
+
+struct LoadImage
+{
+    std::string mImage;
+};
+
+struct SlotPalette
+{
+    unsigned mSlot;
+};
+
+struct ShowDialog
+{
+    KeyTarget mDialogKey;
+};
+
 using SceneAction = std::variant<
     ClipRegion,
     Delay,
@@ -210,7 +237,13 @@ using SceneAction = std::variant<
     Purge,
     SaveBackground,
     SaveImage,
-    Update>;
+    Update,
+    LoadImage,
+    LoadPalette,
+    LoadScreen,
+    SlotImage,
+    ShowDialog,
+    SlotPalette>;
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa);
 

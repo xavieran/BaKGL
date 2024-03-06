@@ -62,7 +62,7 @@ std::string_view ToString(Actions a)
     case Actions::SET_SCENEB: return "SETSCENEB";
     case Actions::SET_SCENEC: return "SETSCENEC";
     case Actions::SET_COLOR: return "SetColors";
-    case Actions::SET_FRAME1: return "SetFrame1";
+    case Actions::SHOW_DIALOG: return "ShowDialog";
     case Actions::FADE_OUT: return "FadeOut";
     case Actions::FADE_IN: return "FadeIn";
     case Actions::SAVE_IMAGE0: return "SaveImage0";
@@ -183,6 +183,31 @@ std::ostream& operator<<(std::ostream& os, const Purge& a)
 std::ostream& operator<<(std::ostream& os, const SaveImage& a)
 {
     return os << "SaveImage{ pos: " << a.pos << " dims: " << a.dims << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const LoadPalette& a)
+{
+    return os << "LoadPalette{ " << a.mPalette << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const LoadImage& a)
+{
+    return os << "LoadImage{ " << a.mImage << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const SlotImage& a)
+{
+    return os << "SlotImage{ " << a.mSlot << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const SlotPalette& a)
+{
+    return os << "SlotPalette{ " << a.mSlot << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const ShowDialog& a)
+{
+    return os << "ShowDialog{ " << std::hex << a.mDialogKey << std::dec << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa)

@@ -13,7 +13,7 @@
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/guiManager.hpp"
-#include "gui/staticTTM.hpp"
+#include "gui/dynamicTTM.hpp"
 #include "gui/core/mouseEvent.hpp"
 #include "gui/window.hpp"
 
@@ -71,15 +71,14 @@ int main(int argc, char** argv)
         guiScalar,
         spriteManager};
 
-    if (argc < 3)
+    if (argc < 2)
     {
         std::cerr << "Usage: "
-            << argv[0] << " ADS TTM\n";
+            << argv[0] << " BASENAME\n";
         return -1;
     }
     
-    std::string adsFile{argv[1]};
-    std::string ttmFile{argv[2]};
+    std::string basename{argv[1]};
     auto gameState = BAK::GameState{};
     
     const auto font = Gui::Font{"GAME.FNT", spriteManager};
@@ -92,30 +91,14 @@ int main(int argc, char** argv)
         height / guiScalar};
 
 
-    auto fb1 = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
-    auto indices = BAK::LoadSceneIndices(fb1);
-    auto fb2 = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-    auto scenes = BAK::LoadScenes(fb2);
-
-    logger.Info() << "Playing: " <<adsFile << " " << ttmFile << "\n";
-    logger.Info() << "ADS: " << "\n";
-    for (auto& [key, ads] : indices)
-    {
-        logger.Info() << "Key: " << key << " ADS: " << ads << "\n";
-    }
-    logger.Info() << "TTM: " << "\n";
-    for (auto& [key, scene] : scenes)
-    {
-        logger.Info() << "Key: " << key << " TTM: " << scene << "\n";
-    }
-
-    auto staticTtm = Gui::StaticTTM{
+    auto dynamicTTM = Gui::DynamicTTM{
         spriteManager,
-        scenes[1],
-        scenes[1]
+        basename + ".ADS",
+        basename + ".TTM"
     };
+    dynamicTTM.BeginScene();
 
-    rootWidget.AddChildBack(staticTtm.GetScene());
+    rootWidget.AddChildBack(dynamicTTM.GetScene());
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};
@@ -129,6 +112,7 @@ int main(int argc, char** argv)
         {
             rootWidget.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
+            dynamicTTM.AdvanceAction();
         },
         [&](const auto click)
         {
