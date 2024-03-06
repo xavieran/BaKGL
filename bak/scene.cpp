@@ -174,7 +174,7 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
             case AdsActions::FADE_OUT: [[fallthrough]];
             case AdsActions::END_IF: [[fallthrough]];
             case AdsActions::PLAY_SCENE: [[fallthrough]];
-            case AdsActions::PLAY_SCENE2:
+            case AdsActions::PLAY_ALL_SCENES:
                 break;
         }
 
@@ -249,11 +249,10 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
                 const auto d = script.GetUint16LE();
                 ss << a << " " << b << " " << c << " " << d;
                 ASSERT(currentIndex);
-                currentSequence.mScenes.emplace_back(SceneADS(a, b));
+                currentSequence.mScenes.emplace_back(SceneADS(a, b, false));
             }
                 break;
             case AdsActions::PLAY_SCENE:
-            case AdsActions::PLAY_SCENE2:
             {
                 ASSERT(currentIndex);
                 const auto sceneName = tags.GetTag(Tag{*currentIndex});
@@ -263,6 +262,17 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
                 // Reset the state for next scene index
                 sceneIndices.at(*currentIndex).emplace_back(currentSequence);
                 currentSequence = {};
+            } break;
+            case AdsActions::PLAY_ALL_SCENES:
+            {
+                ASSERT(currentIndex);
+                const auto sceneName = tags.GetTag(Tag{*currentIndex});
+                if (!sceneName)
+                    throw std::runtime_error("Tag not found");
+                currentSequence = {};
+                currentSequence.mScenes.emplace_back(SceneADS(0, 0, true));
+                // Reset the state for next scene index
+                sceneIndices.at(*currentIndex).emplace_back(currentSequence);
             } break;
             case AdsActions::END:
             {
@@ -509,14 +519,6 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
                 });
         } break;
-        case Actions::FADE_IN: // ???
-        {
-            currentScene.mActions.emplace_back(
-                DrawScreen{
-                    glm::vec2{0, 0},
-                    glm::vec2{320, 200}
-                });
-        } break;
         case Actions::DRAW_RECT:
         case Actions::DRAW_FRAME:
             // There must be a default colour?
@@ -574,7 +576,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     return scenes;
 }
 
-std::unordered_map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
+std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
@@ -645,7 +647,7 @@ std::unordered_map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         logger.Debug() << ss.str() << "\n";
     }
 
-    std::unordered_map<unsigned, DynamicScene> scenes{};
+    std::map<unsigned, DynamicScene> scenes{};
 
     DynamicScene currentScene;
     bool loadingScene = false;
@@ -741,13 +743,13 @@ std::unordered_map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
                 });
         } break;
-        case Actions::FADE_IN: // ???
+        case Actions::FADE_IN:
         {
-            currentScene.mActions.emplace_back(
-                DrawScreen{
-                    glm::vec2{0, 0},
-                    glm::vec2{320, 200}
-                });
+            currentScene.mActions.emplace_back(FadeIn{});
+        } break;
+        case Actions::FADE_OUT:
+        {
+            currentScene.mActions.emplace_back(FadeOut{});
         } break;
         case Actions::SHOW_DIALOG:
         {

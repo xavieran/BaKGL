@@ -24,7 +24,7 @@ std::string_view ToString(AdsActions a)
     case AdsActions::ADD_SCENE: return "AddScene";
     case AdsActions::STOP_SCENE: return "StopScene";
     case AdsActions::PLAY_SCENE: return "PlayScene";
-    case AdsActions::PLAY_SCENE2: return "PlayScene2";
+    case AdsActions::PLAY_ALL_SCENES: return "PlayAllScenes";
     case AdsActions::FADE_OUT: return "FadeOut";
     case AdsActions::END_IF: return "EndIf";
     case AdsActions::END: return "End";
@@ -173,6 +173,16 @@ std::ostream& operator<<(std::ostream& os, const SaveBackground& a)
 std::ostream& operator<<(std::ostream& os, const DrawBackground& a)
 {
     return os << "DrawBackground{}";
+}
+
+std::ostream& operator<<(std::ostream& os, const FadeIn& a)
+{
+    return os << "FadeIn{}";
+}
+
+std::ostream& operator<<(std::ostream& os, const FadeOut& a)
+{
+    return os << "FadeOut{}";
 }
 
 std::ostream& operator<<(std::ostream& os, const Purge& a)

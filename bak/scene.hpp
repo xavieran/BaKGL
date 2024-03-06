@@ -11,6 +11,7 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
+#include <map>
 
 namespace BAK {
 
@@ -76,6 +77,7 @@ struct SceneADS
 {
     unsigned mInitScene;
     unsigned mDrawScene;
+    bool mPlayAllScenes;
 };
 
 struct SceneSequence
@@ -115,7 +117,7 @@ struct DynamicScene
 std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb);
 std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
-std::unordered_map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb);
+std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb);
 
 // Helper during loading
 struct SceneChunk

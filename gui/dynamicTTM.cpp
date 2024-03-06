@@ -1,6 +1,7 @@
 #include "gui/dynamicTTM.hpp"
 
 #include "bak/imageStore.hpp"
+#include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
 
 #include "com/assert.hpp"
@@ -30,7 +31,6 @@ DynamicTTM::DynamicTTM(
     },
     mDialogBackground{},
     mSceneElements{},
-    mClipRegion{},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
 {
     mSceneElements.reserve(100);
@@ -63,7 +63,20 @@ void DynamicTTM::BeginScene()
         mLogger.Debug() << "Key: " << key << "\n";
     }
 
-    mCurrentScene = &(mScenes[mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene]);
+    if (mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mPlayAllScenes)
+    {
+        for (const auto& [key, _] : mScenes)
+        {
+            mAllSceneKeys.emplace_back(key);
+        }
+        mPlayAllScenes = true;
+        mCurrentScene = &(mScenes[mAllSceneKeys[0]]);
+    }
+    else
+    {
+        mCurrentScene = &(mScenes[mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene]);
+    }
+    mLogger.Debug() << "Starting at: " << mCurrentScene->mSceneTag << "\n";
     mCurrentAction = 0;
 }
 
@@ -76,40 +89,10 @@ void DynamicTTM::AdvanceAction()
         overloaded{
             [&](const BAK::SlotPalette& sp){
                 mCurrentPaletteSlot = sp.mSlot;
-
-                if (mImageSlots.contains(mCurrentImageSlot)
-                    && mPaletteSlots.contains(mCurrentPaletteSlot))
-                {
-                    auto textures = Graphics::TextureStore{};
-                    auto& palette = mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData;
-                    BAK::TextureFactory::AddToTextureStore(
-                        textures,
-                        mImageSlots.at(mCurrentImageSlot).mImages,
-                        palette);
-                        
-                    auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
-                    mImageSprites[mCurrentImageSlot] = std::move(temporarySpriteSheet);
-                    mTextures[mCurrentImageSlot] = textures;
-                    mSpriteManager.GetSpriteSheet(mImageSprites[mCurrentImageSlot]->mSpriteSheet).LoadTexturesGL(textures);
-                }
             },
             [&](const BAK::LoadPalette& p){
+                mPaletteSlots.erase(mCurrentPaletteSlot);
                 mPaletteSlots.emplace(mCurrentPaletteSlot, BAK::Palette{p.mPalette});
-                if (mImageSlots.contains(mCurrentImageSlot)
-                    && mPaletteSlots.contains(mCurrentPaletteSlot))
-                {
-                    auto textures = Graphics::TextureStore{};
-                    auto& palette = mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData;
-                    BAK::TextureFactory::AddToTextureStore(
-                        textures,
-                        mImageSlots.at(mCurrentImageSlot).mImages,
-                        palette);
-                        
-                    auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
-                    mImageSprites[mCurrentImageSlot] = std::move(temporarySpriteSheet);
-                    mTextures[mCurrentImageSlot] = textures;
-                    mSpriteManager.GetSpriteSheet(mImageSprites[mCurrentImageSlot]->mSpriteSheet).LoadTexturesGL(textures);
-                }
             },
             [&](const BAK::SlotImage& sp){
                 mCurrentImageSlot = sp.mSlot;
@@ -118,47 +101,104 @@ void DynamicTTM::AdvanceAction()
                 auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mImage);
                 mImageSlots.erase(mCurrentImageSlot);
                 mImageSlots.emplace(mCurrentImageSlot, BAK::LoadImages(fb));
-                auto textures = Graphics::TextureStore{};
-                auto& palette = mPaletteSlots.contains(mCurrentImageSlot)
-                    ? mPaletteSlots.at(mCurrentImageSlot).mPaletteData
-                    : mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData;
-                BAK::TextureFactory::AddToTextureStore(
-                    textures,
-                    mImageSlots.at(mCurrentImageSlot).mImages,
-                    palette);
-                    
-                auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
-                mImageSprites[mCurrentImageSlot] = std::move(temporarySpriteSheet);
-                mTextures[mCurrentImageSlot] = textures;
-                mSpriteManager.GetSpriteSheet(mImageSprites[mCurrentImageSlot]->mSpriteSheet).LoadTexturesGL(textures);
-                mLogger.Debug() << "Loaded image: " << p.mImage << " has " << textures.size() << " textures to slot: " << mCurrentImageSlot << " and pal slot: " << mCurrentPaletteSlot << "\n";
+            },
+            [&](const BAK::LoadScreen& p){
+                auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mScreenName);
+                mScreen = BAK::LoadScreenResource(fb);
             },
             [&](const BAK::DrawScreen& sa){
+                if (mScreen)
+                {
+                    mRenderer.RenderSprite(
+                        *mScreen,
+                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                        glm::ivec2{0, 0},
+                        false,
+                        false);
+                }
             },
             [&](const BAK::DrawSprite& sa){
                 const auto imageSlot = sa.mImageSlot;
-                const auto sceneSprite = ConvertSceneAction(
-                    sa,
-                    mTextures[imageSlot]);
-                auto& elem = mSceneElements.emplace_back(
-                    Graphics::DrawMode::Sprite,
-                    mImageSprites[imageSlot]->mSpriteSheet,
-                    Graphics::TextureIndex{sceneSprite.mImage},
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1},
-                    sceneSprite.mPosition,
-                    sceneSprite.mScale,
+                mRenderer.RenderSprite(
+                    mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
+                    mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                    glm::ivec2{sa.mX, sa.mY},
+                    sa.mFlippedInY,
                     false);
-                mSceneFrame.AddChildBack(&elem);
             },
             [&](const BAK::Update& sr){
+                auto textures = Graphics::TextureStore{};
+                if (mScreen)
+                {
+                    mRenderer.RenderSprite(*mScreen, mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData, glm::ivec2{0, 0}, false, true);
+                }
+                if (mBackgroundImage)
+                {
+                    const auto& texture = *mBackgroundImage;
+                    mRenderer.RenderTexture(texture, glm::ivec2{0, 0}, true);
+                }
+                if (mSavedImage)
+                {
+                    const auto& [texture, pos] = *mSavedImage;
+                    mRenderer.RenderTexture(texture, pos, true);
+                }
+                mRenderer.RenderTexture(mRenderer.SaveImage(glm::ivec2{0, 0}, glm::ivec2{320, 200}), glm::ivec2{0, 0}, true);
+
+                auto bg = mRenderer.GetBackgroundLayer();
+                bg.Invert();
+                textures.AddTexture(bg);
+
+                //auto fg = mRenderer.GetForegroundLayer();
+                //fg.Invert();
+                //textures.AddTexture(fg);
+
+                auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
+                mImageSprites[0] = std::move(temporarySpriteSheet);
+                mSpriteManager.GetSpriteSheet(mImageSprites[0]->mSpriteSheet).LoadTexturesGL(textures);
+
+                mSceneElements.clear();
+                mSceneElements.emplace_back(
+                    Graphics::DrawMode::Sprite,
+                    mImageSprites[0]->mSpriteSheet,
+                    Graphics::TextureIndex{0},
+                    Graphics::ColorMode::Texture,
+                    glm::vec4{1},
+                    glm::vec2{0},
+                    glm::vec2{320, 200},
+                    false 
+                );
+                //mSceneElements.emplace_back(
+                //    Graphics::DrawMode::Sprite,
+                //    mImageSprites[0]->mSpriteSheet,
+                //    Graphics::TextureIndex{1},
+                //    Graphics::ColorMode::Texture,
+                //    glm::vec4{1},
+                //    glm::vec2{0},
+                //    glm::vec2{320, 200},
+                //    false 
+                //);
                 mSceneFrame.ClearChildren();
+                mSceneFrame.AddChildBack(&mSceneElements[0]);
+                //mSceneFrame.AddChildBack(&mSceneElements[1]);
+                mRenderer.Clear();
+            },
+            [&](const BAK::SaveImage& si){
+                mSavedImage = std::make_pair(mRenderer.SaveImage(si.pos, si.dims), si.pos);
+            },
+            [&](const BAK::SaveBackground&){
+                //mBackgroundImage = mRenderer.SaveImage(glm::ivec2{0, 0}, glm::ivec2{320, 200});
             },
             [&](const BAK::DrawRect& sr){
             },
             [&](const BAK::ClipRegion& a){
+                mRenderer.SetClipRegion(a);
             },
             [&](const BAK::DisableClipRegion&){
+                mRenderer.ClearClipRegion();
+            },
+            [&](const BAK::Purge&){
+                mRenderer.ClearClipRegion();
+                mSavedImage.reset();
             },
             [&](const auto&){}
         },
@@ -168,6 +208,26 @@ void DynamicTTM::AdvanceAction()
     if (mCurrentAction == mCurrentScene->mActions.size())
     {
         mLogger.Debug() << "Reached end of scene, next scene is: \n";
+        if (mPlayAllScenes)
+        {
+            mCurrentSequenceScene++;
+            auto it = mAllSceneKeys.begin();
+            std::advance(it, mCurrentSequenceScene);
+            if (it != mAllSceneKeys.end())
+            {
+                mLogger.Debug() << "Next scene key is: " << *it << " from sequence: "
+                    << mCurrentSequenceScene << " -- " << mScenes[*it].mSceneTag << "\n";
+                mCurrentScene = &(mScenes[*it]);
+            }
+            else
+            {
+                mCurrentSequenceScene = 0;
+                mCurrentScene = &(mScenes[mAllSceneKeys[0]]);
+            }
+
+            mCurrentAction = 0;
+            return;
+        }
         mCurrentSequenceScene++;
         if (mCurrentSequenceScene == mSceneSequences[1][mCurrentSequence].mScenes.size())
         {
@@ -191,12 +251,6 @@ void DynamicTTM::AdvanceAction()
 Widget* DynamicTTM::GetScene()
 {
     return &mSceneFrame;
-}
-
-Widget* DynamicTTM::GetBackground()
-{
-    ASSERT(mDialogBackground);
-    return &(*mDialogBackground);
 }
 
 }

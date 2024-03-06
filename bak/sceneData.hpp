@@ -15,22 +15,22 @@ namespace BAK {
 
 enum class AdsActions
 {
-    INDEX         = 0x1030,
-    IF_NOT_PLAYED = 0x1330,
-    IF_PLAYED     = 0x1350,
-    IF_CHAP_LTE   = 0x13a0,
-    IF_CHAP_GTE   = 0x13b0,
-    AND           = 0x1420,
-    OR            = 0x1430,
-    ELSE          = 0x1500,
-    ADD_SCENE2    = 0x2000,
-    ADD_SCENE     = 0x2005,
-    STOP_SCENE    = 0x2010,
-    PLAY_SCENE    = 0x1510,
-    PLAY_SCENE2   = 0x1520,
-    FADE_OUT      = 0xf010,
-    END_IF        = 0xfff0,
-    END           = 0xffff
+    INDEX           = 0x1030,
+    IF_NOT_PLAYED   = 0x1330,
+    IF_PLAYED       = 0x1350,
+    IF_CHAP_LTE     = 0x13a0,
+    IF_CHAP_GTE     = 0x13b0,
+    AND             = 0x1420,
+    OR              = 0x1430,
+    ELSE            = 0x1500,
+    ADD_SCENE2      = 0x2000,
+    ADD_SCENE       = 0x2005,
+    STOP_SCENE      = 0x2010,
+    PLAY_SCENE      = 0x1510,
+    PLAY_ALL_SCENES = 0x1520,
+    FADE_OUT        = 0xf010,
+    END_IF          = 0xfff0,
+    END             = 0xffff
 };
 
 std::string_view ToString(AdsActions a);
@@ -197,6 +197,10 @@ struct SetColors
     std::uint16_t mBackgroundColor;
 };
 
+struct FadeIn
+{
+};
+
 struct FadeOut
 {
 };
@@ -240,6 +244,8 @@ using SceneAction = std::variant<
     Update,
     LoadImage,
     LoadPalette,
+    FadeOut,
+    FadeIn,
     LoadScreen,
     SlotImage,
     ShowDialog,

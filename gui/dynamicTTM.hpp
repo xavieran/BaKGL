@@ -2,6 +2,7 @@
 
 #include "bak/scene.hpp"
 #include "bak/image.hpp"
+#include "bak/spriteRenderer.hpp"
 #include "bak/palette.hpp"
 
 #include "com/logger.hpp"
@@ -23,7 +24,6 @@ public:
         std::string ttmFile);
 
     Widget* GetScene();
-    Widget* GetBackground();
 
     void BeginScene();
     void AdvanceAction();
@@ -34,15 +34,16 @@ private:
     std::optional<Widget> mDialogBackground;
 
     std::vector<Widget> mSceneElements;
-    std::optional<Widget> mClipRegion;
 
     std::unordered_map<unsigned, std::vector<BAK::SceneSequence>> mSceneSequences;
-    std::unordered_map<unsigned, BAK::DynamicScene> mScenes;
+    std::map<unsigned, BAK::DynamicScene> mScenes;
 
     BAK::DynamicScene* mCurrentScene;
     unsigned mCurrentAction = 0;
     unsigned mCurrentSequence = 0;
     unsigned mCurrentSequenceScene = 0;
+    bool mPlayAllScenes = false;
+    std::vector<unsigned> mAllSceneKeys;
 
     struct PaletteSlot
     {
@@ -58,6 +59,11 @@ private:
     std::unordered_map<unsigned, PaletteSlot> mPaletteSlots;
     std::unordered_map<unsigned, Graphics::TextureStore> mTextures;
     std::unordered_map<unsigned, Graphics::SpriteManager::TemporarySpriteSheet> mImageSprites;
+
+    BAK::SpriteRenderer mRenderer;
+    std::optional<std::pair<Graphics::Texture, glm::ivec2>> mSavedImage;
+    std::optional<BAK::Image> mScreen;
+    std::optional<Graphics::Texture> mBackgroundImage;
 
     const Logging::Logger& mLogger;
 };
