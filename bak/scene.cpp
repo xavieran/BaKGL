@@ -708,8 +708,16 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
             else
             {
                 const auto tag = tags.GetTag(Tag{static_cast<unsigned>(chunk.mArguments[0])});
-                assert(tag);
-                sceneTag = *tag;
+                if (!tag)
+                {
+                    std::stringstream ss{};
+                    ss << chunk.mArguments[0];
+                    sceneTag = ss.str();
+                }
+                else
+                {
+                    sceneTag = *tag;
+                }
             }
             currentScene.mSceneTag = sceneTag;
             currentScene.mActions.clear();
