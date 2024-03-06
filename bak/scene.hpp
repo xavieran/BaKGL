@@ -82,6 +82,7 @@ struct SceneADS
 
 struct SceneSequence
 {
+    std::string mName;
     std::vector<SceneADS> mScenes;
 };
 

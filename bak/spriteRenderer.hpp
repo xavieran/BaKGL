@@ -16,7 +16,8 @@ public:
     SpriteRenderer()
     :
         mForegroundLayer{320, 200},
-        mBackgroundLayer{320, 200}
+        mBackgroundLayer{320, 200},
+        mSavedZonesLayer{320, 200}
     {
     }
 
@@ -96,6 +97,7 @@ public:
     {
         mForegroundLayer = Graphics::Texture{320, 200};
         mBackgroundLayer = Graphics::Texture{320, 200};
+        mSavedZonesLayer = Graphics::Texture{320, 200};
     }
 
     Graphics::Texture GetForegroundLayer() const
@@ -128,11 +130,13 @@ public:
                 image.SetPixel(x, y, mForegroundLayer.GetPixel(x + pos.x, y + pos.y));
             }
         }
+
         return image;
     }
 private:
     Graphics::Texture mForegroundLayer;
     Graphics::Texture mBackgroundLayer;
+    Graphics::Texture mSavedZonesLayer;
     std::optional<BAK::ClipRegion> mClipRegion;
 };
 

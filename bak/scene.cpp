@@ -260,6 +260,7 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
                     throw std::runtime_error("Tag not found");
 
                 // Reset the state for next scene index
+                currentSequence.mName = *sceneName;
                 sceneIndices.at(*currentIndex).emplace_back(currentSequence);
                 currentSequence = {};
             } break;
@@ -270,6 +271,7 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
                 if (!sceneName)
                     throw std::runtime_error("Tag not found");
                 currentSequence = {};
+                currentSequence.mName = *sceneName;
                 currentSequence.mScenes.emplace_back(SceneADS(0, 0, true));
                 // Reset the state for next scene index
                 sceneIndices.at(*currentIndex).emplace_back(currentSequence);
@@ -350,18 +352,22 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         if ((code == 0x1110) && (size == 1))
         {
             unsigned int id = decompBuffer.GetUint16LE();
-            if (const auto name = tags.GetTag(Tag{id}))
+            auto name = tags.GetTag(Tag{id});
+            if (!name)
             {
-                ss << " Name: " << *name;
-                chunks.emplace_back(action, name, std::vector<std::int16_t>{});
+                std::stringstream ids{};
+                ids << "Unknown[" << id << "]";
+                name = ids.str();
             }
+            ss << " Name: " << *name << " id [" << id <<"]";
+            chunks.emplace_back(action, name, std::vector<std::int16_t>{static_cast<int16_t>(id)});
         }
         else if (size == 0xf)
         {
             std::string name = ToUpper(decompBuffer.GetString());
-            ss << " Name: " << name;
+            ss << " Name: " << name << " noId";
             if (decompBuffer.GetBytesLeft() & 1) decompBuffer.Skip(1);
-            chunks.emplace_back(action, name, std::vector<std::int16_t>{});
+            chunks.emplace_back(action, name, std::vector<std::int16_t>{-1});
         }
         else
         {
@@ -598,6 +604,7 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
 
     Tags tags{};
     tags.Load(tagBuffer);
+    tags.DumpTags();
 
     while (!decompBuffer.AtEnd())
     {
@@ -612,11 +619,15 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         if ((code == 0x1110) && (size == 1))
         {
             unsigned int id = decompBuffer.GetUint16LE();
-            if (const auto name = tags.GetTag(Tag{id}))
+            auto name = tags.GetTag(Tag{id});
+            if (!name)
             {
-                ss << " Name: " << *name;
-                chunks.emplace_back(action, name, std::vector<std::int16_t>{});
+                std::stringstream ids{};
+                ids << id;
+                name = ids.str();
             }
+            ss << " Name: " << *name << " id [" << id <<"]";
+            chunks.emplace_back(action, name, std::vector<std::int16_t>{});
         }
         else if (size == 0xf)
         {
@@ -663,7 +674,12 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         }
         else
         {
-            throw std::runtime_error("Tag not found");
+            std::stringstream ss{};
+            ss << currentScene.mSceneTag;
+            unsigned tagId;
+            ss >> tagId;
+            scenes[tagId] = currentScene;
+            //throw std::runtime_error("Tag not found");
         }
     };
 
@@ -677,15 +693,28 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         case Actions::SLOT_PALETTE:
             currentScene.mActions.emplace_back(SlotPalette{static_cast<unsigned>(chunk.mArguments[0])});
             break;
+        //case Actions::SET_SCENEB: [[fallthrough]];
+        case Actions::SET_SCENEA: [[fallthrough]];
         case Actions::SET_SCENE:
+        {
             if (loadingScene)
                 PushScene();
 
-            ASSERT(chunk.mResourceName);
-            currentScene.mSceneTag = *chunk.mResourceName;
+            std::string sceneTag{};
+            if (chunk.mResourceName)
+            {
+                sceneTag = *chunk.mResourceName;
+            }
+            else
+            {
+                const auto tag = tags.GetTag(Tag{static_cast<unsigned>(chunk.mArguments[0])});
+                assert(tag);
+                sceneTag = *tag;
+            }
+            currentScene.mSceneTag = sceneTag;
             currentScene.mActions.clear();
             loadingScene = true;
-            break;
+        } break;
 
         case Actions::SET_CLIP_REGION:
             // Transform this to opengl coords...

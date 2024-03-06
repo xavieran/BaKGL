@@ -1,5 +1,7 @@
 #include "bak/tags.hpp"
 
+#include "com/logger.hpp"
+
 namespace BAK {
 
 void Tags::Load(FileBuffer& fb)
@@ -41,6 +43,18 @@ std::optional<Tag > Tags::FindTag(const std::string& tag) const
     else
     {
         return std::nullopt;
+    }
+}
+
+void Tags::DumpTags() const
+{
+    if (mTags.size() == 0)
+    {
+        Logging::LogDebug(__FUNCTION__) << "No Tags\n";
+    }
+    for (const auto& [key, tag] : mTags)
+    {
+        Logging::LogDebug(__FUNCTION__) << " Key - " << key << " tag: " << tag << "\n";
     }
 }
 

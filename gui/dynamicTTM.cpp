@@ -50,7 +50,7 @@ void DynamicTTM::BeginScene()
         mLogger.Debug() << "Key: " << key << "\n";
         for (const auto& sequence : sequences)
         {
-            mLogger.Debug() << "  Sequence\n";
+            mLogger.Debug() << "  Sequence: " << sequence.mName << "\n";
             for (const auto& scene : sequence.mScenes)
             {
                 mLogger.Debug() << "    ADS(" << scene.mInitScene << ", " << scene.mDrawScene << ")\n";
@@ -60,7 +60,7 @@ void DynamicTTM::BeginScene()
     mLogger.Debug() << "Scenes" << "\n";
     for (const auto& [key, scene] : mScenes)
     {
-        mLogger.Debug() << "Key: " << key << "\n";
+        mLogger.Debug() << "Key: " << key << " - " << scene.mSceneTag << "\n";
     }
 
     if (mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mPlayAllScenes)
@@ -107,7 +107,7 @@ void DynamicTTM::AdvanceAction()
                 mScreen = BAK::LoadScreenResource(fb);
             },
             [&](const BAK::DrawScreen& sa){
-                if (mScreen)
+                if (mScreen && mPaletteSlots.contains(mCurrentPaletteSlot))
                 {
                     mRenderer.RenderSprite(
                         *mScreen,
@@ -119,6 +119,10 @@ void DynamicTTM::AdvanceAction()
             },
             [&](const BAK::DrawSprite& sa){
                 const auto imageSlot = sa.mImageSlot;
+                assert(mImageSlots.contains(sa.mImageSlot));
+                assert(static_cast<unsigned>(sa.mSpriteIndex) 
+                        < mImageSlots.at(sa.mImageSlot).mImages.size());
+
                 mRenderer.RenderSprite(
                     mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
                     mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
