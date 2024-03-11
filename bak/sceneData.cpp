@@ -77,7 +77,7 @@ std::string_view ToString(Actions a)
     case Actions::DRAW_SPRITE_FLIP_Y: return "DrawSpriteFlipY";
     case Actions::DRAW_SPRITE_FLIP_XY: return "DrawSpriteFlipXY";
     case Actions::DRAW_SPRITE_ROTATE: return "DrawSpriteRotate";
-    case Actions::DRAW_SPRITEB: return "DRAWSPRITEB";
+    case Actions::CLEAR_SCREEN: return "DRAWSPRITEB";
     case Actions::DRAW_SCREEN: return "DrawScreen";
     case Actions::LOAD_SOUND_RESOURCE: return "LoadSoundResource";
     case Actions::SELECT_SOUND: return "SelectSound";
@@ -118,6 +118,12 @@ std::ostream& operator<<(std::ostream& os, const SetScene& ss)
 std::ostream& operator<<(std::ostream& os, const LoadScreen& ls)
 {
     os << "LoadScreen {" << ls.mScreenName << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ClearScreen& ls)
+{
+    os << "ClearScreen {}";
     return os;
 }
 

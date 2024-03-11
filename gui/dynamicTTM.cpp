@@ -109,6 +109,7 @@ void DynamicTTM::AdvanceAction()
                 mScreen = BAK::LoadScreenResource(fb);
             },
             [&](const BAK::DrawScreen& sa){
+                mRenderer.GetSavedZonesLayer() = {320, 200};
                 if (mScreen && mPaletteSlots.contains(mCurrentPaletteSlot))
                 {
                     mRenderer.RenderSprite(
@@ -116,7 +117,7 @@ void DynamicTTM::AdvanceAction()
                         mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
                         glm::ivec2{0, 0},
                         false,
-                        false);
+                        mRenderer.GetForegroundLayer());
                 }
             },
             [&](const BAK::DrawSprite& sa){
@@ -130,25 +131,24 @@ void DynamicTTM::AdvanceAction()
                     mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
                     glm::ivec2{sa.mX, sa.mY},
                     sa.mFlippedInY,
-                    false);
+                    mRenderer.GetForegroundLayer());
             },
             [&](const BAK::Update& sr){
                 auto textures = Graphics::TextureStore{};
                 if (mScreen)
                 {
-                    mRenderer.RenderSprite(*mScreen, mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData, glm::ivec2{0, 0}, false, true);
+                    mRenderer.RenderSprite(*mScreen, mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData, glm::ivec2{0, 0}, false, mRenderer.GetBackgroundLayer());
                 }
                 if (mBackgroundImage)
                 {
                     const auto& texture = *mBackgroundImage;
-                    mRenderer.RenderTexture(texture, glm::ivec2{0, 0}, true);
+                    mRenderer.RenderTexture(texture, glm::ivec2{0, 0}, mRenderer.GetBackgroundLayer());
                 }
-                if (mSavedImage)
-                {
-                    const auto& [texture, pos] = *mSavedImage;
-                    mRenderer.RenderTexture(texture, pos, true);
-                }
-                mRenderer.RenderTexture(mRenderer.SaveImage(glm::ivec2{0, 0}, glm::ivec2{320, 200}), glm::ivec2{0, 0}, true);
+                mRenderer.RenderTexture(mRenderer.GetSavedZonesLayer(), glm::ivec2{0}, mRenderer.GetBackgroundLayer());
+                mRenderer.RenderTexture(
+                    mRenderer.GetForegroundLayer(),
+                    glm::ivec2{0, 0},
+                    mRenderer.GetBackgroundLayer());
 
                 auto bg = mRenderer.GetBackgroundLayer();
                 bg.Invert();
@@ -184,15 +184,18 @@ void DynamicTTM::AdvanceAction()
                 //    false 
                 //);
                 mSceneFrame.ClearChildren();
-                mSceneFrame.AddChildBack(&mSceneElements[0]);
-                //mSceneFrame.AddChildBack(&mSceneElements[1]);
-                mRenderer.Clear();
+                for (auto& element : mSceneElements)
+                {
+                    mSceneFrame.AddChildBack(&element);
+                }
+                mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200};
+                mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200};
             },
             [&](const BAK::SaveImage& si){
-                mSavedImage = std::make_pair(mRenderer.SaveImage(si.pos, si.dims), si.pos);
+                mRenderer.SaveImage(si.pos, si.dims);
             },
             [&](const BAK::SaveBackground&){
-                //mBackgroundImage = mRenderer.SaveImage(glm::ivec2{0, 0}, glm::ivec2{320, 200});
+                mRenderer.SaveImage({0, 0}, {320, 200});
             },
             [&](const BAK::DrawRect& sr){
             },
@@ -204,7 +207,7 @@ void DynamicTTM::AdvanceAction()
             },
             [&](const BAK::Purge&){
                 mRenderer.ClearClipRegion();
-                mSavedImage.reset();
+                mRenderer.Clear();
             },
             [&](const auto&){}
         },
@@ -213,7 +216,9 @@ void DynamicTTM::AdvanceAction()
 
     if (mCurrentAction == mCurrentScene->mActions.size())
     {
+        mBackgroundImage.reset();
         mLogger.Debug() << "Reached end of scene, next scene is: \n";
+        mRenderer.Clear(); // is this always the case..?
         if (mPlayAllScenes)
         {
             mCurrentSequenceScene++;

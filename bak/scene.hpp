@@ -120,6 +120,8 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
 std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb);
 
+FileBuffer DecompressTTM(FileBuffer& fb);
+
 // Helper during loading
 struct SceneChunk
 {

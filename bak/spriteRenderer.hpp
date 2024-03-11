@@ -24,7 +24,7 @@ public:
     void RenderTexture(
         const Graphics::Texture& texture,
         glm::ivec2 pos,
-        bool background = false)
+        Graphics::Texture& layer)
     {
         for (int x = 0; x < static_cast<int>(texture.GetWidth()); x++)
         {
@@ -43,7 +43,6 @@ public:
                 if (std::abs(0.0 - color.a) < .0001) continue;
                 if (pixelPos.x > 320 || pixelPos.y > 200) continue;
 
-                auto& layer = background ? mBackgroundLayer : mForegroundLayer;
                 layer.SetPixel(
                     pixelPos.x,
                     pixelPos.y,
@@ -57,7 +56,7 @@ public:
         BAK::Palette palette,
         glm::ivec2 pos,
         bool flipped,
-        bool background=false)
+        Graphics::Texture& layer)
     {
         for (int x = 0; x < static_cast<int>(sprite.GetWidth()); x++)
         {
@@ -66,7 +65,7 @@ public:
                 const auto pixelPos = pos + glm::ivec2{
                     flipped ? sprite.GetWidth() - x : x,
                     y};
-                if (mClipRegion)
+                if (mClipRegion)// && !background)
                 {
                     if (pixelPos.x < mClipRegion->mTopLeft.x || pixelPos.x > mClipRegion->mBottomRight.x
                         || pixelPos.y < mClipRegion->mTopLeft.y || pixelPos.y > mClipRegion->mBottomRight.y)
@@ -84,7 +83,6 @@ public:
                 if (pixelPos.x > 320
                     || pixelPos.y > 200) continue;
 
-                auto& layer = background ? mBackgroundLayer : mForegroundLayer;
                 layer.SetPixel(
                     pixelPos.x,
                     pixelPos.y,
@@ -100,14 +98,19 @@ public:
         mSavedZonesLayer = Graphics::Texture{320, 200};
     }
 
-    Graphics::Texture GetForegroundLayer() const
+    Graphics::Texture& GetForegroundLayer()
     {
         return mForegroundLayer;
     }
 
-    Graphics::Texture GetBackgroundLayer() const
+    Graphics::Texture& GetBackgroundLayer()
     {
         return mBackgroundLayer;
+    }
+
+    Graphics::Texture& GetSavedZonesLayer()
+    {
+        return mSavedZonesLayer;
     }
 
     void SetClipRegion(BAK::ClipRegion clipRegion)
@@ -131,8 +134,10 @@ public:
             }
         }
 
+        RenderTexture(image, pos, mSavedZonesLayer);
         return image;
     }
+
 private:
     Graphics::Texture mForegroundLayer;
     Graphics::Texture mBackgroundLayer;

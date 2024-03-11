@@ -332,21 +332,35 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
 
     logger.Debug() << "Version size: " << versionBuffer.GetSize() << "\n";
 
-    tt3Buffer.Skip(1);
-    FileBuffer decompBuffer = FileBuffer(tt3Buffer.GetUint32LE());
-    auto decomped = tt3Buffer.DecompressRLE(&decompBuffer);
+    auto compression = tt3Buffer.GetUint8();
+    auto decompressedSize = tt3Buffer.GetUint32LE();
+    FileBuffer decompBuffer = FileBuffer(decompressedSize);
+    logger.Debug() << "TT3 size: " << decompressedSize << "\n";
+    if (compression == 1)
+    {
+        logger.Debug() << "RLE Compressed\n";
+        tt3Buffer.DecompressRLE(&decompBuffer);
+    }
+    else
+    {
+        logger.Debug() << "No compression\n";
+        tt3Buffer.CopyTo(&decompBuffer, decompressedSize);
+    }
 
     Tags tags{};
     tags.Load(tagBuffer);
 
+    auto offset = 8 * 3 + pageBuffer.GetSize() + versionBuffer.GetSize() + 5;
+
     while (!decompBuffer.AtEnd())
     {
+        unsigned location = decompBuffer.Tell() + offset;
         unsigned int code = decompBuffer.GetUint16LE();
         unsigned int size = code & 0x000f;
         code &= 0xfff0;
         auto action = static_cast<Actions>(code);
         std::stringstream ss{};
-        ss << "Code: " << std::hex << code << " " 
+        ss << "off: " << std::hex << location << " |Code: " << std::hex << code << " " 
             << action << std::dec;
         
         if ((code == 0x1110) && (size == 1))
@@ -557,6 +571,10 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
             flipped = false;
         } break;
+        case Actions::CLEAR_SCREEN:
+        {
+            currentScene.mActions.emplace_back(ClearScreen{});
+        } break;
         case Actions::UPDATE:
         {
             currentScene.mActions.emplace_back(Update{});
@@ -598,9 +616,19 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
 
     logger.Debug() << "Version size: " << versionBuffer.GetSize() << "\n";
 
-    tt3Buffer.Skip(1);
-    FileBuffer decompBuffer = FileBuffer(tt3Buffer.GetUint32LE());
-    auto decomped = tt3Buffer.DecompressRLE(&decompBuffer);
+    auto compression = tt3Buffer.GetUint8();
+    auto decompressedSize = tt3Buffer.GetUint32LE();
+    FileBuffer decompBuffer = FileBuffer(decompressedSize);
+    if (compression == 1)
+    {
+        logger.Debug() << "RLE Compressed\n";
+        tt3Buffer.DecompressRLE(&decompBuffer);
+    }
+    else
+    {
+        logger.Debug() << "No compression\n";
+        tt3Buffer.CopyTo(&decompBuffer, decompressedSize);
+    }
 
     Tags tags{};
     tags.Load(tagBuffer);
@@ -693,7 +721,6 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         case Actions::SLOT_PALETTE:
             currentScene.mActions.emplace_back(SlotPalette{static_cast<unsigned>(chunk.mArguments[0])});
             break;
-        //case Actions::SET_SCENEB: [[fallthrough]];
         case Actions::SET_SCENEA: [[fallthrough]];
         case Actions::SET_SCENE:
         {
@@ -846,5 +873,65 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
     PushScene();
 
     return scenes;
+}
+
+FileBuffer DecompressTTM(FileBuffer& fb)
+{
+    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
+
+
+    auto pageBuffer    = fb.Find(DataTag::PAG);
+    auto versionBuffer = fb.Find(DataTag::VER);
+    auto tt3Buffer     = fb.Find(DataTag::TT3);
+    auto tagBuffer     = fb.Find(DataTag::TAG);
+    
+    const auto pages = pageBuffer.GetUint16LE();
+    logger.Debug() << "Pages:" << pages << " size: " << pageBuffer.GetSize() << "\n";
+
+    logger.Debug() << "Version: " << versionBuffer.GetString() << "\n";
+
+    auto compression = tt3Buffer.GetUint8();
+    logger.Debug() << "Compression: " << +compression << "\n";
+    auto size = tt3Buffer.GetUint32LE();
+    logger.Debug() << "Decompressed size: " << size << "\n";
+    FileBuffer decompBuffer = FileBuffer(size);
+    auto decomped = tt3Buffer.DecompressRLE(&decompBuffer);
+    logger.Debug() << "Decompressed bytes: " << decomped << "\n";
+
+
+    Tags tags{};
+    tags.Load(tagBuffer);
+    tags.DumpTags();
+
+    auto decompressedTTM = FileBuffer(
+        pageBuffer.GetSize() + 8
+        + versionBuffer.GetSize() + 8
+        + tagBuffer.GetSize() + 8 
+        + 1 + 4 + decomped + 8);
+
+
+    decompressedTTM.PutUint32LE(static_cast<std::uint32_t>(DataTag::VER));
+    decompressedTTM.PutUint32LE(versionBuffer.GetSize());
+    versionBuffer.Rewind();
+    versionBuffer.CopyTo(&decompressedTTM, versionBuffer.GetSize());
+
+    decompressedTTM.PutUint32LE(static_cast<std::uint32_t>(DataTag::PAG));
+    decompressedTTM.PutUint32LE(pageBuffer.GetSize());
+    pageBuffer.Rewind();
+    pageBuffer.CopyTo(&decompressedTTM, pageBuffer.GetSize());
+
+    decompressedTTM.PutUint32LE(static_cast<std::uint32_t>(DataTag::TT3));
+    decompressedTTM.PutUint32LE(1 + 4 + decomped);
+    decompressedTTM.PutUint8(0);
+    decompressedTTM.PutUint32LE(decomped);
+    decompBuffer.Rewind();
+    decompBuffer.CopyTo(&decompressedTTM, decompBuffer.GetSize());
+
+    decompressedTTM.PutUint32LE(static_cast<std::uint32_t>(DataTag::TAG));
+    decompressedTTM.PutUint32LE(tagBuffer.GetSize());
+    tagBuffer.Rewind();
+    tagBuffer.CopyTo(&decompressedTTM, tagBuffer.GetSize());
+
+    return decompressedTTM;
 }
 }

@@ -77,7 +77,7 @@ enum class Actions
     DRAW_SPRITE_FLIP_Y  = 0xa520,
     DRAW_SPRITE_FLIP_XY = 0xa530,
     DRAW_SPRITE_ROTATE  = 0xa5a0,
-    DRAW_SPRITEB        = 0xa600, // CLEAR_SCREEN
+    CLEAR_SCREEN        = 0xa600, // CLEAR_SCREEN
     DRAW_SCREEN         = 0xb600,
     LOAD_SOUND_RESOURCE = 0xc020,
     SELECT_SOUND        = 0xc030,
@@ -104,6 +104,10 @@ std::ostream& operator<<(std::ostream&, const SetScene&);
 struct LoadScreen
 { 
     std::string mScreenName;
+};
+
+struct ClearScreen
+{
 };
 
 struct DrawRect
@@ -231,6 +235,7 @@ struct ShowDialog
 };
 
 using SceneAction = std::variant<
+    ClearScreen,
     ClipRegion,
     Delay,
     DisableClipRegion,

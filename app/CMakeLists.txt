@@ -1,4 +1,5 @@
 list(APPEND APP_BINARIES
+    decomp_ttm
     dialog_explorer
     display_dialog
     display_encounters
@@ -7,6 +8,7 @@ list(APPEND APP_BINARIES
     display_gds
     display_object
     display_save
+    display_sound
     display_spells
     display_tbl
     display_tile

@@ -61,7 +61,6 @@ private:
     std::unordered_map<unsigned, Graphics::SpriteManager::TemporarySpriteSheet> mImageSprites;
 
     BAK::SpriteRenderer mRenderer;
-    std::optional<std::pair<Graphics::Texture, glm::ivec2>> mSavedImage;
     std::optional<BAK::Image> mScreen;
     std::optional<Graphics::Texture> mBackgroundImage;
 
