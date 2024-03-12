@@ -56,7 +56,7 @@ std::string_view ToString(Actions a)
     case Actions::DELAY: return "Delay";
     case Actions::SLOT_IMAGE: return "SlotImage";
     case Actions::SLOT_PALETTE: return "SlotPalette";
-    case Actions::SLOT_UNKNOWN: return "SLOTUNKNOWN";
+    case Actions::SLOT_FONT: return "SlotFont";
     case Actions::SET_SCENE: return "SetScene";
     case Actions::SET_SCENEA: return "SETSCENEA";
     case Actions::SET_SCENEB: return "SETSCENEB";
@@ -87,7 +87,7 @@ std::string_view ToString(Actions a)
     case Actions::LOAD_SCREEN: return "LoadScreen";
     case Actions::LOAD_IMAGE: return "LoadImage";
     case Actions::LOAD_PALETTE: return "LoadPalette";
-    case Actions::LOAD_UNKNOWN: return "LOAD_UNKNOWN";
+    case Actions::LOAD_FONT: return "LoadFont";
     case Actions::SET_CLIP_REGION: return "SetClipRegion";
     case Actions::UNKNOWN_A: return "UNKNOWN_A";
     case Actions::UNKNOWN3: return "UNKNOWN3";

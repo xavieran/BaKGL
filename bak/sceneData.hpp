@@ -54,7 +54,7 @@ enum class Actions
     DELAY               = 0x1020,
     SLOT_IMAGE          = 0x1050,
     SLOT_PALETTE        = 0x1060,
-    SLOT_UNKNOWN        = 0x1070,
+    SLOT_FONT           = 0x1070,
     SET_SCENEA          = 0x1100, // Local taG?
     SET_SCENE           = 0x1110, // TAG??
     SET_SCENEB          = 0x1120, // SET BACKGROUND
@@ -91,7 +91,7 @@ enum class Actions
     STOP_SOUND          = 0xc060,
     LOAD_SCREEN         = 0xf010,
     LOAD_IMAGE          = 0xf020,
-    LOAD_UNKNOWN        = 0xf040,
+    LOAD_FONT           = 0xf040,
     LOAD_PALETTE        = 0xf050
 };
 
