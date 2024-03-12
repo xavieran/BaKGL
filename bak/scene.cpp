@@ -203,6 +203,7 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
     
     Tags tags{};
     tags.Load(tagbuf);
+    tags.DumpTags();
 
     std::optional<unsigned> currentIndex{};
 
@@ -349,6 +350,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
 
     Tags tags{};
     tags.Load(tagBuffer);
+    tags.DumpTags();
 
     auto offset = 8 * 3 + pageBuffer.GetSize() + versionBuffer.GetSize() + 5;
 
@@ -503,9 +505,9 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         } break;
 
         case Actions::SET_COLOR:
-            ASSERT(paletteSlot);
+            //ASSERT(paletteSlot);
             activeColor = std::make_pair(
-                *paletteSlot,
+                paletteSlot ? *paletteSlot : 0,
                 chunk.mArguments[0]);
             break;
 
@@ -526,7 +528,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         case Actions::LOAD_SCREEN:
         {
             ASSERT(chunk.mResourceName);
-            ASSERT(paletteSlot);
+            if (!paletteSlot) break;
             auto name = *chunk.mResourceName;
             (*(name.end() - 1)) = 'X';
             screens[*paletteSlot] = std::make_pair(name, *paletteSlot);
@@ -589,7 +591,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 Delay{static_cast<unsigned>(chunk.mArguments[0])});
         } break;
         default:
-            logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
+            //logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
             break;
         }
     }

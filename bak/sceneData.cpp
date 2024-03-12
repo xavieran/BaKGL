@@ -51,8 +51,8 @@ std::string_view ToString(Actions a)
     case Actions::PURGE: return "Purge";
     case Actions::UPDATE: return "Update";
     case Actions::DO_SOMETHING_A: return "DOSOMETHINGA";
-    case Actions::DO_SOMETHING_B: return "DOSOMETHINGB";
-    case Actions::DO_SOMETHING_C: return "DOSOMETHINGC";
+    case Actions::DISABLE_CLEAR: return "DisableClear";
+    case Actions::ENABLE_CLEAR: return "EnableClear";
     case Actions::DELAY: return "Delay";
     case Actions::SLOT_IMAGE: return "SlotImage";
     case Actions::SLOT_PALETTE: return "SlotPalette";
@@ -60,7 +60,7 @@ std::string_view ToString(Actions a)
     case Actions::SET_SCENE: return "SetScene";
     case Actions::SET_SCENEA: return "SETSCENEA";
     case Actions::SET_SCENEB: return "SETSCENEB";
-    case Actions::SET_SCENEC: return "SETSCENEC";
+    case Actions::GOTO_TAG: return "GotoTag";
     case Actions::SET_COLOR: return "SetColors";
     case Actions::SHOW_DIALOG: return "ShowDialog";
     case Actions::FADE_OUT: return "FadeOut";
@@ -93,6 +93,7 @@ std::string_view ToString(Actions a)
     case Actions::UNKNOWN3: return "UNKNOWN3";
     case Actions::UNKNOWN4: return "UNKNOWN4";
     case Actions::DRAW_FRAME: return "DrawFrame";
+    case Actions::DRAW_TEXT: return "DrawText";
     case Actions::UNKNOWN6: return "UNKNOWN6";
     case Actions::UNKNOWN7: return "UNKNOWN7";
     default:

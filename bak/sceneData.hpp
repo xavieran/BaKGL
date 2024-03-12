@@ -43,10 +43,14 @@ enum class Actions
     DRAW_BACKGROUND     = 0x0080,
     DRAW_BACKGROUND_B   = 0x00c0,
     PURGE               = 0x0110,
+    // Purge means jump out of this scene
+    // if no purge, then we continue looping through the
+    // actions. This is how C12 archer works...
     UPDATE              = 0x0ff0,
     DO_SOMETHING_A      = 0x0400,
-    DO_SOMETHING_B      = 0x0500,
-    DO_SOMETHING_C      = 0x0510,
+    // Don't clear sprites between updates...
+    DISABLE_CLEAR       = 0x0500,
+    ENABLE_CLEAR        = 0x0510,
     DELAY               = 0x1020,
     SLOT_IMAGE          = 0x1050,
     SLOT_PALETTE        = 0x1060,
@@ -54,7 +58,7 @@ enum class Actions
     SET_SCENEA          = 0x1100, // Local taG?
     SET_SCENE           = 0x1110, // TAG??
     SET_SCENEB          = 0x1120, // SET BACKGROUND
-    SET_SCENEC          = 0x1200, // GOTO TAG
+    GOTO_TAG            = 0x1200, // GOTO TAG
     SET_COLOR           = 0x2000, // SET_COLOR
     SHOW_DIALOG         = 0x2010, 
     UNKNOWN3            = 0x2300,
@@ -66,12 +70,13 @@ enum class Actions
     FADE_IN             = 0x4120,
     SAVE_IMAGE0         = 0x4200, // DRAW_BACKGROUND_REGION
     SAVE_IMAGE1         = 0x4210, // SAVE_IMIAGE_REGION
-    SET_UNKNOWN         = 0xa090,
     SET_WINDOWA         = 0xa010,
     SET_WINDOWB         = 0xa030,
+    SET_UNKNOWN         = 0xa090,
     SET_WINDOWC         = 0xa0b0, // draw line?
     DRAW_RECT           = 0xa100,
     DRAW_FRAME          = 0xa110, 
+    DRAW_TEXT           = 0xa200,
     DRAW_SPRITE0        = 0xa500,
     DRAW_SPRITE1        = 0xa510,
     DRAW_SPRITE_FLIP_Y  = 0xa520,

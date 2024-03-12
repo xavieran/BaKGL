@@ -249,7 +249,7 @@ void DynamicTTM::AdvanceAction()
         if (mCurrentSequence == mSceneSequences[1].size())
         {
             mLogger.Debug() << "Finished, start again\n";
-            mCurrentSequence = 0;
+            mCurrentSequence = 3;
         }
         const auto scene = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
         mCurrentScene = &mScenes[scene];
