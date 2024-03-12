@@ -809,7 +809,7 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
         {
             actions.emplace_back(
                 ShowDialog{
-                    chunk.mArguments[1] == 0xff,
+                    chunk.mArguments[1] == 0xff || chunk.mArguments[0] == 0xff,
                     DialogSources::GetTTMDialogKey(chunk.mArguments[0])});
         } break;
         case Actions::DRAW_RECT:
