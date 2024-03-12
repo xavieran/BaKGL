@@ -10,16 +10,22 @@
 #include "graphics/guiTypes.hpp"
 #include "graphics/sprites.hpp"
 
+#include "gui/animatorStore.hpp"
 #include "gui/scene.hpp"
+#include "gui/dialogDisplay.hpp"
 #include "gui/core/widget.hpp"
 
 namespace Gui {
 
-class DynamicTTM 
+class DynamicTTM : public NullDialogScene
 {
+    
 public:
     DynamicTTM(
         Graphics::SpriteManager& spriteManager,
+        AnimatorStore& animatorStore,
+        const Font& font,
+        const Backgrounds& background,
         std::string adsFile,
         std::string ttmFile);
 
@@ -29,21 +35,30 @@ public:
     void AdvanceAction();
 
 private:
+    void AdvanceToNextScene();
+    unsigned FindActionMatchingTag(unsigned tag);
+    void RenderDialog(const BAK::ShowDialog&);
+
     Graphics::SpriteManager& mSpriteManager;
+    AnimatorStore& mAnimatorStore;
+    const Font& mFont;
     Widget mSceneFrame;
-    std::optional<Widget> mDialogBackground;
+    Widget mDialogBackground;
+    Widget mRenderedElements;
+
+    TextBox mLowerTextBox;
+    Button mPopup;
+    TextBox mPopupText;
 
     std::vector<Widget> mSceneElements;
 
     std::unordered_map<unsigned, std::vector<BAK::SceneSequence>> mSceneSequences;
-    std::map<unsigned, BAK::DynamicScene> mScenes;
+    std::vector<BAK::SceneAction> mActions;
 
-    BAK::DynamicScene* mCurrentScene;
+    double mDelay = 0;
     unsigned mCurrentAction = 0;
     unsigned mCurrentSequence = 0;
     unsigned mCurrentSequenceScene = 0;
-    bool mPlayAllScenes = false;
-    std::vector<unsigned> mAllSceneKeys;
 
     struct PaletteSlot
     {

@@ -11,8 +11,8 @@
 #include "graphics/texture.hpp"
 
 #include "gui/actors.hpp"
+#include "gui/animatorStore.hpp"
 #include "gui/backgrounds.hpp"
-#include "gui/guiManager.hpp"
 #include "gui/dynamicTTM.hpp"
 #include "gui/core/mouseEvent.hpp"
 #include "gui/window.hpp"
@@ -90,12 +90,17 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
+    Gui::AnimatorStore animatorStore{};
 
     auto dynamicTTM = Gui::DynamicTTM{
         spriteManager,
+        animatorStore,
+        font,
+        backgrounds,
         basename + ".ADS",
         basename + ".TTM"
     };
+
     dynamicTTM.BeginScene();
 
     rootWidget.AddChildBack(dynamicTTM.GetScene());
@@ -154,9 +159,15 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
+    double currentTime = 0;
+    double lastTime = 0;
     do
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        currentTime = glfwGetTime();
+        animatorStore.OnTimeDelta(currentTime - lastTime);
+        lastTime = currentTime;
 
         guiRenderer.RenderGui(&rootWidget);
 

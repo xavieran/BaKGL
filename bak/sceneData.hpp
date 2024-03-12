@@ -236,6 +236,7 @@ struct SlotPalette
 
 struct ShowDialog
 {
+    bool mClearDialog;
     KeyTarget mDialogKey;
 };
 
@@ -257,6 +258,7 @@ using SceneAction = std::variant<
     FadeOut,
     FadeIn,
     LoadScreen,
+    SetScene,
     SlotImage,
     ShowDialog,
     SlotPalette>;

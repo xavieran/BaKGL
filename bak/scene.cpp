@@ -271,11 +271,9 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
                 const auto sceneName = tags.GetTag(Tag{*currentIndex});
                 if (!sceneName)
                     throw std::runtime_error("Tag not found");
-                currentSequence = {};
                 currentSequence.mName = *sceneName;
-                currentSequence.mScenes.emplace_back(SceneADS(0, 0, true));
-                // Reset the state for next scene index
                 sceneIndices.at(*currentIndex).emplace_back(currentSequence);
+                currentSequence = {};
             } break;
             case AdsActions::END:
             {
@@ -602,7 +600,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     return scenes;
 }
 
-std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
+std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
@@ -688,55 +686,45 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         logger.Debug() << ss.str() << "\n";
     }
 
-    std::map<unsigned, DynamicScene> scenes{};
+    std::vector<SceneAction> actions{};
 
-    DynamicScene currentScene;
-    bool loadingScene = false;
     bool flipped = false;
-
-    const auto PushScene = [&]{
-        currentScene.mActions.emplace_back(DisableClipRegion{});
-
-        const auto tag = tags.FindTag(currentScene.mSceneTag);
-        if (tag)
-        {
-            scenes[tag->mValue] = currentScene;
-        }
-        else
-        {
-            std::stringstream ss{};
-            ss << currentScene.mSceneTag;
-            unsigned tagId;
-            ss >> tagId;
-            scenes[tagId] = currentScene;
-            //throw std::runtime_error("Tag not found");
-        }
-    };
 
     for (const auto& chunk : chunks)
     {
         switch (chunk.mAction)
         {
         case Actions::SLOT_IMAGE:
-            currentScene.mActions.emplace_back(SlotImage{static_cast<unsigned>(chunk.mArguments[0])});
+            actions.emplace_back(SlotImage{static_cast<unsigned>(chunk.mArguments[0])});
             break;
         case Actions::SLOT_PALETTE:
-            currentScene.mActions.emplace_back(SlotPalette{static_cast<unsigned>(chunk.mArguments[0])});
+            actions.emplace_back(SlotPalette{static_cast<unsigned>(chunk.mArguments[0])});
             break;
         case Actions::SET_SCENEA: [[fallthrough]];
         case Actions::SET_SCENE:
         {
-            if (loadingScene)
-                PushScene();
+            //actions.emplace_back(DisableClipRegion{});
+            auto action = SetScene{};
 
             std::string sceneTag{};
+            unsigned tagId;
             if (chunk.mResourceName)
             {
                 sceneTag = *chunk.mResourceName;
+                const auto tag = tags.FindTag(sceneTag);
+                if (tag)
+                {
+                    tagId = tag->mValue;
+                }
+                else
+                {
+                    tagId = -1;
+                }
             }
             else
             {
                 const auto tag = tags.GetTag(Tag{static_cast<unsigned>(chunk.mArguments[0])});
+                tagId = chunk.mArguments[0];
                 if (!tag)
                 {
                     std::stringstream ss{};
@@ -748,14 +736,14 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
                     sceneTag = *tag;
                 }
             }
-            currentScene.mSceneTag = sceneTag;
-            currentScene.mActions.clear();
-            loadingScene = true;
+            action.mName = sceneTag;
+            action.mSceneNumber = tagId;
+            actions.emplace_back(action);
         } break;
 
         case Actions::SET_CLIP_REGION:
             // Transform this to opengl coords...
-            currentScene.mActions.emplace_back(
+            actions.emplace_back(
                 ClipRegion{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
@@ -764,13 +752,13 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         case Actions::LOAD_PALETTE:
         {
             const auto paletteName = *chunk.mResourceName;
-            currentScene.mActions.emplace_back(LoadPalette{paletteName});
+            actions.emplace_back(LoadPalette{paletteName});
         } break;
 
         case Actions::SAVE_IMAGE0: [[fallthrough]];
         case Actions::SAVE_IMAGE1:
         {
-            currentScene.mActions.emplace_back(
+            actions.emplace_back(
                 SaveImage{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
@@ -778,7 +766,7 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
 
         case Actions::SAVE_BACKGROUND:
         {
-            currentScene.mActions.emplace_back(
+            actions.emplace_back(
                 SaveBackground{});
         } break;
 
@@ -792,18 +780,18 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         {
             auto imageName = *chunk.mResourceName;
             (*(imageName.end() - 1)) = 'X';
-            currentScene.mActions.emplace_back(LoadImage{imageName});
+            actions.emplace_back(LoadImage{imageName});
         } break;
         case Actions::LOAD_SCREEN:
         {
             ASSERT(chunk.mResourceName);
             auto name = *chunk.mResourceName;
             (*(name.end() - 1)) = 'X';
-            currentScene.mActions.emplace_back(LoadScreen{name});
+            actions.emplace_back(LoadScreen{name});
         } break;
         case Actions::DRAW_SCREEN:
         {
-            currentScene.mActions.emplace_back(
+            actions.emplace_back(
                 DrawScreen{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
@@ -811,20 +799,22 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         } break;
         case Actions::FADE_IN:
         {
-            currentScene.mActions.emplace_back(FadeIn{});
+            actions.emplace_back(FadeIn{});
         } break;
         case Actions::FADE_OUT:
         {
-            currentScene.mActions.emplace_back(FadeOut{});
+            actions.emplace_back(FadeOut{});
         } break;
         case Actions::SHOW_DIALOG:
         {
-            currentScene.mActions.emplace_back(
-                ShowDialog{DialogSources::GetTTMDialogKey(chunk.mArguments[0])});
+            actions.emplace_back(
+                ShowDialog{
+                    chunk.mArguments[1] == 0xff,
+                    DialogSources::GetTTMDialogKey(chunk.mArguments[0])});
         } break;
         case Actions::DRAW_RECT:
         case Actions::DRAW_FRAME:
-            currentScene.mActions.emplace_back(
+            actions.emplace_back(
                 DrawRect{
                     std::make_pair(0,0), // active color
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
@@ -841,7 +831,7 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         case Actions::DRAW_SPRITE0:
         {
             const auto scaled = chunk.mArguments.size() >= 5;
-            currentScene.mActions.emplace_back(
+            actions.emplace_back(
                 DrawSprite{
                     flipped,
                     chunk.mArguments[0],
@@ -854,16 +844,16 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         } break;
         case Actions::UPDATE:
         {
-            currentScene.mActions.emplace_back(Update{});
+            actions.emplace_back(Update{});
         } break;
         case Actions::PURGE:
         {
-            currentScene.mActions.emplace_back(Purge{});
+            actions.emplace_back(Purge{});
         } break;
         case Actions::DELAY:
         {
-            currentScene.mActions.emplace_back(
-                Delay{static_cast<unsigned>(chunk.mArguments[0]) * 10});
+            actions.emplace_back(
+                Delay{static_cast<unsigned>(chunk.mArguments[0])});
         } break;
         default:
             logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
@@ -871,10 +861,7 @@ std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb)
         }
     }
 
-    // Push final scene
-    PushScene();
-
-    return scenes;
+    return actions;
 }
 
 FileBuffer DecompressTTM(FileBuffer& fb)

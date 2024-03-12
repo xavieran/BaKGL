@@ -4,6 +4,7 @@
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
 
+#include "bak/dialog.hpp"
 #include "com/assert.hpp"
 #include "com/logger.hpp"
 
@@ -13,12 +14,50 @@
 
 namespace Gui {
 
+class CallbackDelay : public IAnimator
+{
+public:
+    CallbackDelay(
+        std::function<void()>&& callback,
+        double delay)
+    :
+        mAlive{true},
+        mDelay{delay},
+        mCallback{std::move(callback)}
+    {
+    }
+
+    void OnTimeDelta(double delta) override
+    {
+        mDelay -= delta;
+        if (mDelay <= 0)
+        {
+            mCallback();
+            mAlive = false;
+        }
+    }
+
+    bool IsAlive() const override
+    {
+        return mAlive;
+    }
+
+    bool mAlive;
+    double mDelay;
+    std::function<void()> mCallback;
+};
+
 DynamicTTM::DynamicTTM(
     Graphics::SpriteManager& spriteManager,
+    AnimatorStore& animatorStore,
+    const Font& font,
+    const Backgrounds& backgrounds,
     std::string adsFile,
     std::string ttmFile)
 :
     mSpriteManager{spriteManager},
+    mAnimatorStore{animatorStore},
+    mFont{font},
     mSceneFrame{
         Graphics::DrawMode::Rect,
         Graphics::SpriteSheetIndex{0},
@@ -29,16 +68,57 @@ DynamicTTM::DynamicTTM(
         glm::vec2{1},
         false 
     },
-    mDialogBackground{},
+    mDialogBackground{
+        Graphics::DrawMode::Sprite,
+        backgrounds.GetSpriteSheet(),
+        backgrounds.GetScreen("DIALOG.SCX"),
+        Graphics::ColorMode::Texture,
+        glm::vec4{1},
+        glm::vec2{0},
+        glm::vec2{320, 200},
+        true
+    },
+    mRenderedElements{
+        Graphics::DrawMode::Rect,
+        Graphics::SpriteSheetIndex{0},
+        Graphics::TextureIndex{0},
+        Graphics::ColorMode::SolidColor,
+        glm::vec4{0},
+        glm::vec2{0},
+        glm::vec2{1},
+        false 
+    },
+    mLowerTextBox{
+        glm::vec2{15, 125},
+        glm::vec2{285, 66}
+    },
+    mPopup{
+        glm::vec2{},
+        glm::vec2{},
+        Color::buttonBackground,
+        Color::buttonHighlight,
+        Color::buttonShadow,
+        Color::black
+    },
+    mPopupText{
+        glm::vec2{},
+        glm::vec2{}
+    },
     mSceneElements{},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
 {
+    mPopup.AddChildBack(&mPopupText);
+
+    mSceneFrame.AddChildBack(&mDialogBackground);
+    mSceneFrame.AddChildBack(&mRenderedElements);
+    mSceneFrame.AddChildBack(&mPopup);
+    mSceneFrame.AddChildBack(&mLowerTextBox);
     mSceneElements.reserve(100);
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
     auto adsFb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
     mSceneSequences = BAK::LoadSceneSequences(adsFb);
     auto ttmFb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-    mScenes = BAK::LoadDynamicScenes(ttmFb);
+    mActions = BAK::LoadDynamicScenes(ttmFb);
 }
 
 void DynamicTTM::BeginScene()
@@ -57,33 +137,19 @@ void DynamicTTM::BeginScene()
             }
         }
     }
-    mLogger.Debug() << "Scenes" << "\n";
-    for (const auto& [key, scene] : mScenes)
-    {
-        mLogger.Debug() << "Key: " << key << " - " << scene.mSceneTag << "\n";
-    }
 
-    if (mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mPlayAllScenes)
-    {
-        for (const auto& [key, _] : mScenes)
-        {
-            mAllSceneKeys.emplace_back(key);
-        }
-        mPlayAllScenes = true;
-        mCurrentScene = &(mScenes[mAllSceneKeys[0]]);
-    }
-    else
-    {
-        mCurrentScene = &(mScenes[mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene]);
-    }
-    mLogger.Debug() << "Starting at: " << mCurrentScene->mSceneTag << "\n";
-    mCurrentAction = 0;
+    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
+    mLogger.Debug() << "Next tag: " << nextTag << "\n";
+    mCurrentAction = FindActionMatchingTag(nextTag);
+    mLogger.Debug() << "Current action: " << mCurrentAction << "\n";
 }
 
 void DynamicTTM::AdvanceAction()
 {
     mLogger.Debug() << "AdvanceAction" << "\n";
-    const auto& action = mCurrentScene->mActions[mCurrentAction++];
+    const auto& action = mActions[mCurrentAction];
+    bool nextActionChosen = false;
+    bool waitForClick = false;
     mLogger.Debug() << "Handle action: " << action << std::endl;
     std::visit(
         overloaded{
@@ -96,6 +162,9 @@ void DynamicTTM::AdvanceAction()
             },
             [&](const BAK::SlotImage& sp){
                 mCurrentImageSlot = sp.mSlot;
+            },
+            [&](const BAK::Delay& delay){
+                mDelay = static_cast<double>(delay.mDelayMs) / 1000.;
             },
             [&](const BAK::LoadImage& p){
                 auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mImage);
@@ -133,18 +202,36 @@ void DynamicTTM::AdvanceAction()
                     sa.mFlippedInY,
                     mRenderer.GetForegroundLayer());
             },
+            [&](const BAK::ShowDialog& dialog){
+                RenderDialog(dialog);
+                if (!dialog.mClearDialog)
+                {
+                    waitForClick = true;
+                }
+            },
             [&](const BAK::Update& sr){
                 auto textures = Graphics::TextureStore{};
                 if (mScreen)
                 {
-                    mRenderer.RenderSprite(*mScreen, mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData, glm::ivec2{0, 0}, false, mRenderer.GetBackgroundLayer());
+                    mRenderer.RenderSprite(
+                        *mScreen,
+                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                        glm::ivec2{0, 0}, false, mRenderer.GetBackgroundLayer());
                 }
                 if (mBackgroundImage)
                 {
                     const auto& texture = *mBackgroundImage;
-                    mRenderer.RenderTexture(texture, glm::ivec2{0, 0}, mRenderer.GetBackgroundLayer());
+                    mRenderer.RenderTexture(
+                        texture,
+                        glm::ivec2{0, 0},
+                        mRenderer.GetBackgroundLayer());
                 }
-                mRenderer.RenderTexture(mRenderer.GetSavedZonesLayer(), glm::ivec2{0}, mRenderer.GetBackgroundLayer());
+
+                mRenderer.RenderTexture(
+                    mRenderer.GetSavedZonesLayer(),
+                    glm::ivec2{0},
+                    mRenderer.GetBackgroundLayer());
+
                 mRenderer.RenderTexture(
                     mRenderer.GetForegroundLayer(),
                     glm::ivec2{0, 0},
@@ -153,10 +240,6 @@ void DynamicTTM::AdvanceAction()
                 auto bg = mRenderer.GetBackgroundLayer();
                 bg.Invert();
                 textures.AddTexture(bg);
-
-                //auto fg = mRenderer.GetForegroundLayer();
-                //fg.Invert();
-                //textures.AddTexture(fg);
 
                 auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
                 mImageSprites[0] = std::move(temporarySpriteSheet);
@@ -173,23 +256,14 @@ void DynamicTTM::AdvanceAction()
                     glm::vec2{320, 200},
                     false 
                 );
-                //mSceneElements.emplace_back(
-                //    Graphics::DrawMode::Sprite,
-                //    mImageSprites[0]->mSpriteSheet,
-                //    Graphics::TextureIndex{1},
-                //    Graphics::ColorMode::Texture,
-                //    glm::vec4{1},
-                //    glm::vec2{0},
-                //    glm::vec2{320, 200},
-                //    false 
-                //);
-                mSceneFrame.ClearChildren();
+                mRenderedElements.ClearChildren();
                 for (auto& element : mSceneElements)
                 {
-                    mSceneFrame.AddChildBack(&element);
+                    mRenderedElements.AddChildBack(&element);
                 }
                 mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200};
                 mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200};
+
             },
             [&](const BAK::SaveImage& si){
                 mRenderer.SaveImage(si.pos, si.dims);
@@ -206,56 +280,100 @@ void DynamicTTM::AdvanceAction()
                 mRenderer.ClearClipRegion();
             },
             [&](const BAK::Purge&){
-                mRenderer.ClearClipRegion();
-                mRenderer.Clear();
+                nextActionChosen = true;
+                AdvanceToNextScene();
             },
             [&](const auto&){}
         },
         action
     );
 
-    if (mCurrentAction == mCurrentScene->mActions.size())
+    if (!nextActionChosen)
     {
-        mBackgroundImage.reset();
-        mLogger.Debug() << "Reached end of scene, next scene is: \n";
-        mRenderer.Clear(); // is this always the case..?
-        if (mPlayAllScenes)
-        {
-            mCurrentSequenceScene++;
-            auto it = mAllSceneKeys.begin();
-            std::advance(it, mCurrentSequenceScene);
-            if (it != mAllSceneKeys.end())
-            {
-                mLogger.Debug() << "Next scene key is: " << *it << " from sequence: "
-                    << mCurrentSequenceScene << " -- " << mScenes[*it].mSceneTag << "\n";
-                mCurrentScene = &(mScenes[*it]);
-            }
-            else
-            {
-                mCurrentSequenceScene = 0;
-                mCurrentScene = &(mScenes[mAllSceneKeys[0]]);
-            }
+        mCurrentAction++;
+    }
 
-            mCurrentAction = 0;
-            return;
-        }
-        mCurrentSequenceScene++;
-        if (mCurrentSequenceScene == mSceneSequences[1][mCurrentSequence].mScenes.size())
-        {
-            mCurrentSequenceScene = 0;
-            mCurrentSequence++;
-        }
+    if (!waitForClick)
+    {
+        mAnimatorStore.AddAnimator(std::make_unique<CallbackDelay>(
+            [&](){
+                AdvanceAction();
+            },
+            mDelay));
+    }
+}
 
-        if (mCurrentSequence == mSceneSequences[1].size())
+void DynamicTTM::AdvanceToNextScene()
+{
+    auto& currentScenes = mSceneSequences[1][mCurrentSequence].mScenes;
+    mCurrentSequenceScene++;
+    if (mCurrentSequenceScene == currentScenes.size())
+    {
+        mLogger.Info() << "Finished current scene sequence, moving to next sequence\n";
+        mCurrentSequenceScene = 0;
+        mCurrentSequence++;
+    }
+
+    if (mCurrentSequence == mSceneSequences[1].size())
+    {
+        mCurrentSequence = 0;
+    }
+
+    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
+    mLogger.Debug() << "Next tag: " << nextTag << "\n";
+    mCurrentAction = FindActionMatchingTag(nextTag);
+    mLogger.Debug() << "Current action: " << mCurrentAction << "\n";
+}
+
+unsigned DynamicTTM::FindActionMatchingTag(unsigned tag)
+{
+    std::optional<unsigned> foundIndex{};
+    for (unsigned i = 0; i < mActions.size(); i++)
+    {
+        evaluate_if<BAK::SetScene>(mActions[i], [&](const auto& action) {
+            if (action.mSceneNumber == tag)
+            {
+                foundIndex = i;
+            }
+        });
+        if (foundIndex)
         {
-            mLogger.Debug() << "Finished, start again\n";
-            mCurrentSequence = 3;
+            return *foundIndex;
         }
-        const auto scene = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
-        mCurrentScene = &mScenes[scene];
-        mLogger.Debug() << "Sequence: " << mCurrentSequence << " Scene: " << mCurrentSequenceScene << 
-            " -- " << scene << " " << mCurrentScene->mSceneTag << "\n";
-        mCurrentAction = 0;
+    }
+
+    //throw std::runtime_error("Couldn't find action matching tag: " + std::to_string(tag));
+    return 0;
+}
+
+void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
+{
+    if (!dialog.mClearDialog)
+    {
+        const auto& snippet = BAK::DialogStore::Get().GetSnippet(dialog.mDialogKey);
+        auto popup = snippet.GetPopup();
+        mLogger.Debug() << "Show snippet;" << snippet << "\n";
+        if (popup)
+        {
+            mPopup.SetPosition(popup->mPos);
+            mPopup.SetDimensions(popup->mDims);
+            mPopupText.SetPosition(glm::vec2{1});
+            mPopupText.SetDimensions(popup->mDims);
+            mPopupText.SetText(mFont, snippet.GetText());
+            mLowerTextBox.ClearChildren();
+        }
+        else
+        {
+            mLowerTextBox.SetText(mFont, snippet.GetText());
+            mPopupText.ClearChildren();
+        }
+    }
+    else
+    {
+        mPopupText.ClearChildren();
+        mLowerTextBox.ClearChildren();
+        //mSceneFrame.RemoveChild(&mPopup);
+        //mSceneFrame.RemoveChild(&mLowerTextBox);
     }
 }
 

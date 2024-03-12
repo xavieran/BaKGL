@@ -111,14 +111,14 @@ std::ostream& operator<<(std::ostream&, const Scene&);
 
 struct DynamicScene
 {
-    std::string mSceneTag;
+    std::map<unsigned, unsigned> mScenes;
     std::vector<SceneAction> mActions;
 };
 
 std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb);
 std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
-std::map<unsigned, DynamicScene> LoadDynamicScenes(FileBuffer& fb);
+std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb);
 
 FileBuffer DecompressTTM(FileBuffer& fb);
 

@@ -224,7 +224,7 @@ std::ostream& operator<<(std::ostream& os, const SlotPalette& a)
 
 std::ostream& operator<<(std::ostream& os, const ShowDialog& a)
 {
-    return os << "ShowDialog{ " << std::hex << a.mDialogKey << std::dec << "}";
+    return os << "ShowDialog{ clear: " << std::boolalpha << a.mClearDialog << ", " << std::hex << a.mDialogKey << std::dec << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa)
