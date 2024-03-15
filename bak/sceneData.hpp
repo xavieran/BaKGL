@@ -57,19 +57,19 @@ enum class Actions
     SLOT_FONT           = 0x1070,
     SET_SCENEA          = 0x1100, // Local taG?
     SET_SCENE           = 0x1110, // TAG??
-    SET_SCENEB          = 0x1120, // SET BACKGROUND
-    GOTO_TAG            = 0x1200, // GOTO TAG
-    SET_COLOR           = 0x2000, // SET_COLOR
+    SET_SAVE_LAYER      = 0x1120,
+    GOTO_TAG            = 0x1200,
+    SET_COLOR           = 0x2000,
     SHOW_DIALOG         = 0x2010, 
     UNKNOWN3            = 0x2300,
     UNKNOWN6            = 0x2310,
     UNKNOWN7            = 0x2320,
     UNKNOWN4            = 0x2400,
-    SET_CLIP_REGION     = 0x4000, // SET_CLIP_REGION
+    SET_CLIP_REGION     = 0x4000,
     FADE_OUT            = 0x4110,
     FADE_IN             = 0x4120,
-    SAVE_IMAGE0         = 0x4200, // DRAW_BACKGROUND_REGION
-    SAVE_IMAGE1         = 0x4210, // SAVE_IMIAGE_REGION
+    SAVE_IMAGE0         = 0x4200,
+    SET_CLEAR_REGION    = 0x4210,
     SET_WINDOWA         = 0xa010,
     SET_WINDOWB         = 0xa030,
     SET_UNKNOWN         = 0xa090,
@@ -82,8 +82,8 @@ enum class Actions
     DRAW_SPRITE_FLIP_Y  = 0xa520,
     DRAW_SPRITE_FLIP_XY = 0xa530,
     DRAW_SPRITE_ROTATE  = 0xa5a0,
-    CLEAR_SCREEN        = 0xa600, // CLEAR_SCREEN
-    DRAW_SCREEN         = 0xb600,
+    CLEAR_SAVE_LAYER    = 0xa600,
+    DRAW_SCREEN         = 0xb600, // COPY_LAYER_TO_LAYER?
     LOAD_SOUND_RESOURCE = 0xc020,
     SELECT_SOUND        = 0xc030,
     DESELECT_SOUND      = 0xc040,
@@ -141,11 +141,13 @@ struct DrawScreen
 {
     glm::ivec2 mPosition;
     glm::ivec2 mDimensions;
+    unsigned mArg1;
+    unsigned mArg2;
 };
 
 struct PlaySoundS
 {
-    std::uint16_t mSoundIndex;
+    unsigned mSoundIndex;
 };
 
 struct ClipRegion
@@ -170,7 +172,18 @@ struct DrawBackground
 {
 };
 
+struct GotoTag
+{
+    unsigned mTag;
+};
+
 struct SaveImage
+{
+    glm::ivec2 pos;
+    glm::ivec2 dims;
+};
+
+struct SetClearRegion
 {
     glm::ivec2 pos;
     glm::ivec2 dims;
@@ -201,9 +214,8 @@ struct Update
 
 struct SetColors
 {
-    unsigned mSlot; // which slot palette to pull colors from
-    std::uint16_t mForegroundColor;
-    std::uint16_t mBackgroundColor;
+    unsigned mForegroundColor;
+    unsigned mBackgroundColor;
 };
 
 struct FadeIn
@@ -212,6 +224,16 @@ struct FadeIn
 
 struct FadeOut
 {
+};
+
+struct SetSaveLayer
+{
+    unsigned mLayer;
+};
+
+struct ClearSaveLayer
+{
+    unsigned mLayer;
 };
 
 struct SlotImage
@@ -259,8 +281,14 @@ using SceneAction = std::variant<
     FadeIn,
     LoadScreen,
     SetScene,
+    SetColors,
     SlotImage,
+    SetSaveLayer,
+    ClearSaveLayer,
     ShowDialog,
+    PlaySoundS,
+    SetClearRegion,
+    GotoTag,
     SlotPalette>;
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa);

@@ -111,8 +111,6 @@ DynamicTTM::DynamicTTM(
 
     mSceneFrame.AddChildBack(&mDialogBackground);
     mSceneFrame.AddChildBack(&mRenderedElements);
-    mSceneFrame.AddChildBack(&mPopup);
-    mSceneFrame.AddChildBack(&mLowerTextBox);
     mSceneElements.reserve(100);
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
     auto adsFb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
@@ -146,6 +144,7 @@ void DynamicTTM::BeginScene()
 
 void DynamicTTM::AdvanceAction()
 {
+    if (mDelaying) return;
     mLogger.Debug() << "AdvanceAction" << "\n";
     const auto& action = mActions[mCurrentAction];
     bool nextActionChosen = false;
@@ -178,7 +177,12 @@ void DynamicTTM::AdvanceAction()
                 mScreen = BAK::LoadScreenResource(fb);
             },
             [&](const BAK::DrawScreen& sa){
-                mRenderer.GetSavedZonesLayer() = {320, 200};
+                if (sa.mArg1 == 3 || sa.mArg2 == 3)
+                {
+                    mRenderer.GetSavedImagesLayer0() = {320, 200};
+                    mRenderer.GetSavedImagesLayer1() = {320, 200};
+                    mRenderer.GetSavedImagesLayerBG() = {320, 200};
+                }
                 if (mScreen && mPaletteSlots.contains(mCurrentPaletteSlot))
                 {
                     mRenderer.RenderSprite(
@@ -228,7 +232,17 @@ void DynamicTTM::AdvanceAction()
                 }
 
                 mRenderer.RenderTexture(
-                    mRenderer.GetSavedZonesLayer(),
+                    mRenderer.GetSavedImagesLayerBG(),
+                    glm::ivec2{0},
+                    mRenderer.GetBackgroundLayer());
+
+                mRenderer.RenderTexture(
+                    mRenderer.GetSavedImagesLayer0(),
+                    glm::ivec2{0},
+                    mRenderer.GetBackgroundLayer());
+
+                mRenderer.RenderTexture(
+                    mRenderer.GetSavedImagesLayer1(),
                     glm::ivec2{0},
                     mRenderer.GetBackgroundLayer());
 
@@ -266,10 +280,19 @@ void DynamicTTM::AdvanceAction()
 
             },
             [&](const BAK::SaveImage& si){
-                mRenderer.SaveImage(si.pos, si.dims);
+                mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer);
+            },
+            [&](const BAK::SetClearRegion& si){
+                mClearRegions.emplace(mImageSaveLayer, si);
+            },
+            [&](const BAK::ClearSaveLayer& si){
+                const auto& clearRegion = mClearRegions.at(mImageSaveLayer);
+                mRenderer.ClearSaveLayer(clearRegion.pos, clearRegion.dims, si.mLayer);
             },
             [&](const BAK::SaveBackground&){
-                mRenderer.SaveImage({0, 0}, {320, 200});
+                mRenderer.GetSavedImagesLayer0() = {320, 200};
+                mRenderer.GetSavedImagesLayer1() = {320, 200};
+                mRenderer.SaveImage({0, 0}, {320, 200}, 2);
             },
             [&](const BAK::DrawRect& sr){
             },
@@ -280,8 +303,12 @@ void DynamicTTM::AdvanceAction()
                 mRenderer.ClearClipRegion();
             },
             [&](const BAK::Purge&){
-                nextActionChosen = true;
                 AdvanceToNextScene();
+                nextActionChosen = true;
+            },
+            [&](const BAK::GotoTag& sa){
+                mCurrentAction = FindActionMatchingTag(sa.mTag);
+                nextActionChosen = true;;
             },
             [&](const auto&){}
         },
@@ -291,12 +318,15 @@ void DynamicTTM::AdvanceAction()
     if (!nextActionChosen)
     {
         mCurrentAction++;
+        if (mCurrentAction == mActions.size()) mCurrentAction = 0;
     }
 
     if (!waitForClick)
     {
+        mDelaying = true;
         mAnimatorStore.AddAnimator(std::make_unique<CallbackDelay>(
             [&](){
+                mDelaying = false;
                 AdvanceAction();
             },
             mDelay));
@@ -361,19 +391,33 @@ void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
             mPopupText.SetDimensions(popup->mDims);
             mPopupText.SetText(mFont, snippet.GetText());
             mLowerTextBox.ClearChildren();
+            if (!mSceneFrame.HaveChild(&mPopup))
+            {
+                mSceneFrame.AddChildBack(&mPopup);
+            }
         }
         else
         {
             mLowerTextBox.SetText(mFont, snippet.GetText());
             mPopupText.ClearChildren();
+            if (!mSceneFrame.HaveChild(&mLowerTextBox))
+            {
+                mSceneFrame.AddChildBack(&mLowerTextBox);
+            }
         }
     }
     else
     {
         mPopupText.ClearChildren();
         mLowerTextBox.ClearChildren();
-        //mSceneFrame.RemoveChild(&mPopup);
-        //mSceneFrame.RemoveChild(&mLowerTextBox);
+        if (mSceneFrame.HaveChild(&mPopup))
+        {
+            mSceneFrame.RemoveChild(&mPopup);
+        }
+        if (mSceneFrame.HaveChild(&mLowerTextBox))
+        {
+            mSceneFrame.RemoveChild(&mLowerTextBox);
+        }
     }
 }
 

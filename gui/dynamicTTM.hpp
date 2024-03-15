@@ -55,6 +55,7 @@ private:
     std::unordered_map<unsigned, std::vector<BAK::SceneSequence>> mSceneSequences;
     std::vector<BAK::SceneAction> mActions;
 
+    bool mDelaying = false;
     double mDelay = 0;
     unsigned mCurrentAction = 0;
     unsigned mCurrentSequence = 0;
@@ -68,8 +69,10 @@ private:
     {
         std::vector<BAK::Image> mImages;
     };
-    unsigned mCurrentPaletteSlot;
-    unsigned mCurrentImageSlot;
+    unsigned mCurrentPaletteSlot = 0;
+    unsigned mCurrentImageSlot = 0;
+    unsigned mImageSaveLayer = 0;
+    std::unordered_map<unsigned, BAK::SetClearRegion> mClearRegions;
     std::unordered_map<unsigned, ImageSlot> mImageSlots;
     std::unordered_map<unsigned, PaletteSlot> mPaletteSlots;
     std::unordered_map<unsigned, Graphics::TextureStore> mTextures;

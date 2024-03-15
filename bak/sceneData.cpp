@@ -59,14 +59,14 @@ std::string_view ToString(Actions a)
     case Actions::SLOT_FONT: return "SlotFont";
     case Actions::SET_SCENE: return "SetScene";
     case Actions::SET_SCENEA: return "SETSCENEA";
-    case Actions::SET_SCENEB: return "SETSCENEB";
+    case Actions::SET_SAVE_LAYER: return "SetSaveLayer";
     case Actions::GOTO_TAG: return "GotoTag";
     case Actions::SET_COLOR: return "SetColors";
     case Actions::SHOW_DIALOG: return "ShowDialog";
     case Actions::FADE_OUT: return "FadeOut";
     case Actions::FADE_IN: return "FadeIn";
     case Actions::SAVE_IMAGE0: return "SaveImage0";
-    case Actions::SAVE_IMAGE1: return "SaveImage1";
+    case Actions::SET_CLEAR_REGION: return "SetClearRegion";
     case Actions::SET_UNKNOWN: return "SETUNKNOWN";
     case Actions::SET_WINDOWA: return "SETWINDOWA";
     case Actions::SET_WINDOWB: return "SETWINDOWB";
@@ -77,7 +77,7 @@ std::string_view ToString(Actions a)
     case Actions::DRAW_SPRITE_FLIP_Y: return "DrawSpriteFlipY";
     case Actions::DRAW_SPRITE_FLIP_XY: return "DrawSpriteFlipXY";
     case Actions::DRAW_SPRITE_ROTATE: return "DrawSpriteRotate";
-    case Actions::CLEAR_SCREEN: return "DRAWSPRITEB";
+    case Actions::CLEAR_SAVE_LAYER: return "ClearSaveLayer";
     case Actions::DRAW_SCREEN: return "DrawScreen";
     case Actions::LOAD_SOUND_RESOURCE: return "LoadSoundResource";
     case Actions::SELECT_SOUND: return "SelectSound";
@@ -139,7 +139,8 @@ std::ostream& operator<<(std::ostream& os, const DrawRect& a)
 
 std::ostream& operator<<(std::ostream& os, const DrawScreen& a)
 {
-    os << "DrawScreen{ " << a.mPosition << " - " << a.mDimensions << "}";
+    os << "DrawScreen{ " << a.mPosition << " - " << a.mDimensions << " ("
+        << a.mArg1 << ", " << a.mArg2 << ")}";
     return os;
 }
 
@@ -202,6 +203,11 @@ std::ostream& operator<<(std::ostream& os, const SaveImage& a)
     return os << "SaveImage{ pos: " << a.pos << " dims: " << a.dims << "}";
 }
 
+std::ostream& operator<<(std::ostream& os, const SetClearRegion& a)
+{
+    return os << "SetClearRegion{ pos: " << a.pos << " dims: " << a.dims << "}";
+}
+
 std::ostream& operator<<(std::ostream& os, const LoadPalette& a)
 {
     return os << "LoadPalette{ " << a.mPalette << "}";
@@ -217,6 +223,22 @@ std::ostream& operator<<(std::ostream& os, const SlotImage& a)
     return os << "SlotImage{ " << a.mSlot << "}";
 }
 
+std::ostream& operator<<(std::ostream& os, const SetSaveLayer& a)
+{
+    return os << "SetSaveLayer{ " << a.mLayer << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const ClearSaveLayer& a)
+{
+    return os << "ClearSaveLayer{ " << a.mLayer << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const SetColors& a)
+{
+    return os << "SetColors{ fg: " << a.mForegroundColor << " bg: "
+        << a.mBackgroundColor << "}";
+}
+
 std::ostream& operator<<(std::ostream& os, const SlotPalette& a)
 {
     return os << "SlotPalette{ " << a.mSlot << "}";
@@ -225,6 +247,16 @@ std::ostream& operator<<(std::ostream& os, const SlotPalette& a)
 std::ostream& operator<<(std::ostream& os, const ShowDialog& a)
 {
     return os << "ShowDialog{ clear: " << std::boolalpha << a.mClearDialog << ", " << std::hex << a.mDialogKey << std::dec << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const PlaySoundS& a)
+{
+    return os << "PlaySound { " << a.mSoundIndex << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const GotoTag& a)
+{
+    return os << "GotoTag{ " << a.mTag << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SceneAction& sa)

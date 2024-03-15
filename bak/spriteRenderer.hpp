@@ -17,7 +17,9 @@ public:
     :
         mForegroundLayer{320, 200},
         mBackgroundLayer{320, 200},
-        mSavedZonesLayer{320, 200}
+        mSavedImagesLayer0{320, 200},
+        mSavedImagesLayer1{320, 200},
+        mSavedImagesLayerBG{320, 200}
     {
     }
 
@@ -95,7 +97,21 @@ public:
     {
         mForegroundLayer = Graphics::Texture{320, 200};
         mBackgroundLayer = Graphics::Texture{320, 200};
-        mSavedZonesLayer = Graphics::Texture{320, 200};
+        mSavedImagesLayer0 = Graphics::Texture{320, 200};
+        mSavedImagesLayer1 = Graphics::Texture{320, 200};
+        mSavedImagesLayerBG = Graphics::Texture{320, 200};
+    }
+
+    void ClearSaveLayer(glm::ivec2 pos, glm::ivec2 dims, unsigned layer)
+    {
+        auto& image = GetSaveLayer(layer);
+        for (int x = 0; x < dims.x; x++)
+        {
+            for (int y = 0; y < dims.y; y++)
+            {
+                image.SetPixel(x + pos.x, y + pos.y, glm::vec4{0});
+            }
+        }
     }
 
     Graphics::Texture& GetForegroundLayer()
@@ -108,9 +124,19 @@ public:
         return mBackgroundLayer;
     }
 
-    Graphics::Texture& GetSavedZonesLayer()
+    Graphics::Texture& GetSavedImagesLayerBG()
     {
-        return mSavedZonesLayer;
+        return mSavedImagesLayerBG;
+    }
+
+    Graphics::Texture& GetSavedImagesLayer0()
+    {
+        return mSavedImagesLayer0;
+    }
+
+    Graphics::Texture& GetSavedImagesLayer1()
+    {
+        return mSavedImagesLayer1;
     }
 
     void SetClipRegion(BAK::ClipRegion clipRegion)
@@ -123,7 +149,7 @@ public:
         mClipRegion.reset();
     }
 
-    Graphics::Texture SaveImage(glm::ivec2 pos, glm::ivec2 dims)
+    Graphics::Texture SaveImage(glm::ivec2 pos, glm::ivec2 dims, unsigned layer)
     {
         auto image = Graphics::Texture{static_cast<unsigned>(dims.x), static_cast<unsigned>(dims.y)};
         for (int x = 0; x < dims.x; x++)
@@ -134,14 +160,34 @@ public:
             }
         }
 
-        RenderTexture(image, pos, mSavedZonesLayer);
+        RenderTexture(image, pos, GetSaveLayer(layer));
         return image;
+    }
+
+    Graphics::Texture& GetSaveLayer(unsigned layer)
+    {
+        if (layer == 0)
+        {
+            return mSavedImagesLayer0;
+        }
+        else if (layer == 1)
+        {
+            return mSavedImagesLayer1;
+        }
+        else if (layer == 2)
+        {
+            return mSavedImagesLayerBG;
+        }
+        assert(false);
+        return mSavedImagesLayer0;
     }
 
 private:
     Graphics::Texture mForegroundLayer;
     Graphics::Texture mBackgroundLayer;
-    Graphics::Texture mSavedZonesLayer;
+    Graphics::Texture mSavedImagesLayer0;
+    Graphics::Texture mSavedImagesLayer1;
+    Graphics::Texture mSavedImagesLayerBG;
     std::optional<BAK::ClipRegion> mClipRegion;
 };
 

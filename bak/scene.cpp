@@ -521,7 +521,6 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
             {
                 imageSlots[*imageSlot] = ImageSlot{};
             }
-            //imageSlots[*imageSlot].mImage = name;
         } break;
         case Actions::LOAD_SCREEN:
         {
@@ -537,6 +536,8 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 DrawScreen{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
+                    static_cast<unsigned>(chunk.mArguments[4]),
+                    static_cast<unsigned>(chunk.mArguments[5])
                 });
         } break;
         case Actions::DRAW_RECT:
@@ -571,10 +572,7 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
             flipped = false;
         } break;
-        case Actions::CLEAR_SCREEN:
-        {
-            currentScene.mActions.emplace_back(ClearScreen{});
-        } break;
+
         case Actions::UPDATE:
         {
             currentScene.mActions.emplace_back(Update{});
@@ -755,13 +753,18 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
             actions.emplace_back(LoadPalette{paletteName});
         } break;
 
-        case Actions::SAVE_IMAGE0: [[fallthrough]];
-        case Actions::SAVE_IMAGE1:
+        case Actions::SAVE_IMAGE0:
         {
             actions.emplace_back(
                 SaveImage{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
+        } break;
+
+        case Actions::PLAY_SOUND:
+        {
+            actions.emplace_back(
+                PlaySoundS{static_cast<unsigned>(chunk.mArguments[0])});
         } break;
 
         case Actions::SAVE_BACKGROUND:
@@ -771,10 +774,10 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
         } break;
 
         case Actions::SET_COLOR:
-            //ASSERT(paletteSlot);
-            //activeColor = std::make_pair(
-            //    *paletteSlot,
-            //    chunk.mArguments[0]);
+            actions.emplace_back(
+                SetColors{
+                    static_cast<unsigned>(chunk.mArguments[0]),
+                    static_cast<unsigned>(chunk.mArguments[1])});
             break;
         case Actions::LOAD_IMAGE:
         {
@@ -795,6 +798,8 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
                 DrawScreen{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
+                    static_cast<unsigned>(chunk.mArguments[4]),
+                    static_cast<unsigned>(chunk.mArguments[5])
                 });
         } break;
         case Actions::FADE_IN:
@@ -805,11 +810,17 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
         {
             actions.emplace_back(FadeOut{});
         } break;
+        case Actions::GOTO_TAG:
+        {
+            actions.emplace_back(GotoTag{static_cast<unsigned>(chunk.mArguments[0])});
+        } break;
         case Actions::SHOW_DIALOG:
         {
             actions.emplace_back(
                 ShowDialog{
-                    chunk.mArguments[1] == 0xff || chunk.mArguments[0] == 0xff,
+                    chunk.mArguments[1] == 0xff
+                        || chunk.mArguments[0] == 0xff
+                        || chunk.mArguments[1] == 2, // actually this is .BOK dialog bits
                     DialogSources::GetTTMDialogKey(chunk.mArguments[0])});
         } break;
         case Actions::DRAW_RECT:
@@ -841,6 +852,23 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
                     static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
             flipped = false;
+        } break;
+        case Actions::SET_SAVE_LAYER:
+        {
+            actions.emplace_back(SetSaveLayer{
+                static_cast<unsigned>(chunk.mArguments[0])});
+        } break;
+        case Actions::CLEAR_SAVE_LAYER:
+        {
+            actions.emplace_back(ClearSaveLayer{
+                static_cast<unsigned>(chunk.mArguments[0])});
+        } break;
+        case Actions::SET_CLEAR_REGION:
+        {
+            actions.emplace_back(
+                SetClearRegion{
+                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
+                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
         } break;
         case Actions::UPDATE:
         {
