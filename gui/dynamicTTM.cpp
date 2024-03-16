@@ -191,6 +191,10 @@ bool DynamicTTM::AdvanceAction()
 
 void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
 {
+    // mDialogType == 5 - display dialog using RunDialog (i.e. No actor names, no default bold)
+    // mDialogType == 1 and 4 - similar to above... not sure the difference
+    // mDialogType == 3 - same as above - no wait
+    // mDialogType == 0 - the usual method
     if (dialog.mDialogType != 0xff && dialog.mDialogKey != 0)
     {
         const auto& snippet = BAK::DialogStore::Get().GetSnippet(

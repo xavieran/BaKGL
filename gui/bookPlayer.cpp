@@ -13,13 +13,14 @@ BookPlayer::BookPlayer(
     mSpriteSheet{spriteManager.AddTemporarySpriteSheet()},
     mFont{font},
     mTextures{},
-    mBackground(
+    mBackground{
        ImageTag{},
        background.GetSpriteSheet(),
        background.GetScreen("BOOK.SCX"),
        {0, 0},
        {320, 200},
-       true)
+       true},
+    mTextBox{{}, {}}
 {
     auto bookTextures = Graphics::TextureStore{};
     BAK::TextureFactory::AddToTextureStore(
@@ -32,7 +33,25 @@ void BookPlayer::PlayBook(std::string book)
     auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(book);
     mBook = BAK::LoadBook(fb);
     mCurrentPage = 0;
-    //mText = mBook->mPages[mCurrentPage].mParagraphs;
+
+    std::stringstream ss{};
+
+    ss << "    ";
+    for (const auto& p : mBook->mPages[mCurrentPage].mParagraphs)
+    {
+        ss << "    ";
+        for (const auto& t : p.mText)
+        {
+            if ((static_cast<unsigned>(t.mFontStyle) & static_cast<unsigned>(BAK::FontStyle::Italic)) != 0)
+            {
+                ss << '\xf3';
+            }
+            ss << t.mText;
+        }
+        ss << "\n\n";
+    }
+    mText = ss.str();
+
     RenderPage(mBook->mPages[mCurrentPage]);
 }
 
@@ -43,6 +62,7 @@ void BookPlayer::AdvancePage()
     {
         mCurrentPage = 0;
     }
+
     RenderPage(mBook->mPages[mCurrentPage]);
 }
 
@@ -51,6 +71,7 @@ void BookPlayer::RenderPage(const BAK::Page& page)
     Logging::LogDebug(__FUNCTION__) << page << "\n";
 
     mBackground.ClearChildren();
+    mImages.clear();
     for (const auto& image : page.mImages)
     {
         auto pos = image.mPos / 2;
@@ -73,6 +94,14 @@ void BookPlayer::RenderPage(const BAK::Page& page)
     {
         mBackground.AddChildBack(&w);
     }
+
+    mTextBox.SetPosition(mBook->mPages[mCurrentPage].mOffset / 2);
+    mTextBox.SetDimensions(mBook->mPages[mCurrentPage].mDims / 2);
+    auto [pos, remaining] = mTextBox.SetText(mFont, mText, false, false, false, .82, 2.0);
+    mText = remaining;
+    Logging::LogDebug(__FUNCTION__) << "Remaining text: " << mText << "\n";
+
+    mBackground.AddChildBack(&mTextBox);
 }
 
 Widget* BookPlayer::GetBackground()

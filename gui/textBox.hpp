@@ -50,7 +50,8 @@ public:
         bool centerHorizontal=false,
         bool centerVertical=false,
         bool isBold=false,
-        double newLineMultiplier=1.0)
+        double newLineMultiplier=1.0,
+        float scale=1.0)
     {
         const auto& logger = Logging::LogState::GetLogger("Gui::TextBox");
 
@@ -80,14 +81,14 @@ public:
             // Save this line's dims and move on to the next
             ASSERT(lines.size() > 0);
             lines.back().mDimensions = glm::vec2{
-                charPos.x + font.GetSpace(),
-                charPos.y + font.GetHeight() * newLineMultiplier + 1
+                charPos.x + (font.GetSpace() / scale),
+                charPos.y + ((font.GetHeight() * newLineMultiplier + 1) / scale)
             };
             logger.Spam() << "NextLine: pos: " << charPos << " prevDims: " << lines.back().mDimensions << "\n";
             lines.emplace_back(Line{{}, glm::vec2{0}});
 
             charPos.x = initialPosition.x;
-            charPos.y += font.GetHeight() * newLineMultiplier + 1;
+            charPos.y += (font.GetHeight() * newLineMultiplier + 1) / scale;
 
             italic = false;
             unbold = false;
@@ -98,7 +99,7 @@ public:
         };
 
         const auto AdvanceChar = [&](auto w){
-            charPos.x += w;
+            charPos.x += (w / scale);
         };
 
         const auto Advance = [&](auto w){
@@ -119,7 +120,7 @@ public:
                 Graphics::ColorMode::ReplaceColor,
                 color,
                 pos,
-                glm::vec2{fr.GetFont().GetWidth(c), fr.GetFont().GetHeight()},
+                glm::vec2{fr.GetFont().GetWidth(c), fr.GetFont().GetHeight()} / scale,
                 true);
 
             ASSERT(lines.size() > 0);

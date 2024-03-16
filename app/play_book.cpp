@@ -43,10 +43,10 @@ int main(int argc, char** argv)
     auto guiScalar = 3.5f;
 
     auto nativeWidth = 320.0f;
-    auto nativeHeight = 240.0f;
+    auto nativeHeight = 200.0f;
 
     auto width = nativeWidth * guiScalar;
-    auto height = nativeHeight * guiScalar * 0.83f;
+    auto height = nativeHeight * guiScalar;
 
     auto window = Graphics::MakeGlfwWindow(
         height,
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
     
     std::string bookFile{argv[1]};
     
-    const auto font = Gui::Font{"GAME.FNT", spriteManager};
+    const auto font = Gui::Font{"BOOK.FNT", spriteManager};
     const auto backgrounds = Gui::Backgrounds{spriteManager};
 
     Gui::Window rootWidget{

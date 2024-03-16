@@ -11,6 +11,7 @@
 #include "gui/scene.hpp"
 #include "gui/dialogDisplay.hpp"
 #include "gui/core/widget.hpp"
+#include "gui/textBox.hpp"
 
 namespace Gui {
 
@@ -37,10 +38,12 @@ private:
     Graphics::TextureStore mTextures;
 
     Widget mBackground;
+    TextBox mTextBox;
     std::vector<Widget> mImages;
 
     std::optional<BAK::Book> mBook;
     unsigned mCurrentPage;
+    std::string mText;
 };
 
 }
