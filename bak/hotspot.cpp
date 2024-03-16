@@ -182,7 +182,7 @@ const Scene& SceneHotspots::GetScene(
     const GameState& gs)
 {
     const auto ttmIndex = mAdsIndices[adsIndex];
-    return mScenes[ttmIndex.mSceneIndex.GetTTMIndex(gs)];
+    return mScenes[ttmIndex.mSceneIndex.GetTTMIndex(gs.GetChapter())];
 }
 
 }

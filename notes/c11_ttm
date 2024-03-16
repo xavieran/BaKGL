@@ -1,0 +1,165 @@
+ INFO [main] Loading ADS and TTM:C11.ADS C11.TTM
+ INFO [CreateFileBuffer] Opening: /home/xavieran/bak/data/krondor.rmf
+ DEBUG [BAK::ResourceIndex] RMF Version (1, 4) ResourceFile: krondor.001 Resources: 1766
+ INFO [CreateFileBuffer] Opening: /home/xavieran/bak/data/krondor.001
+ DEBUG [LoadSceneIndices] Index: [[1]]
+ DEBUG [LoadSceneIndices] 1030 adsAct: Index 1 1
+ DEBUG [LoadSceneIndices] 2005 adsAct: AddScene 1 1 0 1
+ DEBUG [LoadSceneIndices] 1520 adsAct: PlayScene2 
+ DEBUG [LoadSceneIndices] ffff adsAct: End 
+ DEBUG [LoadScenes] Pages:20
+ DEBUG [LoadScenes] Code: 1110 SetScene Name: init ch1sc1
+ DEBUG [LoadScenes] Code: 1060 SlotPalette args [  0 ]
+ DEBUG [LoadScenes] Code: f050 LoadPalette Name: C11A.PAL
+ DEBUG [LoadScenes] Code: 1060 SlotPalette args [  1 ]
+ DEBUG [LoadScenes] Code: f050 LoadPalette Name: C11B.PAL
+ DEBUG [LoadScenes] Code: 1050 SlotImage args [  0 ]
+ DEBUG [LoadScenes] Code: f020 LoadImage Name: C11A1.BMP
+ DEBUG [LoadScenes] Code: f010 LoadScreen Name: C11.SCR
+ DEBUG [LoadScenes] Code: 2010 SetFrame1 args [  0,255 ]
+ DEBUG [LoadScenes] Code: b600 DrawScreen args [  0,0,320,200,2,3 ]
+ DEBUG [LoadScenes] Code: 1060 SlotPalette args [  0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  110,20,1,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  214,31,2,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  49,30,0,0 ]
+ DEBUG [LoadScenes] Code: 4120 FadeIn args [  0,256,0,3 ]
+ DEBUG [LoadScenes] Code: 20 SaveBackground args [  ]
+ DEBUG [LoadScenes] Code: c020 LoadSoundResource Name: FRP.SX
+ DEBUG [LoadScenes] Code: c030 SelectSound args [  41 ]
+ DEBUG [LoadScenes] Code: c030 SelectSound args [  40 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: c050 PlaySound args [  1030 ]
+ DEBUG [LoadScenes] Code: 2010 SetFrame1 args [  3,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 1050 SlotImage args [  0 ]
+ DEBUG [LoadScenes] Code: f020 LoadImage Name: C11A2.BMP
+ DEBUG [LoadScenes] Code: 4000 SetClipRegion args [  15,11,303,111 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: b600 DrawScreen args [  0,0,320,200,3,2 ]
+ DEBUG [LoadScenes] Code: b600 DrawScreen args [  0,0,320,200,3,1 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  106,24,1,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  39,27,0,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  215,28,2,0 ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  7 ]
+ DEBUG [LoadScenes] Code: c050 PlaySound args [  41 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  89,20,4,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  30,26,3,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  224,28,5,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  14,27,6,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  240,28,7,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  73,11,8,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  104,11,9,0 ]
+ DEBUG [LoadScenes] Code: 4200 SaveImage0 args [  104,10,120,104 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  262,28,7,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  -6,27,6,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  65,54,10,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  200,61,11,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  293,28,7,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  -33,27,6,0 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  46,53,12,0 ]
+ DEBUG [LoadScenes] Code: 4200 SaveImage0 args [  40,52,224,49 ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 2010 SetFrame1 args [  4,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 1050 SlotImage args [  0 ]
+ DEBUG [LoadScenes] Code: f020 LoadImage Name: C11B.BMP
+ DEBUG [LoadScenes] Code: 2000 SetColors args [  0,0 ]
+ DEBUG [LoadScenes] Code: a100 DrawRect args [  15,11,289,101 ]
+ DEBUG [LoadScenes] Code: 4110 FadeOut args [  16,240,16,1 ]
+ DEBUG [LoadScenes] Code: 1060 SlotPalette args [  1 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 1110 SetScene Name: start break
+ DEBUG [LoadScenes] Code: b600 DrawScreen args [  0,0,320,200,3,2 ]
+ DEBUG [LoadScenes] Code: b600 DrawScreen args [  0,0,320,200,3,1 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  110,12,0,0 ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  60 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  110,12,0,0 ]
+ DEBUG [LoadScenes] Code: 2010 SetFrame1 args [  5,0 ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  110,12,0,0 ]
+ DEBUG [LoadScenes] Code: 2010 SetFrame1 args [  178,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: c050 PlaySound args [  1035 ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  109,14,1,0 ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  10 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  109,17,2,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  99,20,3,0 ]
+ DEBUG [LoadScenes] Code: c050 PlaySound args [  40 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  92,24,4,0 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: a500 DrawSprite args [  89,26,5,0 ]
+ DEBUG [LoadScenes] Code: 4200 SaveImage0 args [  88,25,176,90 ]
+ DEBUG [LoadScenes] Code: 1020 Delay args [  100 ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Code: 4000 SetClipRegion args [  0,0,319,199 ]
+ DEBUG [LoadScenes] Code: a100 DrawRect args [  0,0,320,200 ]
+ DEBUG [LoadScenes] Code: 4110 FadeOut args [  0,256,0,4 ]
+ DEBUG [LoadScenes] Code: c040 DeselectSound args [  41 ]
+ DEBUG [LoadScenes] Code: c040 DeselectSound args [  40 ]
+ DEBUG [LoadScenes] Code: 110 Purge args [  ]
+ DEBUG [LoadScenes] Code: ff0 Update args [  ]
+ DEBUG [LoadScenes] Unhandled action: LoadScreen
+ DEBUG [LoadScenes] Unhandled action: SetFrame1
+ DEBUG [LoadScenes] Unhandled action: DrawScreen
+ DEBUG [LoadScenes] Unhandled action: FadeIn
+ DEBUG [LoadScenes] Unhandled action: SaveBackground
+ DEBUG [LoadScenes] Unhandled action: LoadSoundResource
+ DEBUG [LoadScenes] Unhandled action: SelectSound
+ DEBUG [LoadScenes] Unhandled action: SelectSound
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: PlaySound
+ DEBUG [LoadScenes] Unhandled action: SetFrame1
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: DrawScreen
+ DEBUG [LoadScenes] Unhandled action: DrawScreen
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: PlaySound
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: SaveImage0
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: SaveImage0
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: SetFrame1
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: FadeOut
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: DrawScreen
+ DEBUG [LoadScenes] Unhandled action: DrawScreen
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: SetFrame1
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: SetFrame1
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: PlaySound
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: PlaySound
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: SaveImage0
+ DEBUG [LoadScenes] Unhandled action: Delay
+ DEBUG [LoadScenes] Unhandled action: Update
+ DEBUG [LoadScenes] Unhandled action: FadeOut
+ DEBUG [LoadScenes] Unhandled action: DeselectSound
+ DEBUG [LoadScenes] Unhandled action: DeselectSound
+ DEBUG [LoadScenes] Unhandled action: Purge
+ DEBUG [LoadScenes] Unhandled action: Update

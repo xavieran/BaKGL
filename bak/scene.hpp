@@ -11,6 +11,7 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
+#include <map>
 
 namespace BAK {
 
@@ -26,13 +27,12 @@ struct ADSIndex
         mLessThan{}
     {}
 
-    TTMIndex GetTTMIndex(const BAK::GameState& gs) const
+    TTMIndex GetTTMIndex(Chapter chapter) const
     {
-        const auto chapter = gs.GetChapter().mValue;
         if (mGreaterThan && mLessThan)
         {
-            if (chapter >= *mGreaterThan
-                && chapter <= *mLessThan)
+            if (chapter.mValue >= *mGreaterThan
+                && chapter.mValue <= *mLessThan)
                 return mIf;
             else
             {
@@ -40,11 +40,11 @@ struct ADSIndex
                 return *mElse;
             }
         }
-        else if (mGreaterThan && chapter >= *mGreaterThan)
+        else if (mGreaterThan && chapter.mValue >= *mGreaterThan)
         {
             return mIf;
         }
-        else if (mLessThan && chapter <= *mLessThan)
+        else if (mLessThan && chapter.mValue <= *mLessThan)
         {
             return mIf;
         }
@@ -73,28 +73,54 @@ struct SceneIndex
     ADSIndex mSceneIndex;
 };
 
+struct SceneADS
+{
+    unsigned mInitScene;
+    unsigned mDrawScene;
+    bool mPlayAllScenes;
+};
+
+struct SceneSequence
+{
+    std::string mName;
+    std::vector<SceneADS> mScenes;
+};
+
 std::ostream& operator<<(std::ostream&, const SceneIndex&);
 
 struct ImageSlot
 {
-    std::optional<std::string> mImage;
+    std::vector<std::string> mImage;
     std::optional<unsigned> mPalette;
 };
+
+using PaletteSlot = unsigned;
 
 struct Scene
 {
     std::string mSceneTag;
     std::vector<SceneAction> mActions;
-    std::unordered_map<unsigned, std::string> mPalettes;
-    std::unordered_map<unsigned, std::pair<std::string, unsigned>> mImages;
+    std::unordered_map<PaletteSlot, std::string> mPalettes;
+    std::unordered_map<unsigned, std::pair<std::string, PaletteSlot>> mImages;
+    std::unordered_map<PaletteSlot, std::pair<std::string, PaletteSlot>> mScreens;
 
     std::optional<ClipRegion> mClipRegion;
 };
 
 std::ostream& operator<<(std::ostream&, const Scene&);
 
+struct DynamicScene
+{
+    std::map<unsigned, unsigned> mScenes;
+    std::vector<SceneAction> mActions;
+};
+
+std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb);
 std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
+std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb);
+
+FileBuffer DecompressTTM(FileBuffer& fb);
 
 // Helper during loading
 struct SceneChunk

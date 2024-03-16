@@ -17,6 +17,8 @@ public:
     void Load(FileBuffer& fb);
     std::optional<std::string> GetTag(Tag) const;
     std::optional<Tag> FindTag(const std::string&) const;
+
+    void DumpTags() const;
 private:
     std::unordered_map<Tag, std::string> mTags;
 };

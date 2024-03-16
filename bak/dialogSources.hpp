@@ -46,6 +46,11 @@ public:
         return KeyTarget{mDragonsBreath + spell};
     }
 
+    static KeyTarget GetTTMDialogKey(unsigned index)
+    {
+        return KeyTarget{0x186a00 + index};
+    }
+
     static Target GetChoiceResult(KeyTarget dialog, unsigned index)
     {
         const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();

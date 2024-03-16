@@ -23,7 +23,17 @@ public:
         mWidth{width},
         mHeight{height}
     {}
-    
+
+    Texture(
+        unsigned width,
+        unsigned height)
+    :
+        mTexture{width * height, glm::vec4{0}},
+        mWidth{width},
+        mHeight{height}
+    {
+    }
+
     // Get pixel wrapping access
     const auto& GetPixel(unsigned x, unsigned y) const
     {

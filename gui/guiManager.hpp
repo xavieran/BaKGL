@@ -222,7 +222,7 @@ public:
 
     bool InMainView() const override
     {
-        return mScreenStack.Top() == &mMainView;
+        return mScreenStack.size() > 0 && mScreenStack.Top() == &mMainView;
     }
 
     void EnterMainView() override

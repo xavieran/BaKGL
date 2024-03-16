@@ -1,5 +1,4 @@
 #pragma once
-
 #include "bak/scene.hpp"
 
 #include "com/logger.hpp"
