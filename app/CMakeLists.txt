@@ -1,6 +1,7 @@
 list(APPEND APP_BINARIES
     decomp_ttm
     dialog_explorer
+    display_book
     display_dialog
     display_encounters
     display_fo
@@ -16,6 +17,7 @@ list(APPEND APP_BINARIES
     display_ttm
     instancing
     main3d
+    play_book
     play_ttm
     show_scene
     show_imgui

@@ -1,5 +1,6 @@
 add_library(gui
     button.hpp
+    bookPlayer.hpp bookPlayer.cpp
     clickButton.hpp
     colors.hpp
     cursor.hpp

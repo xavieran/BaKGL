@@ -783,6 +783,12 @@ FileBuffer::Tell()
 }
 
 uint8_t
+FileBuffer::Peek()
+{
+    return *mCurrent;
+}
+
+uint8_t
 FileBuffer::GetUint8()
 {
     uint8_t n;

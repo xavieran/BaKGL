@@ -1,5 +1,6 @@
 #include "gui/dynamicTTM.hpp"
 
+#include "bak/dialogSources.hpp"
 #include "bak/imageStore.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
@@ -154,7 +155,7 @@ bool DynamicTTM::AdvanceAction()
             },
             [&](const BAK::ShowDialog& dialog){
                 RenderDialog(dialog);
-                if (!dialog.mClearDialog)
+                if (dialog.mDialogType != 0xff)
                 {
                     waitForClick = true;
                 }
@@ -190,9 +191,10 @@ bool DynamicTTM::AdvanceAction()
 
 void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
 {
-    if (!dialog.mClearDialog)
+    if (dialog.mDialogType != 0xff && dialog.mDialogKey != 0)
     {
-        const auto& snippet = BAK::DialogStore::Get().GetSnippet(dialog.mDialogKey);
+        const auto& snippet = BAK::DialogStore::Get().GetSnippet(
+            BAK::DialogSources::GetTTMDialogKey(dialog.mDialogKey));
         auto popup = snippet.GetPopup();
         mLogger.Debug() << "Show snippet;" << snippet << "\n";
         if (popup)

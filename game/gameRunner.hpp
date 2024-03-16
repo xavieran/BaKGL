@@ -150,7 +150,6 @@ public:
                     else
                         mSystems->AddRenderable(renderable);
 
-                    Logging::LogDebug(__FUNCTION__) << "Handled location: " << item.GetBakLocation() << " item: " << item.GetZoneItem().GetName() << "\n";
                     if (item.GetZoneItem().GetClickable())
                     {
                         const auto bakLocation = item.GetBakLocation();
