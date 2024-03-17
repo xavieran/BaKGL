@@ -92,7 +92,8 @@ int main(int argc, char** argv)
     auto bookPlayer = Gui::BookPlayer{
         spriteManager,
         font,
-        backgrounds
+        backgrounds,
+        [](){}
     };
     bookPlayer.PlayBook(bookFile);
 

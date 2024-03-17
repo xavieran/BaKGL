@@ -22,7 +22,8 @@ public:
     BookPlayer(
         Graphics::SpriteManager& spriteManager,
         const Font& font,
-        const Backgrounds& background);
+        const Backgrounds& background,
+        std::function<void()> finishedBook);
 
     void PlayBook(std::string);
     void AdvancePage();
@@ -44,6 +45,7 @@ private:
     std::optional<BAK::Book> mBook;
     unsigned mCurrentPage;
     std::string mText;
+    std::function<void()> mFinishedBook;
 };
 
 }

@@ -53,6 +53,8 @@ DynamicTTM::DynamicTTM(
     AnimatorStore& animatorStore,
     const Font& font,
     const Backgrounds& backgrounds,
+    std::function<void()>&& sceneFinished,
+    std::function<void(unsigned)>&& displayBook,
     std::string adsFile,
     std::string ttmFile)
 :
@@ -108,6 +110,8 @@ DynamicTTM::DynamicTTM(
     mSceneElements{},
     mRunner{adsFile, ttmFile},
     mRenderedFramesSheet{mSpriteManager.AddTemporarySpriteSheet()},
+    mSceneFinished{std::move(sceneFinished)},
+    mDisplayBook{std::move(displayBook)},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
 {
     mPopup.AddChildBack(&mPopupText);

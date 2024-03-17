@@ -97,8 +97,10 @@ int main(int argc, char** argv)
         animatorStore,
         font,
         backgrounds,
+        [](){},
+        [](auto){},
         basename + ".ADS",
-        basename + ".TTM"
+        basename + ".TTM",
     };
 
     dynamicTTM.BeginScene();

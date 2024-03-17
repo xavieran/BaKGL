@@ -80,7 +80,7 @@ public:
         const auto NextLine = [&](bool halfLine){
             // Save this line's dims and move on to the next
             ASSERT(lines.size() > 0);
-            auto ydiff = ((font.GetHeight() * newLineMultiplier + 1) / scale) * (halfLine ? .5 : 1.0);
+            auto ydiff = ((font.GetHeight() * newLineMultiplier + 1) / scale) * (halfLine ? .45 : 1.0);
             lines.back().mDimensions = glm::vec2{
                 charPos.x + (font.GetSpace() / scale),
                 charPos.y + ydiff

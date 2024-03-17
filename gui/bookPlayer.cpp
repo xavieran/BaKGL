@@ -7,7 +7,8 @@ namespace Gui {
 BookPlayer::BookPlayer(
     Graphics::SpriteManager& spriteManager,
     const Font& font,
-    const Backgrounds& background)
+    const Backgrounds& background,
+    std::function<void()> finishedBook)
 :
     mSpriteManager{spriteManager},
     mSpriteSheet{spriteManager.AddTemporarySpriteSheet()},
@@ -20,7 +21,8 @@ BookPlayer::BookPlayer(
        {0, 0},
        {320, 200},
        true},
-    mTextBox{{}, {}}
+    mTextBox{{}, {}},
+    mFinishedBook{std::move(finishedBook)}
 {
     auto bookTextures = Graphics::TextureStore{};
     BAK::TextureFactory::AddToTextureStore(
