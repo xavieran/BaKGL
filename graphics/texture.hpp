@@ -60,11 +60,7 @@ public:
 
     unsigned GetWidth() const { return mWidth; }
     unsigned GetHeight() const { return mHeight; }
-    std::pair<unsigned, unsigned> GetDims() const
-    {
-        return std::make_pair(GetWidth(), GetHeight());
-    }
-
+    glm::ivec2 GetDims() const { return glm::ivec2(GetWidth(), GetHeight()); }
     const TextureType& GetTexture() const { return mTexture; }
     TextureType& GetTexture() { return mTexture; }
 

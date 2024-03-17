@@ -46,8 +46,7 @@ public:
 
             for (const auto& t : textures.GetTextures())
             {
-                const auto [w, h] = t.GetDims();
-                mButtonIconsDims.emplace_back(w, h);
+                mButtonIconsDims.emplace_back(t.GetDims());
             }
 
             auto& spriteSheet = spriteManager.GetSpriteSheet(mButtonIconsSpriteSheet);
@@ -95,11 +94,9 @@ public:
             BAK::TextureFactory::AddToTextureStore(
                 textures, "CASTFACE.BMX", "OPTIONS.PAL");
 
-
             for (const auto& t : textures.GetTextures())
             {
-                const auto [w, h] = t.GetDims();
-                mInventoryIconsDims.emplace_back(w, h);
+                mInventoryIconsDims.emplace_back(t.GetDims());
             }
 
             auto& spriteSheet = spriteManager.GetSpriteSheet(mInventoryIconsSpriteSheet);

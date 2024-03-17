@@ -1,4 +1,3 @@
-#include "bak/encounter/teleport.hpp"
 #include "bak/gameState.hpp"
 
 #include "com/algorithm.hpp"
@@ -13,7 +12,7 @@
 #include "gui/actors.hpp"
 #include "gui/animatorStore.hpp"
 #include "gui/backgrounds.hpp"
-#include "gui/dynamicTTM.hpp"
+#include "gui/bookPlayer.hpp"
 #include "gui/core/mouseEvent.hpp"
 #include "gui/window.hpp"
 
@@ -44,10 +43,10 @@ int main(int argc, char** argv)
     auto guiScalar = 3.5f;
 
     auto nativeWidth = 320.0f;
-    auto nativeHeight = 240.0f;
+    auto nativeHeight = 200.0f;
 
     auto width = nativeWidth * guiScalar;
-    auto height = nativeHeight * guiScalar * 0.83f;
+    auto height = nativeHeight * guiScalar;
 
     auto window = Graphics::MakeGlfwWindow(
         height,
@@ -78,11 +77,9 @@ int main(int argc, char** argv)
         return -1;
     }
     
-    std::string basename{argv[1]};
-    auto gameState = BAK::GameState{};
+    std::string bookFile{argv[1]};
     
-    const auto font = Gui::Font{"GAME.FNT", spriteManager};
-    const auto actors = Gui::Actors{spriteManager};
+    const auto font = Gui::Font{"BOOK.FNT", spriteManager};
     const auto backgrounds = Gui::Backgrounds{spriteManager};
 
     Gui::Window rootWidget{
@@ -92,20 +89,15 @@ int main(int argc, char** argv)
 
     Gui::AnimatorStore animatorStore{};
 
-    auto dynamicTTM = Gui::DynamicTTM{
+    auto bookPlayer = Gui::BookPlayer{
         spriteManager,
-        animatorStore,
         font,
         backgrounds,
-        [](){},
-        [](auto){},
-        basename + ".ADS",
-        basename + ".TTM",
+        [](){}
     };
+    bookPlayer.PlayBook(bookFile);
 
-    dynamicTTM.BeginScene();
-
-    rootWidget.AddChildBack(dynamicTTM.GetScene());
+    rootWidget.AddChildBack(bookPlayer.GetBackground());
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};
@@ -119,7 +111,7 @@ int main(int argc, char** argv)
         {
             rootWidget.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
-            dynamicTTM.AdvanceAction();
+            bookPlayer.AdvancePage();
         },
         [&](const auto click)
         {
@@ -181,8 +173,6 @@ int main(int argc, char** argv)
         && glfwWindowShouldClose(window.get()) == 0);
 
     ImguiWrapper::Shutdown();
-
-    delete gameState.GetGameData();
 
     return 0;
 }

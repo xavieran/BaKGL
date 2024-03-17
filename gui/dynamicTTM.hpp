@@ -24,6 +24,8 @@ public:
         AnimatorStore& animatorStore,
         const Font& font,
         const Backgrounds& background,
+        std::function<void()>&& sceneFinished,
+        std::function<void(unsigned)>&& displayBook,
         std::string adsFile,
         std::string ttmFile);
 
@@ -55,6 +57,9 @@ private:
     Graphics::TextureStore mRenderedFrames;
     Graphics::SpriteManager::TemporarySpriteSheet mRenderedFramesSheet;
     unsigned mCurrentRenderedFrame = 0;
+
+    std::function<void()> mSceneFinished;
+    std::function<void(unsigned)> mDisplayBook;
 
     const Logging::Logger& mLogger;
 };

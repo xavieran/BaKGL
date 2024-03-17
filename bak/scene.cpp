@@ -818,10 +818,8 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
         {
             actions.emplace_back(
                 ShowDialog{
-                    chunk.mArguments[1] == 0xff
-                        || chunk.mArguments[0] == 0xff
-                        || chunk.mArguments[1] == 2, // actually this is .BOK dialog bits
-                    DialogSources::GetTTMDialogKey(chunk.mArguments[0])});
+                    static_cast<unsigned>(chunk.mArguments[0]),
+                    static_cast<unsigned>(chunk.mArguments[1])});
         } break;
         case Actions::DRAW_RECT:
         case Actions::DRAW_FRAME:

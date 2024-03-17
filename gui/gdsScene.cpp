@@ -83,12 +83,12 @@ GDSScene::GDSScene(
     BAK::TextureFactory::AddScreenToTextureStore(
         textures, "DIALOG.SCX", "OPTIONS.PAL");
 
-    const auto [x, y] = textures.GetTexture(0).GetDims();
+    const auto dims = textures.GetTexture(0).GetDims();
     mSpriteManager
         .GetSpriteSheet(mSpriteSheet->mSpriteSheet)
         .LoadTexturesGL(textures);
 
-    SetDimensions(glm::vec2{x, y});
+    SetDimensions(dims);
 
     auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(mReference.ToFilename());
     mFlavourText = BAK::KeyTarget{mSceneHotspots.mFlavourText};

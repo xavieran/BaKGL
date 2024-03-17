@@ -51,6 +51,12 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
+    auto bookTextures = Graphics::TextureStore{};
+    BAK::TextureFactory::AddToTextureStore(
+        bookTextures, "BOOK.BMX", "BOOK.PAL");
+    auto bookSpriteSheet = spriteManager.AddSpriteSheet();
+    spriteManager.GetSpriteSheet(bookSpriteSheet).LoadTexturesGL(bookTextures);
+
     auto icons = Gui::Icons{spriteManager};
     int iconI = 0;
     auto picture = Gui::Widget{
@@ -60,10 +66,11 @@ int main(int argc, char** argv)
         glm::vec2{50,50},
         glm::vec2{100,100},
         true};
-    const auto& [ss, ti, dims] = icons.GetButton(iconI);
-    picture.SetSpriteSheet(ss);
-    picture.SetTexture(ti);
-    picture.SetDimensions(dims);
+
+    //const auto& [ss, ti, dims] = icons.GetBookIcon(iconI);
+    picture.SetSpriteSheet(bookSpriteSheet);
+    picture.SetTexture(Graphics::TextureIndex{static_cast<unsigned>(iconI)});
+    picture.SetDimensions(bookTextures.GetTexture(static_cast<unsigned>(iconI)).GetDims());
 
     root.AddChildBack(&picture);
     root.HideCursor();
@@ -96,31 +103,25 @@ int main(int argc, char** argv)
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_RIGHT, [&]{
         iconI++;
-        if (static_cast<unsigned>(iconI) > icons.GetSize()) iconI = 0;
-        const auto& [ss, ti, dims] = icons.GetButton(iconI);
-        picture.SetSpriteSheet(ss);
-        picture.SetTexture(ti);
-        picture.SetDimensions(dims);
+        picture.SetSpriteSheet(bookSpriteSheet);
+        picture.SetTexture(Graphics::TextureIndex{static_cast<unsigned>(iconI)});
+        picture.SetDimensions(bookTextures.GetTexture(static_cast<unsigned>(iconI)).GetDims());
         logger.Debug() << "Pic: " << picture << "\n";
     });
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{
         iconI--;
-        if (iconI < 0) iconI = icons.GetSize();
-        const auto& [ss, ti, dims] = icons.GetButton(iconI);
-        picture.SetSpriteSheet(ss);
-        picture.SetTexture(ti);
-        picture.SetDimensions(dims);
+        picture.SetSpriteSheet(bookSpriteSheet);
+        picture.SetTexture(Graphics::TextureIndex{static_cast<unsigned>(iconI)});
+        picture.SetDimensions(bookTextures.GetTexture(static_cast<unsigned>(iconI)).GetDims());
         logger.Debug() << "Pic: " << picture << "\n";
     });
     inputHandler.BindMouse(GLFW_MOUSE_BUTTON_LEFT, [&](auto p)
     {
         logger.Debug() << p << "\n";
         iconI++;
-        if (static_cast<unsigned>(iconI) > icons.GetSize()) iconI = 0;
-        const auto& [ss, ti, dims] = icons.GetCastIcon(iconI);
-        picture.SetSpriteSheet(ss);
-        picture.SetTexture(ti);
-        picture.SetDimensions(dims);
+        picture.SetSpriteSheet(bookSpriteSheet);
+        picture.SetTexture(Graphics::TextureIndex{static_cast<unsigned>(iconI)});
+        picture.SetDimensions(bookTextures.GetTexture(static_cast<unsigned>(iconI)).GetDims() / 2);
         logger.Debug() << "ICONI: " << iconI << " Pic: " << picture << "\n";
 
     },
@@ -128,11 +129,9 @@ int main(int argc, char** argv)
 
     inputHandler.BindMouse(GLFW_MOUSE_BUTTON_RIGHT, [&](auto p){
         iconI--;
-        if (iconI < 0) iconI = icons.GetSize();
-        const auto& [ss, ti, dims] = icons.GetCastIcon(iconI);
-        picture.SetSpriteSheet(ss);
-        picture.SetTexture(ti);
-        picture.SetDimensions(dims);
+        picture.SetSpriteSheet(bookSpriteSheet);
+        picture.SetTexture(Graphics::TextureIndex{static_cast<unsigned>(iconI)});
+        picture.SetDimensions(bookTextures.GetTexture(static_cast<unsigned>(iconI)).GetDims() / 2);
         logger.Debug() << "ICONI: " << iconI << " Pic: " << picture << "\n";
         },
         [](auto){});

@@ -246,7 +246,8 @@ std::ostream& operator<<(std::ostream& os, const SlotPalette& a)
 
 std::ostream& operator<<(std::ostream& os, const ShowDialog& a)
 {
-    return os << "ShowDialog{ clear: " << std::boolalpha << a.mClearDialog << ", " << std::hex << a.mDialogKey << std::dec << "}";
+    return os << "ShowDialog{ " << std::hex << a.mDialogKey << std::dec
+        << " type: " << a.mDialogType << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const PlaySoundS& a)

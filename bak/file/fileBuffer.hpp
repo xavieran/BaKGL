@@ -70,6 +70,7 @@ public:
     std::uint8_t * GetCurrent() const;
     unsigned GetNextBit() const;
 
+    std::uint8_t Peek();
     std::uint8_t GetUint8();
     std::uint16_t GetUint16LE();
     std::uint16_t GetUint16BE();

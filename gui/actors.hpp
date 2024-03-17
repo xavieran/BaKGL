@@ -52,8 +52,8 @@ public:
                 mLogger.Debug() << "Loading: " << bmx.str() << " " << pal.str() << std::endl;
                 BAK::TextureFactory::AddToTextureStore(
                     textures, bmx.str(), pal.str());
-                const auto [x, y] = textures.GetTexture(textureIndex).GetDims();
-                mActorDimensions.emplace_back(std::make_pair(textureIndex, glm::vec2{x, y}));
+                const auto dims = textures.GetTexture(textureIndex).GetDims();
+                mActorDimensions.emplace_back(std::make_pair(textureIndex, dims));
                 textureIndex++;
             }
 
@@ -66,10 +66,10 @@ public:
                 mLogger.Debug() << "Loading alternate: " << bmx.str() << " " << pal.str() << std::endl;
                 BAK::TextureFactory::AddToTextureStore(
                     textures, bmx.str(), pal.str());
-                const auto [x, y] = textures.GetTexture(textureIndex).GetDims();
+                const auto dims = textures.GetTexture(textureIndex).GetDims();
                 mActorADimensions.emplace(
                     i,
-                    std::make_pair(textureIndex, glm::vec2{x, y}));
+                    std::make_pair(textureIndex, dims));
                 textureIndex++;
             }
         }

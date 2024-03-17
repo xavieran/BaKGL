@@ -258,8 +258,8 @@ struct SlotPalette
 
 struct ShowDialog
 {
-    bool mClearDialog;
-    KeyTarget mDialogKey;
+    unsigned mDialogKey;
+    unsigned mDialogType;
 };
 
 using SceneAction = std::variant<

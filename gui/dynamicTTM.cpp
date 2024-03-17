@@ -1,5 +1,6 @@
 #include "gui/dynamicTTM.hpp"
 
+#include "bak/dialogSources.hpp"
 #include "bak/imageStore.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
@@ -52,6 +53,8 @@ DynamicTTM::DynamicTTM(
     AnimatorStore& animatorStore,
     const Font& font,
     const Backgrounds& backgrounds,
+    std::function<void()>&& sceneFinished,
+    std::function<void(unsigned)>&& displayBook,
     std::string adsFile,
     std::string ttmFile)
 :
@@ -107,6 +110,8 @@ DynamicTTM::DynamicTTM(
     mSceneElements{},
     mRunner{adsFile, ttmFile},
     mRenderedFramesSheet{mSpriteManager.AddTemporarySpriteSheet()},
+    mSceneFinished{std::move(sceneFinished)},
+    mDisplayBook{std::move(displayBook)},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
 {
     mPopup.AddChildBack(&mPopupText);
@@ -138,6 +143,7 @@ DynamicTTM::DynamicTTM(
 
 void DynamicTTM::BeginScene()
 {
+    AdvanceAction();
 }
 
 bool DynamicTTM::AdvanceAction()
@@ -154,7 +160,7 @@ bool DynamicTTM::AdvanceAction()
             },
             [&](const BAK::ShowDialog& dialog){
                 RenderDialog(dialog);
-                if (!dialog.mClearDialog)
+                if (dialog.mDialogType != 0xff)
                 {
                     waitForClick = true;
                 }
@@ -190,9 +196,14 @@ bool DynamicTTM::AdvanceAction()
 
 void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
 {
-    if (!dialog.mClearDialog)
+    // mDialogType == 5 - display dialog using RunDialog (i.e. No actor names, no default bold)
+    // mDialogType == 1 and 4 - similar to above... not sure the difference
+    // mDialogType == 3 - same as above - no wait
+    // mDialogType == 0 - the usual method
+    if (dialog.mDialogType != 0xff && dialog.mDialogKey != 0)
     {
-        const auto& snippet = BAK::DialogStore::Get().GetSnippet(dialog.mDialogKey);
+        const auto& snippet = BAK::DialogStore::Get().GetSnippet(
+            BAK::DialogSources::GetTTMDialogKey(dialog.mDialogKey));
         auto popup = snippet.GetPopup();
         mLogger.Debug() << "Show snippet;" << snippet << "\n";
         if (popup)

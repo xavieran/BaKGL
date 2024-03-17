@@ -3,6 +3,7 @@ enable_testing()
 add_library(bak
     IContainer.hpp IContainer.cpp
     bard.hpp bard.cpp
+    book.hpp book.cpp
     camera.hpp
     camp.hpp camp.cpp
     condition.hpp condition.cpp
