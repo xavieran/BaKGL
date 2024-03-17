@@ -48,7 +48,7 @@ void BookPlayer::PlayBook(std::string book)
             }
             ss << t.mText;
         }
-        ss << "\n\n";
+        ss << "\n\xf8";
     }
     mText = ss.str();
 
