@@ -55,6 +55,8 @@ add_library(bak
     spells.hpp spells.cpp
     tags.hpp tags.cpp
     temple.hpp temple.cpp
+    ttmRenderer.hpp ttmRenderer.cpp
+    ttmRunner.hpp ttmRunner.cpp
     textureFactory.hpp textureFactory.cpp
     time.hpp time.cpp
     timeExpiringState.hpp timeExpiringState.cpp

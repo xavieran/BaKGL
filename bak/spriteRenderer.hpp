@@ -1,3 +1,5 @@
+#pragma once
+
 #include "bak/image.hpp"
 #include "bak/palette.hpp"
 
