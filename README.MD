@@ -6,13 +6,15 @@
 Remake of Betrayal at Krondor using OpenGL.
 
 # Features
-* World exploration
-* Towns
-* Dialog
-* Event state tracking
+* Camping
+* Cutscenes
 * Music and sound
+* Quests and story
 * Shops and inventory
+* Spell casting
 * Temples
+* Towns
+* World exploration
 * World map
 
 # Acknowledgements
