@@ -3,6 +3,7 @@
 #include "bak/imageStore.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
+#include "bak/ttmRenderer.hpp"
 
 #include "bak/dialog.hpp"
 #include "com/assert.hpp"
@@ -105,6 +106,7 @@ DynamicTTM::DynamicTTM(
         glm::vec2{}
     },
     mSceneElements{},
+    mRenderedFramesSheet{mSpriteManager.AddTemporarySpriteSheet()},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
 {
     mPopup.AddChildBack(&mPopupText);
@@ -117,6 +119,9 @@ DynamicTTM::DynamicTTM(
     mSceneSequences = BAK::LoadSceneSequences(adsFb);
     auto ttmFb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
     mActions = BAK::LoadDynamicScenes(ttmFb);
+    BAK::TTMRenderer renderer(adsFile, ttmFile);
+    mRenderedFrames = renderer.RenderTTM();
+    mSpriteManager.GetSpriteSheet(mRenderedFramesSheet->mSpriteSheet).LoadTexturesGL(mRenderedFrames);
 }
 
 void DynamicTTM::BeginScene()
@@ -152,59 +157,8 @@ void DynamicTTM::AdvanceAction()
     mLogger.Debug() << "Handle action: " << action << std::endl;
     std::visit(
         overloaded{
-            [&](const BAK::SlotPalette& sp){
-                mCurrentPaletteSlot = sp.mSlot;
-            },
-            [&](const BAK::LoadPalette& p){
-                mPaletteSlots.erase(mCurrentPaletteSlot);
-                mPaletteSlots.emplace(mCurrentPaletteSlot, BAK::Palette{p.mPalette});
-            },
-            [&](const BAK::SlotImage& sp){
-                mCurrentImageSlot = sp.mSlot;
-            },
             [&](const BAK::Delay& delay){
                 mDelay = static_cast<double>(delay.mDelayMs) / 1000.;
-            },
-            [&](const BAK::LoadImage& p){
-                auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mImage);
-                mImageSlots.erase(mCurrentImageSlot);
-                mImageSlots.emplace(mCurrentImageSlot, BAK::LoadImages(fb));
-                mLogger.Debug() << "Loaded image: " << p.mImage << " to slot: " << mCurrentImageSlot
-                    << " has " << mImageSlots.at(mCurrentImageSlot).mImages.size() << " images\n";
-            },
-            [&](const BAK::LoadScreen& p){
-                auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mScreenName);
-                mScreen = BAK::LoadScreenResource(fb);
-            },
-            [&](const BAK::DrawScreen& sa){
-                if (sa.mArg1 == 3 || sa.mArg2 == 3)
-                {
-                    mRenderer.GetSavedImagesLayer0() = {320, 200};
-                    mRenderer.GetSavedImagesLayer1() = {320, 200};
-                    mRenderer.GetSavedImagesLayerBG() = {320, 200};
-                }
-                if (mScreen && mPaletteSlots.contains(mCurrentPaletteSlot))
-                {
-                    mRenderer.RenderSprite(
-                        *mScreen,
-                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-                        glm::ivec2{0, 0},
-                        false,
-                        mRenderer.GetForegroundLayer());
-                }
-            },
-            [&](const BAK::DrawSprite& sa){
-                const auto imageSlot = sa.mImageSlot;
-                assert(mImageSlots.contains(sa.mImageSlot));
-                assert(static_cast<unsigned>(sa.mSpriteIndex) 
-                        < mImageSlots.at(sa.mImageSlot).mImages.size());
-
-                mRenderer.RenderSprite(
-                    mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
-                    mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-                    glm::ivec2{sa.mX, sa.mY},
-                    sa.mFlippedInY,
-                    mRenderer.GetForegroundLayer());
             },
             [&](const BAK::ShowDialog& dialog){
                 RenderDialog(dialog);
@@ -214,56 +168,11 @@ void DynamicTTM::AdvanceAction()
                 }
             },
             [&](const BAK::Update& sr){
-                auto textures = Graphics::TextureStore{};
-                if (mScreen)
-                {
-                    mRenderer.RenderSprite(
-                        *mScreen,
-                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-                        glm::ivec2{0, 0}, false, mRenderer.GetBackgroundLayer());
-                }
-                if (mBackgroundImage)
-                {
-                    const auto& texture = *mBackgroundImage;
-                    mRenderer.RenderTexture(
-                        texture,
-                        glm::ivec2{0, 0},
-                        mRenderer.GetBackgroundLayer());
-                }
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetSavedImagesLayerBG(),
-                    glm::ivec2{0},
-                    mRenderer.GetBackgroundLayer());
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetSavedImagesLayer0(),
-                    glm::ivec2{0},
-                    mRenderer.GetBackgroundLayer());
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetSavedImagesLayer1(),
-                    glm::ivec2{0},
-                    mRenderer.GetBackgroundLayer());
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetForegroundLayer(),
-                    glm::ivec2{0, 0},
-                    mRenderer.GetBackgroundLayer());
-
-                auto bg = mRenderer.GetBackgroundLayer();
-                bg.Invert();
-                textures.AddTexture(bg);
-
-                auto temporarySpriteSheet = mSpriteManager.AddTemporarySpriteSheet();
-                mImageSprites[0] = std::move(temporarySpriteSheet);
-                mSpriteManager.GetSpriteSheet(mImageSprites[0]->mSpriteSheet).LoadTexturesGL(textures);
-
                 mSceneElements.clear();
                 mSceneElements.emplace_back(
                     Graphics::DrawMode::Sprite,
-                    mImageSprites[0]->mSpriteSheet,
-                    Graphics::TextureIndex{0},
+                    mRenderedFramesSheet->mSpriteSheet,
+                    Graphics::TextureIndex{mCurrentRenderedFrame++},
                     Graphics::ColorMode::Texture,
                     glm::vec4{1},
                     glm::vec2{0},
@@ -275,32 +184,7 @@ void DynamicTTM::AdvanceAction()
                 {
                     mRenderedElements.AddChildBack(&element);
                 }
-                mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200};
-                mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200};
 
-            },
-            [&](const BAK::SaveImage& si){
-                mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer);
-            },
-            [&](const BAK::SetClearRegion& si){
-                mClearRegions.emplace(mImageSaveLayer, si);
-            },
-            [&](const BAK::ClearSaveLayer& si){
-                const auto& clearRegion = mClearRegions.at(mImageSaveLayer);
-                mRenderer.ClearSaveLayer(clearRegion.pos, clearRegion.dims, si.mLayer);
-            },
-            [&](const BAK::SaveBackground&){
-                mRenderer.GetSavedImagesLayer0() = {320, 200};
-                mRenderer.GetSavedImagesLayer1() = {320, 200};
-                mRenderer.SaveImage({0, 0}, {320, 200}, 2);
-            },
-            [&](const BAK::DrawRect& sr){
-            },
-            [&](const BAK::ClipRegion& a){
-                mRenderer.SetClipRegion(a);
-            },
-            [&](const BAK::DisableClipRegion&){
-                mRenderer.ClearClipRegion();
             },
             [&](const BAK::Purge&){
                 AdvanceToNextScene();
@@ -318,7 +202,11 @@ void DynamicTTM::AdvanceAction()
     if (!nextActionChosen)
     {
         mCurrentAction++;
-        if (mCurrentAction == mActions.size()) mCurrentAction = 0;
+        return mCurrentAction == mActions.size();
+    }
+    else
+    {
+        return mCurrentAction == mActions.size();
     }
 
     if (!waitForClick)
@@ -331,6 +219,8 @@ void DynamicTTM::AdvanceAction()
             },
             mDelay));
     }
+
+    return false;
 }
 
 void DynamicTTM::AdvanceToNextScene()
@@ -346,7 +236,11 @@ void DynamicTTM::AdvanceToNextScene()
 
     if (mCurrentSequence == mSceneSequences[1].size())
     {
+        mLogger.Info() << "Finished all sequences, current action: "
+            << mCurrentAction << " actions size: " << mActions.size() << "\n";
+        mCurrentAction = mActions.size();
         mCurrentSequence = 0;
+        return;
     }
 
     auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
