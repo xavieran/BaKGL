@@ -1,8 +1,5 @@
 #pragma once
 
-#include "bak/scene.hpp"
-#include "bak/image.hpp"
-#include "bak/palette.hpp"
 #include "bak/ttmRenderer.hpp"
 #include "bak/ttmRunner.hpp"
 
@@ -18,7 +15,7 @@
 
 namespace Gui {
 
-class DynamicTTM : public NullDialogScene
+class DynamicTTM
 {
     
 public:
@@ -36,8 +33,6 @@ public:
     bool AdvanceAction();
 
 private:
-    void AdvanceToNextScene();
-    unsigned FindActionMatchingTag(unsigned tag);
     void RenderDialog(const BAK::ShowDialog&);
 
     Graphics::SpriteManager& mSpriteManager;
