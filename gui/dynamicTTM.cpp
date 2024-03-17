@@ -3,7 +3,6 @@
 #include "bak/imageStore.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
-#include "bak/ttmRenderer.hpp"
 
 #include "bak/dialog.hpp"
 #include "com/assert.hpp"
@@ -106,6 +105,7 @@ DynamicTTM::DynamicTTM(
         glm::vec2{}
     },
     mSceneElements{},
+    mRunner{adsFile, ttmFile},
     mRenderedFramesSheet{mSpriteManager.AddTemporarySpriteSheet()},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
 {
@@ -113,48 +113,40 @@ DynamicTTM::DynamicTTM(
 
     mSceneFrame.AddChildBack(&mDialogBackground);
     mSceneFrame.AddChildBack(&mRenderedElements);
-    mSceneElements.reserve(100);
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
-    auto adsFb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
-    mSceneSequences = BAK::LoadSceneSequences(adsFb);
-    auto ttmFb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-    mActions = BAK::LoadDynamicScenes(ttmFb);
     BAK::TTMRenderer renderer(adsFile, ttmFile);
     mRenderedFrames = renderer.RenderTTM();
     mSpriteManager.GetSpriteSheet(mRenderedFramesSheet->mSpriteSheet).LoadTexturesGL(mRenderedFrames);
+
+    mSceneElements.emplace_back(
+        Graphics::DrawMode::Sprite,
+        mRenderedFramesSheet->mSpriteSheet,
+        Graphics::TextureIndex{0},
+        Graphics::ColorMode::Texture,
+        glm::vec4{1},
+        glm::vec2{0},
+        glm::vec2{320, 200},
+        false 
+    );
+
+    mRenderedElements.ClearChildren();
+    for (auto& element : mSceneElements)
+    {
+        mRenderedElements.AddChildBack(&element);
+    }
 }
 
 void DynamicTTM::BeginScene()
 {
-
-    mLogger.Debug() << "SceneSequences\n";
-    for (const auto& [key, sequences] : mSceneSequences)
-    {
-        mLogger.Debug() << "Key: " << key << "\n";
-        for (const auto& sequence : sequences)
-        {
-            mLogger.Debug() << "  Sequence: " << sequence.mName << "\n";
-            for (const auto& scene : sequence.mScenes)
-            {
-                mLogger.Debug() << "    ADS(" << scene.mInitScene << ", " << scene.mDrawScene << ")\n";
-            }
-        }
-    }
-
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
-    mLogger.Debug() << "Next tag: " << nextTag << "\n";
-    mCurrentAction = FindActionMatchingTag(nextTag);
-    mLogger.Debug() << "Current action: " << mCurrentAction << "\n";
 }
 
-void DynamicTTM::AdvanceAction()
+bool DynamicTTM::AdvanceAction()
 {
-    if (mDelaying) return;
-    mLogger.Debug() << "AdvanceAction" << "\n";
-    const auto& action = mActions[mCurrentAction];
-    bool nextActionChosen = false;
+    if (mDelaying) return false;
+    auto actionOpt = mRunner.GetNextAction();
+    auto action = *actionOpt;
+
     bool waitForClick = false;
-    mLogger.Debug() << "Handle action: " << action << std::endl;
     std::visit(
         overloaded{
             [&](const BAK::Delay& delay){
@@ -168,46 +160,19 @@ void DynamicTTM::AdvanceAction()
                 }
             },
             [&](const BAK::Update& sr){
-                mSceneElements.clear();
-                mSceneElements.emplace_back(
-                    Graphics::DrawMode::Sprite,
-                    mRenderedFramesSheet->mSpriteSheet,
-                    Graphics::TextureIndex{mCurrentRenderedFrame++},
-                    Graphics::ColorMode::Texture,
-                    glm::vec4{1},
-                    glm::vec2{0},
-                    glm::vec2{320, 200},
-                    false 
-                );
-                mRenderedElements.ClearChildren();
-                for (auto& element : mSceneElements)
-                {
-                    mRenderedElements.AddChildBack(&element);
-                }
-
+                mSceneElements.back().SetTexture(
+                    Graphics::TextureIndex{mCurrentRenderedFrame++});
             },
             [&](const BAK::Purge&){
-                AdvanceToNextScene();
-                nextActionChosen = true;
+                assert(false);
             },
             [&](const BAK::GotoTag& sa){
-                mCurrentAction = FindActionMatchingTag(sa.mTag);
-                nextActionChosen = true;;
+                assert(false);
             },
             [&](const auto&){}
         },
         action
     );
-
-    if (!nextActionChosen)
-    {
-        mCurrentAction++;
-        return mCurrentAction == mActions.size();
-    }
-    else
-    {
-        return mCurrentAction == mActions.size();
-    }
 
     if (!waitForClick)
     {
@@ -221,53 +186,6 @@ void DynamicTTM::AdvanceAction()
     }
 
     return false;
-}
-
-void DynamicTTM::AdvanceToNextScene()
-{
-    auto& currentScenes = mSceneSequences[1][mCurrentSequence].mScenes;
-    mCurrentSequenceScene++;
-    if (mCurrentSequenceScene == currentScenes.size())
-    {
-        mLogger.Info() << "Finished current scene sequence, moving to next sequence\n";
-        mCurrentSequenceScene = 0;
-        mCurrentSequence++;
-    }
-
-    if (mCurrentSequence == mSceneSequences[1].size())
-    {
-        mLogger.Info() << "Finished all sequences, current action: "
-            << mCurrentAction << " actions size: " << mActions.size() << "\n";
-        mCurrentAction = mActions.size();
-        mCurrentSequence = 0;
-        return;
-    }
-
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
-    mLogger.Debug() << "Next tag: " << nextTag << "\n";
-    mCurrentAction = FindActionMatchingTag(nextTag);
-    mLogger.Debug() << "Current action: " << mCurrentAction << "\n";
-}
-
-unsigned DynamicTTM::FindActionMatchingTag(unsigned tag)
-{
-    std::optional<unsigned> foundIndex{};
-    for (unsigned i = 0; i < mActions.size(); i++)
-    {
-        evaluate_if<BAK::SetScene>(mActions[i], [&](const auto& action) {
-            if (action.mSceneNumber == tag)
-            {
-                foundIndex = i;
-            }
-        });
-        if (foundIndex)
-        {
-            return *foundIndex;
-        }
-    }
-
-    //throw std::runtime_error("Couldn't find action matching tag: " + std::to_string(tag));
-    return 0;
 }
 
 void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)

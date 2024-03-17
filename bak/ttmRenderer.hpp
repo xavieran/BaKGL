@@ -1,9 +1,10 @@
 #pragma once
 
-#include "bak/scene.hpp"
 #include "bak/image.hpp"
-#include "bak/spriteRenderer.hpp"
 #include "bak/palette.hpp"
+#include "bak/scene.hpp"
+#include "bak/spriteRenderer.hpp"
+#include "bak/ttmRunner.hpp"
 
 #include "com/logger.hpp"
 
@@ -21,15 +22,8 @@ public:
 
 private:
     bool AdvanceAction();
-    void AdvanceToNextScene();
-    unsigned FindActionMatchingTag(unsigned tag);
 
-    std::unordered_map<unsigned, std::vector<BAK::SceneSequence>> mSceneSequences;
-    std::vector<BAK::SceneAction> mActions;
-
-    unsigned mCurrentAction = 0;
-    unsigned mCurrentSequence = 0;
-    unsigned mCurrentSequenceScene = 0;
+    TTMRunner mRunner;
 
     struct PaletteSlot
     {

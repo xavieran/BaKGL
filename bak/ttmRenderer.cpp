@@ -16,36 +16,13 @@ TTMRenderer::TTMRenderer(
     std::string adsFile,
     std::string ttmFile)
 :
+    mRunner{adsFile, ttmFile},
     mLogger{Logging::LogState::GetLogger("BAK::TTMRenderer")}
 {
-    mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
-    auto adsFb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
-    mSceneSequences = BAK::LoadSceneSequences(adsFb);
-    auto ttmFb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-    mActions = BAK::LoadDynamicScenes(ttmFb);
 }
 
 Graphics::TextureStore TTMRenderer::RenderTTM()
 {
-
-    mLogger.Debug() << "SceneSequences\n";
-    for (const auto& [key, sequences] : mSceneSequences)
-    {
-        mLogger.Debug() << "Key: " << key << "\n";
-        for (const auto& sequence : sequences)
-        {
-            mLogger.Debug() << "  Sequence: " << sequence.mName << "\n";
-            for (const auto& scene : sequence.mScenes)
-            {
-                mLogger.Debug() << "    ADS(" << scene.mInitScene << ", " << scene.mDrawScene << ")\n";
-            }
-        }
-    }
-
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
-    mLogger.Debug() << "Next tag: " << nextTag << "\n";
-    mCurrentAction = FindActionMatchingTag(nextTag);
-    mLogger.Debug() << "Current action: " << mCurrentAction << "\n";
     while (!AdvanceAction())
     {
     }
@@ -55,8 +32,12 @@ Graphics::TextureStore TTMRenderer::RenderTTM()
 bool TTMRenderer::AdvanceAction()
 {
     mLogger.Debug() << "AdvanceAction" << "\n";
-    const auto& action = mActions[mCurrentAction];
-    bool nextActionChosen = false;
+    auto actionOpt = mRunner.GetNextAction();
+    if (!actionOpt)
+    {
+        return true;
+    }
+    auto action = *actionOpt;
     mLogger.Debug() << "Handle action: " << action << std::endl;
     std::visit(
         overloaded{
@@ -171,78 +152,17 @@ bool TTMRenderer::AdvanceAction()
                 mRenderer.ClearClipRegion();
             },
             [&](const BAK::Purge&){
-                AdvanceToNextScene();
-                nextActionChosen = true;
+                assert(false);
             },
             [&](const BAK::GotoTag& sa){
-                mCurrentAction = FindActionMatchingTag(sa.mTag);
-                nextActionChosen = true;;
+                assert(false);
             },
             [&](const auto&){}
         },
         action
     );
 
-    if (!nextActionChosen)
-    {
-        mCurrentAction++;
-        if (mCurrentAction == mActions.size())
-        {
-            return true;
-        }
-    }
-    else if (mCurrentAction == mActions.size())
-    {
-        return true;
-    }
-
     return false;
-}
-
-void TTMRenderer::AdvanceToNextScene()
-{
-    auto& currentScenes = mSceneSequences[1][mCurrentSequence].mScenes;
-    mCurrentSequenceScene++;
-    if (mCurrentSequenceScene == currentScenes.size())
-    {
-        mLogger.Info() << "Finished current scene sequence, moving to next sequence\n";
-        mCurrentSequenceScene = 0;
-        mCurrentSequence++;
-    }
-
-    if (mCurrentSequence == mSceneSequences[1].size())
-    {
-        mLogger.Info() << "Finished all sequences, current action: "
-            << mCurrentAction << " actions size: " << mActions.size() << "\n";
-        mCurrentAction = mActions.size();
-        mCurrentSequence = 0;
-        return;
-    }
-
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
-    mLogger.Debug() << "Next tag: " << nextTag << "\n";
-    mCurrentAction = FindActionMatchingTag(nextTag);
-    mLogger.Debug() << "Current action: " << mCurrentAction << "\n";
-}
-
-unsigned TTMRenderer::FindActionMatchingTag(unsigned tag)
-{
-    std::optional<unsigned> foundIndex{};
-    for (unsigned i = 0; i < mActions.size(); i++)
-    {
-        evaluate_if<BAK::SetScene>(mActions[i], [&](const auto& action) {
-            if (action.mSceneNumber == tag)
-            {
-                foundIndex = i;
-            }
-        });
-        if (foundIndex)
-        {
-            return *foundIndex;
-        }
-    }
-
-    return 0;
 }
 
 }

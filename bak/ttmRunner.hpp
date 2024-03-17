@@ -17,7 +17,6 @@ public:
     std::optional<BAK::SceneAction> GetNextAction();
 
 private:
-    bool AdvanceAction();
     void AdvanceToNextScene();
     unsigned FindActionMatchingTag(unsigned tag);
 
