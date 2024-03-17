@@ -59,6 +59,11 @@ void BookPlayer::PlayBook(std::string book)
 
 void BookPlayer::AdvancePage()
 {
+    if (mText.empty())
+    {
+        mFinishedBook();
+        return;
+    }
     mCurrentPage++;
     if (mCurrentPage == mBook->mPages.size())
     {

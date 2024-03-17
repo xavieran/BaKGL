@@ -143,6 +143,7 @@ DynamicTTM::DynamicTTM(
 
 void DynamicTTM::BeginScene()
 {
+    AdvanceAction();
 }
 
 bool DynamicTTM::AdvanceAction()

@@ -5,6 +5,7 @@
 #include "graphics/glm.hpp"
 
 #include <iosfwd>
+#include <optional>
 #include <vector>
 
 namespace BAK {
