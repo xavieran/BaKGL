@@ -54,9 +54,7 @@ DynamicTTM::DynamicTTM(
     const Font& font,
     const Backgrounds& backgrounds,
     std::function<void()>&& sceneFinished,
-    std::function<void(unsigned)>&& displayBook,
-    std::string adsFile,
-    std::string ttmFile)
+    std::function<void(unsigned)>&& displayBook)
 :
     mSpriteManager{spriteManager},
     mAnimatorStore{animatorStore},
@@ -108,8 +106,8 @@ DynamicTTM::DynamicTTM(
         glm::vec2{}
     },
     mSceneElements{},
-    mRunner{adsFile, ttmFile},
-    mRenderedFramesSheet{mSpriteManager.AddTemporarySpriteSheet()},
+    mRunner{},
+    mRenderedFramesSheet{},
     mSceneFinished{std::move(sceneFinished)},
     mDisplayBook{std::move(displayBook)},
     mLogger{Logging::LogState::GetLogger("Gui::DynamicTTM")}
@@ -118,11 +116,20 @@ DynamicTTM::DynamicTTM(
 
     mSceneFrame.AddChildBack(&mDialogBackground);
     mSceneFrame.AddChildBack(&mRenderedElements);
+}
+
+void DynamicTTM::BeginScene(
+    std::string adsFile,
+    std::string ttmFile)
+{
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
     BAK::TTMRenderer renderer(adsFile, ttmFile);
     mRenderedFrames = renderer.RenderTTM();
+    mRenderedFramesSheet = mSpriteManager.AddTemporarySpriteSheet();
+    mCurrentRenderedFrame = 0;
     mSpriteManager.GetSpriteSheet(mRenderedFramesSheet->mSpriteSheet).LoadTexturesGL(mRenderedFrames);
 
+    mSceneElements.clear();
     mSceneElements.emplace_back(
         Graphics::DrawMode::Sprite,
         mRenderedFramesSheet->mSpriteSheet,
@@ -139,17 +146,23 @@ DynamicTTM::DynamicTTM(
     {
         mRenderedElements.AddChildBack(&element);
     }
-}
 
-void DynamicTTM::BeginScene()
-{
-    AdvanceAction();
+    mDelaying = false;
+    mDelay = 0;
+    mRunner.LoadTTM(adsFile, ttmFile);
 }
 
 bool DynamicTTM::AdvanceAction()
 {
     if (mDelaying) return false;
+
     auto actionOpt = mRunner.GetNextAction();
+    if (!actionOpt)
+    {
+        mSceneFinished();
+        return true;
+    }
+
     auto action = *actionOpt;
 
     bool waitForClick = false;
@@ -159,11 +172,7 @@ bool DynamicTTM::AdvanceAction()
                 mDelay = static_cast<double>(delay.mDelayMs) / 1000.;
             },
             [&](const BAK::ShowDialog& dialog){
-                RenderDialog(dialog);
-                if (dialog.mDialogType != 0xff)
-                {
-                    waitForClick = true;
-                }
+                waitForClick = RenderDialog(dialog);
             },
             [&](const BAK::Update& sr){
                 mSceneElements.back().SetTexture(
@@ -194,12 +203,18 @@ bool DynamicTTM::AdvanceAction()
     return false;
 }
 
-void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
+bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
 {
     // mDialogType == 5 - display dialog using RunDialog (i.e. No actor names, no default bold)
     // mDialogType == 1 and 4 - similar to above... not sure the difference
     // mDialogType == 3 - same as above - no wait
     // mDialogType == 0 - the usual method
+    if (dialog.mDialogType == 2)
+    {
+        mDisplayBook(dialog.mDialogKey);
+        return true;
+    }
+
     if (dialog.mDialogType != 0xff && dialog.mDialogKey != 0)
     {
         const auto& snippet = BAK::DialogStore::Get().GetSnippet(
@@ -228,6 +243,8 @@ void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
                 mSceneFrame.AddChildBack(&mLowerTextBox);
             }
         }
+
+        return true;
     }
     else
     {
@@ -242,6 +259,7 @@ void DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
             mSceneFrame.RemoveChild(&mLowerTextBox);
         }
     }
+    return false;
 }
 
 Widget* DynamicTTM::GetScene()

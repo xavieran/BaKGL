@@ -25,17 +25,15 @@ public:
         const Font& font,
         const Backgrounds& background,
         std::function<void()>&& sceneFinished,
-        std::function<void(unsigned)>&& displayBook,
-        std::string adsFile,
-        std::string ttmFile);
+        std::function<void(unsigned)>&& displayBook);
 
     Widget* GetScene();
 
-    void BeginScene();
+    void BeginScene(std::string adsFile, std::string ttmFile);
     bool AdvanceAction();
 
 private:
-    void RenderDialog(const BAK::ShowDialog&);
+    bool RenderDialog(const BAK::ShowDialog&);
 
     Graphics::SpriteManager& mSpriteManager;
     AnimatorStore& mAnimatorStore;

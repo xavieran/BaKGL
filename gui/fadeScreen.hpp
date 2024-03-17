@@ -3,8 +3,8 @@
 #include "audio/audio.hpp"
 
 #include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
 #include "gui/animator.hpp"
+#include "gui/animatorStore.hpp"
 #include "gui/colors.hpp"
 #include "gui/core/widget.hpp"
 
@@ -18,7 +18,7 @@ public:
     using DoneFunction = std::function<void()>;
 
     FadeScreen(
-        IGuiManager& guiManager,
+        AnimatorStore& animatorStore,
         DoneFunction&& fadeInDone,
         DoneFunction&& fadeOutDone)
     :
@@ -29,7 +29,7 @@ public:
             Color::black,
             false 
         },
-        mGuiManager{guiManager},
+        mAnimatorStore{animatorStore},
         mFadeInDone{std::move(fadeInDone)},
         mFadeOutDone{std::move(fadeOutDone)},
         mDuration{0.0},
@@ -51,7 +51,7 @@ public:
         mDuration = duration;
 
         SetColor(glm::vec4{0,0,0,0});
-        mGuiManager.AddAnimator(
+        mAnimatorStore.AddAnimator(
             std::make_unique<LinearAnimator>(
                 mDuration / 2,
                 glm::vec4{0, 0, 0, 0},
@@ -72,7 +72,7 @@ public:
         ASSERT(!mFading);
         mFading = true;
         SetColor(glm::vec4{0,0,0,1});
-        mGuiManager.AddAnimator(
+        mAnimatorStore.AddAnimator(
             std::make_unique<LinearAnimator>(
                 mDuration / 2,
                 glm::vec4{0, 0, 0, 1},
@@ -89,7 +89,7 @@ public:
     }
 
 private:
-    IGuiManager& mGuiManager;
+    AnimatorStore& mAnimatorStore;
     DoneFunction mFadeInDone;
     DoneFunction mFadeOutDone;
     double mDuration;

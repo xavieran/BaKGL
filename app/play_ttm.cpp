@@ -13,7 +13,7 @@
 #include "gui/actors.hpp"
 #include "gui/animatorStore.hpp"
 #include "gui/backgrounds.hpp"
-#include "gui/dynamicTTM.hpp"
+#include "gui/cutscenePlayer.hpp"
 #include "gui/core/mouseEvent.hpp"
 #include "gui/window.hpp"
 
@@ -82,6 +82,7 @@ int main(int argc, char** argv)
     auto gameState = BAK::GameState{};
     
     const auto font = Gui::Font{"GAME.FNT", spriteManager};
+    const auto bookFont = Gui::Font{"BOOK.FNT", spriteManager};
     const auto actors = Gui::Actors{spriteManager};
     const auto backgrounds = Gui::Backgrounds{spriteManager};
 
@@ -92,20 +93,28 @@ int main(int argc, char** argv)
 
     Gui::AnimatorStore animatorStore{};
 
-    auto dynamicTTM = Gui::DynamicTTM{
+    auto cutscenePlayer = Gui::CutscenePlayer{
         spriteManager,
         animatorStore,
         font,
+        bookFont,
         backgrounds,
-        [](){},
-        [](auto){},
-        basename + ".ADS",
-        basename + ".TTM",
+        [](){}
     };
 
-    dynamicTTM.BeginScene();
+    rootWidget.AddChildBack(&cutscenePlayer);
 
-    rootWidget.AddChildBack(dynamicTTM.GetScene());
+    cutscenePlayer.QueueAction(
+        Gui::CutscenePlayer::TTMScene("CHAPTER1.ADS", "CHAPTER1.TTM"));
+    cutscenePlayer.QueueAction(
+        Gui::CutscenePlayer::BookChapter("C11.BOK"));
+    cutscenePlayer.QueueAction(
+        Gui::CutscenePlayer::TTMScene("C11.ADS", "C11.TTM"));
+    cutscenePlayer.QueueAction(
+        Gui::CutscenePlayer::BookChapter("C12.BOK"));
+    cutscenePlayer.QueueAction(
+        Gui::CutscenePlayer::TTMScene("C12.ADS", "C12.TTM"));
+    bool playing = false;
 
     // Set up input callbacks
     Graphics::InputHandler inputHandler{};
@@ -119,7 +128,15 @@ int main(int argc, char** argv)
         {
             rootWidget.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
-            dynamicTTM.AdvanceAction();
+            if (!playing)
+            {
+                cutscenePlayer.Play();
+                playing = true;
+            }
+            else
+            {
+                cutscenePlayer.Advance();
+            }
         },
         [&](const auto click)
         {

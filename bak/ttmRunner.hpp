@@ -10,7 +10,9 @@ class TTMRunner
 {
     
 public:
-    TTMRunner(
+    TTMRunner();
+
+    void LoadTTM(
         std::string adsFile,
         std::string ttmFile);
 

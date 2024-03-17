@@ -12,11 +12,15 @@
 
 namespace BAK {
 
-TTMRunner::TTMRunner(
-    std::string adsFile,
-    std::string ttmFile)
+TTMRunner::TTMRunner()
 :
     mLogger{Logging::LogState::GetLogger("BAK::TTMRunner")}
+{
+}
+
+void TTMRunner::LoadTTM(
+    std::string adsFile,
+    std::string ttmFile)
 {
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
     auto adsFb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
@@ -24,6 +28,8 @@ TTMRunner::TTMRunner(
     auto ttmFb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
     mActions = BAK::LoadDynamicScenes(ttmFb);
 
+    mCurrentSequence = 0;
+    mCurrentSequenceScene = 0;
     auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
     mLogger.Debug() << "Next tag: " << nextTag << "\n";
     mCurrentAction = FindActionMatchingTag(nextTag);
@@ -38,6 +44,7 @@ std::optional<BAK::SceneAction> TTMRunner::GetNextAction()
 
     auto action = mActions[mCurrentAction];
     bool nextActionChosen = false;
+
     std::visit(
         overloaded{
             [&](const BAK::Purge&){

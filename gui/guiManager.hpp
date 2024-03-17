@@ -156,7 +156,7 @@ public:
             mGameState
         },
         mFadeScreen{
-            *this,
+            mAnimatorStore,
             [this]{ FadeInDone(); },
             [this]{ FadeOutDone(); }
         },

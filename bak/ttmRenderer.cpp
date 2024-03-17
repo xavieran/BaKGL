@@ -16,16 +16,15 @@ TTMRenderer::TTMRenderer(
     std::string adsFile,
     std::string ttmFile)
 :
-    mRunner{adsFile, ttmFile},
+    mRunner{},
     mLogger{Logging::LogState::GetLogger("BAK::TTMRenderer")}
 {
+    mRunner.LoadTTM(adsFile, ttmFile);
 }
 
 Graphics::TextureStore TTMRenderer::RenderTTM()
 {
-    while (!AdvanceAction())
-    {
-    }
+    while (!AdvanceAction()) {}
     return mRenderedFrames;
 }
 
