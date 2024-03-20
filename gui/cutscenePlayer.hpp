@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/cutscenes.hpp"
+
 #include "gui/bookPlayer.hpp"
 #include "gui/core/widget.hpp"
 #include "gui/dynamicTTM.hpp"
@@ -9,19 +11,6 @@ namespace Gui {
 class CutscenePlayer : public Widget
 {
 public:
-    struct TTMScene
-    {
-        std::string mAdsFile;
-        std::string mTTMFile;
-    };
-
-    struct BookChapter
-    {
-        std::string mBookFile;
-    };
-
-    using Action = std::variant<TTMScene, BookChapter>;
-
     CutscenePlayer(
         Graphics::SpriteManager& spriteManager,
         AnimatorStore& animatorStore,
@@ -47,7 +36,7 @@ public:
     {
     }
 
-    void QueueAction(Action action)
+    void QueueAction(BAK::CutsceneAction action)
     {
         mActions.emplace_back(action);
     }
@@ -63,7 +52,7 @@ public:
         auto action = *mActions.begin();
         mActions.erase(mActions.begin());
         std::visit(overloaded{
-            [&](const TTMScene& scene)
+            [&](const BAK::TTMScene& scene)
             {
                 mDynamicTTM.BeginScene(scene.mAdsFile, scene.mTTMFile);
                 ClearChildren();
@@ -71,7 +60,7 @@ public:
                 mTtmPlaying = true;
                 mDynamicTTM.AdvanceAction();
             },
-            [&](const BookChapter& book)
+            [&](const BAK::BookChapter& book)
             {
                 mBookPlayer.PlayBook(book.mBookFile);
                 ClearChildren();
@@ -126,7 +115,7 @@ private:
     }
 
     bool mTtmPlaying = false;
-    std::vector<Action> mActions;
+    std::vector<BAK::CutsceneAction> mActions;
 
     BookPlayer mBookPlayer;
     DynamicTTM mDynamicTTM;

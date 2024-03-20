@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 
 template <typename T, typename It>
 It find_nth(It begin, It end, const T& needle, unsigned n)

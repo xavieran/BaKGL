@@ -18,6 +18,7 @@ list(APPEND APP_BINARIES
     instancing
     main3d
     play_book
+    play_cutscene
     play_ttm
     show_scene
     show_imgui

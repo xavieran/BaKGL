@@ -8,6 +8,7 @@ add_library(bak
     camp.hpp camp.cpp
     condition.hpp condition.cpp
     constants.hpp
+    cutscenes.hpp cutscenes.cpp
     character.hpp character.cpp
     container.hpp container.cpp
     coordinates.hpp coordinates.cpp

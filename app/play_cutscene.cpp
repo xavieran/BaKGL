@@ -2,6 +2,8 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
+#include "bak/cutscenes.hpp"
+
 #include "graphics/glfw.hpp"
 #include "graphics/guiRenderer.hpp"
 #include "graphics/inputHandler.hpp"
@@ -71,7 +73,7 @@ int main(int argc, char** argv)
     if (argc < 2)
     {
         std::cerr << "Usage: "
-            << argv[0] << " BASENAME\n";
+            << argv[0] << " CHAPTER\n";
         return -1;
     }
     
@@ -89,16 +91,28 @@ int main(int argc, char** argv)
 
     Gui::AnimatorStore animatorStore{};
 
-    auto dynamicTTM = Gui::DynamicTTM(
+    auto cutscenePlayer = Gui::CutscenePlayer{
         spriteManager,
         animatorStore,
         font,
+        bookFont,
         backgrounds,
-        [&](){ },
-        [&](auto book){ });
+        [](){}
+    };
 
-    rootWidget.AddChildBack(dynamicTTM.GetScene());
-    dynamicTTM.BeginScene(basename + ".ADS", basename + ".TTM");
+    auto chapter = BAK::Chapter{static_cast<unsigned>(std::atoi(argv[1]))};
+    auto startActions = BAK::CutsceneList::GetStartScene(chapter);
+    auto finishActions = BAK::CutsceneList::GetFinishScene(chapter);
+    for (const auto& action : startActions)
+    {
+        cutscenePlayer.QueueAction(action);
+    }
+    for (const auto& action : finishActions)
+    {
+        cutscenePlayer.QueueAction(action);
+    }
+
+    rootWidget.AddChildBack(&cutscenePlayer);
 
     bool playing = false;
 
@@ -114,7 +128,15 @@ int main(int argc, char** argv)
         {
             rootWidget.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
-            dynamicTTM.AdvanceAction();
+            if (!playing)
+            {
+                cutscenePlayer.Play();
+                playing = true;
+            }
+            else
+            {
+                cutscenePlayer.Advance();
+            }
         },
         [&](const auto click)
         {
