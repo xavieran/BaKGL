@@ -6,6 +6,7 @@ add_library(bak
     book.hpp book.cpp
     camera.hpp
     camp.hpp camp.cpp
+    chapter.hpp chapter.cpp
     condition.hpp condition.cpp
     constants.hpp
     cutscenes.hpp cutscenes.cpp
