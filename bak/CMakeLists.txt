@@ -6,7 +6,6 @@ add_library(bak
     book.hpp book.cpp
     camera.hpp
     camp.hpp camp.cpp
-    chapter.hpp chapter.cpp
     condition.hpp condition.cpp
     constants.hpp
     cutscenes.hpp cutscenes.cpp
@@ -43,6 +42,7 @@ add_library(bak
     party.hpp party.cpp
     palette.hpp palette.cpp
     objectInfo.hpp objectInfo.cpp
+    ramp.hpp ramp.cpp
     random.hpp random.cpp
     resourceNames.hpp
     save.hpp save.cpp
@@ -56,6 +56,7 @@ add_library(bak
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
     spells.hpp spells.cpp
+    startupFiles.hpp startupFiles.cpp
     tags.hpp tags.cpp
     temple.hpp temple.cpp
     ttmRenderer.hpp ttmRenderer.cpp

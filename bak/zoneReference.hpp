@@ -10,5 +10,4 @@ namespace BAK {
 std::vector<glm::uvec2> LoadZoneRef(
     const std::string& path);
 
-
 }

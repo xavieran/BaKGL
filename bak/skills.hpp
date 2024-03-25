@@ -5,6 +5,7 @@
 
 #include "bak/condition.hpp"
 #include "bak/worldClock.hpp"
+#include "bak/file/fileBuffer.hpp"
 
 #include <array>
 #include <numeric>
@@ -189,5 +190,7 @@ private:
 };
 
 std::ostream& operator<<(std::ostream&, const Skills&);
+
+Skills LoadSkills(FileBuffer&);
 
 }

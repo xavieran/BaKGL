@@ -59,7 +59,7 @@ GameData::GameData(const std::string& save)
     //LoadCombatGridLocations();
     //LoadCombatWorldLocations();
     //LoadCombatClickedTimes();
-    LoadTimeExpiringState();
+    //LoadTimeExpiringState();
 }
 
 std::vector<TimeExpiringState> GameData::LoadTimeExpiringState()
@@ -148,33 +148,18 @@ std::vector<Character> GameData::LoadCharacters()
         auto characterNameOffset = mBuffer.GetArray<2>();
         auto spells = Spells{mBuffer.GetArray<6>()};
 
-        auto skills = Skills{};
+        auto skills = LoadSkills(mBuffer);
 
+        const auto pos = mBuffer.Tell();
         for (unsigned i = 0; i < Skills::sSkills; i++)
         {
-            const auto max        = mBuffer.GetUint8();
-            const auto trueSkill  = mBuffer.GetUint8();
-            const auto current    = mBuffer.GetUint8();
-            const auto experience = mBuffer.GetUint8();
-            const auto modifier   = mBuffer.GetSint8();
-
-            const auto pos = mBuffer.Tell();
-
             const auto selected = State::ReadSkillSelected(mBuffer, character, i);
-            const auto unseenIprovement = State::ReadSkillUnseenImprovement(mBuffer, character, i);
+            const auto unseenImprovement = State::ReadSkillUnseenImprovement(mBuffer, character, i);
 
-            skills.SetSkill(static_cast<SkillType>(i), Skill{
-                max,
-                trueSkill,
-                current,
-                experience,
-                modifier,
-                selected,
-                unseenIprovement
-            });
-
-            mBuffer.Seek(pos);
+            skills.GetSkill(static_cast<SkillType>(i)).mSelected = selected;
+            skills.GetSkill(static_cast<SkillType>(i)).mUnseenImprovement = unseenImprovement;
         }
+        mBuffer.Seek(pos);
 
         skills.SetSelectedSkillPool(skills.CalculateSelectedSkillPool());
 
@@ -405,24 +390,14 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
     // ends at 3070a
     for (unsigned i = 0; i < num; i++)
     {
-        mLogger.Spam() << "Combat #" << std::dec << i 
+        mLogger.Info() << "Combat #" << std::dec << i 
             << " " << std::hex << mBuffer.Tell() << std::endl;
         mLogger.Spam() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
         auto spells = Spells(mBuffer.GetArray<6>());
 
-        std::stringstream ss{""};
-        for (const auto& stat : {
-            "Health", "Stamina", "Speed", "Strength", 
-            "Defense", "Crossbow", "Melee", "Cast",
-            "Assess", "Armor", "Weapon", "Bard",
-            "Haggle", "Lockpick", "Scout", "Stealth"})
-        {
-            ss << std::dec << stat << ": " << +mBuffer.GetUint8() << " " 
-                << +mBuffer.GetUint8() << " " << +mBuffer.GetUint8() << " ";
-            mBuffer.Skip(2);
-        }
+        auto skills = LoadSkills(mBuffer);
+        mLogger.Info() << skills << "\n";
         mBuffer.Skip(7); // Conditions?
-        mLogger.Spam() << ss.str() << std::endl;
     }
     mLogger.Spam() << "Combat Stats End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;

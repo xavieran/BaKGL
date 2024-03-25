@@ -102,6 +102,19 @@ public:
         return ss.str();
     };
 
+    std::string GetZoneDefault() const
+    {
+        std::stringstream ss{""};
+        ss << GetZoneLabel() << "DEF.DAT";
+        return ss.str();
+    };
+
+    std::string GetZoneMap() const
+    {
+        std::stringstream ss{""};
+        ss << GetZoneLabel() << "MAP.DAT";
+        return ss.str();
+    };
 private:
     std::string mZoneLabel;
 };

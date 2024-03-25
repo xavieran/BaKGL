@@ -484,4 +484,29 @@ void Skills::ImproveSkill(
     }
 }
 
+Skills LoadSkills(FileBuffer& fb)
+{
+    auto skills = Skills{};
+
+    for (unsigned i = 0; i < Skills::sSkills; i++)
+    {
+        const auto max        = fb.GetUint8();
+        const auto trueSkill  = fb.GetUint8();
+        const auto current    = fb.GetUint8();
+        const auto experience = fb.GetUint8();
+        const auto modifier   = fb.GetSint8();
+
+        skills.SetSkill(static_cast<SkillType>(i), Skill{
+            max,
+            trueSkill,
+            current,
+            experience,
+            modifier,
+            false,
+            false
+        });
+    }
+    return skills;
+}
+
 }
