@@ -1,4 +1,5 @@
 #include "bak/startupFiles.hpp"
+#include "bak/combat.hpp"
 
 #include "com/logger.hpp"
 
@@ -31,6 +32,14 @@ int main(int argc, char** argv)
     {
         BAK::LoadZoneMap(BAK::ZoneNumber{i});
     }
+
+    logger.Info() << "Z00.DAT\n";
+    for (unsigned i = 1; i < 13; i++)
+    {
+        BAK::LoadZoneDat(BAK::ZoneNumber{i});
+    }
+
+    BAK::LoadP1Dat();
 
     return 0;
 }

@@ -162,4 +162,19 @@ unsigned GetMapDatTileValue(
     return mapVal & mask;
 }
 
+void LoadZoneDat(ZoneNumber zone)
+{
+    auto zoneLabel = ZoneLabel{zone.mValue};
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(zoneLabel.GetZoneDat());
+    Logging::LogDebug(__FUNCTION__) << "Zone: " << zone << "\n";
+
+    auto word0 = fb.GetUint16LE();
+    auto word1 = fb.GetUint16LE();
+    auto word2 = fb.GetUint16LE();
+    auto word3 = fb.GetUint16LE();
+
+    Logging::LogDebug(__FUNCTION__) << "Data: " << word0 << " " << word1 << " " << word2 << " " << word3 << "\n";
+    Logging::LogDebug(__FUNCTION__) << "Remaining:" << fb.GetBytesLeft() << "\n";
+}
+
 }

@@ -8,7 +8,7 @@ namespace BAK
 void LoadChapter(Chapter);
 void LoadFilter();
 void LoadDetect();
-void LoadZoneDat();
+void LoadZoneDat(ZoneNumber);
 void LoadZoneDefDat(ZoneNumber);
 
 using ZoneMap = std::array<std::uint8_t, 0x190>;

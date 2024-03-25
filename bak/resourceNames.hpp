@@ -115,6 +115,13 @@ public:
         ss << GetZoneLabel() << "MAP.DAT";
         return ss.str();
     };
+
+    std::string GetZoneDat() const
+    {
+        std::stringstream ss{""};
+        ss << GetZoneLabel() << ".DAT";
+        return ss.str();
+    };
 private:
     std::string mZoneLabel;
 };
