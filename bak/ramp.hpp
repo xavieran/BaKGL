@@ -9,6 +9,9 @@
 
 namespace BAK {
 
+// These are used to determine the "fog" effect on sprites in
+// the world based on their distance. The palette is modified
+// by these at steps of 7 for zones.
 class Ramp
 {
 public:
