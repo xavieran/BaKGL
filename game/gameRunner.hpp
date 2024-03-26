@@ -83,7 +83,7 @@ public:
         if (teleport.mTargetZone)
         {
             DoTransition(
-                teleport.mTargetZone->mValue,
+                *teleport.mTargetZone,
                 teleport.mTargetLocation);
         }
 
@@ -98,19 +98,19 @@ public:
     {
         mGameData = std::make_unique<BAK::GameData>(savePath);
         mGameState.LoadGameData(mGameData.get());
-        LoadZoneData(mGameState.GetZone().mValue);
+        LoadZoneData(mGameState.GetZone());
     }
 
-    void LoadZoneData(unsigned zone)
+    void LoadZoneData(BAK::ZoneNumber zone)
     {
-        mZoneData = std::make_unique<BAK::Zone>(zone);
+        mZoneData = std::make_unique<BAK::Zone>(zone.mValue);
         mLoadRenderer(*mZoneData);
         LoadSystems();
         mCamera.SetGameLocation(mGameState.GetLocation());
     }
 
     void DoTransition(
-        unsigned targetZone,
+        BAK::ZoneNumber targetZone,
         BAK::GamePositionAndHeading targetLocation)
     {
         mGameState.SetLocation(

@@ -29,6 +29,7 @@
 #include "gui/mainMenuScreen.hpp"
 #include "gui/mainView.hpp"
 #include "gui/teleportScreen.hpp"
+#include "gui/cutscenePlayer.hpp"
 #include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -86,8 +87,16 @@ public:
             [this](const auto& choice){ DialogFinished(choice); }
         },
         mSpriteManager{spriteManager},
+        mCutscenePlayer{
+            spriteManager,
+            mAnimatorStore,
+            mFontManager.GetGameFont(),
+            mFontManager.GetBookFont(),
+            mBackgrounds,
+            [this](){ CutsceneFinished(); }
+        },
         mMainView{*this, mBackgrounds, mIcons, mFontManager.GetSpellFont()},
-        mMainMenu{*this, mBackgrounds, mIcons, mFontManager.GetGameFont()},
+        mMainMenu{*this, mSpriteManager, mBackgrounds, mIcons, mFontManager.GetGameFont()},
         mInfoScreen{
             *this,
             mActors,
@@ -218,6 +227,29 @@ public:
             AddChildBack(&mFadeScreen);
             mFadeScreen.FadeIn(duration);
         }
+    }
+
+    void PlayCutscene(
+        std::vector<BAK::CutsceneAction> actions) override
+    {
+        for (const auto& action : actions)
+        {
+            mCutscenePlayer.QueueAction(action);
+        }
+        DoFade(1.0, [this]{
+            mPreviousScreen = mScreenStack.Top();
+            mScreenStack.PopScreen();
+            mScreenStack.PushScreen(&mCutscenePlayer);
+            mCutscenePlayer.Play();
+        });
+    }
+
+    void CutsceneFinished()
+    {
+        DoFade(1.0, [this]{
+            mScreenStack.PopScreen();
+            mScreenStack.PushScreen(mPreviousScreen);
+        });
     }
 
     bool InMainView() const override
@@ -589,6 +621,7 @@ public:
 
     Graphics::SpriteManager& mSpriteManager;
 
+    CutscenePlayer mCutscenePlayer;
     MainView mMainView;
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
@@ -609,6 +642,7 @@ public:
 
     AnimatorStore mAnimatorStore;
     BAK::IZoneLoader* mZoneLoader;
+    Widget* mPreviousScreen{nullptr};
 
     const Logging::Logger& mLogger;
 };

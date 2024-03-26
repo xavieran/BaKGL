@@ -19,16 +19,16 @@ int main(int argc, char** argv)
     BAK::GameData gameData(saveFile);
     logger.Info() << "SaveName: " << gameData.mName << "\n";
     logger.Info() << "Tile: " << std::hex << gameData.mLocation.mTile << std::dec <<  " " << gameData.mLocation.mTile << "\n";
-    logger.Info() << "Location: " << std::hex << gameData.mLocation.mLocation << std::dec << "\n";
+    logger.Info() << "MapLocation: " << gameData.mMapLocation << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
 
     //auto containers = gameData.LoadContainers(4);
-    auto containers = gameData.LoadShops();
-    logger.Info() << "Containers: \n";
-    for (auto& con : containers)
-    {
-        logger.Info() << "  Container: " << con << "\n";
-    }
+    //auto containers = gameData.LoadShops();
+    //logger.Info() << "Containers: \n";
+    //for (auto& con : containers)
+    //{
+    //    logger.Info() << "  Container: " << con << "\n";
+    //}
 
     return 0;
 }

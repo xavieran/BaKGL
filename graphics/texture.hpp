@@ -58,6 +58,19 @@ public:
                     mTexture[x + ((GetHeight() - 1 - y) * GetWidth())]);
     }
 
+    Texture GetRegion(glm::ivec2 pos, glm::uvec2 dims) const
+    {
+        auto newTexture = Texture{dims.x, dims.y};
+        for (unsigned x = 0; x < dims.x; x++)
+        {
+            for (unsigned y = 0; y < dims.y; y++)
+            {
+                newTexture.SetPixel(x, y, GetPixel(pos.x + x, pos.y + y));
+            }
+        }
+        return newTexture;
+    }
+
     unsigned GetWidth() const { return mWidth; }
     unsigned GetHeight() const { return mHeight; }
     glm::ivec2 GetDims() const { return glm::ivec2(GetWidth(), GetHeight()); }

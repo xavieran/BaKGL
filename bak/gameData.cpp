@@ -16,10 +16,17 @@
 
 namespace BAK {
 
+std::ostream& operator<<(std::ostream& os, const MapLocation& l)
+{
+    os << "MapLocation{ pos: " << l.mPosition
+        << " Heading: " << l.mHeading << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const Location& l)
 {
     os << "Location{ zone: " << l.mZone << " tile: " << l.mTile
-        << " Pos: " << l.mLocation << "\n";
+        << " Pos: " << l.mLocation << "}";
     return os;
 }
 
@@ -30,6 +37,7 @@ GameData::GameData(const std::string& save)
     mName{LoadSaveName(mBuffer)},
     mObjects{},
     mChapter{LoadChapter()},
+    mMapLocation{LoadMapLocation()},
     mLocation{LoadLocation()},
     mTime{LoadWorldTime()},
     mParty{LoadParty()}
@@ -238,6 +246,17 @@ std::vector<CharIndex> GameData::LoadActiveCharacters()
     return active;
 }
 
+MapLocation GameData::LoadMapLocation()
+{
+    mBuffer.Seek(sMapPositionOffset);
+    auto posX = mBuffer.GetUint16LE();
+    auto posY = mBuffer.GetUint16LE();
+    auto heading = mBuffer.GetUint16LE();
+    auto mapLocation = MapLocation{{posX, posY}, heading};
+    mLogger.Info() << mapLocation << "\n";
+    return mapLocation;
+}
+ 
 Location GameData::LoadLocation()
 {
     mBuffer.Seek(sLocationOffset);
@@ -259,7 +278,7 @@ Location GameData::LoadLocation()
     mLogger.Info() << "Heading: " << heading << std::endl;
     
     return Location{
-        zone,
+        ZoneNumber{zone},
         {xtile, ytile},
         GamePositionAndHeading{
             GamePosition{xpos, ypos},
@@ -274,7 +293,6 @@ WorldClock GameData::LoadWorldTime()
         Time{mBuffer.GetUint32LE()},
         Time{mBuffer.GetUint32LE()}};
 }
-
 
 Inventory GameData::LoadCharacterInventory(unsigned offset)
 {

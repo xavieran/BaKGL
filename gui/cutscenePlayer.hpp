@@ -69,6 +69,20 @@ public:
             action);
     }
 
+    bool OnMouseEvent(const MouseEvent& event) override
+    {
+        const auto result = std::visit(overloaded{
+            [this](const LeftMousePress& p){ Advance(); return true; },
+            [](const auto& p){ return false; }
+            },
+            event);
+
+        if (result)
+            return result;
+
+        return false;
+    }
+
     void Advance()
     {
         if (GetChildren()[0] == mDynamicTTM.GetScene())

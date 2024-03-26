@@ -83,9 +83,9 @@ CalculateLocationAndDims(
 {
     // Reminder - BAK coordinates origin is at bottom left
     // and x and y grow positive
-    const auto topLeft = MakeGamePositionFromTileAndOffset(
+    const auto topLeft = MakeGamePositionFromTileAndCell(
         tile, glm::vec<2, std::uint8_t>{l, t});
-    const auto bottomRight = MakeGamePositionFromTileAndOffset(
+    const auto bottomRight = MakeGamePositionFromTileAndCell(
         tile, glm::vec<2, std::uint8_t>{r, b});
     // Give them some thickness
     const auto left = topLeft.x;
@@ -94,10 +94,10 @@ CalculateLocationAndDims(
     const auto bottom = bottomRight.y;
     ASSERT(right >= left && top >= bottom);
     const auto width = right == left
-        ? gOffsetScale
+        ? gCellSize
         : right - left;
     const auto height = top == bottom
-        ? gOffsetScale
+        ? gCellSize
         : top - bottom;
 
     const auto location = GamePosition{

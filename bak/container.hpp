@@ -279,7 +279,7 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
             if (hasEncounter != 0)
             {
                 const auto encounterOff = glm::uvec2{xOff, yOff};
-                encounterPos = MakeGamePositionFromTileAndOffset(
+                encounterPos = MakeGamePositionFromTileAndCell(
                     GetTile(header.GetPosition()),
                     encounterOff);
             }

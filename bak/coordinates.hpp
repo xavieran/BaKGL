@@ -37,7 +37,7 @@ std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
 glm::uvec2 GetTile(
     glm::uvec2 pos);
 
-GamePosition MakeGamePositionFromTileAndOffset(
+GamePosition MakeGamePositionFromTileAndCell(
     glm::uvec2 tile,
     glm::vec<2, std::uint8_t> offset);
 

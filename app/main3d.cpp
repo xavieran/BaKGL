@@ -187,7 +187,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        gameRunner.LoadZoneData(zoneLabel.GetZoneNumber());
+        gameRunner.LoadZoneData(BAK::ZoneNumber{zoneLabel.GetZoneNumber()});
         auto position = gameRunner.mZoneData->mWorldTiles
                 .GetTiles().front().GetCenter();
         position.y = 100;
@@ -198,10 +198,10 @@ int main(int argc, char** argv)
     logger.Info() << " Starting on tile: " << currentTile << "\n";
 
     Graphics::Light light{
-        glm::vec3{.0, -.25, .00},
-        glm::vec3{.5, .5, .5},
-        glm::vec3{1,.85,.87},
-        glm::vec3{.2,.2,.2},
+        glm::vec3{.0, -.25,  .00},
+        glm::vec3{.5,  .5,   .5},
+        glm::vec3{ 1,  .85,  .87},
+        glm::vec3{.2,  .2,   .2},
         .0005f,
         glm::vec3{.15, .31, .36}
     };

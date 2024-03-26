@@ -27,10 +27,19 @@
 
 namespace BAK {
 
+// This is the location on the start of chapter map screen
+struct MapLocation
+{
+    glm::uvec2 mPosition;
+    std::uint16_t mHeading;
+};
+
+std::ostream& operator<<(std::ostream& os, const MapLocation&);
+
 struct Location
 {
-    unsigned mZone;
-    glm::vec<2, unsigned> mTile;
+    ZoneNumber mZone;
+    glm::uvec2 mTile;
     GamePositionAndHeading mLocation;
 };
 
@@ -65,6 +74,7 @@ public:
     
     static constexpr auto sCharacterCount = 6;
     static constexpr auto sChapterOffset = 0x5a; // -> 5c
+    static constexpr auto sMapPositionOffset = 0x5c; // -> 4c
     static constexpr auto sGoldOffset = 0x66; // -> 6a
     static constexpr auto sTimeOffset = 0x6a; // -> 0x72
     static constexpr auto sLocationOffset = 0x76; // -> 0x88
@@ -140,7 +150,7 @@ public:
 
         // Location
         mBuffer.Seek(sLocationOffset);
-        mBuffer.PutUint8(mLocation.mZone);
+        mBuffer.PutUint8(mLocation.mZone.mValue);
         mBuffer.PutUint8(mLocation.mTile.x);
         mBuffer.PutUint8(mLocation.mTile.y);
         mBuffer.PutUint32LE(mLocation.mLocation.mPosition.x);
@@ -175,6 +185,7 @@ public:
     unsigned LoadChapter();
     Royals LoadGold();
     std::vector<CharIndex> LoadActiveCharacters();
+    MapLocation LoadMapLocation();
     Location LoadLocation();
     WorldClock LoadWorldTime();
 
@@ -198,6 +209,7 @@ public:
     const std::string mName;
     ObjectIndex mObjects;
     Chapter mChapter;
+    MapLocation mMapLocation;
     Location mLocation;
     WorldClock mTime;
     Party mParty;

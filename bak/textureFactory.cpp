@@ -7,7 +7,7 @@
 
 namespace BAK {
 
-Graphics::Texture ImageToTexture(const BAK::Image& image, const BAK::Palette& palette)
+Graphics::Texture ImageToTexture(const Image& image, const Palette& palette)
 {
     auto texture = Graphics::Texture::TextureType{};
     const auto imageSize = image.GetWidth() * image.GetHeight();
@@ -45,7 +45,7 @@ void TextureFactory::AddToTextureStore(
     std::string_view bmx,
     std::string_view pal)
 {
-    const auto palette = BAK::Palette{std::string{pal}};
+    const auto palette = Palette{std::string{pal}};
 
     auto fb = FileBufferFactory::Get()
         .CreateDataBuffer(std::string{bmx});
@@ -59,7 +59,7 @@ void TextureFactory::AddScreenToTextureStore(
     std::string_view scx,
     std::string_view pal)
 {
-    const auto palette = BAK::Palette{std::string{pal}};
+    const auto palette = Palette{std::string{pal}};
     auto fb = FileBufferFactory::Get()
         .CreateDataBuffer(std::string{scx});
     AddToTextureStore(store, LoadScreenResource(fb), palette);
@@ -68,7 +68,7 @@ void TextureFactory::AddScreenToTextureStore(
 void TextureFactory::AddTerrainToTextureStore(
     Graphics::TextureStore& store,
     const Image& terrain,
-    const BAK::Palette& palette)
+    const Palette& palette)
 {
     auto* pixels = terrain.GetPixels();
     auto width = terrain.GetWidth();
@@ -105,7 +105,7 @@ void TextureFactory::AddTerrainToTextureStore(
 
 void TextureFactory::AddToTextureStore(
     Graphics::TextureStore& store,
-    const BAK::Image& image,
+    const Image& image,
     const Palette& palette)
 {
     store.AddTexture(ImageToTexture(image, palette));
@@ -113,7 +113,7 @@ void TextureFactory::AddToTextureStore(
 
 void TextureFactory::AddToTextureStore(
     Graphics::TextureStore& store,
-    const std::vector<BAK::Image>& images,
+    const std::vector<Image>& images,
     const Palette& palette)
 {
     for (const auto& image : images)

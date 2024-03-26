@@ -26,7 +26,7 @@ GDSEntry GDSEntryFactory<S>::Get(unsigned i, glm::vec<2, unsigned> tile) const
         rawGds.mEntryDialog,
         rawGds.mExitDialog,
         GamePositionAndHeading{
-            MakeGamePositionFromTileAndOffset(
+            MakeGamePositionFromTileAndCell(
                 tile,
                 rawGds.mExitOffset),
             rawGds.mExitHeading},

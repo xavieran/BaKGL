@@ -51,7 +51,7 @@ void TeleportFactory::Load()
         if (possibleZone != 0xff)
             zone = ZoneNumber{possibleZone};
 
-        const auto loc = MakeGamePositionFromTileAndOffset(tile, offset);
+        const auto loc = MakeGamePositionFromTileAndCell(tile, offset);
 
         std::optional<HotspotRef> hotspotRef{};
         if (hotspotNum != 0)

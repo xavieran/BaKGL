@@ -6,6 +6,7 @@
 #include "gui/IAnimator.hpp"
 
 #include "bak/dialog.hpp"
+#include "bak/cutscenes.hpp"
 #include "bak/entityType.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/saveManager.hpp"
@@ -27,6 +28,7 @@ public:
     virtual void ExitGDSScene() = 0;
 
     virtual void StartDialog(BAK::Target, bool tooltip, bool drawWorldFrame, IDialogScene*) = 0;
+    virtual void PlayCutscene(std::vector<BAK::CutsceneAction> actions) = 0;
 
     virtual void ShowCharacterPortrait(BAK::ActiveCharIndex) = 0;
     virtual void ExitSimpleScreen() = 0;

@@ -18,18 +18,18 @@ glm::uvec2 GetTile(
         / glm::vec2{BAK::gTileSize});
 }
 
-GamePosition MakeGamePositionFromTileAndOffset(
+GamePosition MakeGamePositionFromTileAndCell(
     glm::uvec2 tile,
-    glm::vec<2, std::uint8_t> offset)
+    glm::vec<2, std::uint8_t> cell)
 {
-    const auto Convert = [](auto t, auto o)
+    const auto Convert = [](auto t, auto c)
     {
-        return t * BAK::gTileSize + gOffsetScale * o;
+        return t * BAK::gTileSize + gCellSize * c + (gCellSize >> 1);
     };
     
     return GamePosition{
-        Convert(tile.x, offset.x),
-        Convert(tile.y, offset.y)};
+        Convert(tile.x, cell.x),
+        Convert(tile.y, cell.y)};
 }
 
 // Convert a 16 bit BAK angle to radians

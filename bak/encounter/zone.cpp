@@ -40,7 +40,7 @@ void ZoneFactory::Load()
         const auto zone = fb.GetUint8();
         const auto tile = glm::vec<2, unsigned>{
             fb.GetUint8(), fb.GetUint8()};
-        const auto offset = glm::vec<2, std::uint8_t>{
+        const auto cell = glm::vec<2, std::uint8_t>{
             fb.GetUint8(), fb.GetUint8()};
         const auto heading = static_cast<std::uint16_t>(
             fb.GetUint16LE() / 0xffu);
@@ -48,11 +48,11 @@ void ZoneFactory::Load()
         ASSERT(fb.GetUint32LE() == 0);
         ASSERT(fb.GetUint16LE() == 0);
 
-        const auto loc = MakeGamePositionFromTileAndOffset(tile, offset);
+        const auto loc = MakeGamePositionFromTileAndCell(tile, cell);
 
         mZones.emplace_back(
             Zone{
-                zone,
+                ZoneNumber{zone},
                 GamePositionAndHeading{loc, heading},
                 KeyTarget{dialog}});
         Logging::LogDebug("ZoneFactory") << "ZoneTransition: " << i << " " << mZones.back() << "\n";

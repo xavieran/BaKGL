@@ -29,7 +29,7 @@ void LoadChapter(Chapter chapter)
     unsigned cellY = fb.GetUint8();
     unsigned heading = fb.GetUint16LE();
 
-    auto pos = MakeGamePositionFromTileAndOffset(glm::uvec2{tileX, tileY}, glm::uvec2{cellX, cellY});
+    auto pos = MakeGamePositionFromTileAndCell(glm::uvec2{tileX, tileY}, glm::uvec2{cellX, cellY});
     Logging::LogDebug(__FUNCTION__) << "Chapter: " << fileChapter
         << " fmap screen pos: [" << fmapPosX << " " << fmapPosY << "]"
         << " zone: " << zone << " tileX: " << tileX << " tileY: "

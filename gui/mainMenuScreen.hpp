@@ -40,6 +40,7 @@ public:
 
     MainMenuScreen(
         IGuiManager& guiManager,
+        Graphics::SpriteManager& spriteManager,
         const Backgrounds& backgrounds,
         const Icons& icons,
         const Font& font)
@@ -125,6 +126,7 @@ public:
         },
         mContentsScreen{
             guiManager,
+            spriteManager,
             backgrounds,
             font,
             [this]{ BackToMainMenu(); }

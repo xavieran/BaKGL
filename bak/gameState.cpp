@@ -165,7 +165,7 @@ void GameState::SetLocation(GamePositionAndHeading posAndHeading)
     if (mGameData)
     {
         const auto loc = Location{
-            mZone.mValue,
+            mZone,
             GetTile(posAndHeading.mPosition),
             posAndHeading};
         mGameData->mLocation = loc;
@@ -177,7 +177,7 @@ GamePositionAndHeading GameState::GetLocation() const
     if (mGameData)
         return mGameData->mLocation.mLocation;
 
-    return GamePositionAndHeading{ glm::uvec2{10 * 64000, 15 * 64000}, 0 };
+    return GamePositionAndHeading{glm::uvec2{10 * 64000, 15 * 64000}, 0 };
 }
 
 ZoneNumber GameState::GetZone() const
