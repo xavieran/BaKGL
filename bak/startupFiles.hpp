@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/types.hpp"
+#include <array>
 
 namespace BAK
 {

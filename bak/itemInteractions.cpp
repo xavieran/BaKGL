@@ -619,7 +619,8 @@ ItemUseResult UseCupOfRlnnSkrr(
     const auto allSpells = pugSpells | owynSpells;
     for (unsigned i = 0; i < 0x2d; i++)
     {
-        if (((1 << i) & allSpells) != 0)
+        //if (((1 << i) & allSpells) != 0)
+        if (CheckBitSet(allSpells, i))
         {
             pug.GetSpells().SetSpell(SpellIndex{i});
             owyn.GetSpells().SetSpell(SpellIndex{i});

@@ -30,6 +30,6 @@ target_link_libraries(gui
     bak
     com
     graphics
-    guiCamp
     guiCore
+    guiCamp
     guiInventory)
