@@ -67,4 +67,23 @@ glm::vec2 ToGlAngle(GameHeading heading)
     return glm::vec2{NormaliseRadians(angle + glm::pi<float>()), 0};
 }
 
+std::ostream& operator<<(std::ostream& os, const MapLocation& l)
+{
+    os << "MapLocation{ pos: " << l.mPosition
+        << " Heading: " << l.mHeading << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Location& l)
+{
+    os << "Location{ zone: " << l.mZone << " tile: " << l.mTile
+        << " Pos: " << l.mLocation << "}";
+    return os;
+}
+
+std::uint16_t HeadingToFullMapAngle(std::uint16_t heading)
+{
+    constexpr auto unit = 0xff / 8;
+    return 4 * ((heading/ unit) % 8);
+}
 }

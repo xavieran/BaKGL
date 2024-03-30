@@ -21,7 +21,7 @@ public:
 
     FMapXY()
     {
-        auto fb = FileBufferFactory::Get().Get().CreateDataBuffer(sFile);
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(sFile);
         unsigned i = 0;
 
         for (unsigned zone = 0; zone < 12; zone++)

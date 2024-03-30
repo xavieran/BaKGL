@@ -15,6 +15,8 @@
 // Need to convert this to open gl system by swapping y and z
 // and negating z (depth goes towards us)
 
+#include "bak/types.hpp"
+
 #include "graphics/glm.hpp"
 
 #include <glm/glm.hpp>
@@ -81,5 +83,25 @@ glm::vec<4, T> ToGlColor(const C& color)
 BAK::GameHeading ToBakAngle(double angle);
 
 double NormaliseRadians(double angle);
+
+// This is the location on the start of chapter map screen
+struct MapLocation
+{
+    glm::uvec2 mPosition;
+    std::uint16_t mHeading;
+};
+
+std::ostream& operator<<(std::ostream& os, const MapLocation&);
+
+struct Location
+{
+    ZoneNumber mZone;
+    glm::uvec2 mTile;
+    GamePositionAndHeading mLocation;
+};
+
+std::ostream& operator<<(std::ostream& os, const Location&);
+
+std::uint16_t HeadingToFullMapAngle(std::uint16_t heading);
 
 }

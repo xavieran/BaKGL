@@ -5,6 +5,7 @@
 #include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
+#include "bak/fmap.hpp"
 #include "bak/gameData.hpp"
 #include "bak/money.hpp"
 #include "bak/save.hpp"
@@ -195,6 +196,7 @@ private:
     std::vector<TimeExpiringState> mTimeExpiringState;
     SpellState mSpellState;
     TextVariableStore mTextVariableStore;
+    FMapXY mFullMap;
     WorldClock mFakeWorldClock{{0}, {0}};
     const Logging::Logger& mLogger;
 };

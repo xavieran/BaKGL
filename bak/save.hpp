@@ -4,6 +4,7 @@
 #include "bak/container.hpp"
 #include "bak/inventory.hpp"
 #include "bak/party.hpp"
+#include "bak/coordinates.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 
@@ -17,5 +18,7 @@ void Save(const WorldClock&, FileBuffer&);
 void Save(const std::vector<TimeExpiringState>& storage, FileBuffer& fb);
 void Save(const SpellState& spells, FileBuffer& fb);
 void Save(Chapter chapter, FileBuffer& fb);
+void Save(const MapLocation& location, FileBuffer& fb);
+void Save(const Location& location, FileBuffer& fb);
 
 }

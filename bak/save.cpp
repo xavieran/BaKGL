@@ -180,4 +180,25 @@ void Save(Chapter chapter, FileBuffer& fb)
     fb.Seek(0x64);
     fb.PutUint16LE(chapter.mValue);
 }
+
+void Save(const MapLocation& location, FileBuffer& fb)
+{
+    fb.Seek(GameData::sMapPositionOffset);
+    fb.PutUint16LE(location.mPosition.x);
+    fb.PutUint16LE(location.mPosition.y);
+    fb.PutUint16LE(location.mHeading);
+}
+
+void Save(const Location& location, FileBuffer& fb)
+{
+    fb.Seek(GameData::sLocationOffset);
+    fb.PutUint8(location.mZone.mValue);
+    fb.PutUint8(location.mTile.x);
+    fb.PutUint8(location.mTile.y);
+    fb.PutUint32LE(location.mLocation.mPosition.x);
+    fb.PutUint32LE(location.mLocation.mPosition.y);
+    fb.Skip(5);
+    fb.PutUint16LE(location.mLocation.mHeading);
+}
+
 }

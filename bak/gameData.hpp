@@ -27,24 +27,6 @@
 
 namespace BAK {
 
-// This is the location on the start of chapter map screen
-struct MapLocation
-{
-    glm::uvec2 mPosition;
-    std::uint16_t mHeading;
-};
-
-std::ostream& operator<<(std::ostream& os, const MapLocation&);
-
-struct Location
-{
-    ZoneNumber mZone;
-    glm::uvec2 mTile;
-    GamePositionAndHeading mLocation;
-};
-
-std::ostream& operator<<(std::ostream& os, const Location&);
-
 class GameData
 {   
 public:
@@ -147,17 +129,6 @@ public:
         ASSERT(saveName.size() < 30);
         mBuffer.Seek(0);
         mBuffer.PutString(saveName);
-
-        // Location
-        mBuffer.Seek(sLocationOffset);
-        mBuffer.PutUint8(mLocation.mZone.mValue);
-        mBuffer.PutUint8(mLocation.mTile.x);
-        mBuffer.PutUint8(mLocation.mTile.y);
-        mBuffer.PutUint32LE(mLocation.mLocation.mPosition.x);
-        mBuffer.PutUint32LE(mLocation.mLocation.mPosition.y);
-        mBuffer.Skip(5);
-        mBuffer.PutUint16LE(mLocation.mLocation.mHeading);
-
 
         mLogger.Info() << "Saving game to: " << savePath << std::endl;
         auto saveFile = std::ofstream{

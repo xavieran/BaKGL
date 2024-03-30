@@ -55,6 +55,7 @@ GameState::GameState(
     mGDSContainers{},
     mCombatContainers{},
     mTextVariableStore{},
+    mFullMap{},
     mLogger{Logging::LogState::GetLogger("GameState")}
 {
     if (mGameData != nullptr)
@@ -1113,6 +1114,12 @@ bool GameState::SaveState()
         BAK::Save(mTimeExpiringState, mGameData->GetFileBuffer());
         BAK::Save(mSpellState, mGameData->GetFileBuffer());
         BAK::Save(mChapter, mGameData->GetFileBuffer());
+        auto mapLocation = MapLocation{
+            mFullMap.GetTileCoords(mZone, GetTile(GetLocation().mPosition)),
+            HeadingToFullMapAngle(GetLocation().mHeading)
+        };
+        BAK::Save(mapLocation, mGameData->GetFileBuffer());
+        BAK::Save(mGameData->mLocation, mGameData->GetFileBuffer());
         return true;
     }
     return false;

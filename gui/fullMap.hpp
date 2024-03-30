@@ -92,12 +92,6 @@ public:
             AddChildBack(&t);
     }
 
-    unsigned ClassifyAngle(std::uint16_t bakAngle)
-    {
-        constexpr auto unit = 0xff / 8;
-        return 4 * ((bakAngle / unit) % 8);
-    }
-
     void UpdateLocation()
     {
         SetPlayerLocation(mGameState.GetZone(), mGameState.GetLocation());
@@ -107,7 +101,7 @@ public:
         BAK::ZoneNumber zone,
         BAK::GamePositionAndHeading location)
     {
-        const auto& [ss, ti, dims] = mIcons.GetFullMapIcon(ClassifyAngle(location.mHeading));
+        const auto& [ss, ti, dims] = mIcons.GetFullMapIcon(BAK::HeadingToFullMapAngle(location.mHeading));
         mPlayerLocation.SetSpriteSheet(ss);
         mPlayerLocation.SetTexture(ti);
         mPlayerLocation.SetDimensions(dims);
