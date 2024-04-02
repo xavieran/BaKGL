@@ -72,11 +72,17 @@ bool FileBufferFactory::SaveBufferExists(const std::string& fileName)
 FileBuffer FileBufferFactory::CreateSaveBuffer(const std::string& fileName)
 {
     if (std::filesystem::exists(fileName))
+    {
         return File::CreateFileBuffer(fileName);
-    else
+    }
+    else if (SaveBufferExists(fileName))
     {
         const auto realPath = std::filesystem::path{mSavePath} / fileName;
         return File::CreateFileBuffer(realPath.string());
+    }
+    else
+    {
+        return CreateDataBuffer(fileName);
     }
 }
 

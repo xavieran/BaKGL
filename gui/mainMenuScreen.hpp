@@ -70,7 +70,7 @@ public:
             mLayout.GetWidgetDimensions(sStartNew),
             mFont,
             "#Start New Game",
-            [this]{ EnterMainView(); }
+            [this]{ StartNewGame(); }
         },
         mRestore{
             mLayout.GetWidgetLocation(sRestore),
@@ -213,6 +213,12 @@ private:
     {
         AudioA::AudioManager::Get().PopTrack();
         mGuiManager.EnterMainView();
+    }
+
+    void StartNewGame()
+    {
+        AudioA::AudioManager::Get().PopTrack();
+        mGuiManager.LoadGame("startup.gam");
     }
 
     void AddChildren()
