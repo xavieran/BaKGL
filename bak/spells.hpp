@@ -408,9 +408,6 @@ private:
     {
         auto fb = FileBufferFactory::Get().CreateDataBuffer("RING.DAT");
         unsigned points = 30;
-        Logging::LogDebug(__FUNCTION__) << "Ring has: " << points << " points\n";
-        std::stringstream ss{};
-        ss << "[";
         std::vector<int> xs{};
         std::vector<int> ys{};
         for (unsigned i = 0; i < points; i++)
@@ -425,8 +422,6 @@ private:
         {
             mPoints.emplace_back(xs[i], ys[i]);
         }
-        ss << "]\n";
-        Logging::LogDebug(__FUNCTION__) << "points = " << ss.str();
     }
 
     std::vector<glm::ivec2> mPoints;
@@ -444,10 +439,10 @@ class SymbolLines
         0x46, 0x16, 0x5D, 0x5D, 0x14, 0x46, 0x46, 0x73, 0x75, 0x48, 0x1A,
         0x19, 0x10, 0x25, 0x53, 0x6B, 0x56, 0x28
     };
-    static constexpr std::uint16_t sStartPointers [] = {
+    static constexpr std::uint16_t sXPointers [] = {
         0x1726, 0x179E, 0x173E, 0x1756, 0x176E, 0x1786, 0x17B6
     };
-    static constexpr std::uint16_t sEndPointers [] = {
+    static constexpr std::uint16_t sYPointers [] = {
         0x1732, 0x17AA, 0x174A, 0x1762, 0x177A, 0x1792, 0x17C2
     };
 
@@ -455,13 +450,13 @@ public:
     static std::vector<glm::vec2> GetPoints(unsigned symbol)
     {
         const auto offset = 0x1726;
-        const unsigned startPointer = (sStartPointers[symbol] - offset) >> 1;
-        const unsigned endPointer = (sEndPointers[symbol] - offset) >> 1;
+        const unsigned xPointer = (sXPointers[symbol] - offset) >> 1;
+        const unsigned yPointer = (sYPointers[symbol] - offset) >> 1;
         std::vector<glm::vec2> points{};
         for (unsigned i = 0; i < 6; i++)
         {
-            auto x = sCoords[startPointer + i];
-            auto y = sCoords[endPointer + i];
+            auto x = sCoords[xPointer + i];
+            auto y = sCoords[yPointer + i];
             points.emplace_back(glm::vec2{x, y});
         }
         return points;

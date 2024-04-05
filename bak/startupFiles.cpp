@@ -8,7 +8,7 @@
 
 namespace BAK {
 
-void LoadChapter(Chapter chapter)
+ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
 {
     std::stringstream ss{};
     ss << "CHAP";
@@ -27,15 +27,20 @@ void LoadChapter(Chapter chapter)
     unsigned tileY = fb.GetUint8();
     unsigned cellX = fb.GetUint8();
     unsigned cellY = fb.GetUint8();
-    unsigned heading = fb.GetUint16LE();
+    std::uint16_t heading = fb.GetUint16LE();
 
     auto pos = MakeGamePositionFromTileAndCell(glm::uvec2{tileX, tileY}, glm::uvec2{cellX, cellY});
-    Logging::LogDebug(__FUNCTION__) << "Chapter: " << fileChapter
-        << " fmap screen pos: [" << fmapPosX << " " << fmapPosY << "]"
-        << " zone: " << zone << " tileX: " << tileX << " tileY: "
-        << tileY << " cellX: " << cellX << " cellY: " << cellY
-        << " heading: " << heading << "\n";
-    Logging::LogDebug(__FUNCTION__) << "StartPos: " << pos << "\n";
+
+    return ChapterStartLocation{
+        MapLocation{
+            {fmapPosX, fmapPosY},
+            HeadingToFullMapAngle(heading)},
+        Location{
+            ZoneNumber{zone},
+            {tileX, tileY},
+            GamePositionAndHeading{
+                pos,
+                heading}}};
 }
 
 void LoadDetect()

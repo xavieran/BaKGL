@@ -79,8 +79,6 @@ public:
                     // Why this offset... ?
                     mLayout.GetWidgetLocation(i) + glm::vec2{0, 17},
                     mLayout.GetWidgetDimensions(i)));
-            mLogger.Warn() << "Add button i: " << i << " with: " << mLayout.GetWidgetLocation(i) 
-                << " and dims: " << mLayout.GetWidgetDimensions(i)  << "\n";
         }
         spriteManager.GetSpriteSheet(mSpriteSheet->mSpriteSheet).LoadTexturesGL(textures);
         AddChildren();

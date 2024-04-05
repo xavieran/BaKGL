@@ -67,6 +67,10 @@ int main(int argc, char** argv)
     //Logging::LogState::Disable("Gui::DialogRunner");
     Logging::LogState::Disable("Gui::DialogDisplay");
     Logging::LogState::Disable("Gui::AnimatorStore");
+    Logging::LogState::Disable("TeleportFactory");
+    Logging::LogState::Disable("FMAP_TWN");
+    Logging::LogState::Disable("FMAP");
+    Logging::LogState::Disable("CampData");
 
     struct option options[] = {
         {"help", no_argument,       0, 'h'},
