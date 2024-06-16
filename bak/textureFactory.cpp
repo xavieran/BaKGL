@@ -3,6 +3,7 @@
 #include "bak/imageStore.hpp"
 #include "bak/screen.hpp"
 
+#include <algorithm>
 #include <random>
 
 namespace BAK {

@@ -2,6 +2,8 @@
 
 #include "com/assert.hpp"
 
+#include <algorithm>
+
 namespace Graphics {
 
 IGuiElement::IGuiElement()
