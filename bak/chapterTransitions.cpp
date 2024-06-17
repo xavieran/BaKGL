@@ -15,7 +15,7 @@ void TransitionToChapter(Chapter chapter, GameState& gs)
     time += Times::OneDay;
     auto remainder = Time{time.mTime % Times::OneDay.mTime};
     time -= remainder;
-    //gs.GetWorldTime().SetTime(time);
+    gs.GetWorldTime().SetTime(time);
     
     if (chapter != Chapter{1})
     {

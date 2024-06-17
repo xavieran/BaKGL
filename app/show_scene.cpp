@@ -35,7 +35,7 @@ public:
         Logging::LogDebug("DummyZoneLoader") << "Teleporting to: " << mTeleportFactory.Get(i.mValue) << "\n";
     }
 
-    void LoadGame(std::string) override
+    void LoadGame(std::string, std::optional<BAK::Chapter>) override
     {
     }
 

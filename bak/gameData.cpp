@@ -106,8 +106,6 @@ std::vector<SkillAffector> GameData::GetCharacterSkillAffectors(
     return affectors;
 }
 
-
-
 /* ************* LOAD Game STATE ***************** */
 Party GameData::LoadParty()
 {

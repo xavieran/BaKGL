@@ -128,6 +128,12 @@ public:
         mTimeLastSlept = time;
     }
 
+    void SetTime(Time time)
+    {
+        mTime = time;
+        mTimeLastSlept = time;
+    }
+
 private:
     Time mTime;
     Time mTimeLastSlept;

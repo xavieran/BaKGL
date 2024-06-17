@@ -139,7 +139,8 @@ public:
             [this](const auto& file){
                 mState = State::MainMenu;
                 AudioA::AudioManager::Get().PopTrack();
-                mGuiManager.LoadGame(file);
+                mGuiManager.LoadGame(file, std::nullopt);
+                EnterMainView();
             },
             [this](const auto& saveFile){
                 mState = State::MainMenu;
@@ -218,7 +219,8 @@ private:
     void StartNewGame()
     {
         AudioA::AudioManager::Get().PopTrack();
-        mGuiManager.LoadGame("startup.gam");
+        mGuiManager.LoadGame("startup.gam", std::make_optional(BAK::Chapter{1}));
+        mGuiManager.EnterMainView();
     }
 
     void AddChildren()

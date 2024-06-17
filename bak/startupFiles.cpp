@@ -27,7 +27,8 @@ ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
     unsigned tileY = fb.GetUint8();
     unsigned cellX = fb.GetUint8();
     unsigned cellY = fb.GetUint8();
-    std::uint16_t heading = fb.GetUint16LE();
+    // FIXME: Not sure this is right...
+    std::uint16_t heading = fb.GetUint16LE() / 0x100;
 
     auto pos = MakeGamePositionFromTileAndCell(glm::uvec2{tileX, tileY}, glm::uvec2{cellX, cellY});
 

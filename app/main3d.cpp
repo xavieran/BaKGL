@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     Logging::LogState::AddStream(&log);
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    Logging::LogState::Disable("Compass");
+    //Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadEncounter");
     Logging::LogState::Disable("LoadFixedObjects");
@@ -349,6 +349,7 @@ int main(int argc, char** argv)
     auto console = Console{};
     console.mCamera = &camera;
     console.mGameRunner = &gameRunner;
+    console.mGuiManager = &guiManager;
     console.mGameState = &gameState;
     console.ToggleLog();
 

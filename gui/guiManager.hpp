@@ -199,11 +199,11 @@ public:
         return mScreenStack;
     }
 
-    void LoadGame(std::string save) override
+    void LoadGame(std::string save, std::optional<BAK::Chapter> chapter) override
     {
         ASSERT(mZoneLoader);
-        mZoneLoader->LoadGame(save);
-        EnterMainView();
+        mZoneLoader->LoadGame(save, chapter);
+        mMainView.SetHeading(mGameState.GetLocation().mHeading);
     }
 
     void SaveGame(const BAK::SaveFile& saveFile) override
