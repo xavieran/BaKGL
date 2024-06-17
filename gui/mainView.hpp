@@ -117,7 +117,6 @@ public:
 
     void SetHeading(BAK::GameHeading heading)
     {
-        Logging::LogInfo("mainview") << "Heading: " << heading << "\n";
         mCompass.SetHeading(heading);
     }
 

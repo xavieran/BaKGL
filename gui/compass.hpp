@@ -58,14 +58,12 @@ public:
         mHeading = heading;
         UpdateCompassHeading(mCompassLeft, -mCompassDims.x);
         UpdateCompassHeading(mCompassCenter, 0);
-        Logging::LogInfo("Compass") << "Heading: " << mHeading << " " << gameHeading << "\n";
     }
 
 private:
     void UpdateCompassHeading(Widget& compass, double zeroedXPos)
     {
         const auto newX = mHeading * compass.GetPositionInfo().mDimensions.x;
-        Logging::LogInfo("Compass") << "Heading: " << mHeading << " pos: " << newX << "\n";
         compass.SetPosition(
             glm::vec2{
                 newX + zeroedXPos,

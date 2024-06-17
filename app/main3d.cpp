@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     Logging::LogState::AddStream(&log);
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    //Logging::LogState::Disable("Compass");
+    Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadEncounter");
     Logging::LogState::Disable("LoadFixedObjects");
@@ -186,18 +186,6 @@ int main(int argc, char** argv)
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
-    //if (saveName)
-    //{
-    //    gameRunner.LoadGame(*saveName);
-    //}
-    //else
-    //{
-    //    gameRunner.LoadZoneData(BAK::ZoneNumber{zoneLabel.GetZoneNumber()});
-    //    auto position = gameRunner.mZoneData->mWorldTiles
-    //            .GetTiles().front().GetCenter();
-    //    position.y = 100;
-    //    camera.SetPosition(position);
-    //}
 
     auto currentTile = camera.GetGameTile();
     logger.Info() << " Starting on tile: " << currentTile << "\n";
