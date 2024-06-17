@@ -12,7 +12,8 @@ int main(int argc, char** argv)
     logger.Info() << "CHAPX.DAT\n";
     for (unsigned i = 1; i < 10; i++)
     {
-        BAK::LoadChapter(BAK::Chapter{i});
+        auto chapData = BAK::LoadChapterStartLocation(BAK::Chapter{i});
+        logger.Info() << "Chapter " << i << " data: " << chapData.mLocation << "\n";
     }
 
     logger.Info() << "FILTER.DAT\n";

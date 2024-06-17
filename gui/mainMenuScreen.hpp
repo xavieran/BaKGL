@@ -70,7 +70,7 @@ public:
             mLayout.GetWidgetDimensions(sStartNew),
             mFont,
             "#Start New Game",
-            [this]{ EnterMainView(); }
+            [this]{ StartNewGame(); }
         },
         mRestore{
             mLayout.GetWidgetLocation(sRestore),
@@ -139,7 +139,8 @@ public:
             [this](const auto& file){
                 mState = State::MainMenu;
                 AudioA::AudioManager::Get().PopTrack();
-                mGuiManager.LoadGame(file);
+                mGuiManager.LoadGame(file, std::nullopt);
+                EnterMainView();
             },
             [this](const auto& saveFile){
                 mState = State::MainMenu;
@@ -212,6 +213,13 @@ private:
     void EnterMainView()
     {
         AudioA::AudioManager::Get().PopTrack();
+        mGuiManager.EnterMainView();
+    }
+
+    void StartNewGame()
+    {
+        AudioA::AudioManager::Get().PopTrack();
+        mGuiManager.LoadGame("startup.gam", std::make_optional(BAK::Chapter{1}));
         mGuiManager.EnterMainView();
     }
 

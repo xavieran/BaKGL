@@ -49,7 +49,7 @@ public:
 
                 std::stringstream bmx{};
                 bmx << actN.str() << ".BMX";
-                mLogger.Debug() << "Loading: " << bmx.str() << " " << pal.str() << std::endl;
+                mLogger.Spam() << "Loading: " << bmx.str() << " " << pal.str() << std::endl;
                 BAK::TextureFactory::AddToTextureStore(
                     textures, bmx.str(), pal.str());
                 const auto dims = textures.GetTexture(textureIndex).GetDims();
@@ -63,7 +63,7 @@ public:
                 actN << "A";
                 std::stringstream bmx{};
                 bmx << actN.str() << ".BMX";
-                mLogger.Debug() << "Loading alternate: " << bmx.str() << " " << pal.str() << std::endl;
+                mLogger.Spam() << "Loading alternate: " << bmx.str() << " " << pal.str() << std::endl;
                 BAK::TextureFactory::AddToTextureStore(
                     textures, bmx.str(), pal.str());
                 const auto dims = textures.GetTexture(textureIndex).GetDims();

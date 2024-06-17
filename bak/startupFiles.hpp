@@ -1,12 +1,22 @@
 #pragma once
 
 #include "bak/types.hpp"
+#include "bak/coordinates.hpp"
+
 #include <array>
 
 namespace BAK
 {
 
-void LoadChapter(Chapter);
+struct ChapterStartLocation
+{
+    MapLocation mMapLocation;
+    Location mLocation;
+};
+
+std::ostream& operator<<(std::ostream&, const ChapterStartLocation&);
+
+ChapterStartLocation LoadChapterStartLocation(Chapter);
 void LoadFilter();
 void LoadDetect();
 void LoadZoneDat(ZoneNumber);

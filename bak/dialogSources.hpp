@@ -51,6 +51,11 @@ public:
         return KeyTarget{0x186a00 + index};
     }
 
+    static KeyTarget GetChapterStartText(unsigned index)
+    {
+        return BAK::KeyTarget{mChapterFullMapScreenText + index};
+    }
+
     static Target GetChoiceResult(KeyTarget dialog, unsigned index)
     {
         const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
@@ -191,6 +196,7 @@ public:
     static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
 
     static constexpr auto mAfterNagoCombatSetKeys = BAK::KeyTarget{0x1cfdf1};
+    static constexpr auto mChapterFullMapScreenText = 0x126;
     static constexpr auto mEndOfChapterResetFlags =
         KeyTarget{0x1e8497};
     static constexpr auto mDragonsBreath = 0xc7;

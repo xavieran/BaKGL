@@ -54,7 +54,7 @@ public:
     virtual void AddAnimator(std::unique_ptr<IAnimator>&&) = 0;
     virtual ScreenStack& GetScreenStack() = 0;
 
-    virtual void LoadGame(std::string) = 0;
+    virtual void LoadGame(std::string, std::optional<BAK::Chapter>) = 0;
     virtual void SaveGame(const BAK::SaveFile&) = 0;
     virtual void DoTeleport(BAK::TeleportIndex) = 0;
 };

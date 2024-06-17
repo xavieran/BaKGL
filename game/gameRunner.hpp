@@ -5,6 +5,7 @@
 
 #include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
+#include "bak/chapterTransitions.hpp"
 #include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
@@ -94,10 +95,14 @@ public:
         }
     }
 
-    void LoadGame(std::string savePath) override
+    void LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter) override
     {
         mGameData = std::make_unique<BAK::GameData>(savePath);
         mGameState.LoadGameData(mGameData.get());
+        if (chapter)
+        {
+            BAK::TransitionToChapter(*chapter, mGameState);
+        }
         LoadZoneData(mGameState.GetZone());
     }
 

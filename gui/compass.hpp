@@ -60,17 +60,16 @@ public:
         UpdateCompassHeading(mCompassCenter, 0);
     }
 
+private:
     void UpdateCompassHeading(Widget& compass, double zeroedXPos)
     {
         const auto newX = mHeading * compass.GetPositionInfo().mDimensions.x;
-        Logging::LogDebug("Compass") << "Heading: " << mHeading << " pos: " << newX << "\n";
         compass.SetPosition(
             glm::vec2{
                 newX + zeroedXPos,
                 0});
     }
 
-private:
     Widget mCompassLeft;
     Widget mCompassCenter;
 

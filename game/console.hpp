@@ -239,7 +239,8 @@ struct Console : public std::streambuf
         }
 
         ASSERT(mGameRunner);
-        mGameRunner->LoadGame(words[1]);
+        mGameRunner->LoadGame(words[1], std::nullopt);
+        mGuiManager->EnterMainView();
     }
 
     void PlaySound(const std::vector<std::string>& words)
@@ -912,6 +913,7 @@ struct Console : public std::streambuf
 
     Camera*  mCamera;
     Game::GameRunner*  mGameRunner;
+    Gui::IGuiManager*  mGuiManager;
     BAK::GameState*  mGameState;
 };
 

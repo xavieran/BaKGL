@@ -67,6 +67,10 @@ int main(int argc, char** argv)
     //Logging::LogState::Disable("Gui::DialogRunner");
     Logging::LogState::Disable("Gui::DialogDisplay");
     Logging::LogState::Disable("Gui::AnimatorStore");
+    Logging::LogState::Disable("TeleportFactory");
+    Logging::LogState::Disable("FMAP_TWN");
+    Logging::LogState::Disable("FMAP");
+    Logging::LogState::Disable("CampData");
 
     struct option options[] = {
         {"help", no_argument,       0, 'h'},
@@ -165,6 +169,7 @@ int main(int argc, char** argv)
 
     // OpenGL 3D Renderer
     constexpr auto sShadowDim = 4096;
+    bool runningGame = false;
     auto renderer = Graphics::Renderer{
         width,
         height,
@@ -181,18 +186,6 @@ int main(int argc, char** argv)
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
-    if (saveName)
-    {
-        gameRunner.LoadGame(*saveName);
-    }
-    else
-    {
-        gameRunner.LoadZoneData(BAK::ZoneNumber{zoneLabel.GetZoneNumber()});
-        auto position = gameRunner.mZoneData->mWorldTiles
-                .GetTiles().front().GetCenter();
-        position.y = 100;
-        camera.SetPosition(position);
-    }
 
     auto currentTile = camera.GetGameTile();
     logger.Info() << " Starting on tile: " << currentTile << "\n";
@@ -344,6 +337,7 @@ int main(int argc, char** argv)
     auto console = Console{};
     console.mCamera = &camera;
     console.mGameRunner = &gameRunner;
+    console.mGuiManager = &guiManager;
     console.mGameState = &gameState;
     console.ToggleLog();
 
@@ -362,8 +356,11 @@ int main(int argc, char** argv)
         lastTime = currentTime;
 
         cameraPtr->SetDeltaTime(deltaTime);
-        gameState.SetLocation(cameraPtr->GetGameLocation());
-        guiManager.mFullMap.UpdateLocation();
+        if (gameRunner.mGameState.GetGameData())
+        {
+            gameState.SetLocation(cameraPtr->GetGameLocation());
+            guiManager.mFullMap.UpdateLocation();
+        }
 
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
@@ -372,62 +369,63 @@ int main(int argc, char** argv)
         // { *** Draw 3D World ***
         UpdateLightCamera();
 
-        glDisable(GL_BLEND);
-        glDisable(GL_MULTISAMPLE);  
-
-        double bakTimeOfDay = (gameState.GetWorldTime().GetTime().mTime % 43200);
-        auto twoPi = std::numbers::pi_v<double> * 2.0;
-        // light starts at 6 after midnight
-        auto sixHours = 7200.0;
-        auto beginDay = bakTimeOfDay - sixHours;
-        bool isNight = bakTimeOfDay < 7200|| bakTimeOfDay > 36000;
-        light.mDirection = glm::vec3{
-            std::cos(beginDay * (twoPi / (28800 * 2))),
-            isNight ? .1 : -.25,
-            0};
-        float ambient = isNight
-            ? .05
-            : std::sin(beginDay * (twoPi / 57600));
-        light.mAmbientColor = glm::vec3{ambient};
-        light.mDiffuseColor = ambient * glm::vec3{
-            1.,
-            std::sin(beginDay * (twoPi / (57600 * 2))),
-            std::sin(beginDay * (twoPi / (57600 * 2)))
-        };
-
-        light.mSpecularColor = isNight ? glm::vec3{0} : ambient * glm::vec3{
-            1.,
-            std::sin(beginDay * (twoPi / (57600 * 2))),
-            std::sin(beginDay * (twoPi / (57600 * 2)))
-        };
-        light.mFogColor = ambient * glm::vec3{.15, .31, .36};
         glEnable(GL_BLEND);
         glEnable(GL_MULTISAMPLE);  
 
-        renderer.BeginDepthMapDraw();
-        renderer.DrawDepthMap(
-            gameRunner.mSystems->GetRenderables(),
-            lightCamera);
-        renderer.DrawDepthMap(
-            gameRunner.mSystems->GetSprites(),
-            lightCamera);
-        renderer.EndDepthMapDraw();
+        if (gameRunner.mGameState.GetGameData() != nullptr)
+        {
+            double bakTimeOfDay = (gameState.GetWorldTime().GetTime().mTime % 43200);
+            auto twoPi = std::numbers::pi_v<double> * 2.0;
+            // light starts at 6 after midnight
+            auto sixHours = 7200.0;
+            auto beginDay = bakTimeOfDay - sixHours;
+            bool isNight = bakTimeOfDay < 7200|| bakTimeOfDay > 36000;
+            light.mDirection = glm::vec3{
+                std::cos(beginDay * (twoPi / (28800 * 2))),
+                isNight ? .1 : -.25,
+                0};
+            float ambient = isNight
+                ? .05
+                : std::sin(beginDay * (twoPi / 57600));
+            light.mAmbientColor = glm::vec3{ambient};
+            light.mDiffuseColor = ambient * glm::vec3{
+                1.,
+                std::sin(beginDay * (twoPi / (57600 * 2))),
+                std::sin(beginDay * (twoPi / (57600 * 2)))
+            };
 
-        glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
-        // Dark blue background
-        glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderer.DrawWithShadow(
-            gameRunner.mSystems->GetRenderables(),
-            light,
-            lightCamera,
-            *cameraPtr);
+            light.mSpecularColor = isNight ? glm::vec3{0} : ambient * glm::vec3{
+                1.,
+                std::sin(beginDay * (twoPi / (57600 * 2))),
+                std::sin(beginDay * (twoPi / (57600 * 2)))
+            };
+            light.mFogColor = ambient * glm::vec3{.15, .31, .36};
 
-        renderer.DrawWithShadow(
-            gameRunner.mSystems->GetSprites(),
-            light,
-            lightCamera,
-            *cameraPtr);
+            renderer.BeginDepthMapDraw();
+            renderer.DrawDepthMap(
+                gameRunner.mSystems->GetRenderables(),
+                lightCamera);
+            renderer.DrawDepthMap(
+                gameRunner.mSystems->GetSprites(),
+                lightCamera);
+            renderer.EndDepthMapDraw();
+
+            glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+            // Dark blue background
+            glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            renderer.DrawWithShadow(
+                gameRunner.mSystems->GetRenderables(),
+                light,
+                lightCamera,
+                *cameraPtr);
+
+            renderer.DrawWithShadow(
+                gameRunner.mSystems->GetSprites(),
+                light,
+                lightCamera,
+                *cameraPtr);
+        }
 
         //// { *** Draw 2D GUI ***
         guiRenderer.RenderGui(&root);

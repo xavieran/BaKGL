@@ -10,7 +10,7 @@ class IZoneLoader
 public:
     // Load zone based on zone info in DEF_ZONE.DAT
     virtual void DoTeleport(TeleportIndex) = 0;
-    virtual void LoadGame(std::string) = 0;
+    virtual void LoadGame(std::string, std::optional<Chapter>) = 0;
 };
 
 }
