@@ -18,10 +18,10 @@ ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
     auto fb = FileBufferFactory::Get().CreateDataBuffer(ss.str());
 
     unsigned fileChapter = fb.GetUint16LE();
-    fb.Skip(4);
+    fb.DumpAndSkip(4);
     unsigned fmapPosX = fb.GetUint8();
     unsigned fmapPosY = fb.GetUint8();
-    fb.Skip(8);
+    fb.DumpAndSkip(8);
     unsigned zone = fb.GetUint8();
     unsigned tileX = fb.GetUint8();
     unsigned tileY = fb.GetUint8();

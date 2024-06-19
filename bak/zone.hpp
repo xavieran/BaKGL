@@ -64,8 +64,8 @@ public:
     BAK::Palette mPalette;
     std::vector<GenericContainer> mFixedObjects;
     BAK::ZoneTextureStore mZoneTextures;
-    BAK::ZoneItemStore mZoneItems;
-    BAK::WorldTileStore mWorldTiles;
+    ZoneItemStore mZoneItems;
+    WorldTileStore mWorldTiles;
     Graphics::MeshObjectStorage mObjects;
 };
 

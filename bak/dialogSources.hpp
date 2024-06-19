@@ -197,7 +197,7 @@ public:
 
     static constexpr auto mAfterNagoCombatSetKeys = BAK::KeyTarget{0x1cfdf1};
     static constexpr auto mChapterFullMapScreenText = 0x126;
-    static constexpr auto mEndOfChapterResetFlags =
+    static constexpr auto mStartOfChapterActions =
         KeyTarget{0x1e8497};
     static constexpr auto mDragonsBreath = 0xc7;
 };

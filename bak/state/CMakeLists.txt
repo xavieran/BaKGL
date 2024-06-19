@@ -5,6 +5,7 @@ add_library(bakState
     event.hpp event.cpp
     item.hpp item.cpp
     lock.hpp lock.cpp
+    money.hpp money.cpp
     offsets.hpp
     skill.hpp skill.cpp
     temple.hpp temple.cpp

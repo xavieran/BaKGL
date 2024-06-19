@@ -70,6 +70,7 @@ class DialogSnippet
 public:
     DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile);
 
+    const auto& GetActions() const { return mActions; }
     const auto& GetChoices() const { return mChoices; }
     std::string_view GetText() const { return mText; }
 
