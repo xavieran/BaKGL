@@ -264,10 +264,7 @@ int main(int argc, char** argv)
         {
             bool guiHandled = root.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * clickPos});
-            // i.e. only MainView is present
-            // should really formalise this with some sort of
-            // GuiManager state, interacting with 2d or 3d world..?
-            if (!guiHandled && guiManager.mScreenStack.size() == 1)
+            if (!guiHandled && guiManager.InMainView())
             {
                 glDisable(GL_BLEND);
                 glDisable(GL_MULTISAMPLE);

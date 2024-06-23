@@ -2,6 +2,7 @@
 
 #include "bak/container.hpp"
 #include "bak/constants.hpp"
+#include "bak/coordinates.hpp"
 #include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
@@ -86,7 +87,9 @@ public:
 
     void SetLocation(Location loc);
     void SetLocation(GamePositionAndHeading posAndHeading);
+    void SetMapLocation(MapLocation) const;
     GamePositionAndHeading GetLocation() const;
+    MapLocation GetMapLocation() const;
     ZoneNumber GetZone() const;
 
     auto& GetTimeExpiringState() { return mTimeExpiringState; }
@@ -104,6 +107,7 @@ public:
     std::optional<unsigned> GetActor(unsigned actor) const;
 
     bool GetSpellActive(StaticSpells spell) const;
+    bool ClearActiveSpells();
 
     // prefer to use this function when getting best skill
     // as it will set the appropriate internal state.

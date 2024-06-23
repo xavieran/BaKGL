@@ -119,7 +119,7 @@ private:
         auto start = BAK::CutsceneList::GetStartScene(chapter);
         auto finish = BAK::CutsceneList::GetFinishScene(chapter);
         start.insert(start.end(), finish.begin(), finish.end());
-        mGuiManager.PlayCutscene(start);
+        mGuiManager.PlayCutscene(start, []{});
     }
 
     IGuiManager& mGuiManager;

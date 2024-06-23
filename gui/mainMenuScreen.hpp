@@ -137,10 +137,7 @@ public:
             font,
             [this]{ BackToMainMenu(); },
             [this](const auto& file){
-                mState = State::MainMenu;
-                AudioA::AudioManager::Get().PopTrack();
-                mGuiManager.LoadGame(file, std::nullopt);
-                EnterMainView();
+                Load(file);
             },
             [this](const auto& saveFile){
                 mState = State::MainMenu;
@@ -219,8 +216,19 @@ private:
     void StartNewGame()
     {
         AudioA::AudioManager::Get().PopTrack();
+        auto start = BAK::CutsceneList::GetStartScene(BAK::Chapter{1});
+        mGuiManager.PlayCutscene(start , [&]{ 
+            mGuiManager.ShowGameStartMap();
+        });
         mGuiManager.LoadGame("startup.gam", std::make_optional(BAK::Chapter{1}));
-        mGuiManager.EnterMainView();
+    }
+
+    void Load(std::string file)
+    {
+        mState = State::MainMenu;
+        AudioA::AudioManager::Get().PopTrack();
+        mGuiManager.LoadGame(file, std::nullopt);
+        mGuiManager.ShowGameStartMap();
     }
 
     void AddChildren()
