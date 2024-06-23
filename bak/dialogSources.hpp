@@ -1,6 +1,7 @@
 #pragma once
 
-#include "dialog.hpp"
+#include "bak/types.hpp"
+#include "bak/dialog.hpp"
 
 #include <functional>
 #include <iomanip>
@@ -51,9 +52,9 @@ public:
         return KeyTarget{0x186a00 + index};
     }
 
-    static KeyTarget GetChapterStartText(unsigned index)
+    static KeyTarget GetChapterStartText(Chapter chapter)
     {
-        return BAK::KeyTarget{mChapterFullMapScreenText + index};
+        return BAK::KeyTarget{mChapterFullMapScreenText + (chapter.mValue - 1)};
     }
 
     static Target GetChoiceResult(KeyTarget dialog, unsigned index)

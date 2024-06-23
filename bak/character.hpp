@@ -30,432 +30,60 @@ public:
         const std::array<std::uint8_t, 2>& unknown,
         const std::array<std::uint8_t, 7>& unknown2,
         const Conditions& conditions,
-        Inventory&& inventory)
-    :
-        mCharacterIndex{index},
-        mName{name},
-        mSkills{skills},
-        mSpells{spells},
-        mUnknown{unknown},
-        mUnknown2{unknown2},
-        mConditions{conditions},
-        mInventory{std::move(inventory)},
-        mSkillAffectors{},
-        mLogger{Logging::LogState::GetLogger("BAK::Character")}
-    {}
+        Inventory&& inventory);
 
     /* IContainer */
+    Inventory& GetInventory() override;
+    const Inventory& GetInventory() const override;
+    bool CanAddItem(const InventoryItem& ref) const override;
+    bool GiveItem(const InventoryItem& ref) override;
+    bool RemoveItem(const InventoryItem& item) override;
+    ContainerType GetContainerType() const override;
+    ShopStats& GetShop() override;
+    const ShopStats& GetShop() const override;
+    LockStats& GetLock() override;
 
-    Inventory& GetInventory() override { return mInventory; }
-    const Inventory& GetInventory() const override { return mInventory; }
-
-    bool CanSwapItem(const InventoryItem& ref) const
-    {
-        return (ref.IsItemType(BAK::ItemType::Sword) && IsSwordsman())
-            || (ref.IsItemType(BAK::ItemType::Staff) && IsSpellcaster());
-    }
-
-    bool CanAddItem(const InventoryItem& ref) const override
-    {
-        auto item = ref;
-        const auto itemIndex = ref.GetItemIndex();
-        // Day's rations are equivalent to 1 of normal rations
-        if (itemIndex == BAK::sDayRations)
-        {
-            item = InventoryItemFactory::MakeItem(BAK::sRations, 1);
-        }
-
-        if (mInventory.CanAddCharacter(item) > 0)
-            return true;
-        else if (item.IsItemType(ItemType::Staff)
-            && HasEmptyStaffSlot())
-            return true;
-        else if (item.IsItemType(ItemType::Sword)
-            && HasEmptySwordSlot())
-            return true;
-        else if (item.IsItemType(ItemType::Crossbow)
-            && HasEmptyCrossbowSlot())
-            return true;
-        else if (item.IsItemType(ItemType::Armor)
-            && HasEmptyArmorSlot())
-            return true;
-        else
-            return false;
-    }
-
-    bool GiveItem(const InventoryItem& ref) override
-    {
-        auto item = ref;
-        const auto itemIndex = ref.GetItemIndex();
-
-        bool equipped = false;
-        if (CanReplaceEquippableItem(item.GetObject().mType)
-            && mInventory.FindEquipped(item.GetObject().mType)
-                == mInventory.GetItems().end())
-        {
-            item.SetEquipped(true);
-            equipped = true;
-        }
-        else
-        {
-            item.SetEquipped(false);
-        }
-
-        // Day's rations are equivalent to 1 of normal rations
-        if (itemIndex == BAK::sDayRations)
-        {
-            item = InventoryItemFactory::MakeItem(BAK::sRations, 1);
-        }
-        // Quegian brandy
-        else if (itemIndex == BAK::sBrandy
-            || itemIndex == BAK::sAle
-            || itemIndex == BAK::sKeshianAle)
-        {
-            mConditions.IncreaseCondition(
-                static_cast<Condition>(ref.GetObject().mEffectMask),
-                ref.GetObject().mEffect);
-            return true;
-        }
-
-        if (item.GetItemIndex() == sRations
-            && GetConditions().GetCondition(Condition::Starving).Get() > 0)
-        {
-            AdjustCondition(Condition::Starving, -100);
-            item.SetQuantity(item.GetQuantity() - 1);
-            if (item.GetQuantity() == 0)
-            {
-                return true;
-            }
-        }
-        const auto stackSize = item.GetObject().mStackSize;
-
-        // Split into stacks if necessary
-        std::vector<InventoryItem> items{};
-        if (item.IsStackable()
-            && item.GetQuantity() > stackSize)
-        {
-            const auto nStacks = item.GetQuantity() / stackSize;
-            for (unsigned i = 0; i < nStacks; i++)
-            {
-                items.emplace_back(
-                    InventoryItemFactory::MakeItem(
-                        ItemIndex{itemIndex},
-                        stackSize));
-            }
-            const auto remainder = item.GetQuantity() % stackSize;
-            if (remainder != 0)
-                items.emplace_back(
-                    InventoryItemFactory::MakeItem(
-                        ItemIndex{itemIndex},
-                        remainder));
-        }
-        else
-        {
-            items.emplace_back(item);
-        }
-
-        bool added = false;
-        for (const auto& item : items)
-        {
-            if (mInventory.CanAddCharacter(item) || equipped)
-            {
-                mInventory.AddItem(item);
-                added = true;
-            }
-        }
-
-        return added;
-    }
-
-    bool RemoveItem(const InventoryItem& item) override
-    {
-        if (mInventory.HaveItem(item))
-        {
-            mInventory.RemoveItem(item);
-            return true;
-        }
-
-        return false;
-    }
-
-    ContainerType GetContainerType() const override
-    {
-        return ContainerType::Inv;
-    }
-
-    ShopStats& GetShop() override { ASSERT(false); return *reinterpret_cast<ShopStats*>(this);}
-    const ShopStats& GetShop() const override { ASSERT(false); return *reinterpret_cast<const ShopStats*>(this);}
-    LockStats& GetLock() override { ASSERT(false); return *reinterpret_cast<LockStats*>(this); }
     /* Character Getters */
+    bool CanSwapItem(const InventoryItem& ref) const;
 
-    CharIndex GetIndex() const { return mCharacterIndex; }
+    CharIndex GetIndex() const;
 
-    bool IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mMax != 0; }
-    bool IsSwordsman() const { return !IsSpellcaster(); }
+    bool IsSpellcaster() const;
+    bool IsSwordsman() const;
 
-    bool HasEmptyStaffSlot() const
-    {
-        return IsSpellcaster() 
-            && mInventory.FindEquipped(ItemType::Staff) 
-                == mInventory.GetItems().end();
-    }
+    bool HasEmptyStaffSlot() const;
+    bool HasEmptySwordSlot() const;
+    bool HasEmptyCrossbowSlot() const;
+    bool HasEmptyArmorSlot() const;
+    InventoryIndex GetItemAtSlot(ItemType slot) const;
+    ItemType GetWeaponType() const;
+    bool CanReplaceEquippableItem(ItemType type) const;
+    void ApplyItemToSlot(InventoryIndex index, ItemType slot);
+    void CheckPostConditions();
+    unsigned GetTotalItem(const std::vector<BAK::ItemIndex>& itemIndex);
+    const std::string& GetName() const;
 
-    bool HasEmptySwordSlot() const
-    {
-        return IsSwordsman() 
-            && mInventory.FindEquipped(ItemType::Sword) 
-                == mInventory.GetItems().end();
-    }
+    bool CanHeal(bool isInn);
+    bool HaveNegativeCondition();
 
-    bool HasEmptyCrossbowSlot() const
-    {
-        return IsSwordsman() 
-            && mInventory.FindEquipped(ItemType::Crossbow) 
-                == mInventory.GetItems().end();
-    }
+    const Skills& GetSkills() const;
+    Skills& GetSkills();
 
-    bool HasEmptyArmorSlot() const
-    {
-        return mInventory.FindEquipped(ItemType::Armor) 
-            == mInventory.GetItems().end();
-    }
+    void ImproveSkill(SkillType skill, SkillChange skillChangeType, int multiplier);
+    unsigned GetSkill(SkillType skill) const;
+    unsigned GetMaxSkill(SkillType skill) const;
+    void AdjustCondition(BAK::Condition cond, signed amount);
+    const Conditions& GetConditions() const;
+    Conditions& GetConditions();
 
-    InventoryIndex GetItemAtSlot(ItemType slot) const
-    {
-        auto it = mInventory.FindEquipped(slot) ;
-        const auto index = mInventory.GetIndexFromIt(it);
-        assert(index);
-        return *index;
-    }
+    void UpdateSkills();
 
-    ItemType GetWeaponType() const
-    {
-        if (IsSpellcaster())
-            return ItemType::Staff;
-        else
-            return ItemType::Sword;
-    }
+    Spells& GetSpells();
+    const Spells& GetSpells() const;
 
-    bool CanReplaceEquippableItem(ItemType type) const
-    {
-        if (IsSpellcaster() && type == ItemType::Staff)
-            return true;
-        else if (IsSwordsman() && (type == ItemType::Sword
-                || type == ItemType::Crossbow))
-            return true;
-        else if (type == ItemType::Armor)
-            return true;
-        return false;
-    }
-
-    void ApplyItemToSlot(InventoryIndex index, ItemType slot)
-    {
-        auto& item = mInventory.GetAtIndex(index);
-        auto equipped = mInventory.FindEquipped(slot);
-
-        if (equipped == mInventory.GetItems().end())
-        {
-            item.SetEquipped(true);
-            return;
-        }
-
-        const auto slotIndex = *mInventory.GetIndexFromIt(equipped);
-        // We are trying to move this item onto itself
-        if (slotIndex == index)
-        {
-            return;
-        }
-
-        if (item.IsItemType(slot))
-        {
-            item.SetEquipped(true);
-            if (equipped != mInventory.GetItems().end())
-                equipped->SetEquipped(false);
-        }
-        else
-        {
-            // Try use item at index on slot item
-            //UseItem(index, slotIndex);
-        }
-
-        Logging::LogDebug("CharacterAFMove") << __FUNCTION__ << " " << item << " " << BAK::ToString(slot) << "\n";
-        if (equipped != mInventory.GetItems().end())
-            Logging::LogDebug("CharacterAFEquip") << __FUNCTION__ << " " << *equipped << " " << equipped->IsEquipped() << " " << BAK::ToString(slot) << "\n";
-    }
-
-    void CheckPostConditions()
-    {
-        if (IsSpellcaster())
-        {
-            ASSERT(GetInventory().FindEquipped(ItemType::Sword) 
-                == GetInventory().GetItems().end());
-            ASSERT(GetInventory().FindEquipped(ItemType::Crossbow) 
-                == GetInventory().GetItems().end());
-
-            unsigned staffCount = 0;
-            for (const auto& item : GetInventory().GetItems())
-            {
-                if (item.IsItemType(ItemType::Staff) && item.IsEquipped())
-                {
-                    staffCount++;
-                }
-            }
-            ASSERT(staffCount <= 1);
-        }
-        else
-        {
-            ASSERT(GetInventory().FindEquipped(ItemType::Staff) 
-                == GetInventory().GetItems().end());
-
-            unsigned swordCount = 0;
-            for (const auto& item : GetInventory().GetItems())
-            {
-                if (item.IsItemType(ItemType::Sword) && item.IsEquipped())
-                {
-                    swordCount++;
-                }
-            }
-            ASSERT(swordCount <= 1);
-
-            unsigned crossbowCount = 0;
-            for (const auto& item : GetInventory().GetItems())
-            {
-                if (item.IsItemType(ItemType::Crossbow) && item.IsEquipped())
-                {
-                    crossbowCount++;
-                }
-            }
-
-            ASSERT(crossbowCount <= 1);
-        }
-    }
-
-    unsigned GetTotalItem(const std::vector<BAK::ItemIndex>& itemIndex)
-    {
-        unsigned total = 0;
-        for (const auto& item : GetInventory().GetItems())
-        {
-            if (std::find_if(itemIndex.begin(), itemIndex.end(), [&item](auto& elem){ return item.GetItemIndex() == elem;}) != itemIndex.end())
-            {
-                if (item.IsConditionBased() || item.IsChargeBased())
-                {
-                    total += 1;
-                }
-                else
-                {
-                    total += item.GetQuantity();
-                }
-            }
-        }
-        return total;
-    }
-
-    const std::string& GetName() const
-    {
-        return mName;
-    }
-
-    bool CanHeal(bool isInn)
-    {
-        const auto multiplier = isInn ? 1.0 : .80;
-        const auto health = GetSkill(BAK::SkillType::TotalHealth);
-        const auto maxHealth = GetMaxSkill(BAK::SkillType::TotalHealth);
-        return health < (maxHealth * multiplier);
-    }
-
-    bool HaveNegativeCondition()
-    {
-        for (unsigned i = 0; i < Conditions::sNumConditions; i++)
-        {
-            auto cond = static_cast<BAK::Condition>(i);
-            if (cond == BAK::Condition::Healing) continue;
-            if (mConditions.GetCondition(cond).Get() > 0) return true;
-        }
-        return false;
-    }
-
-    const Skills& GetSkills() const
-    {
-        return mSkills;
-    }
-
-    Skills& GetSkills()
-    {
-        return mSkills;
-    }
-
-    void ImproveSkill(SkillType skill, SkillChange skillChangeType, int multiplier)
-    {
-        mSkills.ImproveSkill(mConditions, skill, skillChangeType, multiplier);
-        UpdateSkills();
-    }
-
-    unsigned GetSkill(SkillType skill) const
-    {
-        if (skill != SkillType::TotalHealth)
-        {
-            mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
-        }
-        return CalculateEffectiveSkillValue(
-            skill,
-            mSkills,
-            mConditions,
-            mSkillAffectors,
-            SkillRead::Current);
-    }
-
-    unsigned GetMaxSkill(SkillType skill) const
-    {
-        if (skill != SkillType::TotalHealth)
-        {
-            mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
-        }
-        return CalculateEffectiveSkillValue(
-            skill,
-            mSkills,
-            mConditions,
-            mSkillAffectors,
-            SkillRead::MaxSkill);
-    }
-
-    void AdjustCondition(BAK::Condition cond, signed amount)
-    {
-        mConditions.AdjustCondition(mSkills, cond, amount);
-    }
-
-    const Conditions& GetConditions() const { return mConditions; }
-    Conditions& GetConditions() { return mConditions; }
-
-    void UpdateSkills()
-    {
-        for (unsigned i = 0; i < BAK::Skills::sSkills; i++)
-            GetSkill(static_cast<SkillType>(i));
-    }
-
-    Spells& GetSpells()
-    {
-        return mSpells;
-    }
-
-    const Spells& GetSpells() const
-    {
-        return mSpells;
-    }
-
-    void AddSkillAffector(const SkillAffector& affector)
-    {
-        mSkillAffectors.emplace_back(affector);
-    }
-    
-    std::vector<SkillAffector>& GetSkillAffectors()
-    {
-        return mSkillAffectors;
-    }
-
-    const std::vector<SkillAffector>& GetSkillAffectors() const
-    {
-        return mSkillAffectors;
-    }
+    void AddSkillAffector(const SkillAffector& affector);
+    std::vector<SkillAffector>& GetSkillAffectors();
+    const std::vector<SkillAffector>& GetSkillAffectors() const;
 
     CharIndex mCharacterIndex;
     std::string mName;

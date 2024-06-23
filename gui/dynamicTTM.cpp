@@ -1,52 +1,24 @@
 #include "gui/dynamicTTM.hpp"
 
+#include "gui/backgrounds.hpp"
+#include "gui/colors.hpp"
+#include "gui/callbackDelay.hpp"
+#include "gui/fontManager.hpp"
+
 #include "bak/dialogSources.hpp"
 #include "bak/imageStore.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
-
+#include "bak/ttmRenderer.hpp"
 #include "bak/dialog.hpp"
+
 #include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include "graphics/types.hpp"
 
-#include "gui/colors.hpp"
 
 namespace Gui {
-
-class CallbackDelay : public IAnimator
-{
-public:
-    CallbackDelay(
-        std::function<void()>&& callback,
-        double delay)
-    :
-        mAlive{true},
-        mDelay{delay},
-        mCallback{std::move(callback)}
-    {
-    }
-
-    void OnTimeDelta(double delta) override
-    {
-        mDelay -= delta;
-        if (mDelay <= 0)
-        {
-            mCallback();
-            mAlive = false;
-        }
-    }
-
-    bool IsAlive() const override
-    {
-        return mAlive;
-    }
-
-    bool mAlive;
-    double mDelay;
-    std::function<void()> mCallback;
-};
 
 DynamicTTM::DynamicTTM(
     Graphics::SpriteManager& spriteManager,

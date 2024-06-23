@@ -39,7 +39,7 @@ void TransitionToChapter(Chapter chapter, GameState& gs)
     }
     const auto startLocation = LoadChapterStartLocation(chapter);
     gs.SetLocation(startLocation.mLocation);
-    // gs.SetMapLocation(startLocation.mMapLocation);
+    gs.SetMapLocation(startLocation.mMapLocation);
 
     // mov     eax, [bp+currentGold]
     // add     partyGold, eax
@@ -55,8 +55,6 @@ void TransitionToChapter(Chapter chapter, GameState& gs)
         gs.Apply(State::SetEventFlagFalse, 0x190 + i);
     }
 
-    //gs.ClearActiveSpells();
-    
     switch (chapter.mValue)
     {
         case 1:[[fallthrough]];

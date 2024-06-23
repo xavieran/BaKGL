@@ -7,6 +7,7 @@
 #include "bak/gameState.hpp"
 #include "bak/saveManager.hpp"
 
+#include "bak/startupFiles.hpp"
 #include "com/assert.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -35,6 +36,7 @@
 #include <glm/glm.hpp>
 
 #include <iostream>
+#include <functional>
 #include <variant>
 
 namespace Gui {
@@ -230,13 +232,15 @@ public:
     }
 
     void PlayCutscene(
-        std::vector<BAK::CutsceneAction> actions) override
+        std::vector<BAK::CutsceneAction> actions,
+        std::function<void()>&& cutsceneFinished) override
     {
+        mCutsceneFinished = std::move(cutsceneFinished);
         for (const auto& action : actions)
         {
             mCutscenePlayer.QueueAction(action);
         }
-        DoFade(1.0, [this]{
+        DoFade(1.5, [this]{
             mPreviousScreen = mScreenStack.Top();
             mScreenStack.PopScreen();
             mScreenStack.PushScreen(&mCutscenePlayer);
@@ -246,10 +250,11 @@ public:
 
     void CutsceneFinished()
     {
-        DoFade(1.0, [this]{
-            mScreenStack.PopScreen();
-            mScreenStack.PushScreen(mPreviousScreen);
-        });
+        //DoFade(1.0, [this]{
+        //    mScreenStack.PopScreen();
+        //    mScreenStack.PushScreen(mPreviousScreen);
+        //});
+        mCutsceneFinished();
     }
 
     bool InMainView() const override
@@ -260,13 +265,6 @@ public:
     void EnterMainView() override
     {
         mMainView.UpdatePartyMembers(mGameState);
-        // There is a bug here.
-        // If we load a save where we are in a combat
-        // we will evaluate and possibly trigger the combat
-        // while fading. This means the pop screen will
-        // pop the combat entry dialog, not the main menu
-        // screen as we want. To fix this we need to add a
-        // "in main view" state to the app...
         DoFade(1.0, [this]{
             mScreenStack.PopScreen();
             mScreenStack.PushScreen(&mMainView);
@@ -400,6 +398,7 @@ public:
         {
             DoTeleport(*teleport);
         }
+        mMainView.UpdatePartyMembers(mGameState);
     }
 
     void DoTeleport(BAK::TeleportIndex teleport) override
@@ -540,7 +539,17 @@ public:
 
     void ShowFullMap() override
     {
-        DoFade(.8, [this]{
+        mFullMap.DisplayMapMode();
+        DoFade(1.0, [this]{
+            mScreenStack.PushScreen(&mFullMap);
+        });
+    }
+
+    void ShowGameStartMap() override
+    {
+        DoFade(1.0, [this]{
+            mScreenStack.PopScreen();
+            mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation());
             mScreenStack.PushScreen(&mFullMap);
         });
     }
@@ -596,7 +605,7 @@ public:
         guiScreen.mFinished();
     }
 
-//private:
+private:
     void FadeInDone()
     {
         ASSERT(mFadeFunction);
@@ -622,7 +631,9 @@ public:
     Graphics::SpriteManager& mSpriteManager;
 
     CutscenePlayer mCutscenePlayer;
+public:
     MainView mMainView;
+private:
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;
@@ -630,11 +641,14 @@ public:
     Cast::CastScreen mCastScreen;
     CureScreen mCureScreen;
     LockScreen mLockScreen;
+public:
     FullMap mFullMap;
+private:
     MoredhelScreen mMoredhelScreen;
     TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
     std::function<void()> mFadeFunction;
+    std::function<void()> mCutsceneFinished;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;

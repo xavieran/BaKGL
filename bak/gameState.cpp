@@ -1,5 +1,6 @@
 #include "bak/gameState.hpp"
 
+#include "bak/coordinates.hpp"
 #include "bak/state/customStateChoice.hpp"
 
 #include "bak/state/dialog.hpp"
@@ -173,12 +174,26 @@ void GameState::SetLocation(GamePositionAndHeading posAndHeading)
     }
 }
 
+void GameState::SetMapLocation(MapLocation location) const
+{
+    if (mGameData)
+        mGameData->mMapLocation = location;
+}
+
 GamePositionAndHeading GameState::GetLocation() const
 {
     if (mGameData)
         return mGameData->mLocation.mLocation;
 
     return GamePositionAndHeading{glm::uvec2{10 * 64000, 15 * 64000}, 0 };
+}
+
+MapLocation GameState::GetMapLocation() const
+{
+    if (mGameData)
+        return mGameData->mMapLocation;
+
+    return MapLocation{{20, 20}, 0};
 }
 
 ZoneNumber GameState::GetZone() const

@@ -197,7 +197,6 @@ public:
             }
         }
 
-
         auto& containers = mGameState.GetContainers(
             BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
         for (auto& container : containers)
@@ -262,16 +261,16 @@ public:
             {
                 auto id = mSystems->GetNextItemId();
                 const auto dims = enc.GetDims();
-                if (std::holds_alternative<BAK::Encounter::Dialog>(enc.GetEncounter()))
-                {
-                    mSystems->AddRenderable(
-                        Renderable{
-                            id,
-                            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-                            enc.GetLocation(),
-                            glm::vec3{0.0},
-                            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-                }
+                //if (std::holds_alternative<BAK::Encounter::Dialog>(enc.GetEncounter()))
+                //{
+                //    mSystems->AddRenderable(
+                //        Renderable{
+                //            id,
+                //            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                //            enc.GetLocation(),
+                //            glm::vec3{0.0},
+                //            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                //}
 
                 mSystems->AddIntersectable(
                     Intersectable{
@@ -667,27 +666,27 @@ public:
         std::visit(
             overloaded{
             [&](const BAK::Encounter::GDSEntry& gds){
-                if (mGuiManager.mScreenStack.size() == 1)
+                if (mGuiManager.InMainView())
                     DoGDSEncounter(encounter, gds);
             },
             [&](const BAK::Encounter::Block& block){
-                if (mGuiManager.mScreenStack.size() == 1)
+                if (mGuiManager.InMainView())
                     DoBlockEncounter(encounter, block);
             },
             [&](const BAK::Encounter::Combat& combat){
-                if (mGuiManager.mScreenStack.size() == 1)
+                if (mGuiManager.InMainView())
                     CheckAndDoCombatEncounter(encounter, combat);
             },
             [&](const BAK::Encounter::Dialog& dialog){
-                if (mGuiManager.mScreenStack.size() == 1)
+                if (mGuiManager.InMainView())
                     DoDialogEncounter(encounter, dialog);
             },
             [&](const BAK::Encounter::EventFlag& flag){
-                if (mGuiManager.mScreenStack.size() == 1)
+                if (mGuiManager.InMainView())
                     DoEventFlagEncounter(encounter, flag);
             },
             [&](const BAK::Encounter::Zone& zone){
-                if (mGuiManager.mScreenStack.size() == 1)
+                if (mGuiManager.InMainView())
                     DoZoneEncounter(encounter, zone);
             },
         },

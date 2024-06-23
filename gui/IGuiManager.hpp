@@ -28,7 +28,7 @@ public:
     virtual void ExitGDSScene() = 0;
 
     virtual void StartDialog(BAK::Target, bool tooltip, bool drawWorldFrame, IDialogScene*) = 0;
-    virtual void PlayCutscene(std::vector<BAK::CutsceneAction> actions) = 0;
+    virtual void PlayCutscene(std::vector<BAK::CutsceneAction> actions, std::function<void()>&&) = 0;
 
     virtual void ShowCharacterPortrait(BAK::ActiveCharIndex) = 0;
     virtual void ExitSimpleScreen() = 0;
@@ -42,6 +42,7 @@ public:
     virtual void ShowCamp(bool isInn, BAK::ShopStats* inn) = 0;
     virtual void ShowCast(bool inCombat) = 0;
     virtual void ShowFullMap() = 0;
+    virtual void ShowGameStartMap() = 0;
     virtual void ShowTeleport(unsigned sourceTemple) = 0;
     virtual void ShowCureScreen(
         unsigned templeNumber,

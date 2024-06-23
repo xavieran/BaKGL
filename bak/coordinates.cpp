@@ -84,6 +84,6 @@ std::ostream& operator<<(std::ostream& os, const Location& l)
 std::uint16_t HeadingToFullMapAngle(std::uint16_t heading)
 {
     constexpr auto unit = 0xff / 8;
-    return 4 * ((heading/ unit) % 8);
+    return 4 * ((heading / unit) % 8);
 }
 }
