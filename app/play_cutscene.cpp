@@ -14,6 +14,7 @@
 #include "gui/backgrounds.hpp"
 #include "gui/cutscenePlayer.hpp"
 #include "gui/core/mouseEvent.hpp"
+#include "gui/guiManager.hpp"
 #include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"
@@ -89,30 +90,27 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
-    Gui::AnimatorStore animatorStore{};
-
-    auto cutscenePlayer = Gui::CutscenePlayer{
-        spriteManager,
-        animatorStore,
-        font,
-        bookFont,
-        backgrounds,
-        [](){}
-    };
+    auto gameState = BAK::GameState{nullptr};
+    auto guiManager = Gui::GuiManager{
+            rootWidget.GetCursor(),
+            spriteManager,
+            gameState
+        };
 
     auto chapter = BAK::Chapter{static_cast<unsigned>(std::atoi(argv[1]))};
     auto startActions = BAK::CutsceneList::GetStartScene(chapter);
     auto finishActions = BAK::CutsceneList::GetFinishScene(chapter);
+    std::vector<BAK::CutsceneAction> actions{};
     for (const auto& action : startActions)
     {
-        cutscenePlayer.QueueAction(action);
+        actions.emplace_back(action);
     }
     for (const auto& action : finishActions)
     {
-        cutscenePlayer.QueueAction(action);
+        actions.emplace_back(action);
     }
 
-    rootWidget.AddChildBack(&cutscenePlayer);
+    rootWidget.AddChildFront(&guiManager);
 
     bool playing = false;
 
@@ -128,15 +126,6 @@ int main(int argc, char** argv)
         {
             rootWidget.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
-            if (!playing)
-            {
-                cutscenePlayer.Play();
-                playing = true;
-            }
-            else
-            {
-                cutscenePlayer.Advance();
-            }
         },
         [&](const auto click)
         {
@@ -180,12 +169,14 @@ int main(int argc, char** argv)
     
     double currentTime = 0;
     double lastTime = 0;
+
+    guiManager.PlayCutscene(actions, []{});
     do
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         currentTime = glfwGetTime();
-        animatorStore.OnTimeDelta(currentTime - lastTime);
+        guiManager.OnTimeDelta(currentTime - lastTime);
         lastTime = currentTime;
 
         guiRenderer.RenderGui(&rootWidget);

@@ -5,15 +5,12 @@
 #include "bak/IContainer.hpp"
 
 #include "bak/condition.hpp"
-#include "bak/itemNumbers.hpp"
 #include "bak/skills.hpp"
 #include "bak/spells.hpp"
 #include "bak/types.hpp"
 #include "bak/inventory.hpp"
 
-#include <algorithm>
 #include <cstdint>
-#include <iterator>
 #include <ostream>
 #include <string>
 

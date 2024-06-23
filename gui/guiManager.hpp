@@ -95,6 +95,7 @@ public:
             mFontManager.GetGameFont(),
             mFontManager.GetBookFont(),
             mBackgrounds,
+            *this,
             [this](){ CutsceneFinished(); }
         },
         mMainView{*this, mBackgrounds, mIcons, mFontManager.GetSpellFont()},
@@ -241,8 +242,11 @@ public:
             mCutscenePlayer.QueueAction(action);
         }
         DoFade(1.5, [this]{
-            mPreviousScreen = mScreenStack.Top();
-            mScreenStack.PopScreen();
+            if (mScreenStack.HasChildren())
+            {
+                mPreviousScreen = mScreenStack.Top();
+                mScreenStack.PopScreen();
+            }
             mScreenStack.PushScreen(&mCutscenePlayer);
             mCutscenePlayer.Play();
         });
@@ -250,10 +254,6 @@ public:
 
     void CutsceneFinished()
     {
-        //DoFade(1.0, [this]{
-        //    mScreenStack.PopScreen();
-        //    mScreenStack.PushScreen(mPreviousScreen);
-        //});
         mCutsceneFinished();
     }
 
@@ -547,11 +547,22 @@ public:
 
     void ShowGameStartMap() override
     {
-        DoFade(1.0, [this]{
+        auto ShowMap = [&]{
             mScreenStack.PopScreen();
             mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation());
             mScreenStack.PushScreen(&mFullMap);
-        });
+        };
+        // Dirty, but this is what happens if coming out of a cutscene
+        if (HaveChild(&mFadeScreen))
+        {
+            ShowMap();
+        }
+        else
+        {
+            DoFade(1.0, [showMap=ShowMap]{
+                showMap();
+            });
+        }
     }
 
     void ShowCureScreen(

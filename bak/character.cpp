@@ -1,7 +1,10 @@
 #include "bak/character.hpp"
 
+#include "bak/itemNumbers.hpp"
+
 #include "com/ostream.hpp"
 
+#include <algorithm>
 #include <ios>
 
 namespace BAK {

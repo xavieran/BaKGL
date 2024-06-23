@@ -2,6 +2,7 @@
 
 #include "bak/cutscenes.hpp"
 
+#include "gui/IGuiManager.hpp"
 #include "gui/bookPlayer.hpp"
 #include "gui/core/widget.hpp"
 #include "gui/dynamicTTM.hpp"
@@ -17,6 +18,7 @@ public:
         const Font& font,
         const Font& bookFont,
         const Backgrounds& background,
+        IGuiManager& guiManager,
         std::function<void()>&& cutsceneFinished)
     :
         Widget(RectTag{}, glm::vec2{}, glm::vec2{320, 200}, glm::vec4{}, true),
@@ -32,6 +34,7 @@ public:
             background,
             [&](){ SceneFinished(); },
             [&](auto book){ PlayBook(book); }),
+        mGuiManager{guiManager},
         mCutsceneFinished{std::move(cutsceneFinished)}
     {
     }
@@ -100,20 +103,24 @@ private:
     {
         if (mTtmPlaying)
         {
-            ClearChildren();
-            AddChildBack(mDynamicTTM.GetScene());
-            mDynamicTTM.AdvanceAction();
+            mGuiManager.DoFade(1.5, [&]{
+                ClearChildren();
+                AddChildBack(mDynamicTTM.GetScene());
+                mDynamicTTM.AdvanceAction();
+            });
         }
         else
         {
-            Play();
+            mGuiManager.DoFade(1.5, [&]{ Play(); });
         }
     }
 
     void SceneFinished()
     {
         mTtmPlaying = false;
-        Play();
+        mGuiManager.DoFade(1.5, [&]{
+            Play();
+        });
     }
 
     void PlayBook(unsigned book)
@@ -133,6 +140,7 @@ private:
 
     BookPlayer mBookPlayer;
     DynamicTTM mDynamicTTM;
+    IGuiManager& mGuiManager;
 
     std::function<void()> mCutsceneFinished;
 };
