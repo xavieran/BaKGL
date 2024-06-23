@@ -225,6 +225,16 @@ WorldClock& GameState::GetWorldTime()
     }
 }
 
+void GameState::SetTransitionChapter_7541(bool value)
+{
+    mTransitionChapter_7541 = value;
+}
+
+bool GameState::GetTransitionChapter_7541() const
+{
+    return mTransitionChapter_7541;
+}
+
 void GameState::SetShopType_7542(unsigned shopType)
 {
     mShopType_7542 = shopType;
@@ -1043,6 +1053,12 @@ bool GameState::ReadEventBool(unsigned eventPtr) const
 
 void GameState::SetEventValue(unsigned eventPtr, unsigned value)
 {
+    if (eventPtr == 0x7541)
+    {
+        mTransitionChapter_7541 = value;
+        return;
+    }
+
     if (mGameData)
         State::SetEventFlag(mGameData->GetFileBuffer(), eventPtr, value);
 }
@@ -1056,6 +1072,10 @@ void GameState::SetEventState(const SetFlag& setFlag)
     else if (setFlag.mEventPointer == 0x753f)
     {
         mContextVar_753f = setFlag.mEventValue;
+    }
+    else if (setFlag.mEventPointer == 0x7541)
+    {
+        mTransitionChapter_7541 = setFlag.mEventValue;
     }
     else if (mGameData)
     {

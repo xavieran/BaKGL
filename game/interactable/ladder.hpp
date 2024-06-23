@@ -76,6 +76,11 @@ public:
         if (mState == State::Done)
         {
             mState = State::Idle;
+            if (mGameState.GetTransitionChapter_7541())
+            {
+                mGameState.SetTransitionChapter_7541(false);
+                mGuiManager.DoChapterTransition();
+            }
             return;
         }
 

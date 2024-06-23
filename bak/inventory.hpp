@@ -185,6 +185,17 @@ public:
         }
         return mods;
     }
+
+    void CopyFrom(Inventory& other)
+    {
+        for (const auto& item : other.GetItems())
+        {
+            auto newItem = item;
+            newItem.SetActivated(false);
+            newItem.SetEquipped(false);
+            AddItem(item);
+        }
+    }
     
 private:
     // result > 0 if can add item to inventory.

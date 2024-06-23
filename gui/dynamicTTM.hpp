@@ -37,6 +37,7 @@ public:
 
 private:
     bool RenderDialog(const BAK::ShowDialog&);
+    void ClearText();
 
     Graphics::SpriteManager& mSpriteManager;
     AnimatorStore& mAnimatorStore;
@@ -57,7 +58,8 @@ private:
 
     Graphics::TextureStore mRenderedFrames;
     Graphics::SpriteManager::TemporarySpriteSheet mRenderedFramesSheet;
-    unsigned mCurrentRenderedFrame = 0;
+    unsigned mCurrentRenderedFrame{0};
+    bool mWaitAtNextUpdate{false};
 
     std::function<void()> mSceneFinished;
     std::function<void(unsigned)> mDisplayBook;

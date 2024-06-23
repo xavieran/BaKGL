@@ -29,6 +29,7 @@ public:
 
     virtual void StartDialog(BAK::Target, bool tooltip, bool drawWorldFrame, IDialogScene*) = 0;
     virtual void PlayCutscene(std::vector<BAK::CutsceneAction> actions, std::function<void()>&&) = 0;
+    virtual void DoChapterTransition() = 0;
 
     virtual void ShowCharacterPortrait(BAK::ActiveCharIndex) = 0;
     virtual void ExitSimpleScreen() = 0;

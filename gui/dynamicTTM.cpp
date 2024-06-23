@@ -122,6 +122,8 @@ void DynamicTTM::BeginScene(
     mDelaying = false;
     mDelay = 0;
     mRunner.LoadTTM(adsFile, ttmFile);
+
+    ClearText();
 }
 
 bool DynamicTTM::AdvanceAction()
@@ -136,6 +138,7 @@ bool DynamicTTM::AdvanceAction()
     }
 
     auto action = *actionOpt;
+    mLogger.Debug() << "This action: " << action << "\n";
 
     bool waitForClick = false;
     std::visit(
@@ -199,7 +202,7 @@ bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
             mPopup.SetDimensions(popup->mDims);
             mPopupText.SetPosition(glm::vec2{1});
             mPopupText.SetDimensions(popup->mDims);
-            mPopupText.SetText(mFont, snippet.GetText());
+            mPopupText.SetText(mFont, snippet.GetText(), true, true);
             mLowerTextBox.ClearChildren();
             if (!mSceneFrame.HaveChild(&mPopup))
             {
@@ -220,18 +223,23 @@ bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
     }
     else
     {
-        mPopupText.ClearChildren();
-        mLowerTextBox.ClearChildren();
-        if (mSceneFrame.HaveChild(&mPopup))
-        {
-            mSceneFrame.RemoveChild(&mPopup);
-        }
-        if (mSceneFrame.HaveChild(&mLowerTextBox))
-        {
-            mSceneFrame.RemoveChild(&mLowerTextBox);
-        }
+        ClearText();
     }
     return false;
+}
+
+void DynamicTTM::ClearText()
+{
+    mPopupText.ClearChildren();
+    mLowerTextBox.ClearChildren();
+    if (mSceneFrame.HaveChild(&mPopup))
+    {
+        mSceneFrame.RemoveChild(&mPopup);
+    }
+    if (mSceneFrame.HaveChild(&mLowerTextBox))
+    {
+        mSceneFrame.RemoveChild(&mLowerTextBox);
+    }
 }
 
 Widget* DynamicTTM::GetScene()

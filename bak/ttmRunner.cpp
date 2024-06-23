@@ -44,6 +44,7 @@ std::optional<BAK::SceneAction> TTMRunner::GetNextAction()
 
     auto action = mActions[mCurrentAction];
     bool nextActionChosen = false;
+    bool finishEarly = false;
 
     std::visit(
         overloaded{
@@ -52,6 +53,12 @@ std::optional<BAK::SceneAction> TTMRunner::GetNextAction()
                 nextActionChosen = true;
             },
             [&](const BAK::GotoTag& sa){
+                // Hack til I figure out exactly how C31 works...
+                if (sa.mTag == 4)
+                {
+                    finishEarly = true;
+                    return;
+                }
                 mCurrentAction = FindActionMatchingTag(sa.mTag);
                 nextActionChosen = true;
             },
@@ -59,6 +66,11 @@ std::optional<BAK::SceneAction> TTMRunner::GetNextAction()
         },
         action
     );
+
+    if (finishEarly)
+    {
+        return std::nullopt;
+    }
 
     if (nextActionChosen)
     {

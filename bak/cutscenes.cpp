@@ -27,6 +27,11 @@ std::vector<CutsceneAction> CutsceneList::GetFinishScene(Chapter chapter)
 {
     std::vector<CutsceneAction> actions{};
 
+    if (chapter == Chapter{10})
+    {
+        return actions;
+    }
+
     std::stringstream ss{};
     if (chapter == Chapter{2}
         || chapter == Chapter{4}

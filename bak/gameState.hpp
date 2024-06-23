@@ -97,6 +97,8 @@ public:
     const WorldClock& GetWorldTime() const;
     WorldClock& GetWorldTime();
 
+    void SetTransitionChapter_7541(bool);
+    bool GetTransitionChapter_7541() const;
     void SetShopType_7542(unsigned shopType);
     unsigned GetShopType_7542() const;
 
@@ -182,6 +184,7 @@ private:
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue_7530;
+    bool mTransitionChapter_7541;
     unsigned mShopType_7542;
     unsigned mBardReward_754d;
     Royals mItemValue_753e;

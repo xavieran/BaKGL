@@ -1,8 +1,11 @@
 #include "bak/chapterTransitions.hpp"
 
+#include "bak/constants.hpp"
+#include "bak/coordinates.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
+#include "bak/hotspotRef.hpp"
 #include "bak/startupFiles.hpp"
 
 #include "bak/state/event.hpp"
@@ -10,7 +13,7 @@
 
 namespace BAK {
 
-void TransitionToChapter(Chapter chapter, GameState& gs)
+std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
 {
     gs.SetChapter(chapter);
 
@@ -57,10 +60,21 @@ void TransitionToChapter(Chapter chapter, GameState& gs)
 
     switch (chapter.mValue)
     {
-        case 1:[[fallthrough]];
-        case 2:[[fallthrough]];
-        case 3:[[fallthrough]];
-        case 4:[[fallthrough]];
+        case 1:
+           break;
+        case 2:
+        {
+            auto* lockysRoom = gs.GetContainerForGDSScene(HotspotRef{2, 'B'});
+            auto& locky = gs.GetParty().GetCharacter(Locklear);
+            lockysRoom->GetInventory().CopyFrom(locky.GetInventory());
+            locky.GetInventory().GetItems().clear();
+        } break;
+        case 3:
+            gs.SetEventValue(0x1fbc, 0);
+            break;
+        case 4:
+            //gs.SetMoney(0);
+            break;
         case 5:[[fallthrough]];
         case 6:[[fallthrough]];
         case 7:[[fallthrough]];
@@ -71,7 +85,6 @@ void TransitionToChapter(Chapter chapter, GameState& gs)
         default:
            break;
     }
-
 
     gs.GetWorldTime().SetTimeLastSlept(gs.GetWorldTime().GetTime());
     gs.GetParty().ForEachActiveCharacter([](auto& character){
@@ -103,10 +116,20 @@ void TransitionToChapter(Chapter chapter, GameState& gs)
     auto* chapterActions = &ds.GetSnippet(
         ds.GetSnippet(std::get<PushNextDialog>(startOfChapter.mActions[0]).mTarget).GetChoices()[chapter.mValue - 1].mTarget);
 
+    std::optional<BAK::Teleport> teleport{};
+    auto CheckTeleport = [&](const auto& action)
+    {
+        if (std::holds_alternative<BAK::Teleport>(action))
+        {
+            teleport = std::get<BAK::Teleport>(action);
+        }
+    };
+
     do {
         for (const auto& action : chapterActions->GetActions())
         {
             gs.EvaluateAction(action);
+            CheckTeleport(action);
         }
         for (const auto& choice : chapterActions->GetChoices())
         {
@@ -120,7 +143,10 @@ void TransitionToChapter(Chapter chapter, GameState& gs)
     for (const auto& action : chapterActions->GetActions())
     {
         gs.EvaluateAction(action);
+        CheckTeleport(action);
     }
+
+    return teleport;
 }
 
 }
