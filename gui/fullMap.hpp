@@ -133,7 +133,6 @@ private:
         BAK::GamePositionAndHeading location)
     {
         mPlayerPositionBaseIcon = BAK::HeadingToFullMapAngle(location.mHeading);
-        Logging::LogInfo("FullMap") << " Player position: " << location.mHeading << " fma: " << BAK::HeadingToFullMapAngle(location.mHeading) << "\n";
 
         UpdatePlayerPositionIcon();
 
@@ -167,7 +166,7 @@ private:
     void StartPlayerPositionFlasher()
     {
         auto flasher = std::make_unique<TickAnimator>(
-            .2,
+            .1,
             [&](){
                 if (mPlayerPositionIconOffset == 3)
                 {
