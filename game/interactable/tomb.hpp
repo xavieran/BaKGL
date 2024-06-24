@@ -59,13 +59,11 @@ public:
     {
         ASSERT(mCurrentTomb);
 
-        if (mState == State::Done)
+        if (mState == State::Done || !choice)
         {
             mState = State::Idle;
             return;
         }
-
-        ASSERT(choice);
 
         if (choice->mValue == BAK::Keywords::sYesIndex)
         {

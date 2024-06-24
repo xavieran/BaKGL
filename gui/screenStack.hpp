@@ -48,8 +48,7 @@ public:
 
     void PushScreen(Widget* widget)
     {
-        mLogger.Debug() << "Widgets: " << GetChildren() << "\n";
-        mLogger.Debug() << "Pushed widget " << std::hex << widget << std::dec << "\n";
+        mLogger.Debug() << "Widgets: " << GetChildren() << " Pushed widget " << std::hex << widget << std::dec << "\n";
         AddChildBack(widget);
     }
 

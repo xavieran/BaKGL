@@ -34,6 +34,8 @@
 #include "gui/cutscenePlayer.hpp"
 #include "gui/core/widget.hpp"
 
+#include <cpptrace/cpptrace.hpp>
+
 #include <glm/glm.hpp>
 
 #include <iostream>
@@ -224,10 +226,19 @@ public:
 
     void DoFade(double duration, std::function<void()>&& fadeFunction) override
     {
-        ASSERT(!HaveChild(&mFadeScreen));
-        mFadeFunction = std::move(fadeFunction);
-        AddChildBack(&mFadeScreen);
-        mFadeScreen.FadeIn(duration);
+        mLogger.Info() << __FUNCTION__ << " -- " << cpptrace::stacktrace::current() << "\n";
+        
+        //ASSERT(!HaveChild(&mFadeScreen));
+        if (HaveChild(&mFadeScreen))
+        {
+            mFadeFunction.emplace_back(std::move(fadeFunction));
+        }
+        else
+        {
+            mFadeFunction.emplace_back(std::move(fadeFunction));
+            AddChildBack(&mFadeScreen);
+            mFadeScreen.FadeIn(duration);
+        }
     }
 
     void PlayCutscene(
@@ -262,12 +273,15 @@ public:
 
     void EnterMainView() override
     {
+        mLogger.Info() << "Entering main view\n";
         mMainView.UpdatePartyMembers(mGameState);
         DoFade(1.0, [this]{
             mScreenStack.PopScreen();
+            mLogger.Info() << "Push main view\n";
             mScreenStack.PushScreen(&mMainView);
             if (mOnEnterMainView)
             {
+                mLogger.Info() << "Running on enter main view function\n";
                 mOnEnterMainView();
                 mOnEnterMainView = nullptr;
             }
@@ -417,6 +431,10 @@ public:
         auto teleport = BAK::TransitionToChapter(nextChapter, mGameState);
         
         PlayCutscene(actions, [this, teleport]{
+            while (!mGdsScenes.empty())
+                RemoveGDSScene();
+            mScreenStack.PopScreen();
+
             ShowGameStartMap();
             mOnEnterMainView = [this, teleport]{
                 if (teleport)
@@ -595,11 +613,11 @@ public:
             mScreenStack.PushScreen(&mFullMap);
         };
         // Dirty, but this is what happens if coming out of a cutscene
-        if (HaveChild(&mFadeScreen))
-        {
-            ShowMap();
-        }
-        else
+        //if (HaveChild(&mFadeScreen))
+        //{
+        //    ShowMap();
+        //}
+        //else
         {
             DoFade(1.0, [showMap=ShowMap]{
                 showMap();
@@ -661,8 +679,16 @@ public:
 private:
     void FadeInDone()
     {
-        ASSERT(mFadeFunction);
-        mFadeFunction();
+        mLogger.Info() << "FadeInDone\n";
+        ASSERT(!mFadeFunction.empty());
+        unsigned i = 0;
+        while (!mFadeFunction.empty())
+        {
+            mLogger.Info() << "Executing fade function #" << i++ << "\n";
+            auto function = std::move(mFadeFunction.front());
+            mFadeFunction.erase(mFadeFunction.begin());
+            function();
+        }
         mFadeScreen.FadeOut();
     }
 
@@ -705,7 +731,7 @@ private:
     MoredhelScreen mMoredhelScreen;
     TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
-    std::function<void()> mFadeFunction;
+    std::vector<std::function<void()>> mFadeFunction;
     std::function<void()> mEndFadeFunction;
     std::function<void()> mCutsceneFinished;
     std::function<void()> mOnEnterMainView;

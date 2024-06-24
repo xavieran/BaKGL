@@ -26,6 +26,7 @@ add_subdirectory(info)
 add_subdirectory(inventory)
 
 target_link_libraries(gui
+    cpptrace::cpptrace
     audio
     bak
     com
