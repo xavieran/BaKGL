@@ -70,6 +70,18 @@ struct Console : public std::streambuf
         }
     }
 
+    void NextChapter(const std::vector<std::string>& words)
+    {
+        if (!mGameRunner)
+        {
+            AddLog("[error] NEXT_CHAPTER FAILED No GameRunner Connected");
+            return;
+        }
+
+        AddLog("Transitioning to chapter: %d", mGameState->GetChapter().mValue + 1);
+        mGuiManager->DoChapterTransition();
+    }
+
     void SetComplexEvent(const std::vector<std::string>& words)
     {
         if (words.size() < 5)
@@ -552,6 +564,9 @@ struct Console : public std::streambuf
 
         mCommands.push_back("CAST_SPELL");
         mCommandActions.emplace_back([this](const auto& cmd){ CastSpell(cmd); });
+
+        mCommands.push_back("NEXT_CHAPTER");
+        mCommandActions.emplace_back([this](const auto& cmd){ NextChapter(cmd); });
 
         mCommands.push_back("CLEAR");
         mCommandActions.emplace_back([this](const auto& cmd)

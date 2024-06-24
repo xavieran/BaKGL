@@ -25,8 +25,13 @@ add_subdirectory(core)
 add_subdirectory(info)
 add_subdirectory(inventory)
 
+if (ENABLE_CPPTRACE)
+    target_link_libraries(gui
+        cpptrace::cpptrace
+    )
+endif()
+
 target_link_libraries(gui
-    cpptrace::cpptrace
     audio
     bak
     com

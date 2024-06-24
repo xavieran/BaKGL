@@ -4,6 +4,7 @@
 
 #include "bak/IZoneLoader.hpp"
 #include "bak/chapterTransitions.hpp"
+#include "bak/cutscenes.hpp"
 #include "bak/dialog.hpp"
 #include "bak/gameState.hpp"
 #include "bak/saveManager.hpp"
@@ -34,7 +35,9 @@
 #include "gui/cutscenePlayer.hpp"
 #include "gui/core/widget.hpp"
 
+#ifdef ENABLE_CPPTRACE
 #include <cpptrace/cpptrace.hpp>
+#endif
 
 #include <glm/glm.hpp>
 
@@ -226,16 +229,13 @@ public:
 
     void DoFade(double duration, std::function<void()>&& fadeFunction) override
     {
+#ifdef ENABLE_CPPTRACE
         mLogger.Info() << __FUNCTION__ << " -- " << cpptrace::stacktrace::current() << "\n";
+#endif
         
-        //ASSERT(!HaveChild(&mFadeScreen));
-        if (HaveChild(&mFadeScreen))
+        mFadeFunction.emplace_back(std::move(fadeFunction));
+        if (!HaveChild(&mFadeScreen))
         {
-            mFadeFunction.emplace_back(std::move(fadeFunction));
-        }
-        else
-        {
-            mFadeFunction.emplace_back(std::move(fadeFunction));
             AddChildBack(&mFadeScreen);
             mFadeScreen.FadeIn(duration);
         }
@@ -277,7 +277,6 @@ public:
         mMainView.UpdatePartyMembers(mGameState);
         DoFade(1.0, [this]{
             mScreenStack.PopScreen();
-            mLogger.Info() << "Push main view\n";
             mScreenStack.PushScreen(&mMainView);
             if (mOnEnterMainView)
             {
@@ -422,7 +421,8 @@ public:
 
     void DoChapterTransition() override
     {
-        auto actions = BAK::CutsceneList::GetFinishScene(mGameState.GetChapter());
+        // FIXME: Uncomment this before merge!
+        auto actions = std::vector<BAK::CutsceneAction>{};//BAK::CutsceneList::GetFinishScene(mGameState.GetChapter());
         const auto nextChapter = BAK::Chapter(mGameState.GetChapter().mValue + 1);
         //for (const auto& action : BAK::CutsceneList::GetStartScene(nextChapter))
         //{
@@ -431,9 +431,9 @@ public:
         auto teleport = BAK::TransitionToChapter(nextChapter, mGameState);
         
         PlayCutscene(actions, [this, teleport]{
+            // Remove gds scenes in case we transitioned from a GDS
             while (!mGdsScenes.empty())
                 RemoveGDSScene();
-            mScreenStack.PopScreen();
 
             ShowGameStartMap();
             mOnEnterMainView = [this, teleport]{
@@ -607,22 +607,11 @@ public:
 
     void ShowGameStartMap() override
     {
-        auto ShowMap = [&]{
+        DoFade(1.0, [this]{
             mScreenStack.PopScreen();
             mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation());
             mScreenStack.PushScreen(&mFullMap);
-        };
-        // Dirty, but this is what happens if coming out of a cutscene
-        //if (HaveChild(&mFadeScreen))
-        //{
-        //    ShowMap();
-        //}
-        //else
-        {
-            DoFade(1.0, [showMap=ShowMap]{
-                showMap();
-            });
-        }
+        });
     }
 
     void ShowCureScreen(
