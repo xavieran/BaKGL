@@ -10,7 +10,9 @@
 #include "bak/saveManager.hpp"
 
 #include "bak/startupFiles.hpp"
+
 #include "com/assert.hpp"
+#include "com/cpptrace.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -34,10 +36,6 @@
 #include "gui/teleportScreen.hpp"
 #include "gui/cutscenePlayer.hpp"
 #include "gui/core/widget.hpp"
-
-#ifdef ENABLE_CPPTRACE
-#include <cpptrace/cpptrace.hpp>
-#endif
 
 #include <glm/glm.hpp>
 
@@ -229,9 +227,7 @@ public:
 
     void DoFade(double duration, std::function<void()>&& fadeFunction) override
     {
-#ifdef ENABLE_CPPTRACE
-        mLogger.Info() << __FUNCTION__ << " -- " << cpptrace::stacktrace::current() << "\n";
-#endif
+        CPPTRACE(mLogger.Info(), __FUNCTION__);
         
         mFadeFunction.emplace_back(std::move(fadeFunction));
         if (!HaveChild(&mFadeScreen))
