@@ -10,6 +10,19 @@ namespace BAK {
 
 ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
 {
+    // Yes these are hardcoded in the game. Not sure why they seem semi duplicated
+    // in the CHAPX.DAT files.
+    static const std::vector<MapLocation> chapterStartLocations{
+        MapLocation{{116, 75}, 18},
+        MapLocation{{168, 147}, 18},
+        MapLocation{{256, 114}, 2},
+        MapLocation{{167, 24}, 26},
+        MapLocation{{234, 52}, 2},
+        MapLocation{{168, 148}, 2},
+        MapLocation{{184, 92}, 18},
+        MapLocation{{0, 0}, 0}, // timirianya
+        MapLocation{{203, 128}, 2}
+    };
     std::stringstream ss{};
     ss << "CHAP";
     ss << chapter.mValue;
@@ -19,8 +32,13 @@ ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
 
     unsigned fileChapter = fb.GetUint16LE();
     fb.DumpAndSkip(4);
+    // Unclear what these actually are... I thought they were MapLocations,
+    // but those are hardcoded...
     unsigned fmapPosX = fb.GetUint8();
     unsigned fmapPosY = fb.GetUint8();
+    //MapLocation{
+    //    //{fmapPosX, fmapPosY},
+    //    //HeadingToFullMapAngle(heading)},
     fb.DumpAndSkip(8);
     unsigned zone = fb.GetUint8();
     unsigned tileX = fb.GetUint8();
@@ -33,9 +51,7 @@ ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
     auto pos = MakeGamePositionFromTileAndCell(glm::uvec2{tileX, tileY}, glm::uvec2{cellX, cellY});
 
     return ChapterStartLocation{
-        MapLocation{
-            {fmapPosX, fmapPosY},
-            HeadingToFullMapAngle(heading)},
+        chapterStartLocations[chapter.mValue - 1],
         Location{
             ZoneNumber{zone},
             {tileX, tileY},

@@ -6,6 +6,7 @@
 #include "bak/chapterTransitions.hpp"
 #include "bak/cutscenes.hpp"
 #include "bak/dialog.hpp"
+#include "bak/encounter/teleport.hpp"
 #include "bak/gameState.hpp"
 #include "bak/saveManager.hpp"
 
@@ -406,10 +407,11 @@ public:
         mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
         mDialogScene->DialogFinished(choice);
 
-        const auto teleport = mDialogRunner.GetAndResetPendingTeleport();
-        if (teleport)
+        const auto teleportIndex = mDialogRunner.GetAndResetPendingTeleport();
+        if (teleportIndex)
         {
-            DoTeleport(*teleport);
+            const auto& teleport = mTeleportFactory.Get(teleportIndex->mValue);
+            DoTeleport(teleport);
         }
         
         mMainView.UpdatePartyMembers(mGameState);
@@ -426,23 +428,32 @@ public:
         //}
         auto teleport = BAK::TransitionToChapter(nextChapter, mGameState);
         
-        PlayCutscene(actions, [this, teleport]{
+        PlayCutscene(actions, [this, nextChapter, teleport]{
             // Remove gds scenes in case we transitioned from a GDS
             while (!mGdsScenes.empty())
                 RemoveGDSScene();
 
             ShowGameStartMap();
-            mOnEnterMainView = [this, teleport]{
+            mOnEnterMainView = [this, nextChapter, teleport]{
+                // Always teleport to the new world location
+                const auto startLocation = LoadChapterStartLocation(nextChapter).mLocation;
+                DoTeleport(
+                    BAK::Encounter::Teleport{
+                        startLocation.mZone,
+                        startLocation.mLocation,
+                        std::nullopt});
+
+                // Optionally we may need to teleport to a GDS location
                 if (teleport)
                 {
                     mLogger.Info() << "Teleporting to: " << *teleport << std::endl;
-                    DoTeleport(teleport->mIndex);
+                    DoTeleport(mTeleportFactory.Get(teleport->mIndex.mValue));
                 }
             };
         });
     }
 
-    void DoTeleport(BAK::TeleportIndex teleport) override
+    void DoTeleport(BAK::Encounter::Teleport teleport) override
     {
         mLogger.Info() << "Teleporting to teleport index: " << teleport << "\n";
         // Clear all stacked GDS scenes
@@ -595,6 +606,7 @@ public:
 
     void ShowFullMap() override
     {
+        mFullMap.UpdateLocation();
         mFullMap.DisplayMapMode();
         DoFade(1.0, [this]{
             mScreenStack.PushScreen(&mFullMap);
@@ -728,6 +740,8 @@ private:
     AnimatorStore mAnimatorStore;
     BAK::IZoneLoader* mZoneLoader;
     Widget* mPreviousScreen{nullptr};
+
+    BAK::Encounter::TeleportFactory mTeleportFactory{};
 
     const Logging::Logger& mLogger;
 };

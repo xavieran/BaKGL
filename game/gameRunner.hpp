@@ -77,9 +77,8 @@ public:
         ASSERT(mLoadRenderer);
     }
 
-    void DoTeleport(BAK::TeleportIndex teleIndex) override
+    void DoTeleport(BAK::Encounter::Teleport teleport) override
     {
-        const auto& teleport = mTeleportFactory.Get(teleIndex.mValue);
         mLogger.Debug() << "Teleporting to: " << teleport << "\n";
         if (teleport.mTargetZone)
         {
@@ -433,7 +432,7 @@ public:
 
         // Check whether players are in valid combatable position???
         auto timeOfScouting = mGameState.Apply(BAK::State::GetCombatClickedTime, combat.mCombatIndex);
-        auto timeDiff = mGameState.GetWorldTime().GetTime().mTime - timeOfScouting;
+        auto timeDiff = (mGameState.GetWorldTime().GetTime()- timeOfScouting).mTime;
         if ((timeDiff / 0x1e) < 0x1e) // within scouting valid time
         {
             auto chance = GetRandomNumber(0, 0xfff) % 100;

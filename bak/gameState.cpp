@@ -176,6 +176,7 @@ void GameState::SetLocation(GamePositionAndHeading posAndHeading)
 
 void GameState::SetMapLocation(MapLocation location) const
 {
+    mLogger.Info() << "Setting map location to: " << location << " from : " << mGameData->mMapLocation << "\n";
     if (mGameData)
         mGameData->mMapLocation = location;
 }

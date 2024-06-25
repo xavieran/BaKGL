@@ -4,8 +4,12 @@
 #include "bak/coordinates.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/file/fileBuffer.hpp"
 #include "bak/gameState.hpp"
 #include "bak/hotspotRef.hpp"
+#include "bak/itemNumbers.hpp"
+#include "bak/itemInteractions.hpp"
+#include "bak/objectInfo.hpp"
 #include "bak/startupFiles.hpp"
 
 #include "bak/state/event.hpp"
@@ -18,11 +22,11 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
     gs.SetChapter(chapter);
 
     auto currentGold = gs.GetParty().GetGold();
-    auto time = gs.GetWorldTime().GetTime();
-    time += Times::OneDay;
-    auto remainder = Time{time.mTime % Times::OneDay.mTime};
-    time -= remainder;
-    gs.GetWorldTime().SetTime(time);
+    //auto time = gs.GetWorldTime().GetTime();
+    //time += Times::OneDay;
+    //auto remainder = Time{time.mTime % Times::OneDay.mTime};
+    //time -= remainder;
+    //gs.GetWorldTime().SetTime(time);
 
     if (chapter == Chapter{1})
     {
@@ -65,17 +69,64 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
         case 2:
         {
             auto* lockysRoom = gs.GetContainerForGDSScene(HotspotRef{2, 'B'});
+            assert(lockysRoom);
             auto& locky = gs.GetParty().GetCharacter(Locklear);
             lockysRoom->GetInventory().CopyFrom(locky.GetInventory());
             locky.GetInventory().GetItems().clear();
         } break;
         case 3:
+        {
             gs.SetEventValue(0x1fbc, 0);
-            break;
+        } break;
         case 4:
-            //gs.SetMoney(0);
-            break;
-        case 5:[[fallthrough]];
+        {
+            auto* owynChest = gs.GetWorldContainer(ZoneNumber{12}, GamePosition{694800, 700800});
+            assert(owynChest);
+            auto& owyn = gs.GetParty().GetCharacter(Owyn);
+            owynChest->GetInventory().CopyFrom(owyn.GetInventory());
+            owyn.GetInventory().GetItems().clear();
+
+            auto torch = InventoryItemFactory::MakeItem(sTorch, 6);
+            owyn.GiveItem(torch);
+
+            auto* gorathChest = gs.GetWorldContainer(ZoneNumber{12}, GamePosition{698400, 696800});
+            assert(gorathChest);
+            auto& gorath = gs.GetParty().GetCharacter(Gorath);
+            gorathChest->GetInventory().CopyFrom(gorath.GetInventory());
+            gorath.GetInventory().GetItems().clear();
+
+            gorath.GiveItem(torch);
+            UseItem(gs, gorath, InventoryIndex{0});
+
+            gs.GetParty().SetMoney(Royals{0});
+        } break;
+        case 5:
+        {
+            //auto* locklearCh5Inventory = gs.GetWorldContainer(ZoneNumber{0}, {0, 10});
+            //assert(locklearCh5Inventory);
+            //auto& locky = gs.GetParty().GetCharacter(Locklear);
+            //locky.GetInventory().CopyFrom(locklearCh5Inventory->GetInventory());
+            //{
+            //    auto it = locky.GetInventory().FindItemType(BAK::ItemType::Sword);
+            //    assert(it != locky.GetInventory().GetItems().end());
+            //    it->SetEquipped(true);
+            //}
+
+            //{
+            //    auto it = locky.GetInventory().FindItemType(BAK::ItemType::Armor);
+            //    assert(it != locky.GetInventory().GetItems().end());
+            //    it->SetEquipped(true);
+            //}
+
+            //{
+            //    auto it = locky.GetInventory().FindItemType(BAK::ItemType::Crossbow);
+            //    assert(it != locky.GetInventory().GetItems().end());
+            //    it->SetEquipped(true);
+            //}
+
+            gs.GetParty().SetMoney(gs.Apply(State::ReadPartyMoney, Chapter{4}));
+                
+        } break;
         case 6:[[fallthrough]];
         case 7:[[fallthrough]];
             //const auto goldFromPriorChapter = gs.Apply(State::ReadPartyMoney, Chapter{chapter.mValue - 1});

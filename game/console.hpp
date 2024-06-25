@@ -4,6 +4,7 @@
 
 #include "bak/camera.hpp"
 #include "bak/coordinates.hpp"
+#include "bak/encounter/teleport.hpp"
 #include "bak/spells.hpp"
 #include "bak/worldClock.hpp"
 
@@ -385,8 +386,8 @@ struct Console : public std::streambuf
             AddLog("[error] DoTeleport FAILED No GameRunner Connected");
             return;
         }
-
-        mGameRunner->DoTeleport(BAK::TeleportIndex{index});
+        auto factory = BAK::Encounter::TeleportFactory();
+        mGameRunner->DoTeleport(factory.Get(index));
     }
 
     void SetPosition(const std::vector<std::string>& words)

@@ -10,13 +10,8 @@ class GameState;
 
 namespace BAK::State {
 
-void WritePartyMoney(
-    FileBuffer&,
-    Chapter,
-    Royals);
+void WritePartyMoney(FileBuffer&, Chapter, Royals);
 
-Royals ReadPartyMoney(
-    FileBuffer&,
-    Chapter);
+Royals ReadPartyMoney(FileBuffer&, Chapter);
 
 }

@@ -151,7 +151,25 @@ public:
                 return elem.IsItemType(slot) && elem.IsEquipped();
             });
     }
-    
+
+    auto FindItemType(BAK::ItemType slot) const
+    {
+        return std::find_if(
+            mItems.begin(), mItems.end(),
+            [&slot](const auto& elem){
+                return elem.IsItemType(slot);
+            });
+    }
+
+    auto FindItemType(BAK::ItemType slot)
+    {
+        return std::find_if(
+            mItems.begin(), mItems.end(),
+            [&slot](const auto& elem){
+                return elem.IsItemType(slot);
+            });
+    }
+
     bool HasIncompleteStack(const InventoryItem& item) const;
 
     // Characters can be added up to the size of the inventory

@@ -102,6 +102,11 @@ public:
         return mKeys.GetInventory().HaveItem(item);
     }
 
+    void SetMoney(Royals royals)
+    {
+        mGold = royals;
+    }
+
     void GainMoney(Royals royals)
     {
         mGold.mValue += royals.mValue;

@@ -355,8 +355,10 @@ int main(int argc, char** argv)
         cameraPtr->SetDeltaTime(deltaTime);
         if (gameRunner.mGameState.GetGameData())
         {
-            gameState.SetLocation(cameraPtr->GetGameLocation());
-            guiManager.mFullMap.UpdateLocation();
+            if (guiManager.InMainView())
+            {
+                gameState.SetLocation(cameraPtr->GetGameLocation());
+            }
         }
 
         glfwPollEvents();
