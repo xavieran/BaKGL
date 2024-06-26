@@ -72,9 +72,9 @@ void GameState::LoadGameData(GameData* gameData)
     mGDSContainers.clear();
     mCombatContainers.clear();
     mContainers.clear();
-    for (unsigned i = 0; i < 12; i++)
+    for (unsigned i = 0; i < 13; i++)
     {
-        mContainers.emplace_back(mGameData->LoadContainers(i + 1));
+        mContainers.emplace_back(mGameData->LoadContainers(i));
     }
     mGDSContainers = mGameData->LoadShops();
     mCombatContainers = mGameData->LoadCombatInventories();
@@ -1184,13 +1184,13 @@ bool GameState::Save(const std::string& saveName)
 std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone)
 {
     ASSERT(zone.mValue < 13);
-    return mContainers[zone.mValue - 1];
+    return mContainers[zone.mValue];
 }
 
 const std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone) const
 {
     ASSERT(zone.mValue < 13);
-    return mContainers[zone.mValue - 1];
+    return mContainers[zone.mValue];
 }
 
 

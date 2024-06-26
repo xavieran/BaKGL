@@ -211,7 +211,7 @@ public:
             auto newItem = item;
             newItem.SetActivated(false);
             newItem.SetEquipped(false);
-            AddItem(item);
+            AddItem(newItem);
         }
     }
     

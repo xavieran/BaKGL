@@ -419,13 +419,12 @@ public:
 
     void DoChapterTransition() override
     {
-        // FIXME: Uncomment this before merge!
-        auto actions = std::vector<BAK::CutsceneAction>{};//BAK::CutsceneList::GetFinishScene(mGameState.GetChapter());
+        auto actions = BAK::CutsceneList::GetFinishScene(mGameState.GetChapter());
         const auto nextChapter = BAK::Chapter(mGameState.GetChapter().mValue + 1);
-        //for (const auto& action : BAK::CutsceneList::GetStartScene(nextChapter))
-        //{
-        //    actions.emplace_back(action);
-        //}
+        for (const auto& action : BAK::CutsceneList::GetStartScene(nextChapter))
+        {
+            actions.emplace_back(action);
+        }
         auto teleport = BAK::TransitionToChapter(nextChapter, mGameState);
         
         PlayCutscene(actions, [this, nextChapter, teleport]{

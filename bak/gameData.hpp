@@ -6,6 +6,7 @@
 #include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/container.hpp"
+#include "bak/combat.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/money.hpp"
@@ -168,9 +169,9 @@ public:
 
     // Probably not chapter offsets.. ?
     void LoadChapterOffsetP();
-    void LoadCombatEntityLists();
-    void LoadCombatGridLocations();
-    void LoadCombatWorldLocations();
+    std::vector<CombatEntityList> LoadCombatEntityLists();
+    std::vector<CombatGridLocation> LoadCombatGridLocations();
+    std::vector<CombatWorldLocation> LoadCombatWorldLocations();
     void LoadCombatStats(unsigned offset, unsigned num);
     void LoadCombatClickedTimes();
 

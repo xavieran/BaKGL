@@ -4,7 +4,6 @@
 #include "bak/coordinates.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogSources.hpp"
-#include "bak/file/fileBuffer.hpp"
 #include "bak/gameState.hpp"
 #include "bak/hotspotRef.hpp"
 #include "bak/itemNumbers.hpp"
@@ -21,13 +20,6 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
 {
     gs.SetChapter(chapter);
 
-    auto currentGold = gs.GetParty().GetGold();
-    //auto time = gs.GetWorldTime().GetTime();
-    //time += Times::OneDay;
-    //auto remainder = Time{time.mTime % Times::OneDay.mTime};
-    //time -= remainder;
-    //gs.GetWorldTime().SetTime(time);
-
     if (chapter == Chapter{1})
     {
         gs.GetWorldTime().SetTime(Time{0x189c0});
@@ -39,23 +31,16 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
         gs.Apply(State::WritePartyMoney, chapter, gs.GetParty().GetGold());
     }
 
-    // loc_41b71
+    // is this even right....?
     for (unsigned i = 0; i < 80; i++)
     {
         gs.ReduceAndEvaluateTimeExpiringState(Time{0x7530});
     }
+
     const auto startLocation = LoadChapterStartLocation(chapter);
     gs.SetLocation(startLocation.mLocation);
     gs.SetMapLocation(startLocation.mMapLocation);
 
-    // mov     eax, [bp+currentGold]
-    // add     partyGold, eax
-    // mov     eax, [bp+currentTime]
-    // add     currentTime, eax
-    // mov     eax, currentTime
-    // mov     timeOfLastSleep?, eax
-    // mov     zoneNUmber, 0
-    
     // Set all encounter unique state flags back to false
     for (unsigned i = 0; i < 0x12c0; i++)
     {
@@ -71,8 +56,8 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
             auto* lockysRoom = gs.GetContainerForGDSScene(HotspotRef{2, 'B'});
             assert(lockysRoom);
             auto& locky = gs.GetParty().GetCharacter(Locklear);
+            lockysRoom->GetInventory().GetItems().clear();
             lockysRoom->GetInventory().CopyFrom(locky.GetInventory());
-            locky.GetInventory().GetItems().clear();
         } break;
         case 3:
         {
@@ -102,37 +87,58 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
         } break;
         case 5:
         {
-            //auto* locklearCh5Inventory = gs.GetWorldContainer(ZoneNumber{0}, {0, 10});
-            //assert(locklearCh5Inventory);
-            //auto& locky = gs.GetParty().GetCharacter(Locklear);
-            //locky.GetInventory().CopyFrom(locklearCh5Inventory->GetInventory());
-            //{
-            //    auto it = locky.GetInventory().FindItemType(BAK::ItemType::Sword);
-            //    assert(it != locky.GetInventory().GetItems().end());
-            //    it->SetEquipped(true);
-            //}
+            auto* locklearCh5Inventory = gs.GetWorldContainer(ZoneNumber{0}, {10, 0});
+            assert(locklearCh5Inventory);
+            auto& locky = gs.GetParty().GetCharacter(Locklear);
+            locky.GetInventory().GetItems().clear();
+            locky.GetInventory().CopyFrom(locklearCh5Inventory->GetInventory());
+            {
+                auto it = locky.GetInventory().FindItemType(BAK::ItemType::Sword);
+                assert(it != locky.GetInventory().GetItems().end());
+                it->SetEquipped(true);
+            }
 
-            //{
-            //    auto it = locky.GetInventory().FindItemType(BAK::ItemType::Armor);
-            //    assert(it != locky.GetInventory().GetItems().end());
-            //    it->SetEquipped(true);
-            //}
+            {
+                auto it = locky.GetInventory().FindItemType(BAK::ItemType::Armor);
+                assert(it != locky.GetInventory().GetItems().end());
+                it->SetEquipped(true);
+            }
 
-            //{
-            //    auto it = locky.GetInventory().FindItemType(BAK::ItemType::Crossbow);
-            //    assert(it != locky.GetInventory().GetItems().end());
-            //    it->SetEquipped(true);
-            //}
+            {
+                auto it = locky.GetInventory().FindItemType(BAK::ItemType::Crossbow);
+                assert(it != locky.GetInventory().GetItems().end());
+                it->SetEquipped(true);
+            }
 
             gs.GetParty().SetMoney(gs.Apply(State::ReadPartyMoney, Chapter{4}));
                 
         } break;
-        case 6:[[fallthrough]];
-        case 7:[[fallthrough]];
-            //const auto goldFromPriorChapter = gs.Apply(State::ReadPartyMoney, Chapter{chapter.mValue - 1});
-            //gs.SetMoney(goldFromPriorChapter);
-        case 8:[[fallthrough]];
-        case 9:[[fallthrough]];
+        case 6:
+        {
+            // I can't quite comprehend what the point of this was...
+            auto* refInn1 = gs.GetWorldContainer(ZoneNumber{0}, {20, 1});
+            assert(refInn1);
+            auto* inn1 = gs.GetContainerForGDSScene(HotspotRef{60, 'C'});
+            assert(inn1);
+            inn1->GetInventory().GetItems().clear();
+            inn1->GetInventory().CopyFrom(refInn1->GetInventory());
+
+            auto* refInn2 = gs.GetWorldContainer(ZoneNumber{0}, {30, 1});
+            assert(refInn2);
+            auto* inn2 = gs.GetContainerForGDSScene(HotspotRef{64, 'C'});
+            assert(inn2);
+            inn2->GetInventory().GetItems().clear();
+            inn2->GetInventory().CopyFrom(refInn2->GetInventory());
+
+            gs.GetParty().SetMoney(gs.Apply(State::ReadPartyMoney, Chapter{5}));
+        } break;
+        case 7:
+            gs.GetParty().SetMoney(gs.Apply(State::ReadPartyMoney, Chapter{6}));
+            gs.SetEventValue(0x1ab1, 1);
+            break;
+        case 8:
+            gs.GetParty().SetMoney(gs.Apply(State::ReadPartyMoney, Chapter{7}));
+        case 9:
         default:
            break;
     }

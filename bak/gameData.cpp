@@ -1,4 +1,6 @@
 #include "bak/gameData.hpp"
+
+#include "bak/combat.hpp"
 #include "bak/save.hpp"
 #include "bak/spells.hpp"
 
@@ -9,6 +11,7 @@
 #include "bak/inventory.hpp"
 
 #include "bak/timeExpiringState.hpp"
+#include "bak/types.hpp"
 #include "com/bits.hpp"
 #include "com/ostream.hpp"
 
@@ -32,21 +35,6 @@ GameData::GameData(const std::string& save)
     mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
     //mLogger.Info() << mParty << "\n";
     mLogger.Info() << mTime << std::hex << " " << mTime.GetTime().mTime  << std::dec << "\n";
-    //LoadContainers(0x1);
-    //LoadContainers(0x2);
-    //LoadContainers(0x3);
-    //LoadContainers(0x4);
-    //LoadContainers(0x5);
-    //LoadContainers(0x6);
-    //LoadContainers(0x7);
-    //LoadContainers(0x8);
-    //LoadContainers(0x9);
-    //LoadContainers(0xa);
-    //LoadContainers(0xb);
-    //LoadContainers(0xc);
-    //mLogger.Debug() << "Loaded Z12 Cont: " << std::hex 
-    //    << mBuffer.Tell() << std::dec << "\n";
-    //LoadShops();
     //LoadChapterOffsetP();
     //LoadCombatEntityLists();
     //LoadCombatStats(0x914b, 1698);
@@ -118,7 +106,6 @@ Party GameData::LoadParty()
         std::move(keys),
         characters,
         activeCharacters};
-    mLogger.Debug() << "Party: " << party << "\n";
     return party;
 }
     
@@ -355,15 +342,17 @@ void GameData::LoadChapterOffsetP()
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
-void GameData::LoadCombatEntityLists()
+std::vector<CombatEntityList> GameData::LoadCombatEntityLists()
 {
     mBuffer.Seek(sCombatEntityListOffset);
 
     mLogger.Spam() << "Combat Entity Lists Start @" 
         << std::hex << sCombatEntityListOffset << std::dec << std::endl;
 
+    std::vector<CombatEntityList> data{};
     for (int i = 0; i < sCombatEntityListCount; i++)
     {
+        auto& list = data.emplace_back();
         std::stringstream ss{};
         ss << " Combat #" << i;
         constexpr unsigned maxCombatants = 7;
@@ -372,14 +361,17 @@ void GameData::LoadCombatEntityLists()
         {
             auto combatant = mBuffer.GetUint16LE();
             if (combatant != 0xffff)
+            {
                 ss << sep << combatant;
+                list.mCombatants.emplace_back(CombatantIndex{combatant});
+            }
             sep = ',';
         }
         mLogger.Spam() << ss.str() << std::endl;
     }
-
     mLogger.Spam() << "Combat Entity Lists End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
+    return data;
 }
 
 void GameData::LoadCombatStats(unsigned offset, unsigned num)
@@ -405,8 +397,9 @@ void GameData::LoadCombatStats(unsigned offset, unsigned num)
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
-void GameData::LoadCombatGridLocations()
+std::vector<CombatGridLocation> GameData::LoadCombatGridLocations()
 {
+    std::vector<CombatGridLocation> data{};
     const auto initial = 0;
     mLogger.Spam() << "Loading Combat Grid Locations" << std::endl;
     mBuffer.Seek(sCombatGridLocationsOffset + (initial * 22));
@@ -417,14 +410,14 @@ void GameData::LoadCombatGridLocations()
         const auto gridX = mBuffer.GetUint8();
         const auto gridY = mBuffer.GetUint8();
         mBuffer.Skip(16);
-
-        mLogger.Spam() << "Combat #" << i << " monster: " << monsterType <<
-            " grid: " << glm::uvec2{gridX, gridY} << "\n";
+        data.emplace_back(CombatGridLocation{MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}});
     }
+    return data;
 }
 
-void GameData::LoadCombatWorldLocations()
+std::vector<CombatWorldLocation> GameData::LoadCombatWorldLocations()
 {
+    std::vector<CombatWorldLocation> data{};
     mBuffer.Seek(sCombatWorldLocationsOffset);
     for (unsigned k = 0; k < sCombatWorldLocationsCount; k++)
     {
@@ -433,16 +426,10 @@ void GameData::LoadCombatWorldLocations()
         const auto heading = static_cast<std::uint16_t>(mBuffer.GetUint16LE() >> 8);
         const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
         const auto unknownFlag = mBuffer.GetUint8();
-        // 0 - invisible?
-        // 1 - invisible?
-        // 2 - moving
-        // 3 - moving
-        // 4 - dead
         const auto combatantState = mBuffer.GetUint8();
-        mLogger.Spam() << "Combatant: " << k << " Position: " << combatantPosition << 
-            " unknown: " << + unknownFlag <<
-            " state: " << +combatantState << std::endl;
+        data.emplace_back(CombatWorldLocation{combatantPosition, unknownFlag, combatantState});
     }
+    return data;
 }
 
 std::vector<GenericContainer> GameData::LoadCombatInventories()
