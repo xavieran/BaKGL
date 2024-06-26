@@ -178,6 +178,7 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
     {
         if (std::holds_alternative<BAK::Teleport>(action))
         {
+            assert(!teleport);
             teleport = std::get<BAK::Teleport>(action);
         }
     };

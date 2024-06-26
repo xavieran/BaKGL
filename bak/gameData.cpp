@@ -31,17 +31,10 @@ GameData::GameData(const std::string& save)
     mTime{LoadWorldTime()},
     mParty{LoadParty()}
 {
-
     mLogger.Info() << "Loading save: " << mBuffer.GetString() << std::endl;
-    //mLogger.Info() << mParty << "\n";
-    mLogger.Info() << mTime << std::hex << " " << mTime.GetTime().mTime  << std::dec << "\n";
-    //LoadChapterOffsetP();
-    //LoadCombatEntityLists();
+    LoadChapterOffsetP();
     //LoadCombatStats(0x914b, 1698);
-    //LoadCombatGridLocations();
-    //LoadCombatWorldLocations();
     //LoadCombatClickedTimes();
-    //LoadTimeExpiringState();
 }
 
 std::vector<TimeExpiringState> GameData::LoadTimeExpiringState()
