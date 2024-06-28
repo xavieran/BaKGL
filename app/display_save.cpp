@@ -130,6 +130,7 @@ int main(int argc, char** argv)
     logger.Info() << "Tile: " << std::hex << gameData.mLocation.mTile << std::dec <<  " " << gameData.mLocation.mTile << "\n";
     logger.Info() << "MapLocation: " << gameData.mMapLocation << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
+    logger.Info() << "Time: " << gameData.mTime;
 
     if (options.party)
     {

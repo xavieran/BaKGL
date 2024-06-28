@@ -31,21 +31,14 @@ ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
     auto fb = FileBufferFactory::Get().CreateDataBuffer(ss.str());
 
     unsigned fileChapter = fb.GetUint16LE();
-    fb.DumpAndSkip(4);
-    // Unclear what these actually are... I thought they were MapLocations,
-    // but those are hardcoded...
-    unsigned fmapPosX = fb.GetUint8();
-    unsigned fmapPosY = fb.GetUint8();
-    //MapLocation{
-    //    //{fmapPosX, fmapPosY},
-    //    //HeadingToFullMapAngle(heading)},
-    fb.DumpAndSkip(8);
+    fb.Skip(4); // this is likely party gold. But it's always zero...
+    Time timeChange = BAK::Time{fb.GetUint32LE()};
+    fb.Skip(6);
     unsigned zone = fb.GetUint8();
     unsigned tileX = fb.GetUint8();
     unsigned tileY = fb.GetUint8();
     unsigned cellX = fb.GetUint8();
     unsigned cellY = fb.GetUint8();
-    // FIXME: Not sure this is right...
     std::uint16_t heading = fb.GetUint16LE() / 0x100;
 
     auto pos = MakeGamePositionFromTileAndCell(glm::uvec2{tileX, tileY}, glm::uvec2{cellX, cellY});
@@ -57,7 +50,8 @@ ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
             {tileX, tileY},
             GamePositionAndHeading{
                 pos,
-                heading}}};
+                heading}},
+        timeChange};
 }
 
 void LoadDetect()

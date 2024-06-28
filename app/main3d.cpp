@@ -43,18 +43,68 @@ extern "C" {
 #include <sstream>
 
 #undef main
+struct Options
+{
+    bool showImgui{true};
+    bool logTime{true};
+    bool logColors{false};
+    std::string logLevel{"DEBUG"};
+};
+
+Options Parse(int argc, char** argv)
+{
+    Options values{};
+
+    struct option options[] = {
+        {"help", no_argument,       0, 'h'},
+        {"log_colors", no_argument, 0, 'c'},
+        {"log_time", no_argument, 0, 't'},
+        {"log_level", required_argument, 0, 'l'},
+        {"imgui", no_argument, 0, 'i'},
+    };
+    int optionIndex = 0;
+    int opt;
+    while ((opt = getopt_long(argc, argv, "hctil:", options, &optionIndex)) != -1)
+    {
+        if (opt == 'h')
+        {
+            exit(0);
+        }
+        else if (opt == 'c')
+        {
+            values.logColors = true;
+        }
+        else if (opt == 't')
+        {
+            values.logTime = false;
+        }
+        else if (opt == 'i')
+        {
+            values.showImgui = false;
+        }
+        else if (opt == 'l')
+        {
+            values.logLevel = std::string{optarg};
+        }
+    }
+
+    return values;
+}
 
 int main(int argc, char** argv)
 {
-    const auto& logger = Logging::LogState::GetLogger("main");
+    const auto options = Parse(argc, argv);
 
-    const bool showImgui = true;
+    const bool showImgui = options.showImgui;
+
+    Logging::LogState::SetLogTime(options.logTime);
+    Logging::LogState::SetLogColor(options.logColors);
+    Logging::LogState::SetLevel(options.logLevel);
 
     auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
-    Logging::LogState::SetLogTime(true);
     Logging::LogState::AddStream(&log);
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
+    const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadEncounter");

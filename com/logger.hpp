@@ -40,7 +40,31 @@ public:
     {
         sGlobalLogLevel = level;
     }
-    
+
+    static void SetLevel(std::string_view level)
+    {
+        if (level == LevelToString(Logging::LogLevel::Spam))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Spam);
+        }
+        else if (level == LevelToString(Logging::LogLevel::Debug))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+        }
+        else if (level == LevelToString(Logging::LogLevel::Info))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Info);
+        }
+        else if (level == LevelToString(Logging::LogLevel::Warn))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Warn);
+        }
+        else if (level == LevelToString(Logging::LogLevel::Fatal))
+        {
+            Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
+        }
+    }
+
     static void SetLogTime(bool value)
     {
         sLogTime = value;
@@ -50,7 +74,6 @@ public:
     {
         sLogColor = value;
     }
-
 
     static std::ostream& Log(LogLevel level, const std::string& loggerName)
     {

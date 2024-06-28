@@ -21,11 +21,16 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
     Logging::LogInfo(__FUNCTION__) << "Chapter: " << chapter << "\n";
     gs.SetChapter(chapter);
 
-    if (chapter == Chapter{1})
-    {
-        gs.GetWorldTime().SetTime(Time{0x189c0});
-    }
-    
+    const auto startLocation = LoadChapterStartLocation(chapter);
+    gs.SetLocation(startLocation.mLocation);
+    gs.SetMapLocation(startLocation.mMapLocation);
+
+    auto time = gs.GetWorldTime().GetTime() + Times::OneDay;
+    time -= Time{(time.mTime % Times::OneDay.mTime)};
+    time += startLocation.mTimeElapsed;
+    gs.GetWorldTime().SetTime(time);
+    gs.GetWorldTime().SetTimeLastSlept(gs.GetWorldTime().GetTime());
+
     if (chapter != Chapter{1})
     {
         // combatCompleted = 1;
@@ -37,10 +42,6 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
     {
         gs.ReduceAndEvaluateTimeExpiringState(Time{0x7530});
     }
-
-    const auto startLocation = LoadChapterStartLocation(chapter);
-    gs.SetLocation(startLocation.mLocation);
-    gs.SetMapLocation(startLocation.mMapLocation);
 
     // Set all encounter unique state flags back to false
     for (unsigned i = 0; i < 0x12c0; i++)
@@ -144,7 +145,6 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
            break;
     }
 
-    gs.GetWorldTime().SetTimeLastSlept(gs.GetWorldTime().GetTime());
     gs.GetParty().ForEachActiveCharacter([](auto& character){
         auto& skills = character.GetSkills();
         auto& conditions = character.GetConditions();

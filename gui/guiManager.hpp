@@ -277,7 +277,6 @@ public:
             mScreenStack.PushScreen(&mMainView);
             if (mOnEnterMainView)
             {
-                mLogger.Info() << "Running on enter main view function\n";
                 mOnEnterMainView();
                 mOnEnterMainView = nullptr;
             }
@@ -675,12 +674,12 @@ public:
 private:
     void FadeInDone()
     {
-        mLogger.Info() << "FadeInDone\n";
+        mLogger.Spam() << "FadeInDone\n";
         ASSERT(!mFadeFunction.empty());
         unsigned i = 0;
         while (!mFadeFunction.empty())
         {
-            mLogger.Info() << "Executing fade function #" << i++ << "\n";
+            mLogger.Spam() << "Executing fade function #" << i++ << "\n";
             auto function = std::move(mFadeFunction.front());
             mFadeFunction.erase(mFadeFunction.begin());
             function();
