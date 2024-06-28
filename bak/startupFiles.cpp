@@ -10,8 +10,7 @@ namespace BAK {
 
 ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
 {
-    // Yes these are hardcoded in the game. Not sure why they seem semi duplicated
-    // in the CHAPX.DAT files.
+    // Yes these are hardcoded in the game.
     static const std::vector<MapLocation> chapterStartLocations{
         MapLocation{{116, 75}, 18},
         MapLocation{{168, 147}, 18},
