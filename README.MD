@@ -50,9 +50,9 @@ Due to Apple's deprecation of OpenGL Mac is not currently supported. It may work
 
 ## Setup
 ### BaKGL file main directory
-BaKGL needs to find a number of different files in order to run with the games original data. These are searched for in the "bak main directory".
+BaKGL needs to find a number of different files in order to run with the games original data. These are searched for in the _bak main directory_.
 
-On UNIX systems this will be "$HOME/bak", under Windows it will be "%APPDATA%\bak". I will hereafter refer to this directory as `$BAK_MAIN_DIR` for both platforms.
+On UNIX systems this will be `$HOME/bak`, under Windows it will be `%APPDATA%\bak`. I will hereafter refer to this directory as `$BAK_MAIN_DIR` for both platforms.
 
 ### Locate the original data files
 In order to play around with the project you will need the original game data files.
@@ -74,9 +74,11 @@ Save files will be searched for in the `$BAK_MAIN_DIR/saves/GAMES` directory, yo
 ## Set up shader path
 OpenGL shaders are searched for in a specific set of directories
 
+```
 $HOME/shaders
 $HOME/.shaders
 $BAK_MAIN_DIR/shaders
+```
 
 Either copy the shaders to this directory, or (better) create a symbolic link to point to the shaders directory of the repo.
 ```
