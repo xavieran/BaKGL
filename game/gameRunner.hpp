@@ -208,7 +208,7 @@ public:
                 continue;
             }
             handledLocations.emplace_back(bakPosition);
-            mLogger.Debug() << "Hidden container found: " << container << "\n";
+            mLogger.Spam() << "Hidden container found: " << container << "\n";
 
             const auto id = mSystems->GetNextItemId();
             const auto& item = mZoneData->mZoneItems.GetZoneItem(header.GetModel());

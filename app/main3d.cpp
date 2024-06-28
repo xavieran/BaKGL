@@ -51,6 +51,7 @@ int main(int argc, char** argv)
     const bool showImgui = true;
 
     auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
+    Logging::LogState::SetLogTime(true);
     Logging::LogState::AddStream(&log);
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 

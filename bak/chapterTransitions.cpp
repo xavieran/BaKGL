@@ -18,6 +18,7 @@ namespace BAK {
 
 std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
 {
+    Logging::LogInfo(__FUNCTION__) << "Chapter: " << chapter << "\n";
     gs.SetChapter(chapter);
 
     if (chapter == Chapter{1})
@@ -161,7 +162,8 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
 
     // Evaluate the start of chapter actions
     const auto& ds = DialogStore::Get();
-    auto startOfChapter= ds.GetSnippet(DialogSources::mStartOfChapterActions);
+    auto startOfChapter = ds.GetSnippet(DialogSources::mStartOfChapterActions);
+    Logging::LogInfo(__FUNCTION__) << "Evaluating snippet: " << startOfChapter << "\n";
     assert(startOfChapter.GetChoices().size() == 1);
     auto startOfChapterFlagsReset = ds.GetSnippet(startOfChapter.GetChoices()[0].mTarget);
     for (const auto& action : startOfChapterFlagsReset.GetActions())
@@ -172,6 +174,8 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
     assert(startOfChapter.GetActions().size() == 1);
     auto* chapterActions = &ds.GetSnippet(
         ds.GetSnippet(std::get<PushNextDialog>(startOfChapter.mActions[0]).mTarget).GetChoices()[chapter.mValue - 1].mTarget);
+
+    auto* prevActions = chapterActions;
 
     std::optional<BAK::Teleport> teleport{};
     auto CheckTeleport = [&](const auto& action)
@@ -184,6 +188,8 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
     };
 
     do {
+        Logging::LogInfo(__FUNCTION__) << "Evaluating snippet: " << *chapterActions << "\n";
+        prevActions = chapterActions;
         for (const auto& action : chapterActions->GetActions())
         {
             gs.EvaluateAction(action);
@@ -198,10 +204,14 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
         }
     } while (!chapterActions->GetChoices().empty());
 
-    for (const auto& action : chapterActions->GetActions())
+    if (prevActions != chapterActions)
     {
-        gs.EvaluateAction(action);
-        CheckTeleport(action);
+        Logging::LogInfo(__FUNCTION__) << "Evaluating final actions for snippet: " << *chapterActions << "\n";
+        for (const auto& action : chapterActions->GetActions())
+        {
+            gs.EvaluateAction(action);
+            CheckTeleport(action);
+        }
     }
 
     return teleport;

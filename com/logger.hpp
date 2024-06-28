@@ -24,6 +24,7 @@ enum class LogLevel
 };
 
 std::string_view LevelToString(LogLevel level);
+std::string_view LevelToColor(LogLevel level);
 
 class Logger;
 
@@ -42,8 +43,14 @@ public:
     
     static void SetLogTime(bool value)
     {
-        sTimeFormat = value;
+        sLogTime = value;
     }
+
+    static void SetLogColor(bool value)
+    {
+        sLogColor = value;
+    }
+
 
     static std::ostream& Log(LogLevel level, const std::string& loggerName)
     {
@@ -88,7 +95,6 @@ public:
 private:
     static std::ostream& DoLog(LogLevel level, const std::string& loggerName)
     {
-        std::string ts{};
         if (sLogTime)
         {
             const auto t = std::chrono::system_clock::now();
@@ -99,15 +105,26 @@ private:
 #else
             gmtime_r(&time, &gmt_time);
 #endif
-            auto ts = std::put_time(&gmt_time, sTimeFormat.c_str());
+            sOutput << std::put_time(&gmt_time, sTimeFormat.c_str()) << " ";
+        }
+        if (sLogColor)
+        {
+            sOutput << LevelToColor(level);
         }
 
-        return sOutput << ts << " " << LevelToString(level) << " [" << loggerName << "] ";
+        sOutput << LevelToString(level) << " [" << loggerName << "] ";
+        if (sLogColor)
+        {
+             sOutput << "\033[0m ";
+        }
+
+        return sOutput;
     }
 
     static LogLevel sGlobalLogLevel;
     static std::string sTimeFormat;
     static bool sLogTime;
+    static bool sLogColor;
 
     static std::vector<std::string> sEnabledLoggers;
     static std::vector<std::string> sDisabledLoggers;

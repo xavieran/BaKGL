@@ -19,9 +19,25 @@ std::string_view LevelToString(LogLevel level)
     }
 }
 
+std::string_view LevelToColor(LogLevel level)
+{
+    switch (level)
+    {
+    case LogLevel::Spam:   [[fallthrough]];
+    case LogLevel::Debug:  return "\033[0;37m";
+    case LogLevel::Info:   return "\033[1;34m";
+    case LogLevel::Warn:   return "\033[1;33m";
+    case LogLevel::Error:  return "\033[1;31m";
+    case LogLevel::Fatal:  [[fallthrough]];
+    case LogLevel::Always: return "\033[1;4;31m"; 
+    default: return "UNDEF";
+    }
+}
+
 LogLevel LogState::sGlobalLogLevel{LogLevel::Info};
 std::string LogState::sTimeFormat{"%H:%M:%S.%m"};
 bool LogState::sLogTime{true};
+bool LogState::sLogColor{false};
 
 std::vector<std::string> LogState::sEnabledLoggers{};
 std::vector<std::string> LogState::sDisabledLoggers{};
