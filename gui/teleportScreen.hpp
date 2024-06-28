@@ -3,6 +3,7 @@
 #include "audio/audio.hpp"
 
 #include "bak/dialogSources.hpp"
+#include "bak/encounter/teleport.hpp"
 #include "bak/layout.hpp"
 #include "bak/sounds.hpp"
 #include "bak/temple.hpp"
@@ -173,7 +174,8 @@ public:
             mGuiManager.ExitSimpleScreen();
             // This is probably a hack, likely need to fix this for other teleport things..
             AudioA::AudioManager::Get().PopTrack();
-            mGuiManager.DoTeleport(BAK::TeleportIndex{*mChosenDest - 1});
+            auto factory = BAK::Encounter::TeleportFactory{};
+            mGuiManager.DoTeleport(factory.Get(*mChosenDest - 1));
         }
     }
 

@@ -3,12 +3,17 @@
 #include "audio/audio.hpp"
 
 #include "bak/IZoneLoader.hpp"
+#include "bak/chapterTransitions.hpp"
+#include "bak/cutscenes.hpp"
 #include "bak/dialog.hpp"
+#include "bak/encounter/teleport.hpp"
 #include "bak/gameState.hpp"
 #include "bak/saveManager.hpp"
 
 #include "bak/startupFiles.hpp"
+
 #include "com/assert.hpp"
+#include "com/cpptrace.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
@@ -223,10 +228,11 @@ public:
 
     void DoFade(double duration, std::function<void()>&& fadeFunction) override
     {
-        ASSERT(!HaveChild(&mFadeScreen));
+        CPPTRACE(mLogger.Info(), __FUNCTION__);
+        
+        mFadeFunction.emplace_back(std::move(fadeFunction));
         if (!HaveChild(&mFadeScreen))
         {
-            mFadeFunction = std::move(fadeFunction);
             AddChildBack(&mFadeScreen);
             mFadeScreen.FadeIn(duration);
         }
@@ -264,10 +270,16 @@ public:
 
     void EnterMainView() override
     {
+        mLogger.Info() << "Entering main view\n";
         mMainView.UpdatePartyMembers(mGameState);
         DoFade(1.0, [this]{
             mScreenStack.PopScreen();
             mScreenStack.PushScreen(&mMainView);
+            if (mOnEnterMainView)
+            {
+                mOnEnterMainView();
+                mOnEnterMainView = nullptr;
+            }
         });
     }
 
@@ -393,15 +405,53 @@ public:
 
         mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
         mDialogScene->DialogFinished(choice);
-        const auto teleport = mDialogRunner.GetAndResetPendingTeleport();
-        if (teleport)
+
+        const auto teleportIndex = mDialogRunner.GetAndResetPendingTeleport();
+        if (teleportIndex)
         {
-            DoTeleport(*teleport);
+            const auto& teleport = mTeleportFactory.Get(teleportIndex->mValue);
+            DoTeleport(teleport);
         }
+        
         mMainView.UpdatePartyMembers(mGameState);
     }
 
-    void DoTeleport(BAK::TeleportIndex teleport) override
+    void DoChapterTransition() override
+    {
+        auto actions = BAK::CutsceneList::GetFinishScene(mGameState.GetChapter());
+        const auto nextChapter = BAK::Chapter(mGameState.GetChapter().mValue + 1);
+        for (const auto& action : BAK::CutsceneList::GetStartScene(nextChapter))
+        {
+            actions.emplace_back(action);
+        }
+        auto teleport = BAK::TransitionToChapter(nextChapter, mGameState);
+        
+        PlayCutscene(actions, [this, nextChapter, teleport]{
+            // Remove gds scenes in case we transitioned from a GDS
+            while (!mGdsScenes.empty())
+                RemoveGDSScene();
+
+            ShowGameStartMap();
+            mOnEnterMainView = [this, nextChapter, teleport]{
+                // Always teleport to the new world location
+                const auto startLocation = LoadChapterStartLocation(nextChapter).mLocation;
+                DoTeleport(
+                    BAK::Encounter::Teleport{
+                        startLocation.mZone,
+                        startLocation.mLocation,
+                        std::nullopt});
+
+                // Optionally we may need to teleport to a GDS location
+                if (teleport)
+                {
+                    mLogger.Info() << "Teleporting to: " << *teleport << std::endl;
+                    DoTeleport(mTeleportFactory.Get(teleport->mIndex.mValue));
+                }
+            };
+        });
+    }
+
+    void DoTeleport(BAK::Encounter::Teleport teleport) override
     {
         mLogger.Info() << "Teleporting to teleport index: " << teleport << "\n";
         // Clear all stacked GDS scenes
@@ -473,12 +523,27 @@ public:
     void ExitInventory() override
     {
         mLogger.Debug() << __FUNCTION__ << " BEGIN" << std::endl;
-        DoFade(1.0, [this]{ 
+
+        auto exitInventory = [&]{
             mCursor.PopCursor();
             mScreenStack.PopScreen();
             PopAndRunGuiScreen();
-            mLogger.Debug() << __FUNCTION__ << " ExitInventory" << std::endl;
-        });
+        };
+
+        if (mGameState.GetTransitionChapter_7541())
+        {
+            exitInventory();
+            mGameState.SetTransitionChapter_7541(false);
+            DoChapterTransition();
+        }
+        else
+        {
+            DoFade(1.0, [this, exitInventory]{ 
+                exitInventory();
+                
+                mLogger.Debug() << __FUNCTION__ << " ExitInventory" << std::endl;
+            });
+        }
     }
 
     void ShowLock(
@@ -539,6 +604,7 @@ public:
 
     void ShowFullMap() override
     {
+        mFullMap.UpdateLocation();
         mFullMap.DisplayMapMode();
         DoFade(1.0, [this]{
             mScreenStack.PushScreen(&mFullMap);
@@ -547,22 +613,11 @@ public:
 
     void ShowGameStartMap() override
     {
-        auto ShowMap = [&]{
+        DoFade(1.0, [this]{
             mScreenStack.PopScreen();
             mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation());
             mScreenStack.PushScreen(&mFullMap);
-        };
-        // Dirty, but this is what happens if coming out of a cutscene
-        if (HaveChild(&mFadeScreen))
-        {
-            ShowMap();
-        }
-        else
-        {
-            DoFade(1.0, [showMap=ShowMap]{
-                showMap();
-            });
-        }
+        });
     }
 
     void ShowCureScreen(
@@ -619,14 +674,27 @@ public:
 private:
     void FadeInDone()
     {
-        ASSERT(mFadeFunction);
-        mFadeFunction();
+        mLogger.Spam() << "FadeInDone\n";
+        ASSERT(!mFadeFunction.empty());
+        unsigned i = 0;
+        while (!mFadeFunction.empty())
+        {
+            mLogger.Spam() << "Executing fade function #" << i++ << "\n";
+            auto function = std::move(mFadeFunction.front());
+            mFadeFunction.erase(mFadeFunction.begin());
+            function();
+        }
         mFadeScreen.FadeOut();
     }
 
     void FadeOutDone()
     {
         RemoveChild(&mFadeScreen);
+        if (mEndFadeFunction)
+        {
+            mEndFadeFunction();
+            mEndFadeFunction = nullptr;
+        }
     }
 
     FontManager mFontManager;
@@ -658,8 +726,10 @@ private:
     MoredhelScreen mMoredhelScreen;
     TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
-    std::function<void()> mFadeFunction;
+    std::vector<std::function<void()>> mFadeFunction;
+    std::function<void()> mEndFadeFunction;
     std::function<void()> mCutsceneFinished;
+    std::function<void()> mOnEnterMainView;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;
@@ -668,6 +738,8 @@ private:
     AnimatorStore mAnimatorStore;
     BAK::IZoneLoader* mZoneLoader;
     Widget* mPreviousScreen{nullptr};
+
+    BAK::Encounter::TeleportFactory mTeleportFactory{};
 
     const Logging::Logger& mLogger;
 };

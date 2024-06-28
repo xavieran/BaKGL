@@ -1,11 +1,14 @@
 #pragma once
 
 #include "bak/types.hpp"
+#include "bak/dialogAction.hpp"
+
+#include <optional>
 
 namespace BAK {
 
 class GameState;
 
-void TransitionToChapter(Chapter, GameState&);
+std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs);
 
 }

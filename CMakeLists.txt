@@ -59,6 +59,19 @@ set(LSAN_OPTS "LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/.lsan.supp")
 
 # --- # --- External Packages --- # --- #
 
+set(ENABLE_CPPTRACE FALSE)
+
+if (ENABLE_CPPTRACE)
+    include(FetchContent)
+    FetchContent_Declare(
+      cpptrace
+      GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
+      GIT_TAG        v0.6.2
+    )
+    FetchContent_MakeAvailable(cpptrace)
+    add_compile_definitions(ENABLE_CPPTRACE)
+endif()
+
 # --- OpenGL related packages --- #
 find_package(OpenGL REQUIRED)
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/freeglut")

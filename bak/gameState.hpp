@@ -16,8 +16,12 @@
 
 #include "com/random.hpp"
 #include "com/visit.hpp"
+#include <type_traits>
 
 namespace BAK {
+
+template <typename F, typename ...Args>
+using invoke_result_with_fb = std::invoke_result_t<F, FileBuffer&, Args...>;
 
 class GameState
 {
@@ -26,39 +30,45 @@ public:
     GameState(GameData* gameData);
 
     template <typename F, typename ...Args>
-    bool Apply(F&& func, Args&&... args)
+    void Apply(F&& func, Args&&... args) const
+        requires(std::is_void_v<invoke_result_with_fb<F, Args...>>)
     {
         if (mGameData)
         {
-            if constexpr (std::is_same_v<decltype(func(mGameData->GetFileBuffer(), args...)), bool>)
-            {
-                return std::invoke(func, mGameData->GetFileBuffer(), args...);
-            }
-            else
-            {
-                std::invoke(func, mGameData->GetFileBuffer(), args...);
-            }
+            std::invoke(func, mGameData->GetFileBuffer(), args...);
         }
-
-        return false;
     }
 
     template <typename F, typename ...Args>
-    bool Apply(F&& func, Args&&... args) const
+    void Apply(F&& func, Args&&... args)
+        requires(std::is_void_v<invoke_result_with_fb<F, Args...>>)
     {
         if (mGameData)
         {
-            if constexpr (std::is_same_v<decltype(func(mGameData->GetFileBuffer(), args...)), bool>)
-            {
-                return std::invoke(func, mGameData->GetFileBuffer(), args...);
-            }
-            else
-            {
-                std::invoke(func, mGameData->GetFileBuffer(), args...);
-            }
+            std::invoke(func, mGameData->GetFileBuffer(), args...);
         }
+    }
 
-        return false;
+    template <typename F, typename ...Args>
+    auto Apply(F&& func, Args&&... args)
+        requires(!std::is_void_v<invoke_result_with_fb<F, Args...>>)
+    {
+        if (mGameData)
+        {
+            return std::invoke(func, mGameData->GetFileBuffer(), args...);
+        }
+        return invoke_result_with_fb<F, Args...>{};
+    }
+
+    template <typename F, typename ...Args>
+    auto Apply(F&& func, Args&&... args) const
+        requires(!std::is_void_v<invoke_result_with_fb<F, Args...>>)
+    {
+        if (mGameData)
+        {
+            return std::invoke(func, mGameData->GetFileBuffer(), args...);
+        }
+        return invoke_result_with_fb<F, Args...>{};
     }
 
     void LoadGameData(GameData* gameData);
@@ -97,6 +107,8 @@ public:
     const WorldClock& GetWorldTime() const;
     WorldClock& GetWorldTime();
 
+    void SetTransitionChapter_7541(bool);
+    bool GetTransitionChapter_7541() const;
     void SetShopType_7542(unsigned shopType);
     unsigned GetShopType_7542() const;
 
@@ -182,6 +194,7 @@ private:
     GameData* mGameData;
     Party mParty;
     unsigned mContextValue_7530;
+    bool mTransitionChapter_7541;
     unsigned mShopType_7542;
     unsigned mBardReward_754d;
     Royals mItemValue_753e;

@@ -30,16 +30,15 @@ struct DummyZoneLoader : public BAK::IZoneLoader
 {
 public:
 
-    void DoTeleport(BAK::TeleportIndex i) override
+    void DoTeleport(BAK::Encounter::Teleport i) override
     {
-        Logging::LogDebug("DummyZoneLoader") << "Teleporting to: " << mTeleportFactory.Get(i.mValue) << "\n";
+        Logging::LogDebug("DummyZoneLoader") << "Teleporting to: " << "\n";
     }
 
     void LoadGame(std::string, std::optional<BAK::Chapter>) override
     {
     }
 
-    BAK::Encounter::TeleportFactory mTeleportFactory;
 };
 
 #undef main

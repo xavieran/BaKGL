@@ -43,17 +43,68 @@ extern "C" {
 #include <sstream>
 
 #undef main
+struct Options
+{
+    bool showImgui{true};
+    bool logTime{true};
+    bool logColors{false};
+    std::string logLevel{"DEBUG"};
+};
+
+Options Parse(int argc, char** argv)
+{
+    Options values{};
+
+    struct option options[] = {
+        {"help", no_argument,       0, 'h'},
+        {"log_colors", no_argument, 0, 'c'},
+        {"log_time", no_argument, 0, 't'},
+        {"log_level", required_argument, 0, 'l'},
+        {"imgui", no_argument, 0, 'i'},
+    };
+    int optionIndex = 0;
+    int opt;
+    while ((opt = getopt_long(argc, argv, "hctil:", options, &optionIndex)) != -1)
+    {
+        if (opt == 'h')
+        {
+            exit(0);
+        }
+        else if (opt == 'c')
+        {
+            values.logColors = true;
+        }
+        else if (opt == 't')
+        {
+            values.logTime = false;
+        }
+        else if (opt == 'i')
+        {
+            values.showImgui = false;
+        }
+        else if (opt == 'l')
+        {
+            values.logLevel = std::string{optarg};
+        }
+    }
+
+    return values;
+}
 
 int main(int argc, char** argv)
 {
-    const auto& logger = Logging::LogState::GetLogger("main");
+    const auto options = Parse(argc, argv);
 
-    const bool showImgui = true;
+    const bool showImgui = options.showImgui;
+
+    Logging::LogState::SetLogTime(options.logTime);
+    Logging::LogState::SetLogColor(options.logColors);
+    Logging::LogState::SetLevel(options.logLevel);
 
     auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
     Logging::LogState::AddStream(&log);
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
+    const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::Disable("Compass");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadEncounter");
@@ -72,45 +123,6 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("FMAP");
     Logging::LogState::Disable("CampData");
 
-    struct option options[] = {
-        {"help", no_argument,       0, 'h'},
-        {"save", required_argument, 0, 's'},
-        {"zone", required_argument, 0, 'z'}
-    };
-    int optionIndex = 0;
-    int opt;
-
-    BAK::ZoneLabel zoneLabel{1};
-    std::optional<std::string> saveName{};
-    
-    bool noOptions = true;
-    while ((opt = getopt_long(argc, argv, "hs:z:", options, &optionIndex)) != -1)
-    {   
-        if (opt == 'h')
-        {
-            std::cout << "Usage: " << argv[0] << " --save SAVE_FILE | --zone ZXX\n";
-            exit(0);
-        }
-        else if (opt == 's')
-        {
-            noOptions = false;
-            logger.Info() << "Loading save file: " << optarg << std::endl;
-            saveName = optarg;
-        }
-        else if (opt == 'z')
-        {
-            noOptions = false;
-            logger.Info() << "Loading zone: " << optarg << std::endl;
-            auto zone = std::string{optarg};
-            zoneLabel = BAK::ZoneLabel{zone};
-        }
-    }
-
-    if (noOptions)
-    {
-        logger.Info() << "Attempting to load default save 'NEW_GAME.GAM'\n";
-        saveName = "NEW_GAME.GAM";
-    }
 
     auto guiScalar = 4.0f;
 
@@ -355,8 +367,10 @@ int main(int argc, char** argv)
         cameraPtr->SetDeltaTime(deltaTime);
         if (gameRunner.mGameState.GetGameData())
         {
-            gameState.SetLocation(cameraPtr->GetGameLocation());
-            guiManager.mFullMap.UpdateLocation();
+            if (guiManager.InMainView())
+            {
+                gameState.SetLocation(cameraPtr->GetGameLocation());
+            }
         }
 
         glfwPollEvents();

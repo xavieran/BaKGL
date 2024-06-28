@@ -196,7 +196,6 @@ private:
     {
         ClearChildren();
 
-        AddChildBack(&mPlayerLocation);
         if (mGameStartScreenMode)
         {
             AddChildBack(&mPopup);
@@ -207,6 +206,8 @@ private:
             for (auto& t : mTowns)
                 AddChildBack(&t);
         }
+
+        AddChildBack(&mPlayerLocation);
     }
 
     IGuiManager& mGuiManager;

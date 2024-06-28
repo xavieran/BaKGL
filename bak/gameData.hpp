@@ -6,6 +6,7 @@
 #include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/container.hpp"
+#include "bak/combat.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/money.hpp"
@@ -88,6 +89,9 @@ public:
     static constexpr auto sCombatGridLocationsOffset = 0x31349;
     static constexpr auto sCombatGridLocationsCount = 1699;
 
+    static constexpr auto sCombatStatsOffset = 0x914b;
+    static constexpr auto sCombatStatsCount = 1698;
+
     static constexpr auto sCharacterInventoryOffset = 0x3a804; // -> 3aa4b
     static constexpr auto sCharacterInventoryLength = 0x70; // -> 3aa4b
 
@@ -168,9 +172,9 @@ public:
 
     // Probably not chapter offsets.. ?
     void LoadChapterOffsetP();
-    void LoadCombatEntityLists();
-    void LoadCombatGridLocations();
-    void LoadCombatWorldLocations();
+    std::vector<CombatEntityList> LoadCombatEntityLists();
+    std::vector<CombatGridLocation> LoadCombatGridLocations();
+    std::vector<CombatWorldLocation> LoadCombatWorldLocations();
     void LoadCombatStats(unsigned offset, unsigned num);
     void LoadCombatClickedTimes();
 

@@ -151,7 +151,7 @@ public:
         mCharacters.reserve(3);
 
         const auto& party = gameState.GetParty();
-        mLogger.Info() << "Updating Party: " << party<< "\n";
+        mLogger.Spam() << "Updating Party: " << party<< "\n";
         BAK::ActiveCharIndex person{0};
         do
         {

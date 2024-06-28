@@ -18,8 +18,7 @@ void WritePartyMoney(
 
 Royals ReadPartyMoney(
     FileBuffer& fb,
-    Chapter chapter,
-    Royals money)
+    Chapter chapter)
 {
     fb.Seek(CalculateMoneyOffset(chapter));
     return Royals{fb.GetUint32LE()};

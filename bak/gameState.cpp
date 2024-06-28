@@ -72,9 +72,9 @@ void GameState::LoadGameData(GameData* gameData)
     mGDSContainers.clear();
     mCombatContainers.clear();
     mContainers.clear();
-    for (unsigned i = 0; i < 12; i++)
+    for (unsigned i = 0; i < 13; i++)
     {
-        mContainers.emplace_back(mGameData->LoadContainers(i + 1));
+        mContainers.emplace_back(mGameData->LoadContainers(i));
     }
     mGDSContainers = mGameData->LoadShops();
     mCombatContainers = mGameData->LoadCombatInventories();
@@ -176,6 +176,7 @@ void GameState::SetLocation(GamePositionAndHeading posAndHeading)
 
 void GameState::SetMapLocation(MapLocation location) const
 {
+    mLogger.Info() << "Setting map location to: " << location << " from : " << mGameData->mMapLocation << "\n";
     if (mGameData)
         mGameData->mMapLocation = location;
 }
@@ -223,6 +224,16 @@ WorldClock& GameState::GetWorldTime()
     {
         return mFakeWorldClock;
     }
+}
+
+void GameState::SetTransitionChapter_7541(bool value)
+{
+    mTransitionChapter_7541 = value;
+}
+
+bool GameState::GetTransitionChapter_7541() const
+{
+    return mTransitionChapter_7541;
 }
 
 void GameState::SetShopType_7542(unsigned shopType)
@@ -1043,6 +1054,12 @@ bool GameState::ReadEventBool(unsigned eventPtr) const
 
 void GameState::SetEventValue(unsigned eventPtr, unsigned value)
 {
+    if (eventPtr == 0x7541)
+    {
+        mTransitionChapter_7541 = value;
+        return;
+    }
+
     if (mGameData)
         State::SetEventFlag(mGameData->GetFileBuffer(), eventPtr, value);
 }
@@ -1056,6 +1073,10 @@ void GameState::SetEventState(const SetFlag& setFlag)
     else if (setFlag.mEventPointer == 0x753f)
     {
         mContextVar_753f = setFlag.mEventValue;
+    }
+    else if (setFlag.mEventPointer == 0x7541)
+    {
+        mTransitionChapter_7541 = setFlag.mEventValue;
     }
     else if (mGameData)
     {
@@ -1163,13 +1184,13 @@ bool GameState::Save(const std::string& saveName)
 std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone)
 {
     ASSERT(zone.mValue < 13);
-    return mContainers[zone.mValue - 1];
+    return mContainers[zone.mValue];
 }
 
 const std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone) const
 {
     ASSERT(zone.mValue < 13);
-    return mContainers[zone.mValue - 1];
+    return mContainers[zone.mValue];
 }
 
 

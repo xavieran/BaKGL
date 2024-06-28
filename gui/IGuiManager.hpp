@@ -8,6 +8,7 @@
 #include "bak/dialog.hpp"
 #include "bak/cutscenes.hpp"
 #include "bak/entityType.hpp"
+#include "bak/encounter/teleport.hpp"
 #include "bak/hotspot.hpp"
 #include "bak/saveManager.hpp"
 #include "bak/types.hpp"
@@ -29,6 +30,7 @@ public:
 
     virtual void StartDialog(BAK::Target, bool tooltip, bool drawWorldFrame, IDialogScene*) = 0;
     virtual void PlayCutscene(std::vector<BAK::CutsceneAction> actions, std::function<void()>&&) = 0;
+    virtual void DoChapterTransition() = 0;
 
     virtual void ShowCharacterPortrait(BAK::ActiveCharIndex) = 0;
     virtual void ExitSimpleScreen() = 0;
@@ -57,7 +59,7 @@ public:
 
     virtual void LoadGame(std::string, std::optional<BAK::Chapter>) = 0;
     virtual void SaveGame(const BAK::SaveFile&) = 0;
-    virtual void DoTeleport(BAK::TeleportIndex) = 0;
+    virtual void DoTeleport(BAK::Encounter::Teleport) = 0;
 };
 
 }

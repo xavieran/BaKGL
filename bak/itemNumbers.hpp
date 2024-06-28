@@ -30,6 +30,7 @@ static constexpr auto sSpoiledRations = BAK::ItemIndex{74};
 static constexpr auto sColtariPoison   = BAK::ItemIndex{105};
 
 static constexpr auto sEliaemsShell   = BAK::ItemIndex{16};
+static constexpr auto sGreatsword = BAK::ItemIndex{21};
 static constexpr auto sGuardaRevanche = BAK::ItemIndex{22};
 static constexpr auto sExoticSword    = BAK::ItemIndex{23};
 

@@ -10,6 +10,18 @@ namespace BAK {
 
 ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
 {
+    // Yes these are hardcoded in the game.
+    static const std::vector<MapLocation> chapterStartLocations{
+        MapLocation{{116, 75}, 18},
+        MapLocation{{168, 147}, 18},
+        MapLocation{{256, 114}, 2},
+        MapLocation{{167, 24}, 26},
+        MapLocation{{234, 52}, 2},
+        MapLocation{{168, 148}, 2},
+        MapLocation{{184, 92}, 18},
+        MapLocation{{0, 0}, 0}, // timirianya
+        MapLocation{{203, 128}, 2}
+    };
     std::stringstream ss{};
     ss << "CHAP";
     ss << chapter.mValue;
@@ -18,30 +30,27 @@ ChapterStartLocation LoadChapterStartLocation(Chapter chapter)
     auto fb = FileBufferFactory::Get().CreateDataBuffer(ss.str());
 
     unsigned fileChapter = fb.GetUint16LE();
-    fb.DumpAndSkip(4);
-    unsigned fmapPosX = fb.GetUint8();
-    unsigned fmapPosY = fb.GetUint8();
-    fb.DumpAndSkip(8);
+    fb.Skip(4); // this is likely party gold. But it's always zero...
+    Time timeChange = BAK::Time{fb.GetUint32LE()};
+    fb.Skip(6);
     unsigned zone = fb.GetUint8();
     unsigned tileX = fb.GetUint8();
     unsigned tileY = fb.GetUint8();
     unsigned cellX = fb.GetUint8();
     unsigned cellY = fb.GetUint8();
-    // FIXME: Not sure this is right...
     std::uint16_t heading = fb.GetUint16LE() / 0x100;
 
     auto pos = MakeGamePositionFromTileAndCell(glm::uvec2{tileX, tileY}, glm::uvec2{cellX, cellY});
 
     return ChapterStartLocation{
-        MapLocation{
-            {fmapPosX, fmapPosY},
-            HeadingToFullMapAngle(heading)},
+        chapterStartLocations[chapter.mValue - 1],
         Location{
             ZoneNumber{zone},
             {tileX, tileY},
             GamePositionAndHeading{
                 pos,
-                heading}}};
+                heading}},
+        timeChange};
 }
 
 void LoadDetect()

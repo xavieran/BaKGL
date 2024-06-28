@@ -478,7 +478,7 @@ void InventoryScreen::TransferItemToShop(
             [this, &slot, character](const auto& choice)
             {
                 ASSERT(choice);
-                if (choice->mValue == BAK::Keywords::sYesIndex)
+                if (choice->mValue == BAK::Keywords::sAcceptIndex)
                 {
                     SellItem(slot, character);
                 }

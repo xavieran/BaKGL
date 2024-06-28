@@ -383,7 +383,8 @@ void GDSScene::EvaluateHotspotAction()
     }
     else if (*mPendingAction == BAK::HotspotAction::CHAPTER_END)
     {
-        // End chapter
+        mCursor.PopCursor();
+        mGuiManager.DoChapterTransition();
     }
     else if (*mPendingAction == BAK::HotspotAction::TELEPORT)
     {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/time.hpp"
 #include "bak/types.hpp"
 #include "bak/coordinates.hpp"
 
@@ -12,6 +13,7 @@ struct ChapterStartLocation
 {
     MapLocation mMapLocation;
     Location mLocation;
+    Time mTimeElapsed;
 };
 
 std::ostream& operator<<(std::ostream&, const ChapterStartLocation&);

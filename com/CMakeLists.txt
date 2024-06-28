@@ -11,3 +11,8 @@ add_library(com
     ostreamMux.hpp ostreamMux.cpp
 )
 
+if (ENABLE_CPPTRACE)
+    target_link_libraries(com
+        cpptrace::cpptrace
+    )
+endif()
