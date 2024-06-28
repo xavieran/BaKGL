@@ -4,7 +4,7 @@
 ![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 16 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
-This project is my attempt to remake Betrayal at Krondor using OpenGL. It started out as a fun project to learn about graphics programming, but to be honest, I've spent the fast majority of the time reverse engineering and reimplementing the game mechanics instead! The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+This project is my attempt to remake Betrayal at Krondor using OpenGL. It started out as a fun project to learn about graphics programming, but to be honest, I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead! The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
 
 ## Features
 * Camping
