@@ -6,7 +6,7 @@
 
 namespace BAK {
 class GameState;
-class ShopStats;
+struct ShopStats;
 }
 
 namespace BAK::State {
