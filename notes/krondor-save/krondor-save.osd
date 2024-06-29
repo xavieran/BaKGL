@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- thanks to n64decomp team -->
+<data>
+	<enumDef name="soundmodes" type="uint16">
+		<entry name="Stereo" value="0"/>
+		<entry name="Mono" value="1"/>
+		<entry name="Headset" value="2"/>
+	</enumDef>
+	<enumDef name="languages" type="uint16">
+		<entry name="English" value="0"/>
+		<entry name="French" value="1"/>
+		<entry name="German" value="2"/>
+  </enumDef>
+	<struct name="character">
+    <primitive name="charNameOff" type="uint16"/>
+		<array name="spells" length="6">
+      <primitive name="spellBits" type="uint8"/>
+    </array>
+    <array name="skills" length="16">
+      <struct name="skill">
+        <primitive name="max" type="uint8"/>
+        <primitive name="trueSkill" type="uint8"/>
+        <primitive name="current" type="uint8"/>
+        <primitive name="xp" type="uint8"/>
+        <primitive name="modifier" type="uint8"/>
+      </struct>
+    </array>
+    <primitive name="characterIndex" type="uint8"/>
+    <primitive name="59" type="uint8"/>
+    <primitive name="5A" type="uint8"/>
+    <primitive name="5C" type="uint8"/>
+    <primitive name="5D" type="uint8"/>
+    <primitive name="5E" type="uint8"/>
+    <primitive name="5F" type="uint8"/>
+	</struct>
+</data>

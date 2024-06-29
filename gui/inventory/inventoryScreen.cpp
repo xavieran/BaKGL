@@ -92,6 +92,7 @@ InventoryScreen::InventoryScreen(
         {294, 121},
         mIcons,
         mFont,
+        gameState,
         [this](const auto& item){
             ShowItemDescription(item);
         }

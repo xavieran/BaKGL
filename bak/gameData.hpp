@@ -182,7 +182,6 @@ public:
     Logging::Logger mLogger;
 
     const std::string mName;
-    ObjectIndex mObjects;
     Chapter mChapter;
     MapLocation mMapLocation;
     Location mLocation;

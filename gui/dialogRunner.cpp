@@ -189,6 +189,17 @@ void DialogRunner::EvaluateSnippetActions()
             }},
             action);
     }
+
+    // I added this specifically for Navon's dialog. Need to check others
+    // to see if it is correct for those also.
+    if (mGameState.GetEndOfDialogState() == -1)
+    {
+        while (!mTargetStack.empty())
+        {
+            mTargetStack.pop();
+        }
+        // Need to force the combat to be evaluated though...
+    }
 }
 
 void DialogRunner::DisplaySnippet()

@@ -36,7 +36,7 @@ public:
     virtual void ExitSimpleScreen() = 0;
 
     virtual void ShowInventory(BAK::ActiveCharIndex) = 0;
-    virtual void ShowContainer(BAK::IContainer*, BAK::EntityType containerType) = 0;
+    virtual void ShowContainer(BAK::GenericContainer*, BAK::EntityType containerType) = 0;
     virtual void SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&&) = 0;
     virtual void ExitInventory() = 0;
 

@@ -1,4 +1,6 @@
 #include "bak/temple.hpp"
+
+#include "bak/inventoryItem.hpp"
 #include "bak/skills.hpp"
 
 namespace BAK::Temple {

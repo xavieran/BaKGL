@@ -101,9 +101,9 @@ public:
 
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     {
-        ASSERT(mCurrentChest);
         if (mState == State::OpenChest)
         {
+            ASSERT(mCurrentChest);
             TryOpenChest(!choice
                 || (choice->mValue == BAK::Keywords::sYesIndex));
         }
@@ -118,7 +118,7 @@ public:
         }
         else
         {
-            ASSERT(false);
+            return;
         }
     }
 

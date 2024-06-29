@@ -4,6 +4,7 @@
 
 #include "bak/IContainer.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/gameState.hpp"
 #include "bak/inventory.hpp"
 #include "bak/layout.hpp"
 #include "bak/objectInfo.hpp"

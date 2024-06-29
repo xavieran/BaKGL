@@ -271,7 +271,7 @@ public:
         std::uint8_t status,
         std::uint8_t modifiers)
     {
-        const auto& objects = GetObjectIndex();
+        const auto& objects = ObjectIndex::Get();
 
         return InventoryItem{
             &objects.GetObject(itemIndex),

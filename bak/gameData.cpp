@@ -24,7 +24,6 @@ GameData::GameData(const std::string& save)
     mBuffer{FileBufferFactory::Get().CreateSaveBuffer(save)},
     mLogger{Logging::LogState::GetLogger("GameData")},
     mName{LoadSaveName(mBuffer)},
-    mObjects{},
     mChapter{LoadChapter()},
     mMapLocation{LoadMapLocation()},
     mLocation{LoadLocation()},

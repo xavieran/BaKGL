@@ -225,7 +225,7 @@ Inventory LoadInventory(FileBuffer& fb, unsigned itemCount, unsigned capacity)
     for (i = 0; i < itemCount; i++)
     {
         const auto item = ItemIndex{fb.GetUint8()};
-        const auto& object = GetObjectIndex().GetObject(item);
+        const auto& object = ObjectIndex::Get().GetObject(item);
         const auto condition = fb.GetUint8();
         const auto status = fb.GetUint8();
         const auto modifiers = fb.GetUint8();

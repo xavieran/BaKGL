@@ -6,6 +6,7 @@
 
 namespace BAK {
 class GameState;
+class ShopStats;
 }
 
 namespace BAK::State {
@@ -13,5 +14,7 @@ namespace BAK::State {
 void WritePartyMoney(FileBuffer&, Chapter, Royals);
 
 Royals ReadPartyMoney(FileBuffer&, Chapter);
+
+bool IsRomneyGuildWars(const GameState&, const ShopStats&);
 
 }

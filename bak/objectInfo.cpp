@@ -256,6 +256,17 @@ ObjectIndex::ObjectIndex()
             << unknown2 << "|" << name << std::dec << "\n";
         logger.Spam() << "ItmIndex:" << i << " " << mObjects[i] << "\n";
     }
+
+    while (fb.GetBytesLeft() != 0)
+    {
+        mScrollValues.emplace_back(Royals{fb.GetUint16LE()});
+    }
+}
+    
+const ObjectIndex& ObjectIndex::Get()
+{
+    static ObjectIndex objectIndex{};
+    return objectIndex;
 }
     
 const GameObject& ObjectIndex::GetObject(ItemIndex index) const
@@ -264,10 +275,10 @@ const GameObject& ObjectIndex::GetObject(ItemIndex index) const
     return mObjects[index.mValue];
 }
 
-const ObjectIndex& GetObjectIndex()
+Royals ObjectIndex::GetScrollValue(SpellIndex index) const
 {
-    static auto objectIndex = ObjectIndex{};
-    return objectIndex;
+    ASSERT(index.mValue < mScrollValues.size());
+    return mScrollValues[index.mValue];
 }
 
 std::ostream& ShowRow(std::ostream& os, const GameObject& go)
