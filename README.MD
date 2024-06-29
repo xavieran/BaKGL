@@ -1,8 +1,8 @@
 
 # BaK GL - _Betrayal at Krondor Remake in OpenGL_
 
-![GCC 11 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
-![Clang 16 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
+![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
+![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
 This project is my attempt to remake Betrayal at Krondor using OpenGL. It started out as a fun project to learn about graphics programming, but to be honest, I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead! The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
 
@@ -27,7 +27,12 @@ I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as
 
 ## Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
+
 Requires CMake, SDL2, SDL_MixerX, OpenGL, GLFW, and glm. Most of these dependencies will be downloaded and built automatically.
+
+I use some features of C++23, so a more recent gcc or clang will be required to compile the code. You can check the CI to see what versions I am currently using.
+![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
+![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
 ## Build
 ### Linux

@@ -1,9 +1,11 @@
 #!/bin/bash
 
+set -x
 # For gcc
-sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt update
 #sudo add-apt-repository "deb http://ppa.launchpad.net/ubuntu-toolchain-r/ppa/ubuntu kinetic main" gcc 12 is not available in 20.04...
-sudo apt-get install g++-12
+sudo apt-get install gcc-13 g++-13
 
 # For clang
 wget https://apt.llvm.org/llvm.sh
