@@ -6,6 +6,7 @@
 #include "bak/itemNumbers.hpp"
 #include "bak/money.hpp"
 
+#include "bak/objectInfo.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -104,8 +105,6 @@ namespace BAK::Shop {
 
 Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats, Royals discount, bool isRomneyGuildWars)
 {
-    // FIXME: Add blessing value change
-    // Add Armor exception
     const auto sellFactor = static_cast<double>(100 + stats.mSellFactor) / 100.0;
     if (item.GetObject().mType == ItemType::Scroll)
     {
@@ -113,6 +112,24 @@ Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats, Roya
     }
 
     auto baseValue = static_cast<double>(item.GetObject().mValue);
+
+    for (auto mod : item.GetModifiers())
+    {
+        switch (mod)
+        {
+            case Modifier::Blessing1:
+                baseValue = (baseValue * 150) / 100;
+                break;
+            case Modifier::Blessing2:
+                baseValue = (baseValue * 175) / 100;
+                break;
+            case Modifier::Blessing3:
+                baseValue = (baseValue * 200) / 100;
+                break;
+            default:
+                break;
+        }
+    }
 
     if (baseValue <= 0) baseValue = 1;
 
