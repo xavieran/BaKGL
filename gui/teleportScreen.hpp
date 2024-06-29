@@ -5,6 +5,7 @@
 #include "bak/dialogSources.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/layout.hpp"
+#include "bak/shop.hpp"
 #include "bak/sounds.hpp"
 #include "bak/temple.hpp"
 
@@ -179,9 +180,11 @@ public:
         }
     }
 
-    void SetSourceTemple(unsigned sourceTemple)
+    void SetSourceTemple(unsigned sourceTemple, BAK::ShopStats* temple)
     {
         mState = State::Idle;
+        assert(temple);
+        mTemple = temple;
         mSource = sourceTemple;
         mChosenDest = std::nullopt;
         for (unsigned i = 0; i < mTeleportDests.size(); i++)
@@ -230,7 +233,7 @@ private:
         }
         else
         {
-            const auto cost = BAK::Temple::CalculateTeleportCost(mSource, templeNumber);
+            const auto cost = CalculateCost(templeNumber);
             if (cost < mGameState.GetMoney())
             {
                 mGameState.GetParty().LoseMoney(cost);
@@ -275,7 +278,7 @@ private:
     std::string MakeCostString(unsigned templeNumber)
     {
         std::stringstream ss{};
-        ss << "Cost: " << BAK::ToShopDialogString(BAK::Temple::CalculateTeleportCost(mSource, templeNumber));
+        ss << "Cost: " << BAK::ToShopDialogString(CalculateCost(templeNumber));
         return ss.str();
     }
 
@@ -308,6 +311,20 @@ private:
     }
 
 private:
+    BAK::Royals CalculateCost(unsigned templeNumber)
+    {
+        assert(mTemple);
+        const auto srcPos = mLayout.GetWidget(mSource - 1).mPosition;
+        const auto dstPos = mLayout.GetWidget(templeNumber - 1).mPosition;
+        return BAK::Temple::CalculateTeleportCost(
+            mSource,
+            templeNumber,
+            srcPos,
+            dstPos,
+            mTemple->mHaggleAnnoyanceFactor,
+            mTemple->mCategories);
+    }
+
     IGuiManager& mGuiManager;
     const Font& mFont;
     BAK::GameState& mGameState;
@@ -317,6 +334,7 @@ private:
 
     State mState;
     unsigned mSource;
+    BAK::ShopStats* mTemple;
     std::optional<unsigned> mHighlightedDest;
     std::optional<unsigned> mChosenDest;
     bool mNeedRefresh;

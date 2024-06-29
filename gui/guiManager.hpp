@@ -641,9 +641,9 @@ public:
         });
     }
 
-    void ShowTeleport(unsigned sourceTemple) override
+    void ShowTeleport(unsigned sourceTemple, BAK::ShopStats* temple) override
     {
-        mTeleportScreen.SetSourceTemple(sourceTemple);
+        mTeleportScreen.SetSourceTemple(sourceTemple, temple);
         DoFade(.8, [this]{
             mCursor.PopCursor();
             mScreenStack.PushScreen(&mTeleportScreen);

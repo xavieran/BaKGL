@@ -520,7 +520,9 @@ void GDSScene::DoTeleport()
     if (mGameState.GetMoreThanOneTempleSeen())
     {
         assert(mSceneHotspots.GetTempleNumber());
-        mGuiManager.ShowTeleport(*mSceneHotspots.GetTempleNumber());
+        mGuiManager.ShowTeleport(
+            *mSceneHotspots.GetTempleNumber(),
+            &mGameState.GetContainerForGDSScene(mReference)->GetShop());
     }
     else
     {

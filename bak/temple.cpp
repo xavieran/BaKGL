@@ -40,25 +40,22 @@ void RemoveBlessing(BAK::InventoryItem& item)
     }
 }
 
-Royals CalculateTeleportCost(unsigned source, unsigned dest)
+Royals CalculateTeleportCost(
+    unsigned srcTemple,
+    unsigned dstTemple,
+    glm::vec2 srcPos,
+    glm::vec2 dstPos,
+    unsigned teleportMultiplier,
+    unsigned teleportConstant)
 {
-    ASSERT(source > 0 && dest > 0);
-    ASSERT(source <= 13 && dest <= 13);
-    static constexpr unsigned costMatrix[12][12] = {
-        {0, 85, 88, 112, 167, 149, 172, 184, 106, 159, 120, 158},
-        {85, 0, 70, 105, 136, 123, 138, 139,  61, 113, 119, 129},
-        {88, 70, 0,  84, 129, 111, 140, 152,  83, 127,  99, 120},
-        {88, 70, 105, 0,  99,  81, 134, 146, 103, 134,  59,  91},
-        {88, 70, 105, 99,  0,  70, 102, 131, 129, 124, 105,  61},
-        {88, 70, 105, 99, 70,   0, 102, 131, 115, 121,  75,  49},
-        {88, 70, 105, 99, 70, 102,   0,  89, 137,  97, 151, 120},
-        {88, 70, 105, 99, 70, 102,  89,   0, 128,  75, 161, 140},
-        {88, 70, 105, 99, 70, 102,  89, 128,   0, 102, 121, 131},
-        {88, 70, 105, 99, 70, 102,  89, 128, 102,   0, 151, 129},
-        {88, 70, 105, 99, 70, 102,  89, 128, 102, 151,   0,  63},
-        {88, 70, 105, 99, 70, 102,  89, 128, 102, 151,  63,   0}
-    };
-    return GetRoyals(Sovereigns{costMatrix[source - 1][dest - 1]});
+    ASSERT(srcTemple > 0 && dstTemple > 0);
+    ASSERT(srcTemple <= 13 && dstTemple <= 13);
+    auto xDiff = static_cast<unsigned>(std::abs(srcPos.x - dstPos.x));
+    auto yDiff = static_cast<unsigned>(std::abs(srcPos.y - dstPos.y));
+    auto cost = std::max(xDiff, yDiff) + (std::min(xDiff, yDiff) * 3) / 8;
+    cost = ((cost * teleportMultiplier) + teleportConstant) * 10;
+    cost = (cost + 5) / 10;
+    return Royals{cost};
 }
 
 Royals CalculateCureCost(
