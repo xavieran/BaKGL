@@ -124,7 +124,7 @@ SpriteSheetIndex SpriteManager::AddSpriteSheet()
     const auto& logger = Logging::LogState::GetLogger("SpriteManager");
     const auto spriteSheetIndex = NextSpriteSheet();
     logger.Debug() << "Adding sprite sheet index: " << spriteSheetIndex << "\n";
-    mSprites[spriteSheetIndex] = {};
+    mSprites.emplace(spriteSheetIndex, Sprites{});
     return spriteSheetIndex;
 }
 
@@ -162,7 +162,7 @@ void SpriteManager::ActivateSpriteSheet(SpriteSheetIndex spriteSheet)
 Sprites& SpriteManager::GetSpriteSheet(SpriteSheetIndex spriteSheet)
 {
     ASSERT(mSprites.contains(spriteSheet));
-    return mSprites[spriteSheet];
+    return mSprites.find(spriteSheet)->second;
 }
 
 SpriteSheetIndex SpriteManager::NextSpriteSheet()

@@ -13,10 +13,10 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     
     BAK::Encounter::GenericCombatFactory<false>();
-    BAK::Encounter::DialogFactory();
-    BAK::Encounter::BlockFactory();
-    BAK::Encounter::ZoneFactory();
-    BAK::Encounter::EnableFactory();
+    //BAK::Encounter::DialogFactory();
+    //BAK::Encounter::BlockFactory();
+    //BAK::Encounter::ZoneFactory();
+    //BAK::Encounter::EnableFactory();
     //const auto ef = BAK::Encounter::EncounterFactory{};
 
     //for (unsigned zone = 1; zone < 12; zone++)

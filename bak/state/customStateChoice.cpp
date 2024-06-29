@@ -82,10 +82,6 @@ bool CustomStateEvaluator::AllPartyArmorIsGoodCondition() const
 
 bool CustomStateEvaluator::PoisonedDelekhanArmyChests() const
 {
-    // Check for poisoned rations in
-    // 5, 0x16b2fb, 0x111547
-    // 5, 0x16b2fb, 0x110f20
-    // 5, 0x16b33a, 0x11083c
     unsigned foundPoisonedRations = 0;
     for (const auto& [zone, x, y] : {
         std::make_tuple(5u, 0x16b2fb, 0x111547),

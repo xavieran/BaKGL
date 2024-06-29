@@ -10,7 +10,9 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
+#include <string>
 #include <regex>
+#include <unordered_map>
 
 namespace BAK {
 
@@ -32,7 +34,7 @@ public:
     void SetTextVariable(unsigned variable, std::string value)
     {
         mLogger.Spam() << "Setting " << variable << " to " << value << "\n";
-        mTextVariables[MakeVariableName(variable)] = value;
+        mTextVariables.emplace(MakeVariableName(variable), value);
     }
 
     void SetActiveCharacter(std::string value)

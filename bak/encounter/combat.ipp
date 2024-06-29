@@ -75,8 +75,16 @@ void GenericCombatFactory<isTrap>::Load()
             const auto monsterIndex = fb.GetUint16LE();
             const auto movementType = fb.GetUint16LE();
             const auto pos = GetPosAndHeading();
+            logger.Debug() << "Combatant #" << i << " " << monsterIndex
+                << " mvTp: " << movementType << " pos: " << pos << "\n";
             combatants.emplace_back(monsterIndex, movementType, pos);
             fb.Skip(48 - 14);
+            //std::vector<std::int16_t> d{};
+            //for (unsigned i = 0; i < 17; i++)
+            //{
+            //    d.emplace_back(fb.GetSint16LE());
+            //}
+            //logger.Debug() << "Datas: " << d << "\n";
         }
 
         constexpr unsigned maxCombatants = 7;
