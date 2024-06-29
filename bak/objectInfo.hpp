@@ -152,14 +152,16 @@ class ObjectIndex
 public:
     static constexpr auto sObjectCount = 0x8a;
 
-    ObjectIndex();
+    static const ObjectIndex& Get();
     
     const GameObject& GetObject(ItemIndex) const;
+    Royals GetScrollValue(SpellIndex) const;
 
+private:
+    ObjectIndex();
     std::array<GameObject, sObjectCount> mObjects;
+    std::vector<Royals> mScrollValues;
 };
-
-const ObjectIndex& GetObjectIndex();
 
 std::ostream& operator<<(std::ostream&, const ObjectIndex&);
 

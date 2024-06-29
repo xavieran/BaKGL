@@ -53,7 +53,7 @@ std::optional<unsigned> TryHaggle(
     ItemIndex item,
     int shopCurrentDiscount)
 {
-    const auto itemValue = GetObjectIndex().GetObject(item).mValue;
+    const auto itemValue = ObjectIndex::Get().GetObject(item).mValue;
     const auto scaledShopValue = (shop.mSellFactor + 100) * itemValue;
     const int shopBasicValue = scaledShopValue / 100;
     const auto shopBasicValueRemainder = scaledShopValue % 100;

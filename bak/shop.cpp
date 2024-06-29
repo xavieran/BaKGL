@@ -1,8 +1,11 @@
 #include "bak/shop.hpp"
 
-#include "bak/objectInfo.hpp"
 #include "bak/IContainer.hpp"
+#include "bak/fileBufferFactory.hpp"
+#include "bak/inventoryItem.hpp"
 #include "bak/itemNumbers.hpp"
+#include "bak/money.hpp"
+
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -99,26 +102,38 @@ ShopStats LoadShop(FileBuffer& fb)
 
 namespace BAK::Shop {
 
-Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats, Royals discount)
+Royals GetSellPrice(const BAK::InventoryItem& item, const ShopStats& stats, Royals discount, bool isRomneyGuildWars)
 {
     // FIXME: Add blessing value change
-    // Add Scroll exception
     // Add Armor exception
     const auto sellFactor = static_cast<double>(100 + stats.mSellFactor) / 100.0;
+    if (item.GetObject().mType == ItemType::Scroll)
+    {
+        return ObjectIndex::Get().GetScrollValue(item.GetSpell());
+    }
+
     auto baseValue = static_cast<double>(item.GetObject().mValue);
-    if (baseValue <= 0) baseValue = 1; // FIXME: Need proper cost of scrolls...
-    const auto shopBasicValue = std::clamp(
+
+    if (baseValue <= 0) baseValue = 1;
+
+    auto shopBasicValue = std::clamp(
         sellFactor * baseValue - discount.mValue,
         1.0, sellFactor * baseValue);
+
+    if (isRomneyGuildWars)
+    {
+        shopBasicValue = (shopBasicValue * 600) / 100;
+    }
+
     const auto value = shopBasicValue * GetItemQuantityMultiple(item);
     const auto money = Royals{static_cast<unsigned>(std::round(value))};
     return money;
 }
 
-Royals GetBuyPrice (const BAK::InventoryItem& item, const ShopStats& stats)
+Royals GetBuyPrice (const BAK::InventoryItem& item, const ShopStats& stats, bool isRomneyGuildWars)
 {
     const auto buyFactor = static_cast<double>(stats.mBuyFactor) / 100.0;
-    const auto sellPrice = static_cast<double>(GetSellPrice(item, stats, Royals{0}).mValue);
+    const auto sellPrice = static_cast<double>(GetSellPrice(item, stats, Royals{0}, isRomneyGuildWars).mValue);
     auto buyPrice = static_cast<unsigned>(std::round(buyFactor * sellPrice));
     if (item.IsItemType(BAK::ItemType::Armor))
     {

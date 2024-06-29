@@ -246,7 +246,7 @@ unsigned GameState::GetShopType_7542() const
     return mShopType_7542;
 }
 
-IContainer* GameState::GetContainerForGDSScene(HotspotRef ref)
+GenericContainer* GameState::GetContainerForGDSScene(HotspotRef ref)
 {
     for (auto& shop : mGDSContainers)
     {
@@ -256,7 +256,7 @@ IContainer* GameState::GetContainerForGDSScene(HotspotRef ref)
     return nullptr;
 }
 
-IContainer* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location)
+GenericContainer* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location)
 {
     for (auto& container : GetContainers(zone))
     {
@@ -268,7 +268,7 @@ IContainer* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location)
     return nullptr;
 }
 
-IContainer const* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location) const
+GenericContainer const* GameState::GetWorldContainer(ZoneNumber zone, GamePosition location) const
 {
     for (auto& container : GetContainers(zone))
     {
@@ -800,7 +800,7 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
     {
         auto* container = GetWorldContainer(ZoneNumber{3}, GamePosition{1308000, 1002400});
         assert(container);
-        //container->GetInventory().ClearAll();
+        container->GetInventory().GetItems().clear();
     } break;
     case UnifyOwynAndPugsSpells:
     {

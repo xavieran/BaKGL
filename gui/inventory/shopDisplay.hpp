@@ -4,8 +4,10 @@
 #include "bak/dialogSources.hpp"
 #include "bak/inventory.hpp"
 #include "bak/layout.hpp"
+#include "bak/gameState.hpp"
 #include "bak/objectInfo.hpp"
 #include "bak/shop.hpp"
+#include "bak/state/money.hpp"
 
 #include "gui/inventory/equipmentSlot.hpp"
 #include "gui/inventory/itemArranger.hpp"
@@ -42,6 +44,7 @@ public:
         glm::vec2 dims,
         const Icons& icons,
         const Font& font,
+        const BAK::GameState& gameState,
         std::function<void(const BAK::InventoryItem&)>&& showDescription)
     :
         // Black background
@@ -58,6 +61,7 @@ public:
         mInventoryItems{},
         mDiscount{},
         mContainer{nullptr},
+        mGameState(gameState),
         mShowDescription{std::move(showDescription)},
         mLogger{Logging::LogState::GetLogger("Gui::ShopDisplay")}
     {
@@ -101,13 +105,17 @@ public:
         ASSERT(mContainer);
         auto item = mContainer->GetInventory().GetAtIndex(itemIndex);
         item.SetQuantity(amount);
-        return BAK::Shop::GetSellPrice(item, mContainer->GetShop(), mDiscount[item.GetItemIndex()]);
+        return BAK::Shop::GetSellPrice(
+            item,
+            mContainer->GetShop(),
+            mDiscount[item.GetItemIndex()],
+            BAK::State::IsRomneyGuildWars(mGameState, mContainer->GetShop()));
     }
 
     BAK::Royals GetBuyPrice(const BAK::InventoryItem& item) const
     {
         ASSERT(mContainer);
-        return BAK::Shop::GetBuyPrice(item, mContainer->GetShop());
+        return BAK::Shop::GetBuyPrice(item, mContainer->GetShop(), BAK::State::IsRomneyGuildWars(mGameState, mContainer->GetShop()));
     }
 
     bool CanBuyItem(const BAK::InventoryItem& item) const
@@ -197,7 +205,12 @@ private:
                         mIcons,
                         invIndex,
                         item,
-                        BAK::Shop::GetSellPrice(item, mContainer->GetShop(), discount),
+                        BAK::Shop::GetSellPrice(
+                            item,
+                            mContainer->GetShop(),
+                            discount,
+                            BAK::State::IsRomneyGuildWars(mGameState, mContainer->GetShop())
+                        ),
                         discount != BAK::sUnpurchaseablePrice,
                         [&]{
                             ShowItemDescription(item);
@@ -222,6 +235,7 @@ private:
 
     BAK::IContainer* mContainer;
 
+    const BAK::GameState& mGameState;
     std::function<void(const BAK::InventoryItem&)> mShowDescription;
     const Logging::Logger& mLogger;
 };

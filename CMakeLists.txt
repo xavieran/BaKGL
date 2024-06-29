@@ -266,7 +266,7 @@ endif()
 
 # --- My project CXX flags --- #
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # --- Put all binaries in the root of the build dir ---
 set(

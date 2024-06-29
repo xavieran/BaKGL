@@ -1,11 +1,13 @@
 #pragma once
 
-#include "bak/money.hpp"
+#include "bak/types.hpp"
 #include "bak/objectInfo.hpp"
-#include "bak/IContainer.hpp"
-#include "bak/inventoryItem.hpp"
 
-#include "bak/fileBufferFactory.hpp"
+namespace BAK {
+class IContainer;
+class FileBuffer;
+class InventoryItem;
+}
 
 namespace BAK {
 
@@ -42,9 +44,9 @@ ShopStats LoadShop(FileBuffer& fb);
 
 namespace BAK::Shop {
 
-bool CanBuyItem(const BAK::InventoryItem& item, const BAK::IContainer& shop);
-Royals GetSellPrice(const InventoryItem&, const ShopStats&, Royals discount);
-Royals GetBuyPrice (const InventoryItem&, const ShopStats&);
+bool CanBuyItem(const InventoryItem& item, const IContainer& shop);
+Royals GetSellPrice(const InventoryItem&, const ShopStats&, Royals discount, bool isRomneyGuildWars);
+Royals GetBuyPrice (const InventoryItem&, const ShopStats&, bool isRomneyGuildWars);
 bool CanRepair(const InventoryItem&, const ShopStats&);
 Royals CalculateRepairCost(const InventoryItem&, const ShopStats&);
 void RepairItem(InventoryItem& item);

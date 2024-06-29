@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- thanks to n64decomp team -->
+<data>
+	<enumDef name="soundmodes" type="uint16">
+		<entry name="Stereo" value="0"/>
+		<entry name="Mono" value="1"/>
+		<entry name="Headset" value="2"/>
+	</enumDef>
+	<enumDef name="languages" type="uint16">
+		<entry name="English" value="0"/>
+		<entry name="French" value="1"/>
+		<entry name="German" value="2"/>
+  </enumDef>
+	<struct name="start">
+    <string name="saveName" maxCharCount="30" encoding="ASCII"/>
+    <array name="empty" length="60">
+      <primitive name="val" type="char"/>
+    </array>
+    <primitive name="chapter" type="uint16"/>
+    <primitive name="unknown0" type="uint16"/>
+    <primitive name="unknown1" type="uint16"/>
+    <primitive name="unknown2" type="uint16"/>
+    <primitive name="unknown3" type="uint16"/>
+    <primitive name="unknown4" type="uint16"/>
+    <primitive name="gold" type="uint32"/>
+    <primitive name="time" type="uint32"/>
+    <primitive name="timeSinceSleep" type="uint32"/>
+    <primitive name="unknown5" type="uint16"/>
+    <primitive name="unknown6" type="uint8"/>
+    <primitive name="zone0" type="uint8"/>
+    <primitive name="zone" type="uint8"/>
+    <primitive name="xTile" type="uint8"/>
+    <primitive name="yTile" type="uint8"/>
+    <primitive name="xPos" type="uint32"/>
+    <primitive name="yPos" type="uint32"/>
+	</struct>
+</data>

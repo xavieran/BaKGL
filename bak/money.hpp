@@ -1,11 +1,10 @@
 #pragma once
 
+#include "bak/types.hpp"
+
 #include "com/strongType.hpp"
 
 namespace BAK {
-
-using Sovereigns = StrongType<unsigned, struct SovereignsTag>;
-using Royals = StrongType<unsigned, struct RoyalsTag>;
 
 static constexpr Royals sUnpurchaseablePrice{0xffffffff};
 

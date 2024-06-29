@@ -112,9 +112,9 @@ public:
     void SetShopType_7542(unsigned shopType);
     unsigned GetShopType_7542() const;
 
-    IContainer* GetContainerForGDSScene(HotspotRef ref);
-    IContainer* GetWorldContainer(ZoneNumber zone, GamePosition location);
-    IContainer const* GetWorldContainer(ZoneNumber zone, GamePosition location) const;
+    GenericContainer* GetContainerForGDSScene(HotspotRef ref);
+    GenericContainer* GetWorldContainer(ZoneNumber zone, GamePosition location);
+    GenericContainer const* GetWorldContainer(ZoneNumber zone, GamePosition location) const;
 
     std::optional<unsigned> GetActor(unsigned actor) const;
 

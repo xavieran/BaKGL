@@ -13,6 +13,9 @@ using CombatantIndex = StrongType<unsigned, struct CombatantIndexTag>;
 using MonsterIndex = StrongType<unsigned, struct MonsterIndexTag>;
 using SpellIndex = StrongType<std::uint64_t, struct SpellIndexTag>;
 using SongIndex = std::uint16_t;
+using Sovereigns = StrongType<unsigned, struct SovereignsTag>;
+using Royals = StrongType<unsigned, struct RoyalsTag>;
+
 using AdsSceneIndex = std::uint16_t;
 using ItemIndex = StrongType<unsigned, struct ItemIndexTag>;
 using ZoneNumber = StrongType<unsigned, struct ZoneNumberTag>;

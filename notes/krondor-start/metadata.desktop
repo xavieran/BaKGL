@@ -1,0 +1,8 @@
+[Desktop Entry]
+Icon=media-floppy-symbolic
+Type=Service
+ServiceTypes=KPluginInfo
+Name=Krondor Start of Save File
+X-KDE-PluginInfo-Name=krondor-start
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Category=structure

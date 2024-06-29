@@ -7,6 +7,7 @@
 #include "bak/cutscenes.hpp"
 #include "bak/dialog.hpp"
 #include "bak/encounter/teleport.hpp"
+#include "bak/entityType.hpp"
 #include "bak/gameState.hpp"
 #include "bak/saveManager.hpp"
 
@@ -42,6 +43,7 @@
 
 #include <iostream>
 #include <functional>
+#include <utility>
 #include <variant>
 
 namespace Gui {
@@ -490,14 +492,22 @@ public:
         });
     }
 
-    void ShowContainer(BAK::IContainer* container, BAK::EntityType containerType) override
+    void ShowContainer(BAK::GenericContainer* container, BAK::EntityType containerType) override
     {
         mCursor.PushCursor(0);
         ASSERT(container);
         ASSERT(container->GetInventory().GetCapacity() > 0);
 
-        mGuiScreens.push(GuiScreen{[&](){
+        mGuiScreens.push(GuiScreen{[this, container, containerType](){
+            mLogger.Debug() << "ExitContainer guiScreen hasDiag: " << container->HasDialog() << " et: " << std::to_underlying(containerType) << "\n";
             mInventoryScreen.ClearContainer();
+            if (container->HasDialog())
+            {
+                if (containerType == BAK::EntityType::CHEST)
+                {
+                    StartDialog(container->GetDialog().mDialog, false, false, mDialogScene);
+                }
+            }
         }});
 
         mInventoryScreen.SetSelectionMode(false, nullptr);
