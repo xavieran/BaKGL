@@ -117,7 +117,7 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
         } break;
         case 6:
         {
-            // I can't quite comprehend what the point of this was...
+            // This is for the Lurough quest
             auto* refInn1 = gs.GetWorldContainer(ZoneNumber{0}, {20, 1});
             assert(refInn1);
             auto* inn1 = gs.GetContainerForGDSScene(HotspotRef{60, 'C'});

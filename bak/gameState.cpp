@@ -742,6 +742,17 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
             return Loop::Continue;
         });
         break;
+    // I don't think this is used anywhere
+    case CopyStandardInnToShop0: [[fallthrough]];
+    case CopyStandardInnToShop1:
+    {
+        auto* refInn1 = GetWorldContainer(ZoneNumber{0}, {20, 0});
+        assert(refInn1);
+        auto* inn1 = GetContainerForGDSScene(HotspotRef{2, 'C'});
+        assert(inn1);
+        inn1->GetInventory().GetItems().clear();
+        inn1->GetInventory().CopyFrom(refInn1->GetInventory());
+    } break;
     case Increase753f:
         mLogger.Debug() << "Increasing dialog var 753f from: " << mContextVar_753f
             << " to: " << (mContextVar_753f + action.mVar1) << "\n";
@@ -750,24 +761,22 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
     case Gamble:
         DoGamble(action.mVar1, action.mVar2, action.mVar3);
         break;
-    case RemoveAlcoholFromShops:
-        { // I don't think this is quite right...
-            {
-            auto ref = HotspotRef{0x3c, MakeHotspotChar(3)};
-            auto* container = GetContainerForGDSScene(ref);
-            assert(container);
-            container->RemoveItem(InventoryItemFactory::MakeItem(sAle, 0xff));
-            container->RemoveItem(InventoryItemFactory::MakeItem(sBrandy, 0xff));
-            }
-            {
-            auto ref = HotspotRef{0x40, MakeHotspotChar(3)};
-            auto* container = GetContainerForGDSScene(ref);
-            assert(container);
-            container->RemoveItem(InventoryItemFactory::MakeItem(sAle, 0xff));
-            container->RemoveItem(InventoryItemFactory::MakeItem(sBrandy, 0xff));
-            }
-        }
-        break;
+    case ReturnAlcoholToShops:
+    {
+        auto* refInn1 = GetWorldContainer(ZoneNumber{0}, {20, 0});
+        assert(refInn1);
+        auto* inn1 = GetContainerForGDSScene(HotspotRef{60, 'C'});
+        assert(inn1);
+        inn1->GetInventory().GetItems().clear();
+        inn1->GetInventory().CopyFrom(refInn1->GetInventory());
+
+        auto* refInn2 = GetWorldContainer(ZoneNumber{0}, {30, 0});
+        assert(refInn2);
+        auto* inn2 = GetContainerForGDSScene(HotspotRef{64, 'C'});
+        assert(inn2);
+        inn2->GetInventory().GetItems().clear();
+        inn2->GetInventory().CopyFrom(refInn2->GetInventory());
+    } break;
     case ResetGambleValueTo:
         mBardReward_754d = action.mVar1;
         break;

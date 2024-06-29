@@ -51,12 +51,12 @@ enum class SpecialActionType : std::uint16_t
     RepairAllEquippedArmor = 2,
     ResetCombatState = 3,
     SetCombatState = 4,
-    DoSomethingWithContainer0 = 5,
-    DoSomethingWithContainer1 = 6,
+    CopyStandardInnToShop0 = 5,
+    CopyStandardInnToShop1 = 6,
     Increase753f = 7, // this literally adds the value to 753f
     Gamble = 8,
     RepairAndBlessEquippedSwords = 9, // this does something funky with inventory
-    RemoveAlcoholFromShops = 10,
+    ReturnAlcoholToShops = 10,
     ResetGambleValueTo = 11,
     BeginCombat = 12,
     ExtinguishAllLightSources = 13, // seems to expire TESs
