@@ -1504,11 +1504,12 @@ void GameState::HealCharacter(CharIndex who, unsigned amount)
     }
     else
     { // Start of Chapter 4, reduces health by 20%
-        const auto currentHealth = character.GetSkill(SkillType::TotalHealth);
+        const int currentHealth = character.GetSkill(SkillType::TotalHealth);
+        const auto reduction = ((currentHealth * -20) / 100) << 8;
         character.ImproveSkill(
             SkillType::TotalHealth,
             SkillChange::HealMultiplier_100,
-            ((currentHealth * -20) / 100) << 8);
+            reduction);
     }
 }
 }
