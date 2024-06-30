@@ -414,6 +414,12 @@ public:
             const auto& teleport = mTeleportFactory.Get(teleportIndex->mValue);
             DoTeleport(teleport);
         }
+
+        if (mGameState.GetTransitionChapter_7541())
+        {
+            mGameState.SetTransitionChapter_7541(false);
+            DoChapterTransition();
+        }
         
         mMainView.UpdatePartyMembers(mGameState);
     }
@@ -426,13 +432,13 @@ public:
         {
             actions.emplace_back(action);
         }
-        auto teleport = BAK::TransitionToChapter(nextChapter, mGameState);
-        
-        PlayCutscene(actions, [this, nextChapter, teleport]{
+        PlayCutscene(actions, [this, nextChapter]{
             // Remove gds scenes in case we transitioned from a GDS
             while (!mGdsScenes.empty())
                 RemoveGDSScene();
 
+            auto teleport = BAK::TransitionToChapter(nextChapter, mGameState);
+        
             ShowGameStartMap();
             mOnEnterMainView = [this, nextChapter, teleport]{
                 // Always teleport to the new world location
