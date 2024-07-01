@@ -1,6 +1,7 @@
 add_library(bakState
     customStateChoice.hpp customStateChoice.cpp
     dialog.hpp dialog.cpp
+    door.hpp door.cpp
     encounter.hpp encounter.cpp
     event.hpp event.cpp
     item.hpp item.cpp
