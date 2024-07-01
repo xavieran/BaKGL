@@ -60,6 +60,9 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
 {
     os << "Encounter { index: " << e.mIndex
         << " dims: " << e.mDimensions
+        << " worldLocation: " << e.mLocation
+        << " TL: " << e.mTopLeft
+        << " BR: " << e.mBottomRight
         << " tile: " << e.mTile 
         << std::hex << " savePtr: ("
         << e.mSaveAddress << ", " << e.mSaveAddress2 << ", "
@@ -100,9 +103,15 @@ CalculateLocationAndDims(
         ? gCellSize
         : top - bottom;
 
+    // This is just not quite right... 
+    // not sure if I am rendering items at the wrong place 
+    // or if this is incorrect. According to the assembly
+    // this 800 offset shouldn't be required...
+    const auto xOffset = gCellSize / 2;
+    const auto yOffset = xOffset;
     const auto location = GamePosition{
-        left + width / 2,
-        bottom + height / 2};
+        left + (width / 2) - xOffset, 
+        bottom + (height / 2) - yOffset};
     const auto dimensions = glm::uvec2{
         width, height};
 
@@ -139,6 +148,8 @@ std::vector<Encounter> LoadEncounters(
         const unsigned top    = fb.GetUint8();
         const unsigned right  = fb.GetUint8();
         const unsigned bottom = fb.GetUint8();
+        const auto topLeft = glm::uvec2{left, top};
+        const auto bottomRight = glm::uvec2{right, bottom};
 
         const auto& [location, dimensions] = CalculateLocationAndDims(
             tile,
@@ -168,6 +179,8 @@ std::vector<Encounter> LoadEncounters(
                 encounterTableIndex,
                 tile),
             EncounterIndex{i},
+            topLeft,
+            bottomRight,
             location,
             dimensions,
             tile,

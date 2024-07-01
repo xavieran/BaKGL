@@ -1,6 +1,7 @@
 #include "bak/gameState.hpp"
 
 #include "bak/coordinates.hpp"
+#include "bak/dialogChoice.hpp"
 #include "bak/state/customStateChoice.hpp"
 
 #include "bak/state/dialog.hpp"
@@ -15,6 +16,7 @@
 #include "bak/state/dialog.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/time.hpp"
+#include <utility>
 
 namespace BAK {
 
@@ -1048,6 +1050,10 @@ unsigned GameState::GetEventState(Choice choice) const
 
 unsigned GameState::ReadEvent(unsigned eventPtr) const
 {
+    if (eventPtr == std::to_underlying(ActiveStateFlag::DayTime))
+    {
+        return GetGameState(GameStateChoice{ActiveStateFlag::DayTime});
+    }
     if (mGameData != nullptr)
     {
         return State::ReadEvent(mGameData->GetFileBuffer(), eventPtr);

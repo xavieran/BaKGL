@@ -1,3 +1,4 @@
+#include "bak/backgroundSounds.hpp"
 #include "bak/camera.hpp"
 #include "bak/constants.hpp"
 #include "bak/container.hpp"
@@ -457,6 +458,7 @@ int main(int argc, char** argv)
         if (gameRunner.mGameState.GetGameData() && guiManager.InMainView())
         {
             gameRunner.RunGameUpdate();
+            //BAK::PlayBackgroundSounds(gameRunner.mGameState);
         }
 
         if (showImgui && gameRunner.mActiveEncounter)

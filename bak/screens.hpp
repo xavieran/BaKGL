@@ -103,7 +103,7 @@ void ShowCameraGui(
     ss << "Pos: " << pos
         << "\nHPos: " << std::hex << static_cast<std::uint32_t>(pos.x) 
         << ", " << static_cast<std::uint32_t>(-pos.z) << std::dec
-        << "\nTile: " << glm::floor(camera.GetPosition() / glm::vec3{BAK::gTileSize})
+        << "\nTile: " << camera.GetGameTile()
         << "\nAngle: " << (360.0f * (camera.GetAngle() / (2.0f*3.141592f)));
     ImGui::TextWrapped(ss.str().c_str());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 
