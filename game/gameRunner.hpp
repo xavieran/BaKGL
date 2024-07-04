@@ -66,6 +66,7 @@ public:
             std::nullopt,
             std::nullopt,
             std::nullopt,
+            std::nullopt,
             BAK::Inventory{0}},
         mSystems{nullptr},
         mSavedAngle{0},

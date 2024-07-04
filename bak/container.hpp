@@ -136,6 +136,7 @@ public:
     GenericContainer(
         ContainerHeader header,
         std::optional<LockStats> lock,
+        std::optional<DoorStats> door,
         std::optional<ContainerDialog> dialog,
         std::optional<ShopStats> shop,
         std::optional<ContainerEncounter> encounter,
@@ -144,6 +145,7 @@ public:
     :
         mHeader{header},
         mLock{lock},
+        mDoor{door},
         mDialog{dialog},
         mShop{shop},
         mEncounter{encounter},
@@ -166,6 +168,10 @@ public:
     bool HasDialog() const { return bool{mDialog}; }
     const ContainerDialog& GetDialog() const { ASSERT(mDialog); return *mDialog; }
     ContainerDialog& GetDialog() { ASSERT(mDialog); return *mDialog; }
+
+    bool HasDoor() const { return bool{mDoor}; }
+    const DoorStats& GetDoor() const { ASSERT(mDoor); return *mDoor; }
+    DoorStats& GetDoor() { ASSERT(mDoor); return *mDoor; }
 
     bool HasShop() const { return bool{mShop}; }
     ShopStats& GetShop() override { ASSERT(mShop); return *mShop; }
@@ -215,6 +221,7 @@ public:
 private:
     ContainerHeader mHeader;
     std::optional<LockStats> mLock;
+    std::optional<DoorStats> mDoor;
     std::optional<ContainerDialog> mDialog;
     std::optional<ShopStats> mShop;
     std::optional<ContainerEncounter> mEncounter;
@@ -228,6 +235,7 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
     auto header = ContainerHeader{HeaderTag{}, fb};
 
     auto lockData = std::optional<LockStats>{};
+    auto door = std::optional<DoorStats>{};
     auto dialog = std::optional<ContainerDialog>{};
     auto shopData = std::optional<ShopStats>{};
     auto encounter = std::optional<ContainerEncounter>{};
@@ -235,14 +243,12 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
 
     auto inventory = LoadInventory(fb, header.mItems, header.mCapacity);
 
-    if (header.mFlags == 0x21)
+    if (header.mFlags == 0x21) // Door
     {
-        // This is not actually correct interpretation
-        // for this property type
-        const auto contextVar = fb.GetUint8();
-        const auto dialogOrder = fb.GetUint8();
-        const auto dialogKey = KeyTarget{fb.GetUint32LE()};
-        dialog = ContainerDialog{contextVar, dialogOrder, dialogKey};
+        const std::uint16_t lockRating = fb.GetUint16LE() >> 8;
+        const auto unknown = fb.GetUint16LE();
+        const auto doorIndex = fb.GetUint16LE();
+        door = DoorStats{lockRating, doorIndex, unknown};
     }
     else
     {
@@ -299,6 +305,7 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
     return GenericContainer{
         header,
         lockData,
+        door,
         dialog,
         shopData,
         encounter,

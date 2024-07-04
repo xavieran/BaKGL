@@ -199,6 +199,7 @@ std::ostream& operator<<(std::ostream& os, const GenericContainer& gc)
 {
     os << "GenericContainer{ " << gc.GetHeader();
     if (gc.HasLock()) os << gc.GetLock();
+    if (gc.HasDoor()) os << gc.GetDoor();
     if (gc.HasDialog()) os << gc.GetDialog();
     if (gc.HasShop()) os << gc.GetShop();
     if (gc.HasEncounter()) os << gc.GetEncounter();

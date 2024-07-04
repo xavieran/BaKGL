@@ -51,11 +51,10 @@ public:
     {
         mContainer = &container;
 
-        assert(mContainer->HasDialog());
-        auto doorIndex = std::get<BAK::KeyTarget>(
-                mContainer->GetDialog().mDialog).mValue >> 16;
+        assert(mContainer->HasDoor());
+        const auto& doorStats = mContainer->GetDoor();
 
-        Logging::LogInfo("Door") << "DoorIndex: " << doorIndex << " State: " << std::boolalpha << BAK::State::GetDoorState(mGameState, doorIndex) << "\n";
+        Logging::LogInfo("Door") << "DoorIndex: " << doorStats.mDoorIndex << " State: " << std::boolalpha << BAK::State::GetDoorState(mGameState, doorStats.mDoorIndex) << " locked? " << doorStats.mLockRating << "\n";
 
         const auto playerPos = glm::cast<float>(mGameState.GetLocation().mPosition);
         const auto doorPos = glm::cast<float>(container.GetHeader().GetPosition());

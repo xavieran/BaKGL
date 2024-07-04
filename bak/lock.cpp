@@ -14,6 +14,7 @@ std::ostream& operator<<(std::ostream& os, const LockStats& lock)
     return os;
 }
 
+
 LockStats LoadLock(FileBuffer& fb)
 {
     const auto lockFlag = fb.GetUint8();
@@ -23,6 +24,13 @@ LockStats LoadLock(FileBuffer& fb)
     return LockStats{lockFlag, picklock, fairyChestIndex, damage};
 }
 
+std::ostream& operator<<(std::ostream& os, const DoorStats& door)
+{
+    os << "Door { lockRating: " << door.mLockRating
+        << " index: " << door.mDoorIndex << " unk: "
+        << door.mUnknown << "}";
+    return os;
+}
 
 LockType ClassifyLock(unsigned lockRating)
 {
@@ -31,6 +39,18 @@ LockType ClassifyLock(unsigned lockRating)
     else if (lockRating < 0x51)
         return LockType::Medium;
     else if (lockRating < 0x65)
+        return LockType::Hard;
+    else
+        return LockType::Unpickable;
+}
+
+LockType ClassifyDoor(unsigned lockRating)
+{
+    if (lockRating < 50)
+        return LockType::Easy;
+    else if (lockRating < 80)
+        return LockType::Medium;
+    else if (lockRating < 100)
         return LockType::Hard;
     else
         return LockType::Unpickable;
