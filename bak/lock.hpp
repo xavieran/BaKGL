@@ -40,14 +40,12 @@ struct FairyChest
 
 std::ostream& operator<<(std::ostream&, const LockStats&);
 
-struct DoorStats
+struct Door
 {
-    std::uint16_t mLockRating;
-    std::uint16_t mDoorIndex;
-    std::uint16_t mUnknown;
+    DoorIndex mDoorIndex;
 };
 
-std::ostream& operator<<(std::ostream&, const DoorStats&);
+std::ostream& operator<<(std::ostream&, const Door&);
 
 // This is the lock "image" type
 enum class LockType

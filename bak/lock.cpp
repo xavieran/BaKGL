@@ -24,11 +24,9 @@ LockStats LoadLock(FileBuffer& fb)
     return LockStats{lockFlag, picklock, fairyChestIndex, damage};
 }
 
-std::ostream& operator<<(std::ostream& os, const DoorStats& door)
+std::ostream& operator<<(std::ostream& os, const Door& door)
 {
-    os << "Door { lockRating: " << door.mLockRating
-        << " index: " << door.mDoorIndex << " unk: "
-        << door.mUnknown << "}";
+    os << "Door { index: " << door.mDoorIndex << "}"; 
     return os;
 }
 

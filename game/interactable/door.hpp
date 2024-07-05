@@ -52,9 +52,9 @@ public:
         mContainer = &container;
 
         assert(mContainer->HasDoor());
-        const auto& doorStats = mContainer->GetDoor();
+        const auto doorIndex = mContainer->GetDoor();
 
-        Logging::LogInfo("Door") << "DoorIndex: " << doorStats.mDoorIndex << " State: " << std::boolalpha << BAK::State::GetDoorState(mGameState, doorStats.mDoorIndex) << " locked? " << doorStats.mLockRating << "\n";
+        Logging::LogInfo("Door") << "DoorIndex: " << doorIndex << " State: " << std::boolalpha << BAK::State::GetDoorState(mGameState, doorIndex.mValue) << " locked? " << (mContainer->HasLock() ? mContainer->GetLock().mRating : 0) << "\n";
 
         const auto playerPos = glm::cast<float>(mGameState.GetLocation().mPosition);
         const auto doorPos = glm::cast<float>(container.GetHeader().GetPosition());

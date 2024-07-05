@@ -46,7 +46,7 @@ void Save(const GenericContainer& gc, FileBuffer& fb)
 
     if (gc.HasDoor())
     {
-        fb.Skip(6); // No need to write anything for doors
+        fb.Skip(2); // No need to write anything for doors
     }
 
     if (gc.HasDialog())
