@@ -16,7 +16,7 @@ bool GetDoorState(const GameState& gs, unsigned doorIndex)
 
 void SetDoorState(FileBuffer& fb, unsigned doorIndex, bool state)
 {
-    SetEventFlag(fb, sLockHasBeenSeenFlag + doorIndex, state);
+    SetEventFlag(fb, sDoorFlag + doorIndex, state);
 }
 
 }
