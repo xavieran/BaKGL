@@ -113,8 +113,7 @@ public:
         case InteractableType::Door:
             return std::make_unique<Door>(
                 mGuiManager,
-                BAK::DialogSources::mUnknownObject,
-                [](auto){});
+                mGameState);
         case InteractableType::Corn:
             return MakeGeneric(BAK::DialogSources::mCorn);
         case InteractableType::CrystalTree:

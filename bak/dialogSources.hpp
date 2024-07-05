@@ -189,6 +189,7 @@ public:
     static constexpr auto mStump         = KeyTarget{0xba};
     static constexpr auto mTrappedAnimal = KeyTarget{0xab};
     static constexpr auto mWell          = KeyTarget{0xbc};
+    static constexpr auto mDoorTooClose  = KeyTarget{0x9d};
 
     static constexpr auto mCharacterIsNotASpellcaster = KeyTarget{0xd8};
 
@@ -201,6 +202,7 @@ public:
     static constexpr auto mStartOfChapterActions =
         KeyTarget{0x1e8497};
     static constexpr auto mDragonsBreath = 0xc7;
+
 };
 
 }

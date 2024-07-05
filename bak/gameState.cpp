@@ -364,7 +364,7 @@ void GameState::SetDefaultDialogTextVariables()
 
 void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
 {
-    mLogger.Debug() << __FUNCTION__ << "(" << index << ", " << attribute << ")\n";
+    mLogger.Spam() << __FUNCTION__ << "(" << index << ", " << attribute << ")\n";
     assert(attribute > 0);
     // remember we always switch on attribute - 1...
     switch (attribute - 1)

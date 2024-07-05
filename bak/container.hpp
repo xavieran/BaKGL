@@ -24,7 +24,8 @@ enum class ContainerProperty
     HasDialog    = 1, // 0x2
     HasShop      = 2, // 0x4
     HasEncounter = 3, // 0x8
-    HasTime      = 4  // 0x10
+    HasTime      = 4, // 0x10
+    HasDoor      = 5  // 0x20
 };
 
 struct ContainerWorldLocationTag {};
@@ -93,6 +94,7 @@ public:
     bool HasShop() const { return CheckBitSet(mFlags, ContainerProperty::HasShop); }
     bool HasEncounter() const { return CheckBitSet(mFlags, ContainerProperty::HasEncounter); }
     bool HasTime() const { return CheckBitSet(mFlags, ContainerProperty::HasTime); }
+    bool HasDoor() const { return CheckBitSet(mFlags, ContainerProperty::HasDoor); }
     bool HasInventory() const { return mCapacity != 0; }
 
     std::uint32_t GetAddress() const { return mAddress; }
@@ -136,6 +138,7 @@ public:
     GenericContainer(
         ContainerHeader header,
         std::optional<LockStats> lock,
+        std::optional<Door> door,
         std::optional<ContainerDialog> dialog,
         std::optional<ShopStats> shop,
         std::optional<ContainerEncounter> encounter,
@@ -144,6 +147,7 @@ public:
     :
         mHeader{header},
         mLock{lock},
+        mDoor{door},
         mDialog{dialog},
         mShop{shop},
         mEncounter{encounter},
@@ -166,6 +170,10 @@ public:
     bool HasDialog() const { return bool{mDialog}; }
     const ContainerDialog& GetDialog() const { ASSERT(mDialog); return *mDialog; }
     ContainerDialog& GetDialog() { ASSERT(mDialog); return *mDialog; }
+
+    bool HasDoor() const { return bool{mDoor}; }
+    DoorIndex GetDoor() const { ASSERT(mDoor); return mDoor->mDoorIndex; }
+    DoorIndex GetDoor() { ASSERT(mDoor); return mDoor->mDoorIndex; }
 
     bool HasShop() const { return bool{mShop}; }
     ShopStats& GetShop() override { ASSERT(mShop); return *mShop; }
@@ -215,6 +223,7 @@ public:
 private:
     ContainerHeader mHeader;
     std::optional<LockStats> mLock;
+    std::optional<Door> mDoor;
     std::optional<ContainerDialog> mDialog;
     std::optional<ShopStats> mShop;
     std::optional<ContainerEncounter> mEncounter;
@@ -228,6 +237,7 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
     auto header = ContainerHeader{HeaderTag{}, fb};
 
     auto lockData = std::optional<LockStats>{};
+    auto door = std::optional<Door>{};
     auto dialog = std::optional<ContainerDialog>{};
     auto shopData = std::optional<ShopStats>{};
     auto encounter = std::optional<ContainerEncounter>{};
@@ -235,21 +245,18 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
 
     auto inventory = LoadInventory(fb, header.mItems, header.mCapacity);
 
-    if (header.mFlags == 0x21)
-    {
-        // This is not actually correct interpretation
-        // for this property type
-        const auto contextVar = fb.GetUint8();
-        const auto dialogOrder = fb.GetUint8();
-        const auto dialogKey = KeyTarget{fb.GetUint32LE()};
-        dialog = ContainerDialog{contextVar, dialogOrder, dialogKey};
-    }
-    else
     {
         if (header.HasLock())
         {
             lockData = LoadLock(fb);
         }
+
+        if (header.HasDoor())
+        {
+            const auto doorIndex = fb.GetUint16LE();
+            door = Door{DoorIndex{doorIndex}};
+        }
+
         if (header.HasDialog())
         {
             const auto contextVar = fb.GetUint8();
@@ -299,6 +306,7 @@ GenericContainer LoadGenericContainer(FileBuffer& fb)
     return GenericContainer{
         header,
         lockData,
+        door,
         dialog,
         shopData,
         encounter,
