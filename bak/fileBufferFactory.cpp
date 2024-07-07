@@ -12,7 +12,6 @@ namespace BAK {
 FileBufferFactory::FileBufferFactory()
 :
     mDataPath{(std::filesystem::path{GetBakDirectory()} / "data").string()},
-    mSavePath{(std::filesystem::path{GetBakDirectory()} / "save").string()},
     mDataFileProvider{{(std::filesystem::path{GetBakDirectory()} / "data").string()}}
 {}
 
@@ -25,11 +24,6 @@ FileBufferFactory& FileBufferFactory::Get()
 void FileBufferFactory::SetDataPath(const std::string& dataPath)
 {
     mDataPath = dataPath;
-}
-
-void FileBufferFactory::SetSavePath(const std::string& savePath)
-{
-    mSavePath = savePath;
 }
 
 FileBuffer FileBufferFactory::CreateDataBuffer(const std::string& fileName)
@@ -53,32 +47,11 @@ bool FileBufferFactory::DataBufferExists(const std::string& fileName)
     return mDataFileProvider.GetDataBuffer(fileName) != nullptr;
 }
 
-bool FileBufferFactory::SaveBufferExists(const std::string& fileName)
-{
-    // First look in the cwd
-    if (std::filesystem::exists(fileName))
-    {
-        return true;
-    }
-    else
-    {
-        const auto realPath = std::filesystem::path{mSavePath} / fileName;
-        return std::filesystem::exists(realPath.string());
-    }
-
-    return false;
-}
-
 FileBuffer FileBufferFactory::CreateSaveBuffer(const std::string& fileName)
 {
     if (std::filesystem::exists(fileName))
     {
         return File::CreateFileBuffer(fileName);
-    }
-    else if (SaveBufferExists(fileName))
-    {
-        const auto realPath = std::filesystem::path{mSavePath} / fileName;
-        return File::CreateFileBuffer(realPath.string());
     }
     else
     {

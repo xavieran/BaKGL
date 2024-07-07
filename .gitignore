@@ -8,3 +8,5 @@ compile_commands.json
 out
 imgui.ini
 tags
+shaders/gen
+shaders/shader_binary_cache.hxx

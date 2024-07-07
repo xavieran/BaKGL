@@ -1,11 +1,18 @@
 
-# BaK GL - _Betrayal at Krondor Remake in OpenGL_
+# BaK GL - _Betrayal at Krondor_ remake using OpenGL
 
 ![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
-This project is my attempt to remake Betrayal at Krondor using OpenGL. It started out as a fun project to learn about graphics programming, but to be honest, I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead! The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+This project is my attempt to remake Betrayal at Krondor using OpenGL.
 
+It started out as a fun project to learn about graphics programming, but I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead!
+
+The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+
+Here's a very quick look at some gameplay.
+
+![video](https://github.com/xavieran/blog/blob/master/resources/video/intro_film.gif?raw=true "Intro Video")
 ## Features
 * Camping
 * Chapter progression
@@ -19,11 +26,16 @@ This project is my attempt to remake Betrayal at Krondor using OpenGL. It starte
 * World exploration
 * World map
 
+## To do
+* Combat
+* Movement clipping
+* Lots of polishing!
+
 ## Acknowledgements
 
-This project would not have been possible without Guido De Jong's original work on xbak (http://xbak.sourceforge.net/).
+This project would not have been possible without Guido de Jong's original work on xbak (http://xbak.sourceforge.net/).
 
-I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as a reference. This website is currently hosted at https://dimwood.net/krondor.html by vga256.
+I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as a reference. This website is currently hosted at https://dimwood.net/krondor.html by vga256. I've also archived the contents [on github](https://github.com/xavieran/BaKHelpWeb).
 
 ## Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
@@ -46,16 +58,16 @@ make
 The relevant binaries will be placed in your build directory.
 
 ### Windows
-Alternatively you can build on Windows by opening the project in Visual Studio.
+You can build on Windows by opening the project in Visual Studio.
 
 You may need to manually download some of the dependencies (freeglut, glew, and SDL2) and modify the CMakeLists.txt to point to them.
 
 ### Mac
-Due to Apple's deprecation of OpenGL Mac is not currently supported. It may work on earlier versions, I've had some success using brew to install dependencies.
+Due to Apple's deprecation of OpenGL Mac is not currently supported. It may compile and run if the required dependencies are installed and with some massaging of the CMake files.
 
 ## Setup
 ### BaKGL file main directory
-BaKGL needs to find a number of different files in order to run with the games original data. These are searched for in the _bak main directory_.
+BaKGL needs to find a number of different files in order to run with the game's original data. These are searched for in the _bak main directory_.
 
 On UNIX systems this will be `$HOME/bak`, under Windows it will be `%APPDATA%\bak`. I will hereafter refer to this directory as `$BAK_MAIN_DIR` for both platforms.
 
@@ -74,27 +86,13 @@ BaKGL will look in either the current directory from which you ran the executabl
 
 Make sure you check the case of the filenames in the folder where you installed BaK, if they are capitalised you will need to rename or copy them to lowercase.
 
-Save files will be searched for in the `$BAK_MAIN_DIR/saves/GAMES` directory, you can _copy_ your old saves directory to this location.
-
-## Set up shader path
-OpenGL shaders are searched for in a specific set of directories
-
-```
-$HOME/shaders
-$HOME/.shaders
-$BAK_MAIN_DIR/shaders
-```
-
-Either copy the shaders to this directory, or (better) create a symbolic link to point to the shaders directory of the repo.
-```
-ln -sf BakGL/shaders $BAK_MAIN_DIR/shaders
-```
+Save files will be searched for in the `$BAK_MAIN_DIR/GAMES` directory, you can _copy_ your old saves directory to this location. Alternatively, if you have no saves, the game will create this folder when you save your first game.
 
 ## Run main3d
-The main application is "main3d". You can run this in the terminal in linux, or select it as the target in Visual Studio.
+The main application is `main3d`. You can run this in the terminal in linux, or select it as the target in Visual Studio.
 
 ```
-$ main3d
+build $ ./main3d
 ```
 
 Start a new game from the main menu as normal, and enjoy :)

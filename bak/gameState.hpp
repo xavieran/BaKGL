@@ -193,26 +193,26 @@ private:
 
     GameData* mGameData;
     Party mParty;
-    unsigned mContextValue_7530;
-    bool mTransitionChapter_7541;
-    unsigned mShopType_7542;
-    unsigned mBardReward_754d;
-    Royals mItemValue_753e;
-    unsigned mSkillValue;
-    unsigned mContextVar_753f;
+    unsigned mContextValue_7530{};
+    bool mTransitionChapter_7541{};
+    unsigned mShopType_7542{};
+    unsigned mBardReward_754d{};
+    Royals mItemValue_753e{};
+    unsigned mSkillValue{};
+    unsigned mContextVar_753f{};
 
-    std::optional<InventoryItem> mSelectedItem;
-    std::optional<MonsterIndex> mCurrentMonster;
-    Chapter mChapter;
-    ZoneNumber mZone;
-    std::int16_t mEndOfDialogState;
+    std::optional<InventoryItem> mSelectedItem{};
+    std::optional<MonsterIndex> mCurrentMonster{};
+    Chapter mChapter{};
+    ZoneNumber mZone{};
+    std::int16_t mEndOfDialogState{};
     std::vector<
-        std::vector<GenericContainer>> mContainers;
-    std::vector<GenericContainer> mGDSContainers;
+        std::vector<GenericContainer>> mContainers{};
+    std::vector<GenericContainer> mGDSContainers{};
     std::vector<GenericContainer> mCombatContainers;
-    std::vector<TimeExpiringState> mTimeExpiringState;
-    SpellState mSpellState;
-    TextVariableStore mTextVariableStore;
+    std::vector<TimeExpiringState> mTimeExpiringState{};
+    SpellState mSpellState{};
+    TextVariableStore mTextVariableStore{};
     FMapXY mFullMap;
     WorldClock mFakeWorldClock{{0}, {0}};
     const Logging::Logger& mLogger;
