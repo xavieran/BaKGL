@@ -1,5 +1,5 @@
 
-# BaK GL - _Betrayal at Krondor Remake in OpenGL_
+# BaK GL - _Betrayal at Krondor_ remake using OpenGL
 
 ![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
@@ -10,6 +10,7 @@ It started out as a fun project to learn about graphics programming, but I've sp
 
 The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
 
+Here's a very quick look at some gameplay.
 ![video](https://github.com/xavieran/blog/blob/master/resources/video/intro_film.gif?raw=true "Intro Video")
 ## Features
 * Camping
@@ -51,12 +52,12 @@ make
 The relevant binaries will be placed in your build directory.
 
 ### Windows
-Alternatively you can build on Windows by opening the project in Visual Studio.
+You can build on Windows by opening the project in Visual Studio.
 
 You may need to manually download some of the dependencies (freeglut, glew, and SDL2) and modify the CMakeLists.txt to point to them.
 
 ### Mac
-Due to Apple's deprecation of OpenGL Mac is not currently supported. It may work on earlier versions, I've had some success using brew to install dependencies.
+Due to Apple's deprecation of OpenGL Mac is not currently supported. It may compile and run if the required dependencies are installed and with some massaging of the CMake files.
 
 ## Setup
 ### BaKGL file main directory

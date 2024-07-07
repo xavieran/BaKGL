@@ -41,7 +41,6 @@ set(SEPARATOR "\n")
 
 foreach (SHADER_PATH IN LISTS SHADER_FILES)
     get_filename_component(SHADER_FILE "${SHADER_PATH}" NAME)
-    message(${SHADER_FILE})
     make_includable(${SHADER_PATH} gen/${SHADER_FILE})
     set(SHADER_BINARY_CACHE "${SHADER_BINARY_CACHE}${SEPARATOR}{\"${SHADER_FILE}\", \n#include \"shaders/gen/${SHADER_FILE}\"\n}")
     set(SEPARATOR ",\n")
