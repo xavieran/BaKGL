@@ -14,7 +14,7 @@ std::optional<std::string> GetFile(std::string shaderFile)
     auto it = std::find_if(ShaderFiles.begin(), ShaderFiles.end(),
         [&shaderFile](const auto& shader)
         {
-            return shaderFile == std::string(std::get<0>(shader));
+            return shaderFile == std::string(shader.first);
         });
 
     if (it != ShaderFiles.end())
