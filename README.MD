@@ -4,7 +4,7 @@
 ![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
-This project is my attempt to remake Betrayal at Krondor using OpenGL. It started out as a fun project to learn about graphics programming, but to be honest, I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead! The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+This project is my attempt to remake Betrayal at Krondor using OpenGL. It started out as a fun project to learn about graphics programming, but I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead! The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
 
 ## Features
 * Camping
@@ -55,7 +55,7 @@ Due to Apple's deprecation of OpenGL Mac is not currently supported. It may work
 
 ## Setup
 ### BaKGL file main directory
-BaKGL needs to find a number of different files in order to run with the games original data. These are searched for in the _bak main directory_.
+BaKGL needs to find a number of different files in order to run with the game's original data. These are searched for in the _bak main directory_.
 
 On UNIX systems this will be `$HOME/bak`, under Windows it will be `%APPDATA%\bak`. I will hereafter refer to this directory as `$BAK_MAIN_DIR` for both platforms.
 
@@ -75,20 +75,6 @@ BaKGL will look in either the current directory from which you ran the executabl
 Make sure you check the case of the filenames in the folder where you installed BaK, if they are capitalised you will need to rename or copy them to lowercase.
 
 Save files will be searched for in the `$BAK_MAIN_DIR/saves/GAMES` directory, you can _copy_ your old saves directory to this location.
-
-## Set up shader path
-OpenGL shaders are searched for in a specific set of directories
-
-```
-$HOME/shaders
-$HOME/.shaders
-$BAK_MAIN_DIR/shaders
-```
-
-Either copy the shaders to this directory, or (better) create a symbolic link to point to the shaders directory of the repo.
-```
-ln -sf BakGL/shaders $BAK_MAIN_DIR/shaders
-```
 
 ## Run main3d
 The main application is "main3d". You can run this in the terminal in linux, or select it as the target in Visual Studio.

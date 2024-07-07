@@ -21,4 +21,5 @@ add_library(graphics
 target_link_libraries(
     graphics
     com
+    shaders
     ${LINK_3D_LIBRARIES})

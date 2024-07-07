@@ -1,5 +1,7 @@
 #include "graphics/shaderProgram.hpp"
 
+#include "shaders/shaders.hpp"
+
 #include "com/path.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -210,7 +212,7 @@ std::optional<std::string> ShaderProgram::FindFile(const std::string& shaderPath
             return fullPath.string();
     }
 
-    return std::optional<std::string>{};
+    return std::nullopt;
 }
 
 std::string ShaderProgram::LoadFileContents(const std::string& path)
@@ -218,6 +220,13 @@ std::string ShaderProgram::LoadFileContents(const std::string& path)
     auto fullPath = FindFile(path);
     if (!fullPath)
     {
+        auto contents = Shaders::GetFile(path);
+        if (contents)
+        {
+            Logging::LogInfo(__FUNCTION__) << "Loaded precompiled shader contents for file: " << path << "\n";
+            return *contents;
+        }
+
         std::stringstream err{};
         err << "Could not find shader file ["
             << path << "] in shader search directories [";
