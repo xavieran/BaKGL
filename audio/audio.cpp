@@ -57,6 +57,11 @@ AudioManager& AudioManager::Get()
 
 void AudioManager::ChangeMusicTrack(MusicIndex musicI)
 {
+    if (!mMusicStack.empty())
+    {
+        mMusicStack.pop();
+    }
+
     auto* music = GetMusic(musicI);
     mMusicStack.push(music);
     mLogger.Debug() << "Changing track to: " << musicI

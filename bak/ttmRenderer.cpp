@@ -93,40 +93,7 @@ bool TTMRenderer::AdvanceAction()
                     mRenderer.GetForegroundLayer());
             },
             [&](const BAK::Update& sr){
-                if (mScreen)
-                {
-                    mRenderer.RenderSprite(
-                        *mScreen,
-                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-                        glm::ivec2{0, 0}, false, mRenderer.GetBackgroundLayer());
-                }
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetSavedImagesLayerBG(),
-                    glm::ivec2{0},
-                    mRenderer.GetBackgroundLayer());
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetSavedImagesLayer0(),
-                    glm::ivec2{0},
-                    mRenderer.GetBackgroundLayer());
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetSavedImagesLayer1(),
-                    glm::ivec2{0},
-                    mRenderer.GetBackgroundLayer());
-
-                mRenderer.RenderTexture(
-                    mRenderer.GetForegroundLayer(),
-                    glm::ivec2{0, 0},
-                    mRenderer.GetBackgroundLayer());
-
-                auto bg = mRenderer.GetBackgroundLayer();
-                bg.Invert();
-                mRenderedFrames.AddTexture(bg);
-
-                mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200};
-                mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200};
+                RenderFrame();
             },
             [&](const BAK::SaveImage& si){
                 mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer);
@@ -183,5 +150,41 @@ bool TTMRenderer::AdvanceAction()
 
     return false;
 }
+void TTMRenderer::RenderFrame()
+{
+    if (mScreen)
+    {
+        mRenderer.RenderSprite(
+            *mScreen,
+            mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+            glm::ivec2{0, 0}, false, mRenderer.GetBackgroundLayer());
+    }
 
+    mRenderer.RenderTexture(
+        mRenderer.GetSavedImagesLayerBG(),
+        glm::ivec2{0},
+        mRenderer.GetBackgroundLayer());
+
+    mRenderer.RenderTexture(
+        mRenderer.GetSavedImagesLayer0(),
+        glm::ivec2{0},
+        mRenderer.GetBackgroundLayer());
+
+    mRenderer.RenderTexture(
+        mRenderer.GetSavedImagesLayer1(),
+        glm::ivec2{0},
+        mRenderer.GetBackgroundLayer());
+
+    mRenderer.RenderTexture(
+        mRenderer.GetForegroundLayer(),
+        glm::ivec2{0, 0},
+        mRenderer.GetBackgroundLayer());
+
+    auto bg = mRenderer.GetBackgroundLayer();
+    bg.Invert();
+    mRenderedFrames.AddTexture(bg);
+
+    mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200};
+    mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200};
+}
 }

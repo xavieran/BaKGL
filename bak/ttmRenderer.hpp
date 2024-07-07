@@ -23,6 +23,8 @@ public:
 private:
     bool AdvanceAction();
 
+    void RenderFrame();
+
     TTMRunner mRunner;
 
     struct PaletteSlot

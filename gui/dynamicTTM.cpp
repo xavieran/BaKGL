@@ -1,5 +1,8 @@
 #include "gui/dynamicTTM.hpp"
 
+#include "audio/audio.hpp"
+
+#include "bak/dialogAction.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
 #include "gui/callbackDelay.hpp"
@@ -155,6 +158,16 @@ bool DynamicTTM::AdvanceAction()
             },
             [&](const BAK::Purge&){
                 assert(false);
+            },
+            [&](const BAK::PlaySoundS& sound){
+                if (sound.mSoundIndex < 255)
+                {
+                    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
+                }
+                else
+                {
+                    AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
+                }
             },
             [&](const BAK::GotoTag& sa){
                 assert(false);
