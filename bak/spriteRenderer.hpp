@@ -25,6 +25,12 @@ public:
     {
     }
 
+    void SetColors(std::uint8_t fg, std::uint8_t bg)
+    {
+        mForegroundColor = fg;
+        mBackgroundColor = bg;
+    }
+
     void RenderTexture(
         const Graphics::Texture& texture,
         glm::ivec2 pos,
@@ -57,7 +63,7 @@ public:
 
     void RenderSprite(
         BAK::Image sprite,
-        BAK::Palette palette,
+        const BAK::Palette& palette,
         glm::ivec2 pos,
         bool flipped,
         Graphics::Texture& layer)
@@ -95,6 +101,26 @@ public:
         }
     }
 
+    void DrawRect(glm::ivec2 pos, glm::ivec2 dims, const BAK::Palette& palette, Graphics::Texture& layer)
+    {
+        for (int x = 0; x < static_cast<int>(dims.x); x++)
+        {
+            for (int y = 0; y < static_cast<int>(dims.y); y++)
+            {
+                const auto pixelPos = pos + glm::ivec2{x, y};
+                const auto color = palette.GetColor(mForegroundColor);
+                if (color.a == 0) continue;
+                if (pixelPos.x > 320
+                    || pixelPos.y > 200) continue;
+
+                layer.SetPixel(
+                    pixelPos.x,
+                    pixelPos.y,
+                    color);
+            }
+        }
+    }
+
     void Clear()
     {
         mForegroundLayer = Graphics::Texture{320, 200};
@@ -102,18 +128,6 @@ public:
         mSavedImagesLayer0 = Graphics::Texture{320, 200};
         mSavedImagesLayer1 = Graphics::Texture{320, 200};
         mSavedImagesLayerBG = Graphics::Texture{320, 200};
-    }
-
-    void ClearSaveLayer(glm::ivec2 pos, glm::ivec2 dims, unsigned layer)
-    {
-        auto& image = GetSaveLayer(layer);
-        for (int x = 0; x < dims.x; x++)
-        {
-            for (int y = 0; y < dims.y; y++)
-            {
-                image.SetPixel(x + pos.x, y + pos.y, glm::vec4{0});
-            }
-        }
     }
 
     Graphics::Texture& GetForegroundLayer()
@@ -191,6 +205,8 @@ private:
     Graphics::Texture mSavedImagesLayer1;
     Graphics::Texture mSavedImagesLayerBG;
     std::optional<BAK::ClipRegion> mClipRegion;
+    std::uint8_t mBackgroundColor{};
+    std::uint8_t mForegroundColor{};
 };
 
 }

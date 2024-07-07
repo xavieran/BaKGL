@@ -856,15 +856,15 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
             actions.emplace_back(SetSaveLayer{
                 static_cast<unsigned>(chunk.mArguments[0])});
         } break;
-        case Actions::CLEAR_SAVE_LAYER:
+        case Actions::DRAW_SAVED_REGION:
         {
-            actions.emplace_back(ClearSaveLayer{
+            actions.emplace_back(DrawSavedRegion{
                 static_cast<unsigned>(chunk.mArguments[0])});
         } break;
-        case Actions::SET_CLEAR_REGION:
+        case Actions::SAVE_REGION_TO_LAYER:
         {
             actions.emplace_back(
-                SetClearRegion{
+                SaveRegionToLayer{
                     glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
                     glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
         } break;

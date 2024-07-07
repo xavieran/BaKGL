@@ -69,7 +69,7 @@ enum class Actions
     FADE_OUT            = 0x4110,
     FADE_IN             = 0x4120,
     SAVE_IMAGE0         = 0x4200,
-    SET_CLEAR_REGION    = 0x4210,
+    SAVE_REGION_TO_LAYER = 0x4210,
     SET_WINDOWA         = 0xa010,
     SET_WINDOWB         = 0xa030,
     SET_UNKNOWN         = 0xa090,
@@ -82,7 +82,7 @@ enum class Actions
     DRAW_SPRITE_FLIP_Y  = 0xa520,
     DRAW_SPRITE_FLIP_XY = 0xa530,
     DRAW_SPRITE_ROTATE  = 0xa5a0,
-    CLEAR_SAVE_LAYER    = 0xa600,
+    DRAW_SAVED_REGION    = 0xa600,
     DRAW_SCREEN         = 0xb600, // COPY_LAYER_TO_LAYER?
     LOAD_SOUND_RESOURCE = 0xc020,
     SELECT_SOUND        = 0xc030,
@@ -118,8 +118,8 @@ struct ClearScreen
 struct DrawRect
 {
     std::pair<unsigned, unsigned> mPaletteColor;
-    glm::vec<2, int> mTopLeft;
-    glm::vec<2, int> mBottomRight;
+    glm::ivec2 mPos;
+    glm::ivec2 mDims;
 };
 
 std::ostream& operator<<(std::ostream&, const DrawRect&);
@@ -183,7 +183,7 @@ struct SaveImage
     glm::ivec2 dims;
 };
 
-struct SetClearRegion
+struct SaveRegionToLayer
 {
     glm::ivec2 pos;
     glm::ivec2 dims;
@@ -231,7 +231,7 @@ struct SetSaveLayer
     unsigned mLayer;
 };
 
-struct ClearSaveLayer
+struct DrawSavedRegion
 {
     unsigned mLayer;
 };
@@ -284,10 +284,10 @@ using SceneAction = std::variant<
     SetColors,
     SlotImage,
     SetSaveLayer,
-    ClearSaveLayer,
+    DrawSavedRegion,
     ShowDialog,
     PlaySoundS,
-    SetClearRegion,
+    SaveRegionToLayer,
     GotoTag,
     SlotPalette>;
 

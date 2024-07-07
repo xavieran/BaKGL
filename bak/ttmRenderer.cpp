@@ -2,6 +2,7 @@
 
 #include "bak/dialogSources.hpp"
 #include "bak/imageStore.hpp"
+#include "bak/sceneData.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
 
@@ -130,12 +131,17 @@ bool TTMRenderer::AdvanceAction()
             [&](const BAK::SaveImage& si){
                 mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer);
             },
-            [&](const BAK::SetClearRegion& si){
-                mClearRegions.emplace(mImageSaveLayer, si);
+            [&](const BAK::SetSaveLayer& ssl){
+                mImageSaveLayer = ssl.mLayer;
             },
-            [&](const BAK::ClearSaveLayer& si){
-                const auto& clearRegion = mClearRegions.at(mImageSaveLayer);
-                mRenderer.ClearSaveLayer(clearRegion.pos, clearRegion.dims, si.mLayer);
+            [&](const BAK::SaveRegionToLayer& si){
+                mClearRegions.emplace(mImageSaveLayer, si);
+                mSaves.emplace(mImageSaveLayer, mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer));
+            },
+            [&](const BAK::DrawSavedRegion& si){
+                const auto& clearRegion = mClearRegions.at(si.mLayer);
+                const auto& texture = mSaves.at(si.mLayer);
+                mRenderer.RenderTexture(texture, clearRegion.pos, mRenderer.GetForegroundLayer());
             },
             [&](const BAK::SaveBackground&){
                 mRenderer.GetSavedImagesLayer0() = {320, 200};
@@ -143,6 +149,15 @@ bool TTMRenderer::AdvanceAction()
                 mRenderer.SaveImage({0, 0}, {320, 200}, 2);
             },
             [&](const BAK::DrawRect& sr){
+                if (!mPaletteSlots.contains(mCurrentPaletteSlot))
+                {
+                    // what to do in this scenario..?
+                    return;
+                }
+                mRenderer.DrawRect(
+                    sr.mPos, sr.mDims,
+                    mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                    mRenderer.GetForegroundLayer());
             },
             [&](const BAK::ClipRegion& a){
                 mRenderer.SetClipRegion(a);
@@ -150,13 +165,18 @@ bool TTMRenderer::AdvanceAction()
             [&](const BAK::DisableClipRegion&){
                 mRenderer.ClearClipRegion();
             },
+            [&](const BAK::SetColors& sc){
+                mRenderer.SetColors(sc.mForegroundColor, sc.mBackgroundColor);
+            },
             [&](const BAK::Purge&){
                 assert(false);
             },
             [&](const BAK::GotoTag& sa){
                 assert(false);
             },
-            [&](const auto&){}
+            [&](const auto& a){
+                Logging::LogInfo(__FUNCTION__) << "Unhandled action: " << a << "\n";
+            }
         },
         action
     );
