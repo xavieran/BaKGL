@@ -89,10 +89,10 @@ Make sure you check the case of the filenames in the folder where you installed 
 Save files will be searched for in the `$BAK_MAIN_DIR/GAMES` directory, you can _copy_ your old saves directory to this location. Alternatively, if you have no saves, the game will create this folder when you save your first game.
 
 ## Run main3d
-The main application is "main3d". You can run this in the terminal in linux, or select it as the target in Visual Studio.
+The main application is `main3d`. You can run this in the terminal in linux, or select it as the target in Visual Studio.
 
 ```
-$ main3d
+build $ ./main3d
 ```
 
 Start a new game from the main menu as normal, and enjoy :)
