@@ -156,9 +156,8 @@ StaticTTM::StaticTTM(
                             colorKey == FRAME_COLOR_INDEX
                                 ? Gui::Color::frameMaroon
                                 : Gui::Color::black,
-                            glm::vec2{sr.mTopLeft.x, sr.mTopLeft.y},
-                            // FIXME: This should be renamed dims not bottom right...
-                            glm::vec2{sr.mBottomRight.x, sr.mBottomRight.y}};
+                            glm::vec2{sr.mPos.x, sr.mPos.y},
+                            glm::vec2{sr.mDims.x, sr.mDims.y}};
                         // This really only works for "DrawFrame", not "DrawRect"
                         mSceneFrame.SetPosition(sceneRect.mPosition);
                         mSceneFrame.SetDimensions(sceneRect.mDimensions);

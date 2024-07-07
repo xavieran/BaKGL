@@ -190,7 +190,7 @@ bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
         return true;
     }
 
-    if (dialog.mDialogType != 0xff && dialog.mDialogKey != 0)
+    if (dialog.mDialogType != 0xff && dialog.mDialogKey != 0 && dialog.mDialogKey != 0xff)
     {
         const auto& snippet = BAK::DialogStore::Get().GetSnippet(
             BAK::DialogSources::GetTTMDialogKey(dialog.mDialogKey));

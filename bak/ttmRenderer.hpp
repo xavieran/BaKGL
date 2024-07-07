@@ -36,7 +36,8 @@ private:
     unsigned mCurrentPaletteSlot = 0;
     unsigned mCurrentImageSlot = 0;
     unsigned mImageSaveLayer = 0;
-    std::unordered_map<unsigned, BAK::SetClearRegion> mClearRegions;
+    std::unordered_map<unsigned, BAK::SaveRegionToLayer> mClearRegions;
+    std::unordered_map<unsigned, Graphics::Texture> mSaves;
     std::unordered_map<unsigned, ImageSlot> mImageSlots;
     std::unordered_map<unsigned, PaletteSlot> mPaletteSlots;
     std::unordered_map<unsigned, Graphics::TextureStore> mTextures;

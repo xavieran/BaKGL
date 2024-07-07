@@ -66,7 +66,7 @@ std::string_view ToString(Actions a)
     case Actions::FADE_OUT: return "FadeOut";
     case Actions::FADE_IN: return "FadeIn";
     case Actions::SAVE_IMAGE0: return "SaveImage0";
-    case Actions::SET_CLEAR_REGION: return "SetClearRegion";
+    case Actions::SAVE_REGION_TO_LAYER: return "SaveRegionToLayer";
     case Actions::SET_UNKNOWN: return "SETUNKNOWN";
     case Actions::SET_WINDOWA: return "SETWINDOWA";
     case Actions::SET_WINDOWB: return "SETWINDOWB";
@@ -77,7 +77,7 @@ std::string_view ToString(Actions a)
     case Actions::DRAW_SPRITE_FLIP_Y: return "DrawSpriteFlipY";
     case Actions::DRAW_SPRITE_FLIP_XY: return "DrawSpriteFlipXY";
     case Actions::DRAW_SPRITE_ROTATE: return "DrawSpriteRotate";
-    case Actions::CLEAR_SAVE_LAYER: return "ClearSaveLayer";
+    case Actions::DRAW_SAVED_REGION: return "DrawSavedRegion";
     case Actions::DRAW_SCREEN: return "DrawScreen";
     case Actions::LOAD_SOUND_RESOURCE: return "LoadSoundResource";
     case Actions::SELECT_SOUND: return "SelectSound";
@@ -132,8 +132,8 @@ std::ostream& operator<<(std::ostream& os, const DrawRect& a)
 {
     os << "DrawRect { PaletteColor: (" << std::get<0>(a.mPaletteColor)
         << ", " << std::get<1>(a.mPaletteColor)
-        << "), TopLeft: " << a.mTopLeft << ", BottomRight: "
-        << a.mBottomRight << "}";
+        << "), Pos: " << a.mPos << ", Dims: "
+        << a.mDims << "}";
     return os;
 }
 
@@ -203,9 +203,9 @@ std::ostream& operator<<(std::ostream& os, const SaveImage& a)
     return os << "SaveImage{ pos: " << a.pos << " dims: " << a.dims << "}";
 }
 
-std::ostream& operator<<(std::ostream& os, const SetClearRegion& a)
+std::ostream& operator<<(std::ostream& os, const SaveRegionToLayer& a)
 {
-    return os << "SetClearRegion{ pos: " << a.pos << " dims: " << a.dims << "}";
+    return os << "SaveRegionToLayer{ pos: " << a.pos << " dims: " << a.dims << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const LoadPalette& a)
@@ -228,9 +228,9 @@ std::ostream& operator<<(std::ostream& os, const SetSaveLayer& a)
     return os << "SetSaveLayer{ " << a.mLayer << "}";
 }
 
-std::ostream& operator<<(std::ostream& os, const ClearSaveLayer& a)
+std::ostream& operator<<(std::ostream& os, const DrawSavedRegion& a)
 {
-    return os << "ClearSaveLayer{ " << a.mLayer << "}";
+    return os << "DrawSavedRegion{ " << a.mLayer << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SetColors& a)
