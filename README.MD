@@ -4,8 +4,13 @@
 ![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
-This project is my attempt to remake Betrayal at Krondor using OpenGL. It started out as a fun project to learn about graphics programming, but I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead! The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+This project is my attempt to remake Betrayal at Krondor using OpenGL.
 
+It started out as a fun project to learn about graphics programming, but I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead!
+
+The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+
+![video](https://github.com/xavieran/blog/blob/master/resources/video/intro_film.gif?raw=true "Intro Video")
 ## Features
 * Camping
 * Chapter progression
@@ -21,9 +26,9 @@ This project is my attempt to remake Betrayal at Krondor using OpenGL. It starte
 
 ## Acknowledgements
 
-This project would not have been possible without Guido De Jong's original work on xbak (http://xbak.sourceforge.net/).
+This project would not have been possible without Guido de Jong's original work on xbak (http://xbak.sourceforge.net/).
 
-I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as a reference. This website is currently hosted at https://dimwood.net/krondor.html by vga256.
+I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as a reference. This website is currently hosted at https://dimwood.net/krondor.html by vga256. I've also archived the contents [on github](https://github.com/xavieran/BaKHelpWeb).
 
 ## Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
