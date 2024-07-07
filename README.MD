@@ -11,6 +11,7 @@ It started out as a fun project to learn about graphics programming, but I've sp
 The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
 
 Here's a very quick look at some gameplay.
+
 ![video](https://github.com/xavieran/blog/blob/master/resources/video/intro_film.gif?raw=true "Intro Video")
 ## Features
 * Camping
