@@ -26,6 +26,11 @@ Here's a very quick look at some gameplay.
 * World exploration
 * World map
 
+## To do
+* Combat
+* Movement clipping
+* Lots of polishing!
+
 ## Acknowledgements
 
 This project would not have been possible without Guido de Jong's original work on xbak (http://xbak.sourceforge.net/).
