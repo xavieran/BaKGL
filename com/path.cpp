@@ -10,7 +10,9 @@ std::string GetHomeDirectory()
     auto* home = getenv(homeVar);
 
     if (home == nullptr)
+    {
         throw std::runtime_error("No " + std::string{homeVar} + " environment variable set.");
+    }
 
     return std::string{home};
 }

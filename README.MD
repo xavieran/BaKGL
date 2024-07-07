@@ -80,7 +80,7 @@ BaKGL will look in either the current directory from which you ran the executabl
 
 Make sure you check the case of the filenames in the folder where you installed BaK, if they are capitalised you will need to rename or copy them to lowercase.
 
-Save files will be searched for in the `$BAK_MAIN_DIR/saves/GAMES` directory, you can _copy_ your old saves directory to this location.
+Save files will be searched for in the `$BAK_MAIN_DIR/GAMES` directory, you can _copy_ your old saves directory to this location. Alernatively, if you have no saves, the game will create this folder when you save your first game.
 
 ## Run main3d
 The main application is "main3d". You can run this in the terminal in linux, or select it as the target in Visual Studio.
