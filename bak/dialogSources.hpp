@@ -190,6 +190,8 @@ public:
     static constexpr auto mTrappedAnimal = KeyTarget{0xab};
     static constexpr auto mWell          = KeyTarget{0xbc};
     static constexpr auto mDoorTooClose  = KeyTarget{0x9d};
+    static constexpr auto mPitHaveRope   = KeyTarget{0xc5};
+    static constexpr auto mPitNoRope     = KeyTarget{0xc6};
 
     static constexpr auto mCharacterIsNotASpellcaster = KeyTarget{0xd8};
 

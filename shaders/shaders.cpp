@@ -1,7 +1,7 @@
 #include "shaders/shaders.hpp"
 
 #include <array>
-#include <functional>
+#include <algorithm>
 
 namespace Shaders {
 

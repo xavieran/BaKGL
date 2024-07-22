@@ -7,12 +7,12 @@
 #include "game/interactable/door.hpp"
 #include "game/interactable/generic.hpp"
 #include "game/interactable/ladder.hpp"
+#include "game/interactable/pit.hpp"
 #include "game/interactable/tomb.hpp"
 
 #include "gui/IGuiManager.hpp"
 
 #include "bak/gameState.hpp"
-#include "bak/worldFactory.hpp"
 
 #include <memory>
 
@@ -112,6 +112,10 @@ public:
             return MakeGeneric(BAK::DialogSources::mCampfire);
         case InteractableType::Door:
             return std::make_unique<Door>(
+                mGuiManager,
+                mGameState);
+        case InteractableType::Pit:
+            return std::make_unique<Pit>(
                 mGuiManager,
                 mGameState);
         case InteractableType::Corn:
