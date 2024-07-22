@@ -38,6 +38,7 @@ static constexpr auto sStandardArmor = BAK::ItemIndex{48};
 
 static constexpr auto sSovereigns  = BAK::ItemIndex{53};
 static constexpr auto sRoyals      = BAK::ItemIndex{54};
+static constexpr auto sRope        = BAK::ItemIndex{82};
 static constexpr auto sShovel      = BAK::ItemIndex{83};
 static constexpr auto sScroll      = BAK::ItemIndex{133};
 static constexpr auto sDayRations  = BAK::ItemIndex{134};
