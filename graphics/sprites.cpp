@@ -109,6 +109,7 @@ void DestroySpriteSheet::operator()(TemporarySpriteHandle* handle)
 {
     assert(handle->mManager);
     handle->mManager->RemoveSpriteSheet(handle->mSpriteSheet);
+    delete handle;
 }
 
 SpriteManager::SpriteManager()

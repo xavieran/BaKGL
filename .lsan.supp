@@ -5,3 +5,5 @@ leak:*libmikmod*
 leak:*libX11*
 leak:*libpulse*
 leak:*libSDL2*
+leak:*libdbus-1*
+leak:*unknown module*
