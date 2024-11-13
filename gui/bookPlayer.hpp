@@ -42,10 +42,10 @@ private:
     TextBox mTextBox;
     std::vector<Widget> mImages;
 
-    std::optional<BAK::Book> mBook;
-    unsigned mCurrentPage;
-    std::string mText;
-    std::function<void()> mFinishedBook;
+    std::optional<BAK::Book> mBook{};
+    unsigned mCurrentPage{};
+    std::string mText{};
+    std::function<void()> mFinishedBook{};
 };
 
 }

@@ -950,9 +950,9 @@ bool GameState::EvaluateDialogChoice(const DialogChoice& choice) const
         }
 
         // Need to double check this...
-        const auto chapterFlag = GetChapter() == Chapter{9}
-            ? 0x80
-            : 1 << (GetChapter().mValue - 1);
+        //const auto chapterFlag = GetChapter() == Chapter{9}
+        //    ? 0x80
+        //    : 1 << (GetChapter().mValue - 1);
         //const auto chapterMaskSatisfied = (chapterFlag & ChapterMask) == 0;
         const auto chapterMaskSatisfied = true;
 

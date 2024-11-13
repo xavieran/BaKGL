@@ -166,7 +166,7 @@ void Sound::CreateMidiEvents(FileBuffer& buf)
         }
         if (mode != MIDI_SEQ_END)
         {
-            MidiEvent me;
+            MidiEvent me{};
             memset(&me, 0, sizeof(MidiEvent));
             me.data[0] = mode;
             switch (mode & 0xf0)

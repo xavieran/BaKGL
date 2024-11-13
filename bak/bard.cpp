@@ -5,7 +5,6 @@ namespace BAK::Bard {
 
 BardStatus ClassifyBardAttempt(unsigned bardingSkill, unsigned innRequirement)
 {
-    const auto xpGained = 128 - (112 * (bardingSkill / 100.));
     if (bardingSkill < innRequirement)
     {
         if (bardingSkill < ((innRequirement * 3) / 4))

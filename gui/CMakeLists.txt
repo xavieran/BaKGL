@@ -33,3 +33,9 @@ target_link_libraries(gui
     guiCore
     guiCamp
     guiInventory)
+
+#set_target_properties(
+#    gui 
+#    PROPERTIES
+#    CXX_CLANG_TIDY
+#    "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-pro-type-union-access,-perfomance-avoid-endl,-bugprone-easily-swappable-parameters")

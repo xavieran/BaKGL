@@ -179,9 +179,9 @@ public:
     bool CheckConversationItemAvailable(unsigned conversationItem) const;
     
 private:
-    std::optional<CharIndex> mDialogCharacter;
-    CharIndex mActiveCharacter;
-    CharIndex mSkillCheckedCharacter;
+    std::optional<CharIndex> mDialogCharacter{};
+    CharIndex mActiveCharacter{};
+    CharIndex mSkillCheckedCharacter{};
 
     // 0 - defaults to someone other than party leader
     // 1 - will be selected so as not to equal 0
@@ -189,7 +189,7 @@ private:
     // 3 - party magician
     // 4 - party leader
     // 5 - party warrior
-    std::array<std::uint8_t, 6> mDialogCharacterList;
+    std::array<std::uint8_t, 6> mDialogCharacterList{};
 
     GameData* mGameData;
     Party mParty;

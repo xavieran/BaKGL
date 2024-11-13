@@ -705,7 +705,7 @@ std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
             auto action = SetScene{};
 
             std::string sceneTag{};
-            unsigned tagId;
+            unsigned tagId{};
             if (chunk.mResourceName)
             {
                 sceneTag = *chunk.mResourceName;

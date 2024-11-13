@@ -87,8 +87,8 @@ public:
     }
 
 private:
-    std::uint64_t mSpellBytes;
-    std::vector<SpellIndex> mSpellIndices;
+    std::uint64_t mSpellBytes{};
+    std::vector<SpellIndex> mSpellIndices{};
 };
 
 std::ostream& operator<<(std::ostream&, const Spells&);
@@ -101,18 +101,18 @@ public:
         return spells.HaveSpell(mIndex);
     }
 
-    SpellIndex mIndex;
-    std::string mName;
-    unsigned mMinCost;
-    unsigned mMaxCost;
-    bool mIsMartial;
-    std::uint16_t mTargetingType;
-    std::optional<std::uint16_t> mColor;
-    std::optional<std::uint16_t> mAnimationEffectType;
-    std::optional<ItemIndex> mObjectRequired;
-    SpellCalculationType mCalculationType;
-    int mDamage;
-    unsigned mDuration;
+    SpellIndex mIndex{};
+    std::string mName{};
+    unsigned mMinCost{};
+    unsigned mMaxCost{};
+    bool mIsMartial{};
+    std::uint16_t mTargetingType{};
+    std::optional<std::uint16_t> mColor{};
+    std::optional<std::uint16_t> mAnimationEffectType{};
+    std::optional<ItemIndex> mObjectRequired{};
+    SpellCalculationType mCalculationType{};
+    int mDamage{};
+    unsigned mDuration{};
 };
 
 std::ostream& operator<<(std::ostream&, const Spell&);
@@ -120,13 +120,13 @@ std::ostream& operator<<(std::ostream&, const Spell&);
 class SpellDoc
 {
 public:
-    SpellIndex mIndex;
-    std::string mTitle;
-    std::string mCost;
-    std::string mDamage;
-    std::string mDuration;
-    std::string mLineOfSight;
-    std::string mDescription;
+    SpellIndex mIndex{};
+    std::string mTitle{};
+    std::string mCost{};
+    std::string mDamage{};
+    std::string mDuration{};
+    std::string mLineOfSight{};
+    std::string mDescription{};
 };
 
 class Symbol
@@ -167,7 +167,7 @@ public:
     }
 
 private:
-    std::vector<SymbolSlot> mSymbolSlots;
+    std::vector<SymbolSlot> mSymbolSlots{};
 };
 
 class SpellDatabase
@@ -384,9 +384,9 @@ private:
     }
 
 private:
-    std::vector<Spell> mSpells;
-    std::vector<SpellDoc> mSpellDocs;
-    std::vector<Symbol> mSymbols;
+    std::vector<Spell> mSpells{};
+    std::vector<SpellDoc> mSpellDocs{};
+    std::vector<Symbol> mSymbols{};
 };
 
 // These are the locations of the dots for the spell power ring
@@ -424,7 +424,7 @@ private:
         }
     }
 
-    std::vector<glm::ivec2> mPoints;
+    std::vector<glm::ivec2> mPoints{};
 };
 
 class SymbolLines
@@ -488,7 +488,7 @@ public:
     }
 
 private:
-    std::uint16_t mSpells;
+    std::uint16_t mSpells{};
 };
 
 }

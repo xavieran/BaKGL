@@ -185,8 +185,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Skills&);
 private:
-    SkillArray mSkills;
-    unsigned mSelectedSkillPool;
+    SkillArray mSkills{};
+    unsigned mSelectedSkillPool{};
 };
 
 std::ostream& operator<<(std::ostream&, const Skills&);
