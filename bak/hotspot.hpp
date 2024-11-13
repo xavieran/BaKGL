@@ -73,21 +73,6 @@ struct Hotspot
         mCheckEventState{checkEventState}
     {}
 
-    std::uint16_t mHotspot;
-    glm::vec<2, int> mTopLeft;
-    glm::vec<2, int> mDimensions;
-    std::uint16_t mChapterMask;
-    std::uint16_t mKeyword;
-    HotspotAction mAction;
-    std::uint8_t mUnknown_d;
-    std::uint16_t mActionArg1;
-    std::uint16_t mActionArg2;
-    std::uint32_t mActionArg3;
-    KeyTarget mTooltip;
-    std::uint32_t mUnknown_1a;
-    KeyTarget mDialog;
-    std::uint16_t mCheckEventState;
-
     // Yes but there is more to it - e.g. Sarth
     bool IsActive(GameState& gameState) const
     {
@@ -110,6 +95,20 @@ struct Hotspot
         return (mChapterMask & 0x8000) != 0;
     }
 
+    std::uint16_t mHotspot{};
+    glm::vec<2, int> mTopLeft{};
+    glm::vec<2, int> mDimensions{};
+    std::uint16_t mChapterMask{};
+    std::uint16_t mKeyword{};
+    HotspotAction mAction{};
+    std::uint8_t mUnknown_d{};
+    std::uint16_t mActionArg1{};
+    std::uint16_t mActionArg2{};
+    std::uint32_t mActionArg3{};
+    KeyTarget mTooltip{};
+    std::uint32_t mUnknown_1a{};
+    KeyTarget mDialog{};
+    std::uint16_t mCheckEventState{};
 };
 
 std::ostream& operator<<(std::ostream&, const Hotspot&);
@@ -120,30 +119,30 @@ class SceneHotspots
 public:
     explicit SceneHotspots(FileBuffer&&);
 
-    std::string mSceneTTM;
-    std::string mSceneADS;
+    std::string mSceneTTM{};
+    std::string mSceneADS{};
 
-    std::array<std::uint8_t, 6> mUnknown_6;
-    std::uint8_t mUnknown_c;
-    std::uint8_t mTempleIndex;
-    std::uint8_t mUnknown_e;
-    std::uint8_t mUnknown_f;
-    std::uint8_t mUnknown_10;
-    SongIndex mSong;
-    std::uint16_t mUnknownIdx_13;
-    AdsSceneIndex mSceneIndex1;
-    std::uint16_t mUnknown_16;
-    AdsSceneIndex mSceneIndex2;
-    std::uint16_t mNumHotspots;
-    std::uint32_t mFlavourText;
-    std::uint16_t mUnknown_1f;
-    std::uint16_t mUnknown_21;
-    std::uint16_t mUnknown_23;
-    std::uint16_t mUnknown_25;
+    std::array<std::uint8_t, 6> mUnknown_6{};
+    std::uint8_t mUnknown_c{};
+    std::uint8_t mTempleIndex{};
+    std::uint8_t mUnknown_e{};
+    std::uint8_t mUnknown_f{};
+    std::uint8_t mUnknown_10{};
+    SongIndex mSong{};
+    std::uint16_t mUnknownIdx_13{};
+    AdsSceneIndex mSceneIndex1{};
+    std::uint16_t mUnknown_16{};
+    AdsSceneIndex mSceneIndex2{};
+    std::uint16_t mNumHotspots{};
+    std::uint32_t mFlavourText{};
+    std::uint16_t mUnknown_1f{};
+    std::uint16_t mUnknown_21{};
+    std::uint16_t mUnknown_23{};
+    std::uint16_t mUnknown_25{};
 
-    std::vector<Hotspot> mHotspots;
-    std::unordered_map<unsigned, SceneIndex> mAdsIndices;
-    std::unordered_map<unsigned, Scene> mScenes;
+    std::vector<Hotspot> mHotspots{};
+    std::unordered_map<unsigned, SceneIndex> mAdsIndices{};
+    std::unordered_map<unsigned, Scene> mScenes{};
 
     const Scene& GetScene(unsigned adsIndex, const GameState& gs);
     std::optional<unsigned> GetTempleNumber() const

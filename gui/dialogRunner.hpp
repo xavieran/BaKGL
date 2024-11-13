@@ -120,10 +120,10 @@ private:
             }
         }
 
-        bool mDialogActive;
-        bool mTooltipActive;
-        glm::vec2 mMousePos;
-        glm::vec2 mTooltipPos;
+        bool mDialogActive{};
+        bool mTooltipActive{};
+        glm::vec2 mMousePos{};
+        glm::vec2 mTooltipPos{};
     };
 
     ScreenStack& mScreenStack;
@@ -131,20 +131,20 @@ private:
     ChoiceScreen mChoices;
     BAK::Keywords mKeywords;
     BAK::GameState& mGameState;
-    glm::vec2 mCenter;
+    glm::vec2 mCenter{};
 
     const Font& mFont;
     const Actors& mActors;
 
-    std::optional<BAK::Target> mCurrentTarget;
-    std::optional<BAK::ChoiceIndex> mLastChoice;
-    std::optional<BAK::TeleportIndex> mPendingZoneTeleport;
-    std::stack<BAK::Target> mTargetStack;
-    bool mStartedMusic;
-    bool mInWorldView;
+    std::optional<BAK::Target> mCurrentTarget{};
+    std::optional<BAK::ChoiceIndex> mLastChoice{};
+    std::optional<BAK::TeleportIndex> mPendingZoneTeleport{};
+    std::stack<BAK::Target> mTargetStack{};
+    bool mStartedMusic{};
+    bool mInWorldView{};
 
-    std::string mRemainingText;
-    glm::vec2 mTextDims;
+    std::string mRemainingText{};
+    glm::vec2 mTextDims{};
     DialogDisplay mDialogDisplay;
     FinishCallback mFinished;
     IDialogScene* mDialogScene;

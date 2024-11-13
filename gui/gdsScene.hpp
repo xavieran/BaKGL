@@ -70,20 +70,20 @@ public:
 
     // Frame to surround the scene
     Widget mFrame;
-    std::vector<StaticTTM> mStaticTTMs;
+    std::vector<StaticTTM> mStaticTTMs{};
 
-    std::vector<Hotspot> mHotspots;
-    std::vector<bool> mHotspotClicked;
+    std::vector<Hotspot> mHotspots{};
+    std::vector<bool> mHotspotClicked{};
 
     Cursor& mCursor;
     IGuiManager& mGuiManager;
     DialogDisplay mDialogDisplay;
 
-    std::optional<BAK::HotspotAction> mPendingAction;
-    std::optional<BAK::HotspotRef> mPendingGoto;
+    std::optional<BAK::HotspotAction> mPendingAction{};
+    std::optional<BAK::HotspotRef> mPendingGoto{};
     // e.g. when you fail barding
-    bool mKickedOut;
-    bool mBarding;
+    bool mKickedOut{};
+    bool mBarding{};
     
     Temple mTemple;
     Repair mRepair;

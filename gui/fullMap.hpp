@@ -225,13 +225,13 @@ private:
     TextBox mPopupText;
 
     Widget mPlayerLocation;
-    std::vector<TownLabel> mTowns;
-    unsigned mPlayerPositionBaseIcon;
-    unsigned mPlayerPositionIconOffset;
+    std::vector<TownLabel> mTowns{};
+    unsigned mPlayerPositionBaseIcon{};
+    unsigned mPlayerPositionIconOffset{};
     int mPlayerPositionIconPulseDirection{1};
-    TickAnimator* mPlayerPositionFlasher;
+    TickAnimator* mPlayerPositionFlasher{};
 
-    bool mGameStartScreenMode;
+    bool mGameStartScreenMode{};
 
     const Logging::Logger& mLogger;
 };

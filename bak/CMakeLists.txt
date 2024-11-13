@@ -91,4 +91,4 @@ target_link_libraries(bak
 #    bak
 #    PROPERTIES
 #    CXX_CLANG_TIDY
-#    "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*")
+#    "clang-tidy;-checks=-*,bugprone*,clang-analyzer*,cppcoreguidelines*,performance*,portability*,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-pro-type-union-access,-cppcoreguidelines-pro-bounds-constant-array-index,-performance-avoid-endl,-bugprone-easily-swappable-parameters,-bugprone-branch-clone")

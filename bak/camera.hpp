@@ -285,6 +285,6 @@ private:
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
 
-    bool mDirty;
+    bool mDirty{};
 };
 
