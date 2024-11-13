@@ -40,7 +40,7 @@ public:
 
     struct Line
     {
-        std::vector<Widget*> mChars;
+        std::vector<std::size_t> mChars;
         glm::vec2 mDimensions;
     };
 
@@ -55,10 +55,10 @@ public:
     {
         const auto& logger = Logging::LogState::GetLogger("Gui::TextBox");
 
+        ClearChildren();
+
         mText.clear();
         mText.reserve(text.size() * 2);
-
-        ClearChildren();
 
         const auto& font = fr.GetFont();
         const auto initialPosition = glm::vec2{0};
@@ -90,7 +90,6 @@ public:
 
             charPos.x = initialPosition.x;
             charPos.y += ydiff;
-                //(font.GetHeight() * newLineMultiplier + 1) / scale;
 
             italic = false;
             unbold = false;
@@ -114,6 +113,8 @@ public:
 
         const auto Draw = [&](const auto& pos, auto c, const auto& color)
         {
+            ASSERT(lines.size() > 0);
+            lines.back().mChars.emplace_back(mText.size());
             mText.emplace_back(
                 Graphics::DrawMode::Sprite,
                 fr.GetSpriteSheet(),
@@ -124,9 +125,6 @@ public:
                 pos,
                 glm::vec2{fr.GetFont().GetWidth(c), fr.GetFont().GetHeight()} / scale,
                 true);
-
-            ASSERT(lines.size() > 0);
-            lines.back().mChars.emplace_back(&mText.back());
         };
 
         const auto DrawNormal = [&](const auto& pos, auto c)
@@ -343,7 +341,8 @@ public:
         }
 
         // Set the dims of the final line
-        logger.Spam() << "LastLine\n"; NextLine(false);
+        logger.Spam() << "LastLine\n";
+        NextLine(false);
 
         for (auto& elem : mText)
             this->AddChildBack(&elem);
@@ -368,10 +367,10 @@ public:
                 auto horizontalAdjustment = (limit.x - lineWidth) / 2.0;
                 if (horizontalAdjustment < 0) horizontalAdjustment = 0;
                 logger.Spam() << "Line: " << lineWidth << " lim: " << limit.x << " adj: " << horizontalAdjustment << "\n";
-                for (auto* c : line.mChars)
+                for (const auto c : line.mChars)
                 {
-                    ASSERT(c);
-                    c->AdjustPosition(
+                    ASSERT(c < mText.size());
+                    mText[c].AdjustPosition(
                         glm::vec2{horizontalAdjustment, 0});
                 }
             }
