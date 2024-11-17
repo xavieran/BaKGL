@@ -28,8 +28,16 @@ Combat #1 (South of Lamut)
 01 00  -- movement type ... 0 = no movement, 1 = horizontal?, 2 = vertical? 4 = switch between orientations?
 C8 A4 00 00 5A 2B 00 00 00 40  -- Initial location and orientation (x 4, y 4, orient 2)
 -- Below determines the route walked... e.g. extremities in x
-88 9E 00 00, 08 AB 00 00 90 60 00 00 00 F0 
-20 40 5A 2B, 00 00 5A 2B 00 00 40 80 40 40 40 40 20 00 80 80
+88 9E 00 00 MinX
+08 AB 00 00 MaxX
+90 60 00 00
+00 F0 20 40
+5A 2B 00 00 MinY
+5A 2B 00 00 MaxY
+40 80 40 40
+40 40 20 00
+80 80
+
 
 Just loaded (North approach)
 000052f0:

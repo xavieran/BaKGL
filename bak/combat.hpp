@@ -22,14 +22,14 @@ public:
 
 std::ostream& operator<<(std::ostream&, const CombatWorldLocation&);
 
-class CombatGridLocation
+class CombatantGridLocation
 {
 public:
     MonsterIndex mMonster;
     glm::uvec2 mGridPos;
 };
 
-std::ostream& operator<<(std::ostream&, const CombatGridLocation&);
+std::ostream& operator<<(std::ostream&, const CombatantGridLocation&);
 
 class CombatEntityList
 {

@@ -51,6 +51,18 @@ Options Parse(int argc, char** argv)
     {   
         if (opt == 'h')
         {
+            std::cout << "Arguments determine what information to display\n";
+            std::cout << "\t --shop,-s\n";
+            std::cout << "\t --zone,-z\n";
+            std::cout << "\t --party,-p\n";
+            std::cout << "\t --skill_affectors,-k\n";
+            std::cout << "\t --time_state,-t\n";
+            std::cout << "\t --combat_inventories,-c\n";
+            std::cout << "\t --combat_grid,-g\n";
+            std::cout << "\t --combat_world,-w\n";
+            std::cout << "\t --combat_stats,-S\n";
+            std::cout << "\t --combat_click,-C\n";
+            std::cout << "\t --combat_lists,-l\n";
             exit(0);
         }
         else if (opt == 's')
@@ -179,15 +191,15 @@ int main(int argc, char** argv)
     {
         auto containers = gameData.LoadCombatInventories();
         logger.Info() << "Combat Inventories\n";
-        for (auto& con : containers)
+        for (unsigned i = 0; i < containers.size(); i++)
         {
-            logger.Info() << "  " << con << "\n";
+            logger.Info() << "#" << i << " " << containers[i] << "\n";
         }
     }
 
     if (options.combat_grid)
     {
-        auto cgl = gameData.LoadCombatGridLocations();
+        auto cgl = gameData.LoadCombatantGridLocations();
         logger.Info() << "Combat Grid Locations\n";
         for (unsigned i = 0; i < cgl.size(); i++)
         {
@@ -213,8 +225,26 @@ int main(int argc, char** argv)
         {
             logger.Info() << "  #" << i << " " << cel[i] << "\n";
         }
+ 
     }
-
+    if (options.combat_stats)
+    {
+        logger.Info() << "Combat Stats: \n";
+        auto skills = gameData.LoadCombatStats();
+        for (unsigned i = 0; i < skills.size(); i++)
+        {
+            logger.Info() << "  #" << i << " " << skills[i] << "\n";
+        }
+    }
+    if (options.combat_click)
+    {
+        logger.Info() << "Combat Scouting Times: \n";
+        auto times = gameData.LoadCombatClickedTimes();
+        for (unsigned i = 0; i < times.size(); i++)
+        {
+            logger.Info() << "  #" << i << " " << times[i] << "\n";
+        }
+    }
     return 0;
 }
 

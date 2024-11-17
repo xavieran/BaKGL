@@ -83,11 +83,8 @@ public:
     static constexpr auto sCombatWorldLocationsOffset = 0x4fab;
     static constexpr auto sCombatWorldLocationsCount = 1400;
 
-    static constexpr auto sCombatSkillsListOffset = 0x914b;
-    static constexpr auto sCombatSkillsListCount  = 1698;
-
-    static constexpr auto sCombatGridLocationsOffset = 0x31349;
-    static constexpr auto sCombatGridLocationsCount = 1699;
+    static constexpr auto sCombatantGridLocationsOffset = 0x31349;
+    static constexpr auto sCombatantGridLocationsCount = 1699;
 
     static constexpr auto sCombatStatsOffset = 0x914b;
     static constexpr auto sCombatStatsCount = 1698;
@@ -173,10 +170,12 @@ public:
     // Probably not chapter offsets.. ?
     void LoadChapterOffsetP();
     std::vector<CombatEntityList> LoadCombatEntityLists();
-    std::vector<CombatGridLocation> LoadCombatGridLocations();
+    CombatEntityList LoadCombatEntityList(CombatIndex);
+    std::vector<CombatantGridLocation> LoadCombatantGridLocations();
+    CombatantGridLocation LoadCombatantGridLocation(CombatIndex);
     std::vector<CombatWorldLocation> LoadCombatWorldLocations();
-    void LoadCombatStats(unsigned offset, unsigned num);
-    void LoadCombatClickedTimes();
+    std::vector<Skills> LoadCombatStats();
+    std::vector<Time> LoadCombatClickedTimes();
 
     mutable FileBuffer mBuffer;
     Logging::Logger mLogger;

@@ -51,7 +51,7 @@ std::vector<TimeExpiringState> GameData::LoadTimeExpiringState()
         auto data= mBuffer.GetUint16LE();
         auto time = Time{mBuffer.GetUint32LE()};
         storage.emplace_back(TimeExpiringState{ExpiringStateType{type}, flag, data, time});
-        mLogger.Info() << storage.back() << "\n";
+        mLogger.Spam() << storage.back() << "\n";
     }
     return storage;
 }
@@ -113,7 +113,7 @@ std::vector<Character> GameData::LoadCharacters()
         auto name = mBuffer.GetString(sCharacterNameLength);
 
         mBuffer.Seek(GetCharacterSkillOffset(character));
-        mLogger.Debug() << "Name: " << name << "@" 
+        mLogger.Spam() << "Name: " << name << "@" 
             << std::hex << mBuffer.Tell() << std::dec << "\n";
 
         auto characterNameOffset = mBuffer.GetArray<2>();
@@ -136,7 +136,7 @@ std::vector<Character> GameData::LoadCharacters()
 
         //bool characterIndex = mBuffer.GetUint8() != 0;
         auto unknown2 = mBuffer.GetArray<7>();
-        mLogger.Info() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";
+        mLogger.Spam() << " Finished loading : " << name << std::hex << mBuffer.Tell() << std::dec << "\n";
         // Load inventory
         auto inventory = LoadCharacterInventory(
             GetCharacterInventoryOffset(character));
@@ -204,7 +204,7 @@ std::vector<CharIndex> GameData::LoadActiveCharacters()
         active.emplace_back(c);
     }
 
-    mLogger.Debug() << "Active Characters: " << active << "\n";
+    mLogger.Spam() << "Active Characters: " << active << "\n";
 
     return active;
 }
@@ -315,7 +315,7 @@ void GameData::LoadChapterOffsetP()
     constexpr unsigned chapterOffsetsStart = 0x11a3;
     mBuffer.Seek(chapterOffsetsStart);
 
-    mLogger.Debug() << "Chapter Offsets Start @" 
+    mLogger.Spam() << "Chapter Offsets Start @" 
         << std::hex << chapterOffsetsStart << std::dec << std::endl;
 
     for (unsigned i = 0; i < 10; i++)
@@ -327,10 +327,10 @@ void GameData::LoadChapterOffsetP()
             unsigned addr = mBuffer.GetUint32LE();
             ss << " a: " << std::hex << addr << std::dec;
         }
-        mLogger.Debug() << ss.str() << std::endl;
+        mLogger.Spam() << ss.str() << std::endl;
     }
 
-    mLogger.Debug() << "Chapter Offsets End @" 
+    mLogger.Spam() << "Chapter Offsets End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
 }
 
@@ -366,45 +366,77 @@ std::vector<CombatEntityList> GameData::LoadCombatEntityLists()
     return data;
 }
 
-void GameData::LoadCombatStats(unsigned offset, unsigned num)
+CombatEntityList GameData::LoadCombatEntityList(CombatIndex index)
 {
-    unsigned combatStatsStart = offset;
+    constexpr unsigned maxCombatants = 7;
+    mBuffer.Seek(sCombatEntityListOffset + index.mValue * maxCombatants * 2);
+    auto list = CombatEntityList{};
+
+    for (unsigned i = 0; i < maxCombatants; i++)
+    {
+        auto combatant = mBuffer.GetUint16LE();
+        if (combatant != 0xffff)
+        {
+            list.mCombatants.emplace_back(CombatantIndex{combatant});
+        }
+    }
+    return list;
+}
+
+std::vector<Skills> GameData::LoadCombatStats()
+{
+    unsigned combatStatsStart = sCombatStatsOffset;
     mBuffer.Seek(combatStatsStart);
     mLogger.Spam() << "Combat Stats Start @" 
         << std::hex << combatStatsStart << std::dec << std::endl;
 
+    std::vector<Skills> data{};
     // ends at 3070a
-    for (unsigned i = 0; i < num; i++)
+    for (unsigned i = 0; i < sCombatStatsCount; i++)
     {
-        mLogger.Info() << "Combat #" << std::dec << i 
+        mLogger.Spam() << "Combat #" << std::dec << i 
             << " " << std::hex << mBuffer.Tell() << std::endl;
         mLogger.Spam() << std::hex << mBuffer.GetUint16LE() << std::endl << std::dec;
         auto spells = Spells(mBuffer.GetArray<6>());
 
         auto skills = LoadSkills(mBuffer);
-        mLogger.Info() << skills << "\n";
+        mLogger.Spam() << skills << "\n";
         mBuffer.Skip(7); // Conditions?
+        data.emplace_back(std::move(skills));
     }
     mLogger.Spam() << "Combat Stats End @" 
         << std::hex << mBuffer.Tell() << std::dec << std::endl;
+    return data;
 }
 
-std::vector<CombatGridLocation> GameData::LoadCombatGridLocations()
+std::vector<CombatantGridLocation> GameData::LoadCombatantGridLocations()
 {
-    std::vector<CombatGridLocation> data{};
+    std::vector<CombatantGridLocation> data{};
     const auto initial = 0;
     mLogger.Spam() << "Loading Combat Grid Locations" << std::endl;
-    mBuffer.Seek(sCombatGridLocationsOffset + (initial * 22));
-    for (unsigned i = 0; i < sCombatGridLocationsCount; i++)
+    mBuffer.Seek(sCombatantGridLocationsOffset + (initial * 22));
+    for (unsigned i = 0; i < sCombatantGridLocationsCount; i++)
     {
         mBuffer.Skip(2);
         const auto monsterType = mBuffer.GetUint16LE();
         const auto gridX = mBuffer.GetUint8();
         const auto gridY = mBuffer.GetUint8();
         mBuffer.Skip(16);
-        data.emplace_back(CombatGridLocation{MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}});
+        data.emplace_back(CombatantGridLocation{MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}});
+        mLogger.Spam() << "CGL #" << i << data.back() << "\n";
     }
     return data;
+}
+
+CombatantGridLocation GameData::LoadCombatantGridLocation(CombatIndex index)
+{
+    mBuffer.Seek(sCombatantGridLocationsOffset + (index.mValue * 22));
+    mBuffer.Skip(2);
+    const auto monsterType = mBuffer.GetUint16LE();
+    const auto gridX = mBuffer.GetUint8();
+    const auto gridY = mBuffer.GetUint8();
+    mBuffer.Skip(16);
+    return CombatantGridLocation{MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}};
 }
 
 std::vector<CombatWorldLocation> GameData::LoadCombatWorldLocations()
@@ -420,13 +452,14 @@ std::vector<CombatWorldLocation> GameData::LoadCombatWorldLocations()
         const auto unknownFlag = mBuffer.GetUint8();
         const auto combatantState = mBuffer.GetUint8();
         data.emplace_back(CombatWorldLocation{combatantPosition, unknownFlag, combatantState});
+        mLogger.Spam() << "CWL #" << k << " " << data.back() << "\n";
     }
     return data;
 }
 
 std::vector<GenericContainer> GameData::LoadCombatInventories()
 {
-    mLogger.Debug() << "Loading Combat Inventories" << std::endl;
+    mLogger.Spam() << "Loading Combat Inventories" << std::endl;
     mBuffer.Seek(sCombatInventoryOffset);
     std::vector<GenericContainer> containers{};
 
@@ -439,23 +472,26 @@ std::vector<GenericContainer> GameData::LoadCombatInventories()
         auto loc = mBuffer.Tell();
         auto container = LoadGenericContainer<ContainerCombatLocationTag>(mBuffer);
         containers.emplace_back(std::move(container));
-        mLogger.Debug() << "CobmatInventory #" << i << " @" << std::hex << loc << std::dec << " " << containers.back() << "\n";
+        mLogger.Spam() << "CobmatInventory #" << i << " @" << std::hex << loc << std::dec << " " << containers.back() << "\n";
     }
 
     return containers;
 }
 
-void GameData::LoadCombatClickedTimes()
+std::vector<Time> GameData::LoadCombatClickedTimes()
 {
-    mLogger.Debug() << "Loading Combat Clicked Times" << std::endl;
+    mLogger.Spam() << "Loading Combat Clicked Times" << std::endl;
+    std::vector<Time> times{};
     for (unsigned i = 0; i < 100; i++)
     {
         auto time = State::GetCombatClickedTime(mBuffer, i);
+        times.emplace_back(time);
         if (time.mTime > 0)
         {
-            mLogger.Debug() << "Combat #" << i << " time: " << time << "\n";
+            mLogger.Spam() << "Combat #" << i << " time: " << time << "\n";
         }
     }
+    return times;
 }
 
 }

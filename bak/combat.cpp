@@ -17,9 +17,9 @@ std::ostream& operator<<(std::ostream& os, const CombatWorldLocation& cwl)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CombatGridLocation& cgl)
+std::ostream& operator<<(std::ostream& os, const CombatantGridLocation& cgl)
 {
-    os << "CombatGridLocation{ Monster: " << cgl.mMonster << " pos: " << cgl.mGridPos << "}";
+    os << "CombatantGridLocation{ Monster: " << cgl.mMonster << " pos: " << cgl.mGridPos << "}";
     return os;
 }
 

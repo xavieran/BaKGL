@@ -1,4 +1,6 @@
 #include "bak/fixedObject.hpp"
+#include "bak/encounter/combat.hpp"
+#include "bak/encounter/combat.ipp"
 
 #include "com/logger.hpp"
 
@@ -7,6 +9,7 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     Logging::LogState::Disable("DialogStore");
+    Logging::LogState::Disable("PackedFileDataProvider");
     
     const auto obj = BAK::LoadFixedObjects(1);
 
