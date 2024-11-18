@@ -11,7 +11,10 @@ class CombatWorldLocation
 {
 public:
     GamePositionAndHeading mPosition;
-    std::uint8_t mUnknownFlag;
+    // The game has 3 variants of each direction, this index
+    // controls which of these variants is displayed. As the
+    // combatant moves the index changes to simulate movement.
+    std::uint8_t mImageIndex;
     // 0 - invisible?
     // 1 - invisible?
     // 2 - moving
