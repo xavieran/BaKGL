@@ -31,9 +31,14 @@ string(CONCAT CXX_IGNORES
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (MSVC)
+    # Statically link MSVC runtime
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302")
     set(CXX_FLAGS "/W3 /WX /EHsc /bigobj")
-    
+
+    set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+
     set(CXX_USAN "")
     # MS asan is pretty brutal on performance
     set(CXX_ASAN "/fsanitize=address")

@@ -18,9 +18,11 @@ add_library(gui
     textBox.hpp
     textInput.hpp
     window.hpp
+
+    camp/campScreen.hpp
+    camp/clock.hpp
 )
 
-add_subdirectory(camp)
 add_subdirectory(core)
 add_subdirectory(info)
 add_subdirectory(inventory)
@@ -31,7 +33,6 @@ target_link_libraries(gui
     com
     graphics
     guiCore
-    guiCamp
     guiInventory)
 
 #set_target_properties(

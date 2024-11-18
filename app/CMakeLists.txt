@@ -39,11 +39,11 @@ set(APP_LIBS
 
 foreach (APP_BIN IN LISTS APP_BINARIES)
     add_executable (${APP_BIN} ${APP_BIN}.cpp)
+
     set_target_properties(${APP_BIN} PROPERTIES CMAKE_CXX_CLANG_TIDY "")
     target_link_libraries(${APP_BIN}
         ${LINK_UNIX_LIBRARIES}
         ${LINK_3D_LIBRARIES}
-        #${SDL_LIBRARIES}
         ${APP_LIBS}
     )
 endforeach()
