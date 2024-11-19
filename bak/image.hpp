@@ -15,7 +15,8 @@ public:
     unsigned GetHeight() const;
     unsigned GetSize() const;
     bool IsHighResLowCol() const;
-    uint8_t * GetPixels() const;
+    uint8_t* GetPixels() const;
+    const std::vector<uint8_t>& GetVector() const;
     uint8_t GetPixel(unsigned x, unsigned y) const;
     void Load(FileBuffer *buffer);
     void SetPixel(unsigned x, unsigned y, std::uint8_t color );

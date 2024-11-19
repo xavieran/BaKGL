@@ -47,6 +47,11 @@ uint8_t* Image::GetPixels() const
     return const_cast<uint8_t *>(mPixels.data());
 }
 
+const std::vector<uint8_t>& Image::GetVector() const
+{
+    return mPixels;
+}
+
 uint8_t Image::GetPixel(unsigned x, unsigned y) const
 {
    return mPixels[x + mWidth * y];
