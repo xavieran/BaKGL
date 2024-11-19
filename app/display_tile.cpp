@@ -24,8 +24,7 @@ int main(int argc, char** argv)
     unsigned x = std::atoi(tileX.c_str());
     unsigned y = std::atoi(tileY.c_str());
     
-    const auto pal = BAK::Palette{zoneLabel.GetPalette()};
-    auto textures = BAK::ZoneTextureStore{zoneLabel, pal};
+    auto textures = BAK::ZoneTextureStore{zoneLabel};
     auto zoneItems = BAK::ZoneItemStore{zoneLabel, textures};
     const auto tiles = BAK::LoadZoneRef(zoneLabel.GetZoneReference());
     unsigned i;

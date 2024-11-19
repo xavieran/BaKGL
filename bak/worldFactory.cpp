@@ -11,8 +11,7 @@
 namespace BAK {
 
 ZoneTextureStore::ZoneTextureStore(
-    const ZoneLabel& zoneLabel,
-    const BAK::Palette& palette)
+    const ZoneLabel& zoneLabel)
 :
     mTextures{},
     mTerrainOffset{0},
@@ -26,10 +25,8 @@ ZoneTextureStore::ZoneTextureStore(
         auto spriteSlotLbl = zoneLabel.GetSpriteSlot(spriteSlot++);
         if ((found = FileBufferFactory::Get().DataBufferExists(spriteSlotLbl)))
         {
-            auto fb = FileBufferFactory::Get().CreateDataBuffer(spriteSlotLbl);
-            const auto sprites = LoadImages(fb);
             TextureFactory::AddToTextureStore(
-                mTextures, sprites, palette);
+                mTextures, spriteSlotLbl, zoneLabel.GetPalette());
         }
     }
 
@@ -37,11 +34,11 @@ ZoneTextureStore::ZoneTextureStore(
 
     auto fb = FileBufferFactory::Get().CreateDataBuffer(zoneLabel.GetTerrain());
     const auto terrain = LoadScreenResource(fb);
-
+    auto pal = Palette{zoneLabel.GetPalette()};
     TextureFactory::AddTerrainToTextureStore(
         mTextures,
         terrain,
-        palette);
+        pal);
 
     mHorizonOffset = GetTextures().size();
 
@@ -57,7 +54,6 @@ ZoneTextureStore::ZoneTextureStore(
         auto fb = FileBufferFactory::Get().CreateDataBuffer(prefix);
         const auto images = LoadImages(fb);
 
-        auto pal = Palette{zoneLabel.GetPalette()};
         const auto colorSwap = monsters.GetColorSwap(MonsterIndex{i});
         if (colorSwap <= 9)
         {
@@ -75,6 +71,194 @@ ZoneTextureStore::ZoneTextureStore(
             pal);
     }
 }
+
+ZoneItem::ZoneItem(
+    const Model& model,
+    const ZoneTextureStore& textureStore)
+:
+    mName{model.mName},
+    mEntityFlags{model.mEntityFlags},
+    mEntityType{static_cast<EntityType>(model.mEntityType)},
+    mScale{static_cast<float>(1 << model.mScale)},
+    mSpriteIndex{model.mSprite},
+    mColors{},
+    mVertices{},
+    mPalettes{},
+    mFaces{},
+    mPush{}
+{
+    if (mSpriteIndex == 0 || mSpriteIndex > 400)
+    {
+        for (const auto& vertex : model.mVertices)
+        {
+            mVertices.emplace_back(BAK::ToGlCoord<int>(vertex));
+        }
+        for (const auto& component : model.mComponents)
+        {
+            for (const auto& mesh : component.mMeshes)
+            {
+                assert(mesh.mFaceOptions.size() > 0);
+                // Only show the first face option. These typically correspond to 
+                // animation states, e.g. for the door, or catapult, or rift gate.
+                // Will need to work out how to handle animated things later...
+                const auto& faceOption = mesh.mFaceOptions[0];
+                //for (const auto& faceOption : mesh.mFaceOptions)
+                {
+                    for (const auto& face : faceOption.mFaces)
+                    {
+                        mFaces.emplace_back(face);
+                    }
+                    for (const auto& palette : faceOption.mPalettes)
+                    {
+                        mPalettes.emplace_back(palette);
+                    }
+                    for (const auto& colorVec : faceOption.mFaceColors)
+                    {
+                        const auto color = colorVec.x;
+                        mColors.emplace_back(color);
+                        if ((GetName().substr(0, 5) == "house"
+                            || GetName().substr(0, 3) == "inn")
+                            && (color == 190
+                            || color == 191))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 4) == "blck"
+                            && (color == 145
+                            || color == 191))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 4) == "brid"
+                            && (color == 147))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 4) == "temp"
+                            && (color == 218
+                            || color == 220
+                            || color == 221))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 6) == "church"
+                            && (color == 191
+                            || color == 0))
+                            mPush.emplace_back(false);
+                        else if (GetName().substr(0, 6) == "ground")
+                            mPush.emplace_back(false);
+                        else
+                            mPush.emplace_back(true);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        // Need this to set the right dimensions for the texture
+        const auto& tex = textureStore.GetTexture(mSpriteIndex);
+        const auto spriteScale = 7.0f;
+        auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * (spriteScale * .75));
+        auto height = tex.GetTargetHeight() * spriteScale;
+        mVertices.emplace_back(-width, height, 0);
+        mVertices.emplace_back(width, height, 0);
+        mVertices.emplace_back(width, 0, 0);
+        mVertices.emplace_back(-width, 0, 0);
+
+        auto faces = std::vector<std::uint16_t>{};
+        faces.emplace_back(0);
+        faces.emplace_back(1);
+        faces.emplace_back(2);
+        faces.emplace_back(3);
+        mFaces.emplace_back(faces);
+        mPush.emplace_back(false);
+
+        mPalettes.emplace_back(0x91);
+        mColors.emplace_back(model.mSprite);
+    }
+
+    ASSERT((mFaces.size() == mColors.size())
+        && (mFaces.size() == mPalettes.size())
+        && (mFaces.size() == mPush.size()));
+}
+
+ZoneItem::ZoneItem(
+    unsigned i,
+    const BAK::MonsterNames& monsters,
+    const ZoneTextureStore& textureStore)
+:
+    mName{monsters.GetMonsterAnimationFile(MonsterIndex{i})},
+    mEntityFlags{0},
+    mEntityType{EntityType::DEADBODY1},
+    mScale{1},
+    mSpriteIndex{i + textureStore.GetHorizonOffset()},
+    mColors{},
+    mVertices{},
+    mPalettes{},
+    mFaces{},
+    mPush{}
+{
+    // Need this to set the right dimensions for the texture
+    const auto& tex = textureStore.GetTexture(mSpriteIndex);
+        
+    const auto spriteScale = 7.0f;
+    auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * (spriteScale * .75));
+    auto height = tex.GetTargetHeight() * spriteScale;
+    mVertices.emplace_back(-width, height, 0);
+    mVertices.emplace_back(width, height, 0);
+    mVertices.emplace_back(width, 0, 0);
+    mVertices.emplace_back(-width, 0, 0);
+
+    auto faces = std::vector<std::uint16_t>{};
+    faces.emplace_back(0);
+    faces.emplace_back(1);
+    faces.emplace_back(2);
+    faces.emplace_back(3);
+    mFaces.emplace_back(faces);
+    mPush.emplace_back(false);
+
+    mPalettes.emplace_back(0x91);
+    mColors.emplace_back(mSpriteIndex);
+
+    ASSERT((mFaces.size() == mColors.size())
+        && (mFaces.size() == mPalettes.size())
+        && (mFaces.size() == mPush.size()));
+}
+
+void ZoneItem::SetPush(unsigned i){ mPush[i] = true; }
+const std::string& ZoneItem::GetName() const { return mName; }
+bool ZoneItem::IsSprite() const { return mSpriteIndex > 0 && mSpriteIndex < 400; }
+float ZoneItem::GetScale() const { return mScale; }
+bool ZoneItem::GetClickable() const
+{
+    for (std::string s : {
+        "ground",
+        "genmtn",
+        "zero",
+        "one",
+        "bridge",
+        "fence",
+        "tree",
+        "db0",
+        "db1",
+        "db2",
+        "db8",
+        "t0",
+        "g0",
+        "r0",
+        "spring",
+        "fall",
+        "landscp",
+        // Mine stuff
+        "m_r",
+        "m_1",
+        "m_2",
+        "m_3",
+        "m_4",
+        "m_b",
+        "m_c",
+        "m_h"})
+    {
+        if (mName.substr(0, s.length()) == s)
+            return false;
+    }
+    return true;
+}
+
+EntityType ZoneItem::GetEntityType() const { return mEntityType; }
 
 std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 {
