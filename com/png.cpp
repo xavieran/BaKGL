@@ -11,8 +11,10 @@ PNGImage LoadPNG(const char* filename) {
     PNGImage image;
 
     int x, y, n;
-    unsigned char* data = stbi_load(filename, &x, &y, &n, 4); // 4 for RGBA
-    if (!data) {
+    static constexpr auto RGBA_SIZE = 4;
+    std::uint8_t* data = stbi_load(filename, &x, &y, &n, RGBA_SIZE);
+    if (!data)
+    {
         throw std::runtime_error("Failed to load PNG: " + std::string{filename});
     }
 

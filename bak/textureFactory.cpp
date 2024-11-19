@@ -43,13 +43,15 @@ Graphics::Texture ImageToTexture(const Image& image, const Palette& palette)
 
 Graphics::Texture PNGToTexture(std::string path, unsigned targetWidth, unsigned targetHeight)
 {
-    auto image = LoadPNG(path.c_str());
-    auto width = image.mWidth;
-    auto height = image.mHeight;
-    auto texture = Graphics::Texture::TextureType{};
-    auto Get = [&](int x, int y){
+    const auto image = LoadPNG(path.c_str());
+    const auto width = image.mWidth;
+    const auto height = image.mHeight;
+    const auto Get = [&](int x, int y){
         return image.mPixels[y * width + x];
     };
+
+    auto texture = Graphics::Texture::TextureType{};
+
     for (int y = height - 1; y >= 0; y--)
     {
         for (int x = 0; x < (int) width; x++)
@@ -90,7 +92,7 @@ void TextureFactory::AddToTextureStore(
     if (std::filesystem::exists(substitute) && images.size() == 1)
     {
         auto tex = PNGToTexture(substitute, images.back().GetWidth(), images.back().GetHeight());
-        Logging::LogInfo(__FUNCTION__) << "Found substitute BMX: " << substitute
+        Logging::LogDebug(__FUNCTION__) << "Found substitute BMX: " << substitute
           << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
           << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
         store.AddTexture(tex);
@@ -104,9 +106,8 @@ void TextureFactory::AddToTextureStore(
             auto path = substitute / name.str();
             if (std::filesystem::exists(path))
             {
-                Logging::LogInfo(__FUNCTION__) << "Found substitute BMX: " << path << "\n";
                 auto tex = PNGToTexture(path, images[i].GetWidth(), images[i].GetHeight());
-                Logging::LogInfo(__FUNCTION__) << "Found substitute BMX: " << path 
+                Logging::LogDebug(__FUNCTION__) << "Found substitute BMX: " << path 
                   << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
                   << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
                 store.AddTexture(tex);
@@ -136,7 +137,7 @@ void TextureFactory::AddScreenToTextureStore(
         auto fb = FileBufferFactory::Get()
             .CreateDataBuffer(std::string{scx});
         auto target = LoadScreenResource(fb);
-        Logging::LogInfo(__FUNCTION__) << "Found substitute SCX: " << substitute << "\n";
+        Logging::LogDebug(__FUNCTION__) << "Found substitute SCX: " << substitute << "\n";
         store.AddTexture(PNGToTexture(substitute, target.GetWidth(), target.GetHeight()));
     }
     else
