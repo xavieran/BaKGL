@@ -6,8 +6,10 @@ add_library(com
     json.hpp json_fwd.hpp
     logger.hpp logger.cpp
     path.hpp path.cpp
+    png.hpp png.cpp
     random.hpp random.cpp
     string.hpp string.cpp
+    stb_image.hpp
     visit.hpp
     ostream.hpp
     ostreamMux.hpp ostreamMux.cpp

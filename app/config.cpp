@@ -3,6 +3,7 @@
 #include "com/json.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <fstream>
 
 namespace Config {
@@ -10,7 +11,7 @@ namespace Config {
 Paths LoadPaths(const nlohmann::json& config)
 {
     Paths paths{};
-    if (config.contains("Path"))
+    if (config.contains("Paths"))
     {
         const auto& c = config["Paths"];
         paths.mShaders = c.value("Shaders", "");
@@ -69,6 +70,8 @@ Config LoadConfig(std::string path)
     config.mPaths = LoadPaths(data);
     config.mGraphics = LoadGraphics(data);
     config.mLogging = LoadLogging(data);
+
+    std::cout << "Loaded config file: " << data <<"\n";
 
     return config;
 }

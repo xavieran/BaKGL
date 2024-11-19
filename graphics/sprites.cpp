@@ -76,8 +76,8 @@ void Sprites::LoadTexturesGL(const TextureStore& textures)
                 static_cast<double>(textures.GetMaxDim()),
                 i});
         mSpriteDimensions.emplace_back(
-            tex.GetWidth(),
-            tex.GetHeight());
+            tex.GetTargetWidth(),
+            tex.GetTargetHeight());
     }
 
     mVertexArray.BindGL();
