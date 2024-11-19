@@ -20,17 +20,20 @@ void WritePNG(const char* filename, const PNGImage& image)
         throw std::invalid_argument("Pixel data does not match image dimensions");
     }
 
-    std::uint8_t* pixelData = new std::uint8_t[image.mPixels.size() * 4];
+    constexpr auto RGBA_SIZE = 4;
+
+    std::uint8_t* pixelData = new std::uint8_t[image.mPixels.size() * RGBA_SIZE];
     for (unsigned i = 0; i < image.mPixels.size(); ++i)
     {
         const PNGColor& color = image.mPixels[i];
-        pixelData[i * 4] = color.r;
-        pixelData[i * 4 + 1] = color.g;
-        pixelData[i * 4 + 2] = color.b;
-        pixelData[i * 4 + 3] = color.a;
+        pixelData[i * RGBA_SIZE] = color.r;
+        pixelData[i * RGBA_SIZE + 1] = color.g;
+        pixelData[i * RGBA_SIZE + 2] = color.b;
+        pixelData[i * RGBA_SIZE + 3] = color.a;
     }
 
-    std::int32_t success = stbi_write_png(filename, image.mWidth, image.mHeight, 4, pixelData, image.mWidth * 4);
+    const auto stride = image.mWidth * RGBA_SIZE;
+    std::int32_t success = stbi_write_png(filename, image.mWidth, image.mHeight, RGBA_SIZE, pixelData, stride);
 
     delete[] pixelData;
 

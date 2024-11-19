@@ -6,8 +6,9 @@
 #include <stdexcept>
 #include <string>
 
-PNGImage LoadPNG(const char* filename) {
-    PNGImage image;
+PNGImage LoadPNG(const char* filename)
+{
+    PNGImage image{};
 
     int x, y, n;
     static constexpr auto RGBA_SIZE = 4;
@@ -21,11 +22,12 @@ PNGImage LoadPNG(const char* filename) {
     image.mHeight = y;
     image.mPixels.resize(x * y);
 
-    for (int i = 0; i < x * y; ++i) {
-        image.mPixels[i].r = data[i * 4 + 0];
-        image.mPixels[i].g = data[i * 4 + 1];
-        image.mPixels[i].b = data[i * 4 + 2];
-        image.mPixels[i].a = data[i * 4 + 3];
+    for (int i = 0; i < x * y; ++i)
+    {
+        image.mPixels[i].r = data[i * RGBA_SIZE];
+        image.mPixels[i].g = data[i * RGBA_SIZE + 1];
+        image.mPixels[i].b = data[i * RGBA_SIZE + 2];
+        image.mPixels[i].a = data[i * RGBA_SIZE + 3];
     }
 
     stbi_image_free(data);
