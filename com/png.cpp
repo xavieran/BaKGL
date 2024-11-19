@@ -4,14 +4,16 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "com/stb_image.h"
 
+#include <stdexcept>
+#include <string>
+
 PNGImage LoadPNG(const char* filename) {
     PNGImage image;
 
     int x, y, n;
     unsigned char* data = stbi_load(filename, &x, &y, &n, 4); // 4 for RGBA
     if (!data) {
-        // Handle loading failure
-        return image;
+        throw std::runtime_error("Failed to load PNG: " + std::string{filename});
     }
 
     image.mWidth = x;

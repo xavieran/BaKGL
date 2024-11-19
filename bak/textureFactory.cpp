@@ -104,10 +104,11 @@ void TextureFactory::AddToTextureStore(
             auto path = substitute / name.str();
             if (std::filesystem::exists(path))
             {
-                auto tex = PNGToTexture(substitute, images[i].GetWidth(), images[i].GetHeight());
+                Logging::LogInfo(__FUNCTION__) << "Found substitute BMX: " << path << "\n";
+                auto tex = PNGToTexture(path, images[i].GetWidth(), images[i].GetHeight());
                 Logging::LogInfo(__FUNCTION__) << "Found substitute BMX: " << path 
                   << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
-                  << tex.GetTargetWidth() << tex.GetTargetHeight() << ")\n";
+                  << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
                 store.AddTexture(tex);
             }
             else

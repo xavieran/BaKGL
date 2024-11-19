@@ -355,12 +355,13 @@ void WriteImages(
     }
     else
     {
-        std::filesystem::create_directory(outputPath / outputName);
+        const auto dirName = fileName + ".BMX";
+        std::filesystem::create_directory(outputPath / dirName);
         for (unsigned i = 0; i < images.size(); i++)
         {
             std::stringstream name{};
             name << i << ".BMP";
-            WriteImage(outputPath / outputName / name.str(), images[i], palette);
+            WriteImage(outputPath / dirName / name.str(), images[i], palette);
         }
     }
 }

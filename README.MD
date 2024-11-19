@@ -97,6 +97,34 @@ build $ ./main3d
 
 Start a new game from the main menu as normal, and enjoy :)
 
+## Config File
+
+You can specify a config file to customise BaKGL. By default it will be loaded from `$BAK_MAIN_DIR/config.json`. You can also specify a config file by command line:
+```
+$ ./main3d -c path/to/config.json
+```
+
+An example config.json is included in the main directory of the repo.
+
+## Modding
+
+BaKGL supports replacing the original game image files with your own.
+
+### Set up the Mod Directory
+In the config.json file, specify the path to your mod directory using the /Paths/GraphicsOverrides key. This directory should contain your custom graphics files in PNG format.
+
+### File Replacement
+The game will look in this mod directory for files that match the names of the original game assets. For example, if the game would normally load `ACT002.BMX`, you can place a replacement file, called `ACT002.PNG`, in the graphics overrides directory. The game will use your custom file instead of the original one. You should make sure your replacement file has the same aspect ratio as the original file or it will look stretched when rendered in game.
+
+### Handling Multi Image Files
+Some BMX files may contain multiple images, for example the inventory icons file (`INVSHP0.BMX`). For these, the game will look for a subdirectory named after the base file and use an indexed image.
+If the original file is `INVSHP0.BMX` and the game needs the first image , it will search for a file named `INVSHP1.BMX/0.PNG` in your graphics mod directory.
+
+### Exporting all images from the game
+I've provided an application to export all images from the game into a directory structure suitable for use as a template for modding. You can run it like so:
+```
+build $ ./image_extractor -r krondor.001 -i krondor.rmf -o mod_dir
+```
 # Screenshots
 ![waterfall_ui](screenshots/waterfall_ui.png?raw=true "Waterfall near Tyr-Sog with UI")
 
