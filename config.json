@@ -1,0 +1,43 @@
+{
+    "Paths": {
+        "Shaders": "",
+        "Saves": "",
+        "GameData": "",
+        "GraphicsOverrides": ""
+    },
+    "Graphics": {
+        "ResolutionScale": 2.0,
+        "EnableShadows": true,
+        "EnableImGui": true
+    },
+    "Sound": {
+        "MidiPlayer": "ADLMIDI",
+        "Enabled": true
+    },
+    "Logging": {
+        "LogToFile": true,
+        "LogTime": true,
+        "LogColours": true,
+        "LogFilePath": "",
+        "LogLevel": "Debug",
+        "DisabledLoggers": [
+            "Compass",
+            "DialogStore",
+            "LoadEncounter",
+            "LoadFixedObjects",
+            "LoadSceneIndices",
+            "LoadScenes",
+            "MeshObjectStore",
+            "GameData",
+            "Gui::StaticTTM",
+            "GuiRenderer",
+            "Gui::DialogRunner",
+            "Gui::DialogDisplay",
+            "Gui::AnimatorStore",
+            "TeleportFactory",
+            "FMAP_TWN",
+            "FMAP",
+            "CampData"
+        ]
+    }
+}

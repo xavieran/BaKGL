@@ -11,8 +11,8 @@ namespace BAK {
 
 FileBufferFactory::FileBufferFactory()
 :
-    mDataPath{(std::filesystem::path{GetBakDirectory()} / "data").string()},
-    mDataFileProvider{{(std::filesystem::path{GetBakDirectory()} / "data").string()}}
+    mDataPath{(std::filesystem::path{Paths::Get().GetBakDirectory()} / "data").string()},
+    mDataFileProvider{{(std::filesystem::path{Paths::Get().GetBakDirectory()} / "data").string()}}
 {}
 
 FileBufferFactory& FileBufferFactory::Get()
