@@ -104,14 +104,14 @@ You can specify a config file to customise BaKGL. By default it will be loaded f
 $ ./main3d -c path/to/config.json
 ```
 
-An example config.json is included in the main directory of the repo.
+An example `config.json` is included in the main directory of the repo.
 
 ## Modding
 
 BaKGL supports replacing the original game image files with your own.
 
 ### Set up the Mod Directory
-In the config.json file, specify the path to your mod directory using the /Paths/GraphicsOverrides key. This directory should contain your custom graphics files in PNG format.
+In the `config.json` file, specify the path to your mod directory using the `/Paths/GraphicsOverrides` key. This directory should contain your custom graphics files in PNG format.
 
 ### File Replacement
 The game will look in this mod directory for files that match the names of the original game assets. For example, if the game would normally load `ACT002.BMX`, you can place a replacement file, called `ACT002.PNG`, in the graphics overrides directory. The game will use your custom file instead of the original one. You should make sure your replacement file has the same aspect ratio as the original file or it will look stretched when rendered in game.
@@ -125,6 +125,9 @@ I've provided an application to export all images from the game into a directory
 ```
 build $ ./image_extractor -r krondor.001 -i krondor.rmf -o mod_dir
 ```
+
+You can then use this as the basis for graphical mods. Use this directory as the `/Paths/simply replace the PNG files in this directory structure with higher resolution ones as you make them.
+
 # Screenshots
 ![waterfall_ui](screenshots/waterfall_ui.png?raw=true "Waterfall near Tyr-Sog with UI")
 
