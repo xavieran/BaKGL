@@ -369,7 +369,7 @@ void WriteImage(
         auto color = palette.GetColors8()[index];
         pngImage.mPixels.emplace_back(color[0], color[1], color[2], color[3]);
     }
-    WritePNG(filePath.c_str(), pngImage);
+    WritePNG(filePath.string().c_str(), pngImage);
 }
 
 void WriteImages(

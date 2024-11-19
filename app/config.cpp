@@ -55,6 +55,30 @@ Logging LoadLogging(const nlohmann::json& config)
     return logging;
 }
 
+Audio LoadAudio(const nlohmann::json& config)
+{
+    Audio audio{};
+    if (config.contains("Audio"))
+    {
+        const auto& c = config["Audio"];
+        audio.mEnableAudio = c.value("EnableAudio", true);
+        audio.mEnableBackgroundSounds = c.value("EnableBackgroundSounds", true);
+    }
+    return audio;
+}
+
+Game LoadGame(const nlohmann::json& config)
+{
+    Game game{};
+    if (config.contains("Game"))
+    {
+        const auto& c = config["Game"];
+        game.mAdvanceTime = c.value("AdvanceTime", true);
+    }
+    return game;
+}
+
+
 Config LoadConfig(std::string path)
 {
     if (!std::filesystem::exists(path))
@@ -70,6 +94,8 @@ Config LoadConfig(std::string path)
     config.mPaths = LoadPaths(data);
     config.mGraphics = LoadGraphics(data);
     config.mLogging = LoadLogging(data);
+    config.mAudio = LoadAudio(data);
+    config.mGame = LoadGame(data);
 
     std::cout << "Loaded config file: " << data <<"\n";
 

@@ -116,7 +116,7 @@ Config::Config LoadConfigFile(std::string configPath)
         }
     };
 
-    const auto defaultConfig = std::string(Paths::Get().GetBakDirectoryPath() / "config.json");
+    const auto defaultConfig = (Paths::Get().GetBakDirectoryPath() / "config.json").string();
 
     if (!configPath.empty())
     {
@@ -504,7 +504,10 @@ int main(int argc, char** argv)
         if (gameRunner.mGameState.GetGameData() && guiManager.InMainView())
         {
             gameRunner.RunGameUpdate();
-            //BAK::PlayBackgroundSounds(gameRunner.mGameState);
+            if (config.mAudio.mEnableBackgroundSounds)
+            {
+				BAK::PlayBackgroundSounds(gameRunner.mGameState);
+            }
         }
 
         if (showImgui && gameRunner.mActiveEncounter)

@@ -57,6 +57,6 @@ foreach (APP_BIN IN LISTS APP_BINARIES)
     )
 endforeach()
 
-install(TARGETS main3d)
+install(TARGETS main3d image_extractor extractor)
 
 

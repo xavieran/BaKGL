@@ -30,11 +30,24 @@ struct Logging
     std::vector<std::string> mDisabledLoggers{};
 };
 
+struct Audio
+{
+    bool mEnableAudio{true};
+    bool mEnableBackgroundSounds{true};
+};
+
+struct Game
+{
+    bool mAdvanceTime{true};
+};
+
 struct Config
 {
     Paths mPaths{};
     Graphics mGraphics{};
     Logging mLogging{};
+    Audio mAudio{};
+    Game mGame{};
 };
 
 Config LoadConfig(std::string path);

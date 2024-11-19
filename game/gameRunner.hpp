@@ -733,9 +733,9 @@ public:
 
             if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0)
             {
-                //auto camp = BAK::TimeChanger{mGameState};
-                //camp.ElapseTimeInMainView(
-                //    BAK::Time{0x1e * unitsTravelled});
+				auto camp = BAK::TimeChanger{ mGameState };
+                camp.ElapseTimeInMainView(
+                    BAK::Time{0x1e * unitsTravelled});
             }
 
             if (mActiveEncounter)

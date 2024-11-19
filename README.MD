@@ -14,6 +14,20 @@ I've started documenting how Betrayal at Krondor works on this [blog](https://xa
 Here's a very quick look at some gameplay.
 
 ![video](https://github.com/xavieran/blog/blob/master/resources/video/intro_film.gif?raw=true "Intro Video")
+
+1. [Features](#features)
+2. [To do](#to-do)
+3. [Acknowledgements](#acknowledgements)
+4. [Requirements](#requirements)
+5. [Prebuilt Binaries for Windows](#prebuilt-binaries-for-windows)
+6. [Build](#build)
+  1. [Linux](#linux)
+  2. [Windows](#windows)
+  3. [Mac](#mac)
+7. [Setup](#setup)
+8. [Modding](#modding)
+9. [Screenshots](#screenshots)
+
 ## Features
 * Camping
 * Chapter progression
@@ -47,6 +61,12 @@ Requires CMake, SDL2, SDL_MixerX, OpenGL, GLFW, and glm. Most of these dependenc
 I use some features of C++23, so a more recent gcc or clang will be required to compile the code. You can check the CI to see what versions I am currently using.
 ![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
+
+## Prebuilt Binaries for Windows
+I've provided pre-built binaries for Windows. The latest release should be [here](https://github.com/xavieran/BaKGL/releases/tag/0.0.1).
+I've only tested this on my own system, so if it is missing DLLs or there are other issues please report an issue.
+
+Follow the [setup](#setup) instructions below. Unzip the release zip and run the `main3d` binary.
 
 ## Build
 ### Linux
@@ -90,7 +110,7 @@ Make sure you check the case of the filenames in the folder where you installed 
 
 Save files will be searched for in the `$BAK_MAIN_DIR/GAMES` directory, you can _copy_ your old saves directory to this location. Alternatively, if you have no saves, the game will create this folder when you save your first game.
 
-## Run main3d
+### Run main3d
 The main application is `main3d`. You can run this in the terminal in linux, or select it as the target in Visual Studio.
 
 ```
@@ -99,7 +119,7 @@ build $ ./main3d
 
 Start a new game from the main menu as normal, and enjoy :)
 
-## Config File
+### Config File
 
 You can specify a config file to customise BaKGL. By default it will be loaded from `$BAK_MAIN_DIR/config.json`. You can also specify a config file by command line:
 ```
@@ -114,6 +134,11 @@ BaKGL supports replacing the original game image files with your own.
 
 ### Set up the Mod Directory
 In the `config.json` file, specify the path to your mod directory using the `/Paths/GraphicsOverrides` key. This directory should contain your custom graphics files in PNG format.
+
+On Windows I had to escape the path:
+```
+    "GraphicsOverrides": "C:\\Users\\xavieran\\AppData\\Roaming\\bak\\mod_base"
+```
 
 ### File Replacement
 The game will look in this mod directory for files that match the names of the original game assets. For example, if the game would normally load `ACT002.BMX`, you can place a replacement file, called `ACT002.PNG`, in the graphics overrides directory. The game will use your custom file instead of the original one. You should make sure your replacement file has the same aspect ratio as the original file or it will look stretched when rendered in game.
@@ -130,7 +155,7 @@ build $ ./image_extractor -r krondor.001 -i krondor.rmf -o mod_dir
 
 You can use this as the basis for graphical mods. Use this directory as the `/Paths/GraphicsOverrides` key. Replace the PNG files in this directory structure with higher resolution ones as you make them.
 
-# Screenshots
+## Screenshots
 ![waterfall_ui](screenshots/waterfall_ui.png?raw=true "Waterfall near Tyr-Sog with UI")
 
 ![northlands](screenshots/northlands.png?raw=true "Town in Northlands")
