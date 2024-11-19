@@ -146,7 +146,7 @@ public:
         mRefreshSaves{false},
         mSelectedDirectory{},
         mSelectedSave{},
-        mSaveManager{(GetBakDirectoryPath() / "GAMES").string()},
+        mSaveManager{(Paths::Get().GetBakDirectoryPath() / "GAMES").string()},
         mNeedRefresh{false},
         mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
     {

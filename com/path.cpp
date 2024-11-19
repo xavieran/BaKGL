@@ -17,12 +17,28 @@ std::string GetHomeDirectory()
     return std::string{home};
 }
 
-std::filesystem::path GetBakDirectoryPath()
+Paths& Paths::Get()
 {
-    return std::filesystem::path{GetHomeDirectory()} / "bak";
+    static Paths paths{};
+    return paths;
 }
 
-std::string GetBakDirectory()
+std::filesystem::path Paths::GetBakDirectoryPath() const
+{
+    return mBakDirectoryPath;
+}
+
+std::string Paths::GetBakDirectory() const
 {
     return GetBakDirectoryPath().string();
 }
+
+void Paths::SetBakDirectory(std::string path)
+{
+    mBakDirectoryPath = path;
+}
+
+Paths::Paths()
+:
+    mBakDirectoryPath{std::filesystem::path{GetHomeDirectory()} / "bak"}
+{}

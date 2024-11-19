@@ -1,3 +1,9 @@
+add_library(app
+    config.hpp config.cpp
+)
+
+target_link_libraries(app com)
+
 list(APPEND APP_BINARIES
     decomp_ttm
     dialog_explorer
@@ -28,6 +34,7 @@ list(APPEND APP_BINARIES
 )
 
 set(APP_LIBS
+    app
     bak
     com
     game

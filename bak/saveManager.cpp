@@ -171,7 +171,7 @@ std::vector<SaveDirectory> SaveManager::MakeSaveDirectories()
 {
     std::vector<SaveDirectory> saveDirs{};
 
-    const auto gameDirectoryPath = GetBakDirectoryPath() / "GAMES";
+    const auto gameDirectoryPath = Paths::Get().GetBakDirectoryPath() / "GAMES";
     if (!std::filesystem::exists(gameDirectoryPath))
     {
         mLogger.Info() << "Save game directory path: [" <<

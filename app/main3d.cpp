@@ -1,3 +1,5 @@
+#include "app/config.hpp"
+
 #include "bak/backgroundSounds.hpp"
 #include "bak/camera.hpp"
 #include "bak/constants.hpp"
@@ -47,9 +49,8 @@ extern "C" {
 struct Options
 {
     bool showImgui{true};
-    bool logTime{true};
-    bool logColors{false};
-    std::string logLevel{"DEBUG"};
+    std::string logLevel{""};
+    std::string configFile{""};
 };
 
 Options Parse(int argc, char** argv)
@@ -58,14 +59,13 @@ Options Parse(int argc, char** argv)
 
     struct option options[] = {
         {"help", no_argument,       0, 'h'},
-        {"log_colors", no_argument, 0, 'c'},
-        {"log_time", no_argument, 0, 't'},
+        {"config", required_argument, 0, 'c'},
         {"log_level", required_argument, 0, 'l'},
         {"imgui", no_argument, 0, 'i'},
     };
     int optionIndex = 0;
     int opt;
-    while ((opt = getopt_long(argc, argv, "hctil:", options, &optionIndex)) != -1)
+    while ((opt = getopt_long(argc, argv, "hil:c:", options, &optionIndex)) != -1)
     {
         if (opt == 'h')
         {
@@ -73,11 +73,12 @@ Options Parse(int argc, char** argv)
         }
         else if (opt == 'c')
         {
-            values.logColors = true;
-        }
-        else if (opt == 't')
-        {
-            values.logTime = false;
+            if (optarg == nullptr)
+            {
+                std::cerr << "No argument provide to '-c/--config'" << std::endl;
+                exit(1);
+            }
+            values.configFile = std::string{optarg};
         }
         else if (opt == 'i')
         {
@@ -85,6 +86,11 @@ Options Parse(int argc, char** argv)
         }
         else if (opt == 'l')
         {
+            if (optarg == nullptr)
+            {
+                std::cerr << "No argument provide to '-c/--config'" << std::endl;
+                exit(1);
+            }
             values.logLevel = std::string{optarg};
         }
     }
@@ -92,40 +98,75 @@ Options Parse(int argc, char** argv)
     return values;
 }
 
+Config::Config LoadConfigFile(std::string configPath)
+{
+    auto config = Config::Config{};
+    auto TryLoad = [&config](std::string path)
+    {
+        try
+        {
+            std::cout << "Loading config file: " << path << std::endl;
+            config = Config::LoadConfig(path);
+            return "";
+        }
+        catch (const std::exception& error)
+        {
+            std::cerr << "Failed to load config file due to: " << error.what() << std::endl;
+            exit(1);
+        }
+    };
+
+    const auto defaultConfig = std::string(Paths::Get().GetBakDirectoryPath() / "config.json");
+
+    if (!configPath.empty())
+    {
+        TryLoad(configPath);
+    }
+    else if (std::filesystem::exists(defaultConfig))
+    {
+        TryLoad(defaultConfig);
+    }
+    else
+    {
+        std::cout << "Not loading a config file.\n";
+    }
+
+    return config;
+}
+
 int main(int argc, char** argv)
 {
     const auto options = Parse(argc, argv);
+    const auto config = LoadConfigFile(options.configFile);
 
-    const bool showImgui = options.showImgui;
+    if (!config.mPaths.mGameData.empty())
+    {
+        Paths::Get().SetBakDirectory(config.mPaths.mGameData);
+    }
 
-    Logging::LogState::SetLogTime(options.logTime);
-    Logging::LogState::SetLogColor(options.logColors);
-    Logging::LogState::SetLevel(options.logLevel);
+    const bool showImgui = config.mGraphics.mEnableImGui;
 
-    auto log = std::ofstream{ std::filesystem::path{GetBakDirectory()} / "main3d.log" };
+    Logging::LogState::SetLogTime(config.mLogging.mLogTime);
+    Logging::LogState::SetLogColor(config.mLogging.mLogColours);
+    if (options.logLevel != "")
+    {
+        Logging::LogState::SetLevel(options.logLevel);
+    }
+    else
+    {
+        Logging::LogState::SetLevel(config.mLogging.mLogLevel);
+    }
+
+    auto log = std::ofstream{Paths::Get().GetBakDirectoryPath() / "main3d.log"};
     Logging::LogState::AddStream(&log);
 
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::Disable("Compass");
-    Logging::LogState::Disable("DialogStore");
-    Logging::LogState::Disable("LoadEncounter");
-    Logging::LogState::Disable("LoadFixedObjects");
-    Logging::LogState::Disable("LoadSceneIndices");
-    Logging::LogState::Disable("LoadScenes");
-    Logging::LogState::Disable("MeshObjectStore");
-    Logging::LogState::Disable("GameData");
-    Logging::LogState::Disable("Gui::StaticTTM");
-    Logging::LogState::Disable("GuiRenderer");
-    //Logging::LogState::Disable("Gui::DialogRunner");
-    Logging::LogState::Disable("Gui::DialogDisplay");
-    Logging::LogState::Disable("Gui::AnimatorStore");
-    Logging::LogState::Disable("TeleportFactory");
-    Logging::LogState::Disable("FMAP_TWN");
-    Logging::LogState::Disable("FMAP");
-    Logging::LogState::Disable("CampData");
-
-
-    auto guiScalar = 4.0f;
+    for (const auto& disabled : config.mLogging.mDisabledLoggers)
+    {
+        Logging::LogState::Disable(disabled);
+    }
+    
+    auto guiScalar = config.mGraphics.mResolutionScale;
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;
