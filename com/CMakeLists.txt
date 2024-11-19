@@ -1,5 +1,6 @@
 add_library(com
     algorithm.hpp
+    bmpWriter.hpp
     demangle.hpp demangle.cpp
     getopt.h getopt_long.c
     json.hpp json_fwd.hpp

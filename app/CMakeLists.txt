@@ -25,6 +25,7 @@ list(APPEND APP_BINARIES
     display_ttm
     extractor
     instancing
+    image_extractor
     main3d
     play_book
     play_cutscene

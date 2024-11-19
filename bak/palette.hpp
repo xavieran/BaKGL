@@ -2,12 +2,14 @@
 
 #include <glm/glm.hpp>
 
+#include <array>
 #include <functional>
 #include <string>
 #include <vector>
 
 namespace BAK {
 
+class FileBuffer;
 class Palette;
 
 class ColorSwap
@@ -26,6 +28,7 @@ class Palette
 {
 public:
     Palette(const std::string& filename);
+    Palette(FileBuffer& fb);
 
     Palette(const Palette& pal, const ColorSwap& cs)
     :
@@ -41,9 +44,14 @@ public:
     }
 
     const glm::vec4& GetColor(unsigned i) const;
+    const std::vector<std::array<std::uint8_t, 3>>& GetColors8() const
+    {
+        return mColors8;
+    }
 
 private:
     std::vector<glm::vec4> mColors;
+    std::vector<std::array<std::uint8_t, 3>> mColors8;
 };
 
 
