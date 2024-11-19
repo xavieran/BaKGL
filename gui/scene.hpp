@@ -52,7 +52,7 @@ SceneSprite ConvertSceneAction(
     const auto sprite = offsets.at(25);
     const auto tex = textures.GetTexture(sprite);
 
-    //auto scale = glm::vec2{tex.GetWidth(), tex.GetHeight()};
+    //auto scale = glm::vec2{tex.GetTargetWidth(), tex.GetTargetHeight()};
     auto scale = action.mDimensions;
 
     return SceneSprite{
@@ -73,7 +73,7 @@ SceneSprite ConvertSceneAction(
     auto x = action.mX;
     auto y = action.mY;
 
-    auto scale = glm::vec2{tex.GetWidth(), tex.GetHeight()};
+    auto scale = glm::vec2{tex.GetTargetWidth(), tex.GetTargetHeight()};
 
     if (action.mTargetWidth != 0)
     {
@@ -107,7 +107,7 @@ SceneSprite ConvertSceneAction(
     auto x = action.mX;
     auto y = action.mY;
 
-    auto scale = glm::vec2{tex.GetWidth(), tex.GetHeight()};
+    auto scale = glm::vec2{tex.GetTargetWidth(), tex.GetTargetHeight()};
 
     if (action.mTargetWidth != 0)
     {
