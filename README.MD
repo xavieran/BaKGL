@@ -47,6 +47,8 @@ Here's a very quick look at some gameplay.
 * Movement clipping
 * Lots of polishing!
 
+See the [issues](https://github.com/xavieran/BaKGL/issues) page to see what remains.
+
 ## Acknowledgements
 
 This project would not have been possible without Guido de Jong's original work on xbak (http://xbak.sourceforge.net/).
@@ -56,15 +58,15 @@ I have used the late Eysteinn Björnsson's wonderful BaK Help Web extensively as
 ## Requirements
 You will need a copy of Betrayal at Krondor for the game data files. These can be found on the web pretty easily.
 
-Requires CMake, SDL2, SDL_MixerX, OpenGL, GLFW, and glm. Most of these dependencies will be downloaded and built automatically.
+Building this project requires CMake, SDL2, OpenGL, glew, and freeglut.
 
 I use some features of C++23, so a more recent gcc or clang will be required to compile the code. You can check the CI to see what versions I am currently using.
 ![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
 ![Clang 17 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/clang.yml/badge.svg)
 
 ## Prebuilt Binaries for Windows
-I've provided pre-built binaries for Windows. The latest release should be [here](https://github.com/xavieran/BaKGL/releases/tag/0.0.1).
-I've only tested this on my own system, so if it is missing DLLs or there are other issues please report an issue.
+I've provided pre-built binaries for Windows. You can get the latest release [here](https://github.com/xavieran/BaKGL/releases/tag/0.0.1).
+I've only tested this on my own system, so if it is missing DLLs or there are other issues please report an [issue](https://github.com/xavieran/BaKGL/issues)
 
 Follow the [setup](#setup) instructions below. Unzip the release zip and run the `main3d` binary.
 
@@ -111,7 +113,7 @@ Make sure you check the case of the filenames in the folder where you installed 
 Save files will be searched for in the `$BAK_MAIN_DIR/GAMES` directory, you can _copy_ your old saves directory to this location. Alternatively, if you have no saves, the game will create this folder when you save your first game.
 
 ### Run main3d
-The main application is `main3d`. You can run this in the terminal in linux, or select it as the target in Visual Studio.
+The main application is `main3d`. You can run this in the terminal in linux, select it as the target in Visual Studio, or double click the binary if using pre-built binaries.
 
 ```
 build $ ./main3d
