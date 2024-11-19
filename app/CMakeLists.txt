@@ -17,6 +17,7 @@ list(APPEND APP_BINARIES
     display_tile
     display_traps
     display_ttm
+    extractor
     instancing
     main3d
     play_book

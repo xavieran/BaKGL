@@ -2,11 +2,14 @@
 
 #include "bak/file/packedResourceFile.hpp"
 
+#include "bak/file/util.hpp"
+
 namespace BAK::File {
 
 PackedFileDataProvider::PackedFileDataProvider(IDataBufferProvider& dataProvider)
 :
     mCache{},
+    mResourceFileFb{0},
     mLogger{Logging::LogState::GetLogger("PackedFileDataProvider")}
 {
     auto* resourceIndexFb = dataProvider.GetDataBuffer(ResourceIndex::sFilename);
@@ -27,6 +30,26 @@ PackedFileDataProvider::PackedFileDataProvider(IDataBufferProvider& dataProvider
             << "]. Will not use packed resource file for data." << std::endl;
         return;
     }
+
+    Populate(packedResource, resourceIndex);
+}
+
+PackedFileDataProvider::PackedFileDataProvider(
+    std::string resourceFile,
+    std::string resourceIndexFile)
+:
+    mCache{},
+    mResourceFileFb{CreateFileBuffer(resourceFile)},
+    mLogger{Logging::LogState::GetLogger("PackedFileDataProvider")}
+{
+    FileBuffer resourceIndexFb = CreateFileBuffer(resourceIndexFile);
+    auto resourceIndex = ResourceIndex{resourceIndexFb};
+    Populate(&mResourceFileFb, resourceIndex);
+}
+
+void PackedFileDataProvider::Populate(
+    BAK::FileBuffer* packedResource,
+    const ResourceIndex& resourceIndex) {
 
     for (const auto& index : resourceIndex.GetResourceIndex())
     {
@@ -51,6 +74,11 @@ FileBuffer* PackedFileDataProvider::GetDataBuffer(const std::string& fileName)
     }
 
     return nullptr;
+}
+
+std::unordered_map<std::string, FileBuffer>& PackedFileDataProvider::GetCache()
+{
+    return mCache;
 }
 
 }
