@@ -3,7 +3,7 @@
 #include "bak/palette.hpp"
 #include "bak/screen.hpp"
 
-#include "com/bmpWriter.hpp"
+#include "com/png.hpp"
 extern "C" {
 #include "com/getopt.h"
 }
@@ -336,10 +336,17 @@ void WriteImage(
     const BAK::Image& image,
     const BAK::Palette& palette)
 {
-    auto fout = std::ofstream{
-        filePath,
-        std::ios::binary | std::ios::out};
-    WriteBMP(fout, image.GetWidth(), image.GetHeight(), image.GetVector(), palette.GetColors8());
+    //auto fout = std::ofstream{
+    //    filePath,
+    //    std::ios::binary | std::ios::out};
+    //WriteBMP(fout, image.GetWidth(), image.GetHeight(), image.GetVector(), palette.GetColors8());
+    PNGImage pngImage{image.GetWidth(), image.GetHeight(), {}};
+    for (auto index : image.GetVector())
+    {
+        auto color = palette.GetColors8()[index];
+        pngImage.mPixels.emplace_back(color[0], color[1], color[2], color[3]);
+    }
+    WritePNG(filePath.c_str(), pngImage);
 }
 
 void WriteImages(
@@ -348,7 +355,7 @@ void WriteImages(
     const std::vector<BAK::Image>& images,
     const BAK::Palette& palette)
 {
-    const auto outputName = fileName + ".BMP";
+    const auto outputName = fileName + ".PNG";
     if (images.size() == 1)
     {
         WriteImage(outputPath / outputName, images.back(), palette);
@@ -360,7 +367,7 @@ void WriteImages(
         for (unsigned i = 0; i < images.size(); i++)
         {
             std::stringstream name{};
-            name << i << ".BMP";
+            name << i << ".PNG";
             WriteImage(outputPath / dirName / name.str(), images[i], palette);
         }
     }
@@ -443,6 +450,6 @@ int main(int argc, char** argv)
             palette = palFiles.at(palName);
         }
         logger.Info() << "Writing out SCX " << fname << " with palette: " << palName << "\n";
-        WriteImage(output / (name + ".BMP"), image, palette);
+        WriteImage(output / (name + ".PNG"), image, palette);
     }
 }

@@ -44,14 +44,14 @@ public:
     }
 
     const glm::vec4& GetColor(unsigned i) const;
-    const std::vector<std::array<std::uint8_t, 3>>& GetColors8() const
+    const std::vector<std::array<std::uint8_t, 4>>& GetColors8() const
     {
         return mColors8;
     }
 
 private:
     std::vector<glm::vec4> mColors;
-    std::vector<std::array<std::uint8_t, 3>> mColors8;
+    std::vector<std::array<std::uint8_t, 4>> mColors8;
 };
 
 

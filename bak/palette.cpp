@@ -34,7 +34,8 @@ Palette::Palette(FileBuffer& fb)
         const std::uint8_t b = palbuf.GetUint8() << 2;
         const auto a = i == 0 ? 0.0 : 1.0;
         mColors.emplace_back(F(r), F(g), F(b) , a);
-        mColors8.emplace_back(std::array<std::uint8_t, 3>{r, g, b});
+        std::uint8_t alpha = i == 0 ? 0 : 255;
+        mColors8.emplace_back(std::array<std::uint8_t, 4>{r, g, b, alpha});
     }
 }
 

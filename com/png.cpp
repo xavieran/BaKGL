@@ -1,6 +1,5 @@
 #include "com/png.hpp"
 
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "com/stb_image.h"
 

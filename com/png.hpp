@@ -16,3 +16,5 @@ struct PNGImage
 };
 
 PNGImage LoadPNG(const char* filename);
+
+void WritePNG(const char* filename, const PNGImage&);
