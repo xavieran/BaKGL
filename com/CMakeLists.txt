@@ -9,7 +9,7 @@ add_library(com
     png.hpp png.cpp
     random.hpp random.cpp
     string.hpp string.cpp
-    stb_image.hpp
+    stb_image.h
     visit.hpp
     ostream.hpp
     ostreamMux.hpp ostreamMux.cpp

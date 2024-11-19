@@ -82,15 +82,16 @@ void GenericCombatFactory<isTrap>::Load()
             logger.Debug() << "Combatant #" << i << " " << monsterIndex
                 << " mvTp: " << movementType << " pos: " << pos << "\n";
             combatants.emplace_back(monsterIndex, movementType, pos);
-            //fb.DumpAndSkip(48 - 14);
 
             std::uint32_t minX = fb.GetUint32LE();
             std::uint32_t maxX = fb.GetUint32LE();
-            fb.DumpAndSkip(8);
+            fb.Skip(8);
+            //fb.DumpAndSkip(8);
             std::uint32_t minY = fb.GetUint32LE();
             std::uint32_t maxY = fb.GetUint32LE();
-            fb.DumpAndSkip(8);
-            fb.DumpAndSkip(2);
+            fb.Skip(10);
+            //fb.DumpAndSkip(8);
+            //fb.DumpAndSkip(2);
             logger.Spam() << "Min: (" << minX << ", " << minY << ") Max: (" << maxX << ", " << maxY << ")\n";
             //std::vector<std::int16_t> d{};
             //for (unsigned i = 0; i < 17; i++)

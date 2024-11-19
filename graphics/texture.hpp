@@ -82,8 +82,8 @@ public:
 
     unsigned GetWidth() const { return mWidth; }
     unsigned GetHeight() const { return mHeight; }
-    unsigned GetTargetWidth() const { return mWidth; }
-    unsigned GetTargetHeight() const { return mHeight; }
+    unsigned GetTargetWidth() const { return mTargetWidth; }
+    unsigned GetTargetHeight() const { return mTargetHeight; }
     glm::ivec2 GetDims() const { return glm::ivec2(GetTargetWidth(), GetTargetHeight()); }
     const TextureType& GetTexture() const { return mTexture; }
     TextureType& GetTexture() { return mTexture; }

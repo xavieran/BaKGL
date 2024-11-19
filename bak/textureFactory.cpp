@@ -41,6 +41,28 @@ Graphics::Texture ImageToTexture(const Image& image, const Palette& palette)
     return tex;
 }
 
+Graphics::Texture PNGToTexture(std::string path, unsigned targetWidth, unsigned targetHeight)
+{
+    auto image = LoadPNG(path.c_str());
+    auto width = image.mWidth;
+    auto height = image.mHeight;
+    auto texture = Graphics::Texture::TextureType{};
+    auto Get = [&](int x, int y){
+        return image.mPixels[y * width + x];
+    };
+    for (int y = height - 1; y >= 0; y--)
+    {
+        for (int x = 0; x < (int) width; x++)
+        {
+            auto c = Get(x, y);
+            const auto F = [](auto x){
+                return static_cast<float>(x) / 255.; };
+            texture.push_back(glm::vec4{F(c.r), F(c.g), F(c.b), F(c.a)});
+        }
+    }
+    return Graphics::Texture{texture, width, height, targetWidth, targetHeight};
+}
+
 Graphics::TextureStore TextureFactory::MakeTextureStore(
     std::string_view bmx,
     std::string_view pal)
@@ -61,7 +83,43 @@ void TextureFactory::AddToTextureStore(
         .CreateDataBuffer(std::string{bmx});
     const auto images = LoadImages(fb);
 
-    AddToTextureStore(store, images, palette);
+    auto baseName = SplitString(".", std::string(bmx))[0];
+    auto substitute = images.size() > 1
+        ? Paths::Get().GetModDirectoryPath() / (baseName + ".BMX")
+        : Paths::Get().GetModDirectoryPath() / (baseName + ".PNG");
+    if (std::filesystem::exists(substitute) && images.size() == 1)
+    {
+        auto tex = PNGToTexture(substitute, images.back().GetWidth(), images.back().GetHeight());
+        Logging::LogInfo(__FUNCTION__) << "Found substitute BMX: " << substitute
+          << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
+          << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
+        store.AddTexture(tex);
+    }
+    else if (std::filesystem::exists(substitute))
+    {
+        for (unsigned i = 0; i < images.size(); i++)
+        {
+            std::stringstream name{};
+            name << i << ".PNG";
+            auto path = substitute / name.str();
+            if (std::filesystem::exists(path))
+            {
+                auto tex = PNGToTexture(substitute, images[i].GetWidth(), images[i].GetHeight());
+                Logging::LogInfo(__FUNCTION__) << "Found substitute BMX: " << path 
+                  << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
+                  << tex.GetTargetWidth() << tex.GetTargetHeight() << ")\n";
+                store.AddTexture(tex);
+            }
+            else
+            {
+                AddToTextureStore(store, images[i], palette);
+            }
+        }
+    }
+    else
+    {
+        AddToTextureStore(store, images, palette);
+    }
 }
 
 void TextureFactory::AddScreenToTextureStore(
@@ -72,33 +130,13 @@ void TextureFactory::AddScreenToTextureStore(
     auto baseName = SplitString(".", std::string(scx))[0];
     auto substitute = Paths::Get().GetModDirectoryPath() / (baseName + ".PNG");
 
-    Logging::LogInfo(__FUNCTION__) << "Searching for substitute SCX: " << substitute << "\n";
     if (std::filesystem::exists(substitute))
     {
         auto fb = FileBufferFactory::Get()
             .CreateDataBuffer(std::string{scx});
         auto target = LoadScreenResource(fb);
-
-        auto image = LoadPNG(substitute.c_str());
-        auto width = image.mWidth;
-        auto height = image.mHeight;
-        auto texture = Graphics::Texture::TextureType{};
-        auto Get = [&](int x, int y){
-            return image.mPixels[y * width + x];
-        };
-        for (int y = height - 1; y >= 0; y--)
-        {
-            for (int x = 0; x < (int) width; x++)
-            {
-                auto c = Get(x, y);
-                const auto F = [](auto x){
-                    return static_cast<float>(x) / 255.; };
-                texture.push_back(glm::vec4{F(c.r), F(c.g), F(c.b), F(c.a)});
-            }
-        }
-
-        store.AddTexture(
-            Graphics::Texture{texture, width, height, target.GetWidth(), target.GetHeight()});
+        Logging::LogInfo(__FUNCTION__) << "Found substitute SCX: " << substitute << "\n";
+        store.AddTexture(PNGToTexture(substitute, target.GetWidth(), target.GetHeight()));
     }
     else
     {
