@@ -55,8 +55,9 @@ char Font::GetIndex(char c) const
 {
     if (!(mFirstChar <= c))
     {
-        Logging::LogFatal("BAK::Font") << "Request for bad char: {" 
+        Logging::LogError   ("BAK::Font") << "Request for bad char: {" 
             << std::hex << +c << std::dec << "} [" << c << "]" << std::endl;
+        return mFirstChar;
     }
     ASSERT(mFirstChar <= c);
     return c - mFirstChar;

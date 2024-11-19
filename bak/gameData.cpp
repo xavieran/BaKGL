@@ -461,6 +461,21 @@ std::vector<CombatWorldLocation> GameData::LoadCombatWorldLocations()
     return data;
 }
 
+CombatWorldLocation GameData::LoadCombatWorldLocation(std::uint8_t tileIndex, std::uint8_t encounterIndex, std::uint8_t combatantRelativeIndex)
+{
+    std::vector<CombatWorldLocation> data{};
+    static constexpr auto dataSize = 12;
+    const auto offset = sCombatWorldLocationsOffset + (tileIndex * 35 * dataSize) + (encounterIndex * 7 * dataSize) + combatantRelativeIndex * dataSize;
+    mBuffer.Seek(offset);
+    const auto x = mBuffer.GetUint32LE();
+    const auto y = mBuffer.GetUint32LE();
+    const auto heading = static_cast<std::uint16_t>(mBuffer.GetUint16LE() >> 8);
+    const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
+    const auto unknownFlag = mBuffer.GetUint8();
+    const auto combatantState = mBuffer.GetUint8();
+    return CombatWorldLocation{combatantPosition, unknownFlag, combatantState};
+}
+
 std::vector<GenericContainer> GameData::LoadCombatInventories()
 {
     mLogger.Spam() << "Loading Combat Inventories" << std::endl;

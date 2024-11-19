@@ -64,6 +64,7 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
         << " TL: " << e.mTopLeft
         << " BR: " << e.mBottomRight
         << " tile: " << e.mTile 
+        << " tileIndex: " << e.mTileIndex 
         << std::hex << " savePtr: ("
         << e.mSaveAddress << ", " << e.mSaveAddress2 << ", "
         << e.mSaveAddress3
