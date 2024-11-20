@@ -6,6 +6,7 @@ add_library(gui
     cursor.hpp
     dialogRunner.hpp dialogRunner.cpp
     dynamicTTM.hpp dynamicTTM.cpp
+    guiManager.hpp guiManager.cpp
     gdsScene.hpp gdsScene.cpp
     hotspot.hpp
     label.hpp
