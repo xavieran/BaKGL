@@ -92,7 +92,7 @@ void TextureFactory::AddToTextureStore(
     if (std::filesystem::exists(substitute) && images.size() == 1)
     {
         auto tex = PNGToTexture(substitute, images.back().GetWidth(), images.back().GetHeight());
-        Logging::LogError(__FUNCTION__) << "Found substitute BMX: " << substitute
+        Logging::LogDebug(__FUNCTION__) << "Found substitute BMX: " << substitute
           << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
           << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
         store.AddTexture(tex);
@@ -107,7 +107,7 @@ void TextureFactory::AddToTextureStore(
             if (std::filesystem::exists(path))
             {
                 auto tex = PNGToTexture(path, images[i].GetWidth(), images[i].GetHeight());
-                Logging::LogError(__FUNCTION__) << "Found substitute BMX: " << path 
+                Logging::LogDebug(__FUNCTION__) << "Found substitute BMX: " << path 
                   << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
                   << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
                 store.AddTexture(tex);
@@ -137,7 +137,7 @@ void TextureFactory::AddScreenToTextureStore(
         auto fb = FileBufferFactory::Get()
             .CreateDataBuffer(std::string{scx});
         auto target = LoadScreenResource(fb);
-        Logging::LogError(__FUNCTION__) << "Found substitute SCX: " << substitute << "\n";
+        Logging::LogDebug(__FUNCTION__) << "Found substitute SCX: " << substitute << "\n";
         store.AddTexture(PNGToTexture(substitute, target.GetWidth(), target.GetHeight()));
     }
     else

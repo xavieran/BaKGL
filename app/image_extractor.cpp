@@ -283,6 +283,9 @@ std::unordered_map<std::string, std::string> imageToPalMap{
     {"Z12SLOT4.BMX", "Z12.PAL"},
     {"Z12SLOT5.BMX", "Z12.PAL"},
     {"Z12SLOT6.BMX", "Z12.PAL"},
+
+    // Icons
+    {"FMAP_ICN.BMX", "FULLMAP.PAL"},
 };
 
 struct Options
