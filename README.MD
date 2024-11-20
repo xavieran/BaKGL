@@ -1,4 +1,3 @@
-
 # BaK GL - _Betrayal at Krondor_ remake using OpenGL
 
 ![GCC 13 Build Status](https://github.com/xavieran/BaKGL/actions/workflows/gcc.yml/badge.svg)
@@ -8,7 +7,9 @@ This project is my attempt to remake Betrayal at Krondor using OpenGL.
 
 It started out as a fun project to learn about graphics programming, but I've spent the vast majority of the time reverse engineering and reimplementing the game mechanics instead!
 
-The game is mostly playable (with many rough edges), excluding combat. Improving the graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+The game is mostly playable (with many rough edges), excluding combat. The engine can also use substitute textures for the graphics, so modders can produce hi-res texture packs for the game. Improving the 3D graphics will probably land at the end of the roadmap at this point as matching as close as possible the original game behaviour is much more addictive.
+
+I've started documenting how Betrayal at Krondor works on this [blog](https://xavieran.github.io/blog).
 
 Here's a very quick look at some gameplay.
 
@@ -17,6 +18,7 @@ Here's a very quick look at some gameplay.
 * Camping
 * Chapter progression
 * Cutscenes/Book excerpts
+* Graphics modding
 * Music and sound
 * Quests and story
 * Shops and inventory
