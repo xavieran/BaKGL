@@ -137,7 +137,7 @@ Symbol::Symbol(unsigned index)
     }
 }
 
-const std::vector<Symbol::SymbolSlot>& Symbol::GetSymbolSlots() const
+const std::vector<SymbolSlot>& Symbol::GetSymbolSlots() const
 {
     return mSymbolSlots;
 }

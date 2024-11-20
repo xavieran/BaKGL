@@ -3,6 +3,7 @@
 #include "bak/types.hpp"
 
 #include <cmath>
+#include <optional>
 
 namespace BAK {
 class Character;

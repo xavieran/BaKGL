@@ -94,17 +94,16 @@ public:
     std::string mDescription{};
 };
 
+struct SymbolSlot
+{
+    SpellIndex mSpell;
+    unsigned mSpellIcon;
+    glm::vec<2, std::uint16_t> mPosition;
+};
+
 class Symbol
 {
 public:
-
-    struct SymbolSlot
-    {
-        SpellIndex mSpell;
-        unsigned mSpellIcon;
-        glm::vec<2, std::uint16_t> mPosition;
-    };
-
     explicit Symbol(unsigned index);
     const std::vector<SymbolSlot>& GetSymbolSlots() const;
 

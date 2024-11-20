@@ -20,6 +20,10 @@ add_library(gui
     textInput.hpp
     window.hpp
 
+    cast/castScreen.hpp cast/castScreen.cpp
+    cast/powerRing.hpp cast/powerRing.cpp
+    cast/symbol.hpp cast/symbol.cpp
+
     camp/campScreen.hpp
     camp/clock.hpp
 )
