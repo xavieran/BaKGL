@@ -3,6 +3,8 @@
 #include "com/bits.hpp"
 #include "com/ostream.hpp"
 
+#include <cstdint>
+
 namespace BAK {
 
 std::string_view ToString(ContainerType type)
