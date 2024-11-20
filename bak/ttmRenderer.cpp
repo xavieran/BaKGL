@@ -65,9 +65,9 @@ bool TTMRenderer::AdvanceAction()
             [&](const BAK::DrawScreen& sa){
                 if (sa.mArg1 == 3 || sa.mArg2 == 3)
                 {
-                    mRenderer.GetSavedImagesLayer0() = {320, 200};
-                    mRenderer.GetSavedImagesLayer1() = {320, 200};
-                    mRenderer.GetSavedImagesLayerBG() = {320, 200};
+                    mRenderer.GetSavedImagesLayer0() = {320, 200, 320, 200};
+                    mRenderer.GetSavedImagesLayer1() = {320, 200, 320, 200};
+                    mRenderer.GetSavedImagesLayerBG() = {320, 200, 320, 200};
                 }
                 if (mScreen && mPaletteSlots.contains(mCurrentPaletteSlot))
                 {
@@ -111,8 +111,8 @@ bool TTMRenderer::AdvanceAction()
                 mRenderer.RenderTexture(texture, clearRegion.pos, mRenderer.GetForegroundLayer());
             },
             [&](const BAK::SaveBackground&){
-                mRenderer.GetSavedImagesLayer0() = {320, 200};
-                mRenderer.GetSavedImagesLayer1() = {320, 200};
+                mRenderer.GetSavedImagesLayer0() = {320, 200, 320, 200};
+                mRenderer.GetSavedImagesLayer1() = {320, 200, 320, 200};
                 mRenderer.SaveImage({0, 0}, {320, 200}, 2);
             },
             [&](const BAK::DrawRect& sr){
@@ -184,7 +184,7 @@ void TTMRenderer::RenderFrame()
     bg.Invert();
     mRenderedFrames.AddTexture(bg);
 
-    mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200};
-    mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200};
+    mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200, 320, 200};
+    mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200, 320, 200};
 }
 }

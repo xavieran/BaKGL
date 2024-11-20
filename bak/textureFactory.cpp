@@ -3,7 +3,14 @@
 #include "bak/imageStore.hpp"
 #include "bak/screen.hpp"
 
+#include "com/logger.hpp"
+#include "com/png.hpp"
+#include "com/path.hpp"
+#include "com/string.hpp"
+#include "graphics/texture.hpp"
+
 #include <algorithm>
+#include <filesystem>
 #include <random>
 
 namespace BAK {
@@ -24,12 +31,38 @@ Graphics::Texture ImageToTexture(const Image& image, const Palette& palette)
     auto tex = Graphics::Texture{
         texture,
         static_cast<unsigned>(image.GetWidth()),
+        static_cast<unsigned>(image.GetHeight()),
+        static_cast<unsigned>(image.GetWidth()),
         static_cast<unsigned>(image.GetHeight()) };
 
     // For OpenGL
     tex.Invert();
 
     return tex;
+}
+
+Graphics::Texture PNGToTexture(std::string path, unsigned targetWidth, unsigned targetHeight)
+{
+    const auto image = LoadPNG(path.c_str());
+    const auto width = image.mWidth;
+    const auto height = image.mHeight;
+    const auto Get = [&](int x, int y){
+        return image.mPixels[y * width + x];
+    };
+
+    auto texture = Graphics::Texture::TextureType{};
+
+    for (int y = height - 1; y >= 0; y--)
+    {
+        for (int x = 0; x < (int) width; x++)
+        {
+            auto c = Get(x, y);
+            const auto F = [](auto x){
+                return static_cast<float>(x) / 255.; };
+            texture.push_back(glm::vec4{F(c.r), F(c.g), F(c.b), F(c.a)});
+        }
+    }
+    return Graphics::Texture{texture, width, height, targetWidth, targetHeight};
 }
 
 Graphics::TextureStore TextureFactory::MakeTextureStore(
@@ -52,7 +85,43 @@ void TextureFactory::AddToTextureStore(
         .CreateDataBuffer(std::string{bmx});
     const auto images = LoadImages(fb);
 
-    AddToTextureStore(store, images, palette);
+    auto baseName = SplitString(".", std::string(bmx))[0];
+    auto substitute = images.size() > 1
+        ? Paths::Get().GetModDirectoryPath() / (baseName + ".BMX")
+        : Paths::Get().GetModDirectoryPath() / (baseName + ".PNG");
+    if (std::filesystem::exists(substitute) && images.size() == 1)
+    {
+        auto tex = PNGToTexture(substitute, images.back().GetWidth(), images.back().GetHeight());
+        Logging::LogDebug(__FUNCTION__) << "Found substitute BMX: " << substitute
+          << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
+          << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
+        store.AddTexture(tex);
+    }
+    else if (std::filesystem::exists(substitute))
+    {
+        for (unsigned i = 0; i < images.size(); i++)
+        {
+            std::stringstream name{};
+            name << i << ".PNG";
+            auto path = substitute / name.str();
+            if (std::filesystem::exists(path))
+            {
+                auto tex = PNGToTexture(path, images[i].GetWidth(), images[i].GetHeight());
+                Logging::LogDebug(__FUNCTION__) << "Found substitute BMX: " << path 
+                  << " Dims: (" << tex.GetWidth() << ", " << tex.GetHeight() << ") TargetDims: ("
+                  << tex.GetTargetWidth() << ", " << tex.GetTargetHeight() << ")\n";
+                store.AddTexture(tex);
+            }
+            else
+            {
+                AddToTextureStore(store, images[i], palette);
+            }
+        }
+    }
+    else
+    {
+        AddToTextureStore(store, images, palette);
+    }
 }
 
 void TextureFactory::AddScreenToTextureStore(
@@ -60,10 +129,24 @@ void TextureFactory::AddScreenToTextureStore(
     std::string_view scx,
     std::string_view pal)
 {
-    const auto palette = Palette{std::string{pal}};
-    auto fb = FileBufferFactory::Get()
-        .CreateDataBuffer(std::string{scx});
-    AddToTextureStore(store, LoadScreenResource(fb), palette);
+    auto baseName = SplitString(".", std::string(scx))[0];
+    auto substitute = Paths::Get().GetModDirectoryPath() / (baseName + ".PNG");
+
+    if (std::filesystem::exists(substitute))
+    {
+        auto fb = FileBufferFactory::Get()
+            .CreateDataBuffer(std::string{scx});
+        auto target = LoadScreenResource(fb);
+        Logging::LogDebug(__FUNCTION__) << "Found substitute SCX: " << substitute << "\n";
+        store.AddTexture(PNGToTexture(substitute, target.GetWidth(), target.GetHeight()));
+    }
+    else
+    {
+        const auto palette = Palette{std::string{pal}};
+        auto fb = FileBufferFactory::Get()
+            .CreateDataBuffer(std::string{scx});
+        AddToTextureStore(store, LoadScreenResource(fb), palette);
+    }
 }
 
 void TextureFactory::AddTerrainToTextureStore(
@@ -99,6 +182,8 @@ void TextureFactory::AddTerrainToTextureStore(
         store.AddTexture(
             Graphics::Texture{
                 image,
+                static_cast<unsigned>(width),
+                static_cast<unsigned>(offset),
                 static_cast<unsigned>(width),
                 static_cast<unsigned>(offset)});
     }

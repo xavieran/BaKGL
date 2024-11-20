@@ -17,11 +17,11 @@ class SpriteRenderer
 public:
     SpriteRenderer()
     :
-        mForegroundLayer{320, 200},
-        mBackgroundLayer{320, 200},
-        mSavedImagesLayer0{320, 200},
-        mSavedImagesLayer1{320, 200},
-        mSavedImagesLayerBG{320, 200}
+        mForegroundLayer{320, 200, 320, 200},
+        mBackgroundLayer{320, 200, 320, 200},
+        mSavedImagesLayer0{320, 200, 320, 200},
+        mSavedImagesLayer1{320, 200, 320, 200},
+        mSavedImagesLayerBG{320, 200, 320, 200}
     {
     }
 
@@ -123,11 +123,11 @@ public:
 
     void Clear()
     {
-        mForegroundLayer = Graphics::Texture{320, 200};
-        mBackgroundLayer = Graphics::Texture{320, 200};
-        mSavedImagesLayer0 = Graphics::Texture{320, 200};
-        mSavedImagesLayer1 = Graphics::Texture{320, 200};
-        mSavedImagesLayerBG = Graphics::Texture{320, 200};
+        mForegroundLayer = Graphics::Texture{320, 200, 320, 200};
+        mBackgroundLayer = Graphics::Texture{320, 200, 320, 200};
+        mSavedImagesLayer0 = Graphics::Texture{320, 200, 320, 200};
+        mSavedImagesLayer1 = Graphics::Texture{320, 200, 320, 200};
+        mSavedImagesLayerBG = Graphics::Texture{320, 200, 320, 200};
     }
 
     Graphics::Texture& GetForegroundLayer()
@@ -167,7 +167,11 @@ public:
 
     Graphics::Texture SaveImage(glm::ivec2 pos, glm::ivec2 dims, unsigned layer)
     {
-        auto image = Graphics::Texture{static_cast<unsigned>(dims.x), static_cast<unsigned>(dims.y)};
+        auto image = Graphics::Texture{
+            static_cast<unsigned>(dims.x),
+            static_cast<unsigned>(dims.y),
+            static_cast<unsigned>(dims.x),
+            static_cast<unsigned>(dims.y)};
         for (int x = 0; x < dims.x; x++)
         {
             for (int y = 0; y < dims.y; y++)

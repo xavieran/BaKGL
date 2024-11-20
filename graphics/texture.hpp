@@ -17,20 +17,28 @@ public:
     Texture(
         const TextureType& texture,
         unsigned width,
-        unsigned height)
+        unsigned height,
+        unsigned targetWidth,
+        unsigned targetHeight)
     :
         mTexture{texture},
         mWidth{width},
-        mHeight{height}
+        mHeight{height},
+        mTargetWidth{targetWidth},
+        mTargetHeight{targetHeight}
     {}
 
     Texture(
         unsigned width,
-        unsigned height)
+        unsigned height,
+        unsigned targetWidth,
+        unsigned targetHeight)
     :
         mTexture{width * height, glm::vec4{0}},
         mWidth{width},
-        mHeight{height}
+        mHeight{height},
+        mTargetWidth{targetWidth},
+        mTargetHeight{targetHeight}
     {
     }
 
@@ -60,7 +68,8 @@ public:
 
     Texture GetRegion(glm::ivec2 pos, glm::uvec2 dims) const
     {
-        auto newTexture = Texture{dims.x, dims.y};
+        // FIX TARGET
+        auto newTexture = Texture{dims.x, dims.y, dims.x, dims.y};
         for (unsigned x = 0; x < dims.x; x++)
         {
             for (unsigned y = 0; y < dims.y; y++)
@@ -73,7 +82,9 @@ public:
 
     unsigned GetWidth() const { return mWidth; }
     unsigned GetHeight() const { return mHeight; }
-    glm::ivec2 GetDims() const { return glm::ivec2(GetWidth(), GetHeight()); }
+    unsigned GetTargetWidth() const { return mTargetWidth; }
+    unsigned GetTargetHeight() const { return mTargetHeight; }
+    glm::ivec2 GetDims() const { return glm::ivec2(GetTargetWidth(), GetTargetHeight()); }
     const TextureType& GetTexture() const { return mTexture; }
     TextureType& GetTexture() { return mTexture; }
 
@@ -81,6 +92,8 @@ private:
     TextureType mTexture;
     unsigned mWidth;
     unsigned mHeight;
+    unsigned mTargetWidth;
+    unsigned mTargetHeight;
 };
 
 class TextureStore

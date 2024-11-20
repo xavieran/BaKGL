@@ -21,7 +21,7 @@ public:
         mZoneLabel{zoneNumber},
         mPalette{mZoneLabel.GetPalette()},
         mFixedObjects{LoadFixedObjects(zoneNumber)},
-        mZoneTextures{mZoneLabel, mPalette},
+        mZoneTextures{mZoneLabel},
         mZoneItems{mZoneLabel, mZoneTextures},
         mWorldTiles{mZoneItems, BAK::Encounter::EncounterFactory{}},
         mObjects{}

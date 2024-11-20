@@ -3,7 +3,7 @@
 #include "bak/palette.hpp"
 #include "bak/screen.hpp"
 
-#include "com/bmpWriter.hpp"
+#include "com/png.hpp"
 extern "C" {
 #include "com/getopt.h"
 }
@@ -283,6 +283,9 @@ std::unordered_map<std::string, std::string> imageToPalMap{
     {"Z12SLOT4.BMX", "Z12.PAL"},
     {"Z12SLOT5.BMX", "Z12.PAL"},
     {"Z12SLOT6.BMX", "Z12.PAL"},
+
+    // Icons
+    {"FMAP_ICN.BMX", "FULLMAP.PAL"},
 };
 
 struct Options
@@ -292,38 +295,62 @@ struct Options
     std::string mOutputPath;
 };
 
+void show_help()
+{
+    std::cout << "Extracts BaK data files into the specified directory. All arguments are mandatory\n";
+    std::cout << "\t --resource,-r :: the krondor.001 file\n";
+    std::cout << "\t --index,-i :: the krondor.rmf file\n";
+    std::cout << "\t --output,-o :: the directory to write the unpacked data files\n";
+    exit(0);
+}
+
 Options Parse(int argc, char** argv)
 {
     Options values{};
 
     struct option options[] = {
-        {"help", no_argument,       0, 'h'},
+        {"help", no_argument, 0, 'h'},
         {"resource", no_argument, 0, 'r'},
         {"index", required_argument, 0, 'i'},
         {"output", required_argument, 0, 'o'}
     };
     int optionIndex = 0;
     int opt;
+    if (argc == 1)
+    {
+        show_help();
+    }
     while ((opt = getopt_long(argc, argv, "hr:i:o:", options, &optionIndex)) != -1)
     {   
         if (opt == 'h')
         {
-            std::cout << "Extracts BaK data files into the specified directory. All arguments are mandatory\n";
-            std::cout << "\t --resource,-r :: the krondor.001 file\n";
-            std::cout << "\t --index,-i :: the krondor.rmf file\n";
-            std::cout << "\t --output,-o :: the directory to write the unpacked data files\n";
-            exit(0);
+            show_help();
         }
         else if (opt == 'r')
         {
+            if (optarg == nullptr)
+            {
+                std::cerr << "must provide a resource file to -r argument" << std::endl;
+                exit(1);
+            }
             values.mResourceFile = std::string{optarg};
         }
         else if (opt == 'i')
         {
+            if (optarg == nullptr)
+            {
+                std::cerr << "must provide a resource index file to -i argument" << std::endl;
+                exit(1);
+            }
             values.mResourceIndexFile = std::string{optarg};
         }
         else if (opt == 'o')
         {
+            if (optarg == nullptr)
+            {
+                std::cerr << "must provide an output path to -o argument" << std::endl;
+                exit(1);
+            }
             values.mOutputPath = std::string{optarg};
         }
     }
@@ -336,10 +363,13 @@ void WriteImage(
     const BAK::Image& image,
     const BAK::Palette& palette)
 {
-    auto fout = std::ofstream{
-        filePath,
-        std::ios::binary | std::ios::out};
-    WriteBMP(fout, image.GetWidth(), image.GetHeight(), image.GetVector(), palette.GetColors8());
+    PNGImage pngImage{image.GetWidth(), image.GetHeight(), {}};
+    for (auto index : image.GetVector())
+    {
+        auto color = palette.GetColors8()[index];
+        pngImage.mPixels.emplace_back(color[0], color[1], color[2], color[3]);
+    }
+    WritePNG(filePath.c_str(), pngImage);
 }
 
 void WriteImages(
@@ -348,19 +378,20 @@ void WriteImages(
     const std::vector<BAK::Image>& images,
     const BAK::Palette& palette)
 {
-    const auto outputName = fileName + ".BMP";
+    const auto outputName = fileName + ".PNG";
     if (images.size() == 1)
     {
         WriteImage(outputPath / outputName, images.back(), palette);
     }
     else
     {
-        std::filesystem::create_directory(outputPath / outputName);
+        const auto dirName = fileName + ".BMX";
+        std::filesystem::create_directory(outputPath / dirName);
         for (unsigned i = 0; i < images.size(); i++)
         {
             std::stringstream name{};
-            name << i << ".BMP";
-            WriteImage(outputPath / outputName / name.str(), images[i], palette);
+            name << i << ".PNG";
+            WriteImage(outputPath / dirName / name.str(), images[i], palette);
         }
     }
 }
@@ -370,17 +401,24 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Info);
     Logging::LogState::SetLogTime(false);
+    Logging::LogState::SetLogColor(true);
     
     const auto options = Parse(argc, argv);
     if (!std::filesystem::exists(options.mResourceFile))
     {
         logger.Error() << "Resource file does not exist at path: " << options.mResourceFile << "\n";
-        exit(1);
+        show_help();
     }
     if (!std::filesystem::exists(options.mResourceIndexFile))
     {
         logger.Error() << "Resource index file does not exist at path: " << options.mResourceIndexFile << "\n";
-        exit(1);
+        show_help();
+    }
+
+    if (options.mOutputPath.empty())
+    {
+        logger.Error() << "Must provide an output directory to write files to ('-o' option)" << std::endl;
+        show_help();
     }
 
     logger.Info() << "Extracting resources to:" << options.mOutputPath << "\n";
@@ -442,6 +480,6 @@ int main(int argc, char** argv)
             palette = palFiles.at(palName);
         }
         logger.Info() << "Writing out SCX " << fname << " with palette: " << palName << "\n";
-        WriteImage(output / (name + ".BMP"), image, palette);
+        WriteImage(output / (name + ".PNG"), image, palette);
     }
 }

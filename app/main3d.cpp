@@ -138,14 +138,6 @@ int main(int argc, char** argv)
 {
     const auto options = Parse(argc, argv);
     const auto config = LoadConfigFile(options.configFile);
-
-    if (!config.mPaths.mGameData.empty())
-    {
-        Paths::Get().SetBakDirectory(config.mPaths.mGameData);
-    }
-
-    const bool showImgui = config.mGraphics.mEnableImGui;
-
     Logging::LogState::SetLogTime(config.mLogging.mLogTime);
     Logging::LogState::SetLogColor(config.mLogging.mLogColours);
     if (options.logLevel != "")
@@ -166,6 +158,19 @@ int main(int argc, char** argv)
         Logging::LogState::Disable(disabled);
     }
     
+    if (!config.mPaths.mGameData.empty())
+    {
+        Paths::Get().SetBakDirectory(config.mPaths.mGameData);
+    }
+
+    if (!config.mPaths.mGraphicsOverrides.empty())
+    {
+        Paths::Get().SetModDirectory(config.mPaths.mGraphicsOverrides);
+    }
+
+    const bool showImgui = config.mGraphics.mEnableImGui;
+
+
     auto guiScalar = config.mGraphics.mResolutionScale;
 
     auto nativeWidth = 320.0f;

@@ -1,4 +1,5 @@
 #include "com/path.hpp"
+#include "com/logger.hpp"
 
 std::string GetHomeDirectory()
 {
@@ -33,12 +34,30 @@ std::string Paths::GetBakDirectory() const
     return GetBakDirectoryPath().string();
 }
 
+std::filesystem::path Paths::GetModDirectoryPath() const
+{
+    return mModDirectoryPath;
+}
+
+std::string Paths::GetModDirectory() const
+{
+    return GetModDirectoryPath().string();
+}
+
 void Paths::SetBakDirectory(std::string path)
 {
+    Logging::LogInfo(__FUNCTION__) << "Overriding BAK path to: " << path << "\n";
     mBakDirectoryPath = path;
+}
+
+void Paths::SetModDirectory(std::string path)
+{
+    Logging::LogInfo(__FUNCTION__) << "Overriding Mod path to: " << path << "\n";
+    mModDirectoryPath = path;
 }
 
 Paths::Paths()
 :
-    mBakDirectoryPath{std::filesystem::path{GetHomeDirectory()} / "bak"}
+    mBakDirectoryPath{std::filesystem::path{GetHomeDirectory()} / "bak"},
+    mModDirectoryPath{""}
 {}

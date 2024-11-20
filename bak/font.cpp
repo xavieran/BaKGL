@@ -22,7 +22,7 @@ Graphics::Texture GlyphToTexture(const Glyph& glyph)
         }
     }
 
-    return Graphics::Texture{data, glyph.mWidth, glyph.mHeight};
+    return Graphics::Texture{data, glyph.mWidth, glyph.mHeight, glyph.mWidth, glyph.mHeight};
 }
 
 Font LoadFont(FileBuffer& fb)
@@ -89,7 +89,7 @@ Font LoadFont(FileBuffer& fb)
                     data.push_back(color);
                 }
             }
-            auto texture = Graphics::Texture{data, width, height};
+            auto texture = Graphics::Texture{data, width, height, width, height};
             texture.Invert();
             textures.AddTexture(texture);
         }
