@@ -4,11 +4,11 @@
 
 namespace BAK {
 
-class Time;
-class Skills;
 class Character;
 class Conditions;
 class GameState;
+class Skills;
+struct Time;
 
 void EffectOfConditionsWithTime(
     Skills& skills,

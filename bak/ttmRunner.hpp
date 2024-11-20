@@ -8,7 +8,7 @@
 
 namespace BAK {
 
-class SceneSequence;
+struct SceneSequence;
 
 class TTMRunner
 {

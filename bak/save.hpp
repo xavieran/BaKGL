@@ -9,10 +9,10 @@ class Party;
 class Character;
 class FileBuffer;
 class GenericContainer;
-class MapLocation;
-class Location;
+struct MapLocation;
+struct Location;
 class SpellState;
-class TimeExpiringState;
+struct TimeExpiringState;
 class WorldClock;
 
 void Save(const Inventory&, FileBuffer&);

@@ -9,8 +9,8 @@ namespace BAK {
 class Conditions;
 class InventoryItem;
 class Skills;
-class SkillAffector;
-class ShopStats;
+struct SkillAffector;
+struct ShopStats;
 }
 
 namespace BAK::Temple {

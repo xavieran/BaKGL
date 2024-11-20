@@ -6,7 +6,7 @@
 
 namespace BAK {
 
-struct FileBuffer;
+class FileBuffer;
 
 struct WorldItem
 {

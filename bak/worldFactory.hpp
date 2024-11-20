@@ -18,7 +18,7 @@ class MeshObject;
 namespace BAK {
 
 class Palette;
-class Model;
+struct Model;
 class MonsterNames;
 
 class ZoneTextureStore
