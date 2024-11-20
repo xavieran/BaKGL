@@ -1,17 +1,16 @@
 #pragma once
 
-#include "com/logger.hpp"
-
-#include "bak/fileBufferFactory.hpp"
-
 #include "glm/fwd.hpp"
 #include <glm/glm.hpp>
 
+#include <array>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace BAK {
+
+class FileBuffer;
 
 constexpr unsigned EF_TERRAIN   = 0x00;
 constexpr unsigned EF_UNBOUNDED = 0x20;

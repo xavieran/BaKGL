@@ -1,11 +1,12 @@
 #pragma once
 
-#include "bak/file/fileBuffer.hpp"
 #include "bak/file/aggregateFileProvider.hpp"
 
 #include <string>
 
 namespace BAK {
+
+class FileBuffer;
 
 class FileBufferFactory
 {

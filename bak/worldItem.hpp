@@ -1,13 +1,12 @@
 #pragma once
 
-#include "bak/constants.hpp"
-#include "bak/coordinates.hpp"
-
-#include "bak/fileBufferFactory.hpp"
+#include <glm/glm.hpp>
 
 #include <vector>
 
 namespace BAK {
+
+struct FileBuffer;
 
 struct WorldItem
 {

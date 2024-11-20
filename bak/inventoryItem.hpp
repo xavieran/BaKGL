@@ -1,14 +1,14 @@
 #pragma once
 
-#include "bak/objectInfo.hpp"
-#include "bak/itemNumbers.hpp"
 #include "bak/types.hpp"
-
-#include "com/bits.hpp"
 
 #include <iostream>
 
 namespace BAK {
+
+struct GameObject;
+enum class ItemType;
+enum class Modifier;
 
 enum class ItemStatus : std::uint8_t
 {
@@ -45,212 +45,54 @@ public:
         std::uint8_t status,
         std::uint8_t modifiers);
 
-    const GameObject& GetObject() const { ASSERT(mObject); return *mObject; }
+    const GameObject& GetObject() const;
 
-    auto GetItemIndex() const { return mItemIndex; }
-    auto GetQuantity() const { return mCondition; }
-    auto GetSpell() const { return SpellIndex{mCondition}; }
-    auto GetCondition() const { return mCondition; }
-    auto GetStatus() const { return mStatus; }
-    auto GetModifierMask() const { return mModifiers; }
+    ItemIndex GetItemIndex() const;
+    unsigned GetQuantity() const;
+    SpellIndex GetSpell() const;
+    unsigned GetCondition() const;
+    std::uint8_t GetStatus() const;
+    std::uint8_t GetModifierMask() const;
 
-    bool IsActivated() const
-    {
-        return CheckItemStatus(mStatus, ItemStatus::Activated);
-    }
+    bool IsActivated() const;
+    bool IsEquipped() const;
+    bool IsBroken() const;
+    bool IsRepairable() const;
+	bool IsRepairableByShop() const;
+    bool IsPoisoned() const;
+    bool IsMoney() const;
+    bool IsKey() const;
 
-    bool IsEquipped() const
-    {
-        return CheckItemStatus(mStatus, ItemStatus::Equipped);
-    }
+    bool HasFlag(ItemFlags flag) const;
+    bool IsConditionBased() const;
+    bool IsChargeBased() const;
+    bool IsStackable() const;
+    bool IsQuantityBased() const;
+    bool IsConsumable() const;
+    bool IsMagicUserOnly() const;
+    bool IsSwordsmanUserOnly() const;
+    bool IsSkillModifier() const;
+    bool IsItemType(ItemType type) const;
+    bool IsItemModifier() const;
+    bool IsModifiableBy(ItemType itemType);
+    bool IsRepairItem() const;
+    bool DisplayCondition() const;
+    bool DisplayNumber() const;
+    bool HasModifier(Modifier mod) const;
 
-    bool IsBroken() const
-    {
-        return CheckItemStatus(mStatus, ItemStatus::Broken);
-    }
+    void SetActivated(bool state);
+    void SetEquipped(bool state);
+    void SetRepairable(bool state);
+    void SetBroken(bool state);
+    void SetCondition(unsigned condition);
+    void SetQuantity(unsigned quantity);
 
-    bool IsRepairable() const
-    {
-        return CheckItemStatus(mStatus, ItemStatus::Repairable) && !IsBroken();
-    }
-
-	bool IsRepairableByShop() const
-    {
-        return GetCondition() != 100;
-    }
-
-    bool IsPoisoned() const
-    {
-        return CheckItemStatus(mStatus, ItemStatus::Poisoned);
-    }
-
-    bool IsMoney() const
-    {
-        return mItemIndex == ItemIndex{0x35}
-            || mItemIndex == ItemIndex{0x36};
-    }
-
-    bool IsKey() const
-    {
-        return IsItemType(ItemType::Key) || mItemIndex == BAK::sPicklock;
-    }
-    void SetActivated(bool state)
-    {
-        mStatus = SetItemStatus(mStatus, ItemStatus::Activated, state);
-    }
-
-    void SetEquipped(bool state)
-    {
-        mStatus = SetItemStatus(mStatus, ItemStatus::Equipped, state);
-    }
-
-    void SetRepairable(bool state)
-    {
-        mStatus = SetItemStatus(mStatus, ItemStatus::Repairable, state);
-    }
-
-    void SetBroken(bool state)
-    {
-        mStatus = SetItemStatus(mStatus, ItemStatus::Broken, state);
-    }
-
-    void SetCondition(unsigned condition)
-    {
-        mCondition = condition;
-    }
-
-    void SetQuantity(unsigned quantity)
-    {
-        ASSERT(!IsStackable() || (IsStackable() && quantity <= GetObject().mStackSize));
-        mCondition = quantity;
-    }
-
-    bool HasFlag(ItemFlags flag) const
-    {
-        return CheckBitSet(GetObject().mFlags, flag);
-    }
-
-    bool IsConditionBased() const
-    {
-        return HasFlag(ItemFlags::ConditionBased);
-    }
-
-    bool IsChargeBased() const
-    {
-        return HasFlag(ItemFlags::ChargeBased);
-    }
-
-    bool IsStackable() const
-    {
-        return HasFlag(ItemFlags::Stackable);
-    }
-
-    bool IsQuantityBased() const
-    {
-        return HasFlag(ItemFlags::QuantityBased);
-    }
-
-    bool IsConsumable() const
-    {
-        return HasFlag(ItemFlags::Consumable);
-    }
-
-    bool IsMagicUserOnly() const
-    {
-        return HasFlag(ItemFlags::MagicalItem);
-    }
-
-    bool IsSwordsmanUserOnly() const
-    {
-        return HasFlag(ItemFlags::SwordsmanItem);
-    }
-
-    bool IsSkillModifier() const
-    {
-        return GetObject().mModifierMask != 0;
-    }
-
-    bool IsItemType(BAK::ItemType type) const
-    {
-        return GetObject().mType == type;
-    }
-
-    bool IsItemModifier() const
-    {
-        return IsItemType(ItemType::WeaponOil)
-            || IsItemType(ItemType::ArmorOil)
-            || IsItemType(BAK::ItemType::SpecialOil);
-    }
-
-    bool IsModifiableBy(ItemType itemType)
-    {
-        return (itemType == ItemType::WeaponOil && IsItemType(ItemType::Sword))
-            || (itemType == ItemType::ArmorOil && IsItemType(ItemType::Armor))
-            || (itemType == ItemType::SpecialOil 
-                    && (IsItemType(ItemType::Armor)
-                        || IsItemType(ItemType::Sword)));
-    }
-
-    bool IsRepairItem() const
-    {
-        return IsItemType(BAK::ItemType::Tool);
-    }
-
-    bool DisplayCondition() const
-    {
-        return IsConditionBased();
-    }
-
-    bool DisplayNumber() const
-    {
-        return IsConditionBased() 
-            || IsStackable()
-            || IsChargeBased()
-            || IsQuantityBased()
-            || IsKey();
-    }
-
-    bool HasModifier(Modifier mod) const
-    {
-        return CheckBitSet(mModifiers, mod);
-    }
-
-    void ClearTemporaryModifiers()
-    {
-        mStatus = mStatus & 0b0111'1111;
-        mModifiers = mModifiers & 0b1110'0000;
-    }
-
-    void SetStatusAndModifierFromMask(std::uint16_t mask)
-    {
-        mStatus |= (mask & 0xff);
-        mModifiers |= ((mask >> 8) & 0xff);
-    }
-
-    void SetModifier(Modifier mod)
-    {
-        mModifiers = SetBit(mModifiers, static_cast<std::uint8_t>(mod), true);
-    }
-
-    void UnsetModifier(Modifier mod)
-    {
-        mModifiers = SetBit(mModifiers, static_cast<std::uint8_t>(mod), false);
-    }
-
-    std::vector<Modifier> GetModifiers() const
-    {
-        auto mods = std::vector<Modifier>{};
-        for (unsigned i = 0; i < 8; i++)
-            if (CheckBitSet(mModifiers, i))
-                mods.emplace_back(static_cast<Modifier>(i));
-        return mods;
-    }
-
-    std::pair<unsigned, unsigned> GetItemUseSound() const
-    {
-        return std::make_pair(GetObject().mUseSound, GetObject().mSoundPlayTimes);
-    }
-
+    void ClearTemporaryModifiers();
+    void SetStatusAndModifierFromMask(std::uint16_t mask);
+    void SetModifier(Modifier mod);
+    void UnsetModifier(Modifier mod);
+    std::vector<Modifier> GetModifiers() const;
+    std::pair<unsigned, unsigned> GetItemUseSound() const;
 
 private:
     GameObject const* mObject;
@@ -269,28 +111,11 @@ public:
         ItemIndex itemIndex,
         std::uint8_t quantity,
         std::uint8_t status,
-        std::uint8_t modifiers)
-    {
-        const auto& objects = ObjectIndex::Get();
-
-        return InventoryItem{
-            &objects.GetObject(itemIndex),
-            itemIndex,
-            quantity,
-            status,
-            modifiers};
-    }
+        std::uint8_t modifiers);
 
     static InventoryItem MakeItem(
         ItemIndex itemIndex,
-        std::uint8_t quantity)
-    {
-        return MakeItem(
-            itemIndex,
-            quantity,
-            0,
-            0);
-    }
+        std::uint8_t quantity);
 };
 
 }

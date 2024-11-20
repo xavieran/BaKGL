@@ -1,6 +1,13 @@
 #include "bak/haggle.hpp"
 
 #include "bak/money.hpp"
+#include "bak/party.hpp"
+#include "bak/shop.hpp"
+#include "bak/skills.hpp"
+
+#include "com/random.hpp"
+
+#include <algorithm>
 
 namespace BAK::Haggle {
 

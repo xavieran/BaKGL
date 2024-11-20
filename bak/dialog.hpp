@@ -3,18 +3,17 @@
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
 #include "bak/dialogTarget.hpp"
-#include "bak/resourceNames.hpp"
 
 #include "com/logger.hpp"
 #include "com/visit.hpp"
-
-#include "bak/fileBufferFactory.hpp"
 
 #include <iosfwd>
 #include <optional>
 #include <unordered_map>
 
 namespace BAK {
+
+class FileBuffer;
 
 class Keywords
 {

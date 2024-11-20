@@ -1,16 +1,21 @@
 #include "bak/textureFactory.hpp"
 
+#include "bak/image.hpp"
 #include "bak/imageStore.hpp"
+#include "bak/palette.hpp"
 #include "bak/screen.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include "com/logger.hpp"
 #include "com/png.hpp"
 #include "com/path.hpp"
 #include "com/string.hpp"
+
 #include "graphics/texture.hpp"
 
 #include <algorithm>
 #include <filesystem>
+#include <string>
 #include <random>
 
 namespace BAK {

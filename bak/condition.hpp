@@ -1,6 +1,5 @@
 #pragma once
 
-#include "com/assert.hpp"
 #include "com/saturatingNum.hpp"
 
 #include <array>

@@ -1,8 +1,7 @@
 #include "bak/fixedObject.hpp"
 
-#include "bak/coordinates.hpp"
-
-#include "com/ostream.hpp"
+#include "bak/container.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 namespace BAK {
 

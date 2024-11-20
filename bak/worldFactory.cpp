@@ -1,12 +1,22 @@
 #include "bak/worldFactory.hpp"
 
+#include "bak/encounter/encounter.hpp"
+#include "bak/fileBufferFactory.hpp"
+#include "bak/image.hpp"
 #include "bak/imageStore.hpp"
+#include "bak/model.hpp"
+#include "bak/palette.hpp"
+#include "bak/monster.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
+#include "bak/zoneReference.hpp"
 
 #include "com/string.hpp"
 
-#include "bak/fileBufferFactory.hpp"
+#include "graphics/meshObject.hpp"
+
+#include <functional>   
+#include <vector>
 
 namespace BAK {
 
@@ -71,6 +81,22 @@ ZoneTextureStore::ZoneTextureStore(
             pal);
     }
 }
+
+const Graphics::Texture& ZoneTextureStore::GetTexture(const unsigned i) const
+{
+    return mTextures.GetTexture(i);
+}
+
+const std::vector<Graphics::Texture>& ZoneTextureStore::GetTextures() const { return mTextures.GetTextures(); }
+
+unsigned ZoneTextureStore::GetMaxDim() const { return mTextures.GetMaxDim(); }
+unsigned ZoneTextureStore::GetTerrainOffset(BAK::Terrain t) const
+{
+    return mTerrainOffset + static_cast<unsigned>(t);
+}
+unsigned ZoneTextureStore::GetHorizonOffset() const { return mHorizonOffset; }
+
+
 
 ZoneItem::ZoneItem(
     const Model& model,
@@ -601,6 +627,66 @@ Graphics::MeshObject ZoneItemToMeshObject(
         indices};
 }
 
+ZoneItemStore::ZoneItemStore(
+    const ZoneLabel& zoneLabel,
+    // Should one really need a texture store to load this?
+    const ZoneTextureStore& textureStore)
+:
+    mZoneLabel{zoneLabel},
+    mItems{}
+{
+    auto fb = FileBufferFactory::Get()
+        .CreateDataBuffer(mZoneLabel.GetTable());
+    const auto models = LoadTBL(fb);
+
+    for (unsigned i = 0; i < models.size(); i++)
+    {
+        mItems.emplace_back(
+            models[i],
+            textureStore);
+    }
+}
+
+const ZoneLabel& ZoneItemStore::GetZoneLabel() const { return mZoneLabel; }
+
+const ZoneItem& ZoneItemStore::GetZoneItem(const unsigned i) const
+{
+    ASSERT(i < mItems.size());
+    return mItems[i];
+}
+
+const ZoneItem& ZoneItemStore::GetZoneItem(const std::string& name) const
+{
+    auto it = std::find_if(mItems.begin(), mItems.end(),
+        [&name](const auto& item){
+        return name == item.GetName();
+        });
+
+    ASSERT(it != mItems.end());
+    return *it;
+}
+
+const std::vector<ZoneItem>& ZoneItemStore::GetItems() const { return mItems; }
+std::vector<ZoneItem>& ZoneItemStore::GetItems() { return mItems; }
+
+WorldItemInstance::WorldItemInstance(
+    const ZoneItem& zoneItem,
+    const WorldItem& worldItem)
+:
+    mZoneItem{zoneItem},
+    mType{worldItem.mItemType},
+    mRotation{BAK::ToGlAngle(worldItem.mRotation)},
+    mLocation{BAK::ToGlCoord<float>(worldItem.mLocation)},
+    mBakLocation{worldItem.mLocation.x, worldItem.mLocation.y}
+{
+}
+
+const ZoneItem& WorldItemInstance::GetZoneItem() const { return mZoneItem; }
+const glm::vec3& WorldItemInstance::GetRotation() const { return mRotation; }
+const glm::vec3& WorldItemInstance::GetLocation() const { return mLocation; }
+const glm::uvec2& WorldItemInstance::GetBakLocation() const { return mBakLocation; }
+unsigned WorldItemInstance::GetType() const { return mType; }
+
 std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
     os << "[ Name: " << d.GetZoneItem().GetName() << " Type: " << d.mType << " Rot: " 
@@ -616,4 +702,109 @@ std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
     return os;
 }
 
+World::World(
+    const ZoneItemStore& zoneItems,
+    Encounter::EncounterFactory ef,
+    unsigned x,
+    unsigned y,
+    unsigned tileIndex)
+:
+    mCenter{},
+    mTile{x, y},
+    mTileIndex{tileIndex},
+    mItemInsts{},
+    mEncounters{},
+    mEmpty{}
+{
+    LoadWorld(zoneItems, ef, x, y, tileIndex);
 }
+
+void World::LoadWorld(
+    const ZoneItemStore& zoneItems,
+    const Encounter::EncounterFactory ef,
+    unsigned x,
+    unsigned y,
+    unsigned tileIndex)
+{
+    const auto& logger = Logging::LogState::GetLogger("World");
+    const auto tileWorld = zoneItems.GetZoneLabel().GetTileWorld(x, y);
+    logger.Debug() << "Loading tile: " << tileWorld << std::endl;
+
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(tileWorld);
+    const auto [tileWorldItems, tileCenter] = LoadWorldTile(fb);
+
+    for (const auto& item : tileWorldItems)
+    {
+        if (item.mItemType == 0)
+            mCenter = ToGlCoord<float>(item.mLocation);
+
+        mItemInsts.emplace_back(
+            zoneItems.GetZoneItem(item.mItemType),
+            item);
+    }
+
+    const auto tileData = zoneItems.GetZoneLabel().GetTileData(x, y);
+    if (FileBufferFactory::Get().DataBufferExists(tileData))
+    {
+        auto fb = FileBufferFactory::Get().CreateDataBuffer(tileData);
+            
+        mEncounters = Encounter::EncounterStore(
+            ef,
+            fb,
+            mTile,
+            mTileIndex);
+    }
+}
+
+glm::vec<2, unsigned> World::GetTile() const { return mTile; }
+const std::vector<WorldItemInstance>& World::GetItems() const { return mItemInsts; }
+const std::vector<Encounter::Encounter>& World::GetEncounters(Chapter chapter) const
+{
+    if (mEncounters)
+        return mEncounters->GetEncounters(chapter);
+    else
+        return mEmpty;
+}
+
+glm::vec3 World::GetCenter() const
+{
+    return mCenter.value_or(
+        GetItems().front().GetLocation());
+}
+
+WorldTileStore::WorldTileStore(
+    const ZoneItemStore& zoneItems,
+    const Encounter::EncounterFactory& ef)
+:
+    mWorlds{
+        std::invoke([&zoneItems, &ef]()
+        {
+            const auto tiles = LoadZoneRef(
+                zoneItems.GetZoneLabel().GetZoneReference());
+
+            std::vector<World> worlds{};
+            worlds.reserve(tiles.size());
+
+            for (unsigned tileIndex = 0; tileIndex < tiles.size(); tileIndex++)
+            {
+                const auto& tile = tiles[tileIndex];
+                auto it = worlds.emplace_back(
+                    zoneItems,
+                    ef,
+                    tile.x,
+                    tile.y,
+                    tileIndex);
+            }
+
+            return worlds;
+        })
+    }
+{}
+
+const std::vector<World>& WorldTileStore::GetTiles() const
+{
+    return mWorlds;
+}
+
+}
+

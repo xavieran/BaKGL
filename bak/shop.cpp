@@ -2,6 +2,7 @@
 
 #include "bak/IContainer.hpp"
 #include "bak/fileBufferFactory.hpp"
+#include "bak/inventory.hpp"
 #include "bak/inventoryItem.hpp"
 #include "bak/itemNumbers.hpp"
 #include "bak/money.hpp"

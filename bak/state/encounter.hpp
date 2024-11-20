@@ -1,11 +1,14 @@
 #pragma once
 
-#include "bak/file/fileBuffer.hpp"
-
-#include "bak/encounter/encounter.hpp"
+#include "bak/types.hpp"
 
 namespace BAK {
+class FileBuffer;
 class GameState;
+class Time;
+namespace Encounter {
+class Encounter;
+}
 }
 
 namespace BAK::State {

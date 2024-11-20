@@ -13,15 +13,9 @@ public:
     SoundData(
         std::string name,
         unsigned type,
-        std::vector<Sound>&& sounds)
-    :
-        mName{name},
-        mType{type},
-        mSounds{std::move(sounds)}
-    {
-    }
+        std::vector<Sound>&& sounds);
 
-    std::vector<Sound>& GetSounds() { return mSounds; }
+    std::vector<Sound>& GetSounds();
 
 private:
     std::string mName;

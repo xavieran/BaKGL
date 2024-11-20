@@ -3,6 +3,8 @@
 
 #include "com/assert.hpp"
 
+#include "graphics/glm.hpp"
+
 namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading& pah)

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "bak/dialog.hpp"
-#include "bak/money.hpp"
-#include "bak/shop.hpp"
+#include "bak/dialogTarget.hpp"
 #include "bak/types.hpp"
+
+namespace BAK {
+struct ShopStats;
+}
 
 namespace BAK::Bard {
 

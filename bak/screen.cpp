@@ -1,5 +1,8 @@
 #include "bak/screen.hpp"
 
+#include "bak/image.hpp"
+#include "bak/fileBufferFactory.hpp"
+
 namespace BAK {
 
 constexpr unsigned SCREEN_WIDTH       = 320;

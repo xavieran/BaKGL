@@ -1,5 +1,7 @@
 #include "bak/tags.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
 #include "com/logger.hpp"
 
 namespace BAK {

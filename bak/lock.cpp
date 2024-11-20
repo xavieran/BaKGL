@@ -1,11 +1,22 @@
 #include "bak/lock.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+#include "bak/inventoryItem.hpp"
 #include "bak/random.hpp"
 
-#include "com/ostream.hpp"
 #include "com/string.hpp"
 
 namespace BAK {
+
+bool LockStats::IsFairyChest()
+{
+    return mFairyChestIndex != 0;
+}
+
+bool LockStats::IsTrapped()
+{
+    return mLockFlag == 1 || mLockFlag == 4;
+}
 
 std::ostream& operator<<(std::ostream& os, const LockStats& lock)
 {

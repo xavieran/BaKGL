@@ -1,5 +1,7 @@
 #include "bak/ramp.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
 namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const Ramp& ramp)

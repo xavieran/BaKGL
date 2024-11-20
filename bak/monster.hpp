@@ -12,11 +12,7 @@ class MonsterNames
 {
     static constexpr std::string sInvalidMonster = "INVALID MONSTER";
 public:
-    static const MonsterNames& Get()
-    {
-        static auto mnames = MonsterNames{};
-        return mnames;
-    }
+    static const MonsterNames& Get();
 
     struct Monster
     {
@@ -25,14 +21,7 @@ public:
             std::uint8_t unknown0,
             std::uint8_t unknown1,
             std::uint8_t unknown2,
-            std::uint8_t colorSwap)
-        :
-            mPrefix{prefix},
-            mUnknown0{unknown0},
-            mUnknown1{unknown1},
-            mUnknown2{unknown2},
-            mColorSwap{colorSwap}
-        {}
+            std::uint8_t colorSwap);
 
         std::string mPrefix;
         std::uint8_t mUnknown0;
@@ -41,31 +30,10 @@ public:
         std::uint8_t mColorSwap;
     };
 
-    const std::string& GetMonsterName(MonsterIndex monster) const
-    {
-        if (monster.mValue < mMonsterNames.size())
-        {
-            return mMonsterNames[monster.mValue];
-        }
-        else
-        {
-            return sInvalidMonster;
-        }
-    }
-
-    const std::string& GetMonsterAnimationFile(MonsterIndex monster) const
-    {
-        ASSERT(monster.mValue < mMonsterPrefixes.size());
-        return mMonsterPrefixes[monster.mValue].mPrefix;
-    }
-
-    auto GetColorSwap(MonsterIndex monster) const
-    {
-        ASSERT(monster.mValue < mMonsterPrefixes.size());
-        return mMonsterPrefixes[monster.mValue].mColorSwap;
-    }
-
-    auto size() const { return mMonsterPrefixes.size(); }
+    const std::string& GetMonsterName(MonsterIndex monster) const;
+    const std::string& GetMonsterAnimationFile(MonsterIndex monster) const;
+    std::uint8_t GetColorSwap(MonsterIndex monster) const;
+    std::size_t size() const;
 
 private:
     MonsterNames();

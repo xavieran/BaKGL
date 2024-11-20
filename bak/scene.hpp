@@ -1,12 +1,7 @@
 #pragma once
 
-#include "bak/gameState.hpp"
 #include "bak/sceneData.hpp"
 #include "bak/types.hpp"
-
-#include "com/assert.hpp"
-
-#include "bak/fileBufferFactory.hpp"
 
 #include <optional>
 #include <vector>
@@ -15,49 +10,15 @@
 
 namespace BAK {
 
+class FileBuffer;
+
 using TTMIndex = unsigned;
 
 struct ADSIndex
 {
-    ADSIndex()
-    :
-        mIf{0},
-        mElse{},
-        mGreaterThan{},
-        mLessThan{}
-    {}
+    ADSIndex();
 
-    TTMIndex GetTTMIndex(Chapter chapter) const
-    {
-        if (mGreaterThan && mLessThan)
-        {
-            if (chapter.mValue >= *mGreaterThan
-                && chapter.mValue <= *mLessThan)
-                return mIf;
-            else
-            {
-                ASSERT(mElse);
-                return *mElse;
-            }
-        }
-        else if (mGreaterThan && chapter.mValue >= *mGreaterThan)
-        {
-            return mIf;
-        }
-        else if (mLessThan && chapter.mValue <= *mLessThan)
-        {
-            return mIf;
-        }
-        else if (!mGreaterThan && !mLessThan)
-        {
-            return mIf;
-        }
-        else
-        {
-            ASSERT(mElse);
-            return *mElse;
-        }
-    }
+    TTMIndex GetTTMIndex(Chapter chapter) const;
 
     TTMIndex mIf;
     std::optional<TTMIndex> mElse;
@@ -121,24 +82,5 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
 std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb);
 
 FileBuffer DecompressTTM(FileBuffer& fb);
-
-// Helper during loading
-struct SceneChunk
-{
-    SceneChunk(
-        Actions action,
-        std::optional<std::string> resourceName,
-        std::vector<std::int16_t> arguments)
-    :
-        mAction{action},
-        mResourceName{resourceName},
-        mArguments{arguments}
-    {}
-
-    Actions mAction;
-    std::optional<std::string> mResourceName;
-    std::vector<std::int16_t> mArguments;
-};
-
 
 }

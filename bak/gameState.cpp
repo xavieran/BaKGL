@@ -1,9 +1,14 @@
 #include "bak/gameState.hpp"
 
 #include "bak/coordinates.hpp"
+#include "bak/constants.hpp"
 #include "bak/dialogChoice.hpp"
-#include "bak/state/customStateChoice.hpp"
+#include "bak/money.hpp"
+#include "bak/monster.hpp"
+#include "bak/itemNumbers.hpp"
+#include "bak/gameData.hpp"
 
+#include "bak/state/customStateChoice.hpp"
 #include "bak/state/dialog.hpp"
 #include "bak/state/event.hpp"
 #include "bak/state/encounter.hpp"

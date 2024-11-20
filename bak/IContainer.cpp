@@ -1,5 +1,6 @@
 #include "IContainer.hpp"
 
+#include "com/bits.hpp"
 #include "com/ostream.hpp"
 
 namespace BAK {

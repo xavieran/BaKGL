@@ -1,10 +1,23 @@
-#include "bak/dataTags.hpp"
 #include "bak/soundStore.hpp"
+
+#include "bak/dataTags.hpp"
 #include "bak/tags.hpp"
 
-#include "com/path.hpp"
-
 namespace BAK {
+
+SoundData::SoundData(
+    std::string name,
+    unsigned type,
+    std::vector<Sound>&& sounds)
+:
+    mName{name},
+    mType{type},
+    mSounds{std::move(sounds)}
+{
+}
+
+std::vector<Sound>& SoundData::GetSounds() { return mSounds; }
+
 
 SoundStore& SoundStore::Get()
 {

@@ -4,7 +4,7 @@
 
 #include "com/ostream.hpp"
 
-#include <optional>
+#include "graphics/glm.hpp"
 
 namespace BAK {
 

@@ -11,6 +11,55 @@
 
 namespace BAK {
 
+const MonsterNames& MonsterNames::Get()
+{
+    static auto mnames = MonsterNames{};
+    return mnames;
+}
+
+MonsterNames::Monster::Monster(
+    std::string prefix,
+    std::uint8_t unknown0,
+    std::uint8_t unknown1,
+    std::uint8_t unknown2,
+    std::uint8_t colorSwap)
+:
+    mPrefix{prefix},
+    mUnknown0{unknown0},
+    mUnknown1{unknown1},
+    mUnknown2{unknown2},
+    mColorSwap{colorSwap}
+{}
+
+const std::string& MonsterNames::GetMonsterName(MonsterIndex monster) const
+{
+    if (monster.mValue < mMonsterNames.size())
+    {
+        return mMonsterNames[monster.mValue];
+    }
+    else
+    {
+        return sInvalidMonster;
+    }
+}
+
+const std::string& MonsterNames::GetMonsterAnimationFile(MonsterIndex monster) const
+{
+    ASSERT(monster.mValue < mMonsterPrefixes.size());
+    return mMonsterPrefixes[monster.mValue].mPrefix;
+}
+
+std::uint8_t MonsterNames::GetColorSwap(MonsterIndex monster) const
+{
+    ASSERT(monster.mValue < mMonsterPrefixes.size());
+    return mMonsterPrefixes[monster.mValue].mColorSwap;
+}
+
+std::size_t MonsterNames::size() const
+{
+    return mMonsterPrefixes.size();
+}
+
 MonsterNames::MonsterNames()
 :
     mMonsterNames{},

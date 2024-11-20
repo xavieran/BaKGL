@@ -1,14 +1,15 @@
 #pragma once
 
-#include "bak/inventoryItem.hpp"
-#include "bak/skills.hpp"
-
-#include "bak/fileBufferFactory.hpp"
+#include "bak/types.hpp"
 
 #include <optional>
 #include <ostream>
+#include <vector>
 
 namespace BAK {
+
+class FileBuffer;
+class InventoryItem;
 
 struct LockStats
 {
@@ -17,16 +18,8 @@ struct LockStats
     unsigned mFairyChestIndex;
     unsigned mTrapDamage;
 
-    bool IsFairyChest()
-    {
-        return mFairyChestIndex != 0;
-    }
-
-    bool IsTrapped()
-    {
-        return mLockFlag == 1 || mLockFlag == 4;
-    }
-
+    bool IsFairyChest();
+    bool IsTrapped();
 };
 
 LockStats LoadLock(FileBuffer& fb);

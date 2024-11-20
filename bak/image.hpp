@@ -1,10 +1,11 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
-#include "bak/fileBufferFactory.hpp"
-
 namespace BAK {
+
+class FileBuffer;
 
 class Image
 {

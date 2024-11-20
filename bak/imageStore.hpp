@@ -1,10 +1,11 @@
 #pragma once
 
-#include "bak/image.hpp"
-
-#include "bak/fileBufferFactory.hpp"
+#include <vector>
 
 namespace BAK {
+
+class Image;
+class FileBuffer;
 
 std::vector<Image> LoadImages(FileBuffer& fb);
 

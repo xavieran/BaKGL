@@ -59,6 +59,7 @@ add_library(bak
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
     spells.hpp spells.cpp
+    spriteRenderer.hpp spriteRenderer.cpp
     startupFiles.hpp startupFiles.cpp
     tags.hpp tags.cpp
     temple.hpp temple.cpp

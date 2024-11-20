@@ -2,6 +2,12 @@
 
 #include "bak/file/util.hpp"
 
+#include "com/path.hpp"
+
+#include <algorithm>
+#include <functional>
+#include <regex>
+
 namespace BAK {
 
 unsigned convertToInt(const std::string& s)
@@ -19,11 +25,28 @@ std::string LoadSaveName(FileBuffer& fb)
     return fb.GetString(30);
 }
 
+std::string SaveFile::GetFilename() const
+{
+    return std::filesystem::path{mPath}.filename().string();
+}
+
 std::ostream& operator<<(std::ostream& os, const SaveFile& saveFile)
 {
     os << "SaveFile{ " << saveFile.mIndex << ", " 
         << saveFile.mName << ", " << saveFile.mPath << "}";
     return os;
+}
+
+std::string SaveDirectory::GetPath() const
+{
+    std::stringstream ss{};
+    ss << mName << ".G" << std::setw(2) << std::setfill('0') << mIndex;
+    return ss.str();
+}
+
+std::string SaveDirectory::GetName() const
+{
+    return mName;
 }
 
 std::ostream& operator<<(std::ostream& os, const SaveDirectory& saveDir)

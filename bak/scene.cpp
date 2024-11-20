@@ -1,8 +1,10 @@
-#include "bak/dataTags.hpp"
 #include "bak/scene.hpp"
+
+#include "bak/dataTags.hpp"
+#include "bak/file/fileBuffer.hpp"
 #include "bak/tags.hpp"
 
-#include "bak/dialogSources.hpp"
+#include "com/assert.hpp"
 
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
@@ -12,6 +14,45 @@
 
 namespace BAK {
 
+ADSIndex::ADSIndex()
+:
+    mIf{0},
+    mElse{},
+    mGreaterThan{},
+    mLessThan{}
+{}
+
+TTMIndex ADSIndex::GetTTMIndex(Chapter chapter) const
+{
+    if (mGreaterThan && mLessThan)
+    {
+        if (chapter.mValue >= *mGreaterThan
+            && chapter.mValue <= *mLessThan)
+            return mIf;
+        else
+        {
+            ASSERT(mElse);
+            return *mElse;
+        }
+    }
+    else if (mGreaterThan && chapter.mValue >= *mGreaterThan)
+    {
+        return mIf;
+    }
+    else if (mLessThan && chapter.mValue <= *mLessThan)
+    {
+        return mIf;
+    }
+    else if (!mGreaterThan && !mLessThan)
+    {
+        return mIf;
+    }
+    else
+    {
+        ASSERT(mElse);
+        return *mElse;
+    }
+}
 
 std::ostream& operator<<(std::ostream& os, const ADSIndex& ai)
 {
@@ -183,6 +224,24 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
 
     return sceneIndices;
 }
+
+// Helper during loading
+struct SceneChunk
+{
+    SceneChunk(
+        Actions action,
+        std::optional<std::string> resourceName,
+        std::vector<std::int16_t> arguments)
+    :
+        mAction{action},
+        mResourceName{resourceName},
+        mArguments{arguments}
+    {}
+
+    Actions mAction;
+    std::optional<std::string> mResourceName;
+    std::vector<std::int16_t> mArguments;
+};
 
 std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb)
 {
@@ -949,4 +1008,5 @@ FileBuffer DecompressTTM(FileBuffer& fb)
 
     return decompressedTTM;
 }
+
 }

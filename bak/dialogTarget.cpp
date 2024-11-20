@@ -5,6 +5,12 @@
 
 namespace BAK {
 
+bool OffsetTarget::operator==(const OffsetTarget other) const
+{
+    return value == other.value 
+        && dialogFile == other.dialogFile;
+}
+
 std::ostream& operator<<(std::ostream& os, const Target& t)
 {
     std::visit([&os](auto&& arg){

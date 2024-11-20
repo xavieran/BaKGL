@@ -1,7 +1,12 @@
 #include "bak/book.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
 #include "com/logger.hpp"
 
+#include "graphics/glm.hpp"
+
+#include <optional>
 #include <string_view>
 
 namespace BAK {

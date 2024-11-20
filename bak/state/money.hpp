@@ -1,10 +1,10 @@
 #pragma once
 
-#include "bak/file/fileBuffer.hpp"
 #include "bak/money.hpp"
 #include "bak/types.hpp"
 
 namespace BAK {
+class FileBuffer;
 class GameState;
 struct ShopStats;
 }

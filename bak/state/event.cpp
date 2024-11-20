@@ -1,5 +1,7 @@
 #include "bak/state/event.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
 #include "bak/state/offsets.hpp"
 
 #include "com/bits.hpp"

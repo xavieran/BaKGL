@@ -1,9 +1,9 @@
 #pragma once
 
-#include "bak/container.hpp"
+#include <vector>
 
 namespace BAK {
-
+class GenericContainer;
 std::vector<GenericContainer> LoadFixedObjects(unsigned targetZone);
 
 }

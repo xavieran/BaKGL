@@ -1,5 +1,7 @@
 #include "bak/image.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
 #include "com/assert.hpp"
 
 #include <cstring>

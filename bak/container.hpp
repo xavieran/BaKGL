@@ -6,6 +6,7 @@
 #include "bak/dialog.hpp"
 #include "bak/shop.hpp"
 #include "bak/hotspotRef.hpp"
+#include "bak/lock.hpp"
 #include "bak/inventory.hpp"
 #include "bak/types.hpp"
 

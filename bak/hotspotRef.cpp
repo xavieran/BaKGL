@@ -5,6 +5,17 @@
 
 namespace BAK {
 
+bool HotspotRef::operator==(const auto& rhs) const
+{
+    return mGdsNumber == rhs.mGdsNumber
+        && mGdsChar == rhs.mGdsChar;
+}
+
+bool HotspotRef::operator!=(const auto& rhs)
+{
+    return !(*this == rhs);
+}
+
 std::string HotspotRef::ToString() const
 {
     std::stringstream ss{};

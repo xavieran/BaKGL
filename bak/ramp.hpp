@@ -5,9 +5,9 @@
 #include <iosfwd>
 #include <vector>
 
-#include "bak/file/fileBuffer.hpp"
-
 namespace BAK {
+
+class FileBuffer;
 
 // These are used to determine the "fog" effect on sprites in
 // the world based on their distance. The palette is modified

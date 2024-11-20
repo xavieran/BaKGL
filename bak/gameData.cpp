@@ -1,17 +1,21 @@
 #include "bak/gameData.hpp"
 
 #include "bak/combat.hpp"
+#include "bak/constants.hpp"
+#include "bak/container.hpp"
+#include "bak/dialogAction.hpp"
+#include "bak/encounter/encounter.hpp"
+#include "bak/inventory.hpp"
+#include "bak/money.hpp"
+#include "bak/resourceNames.hpp"
 #include "bak/save.hpp"
 #include "bak/spells.hpp"
+#include "bak/timeExpiringState.hpp"
+#include "bak/types.hpp"
 
 #include "bak/state/encounter.hpp"
 #include "bak/state/skill.hpp"
 
-#include "bak/container.hpp"
-#include "bak/inventory.hpp"
-
-#include "bak/timeExpiringState.hpp"
-#include "bak/types.hpp"
 #include "com/bits.hpp"
 #include "com/ostream.hpp"
 

@@ -1,5 +1,6 @@
 #include "bak/state/temple.hpp"
 
+#include "bak/file/fileBuffer.hpp"
 #include "bak/state/event.hpp"
 
 #include "bak/gameState.hpp"

@@ -17,8 +17,6 @@
 
 #include "bak/types.hpp"
 
-#include "graphics/glm.hpp"
-
 #include <glm/glm.hpp>
 
 #include <ostream>

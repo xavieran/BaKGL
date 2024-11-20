@@ -16,18 +16,14 @@ struct OffsetTarget
     std::uint8_t dialogFile;
     std::uint32_t value;
 
-    bool operator==(const OffsetTarget other) const
-    {
-        return value == other.value 
-            && dialogFile == other.dialogFile;
-    }
+    bool operator==(const OffsetTarget other) const;
 };
 
 using Target = std::variant<KeyTarget, OffsetTarget>;
 
 std::ostream& operator<<(std::ostream& os, const Target& t);
 
-} // namespace BAK {
+}
 
 namespace std {
 
@@ -41,4 +37,4 @@ template<> struct hash<BAK::OffsetTarget>
 	}
 };
 
-} // namespace std
+}

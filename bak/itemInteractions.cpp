@@ -1,12 +1,16 @@
 #include "bak/itemInteractions.hpp"
 
 #include "bak/bard.hpp"
+#include "bak/character.hpp"
+#include "bak/constants.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
 #include "bak/itemNumbers.hpp"
 #include "bak/timeExpiringState.hpp"
 #include "bak/skills.hpp"
 #include "bak/sounds.hpp"
+#include "bak/types.hpp"
+#include "bak/worldClock.hpp"
 
 #include "bak/state/item.hpp"
 #include "bak/state/event.hpp"

@@ -1,14 +1,19 @@
 #pragma once
 
-#include "bak/character.hpp"
-#include "bak/container.hpp"
-#include "bak/inventory.hpp"
-#include "bak/party.hpp"
-#include "bak/coordinates.hpp"
-
-#include "bak/fileBufferFactory.hpp"
+#include "bak/types.hpp"
 
 namespace BAK {
+
+class Inventory;
+class Party;
+class Character;
+class FileBuffer;
+class GenericContainer;
+class MapLocation;
+class Location;
+class SpellState;
+class TimeExpiringState;
+class WorldClock;
 
 void Save(const Inventory&, FileBuffer&);
 void Save(const GenericContainer&, FileBuffer&);

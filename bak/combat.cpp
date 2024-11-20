@@ -5,6 +5,8 @@
 #include "com/ostream.hpp"
 #include "com/logger.hpp"
 
+#include "graphics/glm.hpp"
+
 #include <sstream>
 
 namespace BAK {
