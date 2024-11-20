@@ -1,11 +1,11 @@
 #include "com/logger.hpp"
 
 #include "bak/encounter/encounter.hpp"
-#include "bak/encounter/combat.ipp"
+#include "bak/encounter/encounterStore.hpp"
 #include "bak/zoneReference.hpp"
-#include "bak/monster.hpp"
+#include "bak/resourceNames.hpp"
 
-#include "bak/file/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 int main(int argc, char** argv)
 {

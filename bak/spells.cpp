@@ -171,7 +171,7 @@ const SpellDoc& SpellDatabase::GetSpellDoc(SpellIndex spellIndex) const
     return mSpellDocs[spellIndex.mValue];
 }
 
-const auto& SpellDatabase::GetSymbols() const
+const std::vector<Symbol>& SpellDatabase::GetSymbols() const
 {
     return mSymbols;
 }

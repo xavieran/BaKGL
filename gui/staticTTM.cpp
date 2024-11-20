@@ -4,6 +4,7 @@
 
 #include "com/assert.hpp"
 #include "com/logger.hpp"
+#include "com/visit.hpp"
 
 #include "graphics/types.hpp"
 

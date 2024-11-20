@@ -1,9 +1,9 @@
 #include "bak/hotspot.hpp"
+
 #include "bak/dialog.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include "com/logger.hpp"
-
-#include "bak/file/fileBuffer.hpp"
 
 int main(int argc, char** argv)
 {

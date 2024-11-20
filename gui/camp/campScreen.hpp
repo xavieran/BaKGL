@@ -1,9 +1,12 @@
 #pragma once
 
 #include "bak/camp.hpp"
+#include "bak/constants.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/layout.hpp"
+#include "bak/money.hpp"
+#include "bak/itemNumbers.hpp"
 #include "bak/shop.hpp"
 #include "bak/time.hpp"
 

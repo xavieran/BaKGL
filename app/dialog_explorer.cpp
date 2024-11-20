@@ -21,7 +21,6 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     
-    BAK::ZoneLabel zoneLabel{"Z01"};
     std::unique_ptr<BAK::GameData> gameData{nullptr};
 
     if (argc == 2)

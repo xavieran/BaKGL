@@ -1,4 +1,6 @@
 #include "bak/file/packedFileProvider.hpp"
+
+#include "bak/image.hpp"
 #include "bak/imageStore.hpp"
 #include "bak/palette.hpp"
 #include "bak/screen.hpp"

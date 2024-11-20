@@ -2,6 +2,8 @@
 
 #include "bak/saveManager.hpp"
 
+#include "com/path.hpp"
+
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
 #include "gui/list.hpp"

@@ -1,10 +1,10 @@
-#pragma once
-
 #include "bak/zone.hpp"
+
 #include "bak/encounter/encounter.hpp"
 #include "bak/fixedObject.hpp"
-#include "bak/resourceNames.hpp"
 #include "bak/palette.hpp"
+#include "bak/resourceNames.hpp"
+#include "bak/monster.hpp"
 #include "bak/worldFactory.hpp"
 
 #include "graphics/cube.hpp"

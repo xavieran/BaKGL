@@ -1,7 +1,10 @@
 #include "gtest/gtest.h"
 
+#include "bak/condition.hpp"
 #include "bak/objectInfo.hpp"
 #include "bak/inventoryItem.hpp"
+#include "bak/shop.hpp"
+#include "bak/skills.hpp"
 #include "bak/temple.hpp"
 
 #include "com/logger.hpp"

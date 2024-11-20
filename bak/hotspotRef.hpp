@@ -10,8 +10,8 @@ struct HotspotRef
     std::uint8_t mGdsNumber;
     char mGdsChar;
 
-    bool operator==(const auto& rhs) const;
-    bool operator!=(const auto& rhs);
+    bool operator==(const HotspotRef& rhs) const;
+    bool operator!=(const HotspotRef& rhs);
 
     std::string ToString() const;
     std::string ToFilename() const;

@@ -125,7 +125,7 @@ public:
     std::string_view GetSpellName(SpellIndex spellIndex) const;
     const Spell& GetSpell(SpellIndex spellIndex) const;
     const SpellDoc& GetSpellDoc(SpellIndex spellIndex) const;
-    const auto& GetSymbols() const;
+    const std::vector<Symbol>& GetSymbols() const;
 
 private:
     SpellDatabase();

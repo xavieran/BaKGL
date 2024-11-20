@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/constants.hpp"
-#include "bak/encounter/fwd.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "bak/encounter/encounterStore.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/entityType.hpp"

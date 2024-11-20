@@ -47,7 +47,7 @@ add_library(bak
     objectInfo.hpp objectInfo.cpp
     ramp.hpp ramp.cpp
     random.hpp random.cpp
-    resourceNames.hpp
+    resourceNames.hpp resourceNames.cpp
     save.hpp save.cpp
     saveManager.hpp saveManager.cpp
     scene.hpp scene.cpp
@@ -66,6 +66,7 @@ add_library(bak
     ttmRenderer.hpp ttmRenderer.cpp
     ttmRunner.hpp ttmRunner.cpp
     textureFactory.hpp textureFactory.cpp
+    textVariableStore.hpp textVariableStore.cpp
     time.hpp time.cpp
     timeExpiringState.hpp timeExpiringState.cpp
     trap.hpp trap.cpp
@@ -73,7 +74,7 @@ add_library(bak
     worldItem.hpp worldItem.cpp
     worldFactory.hpp worldFactory.cpp
     zoneReference.hpp zoneReference.cpp
-    zone.hpp
+    zone.hpp zone.cpp
 )
 
 add_subdirectory(encounter)

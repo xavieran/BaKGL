@@ -3,6 +3,7 @@
 #include "audio/audio.hpp"
 
 #include "bak/dialogSources.hpp"
+#include "bak/money.hpp"
 #include "bak/layout.hpp"
 #include "bak/temple.hpp"
 

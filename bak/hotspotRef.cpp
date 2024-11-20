@@ -5,13 +5,13 @@
 
 namespace BAK {
 
-bool HotspotRef::operator==(const auto& rhs) const
+bool HotspotRef::operator==(const HotspotRef& rhs) const
 {
     return mGdsNumber == rhs.mGdsNumber
         && mGdsChar == rhs.mGdsChar;
 }
 
-bool HotspotRef::operator!=(const auto& rhs)
+bool HotspotRef::operator!=(const HotspotRef& rhs)
 {
     return !(*this == rhs);
 }
