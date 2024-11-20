@@ -5,7 +5,7 @@
 namespace BAK {
 class FileBuffer;
 class GameState;
-class Time;
+struct Time;
 namespace Encounter {
 class Encounter;
 }
