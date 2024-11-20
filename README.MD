@@ -126,7 +126,7 @@ I've provided an application to export all images from the game into a directory
 build $ ./image_extractor -r krondor.001 -i krondor.rmf -o mod_dir
 ```
 
-You can then use this as the basis for graphical mods. Use this directory as the `/Paths/simply replace the PNG files in this directory structure with higher resolution ones as you make them.
+You can use this as the basis for graphical mods. Use this directory as the `/Paths/GraphicsOverrides` key. Replace the PNG files in this directory structure with higher resolution ones as you make them.
 
 # Screenshots
 ![waterfall_ui](screenshots/waterfall_ui.png?raw=true "Waterfall near Tyr-Sog with UI")
