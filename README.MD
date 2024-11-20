@@ -118,7 +118,7 @@ The game will look in this mod directory for files that match the names of the o
 
 ### Handling Multi Image Files
 Some BMX files may contain multiple images, for example the inventory icons file (`INVSHP0.BMX`). For these, the game will look for a subdirectory named after the base file and use an indexed image.
-If the original file is `INVSHP0.BMX` and the game needs the first image , it will search for a file named `INVSHP1.BMX/0.PNG` in your graphics mod directory.
+If the original file is `INVSHP0.BMX` and the game needs the first image , it will search for a file named `INVSHP0.BMX/0.PNG` in your graphics mod directory.
 
 ### Exporting all images from the game
 I've provided an application to export all images from the game into a directory structure suitable for use as a template for modding. You can run it like so:
