@@ -2,6 +2,8 @@
 
 #include "bak/types.hpp"
 
+#include "com/logger.hpp"
+
 #include "gui/actors.hpp"
 #include "gui/colors.hpp"
 #include "gui/label.hpp"

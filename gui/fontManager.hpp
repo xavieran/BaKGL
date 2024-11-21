@@ -1,9 +1,7 @@
 #pragma once
 
 #include "bak/font.hpp"
-#include "bak/fileBufferFactory.hpp"
 
-#include "graphics/glm.hpp"
 #include "graphics/sprites.hpp"
 
 namespace Gui {
@@ -13,20 +11,10 @@ class Font
 public:
     Font(
         const std::string& font,
-        Graphics::SpriteManager& spriteManager)
-    :
-        mFont{std::invoke([&]{
-            auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(font);
-            return BAK::LoadFont(fb);
-        })},
-        mSpriteSheet{spriteManager.AddSpriteSheet()}
-    {
-        spriteManager.GetSpriteSheet(mSpriteSheet)
-            .LoadTexturesGL(mFont.GetCharacters());
-    }
-
-    const auto& GetFont() const { return mFont; }
-    const auto& GetSpriteSheet() const { return mSpriteSheet; }
+        Graphics::SpriteManager& spriteManager);
+    
+    const BAK::Font& GetFont() const;
+    const Graphics::SpriteSheetIndex& GetSpriteSheet() const;
 
 private:
     BAK::Font mFont;
@@ -37,20 +25,12 @@ class FontManager
 {
 public:
     FontManager(
-        Graphics::SpriteManager& spriteManager)
-    :
-        mAlien{"ALIEN.FNT", spriteManager},
-        mBook{"BOOK.FNT", spriteManager},
-        mGame{"GAME.FNT", spriteManager},
-        mPuzzle{"PUZZLE.FNT", spriteManager},
-        mSpell{"SPELL.FNT", spriteManager}
-    {}
-
-    const Font& GetAlienFont() const { return mAlien; }
-    const Font& GetBookFont() const { return mBook; }
-    const Font& GetGameFont() const { return mGame; }
-    const Font& GetPuzzleFont() const { return mPuzzle; }
-    const Font& GetSpellFont() const { return mSpell; }
+        Graphics::SpriteManager& spriteManager);
+    const Font& GetAlienFont() const;
+    const Font& GetBookFont() const;
+    const Font& GetGameFont() const;
+    const Font& GetPuzzleFont() const;
+    const Font& GetSpellFont() const;
 
 private:
     Font mAlien;

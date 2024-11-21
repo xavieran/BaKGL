@@ -9,18 +9,15 @@
 #include "gui/fontManager.hpp"
 
 #include "bak/dialogSources.hpp"
-#include "bak/imageStore.hpp"
-#include "bak/screen.hpp"
-#include "bak/scene.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/ttmRenderer.hpp"
 #include "bak/dialog.hpp"
 
-#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include "graphics/types.hpp"
 
+#include "gui/animatorStore.hpp"
 
 namespace Gui {
 

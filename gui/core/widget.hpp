@@ -1,7 +1,5 @@
 #pragma once
 
-#include "com/logger.hpp"
-
 #include "gui/core/dragEvent.hpp"
 #include "gui/core/keyEvent.hpp"
 #include "gui/core/mouseEvent.hpp"

@@ -1,11 +1,12 @@
 #pragma once
 
-#include "gui/icons.hpp"
 #include "gui/core/widget.hpp"
 
-namespace Gui::Camp {
+namespace Gui {
+class Icons;
+}
 
-namespace detail {
+namespace Gui::Camp::detail {
 
 class CampDest : public Widget
 {
@@ -19,58 +20,19 @@ public:
     CampDest(
         const Icons& icons,
         glm::vec2 pos,
-        std::function<void(bool)>&& selected)
-    :
-        Widget{
-            ImageTag{},
-            std::get<Graphics::SpriteSheetIndex>(icons.GetEncampIcon(sUnlit)),
-            std::get<Graphics::TextureIndex>(icons.GetEncampIcon(sUnlit)),
-            pos,
-            {8, 3},
-            false
-        },
-        mIcons{icons},
-        mCurrent{},
-        mCallback{std::move(selected)}
-    {
-    }
+        std::function<void(bool)>&& selected);
 
-    bool GetCurrent() const
-    {
-        return mCurrent;
-    }
-
-    void SetCurrent(bool current)
-    {
-        mCurrent = current;
-        SetTexture(std::get<Graphics::TextureIndex>(
-            mCurrent
-                ? mIcons.GetEncampIcon(sCurrent)
-                : mIcons.GetEncampIcon(sUnlit)));
-    }
-
-    void SetHighlighted()
-    {
-        SetTexture(std::get<Graphics::TextureIndex>(mIcons.GetEncampIcon(sHighlighted)));
-    }
+    bool GetCurrent() const;
+    void SetCurrent(bool current);
+    void SetHighlighted();
 
 public:
-    void Entered()
-    {
-        SetTexture(std::get<Graphics::TextureIndex>(mIcons.GetEncampIcon(sHighlighted)));
-        mCallback(true);
-    }
-
-    void Exited()
-    {
-        SetCurrent(mCurrent);
-        mCallback(false);
-    }
+    void Entered();
+    void Exited();
 
     const Icons& mIcons;
     bool mCurrent;
     std::function<void(bool)> mCallback;
 };
 
-}
 }

@@ -1,5 +1,12 @@
 #include "gui/guiManager.hpp"
 
+#include "gui/IDialogScene.hpp"
+
+#include "bak/gameState.hpp"
+#include "bak/startupFiles.hpp"
+
+#include "com/cpptrace.hpp"
+
 namespace Gui {
 
 GuiScreen::GuiScreen(std::function<void()> finished)

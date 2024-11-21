@@ -1,17 +1,15 @@
-#include "com/algorithm.hpp"
 #include "com/logger.hpp"
-#include "com/visit.hpp"
 
 #include "graphics/glfw.hpp"
 #include "graphics/guiRenderer.hpp"
 #include "graphics/inputHandler.hpp"
-#include "graphics/texture.hpp"
 
 #include "gui/actors.hpp"
 #include "gui/animatorStore.hpp"
 #include "gui/backgrounds.hpp"
-#include "gui/cutscenePlayer.hpp"
+#include "gui/fontManager.hpp"
 #include "gui/core/mouseEvent.hpp"
+#include "gui/dynamicTTM.hpp"
 #include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"
@@ -20,9 +18,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include <functional>
 #include <memory>
-#include <sstream>
 
 // SDL...
 #undef main

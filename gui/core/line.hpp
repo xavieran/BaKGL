@@ -2,10 +2,6 @@
 
 #include "gui/core/widget.hpp"
 
-#include "graphics/glm.hpp"
-
-#include "com/logger.hpp"
-
 #include <cmath>
 
 namespace Gui

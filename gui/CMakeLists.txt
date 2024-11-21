@@ -1,22 +1,40 @@
 add_library(gui
-    button.hpp
+    actors.hpp actors.cpp
+    animator.hpp animator.cpp
+    backgrounds.hpp backgrounds.cpp
+    button.hpp button.cpp
     bookPlayer.hpp bookPlayer.cpp
-    clickButton.hpp
+    callbackDelay.hpp callbackDelay.cpp
+    centeredImage.hpp centeredImage.cpp
+    clickButton.hpp clickButton.cpp
     colors.hpp
-    cursor.hpp
+    compass.hpp compass.cpp
+    contents.hpp contents.cpp
+    cursor.hpp cursor.cpp
+    dialogDisplay.hpp dialogDisplay.cpp
     dialogRunner.hpp dialogRunner.cpp
     dynamicTTM.hpp dynamicTTM.cpp
+    fadeScreen.hpp fadeScreen.cpp
+    fontManager.hpp fontManager.cpp
+    fullMap.hpp fullMap.cpp
     guiManager.hpp guiManager.cpp
     gdsScene.hpp gdsScene.cpp
-    hotspot.hpp
-    label.hpp
-    mainView.hpp
-    mainMenuScreen.hpp
+    hotspot.hpp hotspot.cpp
+    icons.hpp icons.cpp
+    label.hpp label.cpp
+    mainView.hpp mainView.cpp
+    mainMenuScreen.hpp mainMenuScreen.cpp
+    preferencesScreen.hpp preferencesScreen.cpp
+    saveScreen.hpp saveScreen.cpp
+    repair.hpp repair.cpp
     scene.hpp scene.cpp
+    screenStack.hpp screenStack.cpp
+    scrollBar.hpp scrollBar.cpp
+    scrollView.hpp
     staticTTM.hpp staticTTM.cpp
     teleportScreen.hpp
     teleportDest.hpp
-    textBox.hpp
+    textBox.hpp textBox.cpp
     textInput.hpp
     window.hpp
 
@@ -24,8 +42,11 @@ add_library(gui
     cast/powerRing.hpp cast/powerRing.cpp
     cast/symbol.hpp cast/symbol.cpp
 
-    camp/campScreen.hpp
-    camp/clock.hpp
+    camp/campScreen.hpp camp/campScreen.cpp
+    camp/clock.hpp camp/clock.cpp
+
+    temple/temple.hpp temple/temple.cpp
+    temple/cureScreen.hpp temple/cureScreen.cpp
 )
 
 add_subdirectory(core)

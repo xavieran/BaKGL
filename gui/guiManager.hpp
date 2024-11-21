@@ -1,28 +1,18 @@
 #pragma once
 
-#include "audio/audio.hpp"
-
 #include "bak/IZoneLoader.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/cutscenes.hpp"
-#include "bak/dialog.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/entityType.hpp"
-#include "bak/gameState.hpp"
 #include "bak/saveManager.hpp"
 
-#include "bak/startupFiles.hpp"
-
-#include "com/assert.hpp"
-#include "com/cpptrace.hpp"
-
-#include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
 
 #include "gui/animatorStore.hpp"
 #include "gui/camp/campScreen.hpp"
 #include "gui/cast/castScreen.hpp"
-#include "gui/cureScreen.hpp"
+#include "gui/temple/cureScreen.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
 #include "gui/fontManager.hpp"
@@ -41,12 +31,17 @@
 
 #include <glm/glm.hpp>
 
-#include <iostream>
 #include <functional>
 #include <utility>
-#include <variant>
+
+namespace BAK {
+class GameState;
+}
 
 namespace Gui {
+
+class IDialogScene;
+class Cursor;
 
 class GuiScreen
 {

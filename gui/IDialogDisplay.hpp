@@ -1,10 +1,15 @@
 #pragma once
 
-
-#include "bak/dialog.hpp"
+#include "bak/dialogTarget.hpp"
 #include "gui/IDialogScene.hpp"
 
-#include "graphics/glm.hpp"
+#include <glm/glm.hpp>
+
+#include <string_view>
+
+namespace BAK {
+class DialogSnippet;
+}
 
 namespace Gui {
 
