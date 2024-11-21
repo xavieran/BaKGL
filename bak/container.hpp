@@ -13,8 +13,9 @@
 #include "com/assert.hpp"
 #include "com/bits.hpp"
 
-#include <variant>
+#include <optional>
 #include <ostream>
+#include <variant>
 
 namespace BAK {
 

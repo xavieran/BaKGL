@@ -6,6 +6,7 @@
 
 #include "com/logger.hpp"
 
+#include <optional>
 #include <unordered_map>
 
 namespace BAK {

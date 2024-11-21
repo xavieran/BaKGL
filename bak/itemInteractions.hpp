@@ -3,6 +3,8 @@
 #include "bak/dialogTarget.hpp"
 #include "bak/types.hpp"
 
+#include <optional>
+
 namespace BAK {
 
 class Character;

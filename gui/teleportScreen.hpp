@@ -10,6 +10,8 @@
 
 #include <glm/glm.hpp>
 
+#include <optional>
+
 namespace Logging {
 class Logger;
 }
