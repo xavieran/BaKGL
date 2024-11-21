@@ -4,6 +4,7 @@
 
 #include "bak/dialog.hpp"
 #include "bak/state/dialog.hpp"
+#include "bak/gameState.hpp"
 
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"

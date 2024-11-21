@@ -1,6 +1,7 @@
 #include "gui/guiManager.hpp"
 
 #include "gui/IDialogScene.hpp"
+#include "gui/cursor.hpp"
 
 #include "bak/gameState.hpp"
 #include "bak/startupFiles.hpp"

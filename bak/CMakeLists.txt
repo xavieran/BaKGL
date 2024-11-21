@@ -5,7 +5,7 @@ add_library(bak
     backgroundSounds.hpp backgroundSounds.cpp
     bard.hpp bard.cpp
     book.hpp book.cpp
-    camera.hpp
+    camera.hpp camera.cpp
     camp.hpp camp.cpp
     chapterTransitions.hpp chapterTransitions.cpp
     combat.hpp combat.cpp
