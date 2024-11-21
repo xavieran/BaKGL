@@ -2,7 +2,7 @@
 
 #include "audio/audio.hpp"
 
-#include "bak/lock.hpp"
+#include "bak/dialogTarget.hpp"
 #include "bak/layout.hpp"
 
 #include "gui/lock/lock.hpp"
@@ -20,6 +20,8 @@
 
 namespace BAK {
 class IContainer;
+
+class Character;
 class GameState;
 }
 

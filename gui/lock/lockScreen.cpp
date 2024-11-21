@@ -2,14 +2,15 @@
 
 #include "audio/audio.hpp"
 
-#include "bak/lock.hpp"
 #include "bak/IContainer.hpp"
-#include "bak/itemNumbers.hpp"
-#include "bak/money.hpp"
-#include "bak/gameState.hpp"
+#include "bak/character.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/gameState.hpp"
 #include "bak/inventory.hpp"
+#include "bak/itemNumbers.hpp"
 #include "bak/layout.hpp"
+#include "bak/lock.hpp"
+#include "bak/money.hpp"
 #include "bak/state/lock.hpp"
 
 #include "gui/animator.hpp"

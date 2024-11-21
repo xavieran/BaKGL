@@ -9,6 +9,7 @@
 
 #include "gui/IGuiManager.hpp"
 
+#include "gui/actors.hpp"
 #include "gui/animatorStore.hpp"
 #include "gui/camp/campScreen.hpp"
 #include "gui/cast/castScreen.hpp"

@@ -1,11 +1,14 @@
 add_library(guiInventory
-    containerDisplay.hpp
+    containerDisplay.hpp containerDisplay.cpp
+    details.hpp details.cpp
+    equipmentSlot.hpp equipmentSlot.cpp
     inventoryScreen.hpp inventoryScreen.cpp
-    inventorySlot.hpp
+    inventorySlot.hpp inventorySlot.cpp
     itemArranger.hpp itemArranger.cpp
-    modifiers.hpp
-    shopDisplay.hpp
-    shopItemSlot.hpp
+    modifiers.hpp modifiers.cpp
+    shopDisplay.hpp shopDisplay.cpp
+    shopItemSlot.hpp shopItemSlot.cpp
+    splitStackDialog.hpp splitStackDialog.cpp
 )
 
 add_subdirectory(test)

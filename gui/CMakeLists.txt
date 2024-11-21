@@ -51,7 +51,11 @@ add_library(gui
     camp/campScreen.hpp camp/campScreen.cpp
     camp/clock.hpp camp/clock.cpp
 
+    info/infoScreen.hpp info/infoScreen.cpp
+    info/portrait.hpp info/portrait.cpp
+    info/ratings.hpp info/ratings.cpp
     info/skills.hpp info/skills.cpp
+    info/spells.hpp info/spells.cpp
 
     lock/lock.hpp lock/lock.cpp
     lock/lockScreen.hpp lock/lockScreen.cpp
@@ -63,7 +67,6 @@ add_library(gui
 )
 
 add_subdirectory(core)
-add_subdirectory(info)
 add_subdirectory(inventory)
 
 target_link_libraries(gui

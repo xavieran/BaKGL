@@ -6,6 +6,7 @@ add_library(guiCore
     draggable.hpp
     keyEvent.hpp keyEvent.cpp
     highlightable.hpp
+    line.hpp line.cpp
     mouseEvent.hpp mouseEvent.cpp
     widget.hpp widget.cpp
 )

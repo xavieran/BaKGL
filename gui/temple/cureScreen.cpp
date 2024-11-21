@@ -17,10 +17,6 @@
 
 #include <glm/glm.hpp>
 
-#include <iostream>
-#include <utility>
-#include <variant>
-
 namespace Gui {
 
 CureScreen::CureScreen(
