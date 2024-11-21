@@ -1,6 +1,6 @@
 #include "bak/file/packedResourceFile.hpp"
 
-#include "bak/file/IDataBufferProvider.hpp"
+#include "bak/file/fileBuffer.hpp"
 
 #include "com/logger.hpp"
 

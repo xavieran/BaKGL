@@ -1,8 +1,12 @@
 #pragma once
 
-#include "bak/fileBufferFactory.hpp"
-
+#include <string>
 #include <unordered_map>
+#include <vector>
+
+namespace BAK {
+class FileBuffer;
+}
 
 namespace BAK::File {
 
