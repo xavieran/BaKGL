@@ -32,11 +32,11 @@ add_library(gui
     scrollBar.hpp scrollBar.cpp
     scrollView.hpp
     staticTTM.hpp staticTTM.cpp
-    teleportScreen.hpp
-    teleportDest.hpp
+    teleportScreen.hpp teleportScreen.cpp
+    teleportDest.hpp teleportDest.cpp
     textBox.hpp textBox.cpp
-    textInput.hpp
-    window.hpp
+    textInput.hpp textInput.cpp
+    window.hpp window.cpp
 
     cast/castScreen.hpp cast/castScreen.cpp
     cast/powerRing.hpp cast/powerRing.cpp

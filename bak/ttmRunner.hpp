@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
 
 #include "com/logger.hpp"
@@ -7,8 +8,6 @@
 #include <unordered_map>
 
 namespace BAK {
-
-struct SceneSequence;
 
 class TTMRunner
 {

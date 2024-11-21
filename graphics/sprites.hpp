@@ -5,8 +5,6 @@
 #include "graphics/texture.hpp"
 #include "graphics/types.hpp"
 
-#include "com/logger.hpp"
-
 #include <GL/glew.h>
 
 #include <memory>
