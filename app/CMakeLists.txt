@@ -5,34 +5,34 @@ add_library(app
 target_link_libraries(app com)
 
 list(APPEND APP_BINARIES
-    decomp_ttm
+    #decomp_ttm
     dialog_explorer
     display_book
     display_dialog
-    display_encounters
-    display_fo
-    display_fmap
-    display_gds
-    display_object
-    display_ramp
+    #display_encounters
+    #display_fo
+    #display_fmap
+    #display_gds
+    #display_object
+    #display_ramp
     display_save
-    display_startup_files
-    display_sound
-    display_spells
+    #display_startup_files
+    #display_sound
+    #display_spells
     display_tbl
-    display_tile
-    display_traps
-    display_ttm
+    #display_tile
+    #display_traps
+    #display_ttm
     extractor
-    instancing
+    #instancing
     image_extractor
     main3d
-    play_book
-    play_cutscene
-    play_ttm
-    show_scene
-    show_imgui
-    bmx_explorer
+    #play_book
+    #play_cutscene
+    #play_ttm
+    #show_scene
+    #show_imgui
+    #bmx_explorer
 )
 
 set(APP_LIBS

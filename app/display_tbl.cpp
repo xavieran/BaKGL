@@ -1,5 +1,6 @@
 #include "bak/model.hpp"
 
+#include "bak/combatModel.hpp"
 #include "bak/dataTags.hpp"
 #include "bak/fileBufferFactory.hpp"
 
@@ -13,6 +14,7 @@ int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Spam);
+    Logging::LogState::Disable("PackedFileDataProvider");
     
     std::string tbl{argv[1]};
     auto tblBuf = BAK::FileBufferFactory::Get().CreateDataBuffer(tbl);
@@ -22,6 +24,10 @@ int main(int argc, char** argv)
     for (unsigned i = 0; i < models.size(); i++)
     {
         logger.Info() << "Model #" << i << " " << models[i].mName << "\n";
+        if (models[i].mEntityType == 0 && models[i].mSprite > 0)
+        {
+            BAK::CombatModel{models[i]};
+        }
     }
 
     return 0;
