@@ -11,7 +11,17 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 namespace Gui {
+
+namespace {
+struct Line
+{
+    std::vector<std::size_t> mChars{};
+    glm::vec2 mDimensions{};
+};
+}
 
 TextBox::TextBox(
     glm::vec2 pos,
@@ -31,12 +41,6 @@ TextBox::TextBox(
     // character of text
     SetInactive();
 }
-
-struct Line
-{
-    std::vector<std::size_t> mChars;
-    glm::vec2 mDimensions;
-};
 
 std::pair<glm::vec2, std::string_view> TextBox::SetText(
     const Font& fr,
