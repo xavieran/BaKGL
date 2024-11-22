@@ -11,6 +11,7 @@
 #include "bak/sounds.hpp"
 #include "bak/temple.hpp"
 
+#include "com/ostream.hpp"
 #include "com/logger.hpp"
 
 #include "gui/IGuiManager.hpp"

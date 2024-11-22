@@ -5,8 +5,9 @@
 #include "bak/gameState.hpp"
 #include "bak/shop.hpp"
 
-#include "gui/IGuiManager.hpp"
+#include "com/ostream.hpp"
 
+#include "gui/IGuiManager.hpp"
 #include "gui/dialogDisplay.hpp"
 
 namespace Gui {

@@ -25,6 +25,7 @@ add_library(bak
     entityType.hpp entityType.cpp
     fixedObject.hpp fixedObject.cpp
     fileBufferFactory.hpp fileBufferFactory.cpp
+    fmap.hpp fmap.cpp
     font.hpp font.cpp
     gameData.hpp gameData.cpp
     gameState.hpp gameState.cpp

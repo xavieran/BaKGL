@@ -7,6 +7,7 @@
 #include "bak/startupFiles.hpp"
 
 #include "com/cpptrace.hpp"
+#include "com/ostream.hpp"
 
 namespace Gui {
 

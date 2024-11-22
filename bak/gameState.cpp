@@ -21,6 +21,9 @@
 #include "bak/state/dialog.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/time.hpp"
+
+#include "com/ostream.hpp"
+
 #include <utility>
 
 namespace BAK {

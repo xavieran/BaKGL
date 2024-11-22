@@ -8,6 +8,7 @@
 #include "bak/temple.hpp"
 
 #include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"

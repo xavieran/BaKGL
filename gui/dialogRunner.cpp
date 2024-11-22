@@ -6,6 +6,8 @@
 #include "bak/state/dialog.hpp"
 #include "bak/gameState.hpp"
 
+#include "com/ostream.hpp"
+
 #include "gui/actors.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/fontManager.hpp"
