@@ -2,9 +2,68 @@
 
 #include "audio/audio.hpp"
 
+#include "bak/dialog.hpp"
 #include "bak/state/dialog.hpp"
+#include "bak/gameState.hpp"
+
+#include "com/ostream.hpp"
+
+#include "gui/actors.hpp"
+#include "gui/backgrounds.hpp"
+#include "gui/fontManager.hpp"
+#include "gui/screenStack.hpp"
 
 namespace Gui {
+
+struct DialogState
+{
+    void ActivateDialog()
+    {
+        mDialogActive = true;
+    }
+
+    void MouseMoved(glm::vec2 pos)
+    {
+        mMousePos = pos;
+    }
+
+    void ActivateTooltip()
+    {
+        mTooltipPos = mMousePos;
+        mTooltipActive = true;
+    }
+
+    void DeactivateDialog()
+    {
+        mDialogActive = false;
+    }
+
+    template <typename F>
+    void ForceDeactivateTooltip(F&& f)
+    {
+        ASSERT(mTooltipActive);
+        f();
+        mTooltipActive = false;
+    }
+
+    template <typename F>
+    void DeactivateTooltip(F&& f)
+    {
+        constexpr auto tooltipSensitivity = 15;
+        if (mTooltipActive 
+            && glm::distance(mMousePos, mTooltipPos) > tooltipSensitivity)
+        {
+            f();
+            mTooltipActive = false;
+        }
+    }
+
+    bool mDialogActive{};
+    bool mTooltipActive{};
+    glm::vec2 mMousePos{};
+    glm::vec2 mTooltipPos{};
+};
+
 
 DialogRunner::DialogRunner(
     glm::vec2 pos,
@@ -24,7 +83,7 @@ DialogRunner::DialogRunner(
         true
     },
     mScreenStack{screenStack},
-    mDialogState{false, false, glm::vec2{0}, glm::vec2{0}},
+    mDialogState{std::make_unique<DialogState>(false, false, glm::vec2{0}, glm::vec2{0})},
     mChoices{
         pos,
         dims,
@@ -60,6 +119,11 @@ DialogRunner::~DialogRunner()
     mLogger.Debug() << "Destroyed: " << this << "\n";
 }
 
+const std::optional<BAK::ChoiceIndex>& DialogRunner::GetLastChoice() const
+{
+    return mLastChoice;
+}
+
 std::optional<BAK::TeleportIndex> 
 DialogRunner::GetAndResetPendingTeleport()
 {
@@ -80,8 +144,8 @@ void DialogRunner::SetInWorldView(bool value)
 
 bool DialogRunner::IsActive()
 {
-    return mDialogState.mDialogActive 
-        || mDialogState.mTooltipActive;
+    return mDialogState->mDialogActive 
+        || mDialogState->mTooltipActive;
 }
 
 void DialogRunner::BeginDialog(
@@ -95,9 +159,9 @@ void DialogRunner::BeginDialog(
     mGameState.SetCharacterTextVariables();
 
     if (isTooltip)
-        mDialogState.ActivateTooltip();
+        mDialogState->ActivateTooltip();
     else
-        mDialogState.ActivateDialog();
+        mDialogState->ActivateDialog();
 
     mTargetStack.push(target);
     mLogger.Debug() << "BeginDialog" << target << "\n";
@@ -116,9 +180,9 @@ bool DialogRunner::OnMouseEvent(const MouseEvent& event)
 
 bool DialogRunner::LeftMousePressed(glm::vec2)
 {
-    if (mDialogState.mTooltipActive)
+    if (mDialogState->mTooltipActive)
     {
-        mDialogState.ForceDeactivateTooltip(
+        mDialogState->ForceDeactivateTooltip(
         [this](){
             mDialogScene = nullptr;
             std::invoke(mFinished, GetLastChoice());
@@ -134,8 +198,8 @@ bool DialogRunner::LeftMousePressed(glm::vec2)
 
 bool DialogRunner::MouseMoved(glm::vec2 pos)
 {
-    mDialogState.MouseMoved(pos);
-    mDialogState.DeactivateTooltip(
+    mDialogState->MouseMoved(pos);
+    mDialogState->DeactivateTooltip(
         [this](){
             mDialogScene = nullptr;
             std::invoke(mFinished, GetLastChoice());
@@ -226,7 +290,7 @@ void DialogRunner::DisplaySnippet()
         GetSnippet(),
         text,
         mInWorldView,
-        mDialogState.mMousePos);
+        mDialogState->mMousePos);
     mTextDims = textDims;
     mRemainingText = rem;
 }
@@ -476,7 +540,7 @@ void DialogRunner::CompleteDialog()
 {
     mLogger.Debug() << "Finished dialog\n";
     mDialogDisplay.Clear();
-    mDialogState.DeactivateDialog();
+    mDialogState->DeactivateDialog();
     mDialogScene = nullptr;
     mCurrentTarget.reset();
     mRemainingText.clear();

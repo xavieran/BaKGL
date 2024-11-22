@@ -2,19 +2,21 @@ enable_testing()
 
 add_library(graphics
     IGuiElement.hpp IGuiElement.cpp
-    glm.hpp
-    glfw.hpp glfw.cpp
-    guiTypes.hpp guiTypes.cpp
+    cube.hpp cube.cpp
     framebuffer.hpp framebuffer.cpp
+    glfw.hpp glfw.cpp
+    glm.hpp
+    guiRenderer.hpp guiRenderer.cpp
+    guiTypes.hpp guiTypes.cpp
     inputHandler.hpp inputHandler.cpp
-    line.hpp
+    line.hpp line.cpp
     meshObject.hpp meshObject.cpp
     opengl.hpp opengl.cpp
-    guiRenderer.hpp guiRenderer.cpp
+    quad.hpp quad.cpp
     shaderProgram.hpp shaderProgram.cpp
     sphere.hpp sphere.cpp
     sprites.hpp sprites.cpp
-    texture.hpp
+    texture.hpp texture.cpp
     types.hpp
 )
 

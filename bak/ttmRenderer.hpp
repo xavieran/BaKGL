@@ -1,14 +1,18 @@
 #pragma once
 
 #include "bak/image.hpp"
-#include "bak/palette.hpp"
-#include "bak/scene.hpp"
 #include "bak/spriteRenderer.hpp"
 #include "bak/ttmRunner.hpp"
 
 #include "com/logger.hpp"
 
+#include <optional>
+#include <unordered_map>
+
 namespace BAK {
+
+class Palette;
+class TTMRunner;
 
 class TTMRenderer
 {
@@ -29,12 +33,13 @@ private:
 
     struct PaletteSlot
     {
-        BAK::Palette mPaletteData;
+        Palette mPaletteData;
     };
     struct ImageSlot 
     {
-        std::vector<BAK::Image> mImages;
+        std::vector<Image> mImages;
     };
+
     unsigned mCurrentPaletteSlot = 0;
     unsigned mCurrentImageSlot = 0;
     unsigned mImageSaveLayer = 0;
@@ -44,7 +49,7 @@ private:
     std::unordered_map<unsigned, PaletteSlot> mPaletteSlots;
     std::unordered_map<unsigned, Graphics::TextureStore> mTextures;
 
-    BAK::SpriteRenderer mRenderer;
+    SpriteRenderer mRenderer;
     std::optional<BAK::Image> mScreen;
 
     Graphics::TextureStore mRenderedFrames;

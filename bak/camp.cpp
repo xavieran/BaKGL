@@ -1,9 +1,7 @@
 #include "bak/camp.hpp"
 
-#include "bak/condition.hpp"
-#include "bak/skills.hpp"
+#include "bak/fileBufferFactory.hpp"
 
-#include "graphics/glm.hpp"
 #include "com/logger.hpp"
 
 namespace BAK {

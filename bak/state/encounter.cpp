@@ -1,5 +1,8 @@
 #include "bak/state/encounter.hpp"
 
+#include "bak/encounter/encounter.hpp"
+#include "bak/file/fileBuffer.hpp"
+
 #include "bak/state/event.hpp"
 #include "bak/state/offsets.hpp"
 

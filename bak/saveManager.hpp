@@ -1,15 +1,12 @@
 #pragma once
 
-#include "bak/save.hpp"
-
 #include "com/logger.hpp"
-#include "com/path.hpp"
 
-#include <algorithm>
 #include <filesystem>
-#include <regex>
 
 namespace BAK {
+
+class FileBuffer;
 
 std::string LoadSaveName(FileBuffer& fb);
 
@@ -20,10 +17,7 @@ public:
     std::string mName;
     std::string mPath;
 
-    std::string GetFilename() const
-    {
-        return std::filesystem::path{mPath}.filename().string();
-    }
+    std::string GetFilename() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const SaveFile&);
@@ -31,17 +25,8 @@ std::ostream& operator<<(std::ostream& os, const SaveFile&);
 class SaveDirectory
 {
 public:
-    std::string GetPath() const
-    {
-        std::stringstream ss{};
-        ss << mName << ".G" << std::setw(2) << std::setfill('0') << mIndex;
-        return ss.str();
-    }
-
-    std::string GetName() const
-    {
-        return mName;
-    }
+    std::string GetPath() const;
+    std::string GetName() const;
 
     unsigned mIndex;
     std::string mName;

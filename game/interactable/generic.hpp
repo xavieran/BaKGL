@@ -2,16 +2,22 @@
 
 #include "game/interactable/IInteractable.hpp"
 
-#include "bak/IContainer.hpp"
-#include "bak/container.hpp"
-#include "bak/dialog.hpp"
-#include "bak/dialogSources.hpp"
-#include "bak/gameState.hpp"
-#include "bak/itemNumbers.hpp"
-#include "bak/types.hpp"
+#include "bak/dialogTarget.hpp"
 
 #include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
+
+#include <glm/glm.hpp>
+
+#include <optional>
+
+namespace BAK {
+class GameState;
+class GenericContainer;
+}
+
+namespace Gui {
+class IGuiManager;
+}
 
 namespace Game::Interactable {
 
@@ -26,59 +32,13 @@ public:
     Generic(
         Gui::IGuiManager& guiManager,
         BAK::Target target,
-        const EncounterCallback& encounterCallback)
-    :
-        mGuiManager{guiManager},
-        mDialogScene{
-            []{},
-            []{},
-            [&](const auto& choice){ DialogFinished(choice); }},
-        mDefaultDialog{target},
-        mContainer{nullptr},
-        mEncounterCallback{encounterCallback}
-    {}
+        const EncounterCallback& encounterCallback);
 
-    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType) override
-    {
-        mContainer = &container;
-        mEntityType = entityType;
-
-        if (container.HasDialog())
-            StartDialog(container.GetDialog().mDialog);
-        else if (container.HasEncounter())
-            DoEncounter();
-        else
-            StartDialog(mDefaultDialog);
-    }
-
-    void DoEncounter()
-    {
-        std::invoke(
-            mEncounterCallback,
-            *mContainer->GetEncounter().mEncounterPos);
-    }
-
-    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
-    {
-        ASSERT(mContainer);
-        if (mContainer->HasInventory())
-        {
-            mGuiManager.ShowContainer(mContainer, mEntityType);
-        }
-    }
-
-    void EncounterFinished() override
-    {
-    }
-
-    void StartDialog(BAK::Target target)
-    {
-        mGuiManager.StartDialog(
-            target,
-            false,
-            false,
-            &mDialogScene);
-    }
+    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType) override;
+    void DoEncounter();
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
+    void EncounterFinished() override;
+    void StartDialog(BAK::Target target);
 
 private:
     Gui::IGuiManager& mGuiManager;

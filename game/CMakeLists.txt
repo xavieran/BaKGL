@@ -1,14 +1,10 @@
 add_library(game
-    console.hpp
-    gameRunner.hpp
-    systems.hpp
+    console.hpp console.cpp
+    gameRunner.hpp gameRunner.cpp
+    systems.hpp systems.cpp
     interactable/IInteractable.hpp
-    interactable/building.hpp
-    interactable/chest.hpp
-    interactable/factory.hpp interactable/factory.cpp
-    interactable/generic.hpp
-    interactable/ladder.hpp
-    interactable/tomb.hpp
+
+    interactable/all.cpp
     )
 
 target_link_libraries(game

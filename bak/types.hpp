@@ -12,6 +12,7 @@ using ChoiceIndex = StrongType<unsigned, struct ChoiceIndexTag>;
 using CombatantIndex = StrongType<unsigned, struct CombatantIndexTag>;
 using CombatIndex = StrongType<unsigned, struct CombatIndexTag>;
 using DoorIndex = StrongType<unsigned, struct DoorIndexTag>;
+using InventoryIndex = StrongType<unsigned, struct InventoryIndexTag>;
 using MonsterIndex = StrongType<unsigned, struct MonsterIndexTag>;
 using SpellIndex = StrongType<std::uint64_t, struct SpellIndexTag>;
 using SongIndex = std::uint16_t;

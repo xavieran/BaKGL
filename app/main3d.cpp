@@ -3,12 +3,11 @@
 #include "bak/backgroundSounds.hpp"
 #include "bak/camera.hpp"
 #include "bak/constants.hpp"
-#include "bak/container.hpp"
-#include "bak/coordinates.hpp"
-#include "bak/gameData.hpp"
 #include "bak/screens.hpp"
 
 #include "bak/state/encounter.hpp"
+#include "bak/encounter//encounter.hpp"
+#include "bak/zone.hpp"
 
 extern "C" {
 #include "com/getopt.h"
@@ -25,7 +24,6 @@ extern "C" {
 #include "graphics/inputHandler.hpp"
 #include "graphics/guiRenderer.hpp"
 #include "graphics/glfw.hpp"
-#include "graphics/framebuffer.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/sprites.hpp"
 

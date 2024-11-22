@@ -3,11 +3,11 @@
 
 #include "com/logger.hpp"
 
-#include "graphics/guiTypes.hpp"
 #include "graphics/sprites.hpp"
 
-#include "gui/scene.hpp"
 #include "gui/core/widget.hpp"
+
+#include <optional>
 
 namespace Gui {
 

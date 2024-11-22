@@ -1,5 +1,9 @@
 #include "bak/hotspot.hpp"
 
+#include "bak/gameState.hpp"
+#include "bak/fileBufferFactory.hpp"
+
+#include "com/logger.hpp"
 #include "com/ostream.hpp"
 #include "com/string.hpp"
 
@@ -37,6 +41,60 @@ std::string_view ToString(HotspotAction ha)
 std::ostream& operator<<(std::ostream& os, HotspotAction ha)
 {
     return os << ToString(ha);
+}
+
+Hotspot::Hotspot(
+    std::uint16_t hotspot,
+    glm::vec<2, int> topLeft,
+    glm::vec<2, int> dimensions,
+    std::uint16_t chapterMask,
+    std::uint16_t keyword,
+    HotspotAction action,
+    std::uint8_t unknown_d,
+    std::uint16_t actionArg1,
+    std::uint16_t actionArg2,
+    std::uint32_t actionArg3,
+    KeyTarget tooltip,
+    std::uint32_t unknown_1a,
+    KeyTarget dialog,
+    std::uint16_t checkEventState)
+:
+    mHotspot{hotspot},
+    mTopLeft{topLeft},
+    mDimensions{dimensions},
+    mChapterMask{chapterMask},
+    mKeyword{keyword},
+    mAction{action},
+    mUnknown_d{unknown_d},
+    mActionArg1{actionArg1},
+    mActionArg2{actionArg2},
+    mActionArg3{actionArg3},
+    mTooltip{tooltip},
+    mUnknown_1a{unknown_1a},
+    mDialog{dialog},
+    mCheckEventState{checkEventState}
+{}
+
+// Yes but there is more to it - e.g. Sarth
+bool Hotspot::IsActive(GameState& gameState) const
+{
+    // ovr148:86D test mChapterMask, 0x8000???
+
+    const auto state = CreateChoice(mDialog.mValue & 0xffff);
+    const auto expectedVal = (mDialog.mValue >> 16) & 0xffff;
+    Logging::LogDebug(__FUNCTION__) << "Unk2: " << mCheckEventState << " Eq: " <<
+        (mCheckEventState == 1) << " GS: " << std::hex << state << " st: " << 
+        gameState.GetEventState(state) << " exp: " << expectedVal << " Unk0: " << mChapterMask << "\n";
+    if (mCheckEventState != 0 && !std::holds_alternative<NoChoice>(state))
+    {
+        return gameState.GetEventState(state) == expectedVal;
+    }
+    return (mChapterMask ^ 0xffff) & (1 << (gameState.GetChapter().mValue - 1));
+}
+
+bool Hotspot::EvaluateImmediately() const
+{
+    return (mChapterMask & 0x8000) != 0;
 }
 
 std::ostream& operator<<(std::ostream& os, const Hotspot& hs)
@@ -185,4 +243,10 @@ const Scene& SceneHotspots::GetScene(
     return mScenes[ttmIndex.mSceneIndex.GetTTMIndex(gs.GetChapter())];
 }
 
+std::optional<unsigned> SceneHotspots::GetTempleNumber() const
+{
+    if (!(0x80 & mTempleIndex)) return std::nullopt;
+    return mTempleIndex & 0x7f;
+    
+}
 }

@@ -2,7 +2,7 @@
 
 #include "com/logger.hpp"
 
-#include "bak/file/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 int main(int argc, char** argv)
 {

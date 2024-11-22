@@ -1,11 +1,11 @@
 #include "bak/state/money.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
 #include "bak/gameState.hpp"
 #include "bak/shop.hpp"
 #include "bak/state/event.hpp"
 #include "bak/types.hpp"
-
-#include "com/logger.hpp"
 
 namespace BAK::State {
 

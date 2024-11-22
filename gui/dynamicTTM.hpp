@@ -6,7 +6,6 @@
 
 #include "graphics/sprites.hpp"
 
-#include "gui/animatorStore.hpp"
 #include "gui/core/widget.hpp"
 #include "gui/button.hpp"
 #include "gui/textBox.hpp"
@@ -15,6 +14,7 @@
 
 namespace Gui {
 
+class AnimatorStore;
 class Backgrounds;
 class Font;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "bak/fileBufferFactory.hpp"
-
 #include <glm/glm.hpp>
+
+#include <vector>
 
 namespace BAK {
 

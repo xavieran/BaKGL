@@ -1,6 +1,10 @@
 #pragma once
 
-#include "bak/file/fileBuffer.hpp"
+#include <cstdint>
+
+namespace BAK {
+class FileBuffer;
+}
 
 namespace BAK::State {
 

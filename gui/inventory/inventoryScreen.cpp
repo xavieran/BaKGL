@@ -2,8 +2,10 @@
 
 #include "bak/haggle.hpp"
 #include "bak/inventoryItem.hpp"
-#include "bak/itemNumbers.hpp"
 #include "bak/itemInteractions.hpp"
+#include "bak/itemNumbers.hpp"
+#include "bak/money.hpp"
+#include "bak/objectInfo.hpp"
 
 namespace Gui {
 

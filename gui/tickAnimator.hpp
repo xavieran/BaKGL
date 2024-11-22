@@ -12,35 +12,11 @@ class TickAnimator : public IAnimator
 public:
     TickAnimator(
         double tickSpeed,
-        std::function<void()>&& callback)
-    :
-        mTickSpeed{tickSpeed},
-        mAccumulatedTimeDelta{0},
-        mAlive{true},
-        mCallback{std::move(callback)}
-    {
-    }
+        std::function<void()>&& callback);
 
-    void OnTimeDelta(double delta) override
-    {
-        mAccumulatedTimeDelta += delta;
-        if (mAccumulatedTimeDelta > mTickSpeed && mAlive)
-        {
-            mAccumulatedTimeDelta = 0;
-            mCallback();
-        }
-    }
-
-    bool IsAlive() const override
-    {
-        return mAlive;
-    }
-
-    void Stop()
-    {
-        mAlive = false;
-    }
-
+    void OnTimeDelta(double delta) override;
+    bool IsAlive() const override;
+    void Stop();
 private:
     double mTickSpeed;
     double mAccumulatedTimeDelta;

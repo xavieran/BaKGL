@@ -1,5 +1,8 @@
 #include "bak/imageStore.hpp"
+
 #include "bak/dataTags.hpp"
+#include "bak/image.hpp"
+#include "bak/file/fileBuffer.hpp"
 
 #include "com/logger.hpp"
 

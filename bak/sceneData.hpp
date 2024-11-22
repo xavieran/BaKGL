@@ -8,9 +8,6 @@
 #include <ostream>
 #include <variant>
 
-#include "bak/dialogTarget.hpp"
-
-
 namespace BAK {
 
 enum class AdsActions

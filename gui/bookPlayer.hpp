@@ -2,18 +2,17 @@
 
 #include "bak/book.hpp"
 
-#include "com/logger.hpp"
-
-#include "graphics/guiTypes.hpp"
 #include "graphics/sprites.hpp"
 
-#include "gui/animatorStore.hpp"
-#include "gui/scene.hpp"
-#include "gui/dialogDisplay.hpp"
 #include "gui/core/widget.hpp"
 #include "gui/textBox.hpp"
 
+#include <optional>
+
 namespace Gui {
+
+class Backgrounds;
+class Font;
 
 class BookPlayer
 {

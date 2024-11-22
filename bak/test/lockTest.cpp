@@ -1,7 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "bak/lock.hpp"
 #include "bak/inventoryItem.hpp"
+#include "bak/lock.hpp"
+#include "bak/objectInfo.hpp"
 
 #include "com/logger.hpp"
 

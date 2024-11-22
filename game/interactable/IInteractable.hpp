@@ -1,7 +1,15 @@
 #pragma once
 
-#include "bak/container.hpp"
 #include "bak/entityType.hpp"
+
+#include <glm/glm.hpp>
+
+#include <functional>
+#include <string_view>
+
+namespace BAK {
+class GenericContainer;
+}
 
 namespace Game {
 

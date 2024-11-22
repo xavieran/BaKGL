@@ -1,27 +1,25 @@
 #pragma once
 
 #include "bak/constants.hpp"
-#include "bak/coordinates.hpp"
 #include "bak/encounter/encounter.hpp"
-#include "bak/model.hpp"
-#include "bak/monster.hpp"
+#include "bak/encounter/encounterStore.hpp"
 #include "bak/resourceNames.hpp"
-#include "bak/textureFactory.hpp"
-#include "bak/worldItem.hpp"
-#include "bak/zoneReference.hpp"
-
-#include "com/assert.hpp"
-#include "com/logger.hpp"
-
-#include "graphics/meshObject.hpp"
-
-#include "bak/fileBufferFactory.hpp"
 #include "bak/entityType.hpp"
+#include "bak/worldItem.hpp"
 
-#include <functional>   
+#include "graphics/texture.hpp"
+
 #include <optional>
 
+namespace Graphics {
+class MeshObject;
+}
+
 namespace BAK {
+
+class Palette;
+struct Model;
+class MonsterNames;
 
 class ZoneTextureStore
 {
@@ -30,19 +28,12 @@ public:
     ZoneTextureStore(
         const ZoneLabel& zoneLabel);
 
-    const Graphics::Texture& GetTexture(const unsigned i) const
-    {
-        return mTextures.GetTexture(i);
-    }
+    const Graphics::Texture& GetTexture(const unsigned i) const;
+    const std::vector<Graphics::Texture>& GetTextures() const;
 
-    const std::vector<Graphics::Texture>& GetTextures() const { return mTextures.GetTextures(); }
-
-    unsigned GetMaxDim() const { return mTextures.GetMaxDim(); }
-    unsigned GetTerrainOffset(BAK::Terrain t) const
-    {
-        return mTerrainOffset + static_cast<unsigned>(t);
-    }
-    unsigned GetHorizonOffset() const { return mHorizonOffset; }
+    unsigned GetMaxDim() const;
+    unsigned GetTerrainOffset(BAK::Terrain t) const;
+    unsigned GetHorizonOffset() const;
 
 private:
     Graphics::TextureStore mTextures;
@@ -60,7 +51,7 @@ public:
 
     ZoneItem(
         unsigned i,
-        const BAK::MonsterNames& monsters,
+        const MonsterNames& monsters,
         const ZoneTextureStore& textureStore);
 
     void SetPush(unsigned i);
@@ -104,44 +95,15 @@ public:
     ZoneItemStore(
         const ZoneLabel& zoneLabel,
         // Should one really need a texture store to load this?
-        const ZoneTextureStore& textureStore)
-    :
-        mZoneLabel{zoneLabel},
-        mItems{}
-    {
-        auto fb = FileBufferFactory::Get()
-            .CreateDataBuffer(mZoneLabel.GetTable());
-        const auto models = LoadTBL(fb);
+        const ZoneTextureStore& textureStore);
 
-        for (unsigned i = 0; i < models.size(); i++)
-        {
-            mItems.emplace_back(
-                models[i],
-                textureStore);
-        }
-    }
+    const ZoneLabel& GetZoneLabel() const;
 
-    const ZoneLabel& GetZoneLabel() const { return mZoneLabel; }
+    const ZoneItem& GetZoneItem(const unsigned i) const;
+    const ZoneItem& GetZoneItem(const std::string& name) const;
 
-    const ZoneItem& GetZoneItem(const unsigned i) const
-    {
-        ASSERT(i < mItems.size());
-        return mItems[i];
-    }
-
-    const ZoneItem& GetZoneItem(const std::string& name) const
-    {
-        auto it = std::find_if(mItems.begin(), mItems.end(),
-            [&name](const auto& item){
-            return name == item.GetName();
-            });
-
-        ASSERT(it != mItems.end());
-        return *it;
-    }
-
-    const std::vector<ZoneItem>& GetItems() const { return mItems; }
-    std::vector<ZoneItem>& GetItems() { return mItems; }
+    const std::vector<ZoneItem>& GetItems() const;
+    std::vector<ZoneItem>& GetItems();
 
 private:
     const ZoneLabel mZoneLabel;
@@ -153,21 +115,13 @@ class WorldItemInstance
 public:
     WorldItemInstance(
         const ZoneItem& zoneItem,
-        const WorldItem& worldItem)
-    :
-        mZoneItem{zoneItem},
-        mType{worldItem.mItemType},
-        mRotation{BAK::ToGlAngle(worldItem.mRotation)},
-        mLocation{BAK::ToGlCoord<float>(worldItem.mLocation)},
-        mBakLocation{worldItem.mLocation.x, worldItem.mLocation.y}
-    {
-    }
+        const WorldItem& worldItem);
 
-    const ZoneItem& GetZoneItem() const { return mZoneItem; }
-    const glm::vec3& GetRotation() const { return mRotation; }
-    const glm::vec3& GetLocation() const { return mLocation; }
-    const glm::uvec2& GetBakLocation() const { return mBakLocation; }
-    unsigned GetType() const { return mType; }
+    const ZoneItem& GetZoneItem() const;
+    const glm::vec3& GetRotation() const;
+    const glm::vec3& GetLocation() const;
+    const glm::uvec2& GetBakLocation() const;
+    unsigned GetType() const;
 
 private:
    const ZoneItem& mZoneItem;
@@ -191,69 +145,19 @@ public:
         Encounter::EncounterFactory ef,
         unsigned x,
         unsigned y,
-        unsigned tileIndex)
-    :
-        mCenter{},
-        mTile{x, y},
-        mTileIndex{tileIndex},
-        mItemInsts{},
-        mEncounters{},
-        mEmpty{}
-    {
-        LoadWorld(zoneItems, ef, x, y, tileIndex);
-    }
+        unsigned tileIndex);
 
     void LoadWorld(
         const ZoneItemStore& zoneItems,
         const Encounter::EncounterFactory ef,
         unsigned x,
         unsigned y,
-        unsigned tileIndex)
-    {
-        const auto& logger = Logging::LogState::GetLogger("World");
-        const auto tileWorld = zoneItems.GetZoneLabel().GetTileWorld(x, y);
-        logger.Debug() << "Loading tile: " << tileWorld << std::endl;
+        unsigned tileIndex);
 
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(tileWorld);
-        const auto [tileWorldItems, tileCenter] = LoadWorldTile(fb);
-
-        for (const auto& item : tileWorldItems)
-        {
-            if (item.mItemType == 0)
-                mCenter = ToGlCoord<float>(item.mLocation);
-
-            mItemInsts.emplace_back(
-                zoneItems.GetZoneItem(item.mItemType),
-                item);
-        }
-
-        const auto tileData = zoneItems.GetZoneLabel().GetTileData(x, y);
-        if (FileBufferFactory::Get().DataBufferExists(tileData))
-        {
-            auto fb = FileBufferFactory::Get().CreateDataBuffer(tileData);
-                
-            mEncounters = Encounter::EncounterStore(
-                ef,
-                fb,
-                mTile,
-                mTileIndex);
-        }
-    }
-
-    const auto& GetTile() const { return mTile; }
-    const auto& GetItems() const { return mItemInsts; }
-    const auto& GetEncounters(Chapter chapter) const
-    {
-        if (mEncounters)
-            return mEncounters->GetEncounters(chapter);
-        else
-            return mEmpty;
-    }
-    auto GetCenter() const
-    {
-        return mCenter.value_or(
-            GetItems().front().GetLocation());
-    }
+    glm::vec<2, unsigned> GetTile() const;
+    const std::vector<WorldItemInstance>& GetItems() const;
+    const std::vector<Encounter::Encounter>& GetEncounters(Chapter chapter) const;
+    glm::vec3 GetCenter() const;
 
 private:
     std::optional<glm::vec3> mCenter;
@@ -271,37 +175,9 @@ class WorldTileStore
 public:
     WorldTileStore(
         const ZoneItemStore& zoneItems,
-        const Encounter::EncounterFactory& ef)
-    :
-        mWorlds{
-            std::invoke([&zoneItems, &ef]()
-            {
-                const auto tiles = LoadZoneRef(
-                    zoneItems.GetZoneLabel().GetZoneReference());
+        const Encounter::EncounterFactory& ef);
 
-                std::vector<World> worlds{};
-                worlds.reserve(tiles.size());
-
-                for (unsigned tileIndex = 0; tileIndex < tiles.size(); tileIndex++)
-                {
-                    const auto& tile = tiles[tileIndex];
-                    auto it = worlds.emplace_back(
-                        zoneItems,
-                        ef,
-                        tile.x,
-                        tile.y,
-                        tileIndex);
-                }
-
-                return worlds;
-            })
-        }
-    {}
-
-    const std::vector<World>& GetTiles() const
-    {
-        return mWorlds;
-    }
+    const std::vector<World>& GetTiles() const;
 
 private:
     std::vector<World> mWorlds;

@@ -5,12 +5,15 @@
 #include "bak/bard.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/fileBufferFactory.hpp"
-#include "bak/money.hpp"
+#include "bak/gameState.hpp"
+#include "bak/textureFactory.hpp"
 #include "bak/temple.hpp"
 #include "bak/state/temple.hpp"
-#include "bak/state/event.hpp"
 
 #include "com/assert.hpp"
+
+#include "gui/IGuiManager.hpp"
+#include "gui/cursor.hpp"
 
 namespace Gui {
 

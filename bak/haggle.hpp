@@ -1,13 +1,15 @@
 #pragma once
 
-#include "bak/character.hpp"
-#include "bak/party.hpp"
-#include "bak/shop.hpp"
+#include "bak/types.hpp"
 
-#include "com/random.hpp"
-
-#include <algorithm>
 #include <cmath>
+#include <optional>
+
+namespace BAK {
+class Character;
+class Party;
+struct ShopStats;
+}
 
 namespace BAK::Haggle {
 

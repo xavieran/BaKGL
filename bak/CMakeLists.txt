@@ -5,7 +5,7 @@ add_library(bak
     backgroundSounds.hpp backgroundSounds.cpp
     bard.hpp bard.cpp
     book.hpp book.cpp
-    camera.hpp
+    camera.hpp camera.cpp
     camp.hpp camp.cpp
     chapterTransitions.hpp chapterTransitions.cpp
     combat.hpp combat.cpp
@@ -25,6 +25,7 @@ add_library(bak
     entityType.hpp entityType.cpp
     fixedObject.hpp fixedObject.cpp
     fileBufferFactory.hpp fileBufferFactory.cpp
+    fmap.hpp fmap.cpp
     font.hpp font.cpp
     gameData.hpp gameData.cpp
     gameState.hpp gameState.cpp
@@ -47,7 +48,7 @@ add_library(bak
     objectInfo.hpp objectInfo.cpp
     ramp.hpp ramp.cpp
     random.hpp random.cpp
-    resourceNames.hpp
+    resourceNames.hpp resourceNames.cpp
     save.hpp save.cpp
     saveManager.hpp saveManager.cpp
     scene.hpp scene.cpp
@@ -59,12 +60,14 @@ add_library(bak
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
     spells.hpp spells.cpp
+    spriteRenderer.hpp spriteRenderer.cpp
     startupFiles.hpp startupFiles.cpp
     tags.hpp tags.cpp
     temple.hpp temple.cpp
     ttmRenderer.hpp ttmRenderer.cpp
     ttmRunner.hpp ttmRunner.cpp
     textureFactory.hpp textureFactory.cpp
+    textVariableStore.hpp textVariableStore.cpp
     time.hpp time.cpp
     timeExpiringState.hpp timeExpiringState.cpp
     trap.hpp trap.cpp
@@ -72,7 +75,7 @@ add_library(bak
     worldItem.hpp worldItem.cpp
     worldFactory.hpp worldFactory.cpp
     zoneReference.hpp zoneReference.cpp
-    zone.hpp
+    zone.hpp zone.cpp
 )
 
 add_subdirectory(encounter)

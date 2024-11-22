@@ -1,19 +1,14 @@
 #pragma once
 
-#include "bak/dialog.hpp"
-#include "bak/resourceNames.hpp"
+#include "bak/dialogTarget.hpp"
 #include "bak/scene.hpp"
 #include "bak/types.hpp"
 
-#include "com/logger.hpp"
-
-#include "bak/fileBufferFactory.hpp"
-
 #include <glm/glm.hpp>
 
-#include <string_view>
-
 namespace BAK {
+
+class GameState;
 
 enum class HotspotAction
 {
@@ -55,45 +50,11 @@ struct Hotspot
         KeyTarget tooltip,
         std::uint32_t unknown_1a,
         KeyTarget dialog,
-        std::uint16_t checkEventState)
-    :
-        mHotspot{hotspot},
-        mTopLeft{topLeft},
-        mDimensions{dimensions},
-        mChapterMask{chapterMask},
-        mKeyword{keyword},
-        mAction{action},
-        mUnknown_d{unknown_d},
-        mActionArg1{actionArg1},
-        mActionArg2{actionArg2},
-        mActionArg3{actionArg3},
-        mTooltip{tooltip},
-        mUnknown_1a{unknown_1a},
-        mDialog{dialog},
-        mCheckEventState{checkEventState}
-    {}
+        std::uint16_t checkEventState);
 
     // Yes but there is more to it - e.g. Sarth
-    bool IsActive(GameState& gameState) const
-    {
-        // ovr148:86D test mChapterMask, 0x8000???
-
-        const auto state = CreateChoice(mDialog.mValue & 0xffff);
-        const auto expectedVal = (mDialog.mValue >> 16) & 0xffff;
-        Logging::LogDebug(__FUNCTION__) << "Unk2: " << mCheckEventState << " Eq: " <<
-            (mCheckEventState == 1) << " GS: " << std::hex << state << " st: " << 
-            gameState.GetEventState(state) << " exp: " << expectedVal << " Unk0: " << mChapterMask << "\n";
-        if (mCheckEventState != 0 && !std::holds_alternative<NoChoice>(state))
-        {
-            return gameState.GetEventState(state) == expectedVal;
-        }
-        return (mChapterMask ^ 0xffff) & (1 << (gameState.GetChapter().mValue - 1));
-    }
-    
-    bool EvaluateImmediately() const
-    {
-        return (mChapterMask & 0x8000) != 0;
-    }
+    bool IsActive(GameState& gameState) const;
+    bool EvaluateImmediately() const;
 
     std::uint16_t mHotspot{};
     glm::vec<2, int> mTopLeft{};
@@ -145,12 +106,7 @@ public:
     std::unordered_map<unsigned, Scene> mScenes{};
 
     const Scene& GetScene(unsigned adsIndex, const GameState& gs);
-    std::optional<unsigned> GetTempleNumber() const
-    {
-        if (!(0x80 & mTempleIndex)) return std::nullopt;
-        return mTempleIndex & 0x7f;
-        
-    }
+    std::optional<unsigned> GetTempleNumber() const;
 };
 
 }

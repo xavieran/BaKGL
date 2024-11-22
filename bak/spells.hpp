@@ -1,16 +1,10 @@
 #pragma once
 
-#include "bak/fileBufferFactory.hpp"
 #include "bak/types.hpp"
-#include "bak/monster.hpp"
 
-#include "com/assert.hpp"
-#include "com/bits.hpp"
-#include "com/logger.hpp"
-#include "com/ostream.hpp"
+#include <glm/glm.hpp>
 
-#include "graphics/glm.hpp"
-
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -50,41 +44,12 @@ std::ostream& operator<<(std::ostream&, SpellCalculationType);
 class Spells
 {
 public:
-    explicit Spells(std::array<std::uint8_t, 6> spells)
-    {
-        std::copy(spells.data(), spells.data() + 6, reinterpret_cast<std::uint8_t*>(&mSpellBytes));
-        for (std::uint64_t i = 0; i < 8 * 6; i++)
-        {
-            if (HaveSpell(SpellIndex{i}))
-            {
-                mSpellIndices.emplace_back(SpellIndex{i});
-            }
-        }
-    }
+    Spells(std::array<std::uint8_t, 6> spells);
 
-    bool HaveSpell(SpellIndex spellIndex) const
-    {
-        return CheckBitSet(mSpellBytes, spellIndex.mValue);
-    }
-
-    void SetSpell(SpellIndex spellIndex)
-    {
-        if (!HaveSpell(spellIndex))
-        {
-            mSpellIndices.emplace_back(spellIndex);
-        }
-        mSpellBytes = SetBit(mSpellBytes, spellIndex.mValue, true);
-    }
-
-    const std::uint64_t& GetSpellBytes() const
-    {
-        return mSpellBytes;
-    }
-
-    auto GetSpells() const
-    {
-        return mSpellIndices;
-    }
+    bool HaveSpell(SpellIndex spellIndex) const;
+    void SetSpell(SpellIndex spellIndex);
+    const std::uint64_t& GetSpellBytes() const;
+    std::vector<SpellIndex> GetSpells() const;
 
 private:
     std::uint64_t mSpellBytes{};
@@ -129,42 +94,18 @@ public:
     std::string mDescription{};
 };
 
+struct SymbolSlot
+{
+    SpellIndex mSpell;
+    unsigned mSpellIcon;
+    glm::vec<2, std::uint16_t> mPosition;
+};
+
 class Symbol
 {
 public:
-
-    struct SymbolSlot
-    {
-        SpellIndex mSpell;
-        unsigned mSpellIcon;
-        glm::vec<2, std::uint16_t> mPosition;
-    };
-
-    explicit Symbol(unsigned index)
-    {
-        assert(index > 0 && index < 7);
-        std::stringstream ss{};
-        ss << "SYMBOL" << index << ".DAT";
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(ss.str());
-
-        auto slotCount = fb.GetUint16LE();
-
-        Logging::LogDebug(__FUNCTION__) << "Loading SymbolIndex #" << index << "\n";
-        Logging::LogDebug(__FUNCTION__) << " slots: " << slotCount << "\n";
-        for (unsigned i = 0; i < slotCount; i++)
-        {
-            auto spell = SpellIndex{fb.GetUint16LE()};
-            auto position = fb.LoadVector<std::uint16_t, 2>();
-            auto symbolIcon = fb.GetUint8();
-            mSymbolSlots.emplace_back(SymbolSlot{spell, symbolIcon, position});
-            Logging::LogDebug(__FUNCTION__) << " spell: " << spell << "  icon: " << +symbolIcon << " @ " << position << "\n";
-        }
-    }
-
-    const auto& GetSymbolSlots() const
-    {
-        return mSymbolSlots;
-    }
+    explicit Symbol(unsigned index);
+    const std::vector<SymbolSlot>& GetSymbolSlots() const;
 
 private:
     std::vector<SymbolSlot> mSymbolSlots{};
@@ -178,210 +119,21 @@ class SpellDatabase
     static constexpr auto sSpellResistances    = "SPELLRES.DAT";
 
 public:
-    static const SpellDatabase& Get()
-    {
-        static SpellDatabase spellDb{};
-        return spellDb;
-    }
+    static const SpellDatabase& Get();
 
-    const auto& GetSpells() const
-    {
-        return mSpells;
-    }
-
-    std::string_view GetSpellName(SpellIndex spellIndex) const
-    {
-        ASSERT(spellIndex.mValue < mSpells.size());
-        return mSpells[spellIndex.mValue].mName;
-    }
-
-    const Spell& GetSpell(SpellIndex spellIndex) const
-    {
-        ASSERT(spellIndex.mValue < mSpells.size());
-        return mSpells[spellIndex.mValue];
-    }
-
-    const SpellDoc& GetSpellDoc(SpellIndex spellIndex) const
-    {
-        ASSERT(spellIndex.mValue < mSpells.size());
-        return mSpellDocs[spellIndex.mValue];
-    }
-
-    const auto& GetSymbols() const
-    {
-        return mSymbols;
-    }
+    const std::vector<Spell>& GetSpells() const;
+    std::string_view GetSpellName(SpellIndex spellIndex) const;
+    const Spell& GetSpell(SpellIndex spellIndex) const;
+    const SpellDoc& GetSpellDoc(SpellIndex spellIndex) const;
+    const std::vector<Symbol>& GetSymbols() const;
 
 private:
-    SpellDatabase()
-    :
-        mSpells{},
-        mSpellDocs{}
-    {
-        LoadSpells();
-        LoadSpellDoc();
-        //LoadSpellWeaknesses();
-        //LoadSpellResistances();
+    SpellDatabase();
 
-        for (unsigned i = 1; i < 7; i++)
-        {
-            mSymbols.emplace_back(BAK::Symbol{i});
-        }
-    }
-
-
-    void LoadSpells()
-    {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(sSpellNamesFile);
-        const auto spells = fb.GetUint16LE();
-        auto nameOffsets = std::vector<unsigned>{};
-        for (unsigned i = 0; i < spells; i++)
-        {
-            unsigned nameOffset = fb.GetUint16LE();
-            nameOffsets.emplace_back(nameOffset);
-            unsigned minCost = fb.GetUint16LE();
-            unsigned maxCost = fb.GetUint16LE();
-            auto isMartialFlag = fb.GetUint16LE();
-            assert(isMartialFlag == 0 || isMartialFlag == 1);
-            bool isMartial =  isMartialFlag == 0x1; // name taken from SPELLREQ.DAT
-            auto targetingType = fb.GetUint16LE();
-            // targeting type - this seems to be affected by the effectAnimationType
-            // e.g. when using effect animation 12 (winds of eortis), 0-3 only target enemies with LOS
-            // 0 - only targets enemies - LOS
-            // 1 - only target enemies - ignores LOS
-            // 2 - targets allies - ignores LOS
-            // 3 - targets allies - ignores LOS
-            // 4 - targes enemies - ignores LOS
-            // 5 - targets empty squares
-            // 6 - targets empty squares
-            // Color of any related effect sprites, e.g. sparks of flamecast, mind melt color
-            auto color = fb.GetUint16LE();
-            // Determines whether we throw a ball (flamecast), strike an enemy,
-            // what kind of animation is used. Combines weirdly with the actual spell
-            auto effectAnimationType = fb.GetUint16LE();
-            // object required to cast spell
-            auto objectRequired = ItemIndex{fb.GetUint16LE()};
-            auto calculationType = static_cast<SpellCalculationType>(fb.GetUint16LE());
-            int damage = fb.GetSint16LE();
-            unsigned duration = fb.GetSint16LE();
-            mSpells.emplace_back(Spell{
-                SpellIndex{i},
-                "",
-                minCost,
-                maxCost,
-                isMartial,
-                targetingType,
-                (color != 0xffff) ? std::make_optional(color) : std::nullopt,
-                (effectAnimationType != 0xffff) ? std::make_optional(effectAnimationType) : std::nullopt,
-                (objectRequired.mValue != 0xffff) ? std::make_optional(objectRequired) : std::nullopt,
-                calculationType,
-                damage,
-                duration});
-        }
-        fb.GetUint16LE();
-        auto here = fb.Tell();
-        for (unsigned i = 0; i < spells; i++)
-        {
-            fb.Seek(here + nameOffsets[i]);
-            mSpells[i].mName = fb.GetString();
-            Logging::LogDebug(__FUNCTION__) << mSpells[i] << "\n";
-        }
-    }
-
-    void LoadSpellDoc()
-    {
-        assert(!mSpells.empty());
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(sSpellDocsFile);
-        const auto offsetCount = fb.GetUint16LE();
-        auto stringOffsets = std::vector<unsigned>{};
-        for (unsigned i = 0; i < offsetCount; i++)
-        {
-            stringOffsets.emplace_back(fb.GetUint32LE());
-        }
-
-        fb.Skip(2);
-
-        auto here = fb.Tell();
-        for (unsigned i = 0, entry = 0; i < mSpells.size(); i++)
-        {
-            fb.Seek(here + stringOffsets[entry++]);
-            auto title = fb.GetString();
-            fb.Seek(here + stringOffsets[entry++]);
-            auto cost = fb.GetString();
-            fb.Seek(here + stringOffsets[entry++]);
-            auto damage = fb.GetString();
-            fb.Seek(here + stringOffsets[entry++]);
-            auto duration = fb.GetString();
-            fb.Seek(here + stringOffsets[entry++]);
-            auto lineOfSight = fb.GetString();
-            fb.Seek(here + stringOffsets[entry++]);
-            auto description = fb.GetString();
-            fb.Seek(here + stringOffsets[entry++]);
-            description += " " + fb.GetString();
-            mSpellDocs.emplace_back(
-                SpellDoc{
-                    SpellIndex{i},
-                    title,
-                    cost,
-                    damage,
-                    duration,
-                    lineOfSight,
-                    description});
-        }
-
-        for (unsigned i = 0; i < mSpells.size(); i++)
-        {
-            auto doc = mSpellDocs[i];
-            Logging::LogDebug(__FUNCTION__) << GetSpellName(SpellIndex{i}) << "\nTitle: " << doc.mTitle
-                << "\nCost: " << doc.mCost << "\nDamage: " << doc.mDamage 
-                << "\nDuration: " << doc.mDuration << "\nLOS: " << doc.mLineOfSight
-                << "\nDescription: " << doc.mDescription << "\n";
-        }
-    }
-
-    void LoadSpellWeaknesses()
-    {
-        auto monsters = MonsterNames::Get();
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(sSpellWeaknessesFile);
-        unsigned entries = fb.GetUint16LE();
-        for (unsigned i = 0; i < entries; i++)
-        {
-            fb.Dump(6);
-            auto spells = Spells{fb.GetArray<6>()};
-            std::stringstream ss{};
-            for (const auto& spell : mSpells)
-            {
-                if (spell.HasSpell(spells))
-                {
-                    ss << spell.mName << ",";
-                }
-            }
-            Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - "
-                << monsters.GetMonsterName(MonsterIndex{i - 1}) << " (" << std::hex << spells.GetSpells() << std::dec << ") " << ss.str() << "\n";
-        }
-    }
-
-    void LoadSpellResistances()
-    {
-        auto monsters = MonsterNames::Get();
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(sSpellResistances);
-        unsigned entries = fb.GetUint16LE();
-        for (unsigned i = 0; i < entries; i++)
-        {
-            fb.Dump(6);
-            auto spells = Spells{fb.GetArray<6>()};
-            std::stringstream ss{};
-            for (const auto& spell : mSpells)
-            {
-                if (spell.HasSpell(spells))
-                {
-                    ss << spell.mName << ",";
-                }
-            }
-            Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - "
-                << monsters.GetMonsterName(MonsterIndex{i - 1}) << " " << ss.str() << "\n";
-        }
-    }
+    void LoadSpells();
+    void LoadSpellDoc();
+    void LoadSpellWeaknesses();
+    void LoadSpellResistances();
 
 private:
     std::vector<Spell> mSpells{};
@@ -393,36 +145,11 @@ private:
 class PowerRing
 {
 public:
-    static const PowerRing& Get()
-    {
-        static auto ring = PowerRing{};
-        return ring;
-    }
+    static const PowerRing& Get();
 
-    const auto& GetPoints() const
-    {
-        return mPoints;
-    }
+    const std::vector<glm::ivec2>& GetPoints() const;
 private:
-    PowerRing()
-    {
-        auto fb = FileBufferFactory::Get().CreateDataBuffer("RING.DAT");
-        unsigned points = 30;
-        std::vector<int> xs{};
-        std::vector<int> ys{};
-        for (unsigned i = 0; i < points; i++)
-        {
-            xs.emplace_back(fb.GetSint16LE());
-        }
-        for (unsigned i = 0; i < points; i++)
-        {
-            ys.emplace_back(fb.GetSint16LE());
-        }
-        for (unsigned i = 0; i < points; i++)
-        {
-            mPoints.emplace_back(xs[i], ys[i]);
-        }
-    }
+    PowerRing();
 
     std::vector<glm::ivec2> mPoints{};
 };
@@ -447,46 +174,18 @@ class SymbolLines
     };
 
 public:
-    static std::vector<glm::vec2> GetPoints(unsigned symbol)
-    {
-        const auto offset = 0x1726;
-        const unsigned xPointer = (sXPointers[symbol] - offset) >> 1;
-        const unsigned yPointer = (sYPointers[symbol] - offset) >> 1;
-        std::vector<glm::vec2> points{};
-        for (unsigned i = 0; i < 6; i++)
-        {
-            auto x = sCoords[xPointer + i];
-            auto y = sCoords[yPointer + i];
-            points.emplace_back(glm::vec2{x, y});
-        }
-        return points;
-    }
+    static std::vector<glm::vec2> GetPoints(unsigned symbol);
 };
 
 class SpellState
 {
 public:
     SpellState() = default;
-    explicit SpellState(std::uint16_t spells)
-    :
-        mSpells{spells}
-    {}
+    explicit SpellState(std::uint16_t spells);
 
-    bool SpellActive(StaticSpells spell) const
-    {
-        return CheckBitSet(mSpells, spell);
-    }
-
-    void SetSpellState(StaticSpells spell, bool state)
-    {
-        mSpells = SetBit(mSpells, spell, state);
-    }
-
-    std::uint16_t GetSpells() const
-    {
-        return mSpells;
-    }
-
+    bool SpellActive(StaticSpells spell) const;
+    void SetSpellState(StaticSpells spell, bool state);
+    std::uint16_t GetSpells() const;
 private:
     std::uint16_t mSpells{};
 };

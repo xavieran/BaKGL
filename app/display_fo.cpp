@@ -1,6 +1,6 @@
 #include "bak/fixedObject.hpp"
-#include "bak/encounter/combat.hpp"
-#include "bak/encounter/combat.ipp"
+
+#include "bak/container.hpp"
 
 #include "com/logger.hpp"
 

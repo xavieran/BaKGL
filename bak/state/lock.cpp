@@ -1,5 +1,7 @@
 #include "bak/state/lock.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
 #include "bak/state/event.hpp"
 #include "bak/state/offsets.hpp"
 

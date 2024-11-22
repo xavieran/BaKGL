@@ -1,11 +1,27 @@
 #include "bak/dataTags.hpp"
 #include "bak/font.hpp"
 
+#include "bak/file/fileBuffer.hpp"
+
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 #include "graphics/texture.hpp"
 
+#include <iostream>
+#include <vector>
+
 namespace BAK {
+
+Glyph::Glyph(
+    unsigned width,
+    unsigned height,
+    std::array<std::uint16_t, MAX_FONT_HEIGHT> points)
+:
+    mWidth{width},
+    mHeight{height},
+    mPoints{points}
+{}
 
 Graphics::Texture GlyphToTexture(const Glyph& glyph)
 {
@@ -23,6 +39,47 @@ Graphics::Texture GlyphToTexture(const Glyph& glyph)
     }
 
     return Graphics::Texture{data, glyph.mWidth, glyph.mHeight, glyph.mWidth, glyph.mHeight};
+}
+
+Font::Font(
+    int firstChar,
+    unsigned height,
+    Graphics::TextureStore textures)
+:
+    mFirstChar{firstChar},
+    mHeight{height},
+    mCharacters{textures}
+{}
+
+char Font::GetIndex(char c) const
+{
+    if (!(mFirstChar <= c))
+    {
+        Logging::LogFatal("BAK::Font") << "Request for bad char: {" 
+            << std::hex << +c << std::dec << "} [" << c << "]" << std::endl;
+    }
+    ASSERT(mFirstChar <= c);
+    return c - mFirstChar;
+}
+
+const Graphics::TextureStore& Font::GetCharacters(){ return mCharacters; }
+
+std::size_t Font::GetSpace() const
+{
+    // The width of 'a'
+    return static_cast<float>(
+        mCharacters.GetTexture(0).GetWidth());
+}
+
+char Font::GetFirstChar() const { return mFirstChar; }
+unsigned Font::GetWidth(char c) const
+{
+    return mCharacters.GetTexture(GetIndex(c)).GetWidth();
+}
+
+unsigned Font::GetHeight() const
+{
+    return mHeight;
 }
 
 Font LoadFont(FileBuffer& fb)

@@ -2,6 +2,7 @@
 
 #include "bak/skills.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 
 namespace BAK {

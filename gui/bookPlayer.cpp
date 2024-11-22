@@ -1,6 +1,11 @@
 #include "gui/bookPlayer.hpp"
 
 #include "bak/fileBufferFactory.hpp"
+#include "bak/textureFactory.hpp"
+
+#include "graphics/sprites.hpp"
+
+#include "gui/backgrounds.hpp"
 
 namespace Gui {
 

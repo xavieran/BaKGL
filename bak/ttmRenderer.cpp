@@ -1,15 +1,13 @@
 #include "bak/ttmRenderer.hpp"
 
-#include "bak/dialogSources.hpp"
+#include "bak/fileBufferFactory.hpp"
 #include "bak/imageStore.hpp"
+#include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
 #include "bak/screen.hpp"
-#include "bak/textureFactory.hpp"
 
-#include "com/assert.hpp"
 #include "com/logger.hpp"
-
-#include "graphics/types.hpp"
+#include "com/visit.hpp"
 
 namespace BAK {
 
@@ -18,7 +16,7 @@ TTMRenderer::TTMRenderer(
     std::string ttmFile)
 :
     mRunner{},
-    mLogger{Logging::LogState::GetLogger("BAK::TTMRenderer")}
+    mLogger{Logging::LogState::GetLogger("TTMRenderer")}
 {
     mRunner.LoadTTM(adsFile, ttmFile);
 }
@@ -41,28 +39,28 @@ bool TTMRenderer::AdvanceAction()
     mLogger.Debug() << "Handle action: " << action << std::endl;
     std::visit(
         overloaded{
-            [&](const BAK::SlotPalette& sp){
+            [&](const SlotPalette& sp){
                 mCurrentPaletteSlot = sp.mSlot;
             },
-            [&](const BAK::LoadPalette& p){
+            [&](const LoadPalette& p){
                 mPaletteSlots.erase(mCurrentPaletteSlot);
-                mPaletteSlots.emplace(mCurrentPaletteSlot, BAK::Palette{p.mPalette});
+                mPaletteSlots.emplace(mCurrentPaletteSlot, Palette{p.mPalette});
             },
-            [&](const BAK::SlotImage& sp){
+            [&](const SlotImage& sp){
                 mCurrentImageSlot = sp.mSlot;
             },
-            [&](const BAK::LoadImage& p){
-                auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mImage);
+            [&](const LoadImage& p){
+                auto fb = FileBufferFactory::Get().CreateDataBuffer(p.mImage);
                 mImageSlots.erase(mCurrentImageSlot);
-                mImageSlots.emplace(mCurrentImageSlot, BAK::LoadImages(fb));
+                mImageSlots.emplace(mCurrentImageSlot, LoadImages(fb));
                 mLogger.Debug() << "Loaded image: " << p.mImage << " to slot: " << mCurrentImageSlot
                     << " has " << mImageSlots.at(mCurrentImageSlot).mImages.size() << " images\n";
             },
-            [&](const BAK::LoadScreen& p){
-                auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(p.mScreenName);
-                mScreen = BAK::LoadScreenResource(fb);
+            [&](const LoadScreen& p){
+                auto fb = FileBufferFactory::Get().CreateDataBuffer(p.mScreenName);
+                mScreen = LoadScreenResource(fb);
             },
-            [&](const BAK::DrawScreen& sa){
+            [&](const DrawScreen& sa){
                 if (sa.mArg1 == 3 || sa.mArg2 == 3)
                 {
                     mRenderer.GetSavedImagesLayer0() = {320, 200, 320, 200};
@@ -79,7 +77,7 @@ bool TTMRenderer::AdvanceAction()
                         mRenderer.GetForegroundLayer());
                 }
             },
-            [&](const BAK::DrawSprite& sa){
+            [&](const DrawSprite& sa){
                 const auto imageSlot = sa.mImageSlot;
                 assert(mImageSlots.contains(sa.mImageSlot));
                 assert(static_cast<unsigned>(sa.mSpriteIndex) 
@@ -92,30 +90,30 @@ bool TTMRenderer::AdvanceAction()
                     sa.mFlippedInY,
                     mRenderer.GetForegroundLayer());
             },
-            [&](const BAK::Update& sr){
+            [&](const Update& sr){
                 RenderFrame();
             },
-            [&](const BAK::SaveImage& si){
+            [&](const SaveImage& si){
                 mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer);
             },
-            [&](const BAK::SetSaveLayer& ssl){
+            [&](const SetSaveLayer& ssl){
                 mImageSaveLayer = ssl.mLayer;
             },
-            [&](const BAK::SaveRegionToLayer& si){
+            [&](const SaveRegionToLayer& si){
                 mClearRegions.emplace(mImageSaveLayer, si);
                 mSaves.emplace(mImageSaveLayer, mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer));
             },
-            [&](const BAK::DrawSavedRegion& si){
+            [&](const DrawSavedRegion& si){
                 const auto& clearRegion = mClearRegions.at(si.mLayer);
                 const auto& texture = mSaves.at(si.mLayer);
                 mRenderer.RenderTexture(texture, clearRegion.pos, mRenderer.GetForegroundLayer());
             },
-            [&](const BAK::SaveBackground&){
+            [&](const SaveBackground&){
                 mRenderer.GetSavedImagesLayer0() = {320, 200, 320, 200};
                 mRenderer.GetSavedImagesLayer1() = {320, 200, 320, 200};
                 mRenderer.SaveImage({0, 0}, {320, 200}, 2);
             },
-            [&](const BAK::DrawRect& sr){
+            [&](const DrawRect& sr){
                 if (!mPaletteSlots.contains(mCurrentPaletteSlot))
                 {
                     // what to do in this scenario..?
@@ -126,19 +124,19 @@ bool TTMRenderer::AdvanceAction()
                     mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
                     mRenderer.GetForegroundLayer());
             },
-            [&](const BAK::ClipRegion& a){
+            [&](const ClipRegion& a){
                 mRenderer.SetClipRegion(a);
             },
-            [&](const BAK::DisableClipRegion&){
+            [&](const DisableClipRegion&){
                 mRenderer.ClearClipRegion();
             },
-            [&](const BAK::SetColors& sc){
+            [&](const SetColors& sc){
                 mRenderer.SetColors(sc.mForegroundColor, sc.mBackgroundColor);
             },
-            [&](const BAK::Purge&){
+            [&](const Purge&){
                 assert(false);
             },
-            [&](const BAK::GotoTag& sa){
+            [&](const GotoTag& sa){
                 assert(false);
             },
             [&](const auto& a){

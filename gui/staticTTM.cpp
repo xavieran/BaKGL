@@ -1,13 +1,17 @@
 #include "gui/staticTTM.hpp"
 
 #include "bak/textureFactory.hpp"
+#include "bak/scene.hpp"
+#include "bak/sceneData.hpp"
 
 #include "com/assert.hpp"
 #include "com/logger.hpp"
-
-#include "graphics/types.hpp"
+#include "com/visit.hpp"
 
 #include "gui/colors.hpp"
+#include "gui/scene.hpp"
+
+#include "graphics/types.hpp"
 
 namespace Gui {
 

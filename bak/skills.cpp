@@ -1,6 +1,13 @@
 #include "bak/skills.hpp"
 
+#include "com/assert.hpp"
+
+#include "bak/condition.hpp"
+#include "bak/file/fileBuffer.hpp"
+
 #include "com/logger.hpp"
+
+#include <numeric>
 
 namespace BAK {
 

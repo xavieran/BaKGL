@@ -11,28 +11,10 @@ class CallbackDelay : public IAnimator
 public:
     CallbackDelay(
         std::function<void()>&& callback,
-        double delay)
-    :
-        mAlive{true},
-        mDelay{delay},
-        mCallback{std::move(callback)}
-    {
-    }
+        double delay);
 
-    void OnTimeDelta(double delta) override
-    {
-        mDelay -= delta;
-        if (mDelay <= 0)
-        {
-            mCallback();
-            mAlive = false;
-        }
-    }
-
-    bool IsAlive() const override
-    {
-        return mAlive;
-    }
+    void OnTimeDelta(double delta) override;
+    bool IsAlive() const override;
 
     bool mAlive;
     double mDelay;

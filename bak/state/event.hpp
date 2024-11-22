@@ -1,6 +1,10 @@
 #pragma once
 
-#include "bak/file/fileBuffer.hpp"
+namespace BAK {
+class FileBuffer;
+}
+
+#include <tuple>
 
 namespace BAK::State {
 

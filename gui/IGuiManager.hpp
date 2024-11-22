@@ -1,15 +1,13 @@
 #pragma once
 
+#include "gui/IAnimator.hpp"
 #include "gui/IDialogScene.hpp"
 #include "gui/screenStack.hpp"
 
-#include "gui/IAnimator.hpp"
-
-#include "bak/dialog.hpp"
+#include "bak/container.hpp"
 #include "bak/cutscenes.hpp"
 #include "bak/entityType.hpp"
 #include "bak/encounter/teleport.hpp"
-#include "bak/hotspot.hpp"
 #include "bak/saveManager.hpp"
 #include "bak/types.hpp"
 

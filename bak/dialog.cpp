@@ -2,6 +2,7 @@
 
 #include "bak/constants.hpp"
 #include "bak/dialogReplacements.hpp"
+#include "bak/fileBufferFactory.hpp"
 
 #include "com/assert.hpp"
 

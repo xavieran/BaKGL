@@ -4,7 +4,7 @@
 
 #include "com/ostream.hpp"
 
-#include <optional>
+#include "graphics/glm.hpp"
 
 namespace BAK {
 
@@ -209,6 +209,91 @@ std::ostream& operator<<(std::ostream& os, const GenericContainer& gc)
     return os;
 }
 
+template <typename HeaderTag>
+GenericContainer LoadGenericContainer(FileBuffer& fb)
+{
+    auto header = ContainerHeader{HeaderTag{}, fb};
 
+    auto lockData = std::optional<LockStats>{};
+    auto door = std::optional<Door>{};
+    auto dialog = std::optional<ContainerDialog>{};
+    auto shopData = std::optional<ShopStats>{};
+    auto encounter = std::optional<ContainerEncounter>{};
+    auto lastAccessed = std::optional<Time>{};
+
+    auto inventory = LoadInventory(fb, header.mItems, header.mCapacity);
+
+    {
+        if (header.HasLock())
+        {
+            lockData = LoadLock(fb);
+        }
+
+        if (header.HasDoor())
+        {
+            const auto doorIndex = fb.GetUint16LE();
+            door = Door{DoorIndex{doorIndex}};
+        }
+
+        if (header.HasDialog())
+        {
+            const auto contextVar = fb.GetUint8();
+            const auto dialogOrder = fb.GetUint8();
+            const auto dialogKey = KeyTarget{fb.GetUint32LE()};
+            dialog = ContainerDialog{contextVar, dialogOrder, dialogKey};
+        }
+        if (header.HasShop())
+        {
+            shopData = LoadShop(fb);
+        }
+        if (header.HasEncounter())
+        {
+            const auto requireEventFlag = fb.GetUint16LE();
+            const auto setEventFlag = fb.GetUint16LE();
+            auto hotspotRef = std::optional<HotspotRef>{};
+            hotspotRef = HotspotRef{
+                fb.GetUint8(),
+                static_cast<char>(
+                    fb.GetUint8() + 0x40)};
+            if (hotspotRef->mGdsNumber == 0)
+                hotspotRef.reset();
+            auto encounterPos = std::optional<glm::uvec2>{};
+            const auto hasEncounter = fb.GetUint8();
+            const auto xOff = fb.GetUint8();
+            const auto yOff = fb.GetUint8();
+            if (hasEncounter != 0)
+            {
+                const auto encounterOff = glm::uvec2{xOff, yOff};
+                encounterPos = MakeGamePositionFromTileAndCell(
+                    GetTile(header.GetPosition()),
+                    encounterOff);
+            }
+
+            encounter = ContainerEncounter{
+                requireEventFlag,
+                setEventFlag,
+                hotspotRef,
+                encounterPos};
+        }
+        if (header.HasTime())
+        {
+            lastAccessed = Time{fb.GetUint32LE()};
+        }
+    }
+
+    return GenericContainer{
+        header,
+        lockData,
+        door,
+        dialog,
+        shopData,
+        encounter,
+        lastAccessed,
+        std::move(inventory)};
+}
+
+template GenericContainer LoadGenericContainer<ContainerCombatLocationTag>(FileBuffer&);
+template GenericContainer LoadGenericContainer<ContainerWorldLocationTag>(FileBuffer&);
+template GenericContainer LoadGenericContainer<ContainerGDSLocationTag>(FileBuffer&);
 
 }

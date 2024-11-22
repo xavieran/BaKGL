@@ -14,6 +14,8 @@
 #include "gui/backgrounds.hpp"
 #include "gui/bookPlayer.hpp"
 #include "gui/core/mouseEvent.hpp"
+#include "gui/fontManager.hpp"
+
 #include "gui/window.hpp"
 
 #include "imgui/imguiWrapper.hpp"

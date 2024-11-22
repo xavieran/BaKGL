@@ -2,8 +2,6 @@
 
 #include "bak/types.hpp"
 
-#include "com/strongType.hpp"
-
 namespace BAK {
 
 static constexpr Royals sUnpurchaseablePrice{0xffffffff};

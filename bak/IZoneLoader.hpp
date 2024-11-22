@@ -2,6 +2,8 @@
 
 #include "bak/types.hpp"
 
+#include "bak/encounter/teleport.hpp"
+
 namespace BAK {
 
 // Interface to load zone

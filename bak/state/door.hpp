@@ -1,8 +1,7 @@
 #pragma once
 
-#include "bak/file/fileBuffer.hpp"
-
 namespace BAK {
+class FileBuffer;
 class GameState;
 }
 

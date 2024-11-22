@@ -1,18 +1,17 @@
 #pragma once
 
-#include "com/assert.hpp"
-#include "com/strongType.hpp"
-
-#include "bak/condition.hpp"
-#include "bak/worldClock.hpp"
 #include "bak/file/fileBuffer.hpp"
+#include "bak/worldClock.hpp"
 
 #include <array>
-#include <numeric>
 #include <ostream>
 #include <string_view>
+#include <vector>
 
 namespace BAK {
+
+class Conditions;
+class FileBuffer;
 
 enum class SkillType
 {

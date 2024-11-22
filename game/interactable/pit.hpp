@@ -2,17 +2,22 @@
 
 #include "game/interactable/IInteractable.hpp"
 
-#include "bak/IContainer.hpp"
-#include "bak/container.hpp"
-#include "bak/dialog.hpp"
-#include "bak/dialogSources.hpp"
-#include "bak/entityType.hpp"
-#include "bak/dialog.hpp"
-#include "bak/gameState.hpp"
-#include "bak/itemNumbers.hpp"
+#include "bak/dialogTarget.hpp"
 
 #include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
+
+#include <glm/glm.hpp>
+
+#include <optional>
+
+namespace BAK {
+class GameState;
+class GenericContainer;
+}
+
+namespace Gui {
+class IGuiManager;
+}
 
 namespace Game::Interactable {
 
@@ -21,55 +26,12 @@ class Pit : public IInteractable
 public:
     Pit(
         Gui::IGuiManager& guiManager,
-        BAK::GameState& gameState)
-    :
-        mGuiManager{guiManager},
-        mGameState{gameState},
-        mDialogScene{
-            []{},
-            []{},
-            [&](const auto& choice){ DialogFinished(choice); }},
-        mCurrentPit{nullptr}
-    {}
+        BAK::GameState& gameState);
 
-    void BeginInteraction(BAK::GenericContainer& pit, BAK::EntityType) override
-    {
-        mCurrentPit = &pit;
-        if (mGameState.GetParty().HaveItem(BAK::sRope))
-        {
-            StartDialog(BAK::DialogSources::mPitHaveRope);
-        }
-        else
-        {
-            StartDialog(BAK::DialogSources::mPitNoRope);
-        }
-    }
-
-    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
-    {
-        ASSERT(mCurrentPit);
-        if (choice && choice->mValue == BAK::Keywords::sYesIndex)
-        {
-            Logging::LogDebug(__FUNCTION__) << "Swing across pit...\n";
-        }
-        else
-        {
-            Logging::LogDebug(__FUNCTION__) << "Not crossing pit\n";
-        }
-    }
-
-    void StartDialog(BAK::Target target)
-    {
-        mGuiManager.StartDialog(
-            target,
-            false,
-            false,
-            &mDialogScene);
-    }
-
-    void EncounterFinished() override
-    {
-    }
+    void BeginInteraction(BAK::GenericContainer& pit, BAK::EntityType) override;
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
+    void StartDialog(BAK::Target target);
+    void EncounterFinished() override;
 
 private:
     Gui::IGuiManager& mGuiManager;

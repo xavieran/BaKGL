@@ -1,17 +1,16 @@
 #pragma once
 
-#include <string>
 #include <string_view>
 #include <vector>
 
-#include "bak/image.hpp"
-#include "bak/palette.hpp"
-
-#include "graphics/texture.hpp"
-
-#include "bak/fileBufferFactory.hpp"
+namespace Graphics {
+class TextureStore;
+}
 
 namespace BAK {
+
+class Image;
+class Palette;
 
 class TextureFactory
 {
@@ -32,17 +31,17 @@ public:
 
     static void AddTerrainToTextureStore(
         Graphics::TextureStore&,
-        const BAK::Image& terrain,
-        const BAK::Palette&);
+        const Image& terrain,
+        const Palette&);
 
     static void AddToTextureStore(
         Graphics::TextureStore& store,
-        const BAK::Image& image,
+        const Image& image,
         const Palette& palette);
 
     static void AddToTextureStore(
         Graphics::TextureStore& store,
-        const std::vector<BAK::Image>& images,
+        const std::vector<Image>& images,
         const Palette& palette);
 };
 

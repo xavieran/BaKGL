@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <iomanip>
-#include <ios>
 #include <ostream>
 
 namespace BAK {
@@ -10,74 +8,26 @@ namespace BAK {
 // Tracks the time in the game world
 struct Time
 {
-    unsigned GetDays() const
-    {
-        return GetHours() / 24;
-    }
-
-    unsigned GetHour() const
-    {
-        return GetHours() % 24;
-    }
-
-    unsigned GetHours() const
-    {
-        return GetSeconds() / 3600;
-    }
-
-    unsigned GetMinutes() const
-    {
-        return GetSeconds() / 60;
-    }
-
-    unsigned GetMinute() const
-    {
-        return GetMinutes() % 60;
-    }
-
-    unsigned GetSeconds() const
-    {
-        return mTime * 2;
-    }
+    unsigned GetDays() const;
+    unsigned GetHour() const;
+    unsigned GetHours() const;
+    unsigned GetMinutes() const;
+    unsigned GetMinute() const;
+    unsigned GetSeconds() const;
 
     constexpr auto operator<=>(const Time&) const = default;
 
-    Time operator+(const Time& lhs) const
-    {
-        return Time(mTime + lhs.mTime);
-    }
-
-    Time& operator+=(const Time& lhs)
-    {
-        mTime += lhs.mTime;
-        return *this;
-    }
-
-    Time operator-(const Time& lhs) const
-    {
-        return Time(mTime - lhs.mTime);
-    }
-
-    Time& operator-=(const Time& lhs)
-    {
-        mTime -= lhs.mTime;
-        return *this;
-    }
-
-    Time operator*(const Time& lhs) const
-    {
-        return Time(mTime * lhs.mTime);
-    }
+    Time operator+(const Time& lhs) const;
+    Time& operator+=(const Time& lhs);
+    Time operator-(const Time& lhs) const;
+    Time& operator-=(const Time& lhs);
+    Time operator*(const Time& lhs) const;
+    Time operator/(const Time& lhs) const;
 
     template <typename Numeric> requires std::is_integral_v<Numeric>
     Time operator*(Numeric lhs) const
     {
         return Time(mTime * lhs);
-    }
-
-    Time operator/(const Time& lhs) const
-    {
-        return Time(mTime / lhs.mTime);
     }
 
     std::uint32_t mTime;
@@ -96,43 +46,14 @@ public:
     // 1 hour = 1800 ticks
     // Each tick is 2 seconds
     // One step forward is 0x1e ticks (60 seconds)
-    WorldClock(Time time, Time timeLastSlept)
-    :
-        mTime{time},
-        mTimeLastSlept{timeLastSlept}
-    {
-    }
+    WorldClock(Time time, Time timeLastSlept);
 
-    Time GetTime() const
-    {
-        return mTime;
-    }
-
-    Time GetTimeLastSlept() const
-    {
-        return mTimeLastSlept;
-    }
-
-    Time GetTimeSinceLastSlept() const
-    {
-        return Time{mTime - mTimeLastSlept};
-    }
-
-    void AdvanceTime(Time timeDelta)
-    {
-        mTime = mTime + timeDelta;
-    }
-
-    void SetTimeLastSlept(Time time)
-    {
-        mTimeLastSlept = time;
-    }
-
-    void SetTime(Time time)
-    {
-        mTime = time;
-        mTimeLastSlept = time;
-    }
+    Time GetTime() const;
+    Time GetTimeLastSlept() const;
+    Time GetTimeSinceLastSlept() const;
+    void AdvanceTime(Time timeDelta);
+    void SetTimeLastSlept(Time time);
+    void SetTime(Time time);
 
 private:
     Time mTime;

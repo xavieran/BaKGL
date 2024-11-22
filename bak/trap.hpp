@@ -1,7 +1,8 @@
 #pragma once
 
-#include "graphics/glm.hpp"
+#include <glm/glm.hpp>
 
+#include <ostream>
 #include <vector>
 
 namespace BAK {

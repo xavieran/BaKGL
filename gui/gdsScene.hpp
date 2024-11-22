@@ -1,21 +1,30 @@
 #pragma once
 
 #include "bak/hotspot.hpp"
-#include "bak/textureFactory.hpp"
+#include "bak/hotspotRef.hpp"
 
 #include "graphics/sprites.hpp"
-
-#include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
 
 #include "gui/dialogDisplay.hpp"
 #include "gui/hotspot.hpp"
 #include "gui/staticTTM.hpp"
-#include "gui/temple.hpp"
+#include "gui/temple/temple.hpp"
 #include "gui/repair.hpp"
 #include "gui/core/widget.hpp"
 
+namespace BAK {
+class GameState;
+}
+
 namespace Gui {
+
+class IDialogScene;
+class IGuiManager;
+
+class Actors;
+class Backgrounds;
+class Cursor;
+class Font;
 
 class GDSScene : public Widget, public IDialogScene
 {

@@ -2,15 +2,22 @@
 
 #include "game/interactable/IInteractable.hpp"
 
-#include "bak/IContainer.hpp"
-#include "bak/container.hpp"
-#include "bak/dialog.hpp"
-#include "bak/dialogSources.hpp"
-#include "bak/gameState.hpp"
-#include "bak/itemNumbers.hpp"
+#include "bak/dialogTarget.hpp"
 
 #include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
+
+#include <glm/glm.hpp>
+
+#include <optional>
+
+namespace BAK {
+class GameState;
+class GenericContainer;
+}
+
+namespace Gui {
+class IGuiManager;
+}
 
 namespace Game::Interactable {
 
@@ -27,85 +34,16 @@ private:
 public:
     Ladder(
         Gui::IGuiManager& guiManager,
-        BAK::GameState& gameState)
-    :
-        mGuiManager{guiManager},
-        mGameState{gameState},
-        mDialogScene{
-            []{},
-            []{},
-            [&](const auto& choice){ DialogFinished(choice); }},
-        mCurrentLadder{nullptr},
-        mState{State::Idle}
-    {}
+        BAK::GameState& gameState);
 
-    void BeginInteraction(BAK::GenericContainer& ladder, BAK::EntityType) override
-    {
-        ASSERT(mState == State::Idle);
+    void BeginInteraction(BAK::GenericContainer& ladder, BAK::EntityType) override;
+    
 
-        mCurrentLadder = &ladder;
-        mGameState.SetDialogContext_7530(3);
+    void LockFinished();
 
-        // All ladders should have dialog and a lock
-        ASSERT(mCurrentLadder->HasLock())
-
-        StartDialog(BAK::DialogSources::mChooseUnlock);
-    }
-
-    void LockFinished()
-    {
-        ASSERT(!mCurrentLadder->GetLock().IsFairyChest())
-
-        if (mGuiManager.IsLockOpened())
-        {
-            // Unlockable ladders must always have a dialog
-            ASSERT(mCurrentLadder->HasDialog());
-            mState = State::Done;
-            StartDialog(mCurrentLadder->GetDialog().mDialog);
-        }
-        else
-        {
-            mState = State::Idle;
-        }
-    }
-
-    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
-    {
-        ASSERT(mCurrentLadder);
-
-        if (mState == State::Done)
-        {
-            mState = State::Idle;
-            if (mGameState.GetTransitionChapter_7541())
-            {
-                mGameState.SetTransitionChapter_7541(false);
-                mGuiManager.DoChapterTransition();
-            }
-            return;
-        }
-
-        ASSERT(choice);
-
-        if (choice->mValue == BAK::Keywords::sYesIndex)
-        {
-            mGuiManager.ShowLock(
-                mCurrentLadder,
-                [this]{ LockFinished(); });
-        }
-    }
-
-    void EncounterFinished() override
-    {
-    }
-
-    void StartDialog(BAK::Target target)
-    {
-        mGuiManager.StartDialog(
-            target,
-            false,
-            false,
-            &mDialogScene);
-    }
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
+    void EncounterFinished() override;
+    void StartDialog(BAK::Target target);
 
 private:
     Gui::IGuiManager& mGuiManager;

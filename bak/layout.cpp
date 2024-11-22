@@ -6,6 +6,28 @@
 
 namespace BAK {
 
+Layout::LayoutWidget::LayoutWidget(
+    unsigned widget,
+    unsigned action,
+    bool isVisible,
+    glm::vec2 position,
+    glm::vec2 dimensions,
+    unsigned teleport,
+    unsigned image,
+    unsigned group,
+    std::string label)
+:
+    mWidget{widget},
+    mAction{action},
+    mIsVisible{isVisible},
+    mPosition{position},
+    mDimensions{dimensions},
+    mTeleport{teleport},
+    mImage{image},
+    mGroup{group},
+    mLabel{label}
+{}
+
 Layout::Layout(
     const std::string& path)
 :

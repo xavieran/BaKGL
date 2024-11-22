@@ -1,14 +1,14 @@
 #pragma once
 
-#include "com/logger.hpp"
-
 #include "bak/IContainer.hpp"
 
 #include "bak/condition.hpp"
+#include "bak/inventory.hpp"
 #include "bak/skills.hpp"
 #include "bak/spells.hpp"
 #include "bak/types.hpp"
-#include "bak/inventory.hpp"
+
+#include "com/logger.hpp"
 
 #include <cstdint>
 #include <ostream>

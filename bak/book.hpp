@@ -1,14 +1,15 @@
 #pragma once
 
 #include "bak/file/fileBuffer.hpp"
-
-#include "graphics/glm.hpp"
+#include <glm/glm.hpp>
 
 #include <iosfwd>
-#include <optional>
+#include <string>
 #include <vector>
 
 namespace BAK {
+
+class FileBuffer;
 
 // Courtesy of Joris van Eijden
 struct ReservedArea

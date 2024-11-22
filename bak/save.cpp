@@ -1,6 +1,13 @@
 #include "bak/save.hpp"
 
+#include "bak/character.hpp"
+#include "bak/container.hpp"
 #include "bak/gameData.hpp"
+#include "bak/inventory.hpp"
+#include "bak/party.hpp"
+#include "bak/coordinates.hpp"
+
+#include "bak/file/fileBuffer.hpp"
 
 namespace BAK {
 

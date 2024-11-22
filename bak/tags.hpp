@@ -2,12 +2,12 @@
 
 #include "com/strongType.hpp"
 
-#include "bak/fileBufferFactory.hpp"
-
 #include <optional>
 #include <unordered_map>
 
 namespace BAK {
+
+class FileBuffer;
 
 using Tag = StrongType<unsigned, struct TagT>;
 

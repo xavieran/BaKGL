@@ -2,12 +2,11 @@
 
 #include "gui/core/widget.hpp"
 
+#include "com/logger.hpp"
 #include "com/visit.hpp"
 
 #include <glm/glm.hpp>
 
-#include <algorithm>
-#include <iostream>
 #include <optional>
 #include <utility>
 #include <variant>

@@ -1,17 +1,16 @@
 #pragma once
 
 #include "bak/container.hpp"
-#include "bak/constants.hpp"
-#include "bak/coordinates.hpp"
-#include "bak/dialog.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
 #include "bak/fmap.hpp"
 #include "bak/gameData.hpp"
-#include "bak/money.hpp"
-#include "bak/save.hpp"
+#include "bak/inventoryItem.hpp"
+#include "bak/party.hpp"
+#include "bak/spells.hpp"
 #include "bak/textVariableStore.hpp"
 #include "bak/timeExpiringState.hpp"
+#include "bak/worldClock.hpp"
 #include "bak/types.hpp"
 
 #include "com/random.hpp"
@@ -19,6 +18,8 @@
 #include <type_traits>
 
 namespace BAK {
+
+class GameData;
 
 template <typename F, typename ...Args>
 using invoke_result_with_fb = std::invoke_result_t<F, FileBuffer&, Args...>;

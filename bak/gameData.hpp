@@ -2,16 +2,11 @@
 
 #include <glm/glm.hpp>
 
-#include "bak/constants.hpp"
 #include "bak/character.hpp"
 #include "bak/condition.hpp"
 #include "bak/container.hpp"
 #include "bak/combat.hpp"
-#include "bak/dialogAction.hpp"
-#include "bak/encounter/encounter.hpp"
-#include "bak/money.hpp"
 #include "bak/party.hpp"
-#include "bak/resourceNames.hpp"
 #include "bak/saveManager.hpp"
 #include "bak/skills.hpp"
 #include "bak/spells.hpp"

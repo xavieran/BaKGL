@@ -1,4 +1,7 @@
 #include "bak/bard.hpp"
+
+#include "bak/shop.hpp"
+#include "bak/money.hpp"
 #include "bak/dialogSources.hpp"
 
 namespace BAK::Bard {

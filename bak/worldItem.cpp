@@ -1,5 +1,11 @@
 #include "bak/worldItem.hpp"
 
+#include "bak/constants.hpp"
+
+#include "bak/coordinates.hpp"
+#include "bak/file/fileBuffer.hpp"
+#include "bak/fileBufferFactory.hpp"
+
 namespace BAK {
 
 auto LoadWorldTile(FileBuffer& fb)

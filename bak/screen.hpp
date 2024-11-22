@@ -1,10 +1,9 @@
 #pragma once
 
-#include "bak/image.hpp"
-
-#include "bak/fileBufferFactory.hpp"
-
 namespace BAK {
+
+class FileBuffer;
+class Image;
 
 Image LoadScreenResource(FileBuffer& fb);
 

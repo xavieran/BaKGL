@@ -1,12 +1,180 @@
 #include "bak/inventory.hpp"
 
+#include "bak/inventoryItem.hpp"
+#include "bak/file/fileBuffer.hpp"
+
 #include "com/assert.hpp"
-#include "com/logger.hpp"
 
 #include <algorithm>
 #include <numeric>
 
 namespace BAK {
+
+Inventory::Inventory(
+    unsigned capacity)
+:
+    mCapacity{capacity},
+    mItems{}
+{}
+
+Inventory::Inventory(
+    unsigned capacity,
+    std::vector<InventoryItem>&& items)
+:
+    mCapacity{capacity},
+    mItems{std::move(items)}
+{}
+
+const std::vector<InventoryItem>& Inventory::GetItems() const { return mItems; }
+std::vector<InventoryItem>& Inventory::GetItems() { return mItems; }
+
+std::size_t Inventory::GetCapacity() const { return mCapacity; }
+std::size_t Inventory::GetNumberItems() const { return mItems.size(); }
+
+const InventoryItem& Inventory::GetAtIndex(InventoryIndex i) const
+{
+    ASSERT(i.mValue < mItems.size());
+    return mItems[i.mValue];
+}
+
+InventoryItem& Inventory::GetAtIndex(InventoryIndex i)
+{
+    ASSERT(i.mValue < mItems.size());
+    return mItems[i.mValue];
+}
+
+std::vector<InventoryItem>::const_iterator Inventory::FindItem(const InventoryItem& item) const
+{
+    return std::find_if(
+        mItems.begin(), mItems.end(),
+        [&item](const auto& elem){
+            return elem.GetItemIndex() == item.GetItemIndex();
+        });
+}
+
+std::vector<InventoryItem>::iterator Inventory::FindItem(const InventoryItem& item)
+{
+    return std::find_if(
+        mItems.begin(), mItems.end(),
+        [&item](const auto& elem){
+            return elem.GetItemIndex() == item.GetItemIndex();
+        });
+}
+
+std::optional<InventoryIndex> Inventory::GetIndexFromIt(std::vector<InventoryItem>::iterator it)
+{
+    if (it == mItems.end())
+        return std::nullopt;
+    else
+        return std::make_optional(
+            static_cast<InventoryIndex>(std::distance(mItems.begin(), it)));
+}
+
+std::optional<InventoryIndex> Inventory::GetIndexFromIt(std::vector<InventoryItem>::const_iterator it) const
+{
+    if (it == mItems.end())
+        return std::nullopt;
+    else
+        return std::make_optional(
+            static_cast<InventoryIndex>(std::distance(mItems.cbegin(), it)));
+}
+
+std::vector<InventoryItem>::const_iterator Inventory::FindStack(const InventoryItem& item) const
+{
+    ASSERT(item.IsStackable() || item.IsChargeBased());
+    auto items = std::vector<
+        std::pair<
+            std::size_t,
+            std::reference_wrapper<const InventoryItem>>>{};
+
+    for (std::size_t i = 0; i < mItems.size(); i++)
+    {
+        if (mItems[i].GetItemIndex() == item.GetItemIndex())
+            items.emplace_back(i, std::ref(mItems[i]));
+    }
+
+    auto it = std::min_element(items.begin(), items.end(),
+        [](const auto& l, const auto& r){
+            return (std::get<1>(l).get().GetQuantity() < std::get<1>(r).get().GetQuantity());
+        });
+
+    // If we didn't find an incomplete stack, return a complete one
+    if (it == items.end())
+        return FindItem(item);
+    else
+        return std::next(mItems.begin(), it->first);
+}
+
+// Search for a stackable item prioritising incomplete stacks
+std::vector<InventoryItem>::iterator Inventory::FindStack(const InventoryItem& item)
+{
+    // Is there a better way?
+    auto cit = static_cast<const Inventory*>(this)->FindStack(item);
+    return std::next(
+        mItems.begin(),
+        std::distance(mItems.cbegin(), cit));
+}
+
+std::vector<InventoryItem>::const_iterator Inventory::FindEquipped(BAK::ItemType slot) const
+{
+    return std::find_if(
+        mItems.begin(), mItems.end(),
+        [&slot](const auto& elem){
+            return elem.IsItemType(slot) && elem.IsEquipped();
+        });
+}
+
+std::vector<InventoryItem>::iterator Inventory::FindEquipped(BAK::ItemType slot)
+{
+    return std::find_if(
+        mItems.begin(), mItems.end(),
+        [&slot](const auto& elem){
+            return elem.IsItemType(slot) && elem.IsEquipped();
+        });
+}
+
+std::vector<InventoryItem>::const_iterator Inventory::FindItemType(BAK::ItemType slot) const
+{
+    return std::find_if(
+        mItems.begin(), mItems.end(),
+        [&slot](const auto& elem){
+            return elem.IsItemType(slot);
+        });
+}
+
+std::vector<InventoryItem>::iterator Inventory::FindItemType(BAK::ItemType slot)
+{
+    return std::find_if(
+        mItems.begin(), mItems.end(),
+        [&slot](const auto& elem){
+            return elem.IsItemType(slot);
+        });
+}
+
+unsigned Inventory::CalculateModifiers(SkillType skill) const
+{
+    unsigned mods = 0;
+    for (const auto& item : mItems)
+    {
+        if ((item.GetObject().mModifierMask 
+            & (1 << static_cast<unsigned>(skill))) != 0)
+        {
+            mods += item.GetObject().mModifier;
+        }
+    }
+    return mods;
+}
+
+void Inventory::CopyFrom(Inventory& other)
+{
+    for (const auto& item : other.GetItems())
+    {
+        auto newItem = item;
+        newItem.SetActivated(false);
+        newItem.SetEquipped(false);
+        AddItem(newItem);
+    }
+}
 
 std::size_t Inventory::GetSpaceUsed() const
 {

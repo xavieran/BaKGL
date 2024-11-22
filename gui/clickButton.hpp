@@ -1,17 +1,13 @@
 #pragma once
 
 #include "gui/button.hpp"
-#include "gui/colors.hpp"
-#include "gui/core/mouseEvent.hpp"
 #include "gui/textBox.hpp"
 #include "gui/core/widget.hpp"
-
-#include "com/assert.hpp"
-#include "com/visit.hpp"
-
-#include <variant>
+#include "gui/core/mouseEvent.hpp"
 
 namespace Gui {
+
+class Font;
 
 class ClickButtonBase : public Widget
 {
@@ -20,55 +16,11 @@ public:
         glm::vec2 pos,
         glm::vec2 dims,
         std::function<void()>&& onLeftMousePress,
-        std::function<void()>&& onRightMousePress)
-    :
-        Widget{
-            RectTag{},
-            pos,
-            dims,
-            glm::vec4{0},
-            true
-        },
-        mLeftPressedCallback{std::move(onLeftMousePress)},
-        mRightPressedCallback{std::move(onRightMousePress)}
-    {
-        ASSERT(mLeftPressedCallback);
-        ASSERT(mRightPressedCallback);
-    }
+        std::function<void()>&& onRightMousePress);
 
-    bool OnMouseEvent(const MouseEvent& event) override
-    {
-        return std::visit(overloaded{
-            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
-            [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
-            [](const auto& p){ return false; }
-            },
-            event);
-    }
-
-    bool LeftMousePressed(glm::vec2 click)
-    {
-        if (Within(click))
-        {
-            Logging::LogSpam("ClickButtonBase") << "Got LMC: " << this << " " << click << std::endl;
-            std::invoke(mLeftPressedCallback);
-            return true;
-        }
-
-        return false;
-    }
-
-    bool RightMousePressed(glm::vec2 click)
-    {
-        if (Within(click))
-        {
-            Logging::LogSpam("ClickButtonBase") << "Got RMC: " << this << " " << click << std::endl;
-            std::invoke(mRightPressedCallback);
-            return true;
-        }
-
-        return false;
-    }
+    bool OnMouseEvent(const MouseEvent& event) override;
+    bool LeftMousePressed(glm::vec2 click);
+    bool RightMousePressed(glm::vec2 click);
 
 private:
     std::function<void()> mLeftPressedCallback;
@@ -84,115 +36,17 @@ public:
         glm::vec2 dims,
         const Font& font,
         const std::string& label,
-        std::function<void()>&& onLeftMousePress)
-    :
-        ClickButtonBase{
-            pos,
-            dims,
-            std::move(onLeftMousePress),
-            [](){}
-        },
-        mFont{font},
-        mNormal{
-            glm::vec2{0, 0},
-            dims,
-            Color::buttonBackground,
-            Color::buttonHighlight,
-            Color::buttonShadow},
-        mPressed{
-            glm::vec2{0, 0},
-            dims,
-            Color::buttonPressed,
-            Color::buttonShadow,
-            Color::buttonHighlight},
-        mButtonPressed{false},
-        mText{
-            glm::vec2{3, 2},
-            dims}
-    {
-        SetText(label);
-        AddChildren();
-    }
-
-    void SetText(std::string_view label)
-    {
-        const auto textPos = glm::vec2{3, 2};
-        const auto& dims = GetPositionInfo().mDimensions;
-        const auto& [endPos, text] = mText.SetText(mFont, label);
-        mText.SetPosition(
-            glm::vec2{
-                textPos.x + (dims.x - endPos.x) / 2,
-                textPos.y});
-    }
-
-    bool OnMouseEvent(const MouseEvent& event) override
-    {
-        const bool dirty = std::visit(overloaded{
-            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
-            [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
-            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
-            [](const auto& p){ return false; }
-            },
-            event);
-
-        const bool handled = ClickButtonBase::OnMouseEvent(event);
-
-        if (dirty || std::holds_alternative<LeftMouseRelease>(event))
-        {
-            AddChildren();
-        }
-
-        return handled;
-    }
-
-    bool LeftMousePressed(glm::vec2 click)
-    {
-        if (Within(click))
-        {
-            return UpdateState(true);
-        }
-
-        return false;
-    }
-
-    bool LeftMouseReleased(glm::vec2 click)
-    {
-        UpdateState(false);
-        return false;
-    }
-
-    bool MouseMoved(glm::vec2 pos)
-    {
-        if (!Within(pos))
-        {
-            return UpdateState(false);
-        }
-
-        return false;
-    }
+        std::function<void()>&& onLeftMousePress);
+    
+    void SetText(std::string_view label);
+    bool OnMouseEvent(const MouseEvent& event) override;
+    bool LeftMousePressed(glm::vec2 click);
+    bool LeftMouseReleased(glm::vec2 click);
+    bool MouseMoved(glm::vec2 pos);
 
 private:
-    void AddChildren()
-    {
-        ClearChildren();
-        if (mButtonPressed)
-        {
-            AddChildBack(&mPressed);
-        }
-        else
-        {
-            AddChildBack(&mNormal);
-        }
-
-        AddChildBack(&mText);
-    }
-
-    bool UpdateState(bool newState)
-    {
-        const bool tmp = mButtonPressed;
-        mButtonPressed = newState;
-        return mButtonPressed != tmp;
-    }
+    void AddChildren();
+    bool UpdateState(bool newState);
 
     const Font& mFont;
 
@@ -212,120 +66,18 @@ public:
         Graphics::TextureIndex normal,
         Graphics::TextureIndex pressed,
         std::function<void()>&& onLeftMousePress,
-        std::function<void()>&& onRightMousePress)
-    :
-        ClickButtonBase{
-            pos,
-            dims,
-            std::move(onLeftMousePress),
-            std::move(onRightMousePress)
-        },
-        mIsPressed{false},
-        mNormal{
-            Graphics::DrawMode::Sprite,
-            spriteSheet,
-            normal,
-            Graphics::ColorMode::Texture,
-            Color::black,
-            glm::vec2{0},
-            dims,
-            true},
-        mPressed{
-            Graphics::DrawMode::Sprite,
-            spriteSheet,
-            pressed,
-            Graphics::ColorMode::Texture,
-            Color::black,
-            glm::vec2{0},
-            dims,
-            true}
-    {
-        AddChildren();
-    }
-
-    bool OnMouseEvent(const MouseEvent& event) override
-    {
-        std::visit(overloaded{
-            [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
-            [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },
-            [this](const MouseMove& p){ return MouseMoved(p.mValue); },
-            [](const auto& p){ return false; }
-            },
-            event);
-
-        return ClickButtonBase::OnMouseEvent(event);
-    }
-
-    bool LeftMousePressed(glm::vec2 click)
-    {
-        if (Within(click))
-        {
-            mIsPressed = true;
-            AddChildren();
-        }
-        return false;
-    }
-
-    bool LeftMouseReleased(glm::vec2 click)
-    {
-        mIsPressed = false;
-        AddChildren();
-        return false;
-    }
-
-    bool MouseMoved(glm::vec2 pos)
-    {
-        if (!Within(pos))
-        {
-            mIsPressed = false;
-            AddChildren();
-        }
-
-        return false;
-    }
-
-    void CenterImage(glm::vec2 dims)
-    {
-        // Set the image to its normal size and center it
-        mNormal.SetDimensions(dims);
-        mNormal.SetCenter(GetCenter() - GetTopLeft());
-        mPressed.SetDimensions(dims);
-        mPressed.SetCenter(GetCenter() - GetTopLeft());
-    }
-
-    void SetTexture(Graphics::SpriteSheetIndex ss, Graphics::TextureIndex ti)
-    {
-        mNormal.SetSpriteSheet(ss);
-        mNormal.SetTexture(ti);
-        mPressed.SetSpriteSheet(ss);
-        mPressed.SetTexture(ti);
-    }
-
-    void SetColor(glm::vec4 color)
-    {
-        mNormal.SetColor(color);
-        mPressed.SetColor(color);
-    }
-
-    void SetColorMode(Graphics::ColorMode mode)
-    {
-        mNormal.SetColorMode(mode);
-        mPressed.SetColorMode(mode);
-    }
-
+        std::function<void()>&& onRightMousePress);
+    
+    bool OnMouseEvent(const MouseEvent& event) override;
+    bool LeftMousePressed(glm::vec2 click);
+    bool LeftMouseReleased(glm::vec2 click);
+    bool MouseMoved(glm::vec2 pos);
+    void CenterImage(glm::vec2 dims);
+    void SetTexture(Graphics::SpriteSheetIndex ss, Graphics::TextureIndex ti);
+    void SetColor(glm::vec4 color);
+    void SetColorMode(Graphics::ColorMode mode);
 private:
-    void AddChildren()
-    {
-        ClearChildren();
-        if (mIsPressed)
-        {
-            AddChildBack(&mPressed);
-        }
-        else
-        {
-            AddChildBack(&mNormal);
-        }
-    }
+    void AddChildren();
 
     bool mIsPressed;
     Widget mNormal;

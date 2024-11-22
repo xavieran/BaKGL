@@ -4,9 +4,11 @@ extern "C" {
 #include "com/getopt.h"
 }
 
+#include "com/logger.hpp"
+#include "com/ostream.hpp"
 #include "com/string.hpp"
 
-#include "com/logger.hpp"
+#include "graphics/glm.hpp"
 
 struct Options
 {

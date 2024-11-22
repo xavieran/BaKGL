@@ -1,22 +1,21 @@
 #include "com/logger.hpp"
 
+#include "bak/textureFactory.hpp"
+
 #include "graphics/inputHandler.hpp"
-#include "graphics/glm.hpp"
 #include "graphics/glfw.hpp"
 #include "graphics/guiRenderer.hpp"
 
+#include "gui/fontManager.hpp"
 #include "gui/icons.hpp"
 #include "gui/textBox.hpp"
 #include "gui/window.hpp"
-
-#include "imgui/imguiWrapper.hpp"
 
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 
 #include <memory>
-#include <sstream>
 
 int main(int argc, char** argv)
 {

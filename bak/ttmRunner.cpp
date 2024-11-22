@@ -1,14 +1,10 @@
 #include "bak/ttmRunner.hpp"
 
-#include "bak/dialogSources.hpp"
-#include "bak/imageStore.hpp"
-#include "bak/screen.hpp"
-#include "bak/textureFactory.hpp"
+#include "bak/fileBufferFactory.hpp"
+#include "bak/scene.hpp"
 
-#include "com/assert.hpp"
 #include "com/logger.hpp"
-
-#include "graphics/types.hpp"
+#include "com/visit.hpp"
 
 namespace BAK {
 
@@ -23,10 +19,10 @@ void TTMRunner::LoadTTM(
     std::string ttmFile)
 {
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
-    auto adsFb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
-    mSceneSequences = BAK::LoadSceneSequences(adsFb);
-    auto ttmFb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-    mActions = BAK::LoadDynamicScenes(ttmFb);
+    auto adsFb = FileBufferFactory::Get().CreateDataBuffer(adsFile);
+    mSceneSequences = LoadSceneSequences(adsFb);
+    auto ttmFb = FileBufferFactory::Get().CreateDataBuffer(ttmFile);
+    mActions = LoadDynamicScenes(ttmFb);
 
     mCurrentSequence = 0;
     mCurrentSequenceScene = 0;
@@ -35,7 +31,7 @@ void TTMRunner::LoadTTM(
     mCurrentAction = FindActionMatchingTag(nextTag);
 }
 
-std::optional<BAK::SceneAction> TTMRunner::GetNextAction()
+std::optional<SceneAction> TTMRunner::GetNextAction()
 {
     if (mCurrentAction == mActions.size())
     {
@@ -48,11 +44,11 @@ std::optional<BAK::SceneAction> TTMRunner::GetNextAction()
 
     std::visit(
         overloaded{
-            [&](const BAK::Purge&){
+            [&](const Purge&){
                 AdvanceToNextScene();
                 nextActionChosen = true;
             },
-            [&](const BAK::GotoTag& sa){
+            [&](const GotoTag& sa){
                 // Hack til I figure out exactly how C31 works...
                 if (sa.mTag == 4)
                 {
@@ -113,7 +109,7 @@ unsigned TTMRunner::FindActionMatchingTag(unsigned tag)
     std::optional<unsigned> foundIndex{};
     for (unsigned i = 0; i < mActions.size(); i++)
     {
-        evaluate_if<BAK::SetScene>(mActions[i], [&](const auto& action) {
+        evaluate_if<SetScene>(mActions[i], [&](const auto& action) {
             if (action.mSceneNumber == tag)
             {
                 foundIndex = i;

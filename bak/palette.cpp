@@ -1,9 +1,12 @@
-#include "bak/dataTags.hpp"
 #include "bak/palette.hpp"
+
+#include "bak/dataTags.hpp"
+#include "bak/fileBufferFactory.hpp"
+
 
 #include "com/assert.hpp"
 
-#include "bak/fileBufferFactory.hpp"
+#include <functional>
 
 namespace BAK {
 
@@ -39,10 +42,28 @@ Palette::Palette(FileBuffer& fb)
     }
 }
 
+Palette::Palette(const Palette& pal, const ColorSwap& cs)
+:
+    mColors{std::invoke([&](){
+        auto swappedPal = std::vector<glm::vec4>{};
+        for (unsigned i = 0; i < 256; i++)
+        {
+            swappedPal.emplace_back(cs.GetColor(i, pal));
+        }
+        return swappedPal;
+    })}
+{
+}
+
 const glm::vec4& Palette::GetColor(unsigned i) const
 {
     ASSERT(i < mColors.size());
     return mColors[i];
+}
+
+const std::vector<std::array<std::uint8_t, 4>>& Palette::GetColors8() const
+{
+    return mColors8;
 }
 
 ColorSwap::ColorSwap(const std::string& filename)

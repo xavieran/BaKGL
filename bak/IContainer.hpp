@@ -1,12 +1,12 @@
 #pragma once
 
-#include "bak/inventory.hpp"
-#include "bak/lock.hpp"
-
 #include <string_view>
 
 namespace BAK {
 
+class Inventory;
+class InventoryItem;
+struct LockStats;
 struct ShopStats;
 
 enum class ContainerType

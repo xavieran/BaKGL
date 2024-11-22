@@ -1,7 +1,5 @@
 #pragma once
 
-#include "bak/dialogChoice.hpp"
-
 namespace BAK {
 class GameState;
 };

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "bak/scene.hpp"
 #include "bak/sceneData.hpp"
 
 #include <glm/glm.hpp>

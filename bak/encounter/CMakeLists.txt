@@ -1,5 +1,6 @@
 add_library(bakEncounter
     encounter.hpp encounter.cpp
+    encounterStore.hpp encounterStore.cpp
     eventFlag.hpp eventFlag.cpp eventFlag.ipp
     background.hpp background.cpp
     block.hpp block.cpp

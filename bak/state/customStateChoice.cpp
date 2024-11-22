@@ -1,6 +1,7 @@
 #include "bak/state/customStateChoice.hpp"
 
 #include "bak/gameState.hpp"
+#include "bak/itemNumbers.hpp"
 #include "bak/coordinates.hpp"
 
 namespace BAK::State {

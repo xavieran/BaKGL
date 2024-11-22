@@ -1,13 +1,14 @@
 #pragma once
 
-#include "bak/character.hpp"
-#include "bak/dialog.hpp"
-#include "bak/gameState.hpp"
-#include "bak/inventoryItem.hpp"
-#include "bak/objectInfo.hpp"
+#include "bak/dialogTarget.hpp"
+#include "bak/types.hpp"
 
+#include <optional>
 
 namespace BAK {
+
+class Character;
+class GameState;
 
 struct ItemUseResult
 {
