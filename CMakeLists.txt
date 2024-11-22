@@ -45,6 +45,7 @@ if (MSVC)
     set(CXX_ASAN "")
 else()
     set(CXX_IGNORE ${CXX_IGNORES})
+    # -ftime-trace" clang build profile
     set(CXX_FLAGS "-Wall -Wextra -Werror -Wpedantic")
 
     # FileBuffer violates alignment pretty regularly. Will need to fix at some point
