@@ -66,14 +66,14 @@ CombatModel::CombatModel(const Model& model)
 
         if (lastSpriteIndex > faceOptions.front().mEdgeCount)
         {
+            // This is not a good enough heuristic for determining the sprite file index to use...
+            // Spefically `dread` is an example of this not working.
             spriteFileIndex++;
             logger.Debug() << "Next sprite is: " << +faceOptions.front().mEdgeCount << " last was: "
                 << +lastSpriteIndex << " SFI is now: " << +spriteFileIndex << "\n";
         }
 
         const auto animationType = static_cast<AnimationType>(i);
-        //const auto animationCount = GetAnimationCount(animationType);
-        //const auto directionCount = faceOptions.size() / animationCount;
         logger.Debug() << "AnimType: " << ToString(animationType) << " FaceOptions size: " << faceOptions.size() << " mod5: " 
             << faceOptions.size() % 5 << " mod3: " << faceOptions.size() % 3 << std::endl;
 
