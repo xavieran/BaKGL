@@ -6,6 +6,8 @@
 #include "bak/screens.hpp"
 
 #include "bak/state/encounter.hpp"
+#include "bak/encounter//encounter.hpp"
+#include "bak/zone.hpp"
 
 extern "C" {
 #include "com/getopt.h"
