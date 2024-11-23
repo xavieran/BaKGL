@@ -12,7 +12,7 @@
 
 #include "gui/IDialogScene.hpp"
 
-#include <unordered_set>
+#include <optional>
 
 class Camera;
 namespace BAK {

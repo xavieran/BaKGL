@@ -88,10 +88,21 @@ private:
     glm::mat4 mModelMatrix;
 };
 
+class Tickable
+{
+public:
+    Tickable(
+        BAK::EntityIndex itemId);
+
+    BAK::EntityIndex GetId() const;
+
+private:
+    BAK::EntityIndex mItemId;
+};
+
 class Systems
 {
 public:
-
     Systems();
 
     BAK::EntityIndex GetNextItemId();

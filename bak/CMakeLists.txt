@@ -9,6 +9,7 @@ add_library(bak
     camp.hpp camp.cpp
     chapterTransitions.hpp chapterTransitions.cpp
     combat.hpp combat.cpp
+    combatModel.hpp combatModel.cpp
     condition.hpp condition.cpp
     constants.hpp
     cutscenes.hpp cutscenes.cpp

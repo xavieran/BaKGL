@@ -14,7 +14,7 @@ namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const CombatWorldLocation& cwl)
 {
-    os << "CombatWorldLocation{" << cwl.mPosition << " Unk: " << +cwl.mUnknownFlag
+    os << "CombatWorldLocation{" << cwl.mPosition << " ImageIndex: " << +cwl.mImageIndex
         << " State: " << +cwl.mState << "}";
     return os;
 }
