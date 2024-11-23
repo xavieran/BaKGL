@@ -13,6 +13,7 @@ list(APPEND APP_BINARIES
     #display_fo
     #display_fmap
     #display_gds
+    display_monster
     #display_object
     #display_ramp
     display_save

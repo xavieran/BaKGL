@@ -60,6 +60,7 @@ CombatModel::CombatModel(const Model& model)
     for (std::uint8_t i = 0; i < meshes.size(); i++)
     {
         const auto animationType = static_cast<AnimationType>(i);
+        mAnimationTypes.emplace_back(animationType);
         auto& animations = mCombatAnimations.emplace_back(std::array<CombatAnimation, 5>{});
         const auto& faceOptions = meshes[i].mFaceOptions;
         logger.Spam() << "Handle mesh " << +i << " SF: " << +spriteFileIndex << " LSI: " 
@@ -72,11 +73,11 @@ CombatModel::CombatModel(const Model& model)
             spriteFileIndex++;
             logger.Spam() << "Next sprite is: " << +faceOptions.front().mEdgeCount << " last was: "
                 << +lastSpriteIndex << " SFI is now: " << +spriteFileIndex << "\n";
-            if (spriteFileIndex > 3)
+            if (spriteFileIndex > 2)
             {
                 logger.Debug() << "Sprite file index too high: " << model.mName << " SFI: " 
                     << +spriteFileIndex << " current animType: " << ToString(animationType) << "\n";
-                spriteFileIndex = 3;
+                spriteFileIndex = 2;
             }
         }
 
@@ -101,8 +102,8 @@ CombatModel::CombatModel(const Model& model)
 
         assert((frameCount % 5 == 0) || (frameCount % 3 == 0));
 
-        const auto directionCount = frameCount == 0 ? 5 : 3;
-        const auto animationCount = frameCount == 0
+        const auto directionCount = (frameCount % 5) == 0 ? 5 : 3;
+        const auto animationCount = (frameCount % 5) == 0
             ? faceOptions.size() / 5
             : faceOptions.size() / 3;
         using enum Direction;
@@ -144,4 +145,16 @@ CombatAnimation CombatModel::GetAnimation(AnimationType animationType, Direction
     return byDirection[dirIndex];
 }
 
+std::size_t CombatModel::GetDirections(AnimationType animationType) const
+{
+    auto animIndex = std::to_underlying(animationType);
+    assert(animIndex < mCombatAnimations.size());
+
+    return mCombatAnimations[animIndex].size();
+}
+
+const std::vector<AnimationType>& CombatModel::GetSupportedAnimations() const
+{
+    return mAnimationTypes;
+}
 }

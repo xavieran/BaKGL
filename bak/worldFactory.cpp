@@ -77,7 +77,7 @@ ZoneTextureStore::ZoneTextureStore(
         ASSERT(!images.empty());
         TextureFactory::AddToTextureStore(
             mTextures,
-            images,//[0],
+            images[0],
             pal);
     }
 }
@@ -113,6 +113,7 @@ ZoneItem::ZoneItem(
     mFaces{},
     mPush{}
 {
+    // True 3D model
     if (mSpriteIndex == 0 || mSpriteIndex > 400)
     {
         for (const auto& vertex : model.mVertices)
@@ -172,6 +173,7 @@ ZoneItem::ZoneItem(
             }
         }
     }
+    // Billboarded sprite
     else
     {
         // Need this to set the right dimensions for the texture
@@ -202,15 +204,15 @@ ZoneItem::ZoneItem(
 }
 
 ZoneItem::ZoneItem(
-    unsigned i,
+    MonsterIndex monster,
     const BAK::MonsterNames& monsters,
     const ZoneTextureStore& textureStore)
 :
-    mName{monsters.GetMonsterAnimationFile(MonsterIndex{i})},
+    mName{monsters.GetMonsterAnimationFile(monster)},
     mEntityFlags{0},
     mEntityType{EntityType::DEADBODY1},
     mScale{1},
-    mSpriteIndex{i + textureStore.GetHorizonOffset()},
+    mSpriteIndex{monster.mValue + textureStore.GetHorizonOffset()},
     mColors{},
     mVertices{},
     mPalettes{},
@@ -238,6 +240,46 @@ ZoneItem::ZoneItem(
 
     mPalettes.emplace_back(0x91);
     mColors.emplace_back(mSpriteIndex);
+
+    ASSERT((mFaces.size() == mColors.size())
+        && (mFaces.size() == mPalettes.size())
+        && (mFaces.size() == mPush.size()));
+}
+
+ZoneItem::ZoneItem(
+    unsigned spriteIndex,
+    const Graphics::Texture& texture)
+:
+    mName{""},
+    mEntityFlags{0},
+    mEntityType{},
+    mScale{1},
+    mSpriteIndex{spriteIndex},
+    mColors{},
+    mVertices{},
+    mPalettes{},
+    mFaces{},
+    mPush{}
+{
+    // Need this to set the right dimensions for the texture
+    const auto spriteScale = 7.0f;
+    auto width  = static_cast<int>(static_cast<float>(texture.GetTargetWidth()) * (spriteScale * .75));
+    auto height = texture.GetTargetHeight() * spriteScale;
+    mVertices.emplace_back(-width, height, 0);
+    mVertices.emplace_back(width, height, 0);
+    mVertices.emplace_back(width, 0, 0);
+    mVertices.emplace_back(-width, 0, 0);
+
+    auto faces = std::vector<std::uint16_t>{};
+    faces.emplace_back(0);
+    faces.emplace_back(1);
+    faces.emplace_back(2);
+    faces.emplace_back(3);
+    mFaces.emplace_back(faces);
+    mPush.emplace_back(false);
+
+    mPalettes.emplace_back(0x91);
+    mColors.emplace_back(spriteIndex);
 
     ASSERT((mFaces.size() == mColors.size())
         && (mFaces.size() == mPalettes.size())

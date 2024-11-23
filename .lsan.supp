@@ -7,3 +7,4 @@ leak:*libpulse*
 leak:*libSDL2*
 leak:*libdbus-1*
 leak:*unknown module*
+leak:*libGLX_mesa*

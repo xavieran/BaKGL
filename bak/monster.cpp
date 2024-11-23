@@ -25,11 +25,19 @@ MonsterNames::Monster::Monster(
     std::uint8_t colorSwap)
 :
     mPrefix{prefix},
-    mUnknown0{unknown0},
-    mUnknown1{unknown1},
-    mUnknown2{unknown2},
+    mSuffix0{unknown0},
+    mSuffix1{unknown1},
+    mSuffix2{unknown2},
     mColorSwap{colorSwap}
 {}
+
+std::ostream& operator<<(std::ostream& os, const MonsterNames::Monster& m)
+{
+    os << "Monster{ Pref: " << m.mPrefix << " s0: " << +m.mSuffix0
+        << " s1" << +m.mSuffix1 << " s2: " << +m.mSuffix2 
+        << " cs: " << +m.mColorSwap << "}";
+    return os;
+}
 
 const std::string& MonsterNames::GetMonsterName(MonsterIndex monster) const
 {

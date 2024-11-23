@@ -34,7 +34,7 @@ Zone::Zone(unsigned zoneNumber)
         mObjects.AddObject(
             monsters.GetMonsterAnimationFile(MonsterIndex{i}),
             BAK::ZoneItemToMeshObject(
-                ZoneItem{i, monsters, mZoneTextures},
+                ZoneItem{MonsterIndex{i}, monsters, mZoneTextures},
                 mZoneTextures,
                 mPalette));
     }

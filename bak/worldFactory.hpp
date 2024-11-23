@@ -50,9 +50,13 @@ public:
         const ZoneTextureStore& textureStore);
 
     ZoneItem(
-        unsigned i,
+        MonsterIndex monster,
         const MonsterNames& monsters,
         const ZoneTextureStore& textureStore);
+
+    ZoneItem(
+        unsigned spriteIndex,
+        const Graphics::Texture& textureStore);
 
     void SetPush(unsigned i);
     const std::string& GetName() const;

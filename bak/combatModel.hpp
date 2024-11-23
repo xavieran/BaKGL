@@ -45,9 +45,13 @@ class CombatModel
 public:
     CombatModel(const Model&);
     CombatAnimation GetAnimation(AnimationType, Direction) const;
+    std::size_t GetDirections(AnimationType) const;
+    const std::vector<AnimationType>& GetSupportedAnimations() const;
 
 private:
-    std::vector<std::array<CombatAnimation, 5>> mCombatAnimations;
+    using Directions = std::array<CombatAnimation, 5>;
+    std::vector<AnimationType> mAnimationTypes;
+    std::vector<Directions> mCombatAnimations;
 };
 
 }
