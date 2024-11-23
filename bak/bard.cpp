@@ -4,6 +4,8 @@
 #include "bak/money.hpp"
 #include "bak/dialogSources.hpp"
 
+#include <cmath>
+
 namespace BAK::Bard {
 
 BardStatus ClassifyBardAttempt(unsigned bardingSkill, unsigned innRequirement)

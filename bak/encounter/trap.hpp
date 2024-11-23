@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bak/encounter/combat.ipp"
+#include "bak/encounter/combat.hpp"
 
 namespace BAK::Encounter {
 

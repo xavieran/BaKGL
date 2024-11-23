@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-
 #include "bak/types.hpp"
 #include "bak/worldClock.hpp"
+
+#include <string>
 
 namespace BAK {
 

@@ -1,11 +1,14 @@
 #pragma once
 
-#include "bak/encounter/gdsEntry.ipp"
+#include "bak/encounter/gdsEntry.hpp"
 
 namespace BAK::Encounter {
 
-struct backgroundFile { static constexpr auto file = "DEF_BKGR.DAT"; };
+struct BackgroundFile
+{
+    static constexpr auto file = "DEF_BKGR.DAT";
+};
 
-using BackgroundFactory = GDSEntryFactory<backgroundFile>;
+using BackgroundFactory = GDSEntryFactory<BackgroundFile>;
 
 }

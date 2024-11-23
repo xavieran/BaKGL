@@ -1,5 +1,7 @@
 #include "bak/encounter/combat.hpp"
 
+#include "bak/encounter/combat.ipp"
+
 #include "com/ostream.hpp"
 
 namespace BAK::Encounter {
@@ -31,5 +33,7 @@ std::ostream& operator<<(std::ostream& os, const Combat& comb)
     os << "]";
     return os;
 }
+
+template class GenericCombatFactory<false>;
 
 }

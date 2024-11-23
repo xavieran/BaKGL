@@ -18,6 +18,7 @@
 #include "bak/zone.hpp"
 
 #include "com/logger.hpp"
+#include "com/ostream.hpp"
 
 #include "gui/guiManager.hpp"
 #include "gui/IDialogScene.hpp"

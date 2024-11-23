@@ -1,9 +1,9 @@
 add_library(game
     console.hpp console.cpp
     gameRunner.hpp gameRunner.cpp
+    screens.hpp screens.cpp
     systems.hpp systems.cpp
     interactable/IInteractable.hpp
-
     interactable/all.cpp
     )
 

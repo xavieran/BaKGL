@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bak/encounter/eventFlag.ipp"
+#include "bak/encounter/eventFlag.hpp"
 
 namespace BAK::Encounter {
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/types.hpp"
-#include "bak/dialog.hpp"
+#include "bak/dialogTarget.hpp"
 
 #include <functional>
 #include <iomanip>
@@ -13,59 +13,16 @@ namespace BAK {
 class DialogSources
 {
 public:
-    static KeyTarget GetFairyChestKey(unsigned chest)
-    {
-        return KeyTarget{mFairyChestKey + chest};
-    }
-
-    static std::string_view GetItemDescription(unsigned itemIndex)
-    {
-        return DialogStore::Get().GetSnippet(
-            GetChoiceResult(mItemDescription, itemIndex)).GetText();
-    }
-
-    static std::string_view GetScrollDescription(SpellIndex spellIndex)
-    {
-        return DialogStore::Get().GetSnippet(
-            GetChoiceResult(mScrollDescriptions, spellIndex.mValue)).GetText();
-    }
-
-    static KeyTarget GetItemUseText(unsigned itemIndex)
-    {
-        // Item use text takes a "context variable" which is
-        // the item number.
-        return KeyTarget{mItemDescription};
-    }
-
-    static KeyTarget GetSpynote()
-    {
-        return KeyTarget{mSpyNoteContents};
-    }
-
-    static KeyTarget GetSpellCastDialog(unsigned spell)
-    {
-        return KeyTarget{mDragonsBreath + spell};
-    }
-
-    static KeyTarget GetTTMDialogKey(unsigned index)
-    {
-        return KeyTarget{0x186a00 + index};
-    }
-
-    static KeyTarget GetChapterStartText(Chapter chapter)
-    {
-        return BAK::KeyTarget{mChapterFullMapScreenText + (chapter.mValue - 1)};
-    }
-
-    static Target GetChoiceResult(KeyTarget dialog, unsigned index)
-    {
-        const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
-        const auto it = std::find_if(choices.begin(), choices.end(), [&](const auto& a){
-            ASSERT(std::holds_alternative<GameStateChoice>(a.mChoice));
-            return a.mMin == index ;} );
-        ASSERT(it != choices.end());
-        return it->mTarget;
-    }
+    static KeyTarget GetFairyChestKey(unsigned chest);
+    static std::string_view GetItemDescription(unsigned itemIndex);
+    static std::string_view GetScrollDescription(SpellIndex spellIndex);
+    static KeyTarget GetItemUseText(unsigned itemIndex);
+    static KeyTarget GetSpynote();
+    static KeyTarget GetSpellCastDialog(unsigned spell);
+    static KeyTarget GetTTMDialogKey(unsigned index);
+    static KeyTarget GetChapterStartText(Chapter chapter);
+    static Target GetChoiceResult(KeyTarget dialog, unsigned index);
+    
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;
 

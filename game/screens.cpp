@@ -1,3 +1,5 @@
+#include "game/screens.hpp"
+
 #include "bak/camera.hpp"
 #include "bak/container.hpp"
 #include "bak/constants.hpp"
@@ -22,8 +24,8 @@
 
 void ShowDialogGui(
     BAK::Target dialogKey,
-    const auto& dialogStore,
-    const BAK::GameData* saveData = nullptr)
+    const BAK::DialogStore& dialogStore,
+    const BAK::GameData* saveData)
 {
     static auto chosenKey = BAK::Target{BAK::KeyTarget{0x72}};
     static auto current = BAK::Target{BAK::KeyTarget{0x72}};

@@ -3,7 +3,6 @@
 #include "bak/backgroundSounds.hpp"
 #include "bak/camera.hpp"
 #include "bak/constants.hpp"
-#include "bak/screens.hpp"
 
 #include "bak/state/encounter.hpp"
 #include "bak/encounter//encounter.hpp"
@@ -19,6 +18,7 @@ extern "C" {
 
 #include "game/console.hpp"
 #include "game/gameRunner.hpp"
+#include "game/screens.hpp"
 #include "game/systems.hpp"
 
 #include "graphics/inputHandler.hpp"

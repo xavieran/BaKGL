@@ -20,7 +20,7 @@ add_library(bak
     dialogReplacements.hpp dialogReplacements.cpp
     dialogAction.hpp dialogAction.cpp
     dialogChoice.hpp dialogChoice.cpp
-    dialogSources.hpp
+    dialogSources.hpp dialogSources.cpp
     dialogTarget.hpp dialogTarget.cpp
     entityType.hpp entityType.cpp
     fixedObject.hpp fixedObject.cpp
@@ -54,7 +54,6 @@ add_library(bak
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp
     screen.hpp screen.cpp
-    screens.hpp
     shop.hpp shop.cpp
     skills.hpp skills.cpp
     sound.hpp sound.cpp
