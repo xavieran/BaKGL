@@ -13,7 +13,7 @@
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
+    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
     Logging::LogState::Disable("PackedFileDataProvider");
     
     std::string tbl{argv[1]};
@@ -26,6 +26,7 @@ int main(int argc, char** argv)
         logger.Info() << "Model #" << i << " " << models[i].mName << "\n";
         if (models[i].mEntityType == 0 && models[i].mSprite > 0)
         {
+            logger.Info() << "Combatant Model #" << i << " " << models[i].mName << "\n";
             BAK::CombatModel{models[i]};
         }
     }

@@ -56,12 +56,13 @@ CombatModel::CombatModel(const Model& model)
     const auto& meshes = model.mComponents.back().mMeshes;
     std::uint8_t spriteFileIndex = 0;
     std::uint8_t lastSpriteIndex = 0;
-    logger.Debug() << "Have Meshes size: " << meshes.size() << "\n";
+    logger.Spam() << "Have Meshes size: " << meshes.size() << "\n";
     for (std::uint8_t i = 0; i < meshes.size(); i++)
     {
+        const auto animationType = static_cast<AnimationType>(i);
         auto& animations = mCombatAnimations.emplace_back(std::array<CombatAnimation, 5>{});
         const auto& faceOptions = meshes[i].mFaceOptions;
-        logger.Debug() << "Handle mesh " << +i << " SF: " << +spriteFileIndex << " LSI: " 
+        logger.Spam() << "Handle mesh " << +i << " SF: " << +spriteFileIndex << " LSI: " 
             << +lastSpriteIndex << " FOs: " << faceOptions.size() << "\n";
 
         if (lastSpriteIndex > faceOptions.front().mEdgeCount)
@@ -69,34 +70,37 @@ CombatModel::CombatModel(const Model& model)
             // This is not a good enough heuristic for determining the sprite file index to use...
             // Spefically `dread` is an example of this not working.
             spriteFileIndex++;
-            logger.Debug() << "Next sprite is: " << +faceOptions.front().mEdgeCount << " last was: "
+            logger.Spam() << "Next sprite is: " << +faceOptions.front().mEdgeCount << " last was: "
                 << +lastSpriteIndex << " SFI is now: " << +spriteFileIndex << "\n";
+            if (spriteFileIndex > 3)
+            {
+                logger.Debug() << "Sprite file index too high: " << model.mName << " SFI: " 
+                    << +spriteFileIndex << " current animType: " << ToString(animationType) << "\n";
+                spriteFileIndex = 3;
+            }
         }
 
-        const auto animationType = static_cast<AnimationType>(i);
-        logger.Debug() << "AnimType: " << ToString(animationType) << " FaceOptions size: " << faceOptions.size() << " mod5: " 
+        logger.Spam() << "AnimType: " << ToString(animationType) << " FaceOptions size: " << faceOptions.size() << " mod5: " 
             << faceOptions.size() % 5 << " mod3: " << faceOptions.size() % 3 << std::endl;
 
         auto frameCount = faceOptions.size();
         if (!((faceOptions.size() % 5 == 0) || (faceOptions.size() % 3 == 0)))
         {
+            // Dread
             if (frameCount == 7)
             {
                 frameCount--;
             }
+            // Dog and Wyvern
             else
             {
                 frameCount++;
             }
-            logger.Warn() << "FaceOptions size is not divisible by 5 or 3 FC now: " << frameCount << std::endl;
+            logger.Debug() << "FaceOptions size is not divisible by 5 or 3 FC now: " << frameCount << " for model: " << model.mName << std::endl;
         }
 
-        //assert((frameCount % 5 == 0) || (frameCount % 3 == 0));
-        if (!((frameCount % 5 == 0) || (frameCount % 3 == 0)))
-        {
-            logger.Warn() << "FC is now: " << frameCount << std::endl;
-            exit(1);
-        }
+        assert((frameCount % 5 == 0) || (frameCount % 3 == 0));
+
         const auto directionCount = frameCount == 0 ? 5 : 3;
         const auto animationCount = frameCount == 0
             ? faceOptions.size() / 5
@@ -105,25 +109,25 @@ CombatModel::CombatModel(const Model& model)
         const auto& directions = directionCount == 5
             ? std::vector<Direction>{South, SouthEast, East, NorthEast, North}
             : std::vector<Direction>{South, East, North};
-        logger.Debug() << "AnimationCount: " << +animationCount << " DirCount: " << +directionCount << "\n";
+        logger.Spam() << "AnimationCount: " << +animationCount << " DirCount: " << +directionCount << "\n";
 
         unsigned fo = 0;
         for (const auto& direction : directions)
         {
             animations[std::to_underlying(direction)] = CombatAnimation{spriteFileIndex, std::vector<std::uint8_t>{}};
-            logger.Debug() << "  Handling dir: " << +std::to_underlying(direction) << " " << ToString(direction) << "\n";
+            logger.Spam() << "  Handling dir: " << +std::to_underlying(direction) << " " << ToString(direction) << "\n";
             auto& imageIndices = animations[std::to_underlying(direction)].mImageIndices;
             for (unsigned j = 0; j < animationCount; j++)
             {
                 if (fo >= faceOptions.size())
                 {
-                    logger.Warn() << "Exceeded face options" << std::endl;
+                    logger.Debug() << "Exceeded face options on model: " << model.mName << std::endl;
                     continue;
                 }
                 const auto spriteIndex = faceOptions[fo++].mEdgeCount;
                 imageIndices.emplace_back(spriteIndex);
                 lastSpriteIndex = spriteIndex;
-                logger.Debug() << "    Placing SI: " << +spriteIndex << "\n";
+                logger.Spam() << "    Placing SI: " << +spriteIndex << "\n";
             }
         }
     }
