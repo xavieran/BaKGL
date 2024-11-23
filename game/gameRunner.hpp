@@ -8,6 +8,8 @@
 #include "bak/encounter/teleport.hpp"
 #include "bak/types.hpp"
 
+#include "graphics/renderData.hpp"
+
 #include "com/logger.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -49,9 +51,8 @@ public:
     GameRunner(
         Camera& camera,
         BAK::GameState& gameState,
-        Gui::GuiManager& guiManager,
+        Gui::GuiManager& guiManager);
     
-        std::function<void(const BAK::Zone&)>&& loadRenderer);
     void DoTeleport(BAK::Encounter::Teleport teleport) override;
     void LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter) override;
 
@@ -89,6 +90,8 @@ public:
     
     void RunGameUpdate();
     void CheckClickable(unsigned entityId);
+
+    const Graphics::RenderData& GetZoneRenderData() const;
     
     Camera& mCamera;
     BAK::GameState& mGameState;
@@ -109,11 +112,11 @@ public:
     std::function<void(const BAK::Zone&)> mLoadRenderer;
     BAK::Encounter::TeleportFactory mTeleportFactory;
 
+    std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
+
     bool mClickablesEnabled;
 
     const Logging::Logger& mLogger;
-
 };
-
 
 }

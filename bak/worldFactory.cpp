@@ -77,7 +77,7 @@ ZoneTextureStore::ZoneTextureStore(
         ASSERT(!images.empty());
         TextureFactory::AddToTextureStore(
             mTextures,
-            images[0],
+            images,//[0],
             pal);
     }
 }

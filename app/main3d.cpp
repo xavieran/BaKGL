@@ -251,10 +251,7 @@ int main(int argc, char** argv)
     Game::GameRunner gameRunner{
         camera,
         gameState,
-        guiManager,
-        [&](auto& zoneData){
-            renderer.LoadData(zoneData.mObjects, zoneData.mZoneTextures);
-        }};
+        guiManager};
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
@@ -341,6 +338,7 @@ int main(int argc, char** argv)
                 glDisable(GL_BLEND);
                 glDisable(GL_MULTISAMPLE);
                 renderer.DrawForPicking(
+                    gameRunner.GetZoneRenderData(),
                     gameRunner.mSystems->GetRenderables(),
                     gameRunner.mSystems->GetSprites(),
                     *cameraPtr);
@@ -474,9 +472,11 @@ int main(int argc, char** argv)
 
             renderer.BeginDepthMapDraw();
             renderer.DrawDepthMap(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetRenderables(),
                 lightCamera);
             renderer.DrawDepthMap(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetSprites(),
                 lightCamera);
             renderer.EndDepthMapDraw();
@@ -486,12 +486,14 @@ int main(int argc, char** argv)
             glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderer.DrawWithShadow(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetRenderables(),
                 light,
                 lightCamera,
                 *cameraPtr);
 
             renderer.DrawWithShadow(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetSprites(),
                 light,
                 lightCamera,

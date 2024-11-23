@@ -30,8 +30,7 @@ namespace Game {
 GameRunner::GameRunner(
     Camera& camera,
     BAK::GameState& gameState,
-    Gui::GuiManager& guiManager,
-    std::function<void(const BAK::Zone&)>&& loadRenderer)
+    Gui::GuiManager& guiManager)
 :
     mCamera{camera},
     mGameState{gameState},
@@ -62,12 +61,10 @@ GameRunner::GameRunner(
         BAK::Inventory{0}},
     mSystems{nullptr},
     mSavedAngle{0},
-    mLoadRenderer{std::move(loadRenderer)},
     mTeleportFactory{},
     mClickablesEnabled{false},
     mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
 {
-    ASSERT(mLoadRenderer);
 }
 
 void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)
@@ -101,7 +98,8 @@ void GameRunner::LoadGame(std::string savePath, std::optional<BAK::Chapter> chap
 void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
 {
     mZoneData = std::make_unique<BAK::Zone>(zone.mValue);
-    mLoadRenderer(*mZoneData);
+    mZoneRenderData = std::make_unique<Graphics::RenderData>();
+    mZoneRenderData->LoadData(mZoneData->mObjects, mZoneData->mZoneTextures);
     LoadSystems();
     mCamera.SetGameLocation(mGameState.GetLocation());
 }
@@ -763,4 +761,9 @@ void GameRunner::CheckClickable(unsigned entityId)
     }
 }
 
+const Graphics::RenderData& GameRunner::GetZoneRenderData() const
+{
+    assert(mZoneRenderData);
+    return *mZoneRenderData;
+}
 }
