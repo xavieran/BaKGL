@@ -53,7 +53,7 @@ ZoneTextureStore::ZoneTextureStore(
     mHorizonOffset = GetTextures().size();
 
     const auto monsters = MonsterNames::Get();
-    for (unsigned i = 0; i < monsters.size(); i ++)
+    for (unsigned i = 0; i < monsters.size(); i++)
     {
         auto prefix = monsters.GetMonsterAnimationFile(MonsterIndex{i});
         if (prefix == "")

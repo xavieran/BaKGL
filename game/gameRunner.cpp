@@ -20,6 +20,8 @@
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
+#include "game/combatModelLoader.hpp"
+
 #include "gui/guiManager.hpp"
 #include "gui/IDialogScene.hpp"
 
@@ -279,12 +281,20 @@ void GameRunner::LoadSystems()
                     {
                         const auto& enemy = combat.mCombatants[i];
                         auto entityId = mSystems->GetNextItemId();
-                        mSystems->AddRenderable(
-                            Renderable{
+                        assert(mCombatModelLoader.mCombatModelDatas[enemy.mMonster - 1u]);
+                        const auto& datas = *mCombatModelLoader.mCombatModelDatas[enemy.mMonster - 1u];
+                        auto req = AnimationRequest{BAK::AnimationType::Dead, BAK::Direction::South};
+                        if (!datas.mOffsetMap.contains(req))
+                        {
+                            continue;
+                        }
+                        auto animOff = datas.mOffsetMap.at(req);
+                        auto off = datas.mObjectDrawData[animOff.mOffset + animOff.mFrames - 1];
+                        mSystems->AddDynamicRenderable(
+                            DynamicRenderable{
                                 entityId,
-                                mZoneData->mObjects.GetObject(
-                                    monsters.GetMonsterAnimationFile(BAK::MonsterIndex{enemy.mMonster - 1u})),
-
+                                &datas.mCombatModels,
+                                off,
                                 BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
                                 glm::vec3{0},
                                 glm::vec3{1}});

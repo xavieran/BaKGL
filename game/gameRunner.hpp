@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/combatModelLoader.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
@@ -113,6 +114,7 @@ public:
     BAK::Encounter::TeleportFactory mTeleportFactory;
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
+    CombatModelLoader mCombatModelLoader{};
 
     bool mClickablesEnabled;
 

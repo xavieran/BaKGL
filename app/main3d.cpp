@@ -498,6 +498,21 @@ int main(int argc, char** argv)
                 light,
                 lightCamera,
                 *cameraPtr);
+
+            const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
+            for (const auto& obj : dynamicRenderables)
+            {
+                std::vector<DynamicRenderable> data{};
+                data.emplace_back(obj);
+                renderer.DrawWithShadow(
+                    *obj.GetRenderData(),
+                    data,
+                    light,
+                    lightCamera,
+                    *cameraPtr);
+            }
+
+
         }
 
         //// { *** Draw 2D GUI ***

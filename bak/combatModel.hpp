@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 #include <vector>
 
 namespace BAK {
@@ -20,6 +21,8 @@ enum class AnimationType : std::uint8_t
     StaticCast
 };
 
+std::string_view ToString(AnimationType);
+
 enum class Direction : std::uint8_t
 {
     South,
@@ -33,6 +36,7 @@ enum class Direction : std::uint8_t
     SouthWest
 };
 
+std::string_view ToString(Direction direction);
 const std::vector<BAK::Direction>& GetDirections(bool granular);
 
 class CombatAnimation
