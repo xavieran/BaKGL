@@ -47,7 +47,8 @@ VertexArrayObject& VertexArrayObject::operator=(VertexArrayObject&& other) noexc
 {
     if (this == &other) return *this;
 
-    other.mVertexArrayId = mVertexArrayId;
+    Logging::LogDebug(__FUNCTION__) << "Moving to: " << this << " from: " << &other << "\n";
+    mVertexArrayId = other.mVertexArrayId;
     other.mActive = false;
     return *this;
 }
@@ -209,8 +210,10 @@ TextureBuffer::TextureBuffer(TextureBuffer&& other) noexcept
 
 TextureBuffer& TextureBuffer::operator=(TextureBuffer&& other) noexcept
 {
-    other.mTextureBuffer = mTextureBuffer;
-    other.mTextureType = mTextureType;
+    if (this == &other) return *this;
+    Logging::LogDebug(__FUNCTION__) << "Moving to: " << this << " from: " << &other << "\n";
+    mTextureBuffer = other.mTextureBuffer;
+    mTextureType = other.mTextureType;
     other.mActive = false;
     return *this;
 }
@@ -219,7 +222,7 @@ TextureBuffer::~TextureBuffer()
 {
     if (mActive)
     {
-        Logging::LogDebug("GLBuffers") << "Deleting GL texture buffer id: " << mTextureBuffer<< "\n";
+        Logging::LogDebug("GLBuffers") << "Deleting GL texture buffer id: " << mTextureBuffer << " @" << this << "\n";
         glDeleteTextures(1, &mTextureBuffer);
     }
 }

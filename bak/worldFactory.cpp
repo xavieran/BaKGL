@@ -359,10 +359,6 @@ Graphics::MeshObject ZoneItemToMeshObject(
     std::vector<unsigned> indices;
 
     auto glmVertices = std::vector<glm::vec3>{};
-    if (item.GetName().substr(0, 5) == "tston")
-    {
-        logger.Info() << "Tombstone\n";
-    }
 
     const auto TextureBlend = [&](auto blend)
     {

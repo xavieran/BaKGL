@@ -281,6 +281,12 @@ void GameRunner::LoadSystems()
                     {
                         const auto& enemy = combat.mCombatants[i];
                         auto entityId = mSystems->GetNextItemId();
+                        mLogger.Info() << "Loading combat model for enemy combatant: " << enemy.mMonster << "\n";
+                        if (!mCombatModelLoader.mCombatModelDatas[enemy.mMonster - 1u])
+                        {
+                            mLogger.Info() << "Couldn't load combat model: " << enemy.mMonster << "\n";
+                            continue;
+                        }
                         assert(mCombatModelLoader.mCombatModelDatas[enemy.mMonster - 1u]);
                         const auto& datas = *mCombatModelLoader.mCombatModelDatas[enemy.mMonster - 1u];
                         auto req = AnimationRequest{BAK::AnimationType::Dead, BAK::Direction::South};

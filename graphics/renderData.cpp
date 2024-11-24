@@ -5,6 +5,8 @@
 #include "graphics/framebuffer.hpp"
 #include "graphics/shaderProgram.hpp"
 
+#include "com/logger.hpp"
+
 namespace Graphics {
 
 RenderData::RenderData()
@@ -20,6 +22,7 @@ void RenderData::LoadData(
     const std::vector<Texture>& textures,
     unsigned maxDimension)
 {
+    Logging::LogInfo(__FUNCTION__) << "Loading render data. Textures: " << textures.size() << " max dim: " << maxDimension << "\n";
     // FIXME Issue 48: Need to do destruct and restruct all the buffers
     // when we load new data...
     mVertexArrayObject.BindGL();
