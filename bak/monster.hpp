@@ -34,7 +34,7 @@ public:
     std::uint8_t GetColorSwap(MonsterIndex monster) const;
     Monster GetMonster(MonsterIndex monster) const
     {
-        return mMonsterPrefixes[monster.mValue - 1];
+        return mMonsterPrefixes[monster.mValue];
     }
     std::size_t size() const;
 

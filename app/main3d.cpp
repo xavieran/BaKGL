@@ -341,6 +341,7 @@ int main(int argc, char** argv)
                     gameRunner.GetZoneRenderData(),
                     gameRunner.mSystems->GetRenderables(),
                     gameRunner.mSystems->GetSprites(),
+                    gameRunner.mSystems->GetDynamicRenderables(),
                     *cameraPtr);
                 gameRunner.CheckClickable(renderer.GetClickedEntity(clickPos));
             }

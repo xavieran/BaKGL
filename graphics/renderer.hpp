@@ -83,11 +83,12 @@ public:
         mDepthFB2.AttachDepthTexture(mDepthBuffer2, true);
     }
 
-    template <typename Renderables, typename Camera>
+    template <typename Renderables, typename DynamicRenderables, typename Camera>
     void DrawForPicking(
         const RenderData& renderData,
         const Renderables& renderables,
         const Renderables& sprites,
+        const DynamicRenderables& dynamicRenderables,
         const Camera& camera)
     {
         renderData.Bind(GL_TEXTURE0);
@@ -134,8 +135,15 @@ public:
         {
             RenderItem(item);
         }
+
         for (const auto& item : sprites)
         {
+            RenderItem(item);
+        }
+
+        for (const auto& item : dynamicRenderables)
+        {
+            item.GetRenderData()->Bind(GL_TEXTURE0);
             RenderItem(item);
         }
 
