@@ -92,6 +92,10 @@ Graphics::MeshObject ZoneItemToMeshObject(
     const ZoneTextureStore& store,
     const Palette& pal);
 
+Graphics::MeshObject ZoneItemToMeshObject(
+    const ZoneItem& item,
+    const Graphics::TextureStore& store);
+
 class ZoneItemStore
 {
 public:

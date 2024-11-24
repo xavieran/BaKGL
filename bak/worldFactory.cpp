@@ -359,6 +359,10 @@ Graphics::MeshObject ZoneItemToMeshObject(
     std::vector<unsigned> indices;
 
     auto glmVertices = std::vector<glm::vec3>{};
+    if (item.GetName().substr(0, 5) == "tston")
+    {
+        logger.Info() << "Tombstone\n";
+    }
 
     const auto TextureBlend = [&](auto blend)
     {
@@ -669,6 +673,187 @@ Graphics::MeshObject ZoneItemToMeshObject(
         indices};
 }
 
+Graphics::MeshObject ZoneItemToMeshObject(
+    const ZoneItem& item,
+    const Graphics::TextureStore& store)
+{
+    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec4> colors;
+    std::vector<glm::vec3> textureCoords;
+    std::vector<float> textureBlends;
+    std::vector<unsigned> indices;
+
+    auto glmVertices = std::vector<glm::vec3>{};
+    if (item.GetName().substr(0, 5) == "tston")
+    {
+        logger.Info() << "Tombstone\n";
+    }
+
+    const auto TextureBlend = [&](auto blend)
+    {
+        textureBlends.emplace_back(blend);
+        textureBlends.emplace_back(blend);
+        textureBlends.emplace_back(blend);
+    };
+
+    for (const auto& vertex : item.GetVertices())
+    {
+        glmVertices.emplace_back(
+            glm::cast<float>(vertex) / BAK::gWorldScale);
+    }
+
+    unsigned index = 0;
+    for (const auto& face : item.GetFaces())
+    {
+        if (face.size() < 3) // line
+        {
+            auto start = glmVertices[face[0]];
+            auto end = glmVertices[face[1]];
+            auto normal = glm::normalize(
+                glm::cross(end - start, glm::vec3(0, 0, 1.0)));
+            float linewidth = 0.05f;
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start - linewidth * normal);
+
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start - linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end - linewidth * normal);
+
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+
+            auto colorIndex = item.GetColors().at(index);
+            auto paletteIndex = item.GetPalettes().at(index);
+            auto textureIndex = colorIndex;
+
+            auto color = glm::vec4{0};
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+
+            TextureBlend(0.0);
+            TextureBlend(0.0);
+
+            index++;
+            continue;
+        }
+
+        unsigned triangles = face.size() - 2;
+
+        // Whether to push this face away from the main plane
+        // (needed to avoid z-fighting for some objects)
+        bool push = item.GetPush().at(index);
+        
+        // Tesselate the face
+        // Generate normals and new indices for each face vertex
+        // The normal must be inverted to account
+        // for the Y direction being negated
+        auto normal = glm::normalize(
+            glm::cross(
+                glmVertices[face[0]] - glmVertices[face[2]],
+                glmVertices[face[0]] - glmVertices[face[1]]));
+        if (item.IsSprite())
+        {
+            normal = glm::cross(normal, glm::vec3{1, 0, 1});
+        }
+
+        for (unsigned triangle = 0; triangle < triangles; triangle++)
+        {
+            auto i_a = face[0];
+            auto i_b = face[triangle + 1];
+            auto i_c = face[triangle + 2];
+
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+
+            glm::vec3 zOff = normal;
+            if (push) zOff = glm::vec3{0};
+            
+            vertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            vertices.emplace_back(glmVertices[i_b] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            vertices.emplace_back(glmVertices[i_c] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            
+            // Hacky - only works for quads - but the game only
+            // textures quads anyway... (not true...)
+            auto colorIndex = item.GetColors().at(index);
+            auto paletteIndex = item.GetPalettes().at(index);
+            auto textureIndex = colorIndex;
+
+            float u = 1.0;
+            float v = 1.0;
+
+            TextureBlend(1.0);
+
+            auto maxDim = store.GetMaxDim();
+            u = static_cast<float>(store.GetTexture(textureIndex).GetWidth() - 1) 
+                / static_cast<float>(maxDim);
+            v = static_cast<float>(store.GetTexture(textureIndex).GetHeight() - 1) 
+                / static_cast<float>(maxDim);
+
+            if (triangle == 0)
+            {
+                textureCoords.emplace_back(u  , v,   textureIndex);
+                textureCoords.emplace_back(0.0, v,   textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            }
+            else
+            {
+                textureCoords.emplace_back(u,   v,   textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+                textureCoords.emplace_back(u,   0.0, textureIndex);
+            }
+
+            auto color = glm::vec4{0};
+
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+        }
+
+        index++;
+    }
+
+    assert(vertices.size() == normals.size());
+    assert(vertices.size() == colors.size());
+    assert(vertices.size() == textureCoords.size());
+    assert(vertices.size() == textureBlends.size());
+    assert(vertices.size() == indices.size());
+    return Graphics::MeshObject{
+        vertices,
+        normals,
+        colors,
+        textureCoords,
+        textureBlends,
+        indices};
+}
 ZoneItemStore::ZoneItemStore(
     const ZoneLabel& zoneLabel,
     // Should one really need a texture store to load this?

@@ -14,6 +14,7 @@
 #include "com/logger.hpp"
 #include "com/string.hpp"
 
+#include "graphics/meshObject.hpp"
 #include "graphics/texture.hpp"
 
 #include <string>
@@ -38,6 +39,7 @@ CombatModelLoader::CombatModelLoader()
         else
         {
             mCombatModels.emplace_back(std::nullopt);
+            mCombatModelDatas.emplace_back(std::nullopt);
         }
     }
 }
@@ -83,28 +85,53 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
 
     assert(mCombatModels[m.mValue]);
     const auto& model = *mCombatModels[m.mValue];
-    std::vector<BAK::ZoneItem> objects{};
+    Graphics::MeshObjectStorage objects{};
     std::unordered_map<AnimationRequest, AnimationOffset> offsetMap{};
+    std::vector<Graphics::MeshObjectStorage::OffsetAndLength> objectOffsets{};
     using enum BAK::Direction;
+    std::stringstream ss{};
     for (const auto& animType : model.GetSupportedAnimations())
     {
-        const bool truncated = model.GetDirections(animType) == 3;
-        auto directions = {South, East, North};
-        for (const auto& direction : directions)
+        for (const auto& direction : model.GetDirections(animType))
         {
             const auto& animation = model.GetAnimation(animType, direction);
             offsetMap.emplace(
                 AnimationRequest{animType, direction},
                 AnimationOffset{objects.size(), animation.mImageIndices.size()});
+
             for (const auto& index : animation.mImageIndices)
             {
                 assert(animation.mSpriteFileIndex < offsets.size());
                 const auto fullOffset = offsets[animation.mSpriteFileIndex] + index;
-                objects.emplace_back(BAK::ZoneItem(fullOffset, textureStore.GetTexture(fullOffset)));
+                auto zoneItem = BAK::ZoneItem(fullOffset, textureStore.GetTexture(fullOffset));
+                ss.clear();
+                ss << objects.size();
+                auto offset = objects.AddObject(
+                    ss.str(),
+                    BAK::ZoneItemToMeshObject(zoneItem, textureStore));
+                objectOffsets.emplace_back(offset);
             }
         }
     }
+
+    auto renderData = Graphics::RenderData{};
+    renderData.LoadData(objects, textureStore.GetTextures(), textureStore.GetMaxDim());
+    mCombatModelDatas.emplace_back(
+        std::make_optional(
+            CombatModelData{
+                std::move(renderData),
+                std::move(offsetMap),
+                std::move(objectOffsets)}));
 }
 
 }
 
+namespace std {
+
+std::size_t hash<Game::AnimationRequest>::operator()(const Game::AnimationRequest& t) const noexcept
+{
+    return std::hash<std::size_t>{}(
+        std::to_underlying(t.mAnimation) | (std::to_underlying(t.mDirection) << 8));
+}
+
+}

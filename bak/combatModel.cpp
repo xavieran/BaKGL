@@ -45,6 +45,13 @@ std::string_view ToString(Direction direction)
 }
 
 
+const std::vector<BAK::Direction>& GetDirections(bool granular)
+{
+    using enum Direction;
+    static const auto three = std::vector<Direction>{South, East, North};
+    static const auto five = std::vector<Direction>{South, SouthEast, East, NorthEast, North};
+    return granular ? five : three;
+}
 
 CombatModel::CombatModel(const Model& model)
 :
@@ -107,9 +114,7 @@ CombatModel::CombatModel(const Model& model)
             ? faceOptions.size() / 5
             : faceOptions.size() / 3;
         using enum Direction;
-        const auto& directions = directionCount == 5
-            ? std::vector<Direction>{South, SouthEast, East, NorthEast, North}
-            : std::vector<Direction>{South, East, North};
+        const auto& directions = BAK::GetDirections(directionCount == 5);
         logger.Spam() << "AnimationCount: " << +animationCount << " DirCount: " << +directionCount << "\n";
 
         unsigned fo = 0;
@@ -145,12 +150,11 @@ CombatAnimation CombatModel::GetAnimation(AnimationType animationType, Direction
     return byDirection[dirIndex];
 }
 
-std::size_t CombatModel::GetDirections(AnimationType animationType) const
+const std::vector<Direction>& CombatModel::GetDirections(AnimationType animationType) const
 {
-    auto animIndex = std::to_underlying(animationType);
+    const auto animIndex = std::to_underlying(animationType);
     assert(animIndex < mCombatAnimations.size());
-
-    return mCombatAnimations[animIndex].size();
+    return BAK::GetDirections(mCombatAnimations[animIndex].size() == 5);
 }
 
 const std::vector<AnimationType>& CombatModel::GetSupportedAnimations() const

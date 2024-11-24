@@ -33,6 +33,8 @@ enum class Direction : std::uint8_t
     SouthWest
 };
 
+const std::vector<BAK::Direction>& GetDirections(bool granular);
+
 class CombatAnimation
 {
 public:
@@ -45,7 +47,7 @@ class CombatModel
 public:
     CombatModel(const Model&);
     CombatAnimation GetAnimation(AnimationType, Direction) const;
-    std::size_t GetDirections(AnimationType) const;
+    const std::vector<Direction>& GetDirections(AnimationType) const;
     const std::vector<AnimationType>& GetSupportedAnimations() const;
 
 private:

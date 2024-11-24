@@ -3,6 +3,7 @@
 #include "bak/types.hpp"
 #include "bak/combatModel.hpp"
 
+#include "graphics/meshObject.hpp"
 #include "graphics/renderData.hpp"
 
 #include <optional>
@@ -29,11 +30,7 @@ namespace std {
 
 template<> struct hash<Game::AnimationRequest>
 {
-	std::size_t operator()(const Game::AnimationRequest& t) const noexcept
-	{
-		return std::hash<std::size_t>{}(
-            std::to_underlying(t.mAnimation) | (std::to_underlying(t.mDirection) << 8));
-	}
+	std::size_t operator()(const Game::AnimationRequest& t) const noexcept;
 };
 
 }
@@ -47,10 +44,12 @@ struct AnimationOffset
 };
 
 
-struct CombatModel
+
+struct CombatModelData
 {
     Graphics::RenderData mCombatModels{};
-    std::unordered_map<AnimationRequest, AnimationOffset> offsetMap;
+    std::unordered_map<AnimationRequest, AnimationOffset> mOffsetMap;
+    std::vector<Graphics::MeshObjectStorage::OffsetAndLength> mObjectDrawData;
 };
 
 class CombatModelLoader
@@ -63,6 +62,7 @@ public:
     void LoadMonsterSprites(BAK::MonsterIndex m);
 
     std::vector<std::optional<BAK::CombatModel>> mCombatModels{};
+    std::vector<std::optional<CombatModelData>> mCombatModelDatas{};
 };
 
 }
