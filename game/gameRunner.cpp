@@ -289,7 +289,7 @@ void GameRunner::LoadSystems()
                         }
                         assert(mCombatModelLoader.mCombatModelDatas[enemy.mMonster]);
                         const auto& datas = *mCombatModelLoader.mCombatModelDatas[enemy.mMonster];
-                        auto req = AnimationRequest{BAK::AnimationType::RangedCast, BAK::Direction::East};
+                        auto req = AnimationRequest{BAK::AnimationType::Idle, BAK::Direction::South};
                         if (!datas.mOffsetMap.contains(req))
                         {
                             continue;
@@ -776,6 +776,19 @@ void GameRunner::CheckClickable(unsigned entityId)
         auto& clickable = mClickables[*bestId];
         assert(clickable.mContainer);
         DoGenericContainer(clickable.mEntityType, *clickable.mContainer);
+    }
+}
+
+void GameRunner::OnTimeDelta(double timeDelta)
+{
+    mAccumulatedTime += timeDelta;
+    if (mAccumulatedTime > .5)
+    {
+        mAccumulatedTime = 0;
+        //for (auto& monster : mSystems.GetDynamicRenderables())
+        //{
+        //    monster.
+        //}
     }
 }
 

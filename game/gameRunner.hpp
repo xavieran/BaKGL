@@ -93,6 +93,7 @@ public:
     void CheckClickable(unsigned entityId);
 
     const Graphics::RenderData& GetZoneRenderData() const;
+    void OnTimeDelta(double timeDelta);
     
     Camera& mCamera;
     BAK::GameState& mGameState;
@@ -116,7 +117,8 @@ public:
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
     CombatModelLoader mCombatModelLoader{};
 
-    bool mClickablesEnabled;
+    bool mClickablesEnabled{};
+    double mAccumulatedTime{};
 
     const Logging::Logger& mLogger;
 };

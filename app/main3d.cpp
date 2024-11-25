@@ -421,6 +421,7 @@ int main(int argc, char** argv)
 
         deltaTime = float(currentTime - lastTime);
         guiManager.OnTimeDelta(currentTime - lastTime);
+        gameRunner.OnTimeDelta(currentTime - lastTime);
         lastTime = currentTime;
 
         cameraPtr->SetDeltaTime(deltaTime);
