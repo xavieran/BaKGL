@@ -6,6 +6,27 @@
 
 namespace AudioA {
 
+MidiPlayer StringToMidiPlayer(std::string_view player)
+{
+    if (player == "ADLMIDI")
+    {
+        return MidiPlayer::ADLMIDI;
+    }
+    else if (player == "OPNMIDI")
+    {
+        return MidiPlayer::OPNMIDI;
+    }
+    else if (player == "FluidSynth")
+    {
+        return MidiPlayer::FluidSynth;
+    }
+    else
+    {
+        Logging::LogError(__FUNCTION__) << "Not a valid midi player (" << player << ") valid options are: ADLMIDI, OPNMIDI, FluidSynth, defaulting to ADLMIDI\n";
+        return MidiPlayer::ADLMIDI;
+    }
+}
+
 AudioManagerProvider::AudioManagerProvider()
 :
     mAudioManager{std::make_unique<NullAudioManager>()}

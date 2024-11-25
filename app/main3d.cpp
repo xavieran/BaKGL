@@ -171,6 +171,7 @@ int main(int argc, char** argv)
         auto& provider = AudioA::AudioManagerProvider::Get();
         auto audioManager = std::make_unique<AudioA::AudioManager>();
         audioManager->Set(audioManager.get());
+        audioManager->SwitchMidiPlayer(AudioA::StringToMidiPlayer(config.mAudio.mMidiPlayer));
         provider.SetAudioManager(std::move(audioManager));
     }
     else

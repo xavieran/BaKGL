@@ -202,7 +202,7 @@ void Console::SaveGame(const std::vector<std::string>& words)
 
 void Console::StopMusic(const std::vector<std::string>& words)
 {
-    AudioA::AudioManager::Get().StopMusicTrack();
+    AudioA::AudioManagerProvider::Get().GetAudioManager().StopMusicTrack();
 }
 
 void Console::SwitchMidiPlayer(const std::vector<std::string>& words)
@@ -221,7 +221,7 @@ void Console::SwitchMidiPlayer(const std::vector<std::string>& words)
     unsigned midiPlayer;
     ss >> std::setbase(0) >> midiPlayer;
 
-    AudioA::AudioManager::Get().SwitchMidiPlayer(static_cast<AudioA::MidiPlayer>(midiPlayer));
+    AudioA::AudioManagerProvider::Get().GetAudioManager().SwitchMidiPlayer(static_cast<AudioA::MidiPlayer>(midiPlayer));
 }
 
 void Console::PlayMusic(const std::vector<std::string>& words)
@@ -240,7 +240,7 @@ void Console::PlayMusic(const std::vector<std::string>& words)
     unsigned music_index;
     ss >> std::setbase(0) >> music_index;
 
-    AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{music_index});
+    AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{music_index});
 }
 
 void Console::LoadGame(const std::vector<std::string>& words)
@@ -275,7 +275,7 @@ void Console::PlaySound(const std::vector<std::string>& words)
     unsigned sound_index;
     ss >> std::setbase(0) >> sound_index;
 
-    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound_index});
+    AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{sound_index});
 }
 
 void Console::SetEventState(const std::vector<std::string>& words)

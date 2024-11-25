@@ -38,6 +38,8 @@ enum class MidiPlayer
     FluidSynth = 2
 };
 
+MidiPlayer StringToMidiPlayer(std::string_view);
+
 class IAudioManager
 {
 public:

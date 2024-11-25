@@ -160,11 +160,11 @@ bool DynamicTTM::AdvanceAction()
             [&](const BAK::PlaySoundS& sound){
                 if (sound.mSoundIndex < 255)
                 {
-                    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
+                    AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
                 }
                 else
                 {
-                    AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
+                    AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
                 }
             },
             [&](const BAK::GotoTag& sa){

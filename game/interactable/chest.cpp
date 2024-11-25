@@ -199,7 +199,7 @@ void Chest::Explode()
     StartDialog(BAK::DialogSources::mTrappedChestExplodes);
     mState = State::Exploded;
     constexpr auto sExploded = AudioA::SoundIndex{0x39};
-    AudioA::AudioManager::Get().PlaySound(sExploded);
+    AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(sExploded);
 }
 
 void Chest::ShowChestContents()

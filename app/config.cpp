@@ -63,6 +63,7 @@ Audio LoadAudio(const nlohmann::json& config)
         const auto& c = config["Audio"];
         audio.mEnableAudio = c.value("EnableAudio", true);
         audio.mEnableBackgroundSounds = c.value("EnableBackgroundSounds", true);
+        audio.mMidiPlayer = c.value("MidiPlayer", "ADLMIDI");
     }
     return audio;
 }

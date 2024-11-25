@@ -159,7 +159,7 @@ void TeleportScreen::DialogFinished(const std::optional<BAK::ChoiceIndex>& choic
         ASSERT(mChosenDest);
         mGuiManager.ExitSimpleScreen();
         // This is probably a hack, likely need to fix this for other teleport things..
-        AudioA::AudioManager::Get().PopTrack();
+        AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
         auto factory = BAK::Encounter::TeleportFactory{};
         mGuiManager.DoTeleport(factory.Get(*mChosenDest - 1));
     }
@@ -223,7 +223,7 @@ void TeleportScreen::HandleTempleClicked(unsigned templeNumber)
             mGameState.GetParty().LoseMoney(cost);
             mState = State::Teleported;
             mChosenDest = templeNumber;
-            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{BAK::sTeleportSound});
+            AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{BAK::sTeleportSound});
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogPostTeleport, false, false, this);
         }
         else

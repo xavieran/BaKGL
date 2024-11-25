@@ -11,7 +11,7 @@ namespace BAK {
 void PlayUndergroundSound() {
     if (GetRandomNumber(0, 0xfff) % 384 == 0)
     {
-        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{3});
+        AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{3});
         //unsigned duration = (GetRandomNumber(0, 0xfff) % 50) + 10;
     }
 }
@@ -27,7 +27,7 @@ void PlayNightTimeSound()
     {
         soundIndex = 0x33;
     }
-    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{soundIndex});
+    AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{soundIndex});
     //unsigned duration = (GetRandomNumber(0, 0xfff) % 54) + 10;
 }
 
@@ -42,14 +42,14 @@ void PlayZoneTwoSound()
     {
         soundIndex = (GetRandomNumber(0, 0xfff) % 2) + 0x35;
     }
-    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{soundIndex});
+    AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{soundIndex});
     //unsigned duration = (GetRandomNumber(0, 0xfff) % 54) + 10;
 }
 
 void PlayRegularSound()
 {
     unsigned soundIndex = (GetRandomNumber(0, 0xfff) % 3) + 0x34;
-    AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{soundIndex});
+    AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{soundIndex});
 }
 
 void PlayBackgroundSounds(GameState& gs)

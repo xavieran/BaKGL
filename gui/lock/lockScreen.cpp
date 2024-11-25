@@ -274,7 +274,7 @@ void LockScreen::AttemptLock(const InventorySlot& itemSlot)
     {
         if (BAK::CanPickLock(skill, lockRating))
         {
-            AudioA::AudioManager::Get().PlaySound(sPickedLockSound);
+            AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(sPickedLockSound);
             GetCharacter(*mSelectedCharacter)
                 .ImproveSkill(BAK::SkillType::Lockpick, BAK::SkillChange::ExercisedSkill, 2);
             mGuiManager.AddAnimator(
@@ -306,7 +306,7 @@ void LockScreen::AttemptLock(const InventorySlot& itemSlot)
                 // Remove a picklock from inventory...
                 dialog = BAK::DialogSources::mPicklockBroken;
                 mGameState.GetParty().RemoveItem('P', 1);
-                AudioA::AudioManager::Get().PlaySound(sPickBrokeSound);
+                AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(sPickBrokeSound);
             }
             else
             {
@@ -316,10 +316,10 @@ void LockScreen::AttemptLock(const InventorySlot& itemSlot)
     }
     else
     {
-        AudioA::AudioManager::Get().PlaySound(sUseKeySound);
+        AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(sUseKeySound);
         if (BAK::TryOpenLockWithKey(item, lockRating))
         {
-            AudioA::AudioManager::Get().PlaySound(sOpenLockSound);
+            AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(sOpenLockSound);
             // succeeded..
             ASSERT(BAK::GetLockIndex(lockRating));
             mGameState.Apply(BAK::State::SetLockHasBeenSeen, *BAK::GetLockIndex(lockRating));
@@ -344,7 +344,7 @@ void LockScreen::AttemptLock(const InventorySlot& itemSlot)
             {
                 mGameState.GetParty().RemoveItem(item.GetItemIndex().mValue, 1);
                 dialog = BAK::DialogSources::mKeyBroken;
-                AudioA::AudioManager::Get().PlaySound(sKeyBrokeSound);
+                AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(sKeyBrokeSound);
             }
             else
             {

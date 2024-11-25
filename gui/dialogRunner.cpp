@@ -229,15 +229,15 @@ void DialogRunner::EvaluateSnippetActions()
                     if (sound.mSoundIndex == 0)
                     {
                         // FIXME: Is this what 0 means?
-                        //AudioA::AudioManager::Get().StopMusicTrack();
+                        //AudioA::AudioManagerProvider::Get().GetAudioManager().StopMusicTrack();
                     }
                     else if (sound.mSoundIndex < AudioA::MAX_SOUND)
                     {
-                        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
+                        AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
                     }
                     else if (sound.mSoundIndex >= AudioA::MIN_SONG)
                     {
-                        AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
+                        AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
                         // FIXME: Do we need a stack here?
                         mStartedMusic = true;
                     }
@@ -546,7 +546,7 @@ void DialogRunner::CompleteDialog()
     mRemainingText.clear();
     if (mStartedMusic)
     {
-        AudioA::AudioManager::Get().PopTrack();
+        AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
         mStartedMusic = false;
     }
     std::invoke(mFinished, GetLastChoice());

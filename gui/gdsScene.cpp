@@ -276,7 +276,7 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 
     if (mBarding)
     {
-        AudioA::AudioManager::Get().PopTrack();
+        AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
         mBarding = false;
     }
 
@@ -465,16 +465,16 @@ void GDSScene::DoBard()
         switch (status)
         {
             case BAK::Bard::BardStatus::Failed:
-                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::BAD_BARD);
+                AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::BAD_BARD);
                 break;
             case BAK::Bard::BardStatus::Poor:
-                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::POOR_BARD);
+                AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::POOR_BARD);
                 break;
             case BAK::Bard::BardStatus::Good:
-                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::GOOD_BARD);
+                AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::GOOD_BARD);
                 break;
             case BAK::Bard::BardStatus::Best:
-                AudioA::AudioManager::Get().ChangeMusicTrack(AudioA::BEST_BARD);
+                AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::BEST_BARD);
                 break;
         }
 
