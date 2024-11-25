@@ -78,7 +78,7 @@ private:
     std::unique_ptr<IAudioManager> mAudioManager;
 };
 
-static IAudioManager& GetAudioManager();
+IAudioManager& GetAudioManager();
 
 class AudioManager : public IAudioManager
 {
