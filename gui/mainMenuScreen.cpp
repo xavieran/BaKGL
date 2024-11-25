@@ -116,7 +116,7 @@ MainMenuScreen::MainMenuScreen(
         },
         [this](const auto& saveFile){
             mState = State::MainMenu;
-            AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
+            AudioA::GetAudioManager().PopTrack();
             mGuiManager.SaveGame(saveFile);
         }
     },
@@ -132,7 +132,7 @@ void MainMenuScreen::EnterMainMenu(bool gameRunning)
 
     AddChildren();
 
-    AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sMainMenuSong});
+    AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sMainMenuSong});
 }
 
 [[nodiscard]] bool MainMenuScreen::OnMouseEvent(const MouseEvent& event)
@@ -175,13 +175,13 @@ void MainMenuScreen::BackToMainMenu()
 
 void MainMenuScreen::EnterMainView()
 {
-    AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
+    AudioA::GetAudioManager().PopTrack();
     mGuiManager.EnterMainView();
 }
 
 void MainMenuScreen::StartNewGame()
 {
-    AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
+    AudioA::GetAudioManager().PopTrack();
     auto start = BAK::CutsceneList::GetStartScene(BAK::Chapter{1});
     mGuiManager.PlayCutscene(start , [&]{ 
         mGuiManager.ShowGameStartMap();
@@ -192,7 +192,7 @@ void MainMenuScreen::StartNewGame()
 void MainMenuScreen::Load(std::string file)
 {
     mState = State::MainMenu;
-    AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
+    AudioA::GetAudioManager().PopTrack();
     mGuiManager.LoadGame(file, std::nullopt);
     mGuiManager.ShowGameStartMap();
 }

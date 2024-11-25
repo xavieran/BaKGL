@@ -297,10 +297,10 @@ void GuiManager::EnterGDSScene(
     const auto song = mGdsScenes.back()->GetSceneHotspots().mSong;
     if (song != 0)
     {
-        AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{song});
+        AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{song});
         mGuiScreens.push(GuiScreen{
             [fin = std::move(finished)](){
-                AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
+                AudioA::GetAudioManager().PopTrack();
                 std::invoke(fin);
         }});
     }
@@ -529,10 +529,10 @@ void GuiManager::ShowLock(
     {
         mMoredhelScreen.SetContainer(container);
         mScreenStack.PushScreen(&mMoredhelScreen);
-        AudioA::AudioManagerProvider::Get().GetAudioManager().ChangeMusicTrack(AudioA::PUZZLE_CHEST_THEME);
+        AudioA::GetAudioManager().ChangeMusicTrack(AudioA::PUZZLE_CHEST_THEME);
         mGuiScreens.push(GuiScreen{
             [fin = std::move(finished)](){
-                AudioA::AudioManagerProvider::Get().GetAudioManager().PopTrack();
+                AudioA::GetAudioManager().PopTrack();
                 std::invoke(fin);
         }});
     }

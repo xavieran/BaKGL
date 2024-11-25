@@ -171,7 +171,7 @@ void Temple::HandleBlessChoice(BAK::ChoiceIndex choice)
             BAK::Temple::RemoveBlessing(*mItem);
         }
         BAK::Temple::BlessItem(*mItem, *mShopStats);
-        AudioA::AudioManagerProvider::Get().GetAudioManager().PlaySound(AudioA::SoundIndex{0x3e});
+        AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{0x3e});
     }
 }
 

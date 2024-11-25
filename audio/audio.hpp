@@ -78,6 +78,8 @@ private:
     std::unique_ptr<IAudioManager> mAudioManager;
 };
 
+static IAudioManager& GetAudioManager();
+
 class AudioManager : public IAudioManager
 {
     static constexpr auto sAudioRate{MIX_DEFAULT_FREQUENCY};
