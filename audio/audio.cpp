@@ -50,7 +50,7 @@ void AudioManagerProvider::SetAudioManager(std::unique_ptr<IAudioManager>&& mana
     Get().mAudioManager = std::move(manager);
 }
 
-static IAudioManager& GetAudioManager()
+IAudioManager& GetAudioManager()
 {
     return AudioManagerProvider::Get().GetAudioManager();
 }
