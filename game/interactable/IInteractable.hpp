@@ -21,7 +21,7 @@ public:
     virtual void BeginInteraction(BAK::GenericContainer&, BAK::EntityType) = 0;
     virtual void EncounterFinished() = 0;
 
-    virtual ~IInteractable() {};
+    virtual ~IInteractable() {}
 };
 
 }
