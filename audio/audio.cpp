@@ -6,6 +6,55 @@
 
 namespace AudioA {
 
+MidiPlayer StringToMidiPlayer(std::string_view player)
+{
+    if (player == "ADLMIDI")
+    {
+        return MidiPlayer::ADLMIDI;
+    }
+    else if (player == "OPNMIDI")
+    {
+        return MidiPlayer::OPNMIDI;
+    }
+    else if (player == "FluidSynth")
+    {
+        return MidiPlayer::FluidSynth;
+    }
+    else
+    {
+        Logging::LogError(__FUNCTION__) << "Not a valid midi player (" << player << ") valid options are: ADLMIDI, OPNMIDI, FluidSynth, defaulting to ADLMIDI\n";
+        return MidiPlayer::ADLMIDI;
+    }
+}
+
+AudioManagerProvider::AudioManagerProvider()
+:
+    mAudioManager{std::make_unique<NullAudioManager>()}
+{
+}
+
+AudioManagerProvider& AudioManagerProvider::Get()
+{
+    static AudioManagerProvider provider{};
+    return provider;
+}
+
+IAudioManager& AudioManagerProvider::GetAudioManager()
+{
+    assert(mAudioManager);
+    return *mAudioManager;
+}
+
+void AudioManagerProvider::SetAudioManager(std::unique_ptr<IAudioManager>&& manager)
+{
+    Get().mAudioManager = std::move(manager);
+}
+
+IAudioManager& GetAudioManager()
+{
+    return AudioManagerProvider::Get().GetAudioManager();
+}
+
 AudioManager::AudioManager()
 :
     mCurrentMusicTrack{nullptr},
@@ -22,9 +71,9 @@ AudioManager::AudioManager()
             if (!mSoundPlaying && !mSoundQueue.empty())
             {
                 std::this_thread::sleep_for(1ms);
-                auto sound = Get().mSoundQueue.front();
-                Get().mSoundQueue.pop();
-                Get().PlaySoundImpl(sound);
+                auto sound = mSoundQueue.front();
+                mSoundQueue.pop();
+                PlaySoundImpl(sound);
             }
             std::this_thread::sleep_for(10ms);
         }
@@ -51,8 +100,13 @@ AudioManager::AudioManager()
 
 AudioManager& AudioManager::Get()
 {
-    static AudioManager audioManager{};
-    return audioManager;
+    assert(sStaticAudioManager);
+    return *sStaticAudioManager;
+}
+
+void AudioManager::Set(AudioManager* audioManager)
+{
+    sStaticAudioManager = audioManager;
 }
 
 void AudioManager::ChangeMusicTrack(MusicIndex musicI)
@@ -273,5 +327,7 @@ AudioManager::~AudioManager()
     Mix_CloseAudio();
     SDL_Quit();
 }
+
+AudioManager* AudioManager::sStaticAudioManager{nullptr};
 
 }

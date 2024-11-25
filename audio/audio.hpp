@@ -13,6 +13,8 @@
 #include <stack>
 #include <thread>
 #include <variant>
+#include <memory>
+#include <unordered_map>
 
 namespace AudioA {
 
@@ -36,7 +38,49 @@ enum class MidiPlayer
     FluidSynth = 2
 };
 
-class AudioManager
+MidiPlayer StringToMidiPlayer(std::string_view);
+
+class IAudioManager
+{
+public:
+    virtual void ChangeMusicTrack(MusicIndex) = 0;
+    virtual void PopTrack() = 0;
+    virtual void PauseMusicTrack() = 0;
+    virtual void PlayMusicTrack() = 0;
+    virtual void StopMusicTrack() = 0;
+    virtual void PlaySound(SoundIndex) = 0;
+    virtual void SwitchMidiPlayer(MidiPlayer) = 0;
+
+    virtual ~IAudioManager() {}
+};
+
+class NullAudioManager : public IAudioManager
+{
+public:
+    void ChangeMusicTrack(MusicIndex) override {}
+    void PopTrack() override {}
+    void PauseMusicTrack() override {}
+    void PlayMusicTrack() override {}
+    void StopMusicTrack() override {}
+    void PlaySound(SoundIndex) override {}
+    void SwitchMidiPlayer(MidiPlayer) override {}
+};
+
+class AudioManagerProvider
+{
+public:
+    static AudioManagerProvider& Get();
+    IAudioManager& GetAudioManager();
+    static void SetAudioManager(std::unique_ptr<IAudioManager>&&);
+private:
+    AudioManagerProvider();
+
+    std::unique_ptr<IAudioManager> mAudioManager;
+};
+
+IAudioManager& GetAudioManager();
+
+class AudioManager : public IAudioManager
 {
     static constexpr auto sAudioRate{MIX_DEFAULT_FREQUENCY};
     static constexpr auto sAudioFormat{MIX_DEFAULT_FORMAT};
@@ -49,21 +93,25 @@ class AudioManager
     using Sound = std::variant<Mix_Music*, Mix_Chunk*>;
 
 public:
+    AudioManager();
+
     static AudioManager& Get();
+    static void Set(AudioManager*);
 
-    void ChangeMusicTrack(MusicIndex);
-    void PopTrack();
-    void PauseMusicTrack();
-    void PlayMusicTrack();
-    void StopMusicTrack();
+    void ChangeMusicTrack(MusicIndex) override;
+    void PopTrack() override;
+    void PauseMusicTrack() override {}
+    void PlayMusicTrack() override {}
+    void StopMusicTrack() override;
 
-    void PlaySound(SoundIndex);
-    void PlaySoundImpl(SoundIndex);
+    void PlaySound(SoundIndex) override;
 
-    void SwitchMidiPlayer(MidiPlayer);
+    void SwitchMidiPlayer(MidiPlayer) override;
 
+    ~AudioManager();
 private:
     void PlayTrack(Mix_Music* music);
+    void PlaySoundImpl(SoundIndex);
 
     Sound GetSound(SoundIndex);
 
@@ -72,9 +120,6 @@ private:
     static void RewindMusic(Mix_Music*, void*);
 
     void ClearSounds();
-
-    AudioManager();
-    ~AudioManager();
 
     Mix_Music* mCurrentMusicTrack;
     std::stack<Mix_Music*> mMusicStack;
@@ -86,6 +131,7 @@ private:
 
     bool mRunning;
     std::thread mQueuePlayThread;
+    static AudioManager* sStaticAudioManager;
 
     const Logging::Logger& mLogger;
     

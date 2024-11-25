@@ -329,7 +329,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
 
             srcC.CheckPostConditions();
             dstC.CheckPostConditions();
-            AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
+            AudioA::GetAudioManager().PlaySound(DRAG_SOUND);
         }
         else
         {
@@ -355,7 +355,7 @@ void InventoryScreen::TransferItemFromCharacterToCharacter(
                 .GetInventory()
                 .RemoveItem(slot.GetItemIndex());
 
-        AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
+        AudioA::GetAudioManager().PlaySound(DRAG_SOUND);
     }
     else
     {
@@ -388,7 +388,7 @@ void InventoryScreen::TransferItemFromContainerToCharacter(
         mGameState.GetParty().AddItem(item);
         mContainer->GetInventory()
             .RemoveItem(slot.GetItemIndex());
-        AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
+        AudioA::GetAudioManager().PlaySound(DRAG_SOUND);
     }
     else if (GetCharacter(character).GiveItem(item))
     {
@@ -397,7 +397,7 @@ void InventoryScreen::TransferItemFromContainerToCharacter(
         else
             mContainer->GetInventory().RemoveItem(slot.GetItemIndex());
 
-        AudioA::AudioManager::Get().PlaySound(DRAG_SOUND);
+        AudioA::GetAudioManager().PlaySound(DRAG_SOUND);
     }
     else
     {
@@ -416,7 +416,7 @@ void InventoryScreen::SellItem(
     GetCharacter(character).GetInventory()
         .RemoveItem(slot.GetItemIndex());
 
-    AudioA::AudioManager::Get().PlaySound(BUY_SOUND);
+    AudioA::GetAudioManager().PlaySound(BUY_SOUND);
 
     mNeedRefresh = true;
 }
@@ -447,7 +447,7 @@ void InventoryScreen::BuyItem(
         }
         mGameState.GetParty().LoseMoney(price);
 
-        AudioA::AudioManager::Get().PlaySound(BUY_SOUND);
+        AudioA::GetAudioManager().PlaySound(BUY_SOUND);
     }
 
     mNeedRefresh = true;
@@ -827,7 +827,7 @@ void InventoryScreen::UseItem(BAK::InventoryIndex inventoryIndex)
         const auto [sound, times] = *result.mUseSound;
         for (unsigned i = 0; i < (times + 1); i++)
         {
-            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
+            AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{sound});
         }
     }
     if (result.mDialogContext)
@@ -857,7 +857,7 @@ void InventoryScreen::UseItem(InventorySlot& sourceItemSlot, BAK::InventoryIndex
         const auto [sound, times] = *result.mUseSound;
         for (unsigned i = 0; i < (times + 1); i++)
         {
-            AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{sound});
+            AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{sound});
         }
     }
     StartDialog(result.mDialog);

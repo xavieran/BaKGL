@@ -141,7 +141,7 @@ void CureScreen::CureCharacter()
     }
     else
     {
-        AudioA::AudioManager::Get().PlaySound(AudioA::SoundIndex{0xc});
+        AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{0xc});
         mGameState.SetActiveCharacter(mSelectedCharacter);
         mGuiManager.StartDialog(BAK::DialogSources::mHealDialogPostHealing, false, false, this);
         auto& character = mGameState.GetParty().GetCharacter(mSelectedCharacter);

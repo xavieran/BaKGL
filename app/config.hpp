@@ -34,6 +34,7 @@ struct Audio
 {
     bool mEnableAudio{true};
     bool mEnableBackgroundSounds{true};
+    std::string mMidiPlayer{"ADLMIDI"};
 };
 
 struct Game
