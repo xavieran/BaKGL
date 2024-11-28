@@ -199,15 +199,16 @@ void Systems::AddSprite(const Renderable& item)
     mSprites.emplace_back(item);
 }
 
-std::optional<BAK::EntityIndex> Systems::RunIntersection(glm::vec3 cameraPos) const
+std::vector<BAK::EntityIndex> Systems::RunIntersection(glm::vec3 cameraPos) const
 {
+    auto result = std::vector<BAK::EntityIndex>{};
     for (const auto& item : GetIntersectables())
     {
         if (item.Intersects(cameraPos))
-            return item.GetId();
+            result.emplace_back(item.GetId());
     }
 
-    return std::optional<BAK::EntityIndex>{};
+    return result;
 }
 
 const std::vector<Intersectable>& Systems::GetIntersectables() const { return mIntersectables; }

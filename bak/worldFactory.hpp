@@ -19,7 +19,6 @@ namespace BAK {
 
 class Palette;
 struct Model;
-class MonsterNames;
 
 class ZoneTextureStore
 {
@@ -47,11 +46,6 @@ class ZoneItem
 public:
     ZoneItem(
         const Model& model,
-        const ZoneTextureStore& textureStore);
-
-    ZoneItem(
-        MonsterIndex monster,
-        const MonsterNames& monsters,
         const ZoneTextureStore& textureStore);
 
     ZoneItem(

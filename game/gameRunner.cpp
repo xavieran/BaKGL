@@ -255,7 +255,7 @@ void GameRunner::LoadSystems()
         {
             auto id = mSystems->GetNextItemId();
             const auto dims = enc.GetDims();
-            //if (std::holds_alternative<BAK::Encounter::Dialog>(enc.GetEncounter()))
+            //if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
             //{
             //    mSystems->AddRenderable(
             //        Renderable{
@@ -274,22 +274,24 @@ void GameRunner::LoadSystems()
                         static_cast<double>(dims.y)},
                     enc.GetLocation()});
 
-            // Throw the enemies onto the map...
+            // Load the combat world location for this encounter and only
+            // add the enemies if it's populated.
+            unsigned kk = 0;
             evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
                 [&](const auto& combat){
                     for (unsigned i = 0; i < combat.mCombatants.size(); i++)
                     {
                         const auto& enemy = combat.mCombatants[i];
                         auto entityId = mSystems->GetNextItemId();
-                        mLogger.Info() << "Loading combat model for enemy combatant: " << enemy.mMonster << "\n";
                         if (!mCombatModelLoader.mCombatModelDatas[enemy.mMonster])
                         {
-                            mLogger.Info() << "Couldn't load combat model: " << enemy.mMonster << "\n";
+                            mLogger.Error() << "Couldn't load combat model: " << enemy.mMonster << "\n";
                             continue;
                         }
                         assert(mCombatModelLoader.mCombatModelDatas[enemy.mMonster]);
                         const auto& datas = *mCombatModelLoader.mCombatModelDatas[enemy.mMonster];
-                        auto req = AnimationRequest{BAK::AnimationType::Idle, BAK::Direction::South};
+                        auto req = AnimationRequest{static_cast<BAK::AnimationType>(kk), BAK::Direction::South};
+                        kk = (kk + 1) % 9;
                         if (!datas.mOffsetMap.contains(req))
                         {
                             continue;
@@ -683,7 +685,10 @@ void GameRunner::DoEncounter(const BAK::Encounter::Encounter& encounter)
         },
         [&](const BAK::Encounter::Combat& combat){
             if (mGuiManager.InMainView())
+            {
+                return;
                 CheckAndDoCombatEncounter(encounter, combat);
+            }
         },
         [&](const BAK::Encounter::Dialog& dialog){
             if (mGuiManager.InMainView())
@@ -704,11 +709,11 @@ void GameRunner::DoEncounter(const BAK::Encounter::Encounter& encounter)
 void GameRunner::CheckAndDoEncounter(glm::uvec2 position)
 {
     mLogger.Debug() << __FUNCTION__ << " Pos: " << position << "\n";
-    auto intersectable = mSystems->RunIntersection(
+    auto intersectables = mSystems->RunIntersection(
         BAK::ToGlCoord<float>(position));
-    if (intersectable)
+    if (!intersectables.empty())
     {
-        auto it = mEncounters.find(*intersectable);
+        auto it = mEncounters.find(intersectables.back());
         if (it != mEncounters.end())
         {
             const auto* encounter = it->second;
@@ -719,7 +724,7 @@ void GameRunner::CheckAndDoEncounter(glm::uvec2 position)
     }
 }
 
-void GameRunner::RunGameUpdate()
+void GameRunner::RunGameUpdate(bool advanceTime)
 {
     if (mCamera.CheckAndResetDirty())
     {
@@ -728,10 +733,11 @@ void GameRunner::RunGameUpdate()
         // Might want to clean this up.
         mActiveEncounter = nullptr;
 
-        auto intersectable = mSystems->RunIntersection(mCamera.GetPosition());
-        if (intersectable)
+        // Need to handle multiple intersectables.
+        auto intersectables = mSystems->RunIntersection(mCamera.GetPosition());
+        if (!intersectables.empty())
         {
-            auto it = mEncounters.find(*intersectable);
+            auto it = mEncounters.find(intersectables.back());
             if (it != mEncounters.end())
             {
                 const auto* encounter = it->second;
@@ -739,11 +745,13 @@ void GameRunner::RunGameUpdate()
             }
         }
 
-        if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0)
+        if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0 && advanceTime)
         {
             auto camp = BAK::TimeChanger{ mGameState };
             camp.ElapseTimeInMainView(
                 BAK::Time{0x1e * unitsTravelled});
+            // 1. If within X units of a tile, load the combat encounters into the CombatWorldLocation
+            //    if they haven't been already
         }
 
         if (mActiveEncounter)

@@ -46,6 +46,7 @@ void GenericCombatFactory<isTrap>::Load()
         const auto scoutDialog = fb.GetUint32LE();
 
         const auto zero = fb.GetUint32LE();
+        assert(zero == 0);
 
         const auto GetPosAndHeading = [&fb]{
             const auto x = fb.GetUint32LE();
@@ -79,9 +80,6 @@ void GenericCombatFactory<isTrap>::Load()
             {
                 logger.Debug() << "COMBAT NUMBER ZERO\n";
             }
-            logger.Debug() << "Combatant #" << i << " " << monsterIndex
-                << " mvTp: " << movementType << " pos: " << pos << "\n";
-            combatants.emplace_back(monsterIndex, movementType, pos);
 
             std::uint32_t minX = fb.GetUint32LE();
             std::uint32_t maxX = fb.GetUint32LE();
@@ -92,13 +90,9 @@ void GenericCombatFactory<isTrap>::Load()
             fb.Skip(10);
             //fb.DumpAndSkip(8);
             //fb.DumpAndSkip(2);
-            logger.Spam() << "Min: (" << minX << ", " << minY << ") Max: (" << maxX << ", " << maxY << ")\n";
-            //std::vector<std::int16_t> d{};
-            //for (unsigned i = 0; i < 17; i++)
-            //{
-            //    d.emplace_back(fb.GetSint16LE());
-            //}
-            //logger.Debug() << "Datas: " << d << "\n";
+            logger.Debug() << "Combatant #" << i << " " << monsterIndex
+                << " mvTp: " << movementType << " pos: " << pos << "\n";
+            combatants.emplace_back(monsterIndex, movementType, pos, glm::ivec2{minX, minY}, glm::ivec2{maxX, maxY});
         }
 
         constexpr unsigned maxCombatants = 7;

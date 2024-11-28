@@ -535,7 +535,7 @@ int main(int argc, char** argv)
 
         if (gameRunner.mGameState.GetGameData() && guiManager.InMainView())
         {
-            gameRunner.RunGameUpdate();
+            gameRunner.RunGameUpdate(config.mGame.mAdvanceTime);
             if (config.mAudio.mEnableBackgroundSounds)
             {
 				BAK::PlayBackgroundSounds(gameRunner.mGameState);

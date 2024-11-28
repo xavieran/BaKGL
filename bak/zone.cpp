@@ -4,7 +4,6 @@
 #include "bak/fixedObject.hpp"
 #include "bak/palette.hpp"
 #include "bak/resourceNames.hpp"
-#include "bak/monster.hpp"
 #include "bak/worldFactory.hpp"
 
 #include "graphics/cube.hpp"
@@ -27,17 +26,6 @@ Zone::Zone(unsigned zoneNumber)
         mObjects.AddObject(
             item.GetName(),
             BAK::ZoneItemToMeshObject(item, mZoneTextures, mPalette));
-
-    const auto monsters = MonsterNames::Get();
-    for (unsigned i = 0; i < monsters.size(); i++)
-    {
-        mObjects.AddObject(
-            monsters.GetMonsterAnimationFile(MonsterIndex{i}),
-            BAK::ZoneItemToMeshObject(
-                ZoneItem{MonsterIndex{i}, monsters, mZoneTextures},
-                mZoneTextures,
-                mPalette));
-    }
 
     const auto cube = Graphics::Cuboid{1, 1, 50};
     mObjects.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));

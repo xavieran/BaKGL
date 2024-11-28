@@ -465,7 +465,8 @@ CombatWorldLocation GameData::LoadCombatWorldLocation(std::uint8_t tileIndex, st
 {
     std::vector<CombatWorldLocation> data{};
     static constexpr auto dataSize = 12;
-    const auto offset = sCombatWorldLocationsOffset + (tileIndex * 35 * dataSize) + (encounterIndex * 7 * dataSize) + combatantRelativeIndex * dataSize;
+    const auto cwlNumber = tileIndex * 35 + encounterIndex * 7 + combatantRelativeIndex;
+    const auto offset = sCombatWorldLocationsOffset + cwlNumber * dataSize;
     mBuffer.Seek(offset);
     const auto x = mBuffer.GetUint32LE();
     const auto y = mBuffer.GetUint32LE();

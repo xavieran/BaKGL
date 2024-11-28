@@ -17,7 +17,7 @@ list(APPEND APP_BINARIES
     #display_object
     #display_ramp
     display_save
-    #display_startup_files
+    display_startup_files
     #display_sound
     #display_spells
     display_tbl

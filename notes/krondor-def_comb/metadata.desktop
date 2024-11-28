@@ -1,0 +1,8 @@
+[Desktop Entry]
+Icon=media-floppy-symbolic
+Type=Service
+ServiceTypes=KPluginInfo
+Name=Krondor DEF_COMB File
+X-KDE-PluginInfo-Name=krondor-def_comb
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Category=structure

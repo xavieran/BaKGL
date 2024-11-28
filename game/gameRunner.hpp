@@ -89,7 +89,7 @@ public:
     void DoEncounter(const BAK::Encounter::Encounter& encounter);
     void CheckAndDoEncounter(glm::uvec2 position);
     
-    void RunGameUpdate();
+    void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
 
     const Graphics::RenderData& GetZoneRenderData() const;

@@ -6,7 +6,6 @@
 #include "bak/imageStore.hpp"
 #include "bak/model.hpp"
 #include "bak/palette.hpp"
-#include "bak/monster.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/zoneReference.hpp"
@@ -51,35 +50,6 @@ ZoneTextureStore::ZoneTextureStore(
         pal);
 
     mHorizonOffset = GetTextures().size();
-
-    const auto monsters = MonsterNames::Get();
-    for (unsigned i = 0; i < monsters.size(); i++)
-    {
-        auto prefix = monsters.GetMonsterAnimationFile(MonsterIndex{i});
-        if (prefix == "")
-            prefix = "ogr";
-        prefix = ToUpper(prefix);
-        prefix += "1.BMX";
-
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(prefix);
-        const auto images = LoadImages(fb);
-
-        const auto colorSwap = monsters.GetColorSwap(MonsterIndex{i});
-        if (colorSwap <= 9)
-        {
-            auto ss = std::stringstream{};
-            ss << "CS";
-            ss << +colorSwap << ".DAT";
-            const auto cs = ColorSwap{ss.str()};
-            pal = Palette{pal, cs};
-        }
-
-        ASSERT(!images.empty());
-        TextureFactory::AddToTextureStore(
-            mTextures,
-            images[0],
-            pal);
-    }
 }
 
 const Graphics::Texture& ZoneTextureStore::GetTexture(const unsigned i) const
@@ -197,49 +167,6 @@ ZoneItem::ZoneItem(
         mPalettes.emplace_back(0x91);
         mColors.emplace_back(model.mSprite);
     }
-
-    ASSERT((mFaces.size() == mColors.size())
-        && (mFaces.size() == mPalettes.size())
-        && (mFaces.size() == mPush.size()));
-}
-
-ZoneItem::ZoneItem(
-    MonsterIndex monster,
-    const BAK::MonsterNames& monsters,
-    const ZoneTextureStore& textureStore)
-:
-    mName{monsters.GetMonsterAnimationFile(monster)},
-    mEntityFlags{0},
-    mEntityType{EntityType::DEADBODY1},
-    mScale{1},
-    mSpriteIndex{monster.mValue + textureStore.GetHorizonOffset()},
-    mColors{},
-    mVertices{},
-    mPalettes{},
-    mFaces{},
-    mPush{}
-{
-    // Need this to set the right dimensions for the texture
-    const auto& tex = textureStore.GetTexture(mSpriteIndex);
-        
-    const auto spriteScale = 7.0f;
-    auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * (spriteScale * .75));
-    auto height = tex.GetTargetHeight() * spriteScale;
-    mVertices.emplace_back(-width, height, 0);
-    mVertices.emplace_back(width, height, 0);
-    mVertices.emplace_back(width, 0, 0);
-    mVertices.emplace_back(-width, 0, 0);
-
-    auto faces = std::vector<std::uint16_t>{};
-    faces.emplace_back(0);
-    faces.emplace_back(1);
-    faces.emplace_back(2);
-    faces.emplace_back(3);
-    mFaces.emplace_back(faces);
-    mPush.emplace_back(false);
-
-    mPalettes.emplace_back(0x91);
-    mColors.emplace_back(mSpriteIndex);
 
     ASSERT((mFaces.size() == mColors.size())
         && (mFaces.size() == mPalettes.size())
