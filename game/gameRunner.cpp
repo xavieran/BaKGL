@@ -1,5 +1,6 @@
 #include "game/gameRunner.hpp"
 
+#include "bak/combatModel.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
@@ -26,6 +27,7 @@
 #include "gui/IDialogScene.hpp"
 
 #include <unordered_set>
+#include <utility>
 
 namespace Game {
 
@@ -277,6 +279,7 @@ void GameRunner::LoadSystems()
             // Load the combat world location for this encounter and only
             // add the enemies if it's populated.
             unsigned kk = 0;
+            mActiveCombatants.reserve(2056);
             evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
                 [&](const auto& combat){
                     for (unsigned i = 0; i < combat.mCombatants.size(); i++)
@@ -290,22 +293,34 @@ void GameRunner::LoadSystems()
                         }
                         assert(mCombatModelLoader.mCombatModelDatas[enemy.mMonster]);
                         const auto& datas = *mCombatModelLoader.mCombatModelDatas[enemy.mMonster];
-                        auto req = AnimationRequest{static_cast<BAK::AnimationType>(kk), BAK::Direction::South};
-                        kk = (kk + 1) % 9;
-                        if (!datas.mOffsetMap.contains(req))
-                        {
-                            continue;
-                        }
-                        auto animOff = datas.mOffsetMap.at(req);
-                        auto off = datas.mObjectDrawData[animOff.mOffset + animOff.mFrames - 1];
+
+                        mActiveCombatants.emplace_back(
+                            ActiveCombatant{
+                                entityId,
+                                {},
+                                BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
+                                glm::vec3{0},
+                                glm::vec3{1},
+                                BAK::MonsterIndex{enemy.mMonster},
+                                BAK::AnimationType::Idle,
+                                (entityId.mValue % 3) == 0
+                                    ? BAK::Direction::South 
+                                    : (entityId.mValue % 3) == 1
+                                        ? BAK::Direction::East
+                                        : BAK::Direction::North,
+                                0,
+                                mCombatModelLoader});
+
+                        auto& activeCombatant = mActiveCombatants.back();
+                        activeCombatant.Update();
                         mSystems->AddDynamicRenderable(
                             DynamicRenderable{
                                 entityId,
-                                &datas.mCombatModels,
-                                off,
-                                BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
-                                glm::vec3{0},
-                                glm::vec3{1}});
+                                &datas.mRenderData,
+                                activeCombatant.mObject,
+                                activeCombatant.mLocation,
+                                activeCombatant.mRotation,
+                                activeCombatant.mScale});
 
                         auto& containers = mGameState.GetCombatContainers();
                         auto container = std::find_if(containers.begin(), containers.end(),
@@ -790,13 +805,36 @@ void GameRunner::CheckClickable(unsigned entityId)
 void GameRunner::OnTimeDelta(double timeDelta)
 {
     mAccumulatedTime += timeDelta;
-    if (mAccumulatedTime > .5)
+    if (mAccumulatedTime > .2)
     {
         mAccumulatedTime = 0;
-        //for (auto& monster : mSystems.GetDynamicRenderables())
-        //{
-        //    monster.
-        //}
+        for (auto& combatant : mActiveCombatants)
+        {
+            combatant.mFrame += 1;
+            combatant.Update();
+            const auto& model = mCombatModelLoader.mCombatModels[combatant.mMonster.mValue];
+            if (combatant.mFrame == 0)
+            {
+                auto type = static_cast<BAK::AnimationType>((std::to_underlying(combatant.mAnimationType) + 1) % 9);
+                const auto& anims = model->GetSupportedAnimations();
+                if (std::find(anims.begin(), anims.end(), type) == anims.end())
+                {
+                    type = BAK::AnimationType::Idle;
+                }
+                if (type == BAK::AnimationType::Idle)
+                {
+                    if (combatant.mDirection == BAK::Direction::South)
+                        combatant.mDirection = BAK::Direction::East;
+                    else if (combatant.mDirection == BAK::Direction::East)
+                        combatant.mDirection = BAK::Direction::North;
+                    else if (combatant.mDirection == BAK::Direction::North)
+                        combatant.mDirection = BAK::Direction::South;
+
+                }
+                combatant.mAnimationType = type;
+                combatant.Update();
+            }
+        }
     }
 }
 

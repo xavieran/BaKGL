@@ -110,10 +110,10 @@ public:
     DynamicRenderable(
         BAK::EntityIndex itemId,
         const Graphics::RenderData* renderData,
-        std::pair<unsigned, unsigned> object,
-        glm::vec3 location,
-        glm::vec3 rotation,
-        glm::vec3 scale);
+        const std::pair<unsigned, unsigned>& object,
+        const glm::vec3& location,
+        const glm::vec3& rotation,
+        const glm::vec3& scale);
 
     BAK::EntityIndex GetId() const;
 
@@ -126,16 +126,15 @@ private:
     glm::mat4 CalculateModelMatrix();
 
     BAK::EntityIndex mItemId;
-    std::pair<unsigned, unsigned> mObject;
     const Graphics::RenderData* mRenderData;
 
-    glm::vec3 mLocation;
-    glm::vec3 mRotation;
-    glm::vec3 mScale;
+    const std::pair<unsigned, unsigned>& mObject;
+    const glm::vec3& mLocation;
+    const glm::vec3& mRotation;
+    const glm::vec3& mScale;
 
     glm::mat4 mModelMatrix;
 };
-
 
 class Systems
 {

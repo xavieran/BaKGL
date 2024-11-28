@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/combatModel.hpp"
 #include "game/combatModelLoader.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
@@ -44,6 +45,34 @@ class ClickableEntity
 public:
     BAK::EntityType mEntityType;
     BAK::GenericContainer* mContainer;
+};
+
+class ActiveCombatant {
+public:
+    BAK::EntityIndex mItemId;
+    std::pair<unsigned, unsigned> mObject;
+    glm::vec3 mLocation;
+    glm::vec3 mRotation;
+    glm::vec3 mScale;
+
+    BAK::MonsterIndex mMonster;
+    BAK::AnimationType mAnimationType;
+    BAK::Direction mDirection;
+    std::size_t mFrame;
+    const CombatModelLoader& mCombatModelLoader;
+
+    void Update()
+    {
+        auto request = AnimationRequest{mAnimationType, mDirection};
+        const auto& datas = *mCombatModelLoader.mCombatModelDatas[mMonster.mValue];
+        if (!datas.mOffsetMap.contains(request))
+        {
+            return;
+        }
+        auto animOff = datas.mOffsetMap.at(request);
+        mFrame = mFrame % animOff.mFrames;
+        mObject = datas.mObjectDrawData[animOff.mOffset + mFrame];
+    }
 };
 
 class GameRunner : public BAK::IZoneLoader
@@ -111,12 +140,12 @@ public:
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;
-    std::function<void(const BAK::Zone&)> mLoadRenderer;
     BAK::Encounter::TeleportFactory mTeleportFactory;
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
     CombatModelLoader mCombatModelLoader{};
 
+    std::vector<ActiveCombatant> mActiveCombatants{};
     bool mClickablesEnabled{};
     double mAccumulatedTime{};
 

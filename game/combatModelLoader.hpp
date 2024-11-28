@@ -43,11 +43,9 @@ struct AnimationOffset
     std::size_t mFrames;
 };
 
-
-
 struct CombatModelData
 {
-    Graphics::RenderData mCombatModels{};
+    Graphics::RenderData mRenderData{};
     std::unordered_map<AnimationRequest, AnimationOffset> mOffsetMap;
     std::vector<Graphics::MeshObjectStorage::OffsetAndLength> mObjectDrawData;
 };

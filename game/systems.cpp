@@ -107,14 +107,14 @@ glm::mat4 Renderable::CalculateModelMatrix()
 DynamicRenderable::DynamicRenderable(
     BAK::EntityIndex itemId,
     const Graphics::RenderData* renderData,
-    std::pair<unsigned, unsigned> object,
-    glm::vec3 location,
-    glm::vec3 rotation,
-    glm::vec3 scale)
+    const std::pair<unsigned, unsigned>& object,
+    const glm::vec3& location,
+    const glm::vec3& rotation,
+    const glm::vec3& scale)
 :
     mItemId{itemId},
-    mObject{object},
     mRenderData{renderData},
+    mObject{object},
     mLocation{location},
     mRotation{rotation},
     mScale{scale},
