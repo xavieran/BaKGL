@@ -113,6 +113,11 @@ public:
         return mObjects.find(id)->second;
     }
 
+    std::size_t size() const
+    {
+        return mObjects.size();
+    }
+
 //private:
     unsigned long mOffset;
     std::unordered_map<std::string, OffsetAndLength> mObjects;

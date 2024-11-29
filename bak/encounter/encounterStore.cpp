@@ -111,6 +111,7 @@ std::vector<Encounter> LoadEncounters(
                 encounterTableIndex,
                 tile),
             EncounterIndex{i},
+            encounterTableIndex,
             topLeft,
             bottomRight,
             location,

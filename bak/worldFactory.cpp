@@ -6,7 +6,6 @@
 #include "bak/imageStore.hpp"
 #include "bak/model.hpp"
 #include "bak/palette.hpp"
-#include "bak/monster.hpp"
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/zoneReference.hpp"
@@ -51,35 +50,6 @@ ZoneTextureStore::ZoneTextureStore(
         pal);
 
     mHorizonOffset = GetTextures().size();
-
-    const auto monsters = MonsterNames::Get();
-    for (unsigned i = 0; i < monsters.size(); i ++)
-    {
-        auto prefix = monsters.GetMonsterAnimationFile(MonsterIndex{i});
-        if (prefix == "")
-            prefix = "ogr";
-        prefix = ToUpper(prefix);
-        prefix += "1.BMX";
-
-        auto fb = FileBufferFactory::Get().CreateDataBuffer(prefix);
-        const auto images = LoadImages(fb);
-
-        const auto colorSwap = monsters.GetColorSwap(MonsterIndex{i});
-        if (colorSwap <= 9)
-        {
-            auto ss = std::stringstream{};
-            ss << "CS";
-            ss << +colorSwap << ".DAT";
-            const auto cs = ColorSwap{ss.str()};
-            pal = Palette{pal, cs};
-        }
-
-        ASSERT(!images.empty());
-        TextureFactory::AddToTextureStore(
-            mTextures,
-            images[0],
-            pal);
-    }
 }
 
 const Graphics::Texture& ZoneTextureStore::GetTexture(const unsigned i) const
@@ -113,6 +83,7 @@ ZoneItem::ZoneItem(
     mFaces{},
     mPush{}
 {
+    // True 3D model
     if (mSpriteIndex == 0 || mSpriteIndex > 400)
     {
         for (const auto& vertex : model.mVertices)
@@ -172,6 +143,7 @@ ZoneItem::ZoneItem(
             }
         }
     }
+    // Billboarded sprite
     else
     {
         // Need this to set the right dimensions for the texture
@@ -202,15 +174,14 @@ ZoneItem::ZoneItem(
 }
 
 ZoneItem::ZoneItem(
-    unsigned i,
-    const BAK::MonsterNames& monsters,
-    const ZoneTextureStore& textureStore)
+    unsigned spriteIndex,
+    const Graphics::Texture& texture)
 :
-    mName{monsters.GetMonsterAnimationFile(MonsterIndex{i})},
+    mName{""},
     mEntityFlags{0},
-    mEntityType{EntityType::DEADBODY1},
+    mEntityType{},
     mScale{1},
-    mSpriteIndex{i + textureStore.GetHorizonOffset()},
+    mSpriteIndex{spriteIndex},
     mColors{},
     mVertices{},
     mPalettes{},
@@ -218,11 +189,9 @@ ZoneItem::ZoneItem(
     mPush{}
 {
     // Need this to set the right dimensions for the texture
-    const auto& tex = textureStore.GetTexture(mSpriteIndex);
-        
     const auto spriteScale = 7.0f;
-    auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * (spriteScale * .75));
-    auto height = tex.GetTargetHeight() * spriteScale;
+    auto width  = static_cast<int>(static_cast<float>(texture.GetTargetWidth()) * (spriteScale * .75));
+    auto height = texture.GetTargetHeight() * spriteScale;
     mVertices.emplace_back(-width, height, 0);
     mVertices.emplace_back(width, height, 0);
     mVertices.emplace_back(width, 0, 0);
@@ -237,7 +206,7 @@ ZoneItem::ZoneItem(
     mPush.emplace_back(false);
 
     mPalettes.emplace_back(0x91);
-    mColors.emplace_back(mSpriteIndex);
+    mColors.emplace_back(spriteIndex);
 
     ASSERT((mFaces.size() == mColors.size())
         && (mFaces.size() == mPalettes.size())
@@ -627,6 +596,187 @@ Graphics::MeshObject ZoneItemToMeshObject(
         indices};
 }
 
+Graphics::MeshObject ZoneItemToMeshObject(
+    const ZoneItem& item,
+    const Graphics::TextureStore& store)
+{
+    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec4> colors;
+    std::vector<glm::vec3> textureCoords;
+    std::vector<float> textureBlends;
+    std::vector<unsigned> indices;
+
+    auto glmVertices = std::vector<glm::vec3>{};
+    if (item.GetName().substr(0, 5) == "tston")
+    {
+        logger.Info() << "Tombstone\n";
+    }
+
+    const auto TextureBlend = [&](auto blend)
+    {
+        textureBlends.emplace_back(blend);
+        textureBlends.emplace_back(blend);
+        textureBlends.emplace_back(blend);
+    };
+
+    for (const auto& vertex : item.GetVertices())
+    {
+        glmVertices.emplace_back(
+            glm::cast<float>(vertex) / BAK::gWorldScale);
+    }
+
+    unsigned index = 0;
+    for (const auto& face : item.GetFaces())
+    {
+        if (face.size() < 3) // line
+        {
+            auto start = glmVertices[face[0]];
+            auto end = glmVertices[face[1]];
+            auto normal = glm::normalize(
+                glm::cross(end - start, glm::vec3(0, 0, 1.0)));
+            float linewidth = 0.05f;
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start - linewidth * normal);
+
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end + linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(start - linewidth * normal);
+            indices.emplace_back(vertices.size());
+            vertices.emplace_back(end - linewidth * normal);
+
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+
+            auto colorIndex = item.GetColors().at(index);
+            auto paletteIndex = item.GetPalettes().at(index);
+            auto textureIndex = colorIndex;
+
+            auto color = glm::vec4{0};
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            textureCoords.emplace_back(0.0, 0.0, textureIndex);
+
+            TextureBlend(0.0);
+            TextureBlend(0.0);
+
+            index++;
+            continue;
+        }
+
+        unsigned triangles = face.size() - 2;
+
+        // Whether to push this face away from the main plane
+        // (needed to avoid z-fighting for some objects)
+        bool push = item.GetPush().at(index);
+        
+        // Tesselate the face
+        // Generate normals and new indices for each face vertex
+        // The normal must be inverted to account
+        // for the Y direction being negated
+        auto normal = glm::normalize(
+            glm::cross(
+                glmVertices[face[0]] - glmVertices[face[2]],
+                glmVertices[face[0]] - glmVertices[face[1]]));
+        if (item.IsSprite())
+        {
+            normal = glm::cross(normal, glm::vec3{1, 0, 1});
+        }
+
+        for (unsigned triangle = 0; triangle < triangles; triangle++)
+        {
+            auto i_a = face[0];
+            auto i_b = face[triangle + 1];
+            auto i_c = face[triangle + 2];
+
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+            normals.emplace_back(normal);
+
+            glm::vec3 zOff = normal;
+            if (push) zOff = glm::vec3{0};
+            
+            vertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            vertices.emplace_back(glmVertices[i_b] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            vertices.emplace_back(glmVertices[i_c] - zOff * 0.02f);
+            indices.emplace_back(vertices.size() - 1);
+            
+            // Hacky - only works for quads - but the game only
+            // textures quads anyway... (not true...)
+            auto colorIndex = item.GetColors().at(index);
+            auto paletteIndex = item.GetPalettes().at(index);
+            auto textureIndex = colorIndex;
+
+            float u = 1.0;
+            float v = 1.0;
+
+            TextureBlend(1.0);
+
+            auto maxDim = store.GetMaxDim();
+            u = static_cast<float>(store.GetTexture(textureIndex).GetWidth() - 1) 
+                / static_cast<float>(maxDim);
+            v = static_cast<float>(store.GetTexture(textureIndex).GetHeight() - 1) 
+                / static_cast<float>(maxDim);
+
+            if (triangle == 0)
+            {
+                textureCoords.emplace_back(u  , v,   textureIndex);
+                textureCoords.emplace_back(0.0, v,   textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+            }
+            else
+            {
+                textureCoords.emplace_back(u,   v,   textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+                textureCoords.emplace_back(u,   0.0, textureIndex);
+            }
+
+            auto color = glm::vec4{0};
+
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+            colors.emplace_back(color);
+        }
+
+        index++;
+    }
+
+    assert(vertices.size() == normals.size());
+    assert(vertices.size() == colors.size());
+    assert(vertices.size() == textureCoords.size());
+    assert(vertices.size() == textureBlends.size());
+    assert(vertices.size() == indices.size());
+    return Graphics::MeshObject{
+        vertices,
+        normals,
+        colors,
+        textureCoords,
+        textureBlends,
+        indices};
+}
 ZoneItemStore::ZoneItemStore(
     const ZoneLabel& zoneLabel,
     // Should one really need a texture store to load this?
@@ -757,6 +907,7 @@ void World::LoadWorld(
 }
 
 glm::vec<2, unsigned> World::GetTile() const { return mTile; }
+unsigned World::GetTileIndex() const { return mTileIndex; }
 const std::vector<WorldItemInstance>& World::GetItems() const { return mItemInsts; }
 const std::vector<Encounter::Encounter>& World::GetEncounters(Chapter chapter) const
 {

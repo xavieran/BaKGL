@@ -82,6 +82,7 @@ public:
     Encounter(
         EncounterT encounter,
         EncounterIndex index,
+        std::uint16_t encounterTableIndex,
         glm::uvec2 topLeft,
         glm::uvec2 bottomRight,
         glm::uvec2 location,
@@ -98,6 +99,7 @@ public:
     :
         mEncounter{encounter},
         mIndex{index},
+        mEncounterTableIndex{encounterTableIndex},
         mTopLeft{topLeft},
         mBottomRight{bottomRight},
         mLocation{location},
@@ -133,6 +135,7 @@ public:
 
     EncounterT mEncounter;
     EncounterIndex mIndex;
+    std::uint16_t mEncounterTableIndex;
     glm::uvec2 mTopLeft;
     glm::uvec2 mBottomRight;
     glm::uvec2 mLocation;

@@ -89,6 +89,7 @@ void GameState::LoadGameData(GameData* gameData)
     mGDSContainers = mGameData->LoadShops();
     mCombatContainers = mGameData->LoadCombatInventories();
     mTimeExpiringState = mGameData->LoadTimeExpiringState();
+    mCombatWorldLocations = mGameData->LoadCombatWorldLocations();
     mSpellState = mGameData->LoadSpells();
     mZone = ZoneNumber{mGameData->mLocation.mZone};
     mChapter = mGameData->mChapter;
@@ -1179,6 +1180,7 @@ bool GameState::SaveState()
         };
         BAK::Save(mapLocation, mGameData->GetFileBuffer());
         BAK::Save(mGameData->mLocation, mGameData->GetFileBuffer());
+        //BAK::Save(mCombatWorldLocations);
         return true;
     }
     return false;
@@ -1525,5 +1527,15 @@ void GameState::HealCharacter(CharIndex who, unsigned amount)
             SkillChange::HealMultiplier_100,
             reduction);
     }
+}
+
+CombatWorldLocation& GameState::GetCombatWorldLocation(
+    std::uint8_t tileIndex,
+    std::uint8_t encounterIndex,
+    std::uint8_t combatantRelativeIndex)
+{
+    const std::size_t cwlNumber = tileIndex * 35 + encounterIndex * 7 + combatantRelativeIndex;
+    assert(cwlNumber < mCombatWorldLocations.size());
+    return mCombatWorldLocations[cwlNumber];
 }
 }

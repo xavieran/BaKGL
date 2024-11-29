@@ -1,4 +1,5 @@
 add_library(game
+    combatModelLoader.hpp combatModelLoader.cpp
     console.hpp console.cpp
     gameRunner.hpp gameRunner.cpp
     screens.hpp screens.cpp

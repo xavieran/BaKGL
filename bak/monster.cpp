@@ -25,11 +25,19 @@ MonsterNames::Monster::Monster(
     std::uint8_t colorSwap)
 :
     mPrefix{prefix},
-    mUnknown0{unknown0},
-    mUnknown1{unknown1},
-    mUnknown2{unknown2},
+    mSuffix0{unknown0},
+    mSuffix1{unknown1},
+    mSuffix2{unknown2},
     mColorSwap{colorSwap}
 {}
+
+std::ostream& operator<<(std::ostream& os, const MonsterNames::Monster& m)
+{
+    os << "Monster{ Pref: " << m.mPrefix << " spriteSheets: [" << +m.mSuffix0
+        << ", " << +m.mSuffix1 << ", " << +m.mSuffix2 
+        << "] cs: " << +m.mColorSwap << "}";
+    return os;
+}
 
 const std::string& MonsterNames::GetMonsterName(MonsterIndex monster) const
 {
@@ -69,57 +77,57 @@ MonsterNames::MonsterNames()
     {
         auto fb = FileBufferFactory::Get().CreateDataBuffer("MNAMES.DAT");
         const auto monsters = fb.GetUint32LE();
-        logger.Spam() << "Loading monsters: " << "\n";
-        logger.Spam() << "Monsters: " << monsters << "\n";
+        logger.Debug() << "Loading monsters: " << "\n";
+        logger.Debug() << "Monsters: " << monsters << "\n";
 
         std::vector<unsigned> offsets{};
         for (unsigned i = 0; i < monsters; i++)
         {
             const auto& offset = offsets.emplace_back(fb.GetUint16LE());
-            logger.Spam() << "I: " << i << " " 
+            logger.Debug() << "I: " << i << " " 
                 << std::hex << offset << std::dec << std::endl;
         }
 
-        std::vector<std::string> strings{};
         auto start = fb.Tell();
         unsigned p = 0;
+        mMonsterNames.emplace_back(sInvalidMonster);
         for (auto offset : offsets)
         {
             if (start + offset > fb.GetSize())
             {
-                logger.Spam() << "Seeking past end of file!\n";
-                strings.emplace_back("INVALID MONSTER");
-                mMonsterNames.emplace_back("INVALID MONSTER");
+                logger.Debug() << "Seeking past end of file! offset is: " 
+                    << offset << " start is: " << start << " fsize: " << fb.GetSize() << " \n";
+                mMonsterNames.emplace_back(sInvalidMonster);
                 continue;
             }
             fb.Seek(start + offset);
-            const auto& keyword = strings.emplace_back(fb.GetString());
-            logger.Spam() << p++ << " " << keyword << std::endl;
-            mMonsterNames.emplace_back(keyword);
+            const auto string = fb.GetString();
+            logger.Debug() << p++ << " " << string << std::endl;
+            mMonsterNames.emplace_back(string);
         }
 
-        for (unsigned i = 0; i < strings.size(); i ++)
+        for (unsigned i = 0; i < mMonsterPrefixes.size(); i ++)
         {
-            logger.Spam() << "K: " << i << " : " << strings[i] << "\n";
+            logger.Debug() << "K: " << i << " : " << mMonsterNames[i] << "\n";
         }
     }
     {
         auto fb = FileBufferFactory::Get().CreateDataBuffer("BNAMES.DAT");
         auto monsters = fb.GetUint32LE();
-        logger.Spam() << "Loading keywords" << "\n";
-        logger.Spam() << "Length: " << monsters << "\n";
+        logger.Debug() << "Loading keywords" << "\n";
+        logger.Debug() << "Length: " << monsters << "\n";
 
         std::vector<unsigned> offsets{};
         for (unsigned i = 0; i < monsters; i++)
         {
             const auto& offset = offsets.emplace_back(fb.GetUint16LE());
-            logger.Spam() << "I: " << i << " " 
+            logger.Debug() << "I: " << i << " " 
                 << std::hex << offset << std::dec << std::endl;
         }
 
-        std::vector<std::string> strings{};
         auto start = fb.Tell();
         unsigned p = 0;
+        mMonsterPrefixes.emplace_back("", 0, 0, 0, 255);
         for (auto offset : offsets)
         {
             if (start + offset > fb.GetSize()) continue;
@@ -129,7 +137,7 @@ MonsterNames::MonsterNames()
             const auto unk1 = fb.GetUint8();
             const auto unk2 = fb.GetUint8();
             const auto unk3 = fb.GetUint8();
-            logger.Spam() << p++ << " " << prefix << " " 
+            logger.Debug() << p++ << " " << prefix << " " 
                 << +unk0 << " " 
                 << +unk1 << " " 
                 << +unk2 << " " 

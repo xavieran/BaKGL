@@ -6,6 +6,7 @@
 #include "game/interactable/building.hpp"
 #include "game/interactable/chest.hpp"
 #include "game/interactable/combatant.hpp"
+#include "game/interactable/corpse.hpp"
 #include "game/interactable/door.hpp"
 #include "game/interactable/generic.hpp"
 #include "game/interactable/ladder.hpp"
@@ -144,9 +145,13 @@ std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
     case InteractableType::Tunnel1:
         return MakeGeneric(BAK::DialogSources::mUnknownObject);
     case InteractableType::DeadCombatant:
-        return std::make_unique<Combatant>(
+        return std::make_unique<Corpse>(
             mGuiManager,
             BAK::KeyTarget{0});
+    case InteractableType::LivingCombatant:
+        return std::make_unique<Combatant>(
+            mGuiManager,
+            mGameState);
     default:
         Logging::LogFatal(__FUNCTION__) << "Unhandled entity type: " 
             << static_cast<unsigned>(entity) << " interactableType: "

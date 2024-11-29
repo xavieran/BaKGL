@@ -181,9 +181,7 @@ int main(int argc, char** argv)
         provider.SetAudioManager(std::move(audioManager));
     }
 
-    const bool showImgui = config.mGraphics.mEnableImGui;
-
-
+    bool showImgui = config.mGraphics.mEnableImGui;
     auto guiScalar = config.mGraphics.mResolutionScale;
 
     auto nativeWidth = 320.0f;
@@ -251,10 +249,7 @@ int main(int argc, char** argv)
     Game::GameRunner gameRunner{
         camera,
         gameState,
-        guiManager,
-        [&](auto& zoneData){
-            renderer.LoadData(zoneData.mObjects, zoneData.mZoneTextures);
-        }};
+        guiManager};
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
@@ -323,6 +318,7 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
+    inputHandler.Bind(GLFW_KEY_I, [&]{ showImgui = !showImgui; });
 
     inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ if (root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE})){ ;} });
     inputHandler.BindCharacter([&](char character){ if(root.OnKeyEvent(Gui::Character{character})){ ;} });
@@ -341,8 +337,10 @@ int main(int argc, char** argv)
                 glDisable(GL_BLEND);
                 glDisable(GL_MULTISAMPLE);
                 renderer.DrawForPicking(
+                    gameRunner.GetZoneRenderData(),
                     gameRunner.mSystems->GetRenderables(),
                     gameRunner.mSystems->GetSprites(),
+                    gameRunner.mSystems->GetDynamicRenderables(),
                     *cameraPtr);
                 gameRunner.CheckClickable(renderer.GetClickedEntity(clickPos));
             }
@@ -422,6 +420,7 @@ int main(int argc, char** argv)
 
         deltaTime = float(currentTime - lastTime);
         guiManager.OnTimeDelta(currentTime - lastTime);
+        gameRunner.OnTimeDelta(currentTime - lastTime);
         lastTime = currentTime;
 
         cameraPtr->SetDeltaTime(deltaTime);
@@ -474,9 +473,11 @@ int main(int argc, char** argv)
 
             renderer.BeginDepthMapDraw();
             renderer.DrawDepthMap(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetRenderables(),
                 lightCamera);
             renderer.DrawDepthMap(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetSprites(),
                 lightCamera);
             renderer.EndDepthMapDraw();
@@ -486,16 +487,31 @@ int main(int argc, char** argv)
             glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderer.DrawWithShadow(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetRenderables(),
                 light,
                 lightCamera,
                 *cameraPtr);
 
             renderer.DrawWithShadow(
+                gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetSprites(),
                 light,
                 lightCamera,
                 *cameraPtr);
+
+            const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
+            for (const auto& obj : dynamicRenderables)
+            {
+                std::vector<DynamicRenderable> data{};
+                data.emplace_back(obj);
+                renderer.DrawWithShadow(
+                    *obj.GetRenderData(),
+                    data,
+                    light,
+                    lightCamera,
+                    *cameraPtr);
+            }
         }
 
         //// { *** Draw 2D GUI ***
@@ -516,7 +532,7 @@ int main(int argc, char** argv)
 
         if (gameRunner.mGameState.GetGameData() && guiManager.InMainView())
         {
-            gameRunner.RunGameUpdate();
+            gameRunner.RunGameUpdate(config.mGame.mAdvanceTime);
             if (config.mAudio.mEnableBackgroundSounds)
             {
 				BAK::PlayBackgroundSounds(gameRunner.mGameState);

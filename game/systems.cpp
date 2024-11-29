@@ -104,6 +104,57 @@ glm::mat4 Renderable::CalculateModelMatrix()
     return modelMatrix;
 }
 
+DynamicRenderable::DynamicRenderable(
+    BAK::EntityIndex itemId,
+    const Graphics::RenderData* renderData,
+    const std::pair<unsigned, unsigned>& object,
+    const glm::vec3& location,
+    const glm::vec3& rotation,
+    const glm::vec3& scale)
+:
+    mItemId{itemId},
+    mRenderData{renderData},
+    mObject{object},
+    mLocation{location},
+    mRotation{rotation},
+    mScale{scale},
+    mModelMatrix{CalculateModelMatrix()}
+{}
+
+BAK::EntityIndex DynamicRenderable::GetId() const { return mItemId; }
+
+const glm::mat4& DynamicRenderable::GetModelMatrix() const
+{
+    return mModelMatrix;
+}
+
+const glm::vec3& DynamicRenderable::GetLocation() const { return mLocation; }
+
+std::pair<unsigned, unsigned> DynamicRenderable::GetObject() const
+{
+    return mObject;
+}
+
+const Graphics::RenderData* DynamicRenderable::GetRenderData() const
+{
+    return mRenderData;
+}
+
+glm::mat4 DynamicRenderable::CalculateModelMatrix()
+{
+    auto modelMatrix = glm::mat4{1.0};
+    modelMatrix = glm::translate(modelMatrix, mLocation / BAK::gWorldScale);
+    modelMatrix = glm::scale(modelMatrix, mScale);
+    // Dodgy... only works for rotation about y
+    modelMatrix = glm::rotate(
+        modelMatrix,
+        mRotation.y,
+        glm::vec3(0,1,0));
+
+    return modelMatrix;
+}
+
+
 Systems::Systems()
 :
     mNextItemId{0}
@@ -129,6 +180,11 @@ void Systems::AddRenderable(const Renderable& item)
     mRenderables.emplace_back(item);
 }
 
+void Systems::AddDynamicRenderable(const DynamicRenderable& item)
+{
+    mDynamicRenderables.emplace_back(item);
+}
+
 void Systems::RemoveRenderable(BAK::EntityIndex i)
 {
     auto it = std::find_if(
@@ -143,19 +199,21 @@ void Systems::AddSprite(const Renderable& item)
     mSprites.emplace_back(item);
 }
 
-std::optional<BAK::EntityIndex> Systems::RunIntersection(glm::vec3 cameraPos) const
+std::vector<BAK::EntityIndex> Systems::RunIntersection(glm::vec3 cameraPos) const
 {
+    auto result = std::vector<BAK::EntityIndex>{};
     for (const auto& item : GetIntersectables())
     {
         if (item.Intersects(cameraPos))
-            return item.GetId();
+            result.emplace_back(item.GetId());
     }
 
-    return std::optional<BAK::EntityIndex>{};
+    return result;
 }
 
 const std::vector<Intersectable>& Systems::GetIntersectables() const { return mIntersectables; }
 const std::vector<Renderable>& Systems::GetRenderables() const { return mRenderables; }
+const std::vector<DynamicRenderable>& Systems::GetDynamicRenderables() const { return mDynamicRenderables; }
 const std::vector<Renderable>& Systems::GetSprites() const { return mSprites; }
 const std::vector<Clickable>& Systems::GetClickables() const { return mClickables; }
 

@@ -35,7 +35,7 @@ void GenericCombatFactory<isTrap>::Load()
     const auto logger = Logging::LogState::GetLogger("Combat");
 
     const auto count = fb.GetUint32LE();
-    logger.Debug() << "Combats: " << count <<"\n";
+    logger.Spam() << "Combats: " << count <<"\n";
     for (unsigned i = 0; i < count; i++)
     {
         logger.Spam() << "Combat #" << i << " @" 
@@ -46,6 +46,7 @@ void GenericCombatFactory<isTrap>::Load()
         const auto scoutDialog = fb.GetUint32LE();
 
         const auto zero = fb.GetUint32LE();
+        assert(zero == 0);
 
         const auto GetPosAndHeading = [&fb]{
             const auto x = fb.GetUint32LE();
@@ -75,14 +76,6 @@ void GenericCombatFactory<isTrap>::Load()
             const auto monsterIndex = fb.GetUint16LE();
             const auto movementType = fb.GetUint16LE();
             const auto pos = GetPosAndHeading();
-            if (combatIndex == 0)
-            {
-                logger.Debug() << "COMBAT NUMBER ZERO\n";
-            }
-            logger.Debug() << "Combatant #" << i << " " << monsterIndex
-                << " mvTp: " << movementType << " pos: " << pos << "\n";
-            combatants.emplace_back(monsterIndex, movementType, pos);
-
             std::uint32_t minX = fb.GetUint32LE();
             std::uint32_t maxX = fb.GetUint32LE();
             fb.Skip(8);
@@ -92,13 +85,9 @@ void GenericCombatFactory<isTrap>::Load()
             fb.Skip(10);
             //fb.DumpAndSkip(8);
             //fb.DumpAndSkip(2);
-            logger.Spam() << "Min: (" << minX << ", " << minY << ") Max: (" << maxX << ", " << maxY << ")\n";
-            //std::vector<std::int16_t> d{};
-            //for (unsigned i = 0; i < 17; i++)
-            //{
-            //    d.emplace_back(fb.GetSint16LE());
-            //}
-            //logger.Debug() << "Datas: " << d << "\n";
+            logger.Spam() << "Combatant #" << i << " " << monsterIndex
+                << " mvTp: " << movementType << " pos: " << pos << "\n";
+            combatants.emplace_back(monsterIndex, movementType, pos, glm::ivec2{minX, minY}, glm::ivec2{maxX, maxY});
         }
 
         constexpr unsigned maxCombatants = 7;

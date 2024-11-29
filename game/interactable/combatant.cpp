@@ -2,12 +2,12 @@
 
 #include "game/interactable/IInteractable.hpp"
 
-#include "bak/IContainer.hpp"
+#include "bak/constants.hpp"
+#include "bak/encounter/combat.cpp"
 #include "bak/container.hpp"
-#include "bak/dialog.hpp"
 #include "bak/dialogSources.hpp"
+#include "bak/state/encounter.hpp"
 #include "bak/gameState.hpp"
-#include "bak/itemNumbers.hpp"
 #include "bak/types.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -17,14 +17,14 @@ namespace Game::Interactable {
 
 Combatant::Combatant(
     Gui::IGuiManager& guiManager,
-    BAK::Target target)
+    BAK::GameState& gameState)
 :
     mGuiManager{guiManager},
+    mGameState{gameState},
     mDialogScene{
         []{},
         []{},
         [&](const auto& choice){ DialogFinished(choice); }},
-    mDefaultDialog{target},
     mContainer{nullptr}
 {}
 
@@ -33,16 +33,37 @@ void Combatant::BeginInteraction(BAK::GenericContainer& container, BAK::EntityTy
     mContainer = &container;
     mEntityType = entityType;
 
-    StartDialog(BAK::DialogSources::mBody);
+    const auto combatNumber = container.GetHeader().GetCombatNumber();
+    
+    if (combatNumber == 64)
+    {
+        auto factory = BAK::Encounter::GenericCombatFactory<false>{};
+        // fix this so the combatant has this info already.
+        const auto& combat = factory.Get(220);
+        StartDialog(combat.mEntryDialog);
+        return;
+    }
+    else if (combatNumber == 63)
+    {
+        StartDialog(BAK::DialogSources::mWeCantTakeAllTheseFellas);
+        return;
+    }
+
+    auto combatPlannedTime = mGameState.Apply(BAK::State::GetCombatClickedTime, combatNumber);
+    const bool alreadyPlannedAttack = (mGameState.GetWorldTime().GetTime() - combatPlannedTime) < BAK::Times::OneDay;
+    if (!alreadyPlannedAttack)
+    {
+        mGameState.Apply(BAK::State::SetCombatClickedTime, combatNumber, mGameState.GetWorldTime().GetTime());
+    }
+
+    StartDialog(alreadyPlannedAttack
+        ? BAK::DialogSources::mAlreadyPlannedAttack
+        : BAK::DialogSources::mPlanAttack);
 }
 
 void Combatant::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
     ASSERT(mContainer);
-    if (mContainer->HasInventory())
-    {
-        mGuiManager.ShowContainer(mContainer, BAK::EntityType::DEADBODY1);
-    }
 }
 
 void Combatant::EncounterFinished()

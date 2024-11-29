@@ -13,6 +13,7 @@ add_library(graphics
     meshObject.hpp meshObject.cpp
     opengl.hpp opengl.cpp
     quad.hpp quad.cpp
+    renderData.hpp renderData.cpp
     shaderProgram.hpp shaderProgram.cpp
     sphere.hpp sphere.cpp
     sprites.hpp sprites.cpp

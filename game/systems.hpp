@@ -16,6 +16,10 @@
 #include <variant>
 #include <vector>
 
+namespace Graphics {
+class RenderData;
+}
+
 class Intersectable
 {
 public:
@@ -100,6 +104,38 @@ private:
     BAK::EntityIndex mItemId;
 };
 
+class DynamicRenderable
+{
+public:
+    DynamicRenderable(
+        BAK::EntityIndex itemId,
+        const Graphics::RenderData* renderData,
+        const std::pair<unsigned, unsigned>& object,
+        const glm::vec3& location,
+        const glm::vec3& rotation,
+        const glm::vec3& scale);
+
+    BAK::EntityIndex GetId() const;
+
+    const glm::mat4& GetModelMatrix() const;
+	const glm::vec3& GetLocation() const;
+
+    std::pair<unsigned, unsigned> GetObject() const;
+    const Graphics::RenderData* GetRenderData() const;
+private:
+    glm::mat4 CalculateModelMatrix();
+
+    BAK::EntityIndex mItemId;
+    const Graphics::RenderData* mRenderData;
+
+    const std::pair<unsigned, unsigned>& mObject;
+    const glm::vec3& mLocation;
+    const glm::vec3& mRotation;
+    const glm::vec3& mScale;
+
+    glm::mat4 mModelMatrix;
+};
+
 class Systems
 {
 public:
@@ -109,12 +145,14 @@ public:
     void AddIntersectable(const Intersectable& item);
     void AddClickable(const Clickable& item);
     void AddRenderable(const Renderable& item);
+    void AddDynamicRenderable(const DynamicRenderable& item);
     void RemoveRenderable(BAK::EntityIndex i);
     void AddSprite(const Renderable& item);
-    std::optional<BAK::EntityIndex> RunIntersection(glm::vec3 cameraPos) const;
+    std::vector<BAK::EntityIndex> RunIntersection(glm::vec3 cameraPos) const;
 
     const std::vector<Intersectable>& GetIntersectables() const;
     const std::vector<Renderable>& GetRenderables() const;
+    const std::vector<DynamicRenderable>& GetDynamicRenderables() const;
     const std::vector<Renderable>& GetSprites() const;
     const std::vector<Clickable>& GetClickables() const;
 
@@ -124,5 +162,6 @@ private:
     std::vector<Intersectable> mIntersectables;
     std::vector<Renderable> mRenderables;
     std::vector<Renderable> mSprites;
+    std::vector<DynamicRenderable> mDynamicRenderables;
     std::vector<Clickable> mClickables;
 };

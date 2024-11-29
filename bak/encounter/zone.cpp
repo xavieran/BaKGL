@@ -55,7 +55,7 @@ void ZoneFactory::Load()
                 ZoneNumber{zone},
                 GamePositionAndHeading{loc, heading},
                 KeyTarget{dialog}});
-        Logging::LogDebug("ZoneFactory") << "ZoneTransition: " << i << " " << mZones.back() << "\n";
+        Logging::LogSpam("ZoneFactory") << "ZoneTransition: " << i << " " << mZones.back() << "\n";
     }
 }
 

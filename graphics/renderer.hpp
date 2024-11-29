@@ -3,6 +3,7 @@
 #include "graphics/meshObject.hpp"
 #include "graphics/opengl.hpp"
 #include "graphics/framebuffer.hpp"
+#include "graphics/renderData.hpp"
 #include "graphics/shaderProgram.hpp"
 
 namespace Graphics {
@@ -55,9 +56,6 @@ public:
             };
             return shader.Compile();
         })},
-        mVertexArrayObject{},
-        mGLBuffers{},
-        mTextureBuffer{GL_TEXTURE_2D_ARRAY},
         mPickFB{},
         mPickTexture{GL_TEXTURE_2D},
         mPickDepth{GL_TEXTURE_2D},
@@ -85,45 +83,15 @@ public:
         mDepthFB2.AttachDepthTexture(mDepthBuffer2, true);
     }
 
-    template <typename TextureStoreT>
-    void LoadData(
-        const MeshObjectStorage& objectStore,
-        const TextureStoreT& textureStore)
-    {
-        // FIXME Issue 48: Need to do destruct and restruct all the buffers
-        // when we load new data...
-        mVertexArrayObject.BindGL();
-
-        mGLBuffers.AddStaticArrayBuffer<glm::vec3>("vertex", GLLocation{0});
-        mGLBuffers.AddStaticArrayBuffer<glm::vec3>("normal", GLLocation{1});
-        mGLBuffers.AddStaticArrayBuffer<glm::vec4>("color", GLLocation{2});
-        mGLBuffers.AddStaticArrayBuffer<glm::vec3>("textureCoord", GLLocation{3});
-        mGLBuffers.AddStaticArrayBuffer<glm::vec1>("textureBlend", GLLocation{4});
-        mGLBuffers.AddElementBuffer("elements");
-
-        mGLBuffers.LoadBufferDataGL("vertex", objectStore.mVertices);
-        mGLBuffers.LoadBufferDataGL("normal", objectStore.mNormals);
-        mGLBuffers.LoadBufferDataGL("color", objectStore.mColors);
-        mGLBuffers.LoadBufferDataGL("textureCoord", objectStore.mTextureCoords);
-        mGLBuffers.LoadBufferDataGL("textureBlend", objectStore.mTextureBlends);
-        mGLBuffers.LoadBufferDataGL("elements", objectStore.mIndices);
-
-        mGLBuffers.BindArraysGL();
-
-        mTextureBuffer.LoadTexturesGL(
-            textureStore.GetTextures(),
-            textureStore.GetMaxDim());
-    }
-
-    template <typename Renderables, typename Camera>
+    template <typename Renderables, typename DynamicRenderables, typename Camera>
     void DrawForPicking(
+        const RenderData& renderData,
         const Renderables& renderables,
         const Renderables& sprites,
+        const DynamicRenderables& dynamicRenderables,
         const Camera& camera)
     {
-        mVertexArrayObject.BindGL();
-        glActiveTexture(GL_TEXTURE0);
-        mTextureBuffer.BindGL();
+        renderData.Bind(GL_TEXTURE0);
 
         mPickFB.BindGL();
         glViewport(0, 0, mScreenDims.x, mScreenDims.y);
@@ -167,8 +135,15 @@ public:
         {
             RenderItem(item);
         }
+
         for (const auto& item : sprites)
         {
+            RenderItem(item);
+        }
+
+        for (const auto& item : dynamicRenderables)
+        {
+            item.GetRenderData()->Bind(GL_TEXTURE0);
             RenderItem(item);
         }
 
@@ -178,14 +153,13 @@ public:
 
     template <typename Renderables, typename Camera>
     void DrawWithShadow(
+        const RenderData& renderData,
         const Renderables& renderables,
         const Light& light,
         const Camera& lightCamera,
         const Camera& camera)
     {
-        mVertexArrayObject.BindGL();
-        glActiveTexture(GL_TEXTURE0);
-        mTextureBuffer.BindGL();
+        renderData.Bind(GL_TEXTURE0);
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D,
@@ -241,7 +215,6 @@ public:
             );
         }
     }
-
     unsigned GetClickedEntity(glm::vec2 click)
     {
         mPickFB.BindGL();
@@ -290,18 +263,15 @@ public:
 
     template <typename Renderables, typename Camera>
     void DrawDepthMap(
+        const RenderData& renderData,
         const Renderables& renderables,
         const Camera& lightCamera)
     {
-        mVertexArrayObject.BindGL();
+        renderData.Bind(GL_TEXTURE0);
 
         auto& shader = mShadowMapShader;
 
         shader.UseProgramGL();
-
-        // Required so we get correct depth for sprites with alpha
-        glActiveTexture(GL_TEXTURE0);
-        mTextureBuffer.BindGL();
 
         shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
         const auto lightSpaceMatrixId = shader.GetUniformLocation("lightSpaceMatrix");
@@ -334,9 +304,7 @@ public:
     ShaderProgramHandle mPickShader;
     ShaderProgramHandle mShadowMapShader;
     ShaderProgramHandle mNormalShader;
-    VertexArrayObject mVertexArrayObject;
-    GLBuffers mGLBuffers;
-    TextureBuffer mTextureBuffer;
+
     FrameBuffer mPickFB;
     TextureBuffer mPickTexture;
     TextureBuffer mPickDepth;

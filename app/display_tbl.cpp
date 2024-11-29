@@ -13,7 +13,7 @@
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     Logging::LogState::Disable("PackedFileDataProvider");
     
     std::string tbl{argv[1]};

@@ -29,12 +29,7 @@ namespace std {
 
 template<> struct hash<BAK::OffsetTarget>
 {
-	std::size_t operator()(const BAK::OffsetTarget& t) const noexcept
-	{
-		return std::hash<std::size_t>{}(
-            static_cast<std::size_t>(t.value) 
-			+ ((static_cast<std::size_t>(t.dialogFile) << 32)));
-	}
+	std::size_t operator()(const BAK::OffsetTarget& t) const noexcept;
 };
 
 }

@@ -59,6 +59,7 @@ std::ostream& operator<<(std::ostream& os, const EncounterT& encounter)
 std::ostream& operator<<(std::ostream& os, const Encounter& e)
 {
     os << "Encounter { index: " << e.mIndex
+        << " ETI: " << e.mEncounterTableIndex
         << " dims: " << e.mDimensions
         << " worldLocation: " << e.mLocation
         << " TL: " << e.mTopLeft

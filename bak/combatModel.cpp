@@ -45,6 +45,13 @@ std::string_view ToString(Direction direction)
 }
 
 
+const std::vector<BAK::Direction>& GetDirections(bool granular)
+{
+    using enum Direction;
+    static const auto three = std::vector<Direction>{South, East, North};
+    static const auto five = std::vector<Direction>{South, SouthEast, East, NorthEast, North};
+    return granular ? five : three;
+}
 
 CombatModel::CombatModel(const Model& model)
 :
@@ -56,13 +63,14 @@ CombatModel::CombatModel(const Model& model)
     const auto& meshes = model.mComponents.back().mMeshes;
     std::uint8_t spriteFileIndex = 0;
     std::uint8_t lastSpriteIndex = 0;
-    logger.Spam() << "Have Meshes size: " << meshes.size() << "\n";
+    logger.Debug() << "Have Meshes size: " << meshes.size() << "\n";
     for (std::uint8_t i = 0; i < meshes.size(); i++)
     {
         const auto animationType = static_cast<AnimationType>(i);
+        mAnimationTypes.emplace_back(animationType);
         auto& animations = mCombatAnimations.emplace_back(std::array<CombatAnimation, 5>{});
         const auto& faceOptions = meshes[i].mFaceOptions;
-        logger.Spam() << "Handle mesh " << +i << " SF: " << +spriteFileIndex << " LSI: " 
+        logger.Debug() << "Handle mesh " << +i << " SF: " << +spriteFileIndex << " LSI: " 
             << +lastSpriteIndex << " FOs: " << faceOptions.size() << "\n";
 
         if (lastSpriteIndex > faceOptions.front().mEdgeCount)
@@ -70,17 +78,17 @@ CombatModel::CombatModel(const Model& model)
             // This is not a good enough heuristic for determining the sprite file index to use...
             // Spefically `dread` is an example of this not working.
             spriteFileIndex++;
-            logger.Spam() << "Next sprite is: " << +faceOptions.front().mEdgeCount << " last was: "
+            logger.Debug() << "Next sprite is: " << +faceOptions.front().mEdgeCount << " last was: "
                 << +lastSpriteIndex << " SFI is now: " << +spriteFileIndex << "\n";
-            if (spriteFileIndex > 3)
+            if (spriteFileIndex > 2)
             {
                 logger.Debug() << "Sprite file index too high: " << model.mName << " SFI: " 
                     << +spriteFileIndex << " current animType: " << ToString(animationType) << "\n";
-                spriteFileIndex = 3;
+                spriteFileIndex = 2;
             }
         }
 
-        logger.Spam() << "AnimType: " << ToString(animationType) << " FaceOptions size: " << faceOptions.size() << " mod5: " 
+        logger.Debug() << "AnimType: " << ToString(animationType) << " FaceOptions size: " << faceOptions.size() << " mod5: " 
             << faceOptions.size() % 5 << " mod3: " << faceOptions.size() % 3 << std::endl;
 
         auto frameCount = faceOptions.size();
@@ -101,21 +109,19 @@ CombatModel::CombatModel(const Model& model)
 
         assert((frameCount % 5 == 0) || (frameCount % 3 == 0));
 
-        const auto directionCount = frameCount == 0 ? 5 : 3;
-        const auto animationCount = frameCount == 0
+        const auto directionCount = (frameCount % 5) == 0 ? 5 : 3;
+        const auto animationCount = (frameCount % 5) == 0
             ? faceOptions.size() / 5
             : faceOptions.size() / 3;
         using enum Direction;
-        const auto& directions = directionCount == 5
-            ? std::vector<Direction>{South, SouthEast, East, NorthEast, North}
-            : std::vector<Direction>{South, East, North};
-        logger.Spam() << "AnimationCount: " << +animationCount << " DirCount: " << +directionCount << "\n";
+        const auto& directions = BAK::GetDirections(directionCount == 5);
+        logger.Debug() << "AnimationCount: " << +animationCount << " DirCount: " << +directionCount << "\n";
 
         unsigned fo = 0;
         for (const auto& direction : directions)
         {
             animations[std::to_underlying(direction)] = CombatAnimation{spriteFileIndex, std::vector<std::uint8_t>{}};
-            logger.Spam() << "  Handling dir: " << +std::to_underlying(direction) << " " << ToString(direction) << "\n";
+            logger.Debug() << "  Handling dir: " << +std::to_underlying(direction) << " " << ToString(direction) << "\n";
             auto& imageIndices = animations[std::to_underlying(direction)].mImageIndices;
             for (unsigned j = 0; j < animationCount; j++)
             {
@@ -127,7 +133,7 @@ CombatModel::CombatModel(const Model& model)
                 const auto spriteIndex = faceOptions[fo++].mEdgeCount;
                 imageIndices.emplace_back(spriteIndex);
                 lastSpriteIndex = spriteIndex;
-                logger.Spam() << "    Placing SI: " << +spriteIndex << "\n";
+                logger.Debug() << "    Placing SI: " << +spriteIndex << "\n";
             }
         }
     }
@@ -144,4 +150,15 @@ CombatAnimation CombatModel::GetAnimation(AnimationType animationType, Direction
     return byDirection[dirIndex];
 }
 
+const std::vector<Direction>& CombatModel::GetDirections(AnimationType animationType) const
+{
+    const auto animIndex = std::to_underlying(animationType);
+    assert(animIndex < mCombatAnimations.size());
+    return BAK::GetDirections(mCombatAnimations[animIndex].size() == 5);
+}
+
+const std::vector<AnimationType>& CombatModel::GetSupportedAnimations() const
+{
+    return mAnimationTypes;
+}
 }

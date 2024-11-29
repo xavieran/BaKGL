@@ -153,6 +153,9 @@ public:
     static constexpr auto mCharacterIsNotASpellcaster = KeyTarget{0xd8};
 
     static constexpr auto mGenericScoutedCombat = KeyTarget{0x2f};
+    static constexpr auto mPlanAttack = KeyTarget{0xfb};
+    static constexpr auto mAlreadyPlannedAttack = KeyTarget{0xfc};
+    static constexpr auto mWeCantTakeAllTheseFellas = KeyTarget{0x130};
 
     static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
 

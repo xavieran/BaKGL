@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/combatModel.hpp"
+#include "game/combatModelLoader.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
@@ -7,6 +9,8 @@
 #include "bak/container.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/types.hpp"
+
+#include "graphics/renderData.hpp"
 
 #include "com/logger.hpp"
 
@@ -43,15 +47,42 @@ public:
     BAK::GenericContainer* mContainer;
 };
 
+class ActiveCombatant {
+public:
+    BAK::EntityIndex mItemId;
+    std::pair<unsigned, unsigned> mObject;
+    glm::vec3 mLocation;
+    glm::vec3 mRotation;
+    glm::vec3 mScale;
+
+    BAK::MonsterIndex mMonster;
+    BAK::AnimationType mAnimationType;
+    BAK::Direction mDirection;
+    std::size_t mFrame;
+    const CombatModelLoader& mCombatModelLoader;
+
+    void Update()
+    {
+        auto request = AnimationRequest{mAnimationType, mDirection};
+        const auto& datas = *mCombatModelLoader.mCombatModelDatas[mMonster.mValue];
+        if (!datas.mOffsetMap.contains(request))
+        {
+            return;
+        }
+        auto animOff = datas.mOffsetMap.at(request);
+        mFrame = mFrame % animOff.mFrames;
+        mObject = datas.mObjectDrawData[animOff.mOffset + mFrame];
+    }
+};
+
 class GameRunner : public BAK::IZoneLoader
 {
 public:
     GameRunner(
         Camera& camera,
         BAK::GameState& gameState,
-        Gui::GuiManager& guiManager,
+        Gui::GuiManager& guiManager);
     
-        std::function<void(const BAK::Zone&)>&& loadRenderer);
     void DoTeleport(BAK::Encounter::Teleport teleport) override;
     void LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter) override;
 
@@ -87,8 +118,13 @@ public:
     void DoEncounter(const BAK::Encounter::Encounter& encounter);
     void CheckAndDoEncounter(glm::uvec2 position);
     
-    void RunGameUpdate();
+    void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
+
+    const Graphics::RenderData& GetZoneRenderData() const;
+    void OnTimeDelta(double timeDelta);
+
+    void OnTileVisible(std::uint8_t tileIndex);
     
     Camera& mCamera;
     BAK::GameState& mGameState;
@@ -106,14 +142,16 @@ public:
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems;
     glm::vec2 mSavedAngle;
-    std::function<void(const BAK::Zone&)> mLoadRenderer;
     BAK::Encounter::TeleportFactory mTeleportFactory;
 
-    bool mClickablesEnabled;
+    std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
+    CombatModelLoader mCombatModelLoader{};
+
+    std::vector<ActiveCombatant> mActiveCombatants{};
+    bool mClickablesEnabled{};
+    double mAccumulatedTime{};
 
     const Logging::Logger& mLogger;
-
 };
-
 
 }

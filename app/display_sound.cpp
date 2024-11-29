@@ -14,6 +14,12 @@ int main(int argc, char** argv)
 
     logger.Info() << "Sound index:" << soundIndexStr << std::endl;
 
+    auto& provider = AudioA::AudioManagerProvider::Get();
+    auto audioManager = std::make_unique<AudioA::AudioManager>();
+    audioManager->Set(audioManager.get());
+    audioManager->SwitchMidiPlayer(AudioA::StringToMidiPlayer("ADLMIDI"));
+    provider.SetAudioManager(std::move(audioManager));
+
     std::stringstream ss{};
     ss << soundIndexStr;
     unsigned index;

@@ -453,9 +453,9 @@ std::vector<CombatWorldLocation> GameData::LoadCombatWorldLocations()
         const auto y = mBuffer.GetUint32LE();
         const auto heading = static_cast<std::uint16_t>(mBuffer.GetUint16LE() >> 8);
         const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
-        const auto unknownFlag = mBuffer.GetUint8();
+        const auto imageIndex = mBuffer.GetUint8();
         const auto combatantState = mBuffer.GetUint8();
-        data.emplace_back(CombatWorldLocation{combatantPosition, unknownFlag, combatantState});
+        data.emplace_back(CombatWorldLocation{combatantPosition, imageIndex, combatantState});
         mLogger.Spam() << "CWL #" << k << " " << data.back() << "\n";
     }
     return data;
@@ -465,15 +465,16 @@ CombatWorldLocation GameData::LoadCombatWorldLocation(std::uint8_t tileIndex, st
 {
     std::vector<CombatWorldLocation> data{};
     static constexpr auto dataSize = 12;
-    const auto offset = sCombatWorldLocationsOffset + (tileIndex * 35 * dataSize) + (encounterIndex * 7 * dataSize) + combatantRelativeIndex * dataSize;
+    const auto cwlNumber = tileIndex * 35 + encounterIndex * 7 + combatantRelativeIndex;
+    const auto offset = sCombatWorldLocationsOffset + cwlNumber * dataSize;
     mBuffer.Seek(offset);
     const auto x = mBuffer.GetUint32LE();
     const auto y = mBuffer.GetUint32LE();
     const auto heading = static_cast<std::uint16_t>(mBuffer.GetUint16LE() >> 8);
     const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
-    const auto unknownFlag = mBuffer.GetUint8();
+    const auto imageIndex = mBuffer.GetUint8();
     const auto combatantState = mBuffer.GetUint8();
-    return CombatWorldLocation{combatantPosition, unknownFlag, combatantState};
+    return CombatWorldLocation{combatantPosition, imageIndex, combatantState};
 }
 
 std::vector<GenericContainer> GameData::LoadCombatInventories()

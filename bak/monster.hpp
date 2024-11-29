@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-
 namespace BAK {
 
 class MonsterNames
@@ -24,15 +23,19 @@ public:
             std::uint8_t colorSwap);
 
         std::string mPrefix;
-        std::uint8_t mUnknown0;
-        std::uint8_t mUnknown1;
-        std::uint8_t mUnknown2;
+        std::uint8_t mSuffix0;
+        std::uint8_t mSuffix1;
+        std::uint8_t mSuffix2;
         std::uint8_t mColorSwap;
     };
 
     const std::string& GetMonsterName(MonsterIndex monster) const;
     const std::string& GetMonsterAnimationFile(MonsterIndex monster) const;
     std::uint8_t GetColorSwap(MonsterIndex monster) const;
+    Monster GetMonster(MonsterIndex monster) const
+    {
+        return mMonsterPrefixes[monster.mValue];
+    }
     std::size_t size() const;
 
 private:
@@ -42,4 +45,5 @@ private:
     std::vector<Monster> mMonsterPrefixes;
 };
 
+std::ostream& operator<<(std::ostream& os, const MonsterNames::Monster& m);
 }

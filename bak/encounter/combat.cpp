@@ -3,13 +3,15 @@
 #include "bak/encounter/combat.ipp"
 
 #include "com/ostream.hpp"
+#include "graphics/glm.hpp"
 
 namespace BAK::Encounter {
 
 std::ostream& operator<<(std::ostream& os, const CombatantData& comb)
 {
     os << "{ Monster: " << comb.mMonster << ", MoveType: " << comb.mMovementType
-        << ", " << comb.mLocation << "}";
+        << ", " << comb.mLocation << " min: " << comb.mMin << ", " 
+        << " max: " << comb.mMax << "}";
     return os;
 }
 

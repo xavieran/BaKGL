@@ -19,7 +19,6 @@ namespace BAK {
 
 class Palette;
 struct Model;
-class MonsterNames;
 
 class ZoneTextureStore
 {
@@ -50,9 +49,8 @@ public:
         const ZoneTextureStore& textureStore);
 
     ZoneItem(
-        unsigned i,
-        const MonsterNames& monsters,
-        const ZoneTextureStore& textureStore);
+        unsigned spriteIndex,
+        const Graphics::Texture& textureStore);
 
     void SetPush(unsigned i);
     const std::string& GetName() const;
@@ -87,6 +85,10 @@ Graphics::MeshObject ZoneItemToMeshObject(
     const ZoneItem& item,
     const ZoneTextureStore& store,
     const Palette& pal);
+
+Graphics::MeshObject ZoneItemToMeshObject(
+    const ZoneItem& item,
+    const Graphics::TextureStore& store);
 
 class ZoneItemStore
 {
@@ -155,6 +157,7 @@ public:
         unsigned tileIndex);
 
     glm::vec<2, unsigned> GetTile() const;
+    unsigned GetTileIndex() const;
     const std::vector<WorldItemInstance>& GetItems() const;
     const std::vector<Encounter::Encounter>& GetEncounters(Chapter chapter) const;
     glm::vec3 GetCenter() const;
