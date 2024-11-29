@@ -5,6 +5,8 @@
 #include "gui/button.hpp"
 #include "gui/textBox.hpp"
 
+#include <array>
+
 namespace BAK {
 class GameState;
 }

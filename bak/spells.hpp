@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 
+#include <array>
 #include <optional>
 #include <string_view>
 #include <vector>

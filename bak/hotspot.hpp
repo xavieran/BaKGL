@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include <array>
+
 namespace BAK {
 
 class GameState;
