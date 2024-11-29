@@ -7,6 +7,15 @@
 
 namespace BAK {
 
+enum class CombatantWorldState : std::uint8_t
+{
+    Invisible0,
+    Invisible1,
+    Moving0,
+    Moving1,
+    Dead
+};
+
 class CombatWorldLocation
 {
 public:

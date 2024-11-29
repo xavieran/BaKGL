@@ -453,9 +453,9 @@ std::vector<CombatWorldLocation> GameData::LoadCombatWorldLocations()
         const auto y = mBuffer.GetUint32LE();
         const auto heading = static_cast<std::uint16_t>(mBuffer.GetUint16LE() >> 8);
         const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
-        const auto unknownFlag = mBuffer.GetUint8();
+        const auto imageIndex = mBuffer.GetUint8();
         const auto combatantState = mBuffer.GetUint8();
-        data.emplace_back(CombatWorldLocation{combatantPosition, unknownFlag, combatantState});
+        data.emplace_back(CombatWorldLocation{combatantPosition, imageIndex, combatantState});
         mLogger.Spam() << "CWL #" << k << " " << data.back() << "\n";
     }
     return data;
@@ -472,9 +472,9 @@ CombatWorldLocation GameData::LoadCombatWorldLocation(std::uint8_t tileIndex, st
     const auto y = mBuffer.GetUint32LE();
     const auto heading = static_cast<std::uint16_t>(mBuffer.GetUint16LE() >> 8);
     const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
-    const auto unknownFlag = mBuffer.GetUint8();
+    const auto imageIndex = mBuffer.GetUint8();
     const auto combatantState = mBuffer.GetUint8();
-    return CombatWorldLocation{combatantPosition, unknownFlag, combatantState};
+    return CombatWorldLocation{combatantPosition, imageIndex, combatantState};
 }
 
 std::vector<GenericContainer> GameData::LoadCombatInventories()

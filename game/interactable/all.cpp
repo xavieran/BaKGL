@@ -1,6 +1,7 @@
 #include "building.cpp"
 #include "chest.cpp"
 #include "combatant.cpp"
+#include "corpse.cpp"
 #include "door.cpp"
 #include "factory.cpp"
 #include "generic.cpp"

@@ -1,44 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- thanks to n64decomp team -->
 <data>
-	<enumDef name="languages" type="uint16">
-		<entry name="English" value="0"/>
-		<entry name="French" value="1"/>
-		<entry name="German" value="2"/>
-  </enumDef>
-  <struct name="combat">
-    <primitive name="combatIndex" type="uint32"/>
-    <primitive name="entryDialog" type="uint32"/>
-    <primitive name="scoutDialog" type="uint32"/>
-    <primitive name="zero" type="uint32"/>
-    <array name="retreats" length="4">
-      <struct name="position">
-        <primitive name="xPos" type="uint32"/>
-        <primitive name="yPos" type="uint32"/>
-        <primitive name="heading" type="uint16"/>
+  <struct name="combats">
+    <primitive name="count" type="uint32" />
+    <array name="combs" length="433">
+      <struct name="combat">
+        <primitive name="unknown" type="uint16"/>
+        <primitive name="unknown1" type="uint8"/>
+        <primitive name="combatIndex" type="uint32"/>
+        <primitive name="entryDialog" type="uint32"/>
+        <primitive name="scoutDialog" type="uint32"/>
+        <primitive name="zero" type="uint32"/>
+        <array name="retreats" length="4">
+          <struct name="position">
+            <primitive name="xPos" type="uint32"/>
+            <primitive name="yPos" type="uint32"/>
+            <primitive name="heading" type="uint16"/>
+          </struct>
+        </array>
+        <primitive name="numEnemies" type="uint8"/>
+        <array name="combatants" length="7">
+	        <struct name="combatant">
+            <primitive name="monsterIndex" type="uint16"/>
+            <primitive name="moveType" type="uint16"/>
+            <struct name="position2">
+              <primitive name="xPos" type="uint32"/>
+              <primitive name="yPos" type="uint32"/>
+              <primitive name="heading" type="uint16"/>
+            </struct>
+            <primitive name="minX" type="uint32"/>
+            <primitive name="maxX" type="uint32"/>
+	        	<array name="unknown0" length="8">
+              <primitive name="unknown" type="uint8"/>
+            </array>
+            <primitive name="minY" type="uint32"/>
+            <primitive name="maxY" type="uint32"/>
+	        	<array name="unknown1" length="10">
+              <primitive name="unknown" type="uint8"/>
+            </array>
+	        </struct>
+        </array>
+        <primitive name="unknown2" type="uint16"/>
+        <primitive name="isAmbush" type="uint16"/>
       </struct>
     </array>
-    <primitive name="numEnemies" type="uint8"/>
-    <array name="combatants" length="7">
-	    <struct name="combatant">
-        <primitive name="monsterIndex" type="uint16"/>
-        <primitive name="moveType" type="uint16"/>
-        <struct name="position">
-          <primitive name="xPos" type="uint32"/>
-          <primitive name="yPos" type="uint32"/>
-          <primitive name="heading" type="uint16"/>
-        </struct>
-        <primitive name="minX" type="uint32"/>
-        <primitive name="maxX" type="uint32"/>
-	    	<array name="unknown0" length="8">
-          <primitive name="unknown" type="uint8"/>
-        </array>
-        <primitive name="minY" type="uint32"/>
-        <primitive name="maxY" type="uint32"/>
-	    	<array name="unknown1" length="10">
-          <primitive name="unknown" type="uint8"/>
-        </array>
-	    </struct>
-    </struct>
   </struct>
 </data>

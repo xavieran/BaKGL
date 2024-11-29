@@ -76,11 +76,6 @@ void GenericCombatFactory<isTrap>::Load()
             const auto monsterIndex = fb.GetUint16LE();
             const auto movementType = fb.GetUint16LE();
             const auto pos = GetPosAndHeading();
-            if (combatIndex == 0)
-            {
-                logger.Debug() << "COMBAT NUMBER ZERO\n";
-            }
-
             std::uint32_t minX = fb.GetUint32LE();
             std::uint32_t maxX = fb.GetUint32LE();
             fb.Skip(8);

@@ -21,7 +21,7 @@ list(APPEND APP_BINARIES
     #display_sound
     #display_spells
     display_tbl
-    #display_tile
+    display_tile
     #display_traps
     #display_ttm
     extractor

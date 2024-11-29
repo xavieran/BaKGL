@@ -4,7 +4,6 @@
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
-#include "bak/IZoneLoader.hpp"
 #include "bak/camera.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/coordinates.hpp"
@@ -26,8 +25,8 @@
 #include "gui/guiManager.hpp"
 #include "gui/IDialogScene.hpp"
 
-#include <unordered_set>
 #include <utility>
+#include <variant>
 
 namespace Game {
 
@@ -69,6 +68,7 @@ GameRunner::GameRunner(
     mClickablesEnabled{false},
     mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
 {
+    mActiveCombatants.reserve(2056);
 }
 
 void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)
@@ -191,6 +191,7 @@ void GameRunner::LoadSystems()
                 }
             }
         }
+        OnTileVisible(world.GetTileIndex());
     }
 
     auto& containers = mGameState.GetContainers(
@@ -280,63 +281,139 @@ void GameRunner::LoadSystems()
             // add the enemies if it's populated.
             unsigned kk = 0;
             mActiveCombatants.reserve(2056);
-            evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
-                [&](const auto& combat){
-                    for (unsigned i = 0; i < combat.mCombatants.size(); i++)
-                    {
-                        const auto& enemy = combat.mCombatants[i];
-                        auto entityId = mSystems->GetNextItemId();
-                        if (!mCombatModelLoader.mCombatModelDatas[enemy.mMonster])
-                        {
-                            mLogger.Error() << "Couldn't load combat model: " << enemy.mMonster << "\n";
-                            continue;
-                        }
-                        assert(mCombatModelLoader.mCombatModelDatas[enemy.mMonster]);
-                        const auto& datas = *mCombatModelLoader.mCombatModelDatas[enemy.mMonster];
+            //evaluate_if<BAK::Encounter::Combat>(enc.GetEncounter(),
+            //    [&](const auto& combat){
+            //        for (unsigned i = 0; i < combat.mCombatants.size(); i++)
+            //        {
+            //            const auto& enemy = combat.mCombatants[i];
+            //            auto entityId = mSystems->GetNextItemId();
+            //            if (!mCombatModelLoader.mCombatModelDatas[enemy.mMonster])
+            //            {
+            //                mLogger.Error() << "Couldn't load combat model: " << enemy.mMonster << "\n";
+            //                continue;
+            //            }
+            //            assert(mCombatModelLoader.mCombatModelDatas[enemy.mMonster]);
+            //            const auto& datas = *mCombatModelLoader.mCombatModelDatas[enemy.mMonster];
 
-                        mActiveCombatants.emplace_back(
-                            ActiveCombatant{
-                                entityId,
-                                {},
-                                BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
-                                glm::vec3{0},
-                                glm::vec3{1},
-                                BAK::MonsterIndex{enemy.mMonster},
-                                BAK::AnimationType::Idle,
-                                (entityId.mValue % 3) == 0
-                                    ? BAK::Direction::South 
-                                    : (entityId.mValue % 3) == 1
-                                        ? BAK::Direction::East
-                                        : BAK::Direction::North,
-                                0,
-                                mCombatModelLoader});
+            //            mActiveCombatants.emplace_back(
+            //                ActiveCombatant{
+            //                    entityId,
+            //                    {},
+            //                    BAK::ToGlCoord<float>(enemy.mLocation.mPosition),
+            //                    glm::vec3{0},
+            //                    glm::vec3{1},
+            //                    BAK::MonsterIndex{enemy.mMonster},
+            //                    BAK::AnimationType::Idle,
+            //                    (entityId.mValue % 3) == 0
+            //                        ? BAK::Direction::South 
+            //                        : (entityId.mValue % 3) == 1
+            //                            ? BAK::Direction::East
+            //                            : BAK::Direction::North,
+            //                    0,
+            //                    mCombatModelLoader});
 
-                        auto& activeCombatant = mActiveCombatants.back();
-                        activeCombatant.Update();
-                        mSystems->AddDynamicRenderable(
-                            DynamicRenderable{
-                                entityId,
-                                &datas.mRenderData,
-                                activeCombatant.mObject,
-                                activeCombatant.mLocation,
-                                activeCombatant.mRotation,
-                                activeCombatant.mScale});
+            //            auto& activeCombatant = mActiveCombatants.back();
+            //            activeCombatant.Update();
+            //            mSystems->AddDynamicRenderable(
+            //                DynamicRenderable{
+            //                    entityId,
+            //                    &datas.mRenderData,
+            //                    activeCombatant.mObject,
+            //                    activeCombatant.mLocation,
+            //                    activeCombatant.mRotation,
+            //                    activeCombatant.mScale});
 
-                        auto& containers = mGameState.GetCombatContainers();
-                        auto container = std::find_if(containers.begin(), containers.end(),
-                            [&](auto& lhs){
-                                return lhs.GetHeader().GetCombatNumber() == combat.mCombatIndex
-                                    && lhs.GetHeader().GetCombatantNumber() == i;
-                            });
-                        if (container != containers.end())
-                        {
-                            mSystems->AddClickable(Clickable{entityId});
-                            mClickables.emplace(entityId, ClickableEntity(BAK::EntityType::DEAD_COMBATANT, &(*container)));
-                        }
-                    }
-                });
+            //            auto& containers = mGameState.GetCombatContainers();
+            //            auto container = std::find_if(containers.begin(), containers.end(),
+            //                [&](auto& lhs){
+            //                    return lhs.GetHeader().GetCombatNumber() == combat.mCombatIndex
+            //                        && lhs.GetHeader().GetCombatantNumber() == i;
+            //                });
+            //            if (container != containers.end())
+            //            {
+            //                mSystems->AddClickable(Clickable{entityId});
+            //                mClickables.emplace(entityId, ClickableEntity(BAK::EntityType::DEAD_COMBATANT, &(*container)));
+            //            }
+            //        }
+            //    });
 
             mEncounters.emplace(id, &enc);
+        }
+    }
+}
+
+void GameRunner::OnTileVisible(std::uint8_t tileIndex)
+{
+    const auto& tile = mZoneData->mWorldTiles.GetTiles()[tileIndex];
+    mLogger.Info() << __FUNCTION__ << "(" << +tileIndex << ")\n";
+    for (const auto& encounter : tile.GetEncounters(mGameState.GetChapter()))
+    {
+        if (!std::holds_alternative<BAK::Encounter::Combat>(encounter.GetEncounter()))
+        {
+            continue;
+        }
+        mLogger.Info() << __FUNCTION__ << " have combat encounter: " << encounter << "\n";
+        mLogger.Info() << __FUNCTION__ << " Active? : " << BAK::State::CheckCombatActive(mGameState, encounter, mGameState.GetZone()) << "\n";
+        const auto combatComplete = !BAK::State::CheckCombatActive(mGameState, encounter, mGameState.GetZone());
+        const auto& combat = std::get<BAK::Encounter::Combat>(encounter.GetEncounter());
+        for (unsigned i = 0; i < combat.mCombatants.size(); i++)
+        {
+            const auto& cwl = mGameState.GetCombatWorldLocation(tileIndex, encounter.mIndex.mValue, i);
+            mLogger.Info() << __FUNCTION__ << " CWL is: " << cwl << "\n";
+            // Combatants that aren't dead in a completed combat should not be shown
+            if (combatComplete
+                && static_cast<BAK::CombatantWorldState>(cwl.mState) != BAK::CombatantWorldState::Dead)
+            {
+                continue;
+            }
+            const auto& combatant = combat.mCombatants[i];
+            if (!mCombatModelLoader.mCombatModelDatas[combatant.mMonster])
+            {
+                mLogger.Error() << "Couldn't load combat model: " << combatant.mMonster << "\n";
+                continue;
+            }
+
+            auto entityId = mSystems->GetNextItemId();
+            const auto& datas = *mCombatModelLoader.mCombatModelDatas[combatant.mMonster];
+            const auto& monster = *mCombatModelLoader.mCombatModels[combatant.mMonster];
+            const auto deadFrameOffset = monster.GetAnimation(BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
+
+            mActiveCombatants.emplace_back(
+                ActiveCombatant{
+                    entityId,
+                    {},
+                    BAK::ToGlCoord<float>(combatant.mLocation.mPosition),
+                    glm::vec3{0},
+                    glm::vec3{1},
+                    BAK::MonsterIndex{combatant.mMonster},
+                    combatComplete ? BAK::AnimationType::Dead : BAK::AnimationType::Idle,
+                    combatComplete ? BAK::Direction::North : BAK::Direction::South,
+                    combatComplete ? deadFrameOffset : 3,
+                    mCombatModelLoader});
+
+            auto& activeCombatant = mActiveCombatants.back();
+            activeCombatant.Update();
+            mSystems->AddDynamicRenderable(
+                DynamicRenderable{
+                    entityId,
+                    &datas.mRenderData,
+                    activeCombatant.mObject,
+                    activeCombatant.mLocation,
+                    activeCombatant.mRotation,
+                    activeCombatant.mScale});
+
+            auto& containers = mGameState.GetCombatContainers();
+            auto container = std::find_if(containers.begin(), containers.end(),
+                [&](auto& lhs){
+                    return lhs.GetHeader().GetCombatNumber() == combat.mCombatIndex
+                        && lhs.GetHeader().GetCombatantNumber() == i;
+                });
+            if (container != containers.end())
+            {
+                const auto entityType = combatComplete ? BAK::EntityType::DEAD_COMBATANT : BAK::EntityType::LIVING_COMBATANT;
+                mSystems->AddClickable(Clickable{entityId});
+                mClickables.emplace(entityId, ClickableEntity(entityType, &(*container)));
+            }
         }
     }
 }
@@ -701,7 +778,6 @@ void GameRunner::DoEncounter(const BAK::Encounter::Encounter& encounter)
         [&](const BAK::Encounter::Combat& combat){
             if (mGuiManager.InMainView())
             {
-                return;
                 CheckAndDoCombatEncounter(encounter, combat);
             }
         },
@@ -804,6 +880,7 @@ void GameRunner::CheckClickable(unsigned entityId)
 
 void GameRunner::OnTimeDelta(double timeDelta)
 {
+    return;
     mAccumulatedTime += timeDelta;
     if (mAccumulatedTime > .2)
     {

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- thanks to n64decomp team -->
+<data>
+	<enumDef name="encounterType" type="uint16">
+		<entry name="Background" value="0"/>
+		<entry name="Combat" value="1"/>
+		<entry name="Comment" value="2"/>
+		<entry name="Dialog" value="3"/>
+		<entry name="Health" value="4"/>
+		<entry name="Sound" value="5"/>
+		<entry name="Town" value="6"/>
+		<entry name="Trap" value="7"/>
+		<entry name="Zone" value="8"/>
+		<entry name="Disable" value="9"/>
+		<entry name="Enable" value="10"/>
+		<entry name="Block" value="11"/>
+  </enumDef>
+  <array name="chapters" length="8">
+    <struct name="chapter">
+      <primitive name="numberEncounters" type="uint16"/>
+      <array name="encounters" length="10">
+        <struct name="encounter">
+          <enum name="type" enum="encounterType" type="uint16"/>
+          <primitive name="left" type="uint8"/>
+          <primitive name="top" type="uint8"/>
+          <primitive name="right" type="uint8"/>
+          <primitive name="bottom" type="uint8"/>
+          <primitive name="encounterIndex" type="uint16"/>
+          <primitive name="unk0" type="uint8"/>
+          <primitive name="unk1" type="uint8"/>
+          <primitive name="unk2" type="uint8"/>
+          <primitive name="saveAddr" type="uint16"/>
+          <primitive name="saveAddr2" type="uint16"/>
+          <primitive name="saveAddr3" type="uint16"/>
+          <primitive name="unk3" type="uint16"/>
+        </struct>
+      </array>
+    </struct
+  </array>
+</data>

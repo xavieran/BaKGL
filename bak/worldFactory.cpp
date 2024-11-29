@@ -907,6 +907,7 @@ void World::LoadWorld(
 }
 
 glm::vec<2, unsigned> World::GetTile() const { return mTile; }
+unsigned World::GetTileIndex() const { return mTileIndex; }
 const std::vector<WorldItemInstance>& World::GetItems() const { return mItemInsts; }
 const std::vector<Encounter::Encounter>& World::GetEncounters(Chapter chapter) const
 {

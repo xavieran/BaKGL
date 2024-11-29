@@ -123,6 +123,8 @@ public:
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
+
+    void OnTileVisible(std::uint8_t tileIndex);
     
     Camera& mCamera;
     BAK::GameState& mGameState;

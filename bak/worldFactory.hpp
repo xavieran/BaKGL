@@ -157,6 +157,7 @@ public:
         unsigned tileIndex);
 
     glm::vec<2, unsigned> GetTile() const;
+    unsigned GetTileIndex() const;
     const std::vector<WorldItemInstance>& GetItems() const;
     const std::vector<Encounter::Encounter>& GetEncounters(Chapter chapter) const;
     glm::vec3 GetCenter() const;

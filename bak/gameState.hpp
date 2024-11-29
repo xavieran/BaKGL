@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/combat.hpp"
 #include "bak/container.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
@@ -77,8 +78,6 @@ public:
 
     const Party& GetParty() const;
     Party& GetParty();
-
-    std::vector<GenericContainer>& GetCombatContainers() { return mCombatContainers; }
 
     std::int16_t GetEndOfDialogState() const;
     void DoSetEndOfDialogState(std::int16_t state);
@@ -170,15 +169,22 @@ public:
     void SetInventoryItem(const InventoryItem& item);
     void ClearUnseenImprovements(unsigned character);
 
+    bool HaveNote(unsigned note) const;
+    bool CheckConversationItemAvailable(unsigned conversationItem) const;
+    
     bool SaveState();
     bool Save(const SaveFile& saveFile);
     bool Save(const std::string& saveName);
 
     std::vector<GenericContainer>& GetContainers(ZoneNumber zone);
     const std::vector<GenericContainer>& GetContainers(ZoneNumber zone) const;
-    bool HaveNote(unsigned note) const;
-    bool CheckConversationItemAvailable(unsigned conversationItem) const;
-    
+    std::vector<GenericContainer>& GetCombatContainers() { return mCombatContainers; }
+    std::vector<CombatWorldLocation>& GetCombatWorldLocations() { return mCombatWorldLocations; }
+    CombatWorldLocation& GetCombatWorldLocation(
+        std::uint8_t tileIndex,
+        std::uint8_t encounterIndex,
+        std::uint8_t combatantRelativeIndex);
+
 private:
     std::optional<CharIndex> mDialogCharacter{};
     CharIndex mActiveCharacter{};
@@ -212,6 +218,7 @@ private:
     std::vector<GenericContainer> mGDSContainers{};
     std::vector<GenericContainer> mCombatContainers;
     std::vector<TimeExpiringState> mTimeExpiringState{};
+    std::vector<CombatWorldLocation> mCombatWorldLocations{};
     SpellState mSpellState{};
     TextVariableStore mTextVariableStore{};
     FMapXY mFullMap;
