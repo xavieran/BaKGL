@@ -181,9 +181,7 @@ int main(int argc, char** argv)
         provider.SetAudioManager(std::move(audioManager));
     }
 
-    const bool showImgui = config.mGraphics.mEnableImGui;
-
-
+    bool showImgui = config.mGraphics.mEnableImGui;
     auto guiScalar = config.mGraphics.mResolutionScale;
 
     auto nativeWidth = 320.0f;
@@ -320,6 +318,7 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView()) cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
+    inputHandler.Bind(GLFW_KEY_I, [&]{ showImgui = !showImgui; });
 
     inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ if (root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE})){ ;} });
     inputHandler.BindCharacter([&](char character){ if(root.OnKeyEvent(Gui::Character{character})){ ;} });
@@ -513,8 +512,6 @@ int main(int argc, char** argv)
                     lightCamera,
                     *cameraPtr);
             }
-
-
         }
 
         //// { *** Draw 2D GUI ***

@@ -1,0 +1,29 @@
+Files with the same last 4 digits before the extension:
+T011011.DAT
+13:05:23.11 INFO [main] Encounter: Encounter { index: 0 ETI: 0 dims: uvec2(20800, 4800) worldLocation: uvec2(682400, 712800) TL: uvec2(20, 7) BR: uvec2(33, 4) tile: uvec2(10, 11) tileIndex: 5 savePtr: (0, 0, 1d14) Unknown [0,0,0,0]{Combat { #15 Entry: 1e Scout: 2f 
+Trap: [[{ pos: uvec2(33512, 19683), angle: 160}]] 
+North: { pos: uvec2(668951, 720262), angle: 160} 
+West: { pos: uvec2(682495, 706464), angle: 0} 
+South: { pos: uvec2(702281, 722764), angle: 96} 
+East: { pos: uvec2(680592, 711158), angle: 160} unknown: 0 isAmbush: 1 
+Combatants: []}}
+
+T111011.DAT
+13:05:44.11 INFO [main] Encounter: Encounter { index: 0 ETI: 331 dims: uvec2(9600, 6400) worldLocation: uvec2(684800, 710400) TL: uvec2(25, 6) BR: uvec2(31, 2) tile: uvec2(10, 11) tileIndex: 0 savePtr: (0, 0, 0) Unknown [0,0,0,0]{Combat { #550 Entry: f9 Scout: 0 
+Trap: [[null]] 
+North: { pos: uvec2(679200, 706400), angle: 0} 
+West: { pos: uvec2(679200, 706400), angle: 0} 
+South: { pos: uvec2(696800, 711200), angle: 64} 
+East: { pos: uvec2(696800, 711200), angle: 64} unknown: 0 isAmbush: 0 
+Combatants: [{ Monster: 23, MoveType: 1, { pos: uvec2(685717, 710888), angle: 64} min: ivec2(44117, 6888),  max: ivec2(47317, 6888)}, { Monster: 23, MoveType: 1, { pos: uvec2(685421, 711504), angle: 192} min: ivec2(47021, 7504),  max: ivec2(43821, 7504)}, { Monster: 23, MoveType: 0, { pos: uvec2(684304, 711200), angle: 64} min: ivec2(47021, 7504),  max: ivec2(43821, 7504)}, ]}}
+13:05:44.11 INFO [main] Encounter: Encounter { index: 1 ETI: 26 dims: uvec2(3200, 1600) worldLocation: uvec2(684800, 722400) TL: uvec2(27, 11) BR: uvec2(29, 11) tile: uvec2(10, 11) tileIndex: 0 savePtr: (0, 0, 0) Unknown [0,0,1,0]{Dialog { 23186c}}}
+
+T101011.DAT
+13:03:36.11 INFO [main] Encounters: 1
+13:03:36.11 INFO [main] Encounter: Encounter { index: 0 ETI: 304 dims: uvec2(4800, 1600) worldLocation: uvec2(679200, 728800) TL: uvec2(23, 15) BR: uvec2(26, 15) tile: uvec2(10, 11) tileIndex: 0 savePtr: (0, 0, 0) Unknown [0,0,0,0]{Combat { #503 Entry: dc Scout: 0 
+Trap: [[null]] 
+North: { pos: uvec2(685600, 724000), angle: 0} 
+West: { pos: uvec2(685600, 724000), angle: 0} 
+South: { pos: uvec2(685600, 724000), angle: 0} 
+East: { pos: uvec2(685600, 724000), angle: 0} unknown: 0 isAmbush: 0 
+Combatants: [{ Monster: 24, MoveType: 0, { pos: uvec2(679858, 728800), angle: 192} min: ivec2(1140343680, 1203259200),  max: ivec2(1156072560, 1218988080)}, { Monster: 24, MoveType: 0, { pos: uvec2(680327, 728449), angle: 192} min: ivec2(1140343680, 1203259200),  max: ivec2(1156072560, 1218988080)}, { Monster: 24, MoveType: 0, { pos: uvec2(680485, 728800), angle: 192} min: ivec2(42513, 24800),  max: ivec2(39313, 24800)}, { Monster: 24, MoveType: 0, { pos: uvec2(680561, 729268), angle: 192} min: ivec2(42513, 24800),  max: ivec2(39313, 24800)}, ]}}
