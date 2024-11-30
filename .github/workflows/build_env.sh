@@ -3,9 +3,8 @@
 set -x
 # For gcc
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-#sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
 sudo apt update
-sudo apt-get install gcc-15 g++-15
+sudo apt-get install gcc-13 g++-13
 
 # For clang
 wget https://apt.llvm.org/llvm.sh
