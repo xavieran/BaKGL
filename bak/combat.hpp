@@ -19,7 +19,6 @@ enum class CombatantWorldState : std::uint8_t
 class CombatWorldLocation
 {
 public:
-    // FIXME: Store the tile relative position
     GamePositionAndHeading mPosition;
     // The game has 3 variants of each direction, this index
     // controls which of these variants is displayed. As the
