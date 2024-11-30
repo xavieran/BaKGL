@@ -60,6 +60,7 @@ private:
     Graphics::SpriteManager::TemporarySpriteSheet mRenderedFramesSheet;
     unsigned mCurrentRenderedFrame{0};
     bool mWaitAtNextUpdate{false};
+    unsigned mMusicTracksPlayed{0};
 
     std::function<void()> mSceneFinished;
     std::function<void(unsigned)> mDisplayBook;

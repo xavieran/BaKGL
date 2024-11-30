@@ -2,18 +2,17 @@
 
 #include "com/logger.hpp"
 #include "com/strongType.hpp"
-#include "com/visit.hpp"
 
 #include <SDL2/SDL.h>
 #include "SDL_mixer_ext/SDL_mixer_ext.h"
 
-#include <chrono>
-#include <ostream>
+#include <atomic>
 #include <queue>
 #include <stack>
 #include <thread>
 #include <variant>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 
 namespace AudioA {
@@ -121,15 +120,16 @@ private:
 
     void ClearSounds();
 
-    Mix_Music* mCurrentMusicTrack;
-    std::stack<Mix_Music*> mMusicStack;
-    std::queue<SoundIndex> mSoundQueue;
-    bool mSoundPlaying;
+    Mix_Music* mCurrentMusicTrack{nullptr};
+    std::stack<Mix_Music*> mMusicStack{};
+    std::queue<SoundIndex> mSoundQueue{};
+    bool mSoundPlaying{};
 
-    std::unordered_map<SoundIndex, Sound> mSoundData;
-    std::unordered_map<MusicIndex, Mix_Music*> mMusicData;
+    std::unordered_map<SoundIndex, Sound> mSoundData{};
+    std::unordered_map<MusicIndex, Mix_Music*> mMusicData{};
 
-    bool mRunning;
+    std::atomic<bool> mRunning{};
+    std::mutex mQueueMutex{};
     std::thread mQueuePlayThread;
     static AudioManager* sStaticAudioManager;
 
