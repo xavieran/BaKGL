@@ -14,6 +14,8 @@ list(APPEND SHADERS
     instance
     gui
     pick
+    pick.sprite
+    sprite
     shadowMap
 )
 

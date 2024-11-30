@@ -37,4 +37,6 @@ bool PointWithinRectangle(glm::vec<2, T> point, glm::vec<2, T> topLeft, glm::vec
         && glm::all(glm::lessThanEqual(point, bottomRight));
 }
 
+constexpr auto sNinetyDegreeRotation = glm::vec3{0, glm::pi<float>() * .5, 0};
+
 }
