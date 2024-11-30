@@ -344,10 +344,10 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
                 DynamicRenderable{
                     entityId,
                     &datas.mRenderData,
-                    activeCombatant.mObject,
-                    activeCombatant.mLocation,
-                    activeCombatant.mRotation,
-                    activeCombatant.mScale});
+                    &activeCombatant.mObject,
+                    &activeCombatant.mLocation,
+                    &activeCombatant.mRotation,
+                    &activeCombatant.mScale});
 
             auto& containers = mGameState.GetCombatContainers();
             auto container = std::find_if(containers.begin(), containers.end(),
@@ -895,6 +895,14 @@ const Graphics::RenderData& GameRunner::GetZoneRenderData() const
 
 void GameRunner::CleanCombatsOnNewZone()
 {
+    for (auto& combatant : mActiveCombatants)
+    {
+        mSystems->RemoveDynamicRenderable(combatant.mItemId);
+        mClickables.erase(combatant.mItemId);
+    }
+    mActiveCombatants.clear();
+    mCombatsToActiveCombatants.clear();
+
     for (auto& cwl : mGameState.GetCombatWorldLocations())
     {
         cwl.mPosition = BAK::GamePositionAndHeading{};

@@ -107,10 +107,10 @@ glm::mat4 Renderable::CalculateModelMatrix()
 DynamicRenderable::DynamicRenderable(
     BAK::EntityIndex itemId,
     const Graphics::RenderData* renderData,
-    const std::pair<unsigned, unsigned>& object,
-    const glm::vec3& location,
-    const glm::vec3& rotation,
-    const glm::vec3& scale)
+    std::pair<unsigned, unsigned>* object,
+    glm::vec3* location,
+    glm::vec3* rotation,
+    glm::vec3* scale)
 :
     mItemId{itemId},
     mRenderData{renderData},
@@ -128,27 +128,32 @@ const glm::mat4& DynamicRenderable::GetModelMatrix() const
     return mModelMatrix;
 }
 
-const glm::vec3& DynamicRenderable::GetLocation() const { return mLocation; }
+const glm::vec3& DynamicRenderable::GetLocation() const { return *mLocation; }
 
 std::pair<unsigned, unsigned> DynamicRenderable::GetObject() const
 {
-    return mObject;
+    assert(mObject);
+    return *mObject;
 }
 
 const Graphics::RenderData* DynamicRenderable::GetRenderData() const
 {
+    assert(mRenderData);
     return mRenderData;
 }
 
 glm::mat4 DynamicRenderable::CalculateModelMatrix()
 {
+    assert(mLocation);
+    assert(mScale);
+    assert(mRotation);
     auto modelMatrix = glm::mat4{1.0};
-    modelMatrix = glm::translate(modelMatrix, mLocation / BAK::gWorldScale);
-    modelMatrix = glm::scale(modelMatrix, mScale);
+    modelMatrix = glm::translate(modelMatrix, *mLocation / BAK::gWorldScale);
+    modelMatrix = glm::scale(modelMatrix, *mScale);
     // Dodgy... only works for rotation about y
     modelMatrix = glm::rotate(
         modelMatrix,
-        mRotation.y,
+        mRotation->y,
         glm::vec3(0,1,0));
 
     return modelMatrix;
@@ -192,6 +197,17 @@ void Systems::RemoveRenderable(BAK::EntityIndex i)
         [i=i](const auto& r){ return r.GetId() == i; });
     if (it != mRenderables.end())
         mRenderables.erase(it);
+}
+
+void Systems::RemoveDynamicRenderable(BAK::EntityIndex i)
+{
+    auto it = std::find_if(
+        mDynamicRenderables.begin(), mDynamicRenderables.end(),
+        [i=i](const auto& r){ return r.GetId() == i; });
+    if (it != mDynamicRenderables.end())
+    {
+        mDynamicRenderables.erase(it);
+    }
 }
 
 void Systems::AddSprite(const Renderable& item)
