@@ -51,9 +51,11 @@ else()
     # FileBuffer violates alignment pretty regularly. Will need to fix at some point
     #set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
     #set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
+    #set(CXX_TSAN "-fsanitize=thread")
     
     set(CXX_USAN "")
     set(CXX_ASAN "")
+    set(CXX_TSAN "")
 endif()
 
 
@@ -271,7 +273,7 @@ if (UNIX)
 endif()
 
 # --- My project CXX flags --- #
-set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_IGNORE}")
+set(CMAKE_CXX_FLAGS "${CXX_FLAGS} ${CXX_USAN} ${CXX_ASAN} ${CXX_TSAN} ${CXX_IGNORE}")
 set(CMAKE_CXX_STANDARD 23)
 
 # --- Put all binaries in the root of the build dir ---

@@ -2,7 +2,10 @@
 
 #include "bak/soundStore.hpp"
 
+#include "com/visit.hpp"
+
 #include "SDL_mixer.h"
+#include <mutex>
 
 namespace AudioA {
 
@@ -57,29 +60,25 @@ IAudioManager& GetAudioManager()
 
 AudioManager::AudioManager()
 :
-    mCurrentMusicTrack{nullptr},
-    mMusicStack{},
-    mSoundQueue{},
-    mSoundPlaying{},
-    mSoundData{},
-    mMusicData{},
     mRunning{true},
+    mQueueMutex{},
     mQueuePlayThread{[this]{
         using namespace std::chrono_literals;
         while (mRunning)
         {
+            std::this_thread::sleep_for(10ms);
+            std::lock_guard<std::mutex> lock(mQueueMutex);
             if (!mSoundPlaying && !mSoundQueue.empty())
             {
-                std::this_thread::sleep_for(1ms);
                 auto sound = mSoundQueue.front();
                 mSoundQueue.pop();
                 PlaySoundImpl(sound);
             }
-            std::this_thread::sleep_for(10ms);
         }
     }},
     mLogger{Logging::LogState::GetLogger("AudioManager")}
 {
+    std::lock_guard<std::mutex> lock(mQueueMutex);
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {
         mLogger.Error() << "Couldn't initialize SDL: "
@@ -169,6 +168,7 @@ void AudioManager::PopTrack()
 
 void AudioManager::PlaySound(SoundIndex sound)
 {
+    std::lock_guard<std::mutex> lock(mQueueMutex);
     mLogger.Debug() << "Queueing sound: " << sound << "\n";
     mSoundQueue.emplace(sound);
 }
@@ -291,6 +291,7 @@ void AudioManager::SwitchMidiPlayer(MidiPlayer midiPlayer)
 
 void AudioManager::ClearSounds()
 {
+    std::lock_guard<std::mutex> lock(mQueueMutex);
     mCurrentMusicTrack = nullptr;
 
     for (auto& [_, music] : mMusicData)
@@ -321,9 +322,9 @@ void AudioManager::ClearSounds()
 
 AudioManager::~AudioManager()
 {
-    ClearSounds();
     mRunning = false;
     mQueuePlayThread.join();
+    ClearSounds();
     Mix_CloseAudio();
     SDL_Quit();
 }

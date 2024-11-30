@@ -81,7 +81,7 @@ std::pair<
     glm::vec2>
 Actors::GetActor(unsigned actor) const
 {
-    mLogger.Info() << "Get Actor: " << actor << "\n";
+    mLogger.Spam() << "Get Actor: " << actor << "\n";
     unsigned index = actor - 1;
     ASSERT(index < mActorDimensions.size());
     return mActorDimensions[index];

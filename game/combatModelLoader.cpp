@@ -34,7 +34,7 @@ CombatModelLoader::CombatModelLoader()
     {
         if (models[i].mEntityType == 0 && models[i].mSprite > 0)
         {
-            logger.Info() << "Loaded Combatant Model #" << i << " " << models[i].mName << "\n";
+            logger.Debug() << "Loaded Combatant Model #" << i << " " << models[i].mName << "\n";
             mCombatModels.emplace_back(BAK::CombatModel{models[i]});
             LoadMonsterSprites(BAK::MonsterIndex{i});
         }
@@ -49,11 +49,11 @@ CombatModelLoader::CombatModelLoader()
 void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
-    logger.Info() << "Loading monster: " << m << "\n";
+    logger.Spam() << "Loading monster: " << m << "\n";
     const auto& mnames = BAK::MonsterNames::Get();
     auto textureStore = Graphics::TextureStore{};
     auto monster = mnames.GetMonster(m);
-    logger.Info() << "Monster Sprites: " << monster << "\n";
+    logger.Spam() << "Monster Sprites: " << monster << "\n";
     const auto prefix = ToUpper(monster.mPrefix);
     if (prefix.empty())
     {
@@ -86,7 +86,7 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
     offsets.emplace_back(textureStore.size());
     LoadImages(monster.mSuffix2);
 
-    logger.Info() << "Loaded all textures: " << textureStore.size()
+    logger.Spam() << "Loaded all textures: " << textureStore.size()
         << " Offsets: " << offsets << "\n";
 
     assert(mCombatModels[m.mValue]);
@@ -98,10 +98,10 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
     std::stringstream ss{};
     for (const auto& animType : model.GetSupportedAnimations())
     {
-        logger.Info() << "AnimatioNType: " << BAK::ToString(animType) << "(" << +std::to_underlying(animType) << ")\n";
+        logger.Spam() << "AnimatioNType: " << BAK::ToString(animType) << "(" << +std::to_underlying(animType) << ")\n";
         for (const auto& direction : model.GetDirections(animType))
         {
-            logger.Info() << "Direction: " << BAK::ToString(direction) << "\n";
+            logger.Spam() << "Direction: " << BAK::ToString(direction) << "\n";
             const auto& animation = model.GetAnimation(animType, direction);
             offsetMap.emplace(
                 AnimationRequest{animType, direction},
@@ -110,7 +110,7 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
             for (const auto& index : animation.mImageIndices)
             {
                 assert(animation.mSpriteFileIndex < offsets.size());
-                logger.Info() << "SFI: " << +animation.mSpriteFileIndex << " offset: "
+                logger.Spam() << "SFI: " << +animation.mSpriteFileIndex << " offset: "
                     << offsets[animation.mSpriteFileIndex] << " index: " << +index << "\n";
                 const auto fullOffset = offsets[animation.mSpriteFileIndex] + index;
                 if (fullOffset >= textureStore.size())
@@ -137,7 +137,7 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
                 std::move(renderData),
                 std::move(offsetMap),
                 std::move(objectOffsets)}));
-    Logging::LogInfo(__FUNCTION__) <<"Loaded model: " << prefix << "\n";
+    Logging::LogSpam(__FUNCTION__) <<"Loaded model: " << prefix << "\n";
 }
 
 }

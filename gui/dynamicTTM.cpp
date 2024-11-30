@@ -95,6 +95,7 @@ void DynamicTTM::BeginScene(
     std::string adsFile,
     std::string ttmFile)
 {
+    mMusicTracksPlayed = 0;
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
     BAK::TTMRenderer renderer(adsFile, ttmFile);
     mRenderedFrames = renderer.RenderTTM();
@@ -135,6 +136,10 @@ bool DynamicTTM::AdvanceAction()
     if (!actionOpt)
     {
         mSceneFinished();
+        if (mMusicTracksPlayed > 0)
+        {
+            AudioA::GetAudioManager().PopTrack();
+        }
         return true;
     }
 
@@ -164,6 +169,7 @@ bool DynamicTTM::AdvanceAction()
                 }
                 else
                 {
+                    mMusicTracksPlayed++;
                     AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
                 }
             },
