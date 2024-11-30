@@ -2,7 +2,8 @@
 
 set -x
 # For gcc
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+#sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
 sudo apt update
 sudo apt-get install gcc-14 g++-14
 
