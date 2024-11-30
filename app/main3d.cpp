@@ -121,13 +121,13 @@ Config::Config LoadConfigFile(std::string configPath)
     {
         TryLoad(configPath);
     }
-    else if (std::filesystem::exists(defaultConfig))
-    {
-        TryLoad(defaultConfig);
-    }
     else if (std::filesystem::exists(currentDirectoryConfig))
     {
         TryLoad(currentDirectoryConfig);
+    }
+    else if (std::filesystem::exists(defaultConfig))
+    {
+        TryLoad(defaultConfig);
     }
     else
     {
