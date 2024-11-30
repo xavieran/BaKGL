@@ -19,7 +19,6 @@
 #include <ostream>
 #include <string_view>
 #include <variant>
-#include <vector>
 
 namespace BAK::Encounter {
 

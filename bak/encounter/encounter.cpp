@@ -93,10 +93,6 @@ EncounterT EncounterFactory::MakeEncounter(
             combat.mSouthRetreat.mPosition += tilePos;
             combat.mWestRetreat.mPosition += tilePos;
             combat.mEastRetreat.mPosition += tilePos;
-            for (auto& combatant : combat.mCombatants)
-            {
-                combatant.mLocation.mPosition += tilePos;
-            }
             return combat;
         }
     case EncounterType::Comment:

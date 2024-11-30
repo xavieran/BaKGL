@@ -169,7 +169,6 @@ public:
     std::vector<CombatantGridLocation> LoadCombatantGridLocations();
     CombatantGridLocation LoadCombatantGridLocation(CombatIndex);
     std::vector<CombatWorldLocation> LoadCombatWorldLocations();
-    CombatWorldLocation LoadCombatWorldLocation(std::uint8_t tileIndex, std::uint8_t encounterIndex, std::uint8_t combatantRelativeIndex);
     std::vector<Skills> LoadCombatStats();
     std::vector<Time> LoadCombatClickedTimes();
 

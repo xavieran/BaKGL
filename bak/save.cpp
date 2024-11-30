@@ -213,4 +213,17 @@ void Save(const Location& location, FileBuffer& fb)
     fb.PutUint16LE(location.mLocation.mHeading);
 }
 
+void Save(const std::vector<CombatWorldLocation>& cwls, FileBuffer& fb)
+{
+    fb.Seek(GameData::sCombatWorldLocationsOffset);
+    assert(cwls.size() == GameData::sCombatWorldLocationsCount);
+    for (const auto& cwl : cwls)
+    {
+        fb.PutUint32LE(cwl.mPosition.mPosition.x);
+        fb.PutUint32LE(cwl.mPosition.mPosition.y);
+        fb.PutUint16LE(cwl.mPosition.mHeading << 8);
+        fb.PutUint8(cwl.mImageIndex);
+        fb.PutUint8(cwl.mState);
+    }
+}
 }

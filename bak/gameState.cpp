@@ -1180,7 +1180,7 @@ bool GameState::SaveState()
         };
         BAK::Save(mapLocation, mGameData->GetFileBuffer());
         BAK::Save(mGameData->mLocation, mGameData->GetFileBuffer());
-        //BAK::Save(mCombatWorldLocations);
+        BAK::Save(mCombatWorldLocations, mGameData->GetFileBuffer());
         return true;
     }
     return false;
