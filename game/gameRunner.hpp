@@ -17,9 +17,11 @@
 #include "gui/IDialogScene.hpp"
 
 #include <optional>
+#include <unordered_map>
 
 class Camera;
 namespace BAK {
+class CombatWorldLocation;
 class GameState;
 class GameData;
 class Zone;
@@ -60,6 +62,7 @@ public:
     BAK::Direction mDirection;
     std::size_t mFrame;
     const CombatModelLoader& mCombatModelLoader;
+    BAK::CombatWorldLocation& mCombatantBAKLocation;
 
     void Update()
     {
@@ -124,7 +127,8 @@ public:
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
 
-    void OnTileVisible(std::uint8_t tileIndex);
+    void LoadCombatants(std::uint8_t tileIndex);
+    void CleanCombatsOnNewZone();
     
     Camera& mCamera;
     BAK::GameState& mGameState;
@@ -148,6 +152,7 @@ public:
     CombatModelLoader mCombatModelLoader{};
 
     std::vector<ActiveCombatant> mActiveCombatants{};
+    std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatsToActiveCombatants{};
     bool mClickablesEnabled{};
     double mAccumulatedTime{};
 

@@ -115,10 +115,15 @@ Config::Config LoadConfigFile(std::string configPath)
     };
 
     const auto defaultConfig = (Paths::Get().GetBakDirectoryPath() / "config.json").string();
+    const auto currentDirectoryConfig = "config.json";
 
     if (!configPath.empty())
     {
         TryLoad(configPath);
+    }
+    else if (std::filesystem::exists(currentDirectoryConfig))
+    {
+        TryLoad(currentDirectoryConfig);
     }
     else if (std::filesystem::exists(defaultConfig))
     {
@@ -147,8 +152,14 @@ int main(int argc, char** argv)
         Logging::LogState::SetLevel(config.mLogging.mLogLevel);
     }
 
-    auto log = std::ofstream{Paths::Get().GetBakDirectoryPath() / "main3d.log"};
-    Logging::LogState::AddStream(&log);
+    if (config.mLogging.mLogToFile)
+    {
+        auto logFilePath = config.mLogging.mLogFilePath.empty()
+            ? Paths::Get().GetBakDirectoryPath() / "main3d.log"
+            : std::filesystem::path{config.mLogging.mLogFilePath};
+        auto log = std::ofstream{logFilePath};
+        Logging::LogState::AddStream(&log);
+    }
 
     const auto& logger = Logging::LogState::GetLogger("main");
     for (const auto& disabled : config.mLogging.mDisabledLoggers)

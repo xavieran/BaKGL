@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/combat.hpp"
 #include "bak/types.hpp"
 
 namespace BAK {
@@ -25,5 +26,6 @@ void Save(const SpellState& spells, FileBuffer& fb);
 void Save(Chapter chapter, FileBuffer& fb);
 void Save(const MapLocation& location, FileBuffer& fb);
 void Save(const Location& location, FileBuffer& fb);
+void Save(const std::vector<CombatWorldLocation>&, FileBuffer& fb);
 
 }

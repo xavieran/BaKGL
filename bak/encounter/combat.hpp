@@ -83,7 +83,6 @@ std::ostream& operator<<(std::ostream&, const CombatantData&);
 // South Retreat
 // East Retreat
 
-
 class Combat
 {
 public:
