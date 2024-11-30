@@ -42,7 +42,7 @@ Logging LoadLogging(const nlohmann::json& config)
     {
         const auto& c = config["Logging"];
         logging.mLogToFile = c.value("LogToFile", true);
-        logging.mLogFile = c.value("LogFile", "");
+        logging.mLogFilePath = c.value("LogFilePath", "");
         logging.mLogLevel = c.value("LogLevel", "Debug");
         if (c.contains("DisabledLoggers"))
         {

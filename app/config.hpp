@@ -25,7 +25,7 @@ struct Logging
     bool mLogToFile{true};
     bool mLogTime{true};
     bool mLogColours{false};
-    std::string mLogFile{};
+    std::string mLogFilePath{};
     std::string mLogLevel{"DEBUG"};
     std::vector<std::string> mDisabledLoggers{};
 };
