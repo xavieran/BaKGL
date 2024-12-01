@@ -23,6 +23,7 @@
 
 #include "game/combatModelLoader.hpp"
 
+#include "graphics/glm.hpp"
 #include "gui/guiManager.hpp"
 #include "gui/IDialogScene.hpp"
 
@@ -141,11 +142,12 @@ void GameRunner::LoadSystems()
             if (item.GetZoneItem().GetVertices().size() > 1)
             {
                 auto id = mSystems->GetNextItemId();
+                auto rotation = item.GetZoneItem().IsSprite() ? Graphics::sNinetyDegreeRotation : item.GetRotation();
                 auto renderable = Renderable{
                     id,
                     mZoneData->mObjects.GetObject(item.GetZoneItem().GetName()),
                     item.GetLocation(),
-                    item.GetRotation(),
+                    rotation,
                     glm::vec3{static_cast<float>(item.GetZoneItem().GetScale())}};
 
                 if (item.GetZoneItem().IsSprite())
@@ -329,7 +331,7 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
                     entityId,
                     {},
                     BAK::ToGlCoord<float>(combatant.mLocation.mPosition + tilePos),
-                    glm::vec3{0},
+                    Graphics::sNinetyDegreeRotation,
                     glm::vec3{1},
                     BAK::MonsterIndex{combatant.mMonster},
                     combatComplete ? BAK::AnimationType::Dead : BAK::AnimationType::Idle,

@@ -502,14 +502,16 @@ int main(int argc, char** argv)
                 gameRunner.mSystems->GetRenderables(),
                 light,
                 lightCamera,
-                *cameraPtr);
+                *cameraPtr,
+                false);
 
             renderer.DrawWithShadow(
                 gameRunner.GetZoneRenderData(),
                 gameRunner.mSystems->GetSprites(),
                 light,
                 lightCamera,
-                *cameraPtr);
+                *cameraPtr,
+                true);
 
             const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
             for (const auto& obj : dynamicRenderables)
@@ -521,7 +523,8 @@ int main(int argc, char** argv)
                     data,
                     light,
                     lightCamera,
-                    *cameraPtr);
+                    *cameraPtr,
+                    true);
             }
         }
 

@@ -35,10 +35,22 @@ public:
                 "directional.frag.glsl"};
             return shader.Compile();
         })},
+        mSpriteShader{std::invoke([]{
+            auto shader = ShaderProgram{
+                "sprite.vert.glsl",
+                "sprite.frag.glsl"};
+            return shader.Compile();
+        })},
         mPickShader{std::invoke([]{
             auto shader = ShaderProgram{
                 "pick.vert.glsl",
                 "pick.frag.glsl"};
+            return shader.Compile();
+        })},
+        mPickSpriteShader{std::invoke([]{
+            auto shader = ShaderProgram{
+                "pick.sprite.vert.glsl",
+                "pick.sprite.frag.glsl"};
             return shader.Compile();
         })},
         mShadowMapShader{std::invoke([]{
@@ -99,18 +111,21 @@ public:
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto& shader = mPickShader;
-        shader.UseProgramGL();
+        auto* shader = &mPickShader;
+        shader->UseProgramGL();
 
-        shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
+        shader->SetUniform(shader->GetUniformLocation("texture0"), 0);
 
-        const auto mvpMatrixId = shader.GetUniformLocation("MVP");
-        const auto entityIdId = shader.GetUniformLocation("entityId");
+        auto mvpMatrixId = shader->GetUniformLocation("MVP");
+        auto entityIdId = shader->GetUniformLocation("entityId");
+
+        auto modelMatrixId = mPickSpriteShader.GetUniformLocation("M");
+        auto cameraPositionId = mPickSpriteShader.GetUniformLocation("cameraPosition_worldspace");
 
         const auto& viewMatrix = camera.GetViewMatrix();
         glm::mat4 MVP;
 
-        const auto RenderItem = [&](const auto& item)
+        const auto RenderItem = [&](const auto& item, bool isSprite)
         {
             if (glm::distance(camera.GetPosition(), item.GetLocation()) > sClickDistance) return;
 
@@ -119,8 +134,13 @@ public:
 
             MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
 
-            shader.SetUniform(mvpMatrixId, MVP);
-            shader.SetUniform(entityIdId, item.GetId().mValue);
+            shader->SetUniform(mvpMatrixId, MVP);
+            shader->SetUniform(entityIdId, item.GetId().mValue);
+            if (isSprite)
+            {
+                shader->SetUniform(modelMatrixId, modelMatrix);
+                shader->SetUniform(cameraPositionId, camera.GetPosition());
+            }
 
             glDrawElementsBaseVertex(
                 GL_TRIANGLES,
@@ -133,18 +153,26 @@ public:
 
         for (const auto& item : renderables)
         {
-            RenderItem(item);
+            RenderItem(item, false);
         }
+
+        shader = &mPickSpriteShader;
+        shader->UseProgramGL();
+
+        shader->SetUniform(shader->GetUniformLocation("texture0"), 0);
+
+        mvpMatrixId = shader->GetUniformLocation("MVP");
+        entityIdId = shader->GetUniformLocation("entityId");
 
         for (const auto& item : sprites)
         {
-            RenderItem(item);
+            RenderItem(item, true);
         }
 
         for (const auto& item : dynamicRenderables)
         {
             item.GetRenderData()->Bind(GL_TEXTURE0);
-            RenderItem(item);
+            RenderItem(item, true);
         }
 
         mPickFB.UnbindGL();
@@ -157,7 +185,8 @@ public:
         const Renderables& renderables,
         const Light& light,
         const Camera& lightCamera,
-        const Camera& camera)
+        const Camera& camera,
+        bool isSprite)
     {
         renderData.Bind(GL_TEXTURE0);
 
@@ -167,7 +196,7 @@ public:
             ? mDepthBuffer1.GetId()
             : mDepthBuffer2.GetId());
 
-        auto& shader = mModelShader;
+        auto& shader = isSprite ? mSpriteShader : mModelShader;
         shader.UseProgramGL();
 
         shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
@@ -301,7 +330,9 @@ public:
 
 //private:
     ShaderProgramHandle mModelShader;
+    ShaderProgramHandle mSpriteShader;
     ShaderProgramHandle mPickShader;
+    ShaderProgramHandle mPickSpriteShader;
     ShaderProgramHandle mShadowMapShader;
     ShaderProgramHandle mNormalShader;
 
