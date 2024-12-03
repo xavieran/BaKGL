@@ -1,0 +1,20 @@
+Contents of some of the combat arrays
+
+These are for the combat: Z011314_loaded
+
+CombatState
+gX = currentcombatant grid location
+tX = target combatant grid location (i.e. where he is looking? or where he wants to move?)
+field_8 = some sort of enum
+
+?  ?  ?  ?  gX gY tX tY f8 f9 fa fb
+
+00 00 11 00 02 01 03 08 08 00 FF FF Locky
+00 00 FF 01 05 01 00 00 00 00 00 00 Gorath
+10 00 04 01 03 02 01 00 FF FF 00 00 Owyn
+FF 08 01 01 00 00 00 00 00 00 0F 00 
+06 02 FF FF 01 00 FF FF 00 00 FF 01
+02 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+combatGridPtr
