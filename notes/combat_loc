@@ -1,0 +1,30 @@
+INFO [main]   #1 CombatEntityList{3}
+INFO [main]   #3 CombatantGridLocation{ Monster: 18 pos: uvec2(2, 6)}
+
+8 wide 12 high
+tilePos = 640,000, 896,000
+each combat grid is 300 apart (x and y)
+South Approach
+0,1
+INFO [GameData] Pos: 685845,902686 (45845, 6686)
+INFO [main]   #70 CombatWorldLocation{{ pos: uvec2(-38795, 118400), angle: 32} ImageIndex: 2 State: 3}
+0,c TL
+INFO [GameData] Pos: 685845,902686
+INFO [main]   #70 CombatWorldLocation{{ pos: uvec2(44795, 13636), angle: 128} ImageIndex: 0 State: 4}
+0,c (2)
+INFO [GameData] Pos: 685845,902686
+INFO [main]   #70 CombatWorldLocation{{ pos: uvec2(44795, 13636), angle: 128} ImageIndex: 0 State: 4}
+0,b
+INFO [main]   #70 CombatWorldLocation{{ pos: uvec2(44795, 13336), angle: 128} ImageIndex: 0 State: 4}
+1,b
+INFO [main]   #70 CombatWorldLocation{{ pos: uvec2(45095, 13336), angle: 128} ImageIndex: 0 State: 4}
+7,1
+INFO [main]   #70 CombatWorldLocation{{ pos: uvec2(46895, 10336), angle: 128} ImageIndex: 0 State: 4}
+
+
+north approach:
+INFO [GameData] Pos: 685300,912816 (45300,16816)
+1,b
+INFO [main]   #70 CombatWorldLocation{{ pos: uvec2(46050, 10166), angle: 0} ImageIndex: 0 State: 4}
+
+
