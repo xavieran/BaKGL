@@ -1,6 +1,7 @@
 #include "com/ostreamMux.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <string>
 
 OStreamMux::OStreamMux()
@@ -15,7 +16,10 @@ std::streamsize OStreamMux::xsputn(const char_type* s, std::streamsize n)
         static_cast<unsigned>(n)};
 
     for (auto* stream : mOutputs)
+    {
+        assert(stream);
         (*stream) << str;
+    }
 
     return n;
 }
@@ -23,7 +27,10 @@ std::streamsize OStreamMux::xsputn(const char_type* s, std::streamsize n)
 OStreamMux::int_type OStreamMux::overflow(int_type c)
 {
     for (auto* stream : mOutputs)
+    {
+        assert(stream);
         (*stream) << static_cast<char>(c);
+    }
     return c;
 }
 
@@ -38,5 +45,4 @@ void OStreamMux::RemoveStream(std::ostream* stream)
     if (it != mOutputs.end())
         mOutputs.erase(it);
 }
-
 
