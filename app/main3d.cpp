@@ -152,13 +152,32 @@ int main(int argc, char** argv)
         Logging::LogState::SetLevel(config.mLogging.mLogLevel);
     }
 
+    std::unique_ptr<std::ofstream> logFileStream{};
+
     if (config.mLogging.mLogToFile)
     {
         auto logFilePath = config.mLogging.mLogFilePath.empty()
             ? Paths::Get().GetBakDirectoryPath() / "main3d.log"
             : std::filesystem::path{config.mLogging.mLogFilePath};
-        auto log = std::ofstream{logFilePath};
-        Logging::LogState::AddStream(&log);
+        std::cout << "Will log to file: " << logFilePath << "\n";
+        auto logDirectory = logFilePath;
+        logDirectory.remove_filename();
+        if (!std::filesystem::exists(logDirectory))
+        {
+            std::cerr << "Log file directory: " << logDirectory << " does not exist, will not log to file!\n";
+        }
+        else
+        {
+            logFileStream = std::make_unique<std::ofstream>(logFilePath.string(), std::ios::out);
+            if (!logFileStream->is_open())
+            {
+                std::cerr << "Could not open log file: " << logFilePath << ", will not log to file!\n";
+            }
+            else 
+            {
+                Logging::LogState::AddStream(logFileStream.get());
+            }
+        }
     }
 
     const auto& logger = Logging::LogState::GetLogger("main");
@@ -642,6 +661,11 @@ int main(int argc, char** argv)
     if (showImgui)
     {
         ImguiWrapper::Shutdown();
+    }
+
+    if (logFileStream && logFileStream->is_open())
+    {
+        logFileStream->close();
     }
 
     return 0;
