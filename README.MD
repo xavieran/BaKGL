@@ -123,19 +123,19 @@ Start a new game from the main menu as normal, and enjoy :)
 
 ### Config File
 
-You can specify a config file to customise BaKGL. By default it will be loaded from `$BAK_MAIN_DIR/config.json`. You can also specify a config file by command line:
+You can specify a config file to customise BaKGL. By default it will be loaded from `$BAK_MAIN_DIR/config.jsonc`. You can also specify a config file by command line:
 ```
-$ ./main3d -c path/to/config.json
+$ ./main3d -c path/to/config.jsonc
 ```
 
-An example `config.json` is included in the main directory of the repo.
+An example `config.jsonc` is included in the main directory of the repo.
 
 ## Modding
 
 BaKGL supports replacing the original game image files with your own.
 
 ### Set up the Mod Directory
-In the `config.json` file, specify the path to your mod directory using the `/Paths/GraphicsOverrides` key. This directory should contain your custom graphics files in PNG format.
+In the `config.jsonc` file, specify the path to your mod directory using the `/Paths/GraphicsOverrides` key. This directory should contain your custom graphics files in PNG format.
 
 On Windows I had to escape the path:
 ```

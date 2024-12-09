@@ -11,6 +11,7 @@
         "EnableImGui": false
     },
     "Audio": {
+        // ADLMIDI | OPNMIDI | FluidSynth
         "MidiPlayer": "ADLMIDI",
         "EnableAudio": true,
         "EnableBackgroundSounds": true 
@@ -23,7 +24,8 @@
         "LogTime": true,
         "LogColours": true,
         "LogFilePath": "",
-        "LogLevel": "Debug",
+        // SPAM | DEBUG | INFO | WARN | ERROR | FATAL
+        "LogLevel": "DEBUG",
         "DisabledLoggers": [
             "Compass",
             "DialogStore",
