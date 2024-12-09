@@ -89,7 +89,7 @@ Config LoadConfig(std::string path)
 
     std::ifstream in{};
     in.open(path, std::ios::in);
-    auto data = nlohmann::json::parse(in);
+    auto data = nlohmann::json::parse(in, nullptr, true, true);
 
     Config config{};
     config.mPaths = LoadPaths(data);

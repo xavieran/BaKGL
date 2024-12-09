@@ -114,8 +114,8 @@ Config::Config LoadConfigFile(std::string configPath)
         }
     };
 
-    const auto defaultConfig = (Paths::Get().GetBakDirectoryPath() / "config.json").string();
-    const auto currentDirectoryConfig = "config.json";
+    const auto defaultConfig = (Paths::Get().GetBakDirectoryPath() / "config.jsonc").string();
+    const auto currentDirectoryConfig = "config.jsonc";
 
     if (!configPath.empty())
     {
