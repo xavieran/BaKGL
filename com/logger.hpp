@@ -64,6 +64,10 @@ public:
         {
             Logging::LogState::SetLevel(Logging::LogLevel::Fatal);
         }
+        else
+        {
+            throw std::runtime_error("Invalid log level: " + std::string(level));
+        }
     }
 
     static void SetLogTime(bool value)
