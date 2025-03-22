@@ -13,6 +13,7 @@
 #include "gui/animatorStore.hpp"
 #include "gui/camp/campScreen.hpp"
 #include "gui/cast/castScreen.hpp"
+#include "gui/combat/combatScreen.hpp"
 #include "gui/temple/cureScreen.hpp"
 #include "gui/dialogRunner.hpp"
 #include "gui/fadeScreen.hpp"
@@ -102,6 +103,7 @@ public:
     void ExitSimpleScreen() override;
     void ShowInventory(BAK::ActiveCharIndex character) override;
     void ShowContainer(BAK::GenericContainer* container, BAK::EntityType containerType) override;
+    void EnterCombat() override;
     void SelectItem(
         std::function<void(
             std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected) override;
@@ -149,6 +151,7 @@ private:
     InventoryScreen mInventoryScreen;
     Camp::CampScreen mCampScreen;
     Cast::CastScreen mCastScreen;
+    Combat::CombatScreen mCombatScreen;
     CureScreen mCureScreen;
     LockScreen mLockScreen;
 public:

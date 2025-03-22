@@ -522,6 +522,8 @@ void GameRunner::CheckAndDoCombatEncounter(
             &mDynamicDialogScene);
     }
 
+    mGuiManager.EnterCombat();
+
     // The below needs to be called in the return from the combat screen
     bool combatRetreated;
     //auto combatResult = EnterCombatScreen(surprisedEnemy, &combatRetreated);
