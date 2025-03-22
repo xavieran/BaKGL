@@ -1,5 +1,4 @@
 #pragma once
-
 #include "bak/coordinates.hpp"
 
 #include <cstdint>

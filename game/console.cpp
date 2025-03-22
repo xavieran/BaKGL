@@ -560,7 +560,7 @@ void Console::SetSkill(const std::vector<std::string>& words)
     if (skill > 15)
     {
         AddLog("[error] Skill must be between 0 and 15");
-	return;
+        return;
     }
 
     std::uint16_t value;
