@@ -230,6 +230,11 @@ bool GuiManager::InMainView() const
     return mScreenStack.size() > 0 && mScreenStack.Top() == &mMainView;
 }
 
+bool GuiManager::InCombatView() const
+{
+    return mScreenStack.size() > 0 && mScreenStack.Top() == &mCombatScreen;
+}
+
 void GuiManager::EnterMainView()
 {
     mLogger.Info() << "Entering main view\n";
@@ -486,7 +491,6 @@ void GuiManager::EnterCombat()
 {
     DoFade(.8, [this]{
         mCursor.PushCursor(0);
-        mGuiScreens.push(GuiScreen{[](){}});
         mCombatScreen.SetSelectedCharacter(BAK::ActiveCharIndex{0});
         mScreenStack.PushScreen(&mCombatScreen);
     });

@@ -1,5 +1,14 @@
 #include "gui/combat/combatScreen.hpp"
 
+#include "bak/gameState.hpp"
+
+#include "com/logger.hpp"
+
+#include "gui/IGuiManager.hpp"
+#include "gui/backgrounds.hpp"
+#include "gui/colors.hpp"
+#include "gui/icons.hpp"
+
 namespace Gui::Combat {
 
 CombatScreen::CombatScreen(
@@ -14,7 +23,7 @@ CombatScreen::CombatScreen(
         RectTag{},
         glm::vec2{0, 0},
         glm::vec2{320, 200},
-        Color::black,
+        glm::vec4{},
         true
     },
     mGuiManager{guiManager},
@@ -106,8 +115,8 @@ void CombatScreen::UpdatePartyMembers()
             ImageTag{},
             spriteSheet,
             image,
-            mLayout.GetWidgetLocation(person.mValue),
-            mLayout.GetWidgetDimensions(person.mValue),
+            mLayout.GetWidgetLocation(mCharacterRequest),
+            mLayout.GetWidgetDimensions(mCharacterRequest),
             true
         );
 

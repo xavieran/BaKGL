@@ -515,6 +515,12 @@ void GameRunner::CheckAndDoCombatEncounter(
 
     if (combat.mEntryDialog.mValue != 0)
     {
+        mDynamicDialogScene.SetDialogFinished(
+            [&](const auto& choice){
+                Logging::LogDebug("Game::GameRunner") << "Enter Combat\n";
+                mGuiManager.EnterCombat();
+            });
+
         mGuiManager.StartDialog(
             combat.mEntryDialog,
             false,
@@ -522,8 +528,10 @@ void GameRunner::CheckAndDoCombatEncounter(
             &mDynamicDialogScene);
     }
 
-    mGuiManager.EnterCombat();
+}
 
+void GameRunner::CombatCompleted(bool retreated, int combatResult)
+{/*
     // The below needs to be called in the return from the combat screen
     bool combatRetreated;
     //auto combatResult = EnterCombatScreen(surprisedEnemy, &combatRetreated);
@@ -594,7 +602,7 @@ void GameRunner::CheckAndDoCombatEncounter(
         it->Update();
         mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
     }
-}
+*/}
 
 void GameRunner::DoBlockEncounter(
     const BAK::Encounter::Encounter& encounter,

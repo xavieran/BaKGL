@@ -1,24 +1,12 @@
 #pragma once
 
-#include "audio/audio.hpp"
-
-#include "bak/IContainer.hpp"
-#include "bak/dialogSources.hpp"
-#include "bak/gameState.hpp"
-#include "bak/inventory.hpp"
+#include "bak/dialogTarget.hpp"
 #include "bak/layout.hpp"
-#include "bak/objectInfo.hpp"
-#include "bak/textureFactory.hpp"
+#include "bak/types.hpp"
 
 #include "gui/IDialogScene.hpp"
-#include "gui/IGuiManager.hpp"
-#include "gui/backgrounds.hpp"
 #include "gui/core/clickable.hpp"
-#include "gui/core/dragEndpoint.hpp"
 #include "gui/core/mouseEvent.hpp"
-#include "gui/core/draggable.hpp"
-#include "gui/icons.hpp"
-#include "gui/colors.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/textBox.hpp"
 #include "gui/core/widget.hpp"
@@ -30,6 +18,20 @@
 #include <optional>
 #include <utility>
 #include <variant>
+
+namespace Logging {
+class Logger;
+};
+
+namespace BAK {
+class GameState;
+}
+
+namespace Gui {
+class IGuiManager;
+class Backgrounds;
+class Icons;
+}
 
 namespace Gui::Combat {
 
@@ -46,10 +48,9 @@ public:
     static constexpr auto mNextPageButton = 52;
     static constexpr auto mNextPageRequest = 4;
 
-    static constexpr auto mExitRequest = 5;
+    static constexpr auto mCharacterRequest = 5;
+    static constexpr auto mExitRequest = 0;
     static constexpr auto mExitButton = 13;
-
-    static constexpr auto mGoldRequest = 6;
 
     CombatScreen(
         IGuiManager& guiManager,
@@ -65,11 +66,6 @@ public:
     bool OnMouseEvent(const MouseEvent& event) override;
 
 private:
-    auto& GetCharacter(BAK::ActiveCharIndex i)
-    {
-        return mGameState.GetParty().GetCharacter(i);
-    }
-
     void StartDialog(BAK::Target target);
     void RefreshGui();
 

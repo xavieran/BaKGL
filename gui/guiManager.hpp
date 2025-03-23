@@ -74,6 +74,7 @@ public:
         std::function<void()>&& cutsceneFinished) override;
     void CutsceneFinished();
     bool InMainView() const override;
+    bool InCombatView() const override;
     void EnterMainView() override;
     void EnterMainMenu(bool gameRunning) override;
 
