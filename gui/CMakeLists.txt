@@ -68,12 +68,14 @@ add_library(gui
 
 add_subdirectory(core)
 add_subdirectory(inventory)
+add_subdirectory(combat)
 
 target_link_libraries(gui
     audio
     bak
     com
     graphics
+    guiCombat
     guiCore
     guiInventory)
 

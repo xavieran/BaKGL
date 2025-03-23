@@ -90,6 +90,13 @@ GuiManager::GuiManager(
         mFontManager.GetSpellFont(),
         mGameState
     },
+    mCombatScreen{
+        *this,
+        mBackgrounds,
+        mIcons,
+        mFontManager.GetGameFont(),
+        mGameState
+    },
     mCureScreen{
         *this,
         mActors,
@@ -221,6 +228,11 @@ void GuiManager::CutsceneFinished()
 bool GuiManager::InMainView() const
 {
     return mScreenStack.size() > 0 && mScreenStack.Top() == &mMainView;
+}
+
+bool GuiManager::InCombatView() const
+{
+    return mScreenStack.size() > 0 && mScreenStack.Top() == &mCombatScreen;
 }
 
 void GuiManager::EnterMainView()
@@ -473,6 +485,15 @@ void GuiManager::ShowContainer(BAK::GenericContainer* container, BAK::EntityType
     mInventoryScreen.SetContainer(container, containerType);
     mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
     mScreenStack.PushScreen(&mInventoryScreen);
+}
+
+void GuiManager::EnterCombat()
+{
+    DoFade(.8, [this]{
+        mCursor.PushCursor(0);
+        mCombatScreen.SetSelectedCharacter(BAK::ActiveCharIndex{0});
+        mScreenStack.PushScreen(&mCombatScreen);
+    });
 }
 
 void GuiManager::SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected)
