@@ -2,10 +2,11 @@
 
 #include "bak/character.hpp"
 #include "bak/container.hpp"
+#include "bak/coordinates.hpp"
 #include "bak/gameData.hpp"
 #include "bak/inventory.hpp"
 #include "bak/party.hpp"
-#include "bak/coordinates.hpp"
+#include "bak/state/skill.hpp"
 
 #include "bak/file/fileBuffer.hpp"
 
@@ -108,8 +109,8 @@ void Save(const Character& c, FileBuffer& fb)
         fb.PutUint8(skill.mExperience);
         fb.PutUint8(skill.mModifier);
 
-        const auto pos = fb.Tell();
-        // FIXME: set skill selected, set skill unseen improvement...
+        State::SetSkillSelected(fb, charIndex, i, skill.mSelected);
+        State::SetSkillUnseenImprovement(fb, charIndex, i, skill.mUnseenImprovement);
     }
 
     // Inventory

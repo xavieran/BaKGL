@@ -28,6 +28,27 @@ bool ReadSkillUnseenImprovement(FileBuffer& fb, unsigned character, unsigned ski
         + skill);
 }
 
+void SetSkillSelected(FileBuffer& fb, unsigned character, unsigned skill, bool enabled) 
+{
+    constexpr auto maxSkills = 0x11;
+    SetEventFlag(
+        fb,
+        sSkillSelectedEventFlag
+            + (character * maxSkills)
+            + skill,
+        enabled);
+}
+
+void SetSkillUnseenImprovement(FileBuffer& fb, unsigned character, unsigned skill, bool enabled)
+{
+    constexpr auto maxSkills = 0x11;
+    SetEventFlag(
+        fb,
+        sSkillImprovementEventFlag
+            + (character * maxSkills)
+            + skill,
+        enabled);
+}
 std::uint8_t ReadSelectedSkillPool(FileBuffer& fb, unsigned character) 
 {
     fb.Seek(sCharacterSelectedSkillPool + (1 << character));
