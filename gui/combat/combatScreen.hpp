@@ -13,11 +13,7 @@
 
 #include <glm/glm.hpp>
 
-#include <algorithm>
-#include <iostream>
 #include <optional>
-#include <utility>
-#include <variant>
 
 namespace Logging {
 class Logger;
@@ -49,8 +45,14 @@ public:
     static constexpr auto mNextPageRequest = 4;
 
     static constexpr auto mCharacterRequest = 5;
-    static constexpr auto mExitRequest = 0;
+    static constexpr auto mExitRequest = 4;
     static constexpr auto mExitButton = 13;
+    static constexpr auto mCastButton = 0;
+    static constexpr auto mRetreatButton = 3;
+    static constexpr auto mDefendButton = 4;
+    static constexpr auto mAutoBattleButton = 6;
+    static constexpr auto mAssessButton = 7;
+    static constexpr auto mRestButton = 8;
 
     CombatScreen(
         IGuiManager& guiManager,
@@ -71,9 +73,11 @@ private:
 
     void UpdatePartyMembers();
     
+private:
     void AddChildren();
     
-private:
+    void HandleButton(unsigned buttonIndex);
+
     IGuiManager& mGuiManager;
     const Font& mFont;
     const Icons& mIcons;
@@ -93,6 +97,7 @@ private:
         std::function<void()>>;
 
     std::vector<CharacterButton> mCharacters;
+    std::vector<ClickButtonImage> mButtons;
     ClickButtonImage mExit;
 
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;

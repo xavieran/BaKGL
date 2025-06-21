@@ -34,7 +34,7 @@ list(APPEND APP_BINARIES
     #play_ttm
     #show_scene
     #show_imgui
-    #bmx_explorer
+    bmx_explorer
 )
 
 set(APP_LIBS

@@ -6,7 +6,6 @@
 
 #include "gui/IGuiManager.hpp"
 #include "gui/backgrounds.hpp"
-#include "gui/colors.hpp"
 #include "gui/icons.hpp"
 
 namespace Gui::Combat {
@@ -45,8 +44,9 @@ CombatScreen::CombatScreen(
         true
     },
     mCharacters{},
+    mButtons{},
     mExit{
-        mLayout.GetWidgetLocation(mExitRequest),
+        mLayout.GetWidgetLocation(mExitRequest) - glm::vec2{30, 30},
         mLayout.GetWidgetDimensions(mExitRequest),
         std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
         std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
@@ -61,6 +61,36 @@ CombatScreen::CombatScreen(
     mLogger{Logging::LogState::GetLogger("Gui::CombatScreen")}
 {
     mCharacters.reserve(3);
+    mButtons.reserve(mLayout.GetSize());
+
+    for (unsigned i = 0; i < mLayout.GetSize(); i++)
+    {
+        const auto& widget = mLayout.GetWidget(i);
+        switch (widget.mWidget)
+        {
+        case 3: //REQ_IMAGEBUTTON
+        {
+            if (widget.mImage > 30 || i == mCharacterRequest)
+            {
+                continue;
+            }
+            const auto& button = icons.GetButton(widget.mImage);
+            assert(std::get<Graphics::SpriteSheetIndex>(button)
+                == std::get<Graphics::SpriteSheetIndex>(icons.GetPressedButton(widget.mImage)));
+            mButtons.emplace_back(
+                mLayout.GetWidgetLocation(i),
+                mLayout.GetWidgetDimensions(i),
+                std::get<Graphics::SpriteSheetIndex>(button),
+                std::get<Graphics::TextureIndex>(button),
+                std::get<Graphics::TextureIndex>(icons.GetPressedButton(widget.mImage)),
+                [this, buttonIndex=i]{ HandleButton(buttonIndex); },
+                []{});
+        } break;
+        default:
+            mLogger.Info() << "Unhandled: " << i << "\n";
+            break;
+        }
+    }
 }
 
 void CombatScreen::SetSelectedCharacter(
@@ -130,6 +160,35 @@ void CombatScreen::UpdatePartyMembers()
     } while (person != BAK::ActiveCharIndex{0});
 }
 
+void CombatScreen::HandleButton(unsigned buttonIndex)
+{
+    mLogger.Info() << "Combat button i: " << buttonIndex << "\n";
+    switch (buttonIndex)
+    {
+        case mCastButton:
+            mLogger.Debug() << "Cast\n";
+            break;
+        case mRetreatButton:
+            mLogger.Debug() << "Retreat\n";
+            break;
+        case mDefendButton:
+            mLogger.Debug() << "Defend\n";
+            break;
+        case mAutoBattleButton:
+            mLogger.Debug() << "AutoBattle\n";
+            break;
+        case mAssessButton:
+            mLogger.Debug() << "Assess\n";
+            break;
+        case mRestButton:
+            mLogger.Debug() << "Rest\n";
+            break;
+        default:
+            mLogger.Debug() << "Unhandled button: " << buttonIndex << "\n";
+            break;
+    }
+}
+
 void CombatScreen::AddChildren()
 {
     AddChildBack(&mFrame);
@@ -139,6 +198,11 @@ void CombatScreen::AddChildren()
     for (auto& character : mCharacters)
     {
         AddChildBack(&character);
+    }
+
+    for (auto& button : mButtons)
+    {
+        AddChildBack(&button);
     }
 }
 

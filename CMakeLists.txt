@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
 message ("CMAKE VERSION: " "${CMAKE_VERSION}")
 
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 project( BaKGL )
 
 # Project wide CXX flags
