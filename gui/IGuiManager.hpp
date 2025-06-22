@@ -18,6 +18,7 @@ class IGuiManager
 public:
     virtual void DoFade(double duration, std::function<void()>&&) = 0;
     virtual bool InMainView() const = 0;
+    virtual bool InCombatView() const = 0;
     virtual void EnterMainView() = 0;
     virtual void EnterMainMenu(bool gameRunning) = 0;
 
@@ -35,6 +36,7 @@ public:
 
     virtual void ShowInventory(BAK::ActiveCharIndex) = 0;
     virtual void ShowContainer(BAK::GenericContainer*, BAK::EntityType containerType) = 0;
+    virtual void EnterCombat() = 0;
     virtual void SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&&) = 0;
     virtual void ExitInventory() = 0;
 

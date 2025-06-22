@@ -20,6 +20,7 @@ list(APPEND APP_BINARIES
     display_startup_files
     display_sound
     #display_spells
+    display_req
     display_tbl
     display_tile
     #display_traps
@@ -33,7 +34,7 @@ list(APPEND APP_BINARIES
     #play_ttm
     #show_scene
     #show_imgui
-    #bmx_explorer
+    bmx_explorer
 )
 
 set(APP_LIBS

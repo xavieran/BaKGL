@@ -123,6 +123,7 @@ public:
     
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
+    void CombatCompleted(bool, int);
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
