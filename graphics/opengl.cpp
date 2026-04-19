@@ -95,8 +95,10 @@ GLBuffers& GLBuffers::operator=(GLBuffers&& other) noexcept
 {
     if (this == &other) return *this;
 
-    for (const auto& [name, buffer] : mBuffers)
+    for (const auto& [name, buffer] : other.mBuffers)
         mBuffers.emplace(name, buffer);
+
+    mElementBuffer = other.mElementBuffer;
 
     other.mActive = false;
 
