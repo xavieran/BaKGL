@@ -237,7 +237,7 @@ public:
         uniforms = &mPickSpriteShaderUniforms;
         shader->UseProgramGL();
 
-        shader->SetUniform(uniforms->mEntityId, 0);
+        shader->SetUniform(uniforms->mEntityId, 0u);
 
         for (const auto& item : sprites)
         {
@@ -404,7 +404,7 @@ public:
         }
     }
 
-//private:
+private:
     ShaderProgramHandle mModelShader;
     WorldShaderUniforms mModelShaderUniforms;
     ShaderProgramHandle mSpriteShader;

@@ -170,7 +170,7 @@ public:
         glVertexAttribDivisor(location.mValue, divisor);
     }
 
-    //private:
+private:
     std::unordered_map<std::string, GLBuffer> mBuffers;
 
     GLuint mElementBuffer;
@@ -205,7 +205,7 @@ public:
         const std::vector<Texture>& textures,
         unsigned maxDim);
 
-//private:
+private:
     GLuint mTextureBuffer;
     GLenum mTextureType;
     bool mActive;
