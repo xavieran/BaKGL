@@ -18,6 +18,39 @@ struct Light
     glm::vec3 mFogColor;
 };
 
+struct PickShaderUniforms
+{
+    GLuint mTexture0;
+    GLuint mMVP;
+    GLuint mEntityId;
+    GLuint mM;
+    GLuint mCameraPosition_worldSpace;
+};
+
+struct WorldShaderUniforms
+{
+    GLuint mTexture0;
+    GLuint mShadowMap;
+    GLuint mFogStrength;
+    GLuint mFogColor;
+    GLuint mLightDirection;
+    GLuint mLightAmbientColor;
+    GLuint mLightDiffuseColor;
+    GLuint mLightSpecularColor;
+    GLuint mLightSpaceMatrix;
+    GLuint mCameraPosition_worldspace;
+    GLuint mMVP;
+    GLuint mM;
+    GLuint mV;
+};
+
+struct DepthMapShaderUniforms
+{
+    GLuint mTexture0;
+    GLuint mLightSpaceMatrix;
+    GLuint mM;
+};
+
 class Renderer
 {
     static constexpr auto sDrawDistance = 128000;
@@ -35,24 +68,68 @@ public:
                 "directional.frag.glsl"};
             return shader.Compile();
         })},
+        mModelShaderUniforms{
+            mModelShader.GetUniformLocation("texture0"),
+            mModelShader.GetUniformLocation("shadowMap"),
+            mModelShader.GetUniformLocation("fogStrength"),
+            mModelShader.GetUniformLocation("fogColor"),
+            mModelShader.GetUniformLocation("light.mDirection"),
+            mModelShader.GetUniformLocation("light.mAmbientColor"),
+            mModelShader.GetUniformLocation("light.mDiffuseColor"),
+            mModelShader.GetUniformLocation("light.mSpecularColor"),
+            mModelShader.GetUniformLocation("lightSpaceMatrix"),
+            mModelShader.GetUniformLocation("cameraPosition_worldspace"),
+            mModelShader.GetUniformLocation("MVP"),
+            mModelShader.GetUniformLocation("M"),
+            mModelShader.GetUniformLocation("V")
+        },
         mSpriteShader{std::invoke([]{
             auto shader = ShaderProgram{
                 "sprite.vert.glsl",
                 "sprite.frag.glsl"};
             return shader.Compile();
         })},
+        mSpriteShaderUniforms{
+            mSpriteShader.GetUniformLocation("texture0"),
+            mSpriteShader.GetUniformLocation("shadowMap"),
+            mSpriteShader.GetUniformLocation("fogStrength"),
+            mSpriteShader.GetUniformLocation("fogColor"),
+            mSpriteShader.GetUniformLocation("light.mDirection"),
+            mSpriteShader.GetUniformLocation("light.mAmbientColor"),
+            mSpriteShader.GetUniformLocation("light.mDiffuseColor"),
+            mSpriteShader.GetUniformLocation("light.mSpecularColor"),
+            mSpriteShader.GetUniformLocation("lightSpaceMatrix"),
+            mSpriteShader.GetUniformLocation("cameraPosition_worldspace"),
+            mSpriteShader.GetUniformLocation("MVP"),
+            mSpriteShader.GetUniformLocation("M"),
+            mSpriteShader.GetUniformLocation("V")
+        },
         mPickShader{std::invoke([]{
             auto shader = ShaderProgram{
                 "pick.vert.glsl",
                 "pick.frag.glsl"};
             return shader.Compile();
         })},
+        mPickShaderUniforms{
+            mPickShader.GetUniformLocation("texture0"),
+            mPickShader.GetUniformLocation("MVP"),
+            mPickShader.GetUniformLocation("entityId"),
+            0,
+            0
+        },
         mPickSpriteShader{std::invoke([]{
             auto shader = ShaderProgram{
                 "pick.sprite.vert.glsl",
                 "pick.sprite.frag.glsl"};
             return shader.Compile();
         })},
+        mPickSpriteShaderUniforms{
+            mPickSpriteShader.GetUniformLocation("texture0"),
+            mPickSpriteShader.GetUniformLocation("MVP"),
+            mPickSpriteShader.GetUniformLocation("entityId"),
+            mPickSpriteShader.GetUniformLocation("M"),
+            mPickSpriteShader.GetUniformLocation("cameraPosition_worldspace")
+        },
         mShadowMapShader{std::invoke([]{
             auto shader = ShaderProgram{
                 "shadowMap.vert.glsl",
@@ -60,6 +137,11 @@ public:
             };
             return shader.Compile();
         })},
+        mShadowMapShaderUniforms{
+            mShadowMapShader.GetUniformLocation("texture0"),
+            mShadowMapShader.GetUniformLocation("lightSpaceMatrix"),
+            mShadowMapShader.GetUniformLocation("M")
+        },
         mNormalShader{std::invoke([]{
             auto shader = ShaderProgram{
                 "see_norm.vert.glsl",
@@ -112,15 +194,10 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto* shader = &mPickShader;
+        auto* uniforms = &mPickShaderUniforms;
         shader->UseProgramGL();
 
-        shader->SetUniform(shader->GetUniformLocation("texture0"), 0);
-
-        auto mvpMatrixId = shader->GetUniformLocation("MVP");
-        auto entityIdId = shader->GetUniformLocation("entityId");
-
-        auto modelMatrixId = mPickSpriteShader.GetUniformLocation("M");
-        auto cameraPositionId = mPickSpriteShader.GetUniformLocation("cameraPosition_worldspace");
+        shader->SetUniform(uniforms->mTexture0, 0);
 
         const auto& viewMatrix = camera.GetViewMatrix();
         glm::mat4 MVP;
@@ -134,12 +211,12 @@ public:
 
             MVP = camera.GetProjectionMatrix() * viewMatrix * modelMatrix;
 
-            shader->SetUniform(mvpMatrixId, MVP);
-            shader->SetUniform(entityIdId, item.GetId().mValue);
+            shader->SetUniform(uniforms->mMVP, MVP);
+            shader->SetUniform(uniforms->mEntityId, item.GetId().mValue);
             if (isSprite)
             {
-                shader->SetUniform(modelMatrixId, modelMatrix);
-                shader->SetUniform(cameraPositionId, camera.GetPosition());
+                shader->SetUniform(uniforms->mM, modelMatrix);
+                shader->SetUniform(uniforms->mCameraPosition_worldSpace, camera.GetPosition());
             }
 
             glDrawElementsBaseVertex(
@@ -157,12 +234,10 @@ public:
         }
 
         shader = &mPickSpriteShader;
+        uniforms = &mPickSpriteShaderUniforms;
         shader->UseProgramGL();
 
-        shader->SetUniform(shader->GetUniformLocation("texture0"), 0);
-
-        mvpMatrixId = shader->GetUniformLocation("MVP");
-        entityIdId = shader->GetUniformLocation("entityId");
+        shader->SetUniform(uniforms->mEntityId, 0);
 
         for (const auto& item : sprites)
         {
@@ -197,28 +272,29 @@ public:
             : mDepthBuffer2.GetId());
 
         auto& shader = isSprite ? mSpriteShader : mModelShader;
+        auto& uniforms = isSprite ? mSpriteShaderUniforms : mModelShaderUniforms;
         shader.UseProgramGL();
 
-        shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
-        shader.SetUniform(shader.GetUniformLocation("shadowMap"), 1);
+        shader.SetUniform(uniforms.mTexture0, 0);
+        shader.SetUniform(uniforms.mShadowMap, 1);
 
-        shader.SetUniform(shader.GetUniformLocation("fogStrength"), Float{light.mFogStrength});
-        shader.SetUniform(shader.GetUniformLocation("fogColor"), light.mFogColor);
+        shader.SetUniform(uniforms.mFogStrength, Float{light.mFogStrength});
+        shader.SetUniform(uniforms.mFogColor, light.mFogColor);
 
-        shader.SetUniform(shader.GetUniformLocation("light.mDirection"), light.mDirection);
-        shader.SetUniform(shader.GetUniformLocation("light.mAmbientColor"), light.mAmbientColor);
-        shader.SetUniform(shader.GetUniformLocation("light.mDiffuseColor"), light.mDiffuseColor);
-        shader.SetUniform(shader.GetUniformLocation("light.mSpecularColor"), light.mSpecularColor);
+        shader.SetUniform(uniforms.mLightDirection, light.mDirection);
+        shader.SetUniform(uniforms.mLightAmbientColor, light.mAmbientColor);
+        shader.SetUniform(uniforms.mLightDiffuseColor, light.mDiffuseColor);
+        shader.SetUniform(uniforms.mLightSpecularColor, light.mSpecularColor);
 
         shader.SetUniform(
-            shader.GetUniformLocation("lightSpaceMatrix"),
+            uniforms.mLightSpaceMatrix,
             lightCamera.GetProjectionMatrix() * lightCamera.GetViewMatrix());
 
-        shader.SetUniform(shader.GetUniformLocation("cameraPosition_worldspace"), camera.GetNormalisedPosition());
+        shader.SetUniform(uniforms.mCameraPosition_worldspace, camera.GetNormalisedPosition());
 
-        const auto mvpMatrixId = shader.GetUniformLocation("MVP");
-        const auto modelMatrixId = shader.GetUniformLocation("M");
-        const auto viewMatrixId = shader.GetUniformLocation("V");
+        const auto mvpMatrixId = uniforms.mMVP;
+        const auto modelMatrixId = uniforms.mM;
+        const auto viewMatrixId = uniforms.mV;
 
         const auto& viewMatrix = camera.GetViewMatrix();
         glm::mat4 MVP;
@@ -302,13 +378,13 @@ public:
 
         shader.UseProgramGL();
 
-        shader.SetUniform(shader.GetUniformLocation("texture0"), 0);
-        const auto lightSpaceMatrixId = shader.GetUniformLocation("lightSpaceMatrix");
+        shader.SetUniform(mShadowMapShaderUniforms.mTexture0, 0);
+        const auto lightSpaceMatrixId = mShadowMapShaderUniforms.mLightSpaceMatrix;
         shader.SetUniform(
             lightSpaceMatrixId,
             lightCamera.GetProjectionMatrix() * lightCamera.GetViewMatrix());
 
-        const auto modelMatrixId = shader.GetUniformLocation("M");
+        const auto modelMatrixId = mShadowMapShaderUniforms.mM;
 
         for (const auto& item : renderables)
         {
@@ -330,10 +406,15 @@ public:
 
 //private:
     ShaderProgramHandle mModelShader;
+    WorldShaderUniforms mModelShaderUniforms;
     ShaderProgramHandle mSpriteShader;
+    WorldShaderUniforms mSpriteShaderUniforms;
     ShaderProgramHandle mPickShader;
+    PickShaderUniforms mPickShaderUniforms;
     ShaderProgramHandle mPickSpriteShader;
+    PickShaderUniforms mPickSpriteShaderUniforms;
     ShaderProgramHandle mShadowMapShader;
+    DepthMapShaderUniforms mShadowMapShaderUniforms;
     ShaderProgramHandle mNormalShader;
 
     FrameBuffer mPickFB;

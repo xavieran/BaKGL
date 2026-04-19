@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.6)
 message ("CMAKE VERSION: " "${CMAKE_VERSION}")
 
 project( BaKGL )
@@ -81,6 +81,7 @@ if (ENABLE_CPPTRACE)
 endif()
 
 # --- OpenGL related packages --- #
+set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/freeglut")
 find_package(GLUT REQUIRED)
@@ -96,7 +97,7 @@ include(FetchContent)
 FetchContent_Declare(
     glm 
     GIT_REPOSITORY https://github.com/g-truc/glm
-    GIT_TAG 0.9.9.8
+    GIT_TAG 1.0
 )
 
 FetchContent_MakeAvailable(glm)
@@ -129,7 +130,7 @@ include_directories(${GLFW_SOURCE_DIR}/include)
 # --- GOOGLETEST --- #
 FetchContent_Declare(
   googletest
-  URL https://github.com/google/googletest/archive/release-1.11.0.zip
+  URL https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz
 )
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
