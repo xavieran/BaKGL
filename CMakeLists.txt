@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
 message ("CMAKE VERSION: " "${CMAKE_VERSION}")
-
 project( BaKGL )
 
 # Project wide CXX flags
@@ -29,6 +28,9 @@ string(CONCAT CXX_IGNORES
 
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# Silence complaints about using Populate - needed until AudioCodecs exports
+# proper cmake targets
+cmake_policy(SET CMP0169 OLD)
 
 if (MSVC)
     # Statically link MSVC runtime
@@ -109,17 +111,11 @@ FetchContent_Declare(
         GIT_TAG 3.3.9
 )
 
-FetchContent_GetProperties(glfw)
-if(NOT glfw_POPULATED)
-    FetchContent_Populate(glfw)
-    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
-    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-    set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
-
-    add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
-
-endif()
+set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
+set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+FetchContent_MakeAvailable(glfw)
 
 if (NOT GLFW3_LIBRARY)
     set(GLFW3_LIBRARY glfw)
@@ -130,7 +126,8 @@ include_directories(${GLFW_SOURCE_DIR}/include)
 # --- GOOGLETEST --- #
 FetchContent_Declare(
   googletest
-  URL https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG v1.17.0
 )
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
@@ -172,37 +169,33 @@ endif()
 FetchContent_Declare(
     AudioCodecs
     GIT_REPOSITORY https://github.com/WohlSoft/AudioCodecs
-    GIT_TAG f299826f4f32e6582c5a2ac363ac2cd963c68d86
+    GIT_TAG 30703334e80bce02ac8e3a1191edd940932fb714
 )
 
 FetchContent_GetProperties(AudioCodecs)
-if(NOT AudioCodecs_POPULATED)
-    FetchContent_Populate(AudioCodecs)
-
-    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-    set(CODECS_BUILD_STATIC ON)
-    set(BUILD_OGG_VORBIS OFF)
-    set(BUILD_MPG123 OFF)
-    set(BUILD_FLAC OFF)
-    set(BUILD_GME OFF)
-    set(BUILD_TIMIDITYSDL OFF)
-    set(BUILD_MODPLUG OFF)
-    set(BUILD_LIBXMP OFF)
-    set(BUILD_OPUS OFF)
-    set(BUILD_WAVPACK OFF)
-    set(BUILD_FLUIDLITE OFF)
-    set(BUILD_ADLMIDI ON)
-    set(BUILD_OPNMIDI ON)
-    set(BUILD_EDMIDI OFF)
-endif()
-add_subdirectory(${audiocodecs_SOURCE_DIR} ${audiocodecs_BINARY_DIR})
-
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(CODECS_BUILD_STATIC ON)
+set(BUILD_OGG_VORBIS OFF)
+set(BUILD_MPG123 OFF)
+set(BUILD_FLAC OFF)
+set(BUILD_GME OFF)
+set(BUILD_TIMIDITYSDL OFF)
+set(BUILD_MODPLUG OFF)
+set(BUILD_LIBXMP OFF)
+set(BUILD_OPUS OFF)
+set(BUILD_WAVPACK OFF)
+set(BUILD_FLUIDLITE OFF)
+set(BUILD_ADLMIDI ON)
+set(BUILD_OPNMIDI ON)
+set(BUILD_EDMIDI OFF)
+FetchContent_MakeAvailable(AudioCodecs)
+get_property(allTargets DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
+message(STATUS "Targets: ${allTargets}")
 # --- SDL2 Mixer X--- #
-
 FetchContent_Declare(
     SDLMixerX
     GIT_REPOSITORY https://github.com/WohlSoft/SDL-Mixer-X
-    GIT_TAG f7d4549e98afd6436791a70c1cf9b79781895dc1
+    GIT_TAG 719385b8126870c65815d177f331548f9d480509
 )
 
 FetchContent_GetProperties(SDLMixerX)

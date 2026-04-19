@@ -5,7 +5,7 @@
 
 mkdir build
 cd build
-cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -GNinja ..
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -GNinja ..
 ln -sf compile_commands.json ../compile_commands.json
 
 ninja
