@@ -72,9 +72,7 @@ LockScreen::LockScreen(
     mExit{
         mLayout.GetWidgetLocation(mExitRequest),
         mLayout.GetWidgetDimensions(mExitRequest),
-        std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
+        mIcons.GetButtonTextures(mExitButton),
         [this]{ mGuiManager.ExitLock(); },
         []{}
     },

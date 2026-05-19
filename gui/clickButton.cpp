@@ -221,6 +221,24 @@ ClickButtonImage::ClickButtonImage(
     AddChildren();
 }
 
+ClickButtonImage::ClickButtonImage(
+    glm::vec2 pos,
+    glm::vec2 dims,
+    const ButtonTextures& textures,
+    std::function<void()>&& onLeftMousePress,
+    std::function<void()>&& onRightMousePress)
+:
+    ClickButtonImage{
+        pos,
+        dims,
+        textures.mSpriteSheet,
+        textures.mNormal,
+        textures.mPressed,
+        std::move(onLeftMousePress),
+        std::move(onRightMousePress)}
+{
+}
+
 bool ClickButtonImage::OnMouseEvent(const MouseEvent& event)
 {
     std::visit(overloaded{

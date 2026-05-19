@@ -93,9 +93,7 @@ CampScreen::CampScreen(
         mButtons.emplace_back(
             mLayout.GetWidgetLocation(i),
             mLayout.GetWidgetDimensions(i),
-            std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(w.mImage)),
-            std::get<Graphics::TextureIndex>(mIcons.GetButton(w.mImage)),
-            std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(w.mImage)),
+            mIcons.GetButtonTextures(w.mImage),
             [this, i]{ HandleButton(i); },
             []{});
     }

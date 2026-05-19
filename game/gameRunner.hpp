@@ -48,6 +48,12 @@ public:
     BAK::GenericContainer* mContainer;
 };
 
+struct CombatCheckResult
+{
+    bool mCombatActive;
+    bool mCombatScouted;
+};
+
 class ActiveCombatant {
 public:
     BAK::EntityIndex mItemId;
@@ -95,8 +101,7 @@ public:
     void LoadSystems();
 
     void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container);
-    // Returns <combatActive, combatScouted>
-    std::pair<bool, bool> CheckCombatEncounter(
+    CombatCheckResult CheckCombatEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Combat& combat);
     void CheckAndDoCombatEncounter(

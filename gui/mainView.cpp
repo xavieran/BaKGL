@@ -55,15 +55,14 @@ MainView::MainView(
         {
         case 3: //REQ_IMAGEBUTTON
         {
+            const auto textures = icons.GetButtonTextures(widget.mImage);
             const auto& button = icons.GetButton(widget.mImage);
             assert(std::get<Graphics::SpriteSheetIndex>(button)
-                == std::get<Graphics::SpriteSheetIndex>(icons.GetPressedButton(widget.mImage)));
+                == textures.mSpriteSheet);
             mButtons.emplace_back(
                 mLayout.GetWidgetLocation(i),
                 mLayout.GetWidgetDimensions(i),
-                std::get<Graphics::SpriteSheetIndex>(button),
-                std::get<Graphics::TextureIndex>(button),
-                std::get<Graphics::TextureIndex>(icons.GetPressedButton(widget.mImage)),
+                textures,
                 [this, buttonIndex=i]{ HandleButton(buttonIndex); },
                 []{});
 
