@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graphics/sprites.hpp"
+#include "gui/core/buttonTextures.hpp"
 
 #include <glm/glm.hpp>
 
@@ -23,6 +24,7 @@ public:
 
     IconInfo GetButton(unsigned i) const;
     IconInfo GetPressedButton(unsigned i) const;
+    ButtonTextures GetButtonTextures(unsigned i) const;
     IconInfo GetInventoryIcon(unsigned i) const;
     IconInfo GetStippledBorderHorizontal() const;
     IconInfo GetStippledBorderVertical() const;

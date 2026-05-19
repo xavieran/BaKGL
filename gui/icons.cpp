@@ -110,6 +110,17 @@ Icons::IconInfo Icons::GetPressedButton(unsigned i) const
         mButtonIconsDims[index]);
 }
 
+ButtonTextures Icons::GetButtonTextures(unsigned i) const
+{
+    const auto& normal = GetButton(i);
+    const auto& pressed = GetPressedButton(i);
+    return ButtonTextures{
+        std::get<Graphics::SpriteSheetIndex>(normal),
+        std::get<Graphics::TextureIndex>(normal),
+        std::get<Graphics::TextureIndex>(pressed)
+    };
+}
+
 Icons::IconInfo Icons::GetInventoryIcon(unsigned i) const
 {
     ASSERT(i < mInventoryIconsDims.size());

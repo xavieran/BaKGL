@@ -46,18 +46,14 @@ InventoryScreen::InventoryScreen(
     mNextPage{
         mLayout.GetWidgetLocation(mNextPageRequest),
         mLayout.GetWidgetDimensions(mNextPageRequest),
-        std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mNextPageButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetButton(mNextPageButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mNextPageButton)),
+        mIcons.GetButtonTextures(mNextPageButton),
         [this]{ AdvanceNextPage(); },
         []{}
     },
     mExit{
         mLayout.GetWidgetLocation(mExitRequest),
         mLayout.GetWidgetDimensions(mExitRequest),
-        std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
+        mIcons.GetButtonTextures(mExitButton),
         [this]{
             mGuiManager.ExitInventory();
         },

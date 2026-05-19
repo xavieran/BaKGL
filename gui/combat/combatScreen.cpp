@@ -73,9 +73,7 @@ CombatScreen::CombatScreen(
     mExit{
         mLayout.GetWidgetLocation(mExitRequest) - glm::vec2{30, 30},
         mLayout.GetWidgetDimensions(mExitRequest),
-        std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(mExitButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetButton(mExitButton)),
-        std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(mExitButton)),
+        mIcons.GetButtonTextures(mExitButton),
         [this]{
             mGuiManager.ExitSimpleScreen();
         },
@@ -84,24 +82,14 @@ CombatScreen::CombatScreen(
     mShoot{
         mLayout.GetWidgetLocation(mShootButton) + gButtonPosOffset,
         mLayout.GetWidgetDimensions(mShootButton) + gButtonDimOffset,
-        std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(
-            mLayout.GetWidget(mShootButton).mImage)),
-        std::get<Graphics::TextureIndex>(mIcons.GetButton(
-            mLayout.GetWidget(mShootButton).mImage)),
-        std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(
-            mLayout.GetWidget(mShootButton).mImage)),
+        mIcons.GetButtonTextures(mLayout.GetWidget(mShootButton).mImage),
         [this]{ HandleButton(mShootButton); },
         []{}
     },
     mCast{
         mLayout.GetWidgetLocation(mCastButton) + gButtonPosOffset,
         mLayout.GetWidgetDimensions(mCastButton) + gButtonDimOffset,
-        std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(
-            mLayout.GetWidget(mCastButton).mImage)),
-        std::get<Graphics::TextureIndex>(mIcons.GetButton(
-            mLayout.GetWidget(mCastButton).mImage)),
-        std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(
-            mLayout.GetWidget(mCastButton).mImage)),
+        mIcons.GetButtonTextures(mLayout.GetWidget(mCastButton).mImage),
         [this]{ HandleButton(mCastButton); },
         []{}
     },
@@ -122,19 +110,15 @@ CombatScreen::CombatScreen(
             {
                 continue;
             }
-            const auto& button = icons.GetButton(widget.mImage);
-            assert(std::get<Graphics::SpriteSheetIndex>(button)
-                == std::get<Graphics::SpriteSheetIndex>(icons.GetPressedButton(widget.mImage)));
             if (i == mShootButton || i == mCastButton || i == mLeaveShootButton)
             {
                 continue;
             }
+            const auto textures = icons.GetButtonTextures(widget.mImage);
             mButtons.emplace_back(
                 mLayout.GetWidgetLocation(i) + gButtonPosOffset,
                 mLayout.GetWidgetDimensions(i) + gButtonDimOffset,
-                std::get<Graphics::SpriteSheetIndex>(button),
-                std::get<Graphics::TextureIndex>(button),
-                std::get<Graphics::TextureIndex>(icons.GetPressedButton(widget.mImage)),
+                textures,
                 [this, buttonIndex=i]{ HandleButton(buttonIndex); },
                 []{});
         } break;

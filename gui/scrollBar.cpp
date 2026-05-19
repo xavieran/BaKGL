@@ -46,18 +46,14 @@ ScrollBar::ScrollBar(
     mUp{
         glm::vec2{0},
         std::get<glm::vec2>(icons.GetButton(1)),
-        std::get<Graphics::SpriteSheetIndex>(icons.GetButton(1)),
-        std::get<Graphics::TextureIndex>(icons.GetButton(1)),
-        std::get<Graphics::TextureIndex>(icons.GetPressedButton(1)),
+        icons.GetButtonTextures(1),
         []{ },//Scroll(glm::vec2{0, 1}); },
         []{}
     },
     mDown{
         glm::vec2{0, 16},
         std::get<glm::vec2>(icons.GetButton(1)),
-        std::get<Graphics::SpriteSheetIndex>(icons.GetButton(1)),
-        std::get<Graphics::TextureIndex>(icons.GetButton(1)),
-        std::get<Graphics::TextureIndex>(icons.GetPressedButton(1)),
+        icons.GetButtonTextures(1),
         []{}, //Scroll(glm::vec2{0, -1}); },
         []{}
     }

@@ -13,7 +13,6 @@
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
 #include "bak/state/encounter.hpp"
-#include "bak/state/event.hpp"
 #include "bak/time.hpp"
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
@@ -377,8 +376,7 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
     mCurrentInteractable->BeginInteraction(container, et);
 }
 
-// Returns <combatActive, combatScouted>
-std::pair<bool, bool> GameRunner::CheckCombatEncounter(
+CombatCheckResult GameRunner::CheckCombatEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Combat& combat)
 {
@@ -386,13 +384,13 @@ std::pair<bool, bool> GameRunner::CheckCombatEncounter(
     if (!BAK::State::CheckCombatActive(mGameState, encounter, mGameState.GetZone()))
     {
         mLogger.Debug() << __FUNCTION__ << " Combat inactive\n";
-        return std::make_pair(false, false);
+        return CombatCheckResult(false, false);
     }
 
     if (!combat.mIsAmbush)
     {
         mLogger.Debug() << __FUNCTION__ << " Combat is not ambush\n";
-        return std::make_pair(true, false);
+        return CombatCheckResult(true, false);
     }
     else
     {
@@ -401,7 +399,7 @@ std::pair<bool, bool> GameRunner::CheckCombatEncounter(
         const auto arg_dontDoCombatIfIsAmbush = false;
         if (arg_dontDoCombatIfIsAmbush)
         {
-            return std::make_pair(false, false);
+            return CombatCheckResult(false, false);
         }
         else
         {
@@ -425,17 +423,17 @@ std::pair<bool, bool> GameRunner::CheckCombatEncounter(
                     mGameState.Apply(BAK::State::SetCombatEncounterScoutedState,
                         encounter.GetIndex().mValue, true);
 
-                    return std::make_pair(false, true);
+                    return CombatCheckResult(false, true);
                 }
                 else
                 {
-                    return std::make_pair(true, false);
+                    return CombatCheckResult(true, false);
                 }
             }
             else
             {
                 mLogger.Debug() << __FUNCTION__ << " Combat was scouted already\n";
-                return std::make_pair(true, false);
+                return CombatCheckResult(true, false);
             }
         }
     }
@@ -484,7 +482,7 @@ void GameRunner::CheckAndDoCombatEncounter(
 
     // Check whether players are in valid combatable position???
     auto timeOfScouting = mGameState.Apply(BAK::State::GetCombatClickedTime, combat.mCombatIndex);
-    auto timeDiff = (mGameState.GetWorldTime().GetTime()- timeOfScouting).mTime;
+    auto timeDiff = (mGameState.GetWorldTime().GetTime() - timeOfScouting).mTime;
     if ((timeDiff / 0x1e) < 0x1e) // within scouting valid time
     {
         auto chance = GetRandomNumber(0, 0xfff) % 100;

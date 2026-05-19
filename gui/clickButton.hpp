@@ -4,6 +4,7 @@
 #include "gui/textBox.hpp"
 #include "gui/core/widget.hpp"
 #include "gui/core/mouseEvent.hpp"
+#include "gui/core/buttonTextures.hpp"
 
 namespace Gui {
 
@@ -65,6 +66,13 @@ public:
         Graphics::SpriteSheetIndex spriteSheet,
         Graphics::TextureIndex normal,
         Graphics::TextureIndex pressed,
+        std::function<void()>&& onLeftMousePress,
+        std::function<void()>&& onRightMousePress);
+
+    ClickButtonImage(
+        glm::vec2 pos,
+        glm::vec2 dims,
+        const ButtonTextures& textures,
         std::function<void()>&& onLeftMousePress,
         std::function<void()>&& onRightMousePress);
     

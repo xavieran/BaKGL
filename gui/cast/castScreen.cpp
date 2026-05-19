@@ -158,9 +158,7 @@ void CastScreen::PrepareLayout()
         mButtons.emplace_back(
             layout.GetWidgetLocation(i),
             layout.GetWidgetDimensions(i) + (mInCombat ? glm::vec2{2, 3} : glm::vec2{}),
-            std::get<Graphics::SpriteSheetIndex>(mIcons.GetButton(image)),
-            std::get<Graphics::TextureIndex>(mIcons.GetButton(image)),
-            std::get<Graphics::TextureIndex>(mIcons.GetPressedButton(image)),
+            mIcons.GetButtonTextures(image),
             [this, i]{ HandleButton(i); },
             []{});
     }
