@@ -154,27 +154,19 @@ public:
         mPickTexture{GL_TEXTURE_2D},
         mPickDepth{GL_TEXTURE_2D},
         mDepthMapDims{depthMapWidth, depthMapHeight},
-        mDepthFB1{},
-        mDepthFB2{},
-        mDepthBuffer1{GL_TEXTURE_2D},
-        mDepthBuffer2{GL_TEXTURE_2D},
-        mScreenDims{screenWidth, screenHeight},
-        mUseDepthBuffer1{false}
+        mDepthFB{},
+        mDepthBuffer{GL_TEXTURE_2D},
+        mScreenDims{screenWidth, screenHeight}
     {
         mPickTexture.MakePickBuffer(screenWidth, screenHeight);
         mPickDepth.MakeDepthBuffer(screenWidth, screenHeight);
         mPickFB.AttachTexture(mPickTexture);
         mPickFB.AttachDepthTexture(mPickDepth, false);
 
-        mDepthBuffer1.MakeDepthBuffer(
+        mDepthBuffer.MakeDepthBuffer(
             mDepthMapDims.x, 
             mDepthMapDims.y);
-        mDepthFB1.AttachDepthTexture(mDepthBuffer1, true);
-
-        mDepthBuffer2.MakeDepthBuffer(
-            mDepthMapDims.x, 
-            mDepthMapDims.y);
-        mDepthFB2.AttachDepthTexture(mDepthBuffer2, true);
+        mDepthFB.AttachDepthTexture(mDepthBuffer, true);
     }
 
     template <typename Renderables, typename DynamicRenderables, typename Camera>
@@ -266,10 +258,7 @@ public:
         renderData.Bind(GL_TEXTURE0);
 
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D,
-            mUseDepthBuffer1
-            ? mDepthBuffer1.GetId()
-            : mDepthBuffer2.GetId());
+        glBindTexture(GL_TEXTURE_2D, mDepthBuffer.GetId());
 
         auto& shader = isSprite ? mSpriteShader : mModelShader;
         auto& uniforms = isSprite ? mSpriteShaderUniforms : mModelShaderUniforms;
@@ -338,32 +327,14 @@ public:
 
     void BeginDepthMapDraw()
     {
-        if (mUseDepthBuffer1)
-        {
-            mDepthFB1.BindGL();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glViewport(0, 0, mDepthMapDims.x, mDepthMapDims.y);
-        }
-        else
-        {
-            mDepthFB2.BindGL();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glViewport(0, 0, mDepthMapDims.x, mDepthMapDims.y);
-        }
+        mDepthFB.BindGL();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, mDepthMapDims.x, mDepthMapDims.y);
     }
 
     void EndDepthMapDraw()
     {
-        if (mUseDepthBuffer1)
-        {
-            mDepthFB1.UnbindGL();
-        }
-        else
-        {
-            mDepthFB2.UnbindGL();
-        }
-
-        mUseDepthBuffer1 = !mUseDepthBuffer1;
+        mDepthFB.UnbindGL();
     }
 
     template <typename Renderables, typename Camera>
@@ -421,12 +392,9 @@ private:
     TextureBuffer mPickTexture;
     TextureBuffer mPickDepth;
     glm::uvec2 mDepthMapDims;
-    FrameBuffer mDepthFB1;
-    FrameBuffer mDepthFB2;
-    TextureBuffer mDepthBuffer1;
-    TextureBuffer mDepthBuffer2;
+    FrameBuffer mDepthFB;
+    TextureBuffer mDepthBuffer;
     glm::vec2 mScreenDims;
-    bool mUseDepthBuffer1;
 };
 
 }
