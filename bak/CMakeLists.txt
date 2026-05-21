@@ -42,7 +42,7 @@ add_library(bak
     keyContainer.hpp keyContainer.cpp
     layout.hpp layout.cpp
     lock.hpp lock.cpp
-    lua/core.hpp lua/core.cpp lua/types.hpp lua/types.cpp
+    lua/core.hpp lua/core.cpp lua/hooks.hpp lua/hooks.cpp lua/types.hpp lua/types.cpp
     model.hpp model.cpp
     money.hpp money.cpp
     monster.hpp monster.cpp

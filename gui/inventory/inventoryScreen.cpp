@@ -1,11 +1,11 @@
 #include "gui/inventory/inventoryScreen.hpp"
 
 #include "bak/haggle.hpp"
+#include "bak/lua/hooks.hpp"
 #include "bak/inventoryItem.hpp"
 #include "bak/itemInteractions.hpp"
 #include "bak/itemNumbers.hpp"
 #include "bak/money.hpp"
-#include "bak/objectInfo.hpp"
 
 namespace Gui {
 
@@ -564,54 +564,72 @@ void InventoryScreen::HaggleItem(
 
     mGameState.SetActiveCharacter(GetCharacter(character).mCharacterIndex);
     const auto& item = slot.GetItem();
+
     if (item.GetItemIndex() == BAK::sScroll)
     {
         mDialogScene.ResetDialogFinished();
         mGameState.SetActiveCharacter(
             GetCharacter(character).mCharacterIndex);
-        StartDialog(BAK::DialogSources::mCantHaggleScroll);
+        if (auto luaKey = BAK::Lua::OnCantHaggleScroll(mGameState))
+            StartDialog(*luaKey);
+        else
+            StartDialog(BAK::DialogSources::mCantHaggleScroll);
         return;
     }
 
+    auto& shopStats = mContainer->GetShop();
     const auto result = BAK::Haggle::TryHaggle(
         mGameState.GetParty(),
         character,
-        mContainer->GetShop(),
+        shopStats,
         item.GetItemIndex(),
         mShopScreen.GetDiscount(slot.GetItemIndex()).mValue);
+
+    auto itemType = item.GetObject().mType;
 
     if (!result)
     {
         mDialogScene.ResetDialogFinished();
         mGameState.SetActiveCharacter(
             GetCharacter(character).mCharacterIndex);
-        StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
+        if (auto luaKey = BAK::Lua::OnHaggleFail(mGameState, itemType))
+            StartDialog(*luaKey);
+        else
+            StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
         mNeedRefresh = true;
         return;
     }
 
-    const auto value = BAK::Royals{*result};
-    mShopScreen.SetItemDiscount(slot.GetItemIndex(), value);
+    mShopScreen.SetItemDiscount(
+        slot.GetItemIndex(),
+        BAK::Royals{result->mDiscount});
 
-    if (result && value == BAK::sUnpurchaseablePrice)
+    if (result->mDiscount == BAK::sUnpurchaseablePrice.mValue)
     {
         mDialogScene.ResetDialogFinished();
         mGameState.SetActiveCharacter(
             GetCharacter(character).mCharacterIndex);
-        StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
+        if (auto luaKey = BAK::Lua::OnHaggleFail(mGameState, itemType))
+            StartDialog(*luaKey);
+        else
+            StartDialog(BAK::DialogSources::mFailHaggleItemUnavailable);
         mNeedRefresh = true;
     }
     else
     {
+        auto haggleKey = BAK::KeyTarget{BAK::DialogSources::mSucceedHaggle};
+        if (auto luaKey = BAK::Lua::OnHaggleSuccess(
+                mGameState, result->mDiscountPct))
+            haggleKey = *luaKey;
+
         mGameState.SetActiveCharacter(
             GetCharacter(character).mCharacterIndex);
-        StartDialog(BAK::DialogSources::mSucceedHaggle);
+        StartDialog(haggleKey);
         mDialogScene.SetDialogFinished(
             [this, &slot, character](const auto& choice)
             {
                 SplitStackBeforeTransferItemToCharacter(slot, character);
             });
-        // So that the slot reference above is not invalid
         mNeedRefresh = false;
     }
 }
