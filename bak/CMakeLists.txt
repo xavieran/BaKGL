@@ -41,6 +41,7 @@ add_library(bak
     keyContainer.hpp keyContainer.cpp
     layout.hpp layout.cpp
     lock.hpp lock.cpp
+    lua/core.hpp lua/core.cpp lua/types.hpp lua/types.cpp
     model.hpp model.cpp
     money.hpp money.cpp
     monster.hpp monster.cpp
@@ -88,7 +89,9 @@ target_link_libraries(bak
     bakEncounter
     bakFile
     bakState
-    graphics)
+    graphics
+    ${LUA_LIBRARIES}
+    LuaBridge)
 
 #set_target_properties(
 #    bak
