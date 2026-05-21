@@ -25,7 +25,7 @@ int HaggleRollRandomNumber(int skillValue)
     return maxRoll;
 }
 
-std::optional<unsigned> DoFailHaggle(Party& party, const ShopStats& shop, int randomSkillFactor)
+std::optional<HaggleResult> DoFailHaggle(Party& party, const ShopStats& shop, int randomSkillFactor)
 {
     const int skillImprovedTest = GetRandomNumber(0, 0xfff) % 100;
     // the higher the skill, the less likely we train it
@@ -38,7 +38,7 @@ std::optional<unsigned> DoFailHaggle(Party& party, const ShopStats& shop, int ra
     const auto shopAnnoyedTest = GetRandomNumber(0, 0xfff) % 100;
     if (shopAnnoyedTest < shop.mHaggleAnnoyanceFactor)
     {
-        return std::make_optional(sUnpurchaseablePrice.mValue);
+        return HaggleResult{sUnpurchaseablePrice.mValue, 0};
     }
 
     return std::nullopt;
@@ -53,7 +53,7 @@ std::pair<unsigned, unsigned> GetHaggleWinMargin(unsigned characterSkillValue, u
         std::clamp(randomSkillFactor - randomShopHaggleFactor, 0, randomSkillFactor));
 }
 
-std::optional<unsigned> TryHaggle(
+std::optional<HaggleResult> TryHaggle(
     Party& party,
     ActiveCharIndex character,
     ShopStats& shop,
@@ -93,7 +93,7 @@ std::optional<unsigned> TryHaggle(
         party.ImproveSkillForAll(SkillType::Haggling, SkillChange::ExercisedSkill, 1);
         party.GetCharacter(character).ImproveSkill(SkillType::Haggling, SkillChange::ExercisedSkill, 1);
 
-        return std::make_optional(discountAmount);
+        return HaggleResult(discountAmount, randomDiscount);
     }
     else
     {

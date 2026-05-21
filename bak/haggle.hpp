@@ -13,7 +13,13 @@ struct ShopStats;
 
 namespace BAK::Haggle {
 
-std::optional<unsigned> TryHaggle(
+struct HaggleResult
+{
+    unsigned mDiscount;
+    unsigned mDiscountPct;
+};
+
+std::optional<HaggleResult> TryHaggle(
     Party& party,
     ActiveCharIndex character,
     ShopStats& shop,
