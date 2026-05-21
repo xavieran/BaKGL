@@ -3,6 +3,7 @@
 #include "bak/backgroundSounds.hpp"
 #include "bak/camera.hpp"
 #include "bak/constants.hpp"
+#include "bak/dialogJson.hpp"
 #include "bak/lua/core.hpp"
 
 #include "bak/state/encounter.hpp"
@@ -195,6 +196,15 @@ int main(int argc, char** argv)
     if (!config.mPaths.mGraphicsOverrides.empty())
     {
         Paths::Get().SetModDirectory(config.mPaths.mGraphicsOverrides);
+    }
+
+    {
+        const auto defaultDialog = (Paths::Get().GetBakDirectoryPath() / "dialogMods").string();
+        auto dialogsDir = config.mPaths.mDialogMods.empty()
+            ? defaultDialog
+            : config.mPaths.mDialogMods;
+        logger.Info() << "Try to load dialog overrides from directory: " << dialogsDir << "\n";
+        BAK::DialogJson::LoadAllFromDirectory(dialogsDir);
     }
 
     {

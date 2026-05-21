@@ -21,6 +21,7 @@ add_library(bak
     dialogReplacements.hpp dialogReplacements.cpp
     dialogAction.hpp dialogAction.cpp
     dialogChoice.hpp dialogChoice.cpp
+    dialogJson.hpp dialogJson.cpp
     dialogSources.hpp dialogSources.cpp
     dialogTarget.hpp dialogTarget.cpp
     entityType.hpp entityType.cpp

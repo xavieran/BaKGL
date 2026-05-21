@@ -67,6 +67,7 @@ enum class ChoiceStyle
 class DialogSnippet
 {
 public:
+    DialogSnippet() = default;
     DialogSnippet(FileBuffer& fb, std::uint8_t dialogFile);
 
     const auto& GetActions() const { return mActions; }
@@ -125,12 +126,14 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d);
 class DialogStore
 {
 public:
-    static const DialogStore& Get();
+    static DialogStore& Get();
 
     void ShowAllDialogs();
     void ShowDialog(Target dialogKey);
 
     const DialogSnippet& GetSnippet(Target target) const;
+
+    void InjectDialog(KeyTarget key, DialogSnippet snippet);
 
     bool HasSnippet(Target target) const;
 
@@ -155,6 +158,10 @@ private:
     std::unordered_map<
         OffsetTarget,
         DialogSnippet> mSnippetMap;
+
+    std::unordered_map<
+        KeyTarget,
+        DialogSnippet> mOverrideDialogs;
 
     const Logging::Logger& mLogger;
 };

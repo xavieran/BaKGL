@@ -384,10 +384,15 @@ std::ostream& operator<<(std::ostream& os, const DialogSnippet& d)
     return os;
 }
 
-const DialogStore& DialogStore::Get()
+DialogStore& DialogStore::Get()
 {
     static DialogStore dialogStore{};
     return dialogStore;
+}
+
+void DialogStore::InjectDialog(KeyTarget key, DialogSnippet snippet)
+{
+    mOverrideDialogs.emplace(key, std::move(snippet));
 }
 
 DialogStore::DialogStore()
@@ -501,6 +506,12 @@ std::string_view DialogStore::GetFirstText(const DialogSnippet& snippet) const
 
 const DialogSnippet& DialogStore::operator()(KeyTarget dialogKey) const 
 {
+    auto overrideIt = mOverrideDialogs.find(dialogKey);
+    if (overrideIt != mOverrideDialogs.end())
+    {
+        return overrideIt->second;
+    }
+
     auto it = mDialogMap.find(dialogKey);
     if (it == mDialogMap.end())
     {
