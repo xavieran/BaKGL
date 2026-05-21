@@ -18,6 +18,7 @@ Paths LoadPaths(const nlohmann::json& config)
         paths.mSaves = c.value("Saves", "");
         paths.mGameData = c.value("GameData", "");
         paths.mGraphicsOverrides = c.value("GraphicsOverrides", "");
+        paths.mLuaMods = c.value("LuaMods", "");
     }
     return paths;
 }

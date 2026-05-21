@@ -3,6 +3,7 @@
 #include "bak/backgroundSounds.hpp"
 #include "bak/camera.hpp"
 #include "bak/constants.hpp"
+#include "bak/lua/core.hpp"
 
 #include "bak/state/encounter.hpp"
 #include "bak/encounter//encounter.hpp"
@@ -194,6 +195,15 @@ int main(int argc, char** argv)
     if (!config.mPaths.mGraphicsOverrides.empty())
     {
         Paths::Get().SetModDirectory(config.mPaths.mGraphicsOverrides);
+    }
+
+    {
+        const auto defaultLuaMods = (Paths::Get().GetBakDirectoryPath() / "luaMods").string();
+        auto luaModsPath = config.mPaths.mLuaMods.empty()
+            ? defaultLuaMods
+            : config.mPaths.mLuaMods;
+        logger.Info() << "Try to load lua mods from directory: " << luaModsPath << "\n";
+        BAK::Lua::Initialize(luaModsPath);
     }
 
     if (config.mAudio.mEnableAudio)

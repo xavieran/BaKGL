@@ -24,7 +24,9 @@ string(CONCAT CXX_IGNORES
     #glm/gtx/string_cast.inl:25:40: error: comparison of unsigned expression in ‘>= 0’ is always true [-Werror=type-limits]
     # 25 |                 assert(strlen(message) >= 0 && strlen(message) < STRING_BUFFER);
     "-Wno-type-limits "
-    "-Wno-volatile ")
+    "-Wno-volatile "
+    # imgui uses memset on non-trivially copyable types
+    "-Wno-nontrivial-memcall ")
 
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -122,6 +124,45 @@ if (NOT GLFW3_LIBRARY)
 endif()
 
 include_directories(${GLFW_SOURCE_DIR}/include)
+
+# --- LUA (built from source) --- #
+FetchContent_Declare(
+    lua
+    GIT_REPOSITORY https://github.com/lua/lua
+    GIT_TAG v5.4.7
+)
+FetchContent_GetProperties(lua)
+if(NOT lua_POPULATED)
+    FetchContent_Populate(lua)
+    file(GLOB LUA_SRC "${lua_SOURCE_DIR}/*.c")
+    list(REMOVE_ITEM LUA_SRC
+        "${lua_SOURCE_DIR}/lua.c"
+        "${lua_SOURCE_DIR}/luac.c"
+        "${lua_SOURCE_DIR}/onelua.c")
+    add_library(lua STATIC ${LUA_SRC})
+    target_include_directories(lua PUBLIC "${lua_SOURCE_DIR}")
+    set_property(TARGET lua PROPERTY POSITION_INDEPENDENT_CODE ON)
+    file(WRITE "${lua_SOURCE_DIR}/lua.hpp"
+        "extern \"C\" {\n"
+        "#include \"lua.h\"\n"
+        "#include \"lualib.h\"\n"
+        "#include \"lauxlib.h\"\n"
+        "}\n")
+    set(LUA_INCLUDE_DIRS "${lua_SOURCE_DIR}" CACHE INTERNAL "")
+    set(LUA_LIBRARIES lua CACHE INTERNAL "")
+endif()
+
+# --- LUABRIDGE3 (header-only C++ Lua binding) --- #
+FetchContent_Declare(
+    luabridge3
+    GIT_REPOSITORY https://github.com/kunitoki/LuaBridge3
+    GIT_TAG master
+)
+FetchContent_GetProperties(luabridge3)
+if(NOT luabridge3_POPULATED)
+    FetchContent_Populate(luabridge3)
+    add_subdirectory(${luabridge3_SOURCE_DIR}/Source ${luabridge3_BINARY_DIR})
+endif()
 
 # --- GOOGLETEST --- #
 FetchContent_Declare(
@@ -281,6 +322,7 @@ include(InstallRequiredSystemLibraries)
 
 # --- My project directories --- #
 include_directories(".")
+include_directories(${LUA_INCLUDE_DIRS})
 
 list(APPEND SOURCE_DIRECTORIES
     "app"

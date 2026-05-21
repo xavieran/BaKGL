@@ -10,3 +10,5 @@ imgui.ini
 tags
 shaders/gen
 shaders/shader_binary_cache.hxx
+*/*pycache*
+dialog
