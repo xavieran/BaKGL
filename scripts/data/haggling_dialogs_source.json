@@ -1,0 +1,66 @@
+{
+  "ranges": [
+    {
+      "id": "massive",
+      "min": 50,
+      "max": 100,
+      "snippets": [
+        "The @0 stared at the offer, his face draining of color. He looked from the item to the coin and back again. \"I... look, the truth is I'm being evicted at sunrise. The bailiff's already nailed the notice to my door. I'd rather see it in your hands than his inventory come morning.\"",
+        "\"You've got a good eye,\" the @0 said, lowering his voice. \"Better than the last three buyers who passed it over because of the scratch on the hilt. Between you and me, I've been trying to move this piece for two years. I'll take what I can get.\""
+      ]
+    },
+    {
+      "id": "deep",
+      "min": 25,
+      "max": 49,
+      "snippets": [
+        "\"You're robbing me,\" the @0 whispered. \"You know that, don't you? I paid my cousin three times what that's worth from the smithy in Sarth. But he's my cousin and he won't take returns. Consider it a family loss and never speak of this to anyone.\"",
+        "\"The merchants' guild sets a minimum on these,\" the @0 said, rubbing his temples. \"But the guild's not here and I've got a daughter who needs a healer. I'll have to come up with some story for the quarterly audit.\""
+      ]
+    },
+    {
+      "id": "moderate",
+      "min": 15,
+      "max": 24,
+      "snippets": [
+        "\"Look at that buckle,\" the @0 said, pointing. \"It's coming loose. And that stitching is not what it used to be. I'd be fleecing you at my usual price. You're doing me a favor by taking it.\"",
+        "\"Ah, you're a sharper one than I took you for,\" the @0 chuckled ruefully. \"I paid a fortune for this lot from a merchant in Krondor who swore it was pristine. Turns out he and my trust parted ways years ago. I've learned my lesson.\""
+      ]
+    },
+    {
+      "id": "small",
+      "min": 10,
+      "max": 14,
+      "snippets": [
+        "\"Not because you've earned it,\" the @0 allowed, \"but because the weather's been bad and I'd like to close up early.\"",
+        "\"You're bold, I'll give you that,\" the @0 said, as if tasting the words. \"Most people just pay what's asked. Alright, but I'm not happy about it.\""
+      ]
+    },
+    {
+      "id": "token",
+      "min": 5,
+      "max": 9,
+      "snippets": [
+        "\"All right, you win,\" the @0 said, raising his palms. \"That's a gesture of goodwill, not a negotiation. Take it or leave it.\"",
+        "The @0 blinked. \"You're haggling me over that? I spend more than that on cleaning rags. Fine. Happy?\""
+      ]
+    },
+    {
+      "id": "negligible",
+      "min": 0,
+      "max": 4,
+      "snippets": [
+        "\"I can give you a little off,\" the @0 said cautiously. \"A very little. A token. Something that makes me feel generous and you feel victorious.\"",
+        "\"I'll go as low as this,\" the @0 said, pinching his fingers close together. \"It's practically symbolic, but so is your offer.\""
+      ]
+    }
+  ],
+  "fails": [
+    "@1 thought he had worn the @0 down at last. The merchant's shoulders sagged and he let out a long sigh. Then he reached under the counter and produced a small wooden sign that read \"No Haggling. Guild Rule .7.\"\n\t\"Read it and weep,\" the @0 said. \"I value my guild membership more than your coin.\"",
+    "@1 felt he was making real progress when a large cat wound its way through the @0's legs. The merchant looked down, scooped up the cat, and began stroking it, utterly ignoring @1.\n\t\"The cat agrees with me,\" the @0 said. \"She has excellent judgement. The price is firm.\""
+  ],
+  "fails_sword": [
+    "Although it was plain the @0 had no intention of lowering the price, @1 pressed on, drawing the merchant's attention to the many flaws in his product. The @0 listened without reply, turning the sword over in his hands. At last he set it flat upon the counter and pushed it back across the wood.\n\t\"When you're facing down a pair of trolls with the stick you carry now I think you'll find my price fair. Take it or leave.\"",
+    "@1 examined the sword with a critical eye and named a figure barely half what the @0 had asked. The merchant stared at him a moment, then took up a scrap of leather, drew the blade across it once, and let the two halves fall onto the counter.\n\t\"Pay it or don't, but do not insult me again."
+  ]
+}
