@@ -1,4 +1,9 @@
 #include "bak/gameData.hpp"
+#include "bak/save/world.hpp"
+#include "bak/save/party.hpp"
+#include "bak/save/character.hpp"
+#include "bak/save/combat.hpp"
+#include "bak/save/containers.hpp"
 
 extern "C" {
 #include "com/getopt.h"
@@ -179,7 +184,7 @@ int main(int argc, char** argv)
 
     if (options.party)
     {
-        auto party = gameData.LoadParty();
+        auto party = LoadParty(gameData.GetFileBuffer());
         logger.Info() << "Party: " << party << "\n";
     }
 
@@ -188,25 +193,25 @@ int main(int argc, char** argv)
         for (unsigned i = 0; i < 6; i++)
         {
             logger.Info() << "SkillAffectors for character: " << i
-                << " Affectors: " << gameData.GetCharacterSkillAffectors(BAK::CharIndex{i}) << "\n";
+                << " Affectors: " << GetCharacterSkillAffectors(gameData.GetFileBuffer(), BAK::CharIndex{i}) << "\n";
         }
     }
 
     if (options.time_state)
     {
-        logger.Info() << "TimeExpiringState: " << gameData.LoadTimeExpiringState() << "\n";
+        logger.Info() << "TimeExpiringState: " << LoadTimeExpiringState(gameData.GetFileBuffer()) << "\n";
     }
 
     if (options.spells)
     {
-        logger.Info() << "SpellState: " << std::hex << gameData.LoadSpells().GetSpells() << std::dec << "\n";
+        logger.Info() << "SpellState: " << std::hex << LoadSpells(gameData.GetFileBuffer()).GetSpells() << std::dec << "\n";
     }
 
     for (unsigned i = 0; i < 13; i++)
     {
         if (options.zones[i])
         {
-            auto containers = gameData.LoadContainers(i);
+            auto containers = LoadContainers(gameData.GetFileBuffer(), i);
             logger.Info() << "Containers(" << i << ")\n";
             for (auto& con : containers)
             {
@@ -218,7 +223,7 @@ int main(int argc, char** argv)
     if (options.shops)
     {
         logger.Info() << "Shops\n";
-        auto containers = gameData.LoadShops();
+        auto containers = LoadShops(gameData.GetFileBuffer());
         for (auto& con : containers)
         {
             logger.Info() << "  " << con << "\n";
@@ -227,7 +232,7 @@ int main(int argc, char** argv)
 
     if (options.combat_inventories)
     {
-        auto containers = gameData.LoadCombatInventories();
+        auto containers = LoadCombatInventories(gameData.GetFileBuffer());
         logger.Info() << "Combat Inventories\n";
         for (unsigned i = 0; i < containers.size(); i++)
         {
@@ -237,7 +242,7 @@ int main(int argc, char** argv)
 
     if (options.combat_grid)
     {
-        auto cgl = gameData.LoadCombatantGridLocations();
+        auto cgl = LoadCombatantGridLocations(gameData.GetFileBuffer());
         logger.Info() << "Combat Grid Locations\n";
         for (unsigned i = 0; i < cgl.size(); i++)
         {
@@ -248,7 +253,7 @@ int main(int argc, char** argv)
     if (options.combat_world)
     {
         logger.Info() << "CombatWorldLocations: \n";
-        auto cwl = gameData.LoadCombatWorldLocations();
+        auto cwl = LoadCombatWorldLocations(gameData.GetFileBuffer());
         for (unsigned i = 0; i < cwl.size(); i++)
         {
             logger.Info() << "  #" << i << " " << cwl[i] << "\n";
@@ -258,7 +263,7 @@ int main(int argc, char** argv)
     if (options.combat_lists)
     {
         logger.Info() << "CombatEntityLists: \n";
-        auto cel = gameData.LoadCombatEntityLists();
+        auto cel = LoadCombatEntityLists(gameData.GetFileBuffer());
         for (unsigned i = 0; i < cel.size(); i++)
         {
             logger.Info() << "  #" << i << " " << cel[i] << "\n";
@@ -268,7 +273,7 @@ int main(int argc, char** argv)
     if (options.combat_stats)
     {
         logger.Info() << "Combat Stats: \n";
-        auto skills = gameData.LoadCombatStats();
+        auto skills = LoadCombatStats(gameData.GetFileBuffer());
         for (unsigned i = 0; i < skills.size(); i++)
         {
             logger.Info() << "  #" << i << " " << skills[i] << "\n";
@@ -277,7 +282,7 @@ int main(int argc, char** argv)
     if (options.combat_click)
     {
         logger.Info() << "Combat Scouting Times: \n";
-        auto times = gameData.LoadCombatClickedTimes();
+        auto times = LoadCombatClickedTimes(gameData.GetFileBuffer());
         for (unsigned i = 0; i < times.size(); i++)
         {
             logger.Info() << "  #" << i << " " << times[i] << "\n";

@@ -3,7 +3,7 @@
 #include "bak/character.hpp"
 #include "bak/container.hpp"
 #include "bak/coordinates.hpp"
-#include "bak/gameData.hpp"
+#include "bak/save/saveOffsets.hpp"
 #include "bak/inventory.hpp"
 #include "bak/party.hpp"
 #include "bak/state/skill.hpp"
@@ -91,7 +91,7 @@ void Save(const Character& c, FileBuffer& fb)
 {
     const auto charIndex = c.mCharacterIndex.mValue;
     // Skills
-    fb.Seek(BAK::GameData::GetCharacterSkillOffset(charIndex));
+    fb.Seek(BAK::SaveOffsets::GetCharacterSkillOffset(charIndex));
     fb.Skip(2); // Character name offset
     auto* spells = reinterpret_cast<const std::uint8_t*>(&c.GetSpells().GetSpellBytes());
     for (unsigned i = 0; i < 6; i++)
@@ -114,20 +114,20 @@ void Save(const Character& c, FileBuffer& fb)
     }
 
     // Inventory
-    fb.Seek(BAK::GameData::GetCharacterInventoryOffset(charIndex));
+    fb.Seek(BAK::SaveOffsets::GetCharacterInventoryOffset(charIndex));
     fb.PutUint8(c.GetInventory().GetNumberItems());
     fb.PutUint16LE(c.GetInventory().GetCapacity());
     Save(c.GetInventory(), fb);
 
     // Conditions
-    fb.Seek(BAK::GameData::GetCharacterConditionOffset(charIndex));
+    fb.Seek(BAK::SaveOffsets::GetCharacterConditionOffset(charIndex));
     for (unsigned i = 0; i < Conditions::sNumConditions; i++)
     {
         const auto cond = c.mConditions.GetCondition(static_cast<BAK::Condition>(i));
         fb.PutUint8(cond.Get());
     }
 
-    fb.Seek(BAK::GameData::GetCharacterAffectorsOffset(charIndex));
+    fb.Seek(BAK::SaveOffsets::GetCharacterAffectorsOffset(charIndex));
     for (const auto& affector : c.GetSkillAffectors())
     {
         fb.PutUint16LE(affector.mType);
@@ -140,7 +140,7 @@ void Save(const Character& c, FileBuffer& fb)
 
 void Save(const Party& party, FileBuffer& fb)
 {
-    fb.Seek(GameData::sGoldOffset);
+    fb.Seek(SaveOffsets::sGoldOffset);
     fb.PutUint32LE(party.GetGold().mValue);
 
     for (const auto& character : party.mCharacters)
@@ -148,12 +148,12 @@ void Save(const Party& party, FileBuffer& fb)
         Save(character, fb);
     }
 
-    fb.Seek(BAK::GameData::sPartyKeyInventoryOffset);
+    fb.Seek(BAK::SaveOffsets::sPartyKeyInventoryOffset);
     fb.PutUint8(party.GetKeys().GetInventory().GetNumberItems());
     fb.PutUint16LE(party.GetKeys().GetInventory().GetCapacity());
     Save(party.GetKeys().GetInventory(), fb);
 
-    fb.Seek(GameData::sActiveCharactersOffset);
+    fb.Seek(SaveOffsets::sActiveCharactersOffset);
     fb.PutUint8(party.mActiveCharacters.size());
     for (const auto charIndex : party.mActiveCharacters)
         fb.PutUint8(charIndex.mValue);
@@ -161,14 +161,14 @@ void Save(const Party& party, FileBuffer& fb)
 
 void Save(const WorldClock& worldClock, FileBuffer& fb)
 {
-    fb.Seek(GameData::sTimeOffset);
+    fb.Seek(SaveOffsets::sTimeOffset);
     fb.PutUint32LE(worldClock.GetTime().mTime);
     fb.PutUint32LE(worldClock.GetTimeLastSlept().mTime);
 }
 
 void Save(const std::vector<TimeExpiringState>& storage, FileBuffer& fb)
 {
-    fb.Seek(GameData::sTimeExpiringEventRecordOffset);
+    fb.Seek(SaveOffsets::sTimeExpiringEventRecordOffset);
     fb.PutUint16LE(storage.size());
     for (const auto& state : storage)
     {
@@ -181,13 +181,13 @@ void Save(const std::vector<TimeExpiringState>& storage, FileBuffer& fb)
 
 void Save(const SpellState& spells, FileBuffer& fb)
 {
-    fb.Seek(GameData::sActiveSpells);
+    fb.Seek(SaveOffsets::sActiveSpells);
     fb.PutUint16LE(spells.GetSpells());
 }
 
 void Save(Chapter chapter, FileBuffer& fb)
 {
-    fb.Seek(GameData::sChapterOffset);
+    fb.Seek(SaveOffsets::sChapterOffset);
     fb.PutUint16LE(chapter.mValue);
     // Chapter again..?
     fb.Seek(0x64);
@@ -196,7 +196,7 @@ void Save(Chapter chapter, FileBuffer& fb)
 
 void Save(const MapLocation& location, FileBuffer& fb)
 {
-    fb.Seek(GameData::sMapPositionOffset);
+    fb.Seek(SaveOffsets::sMapPositionOffset);
     fb.PutUint16LE(location.mPosition.x);
     fb.PutUint16LE(location.mPosition.y);
     fb.PutUint16LE(location.mHeading);
@@ -204,7 +204,7 @@ void Save(const MapLocation& location, FileBuffer& fb)
 
 void Save(const Location& location, FileBuffer& fb)
 {
-    fb.Seek(GameData::sLocationOffset);
+    fb.Seek(SaveOffsets::sLocationOffset);
     fb.PutUint8(location.mZone.mValue);
     fb.PutUint8(location.mTile.x);
     fb.PutUint8(location.mTile.y);
@@ -216,8 +216,8 @@ void Save(const Location& location, FileBuffer& fb)
 
 void Save(const std::vector<CombatWorldLocation>& cwls, FileBuffer& fb)
 {
-    fb.Seek(GameData::sCombatWorldLocationsOffset);
-    assert(cwls.size() == GameData::sCombatWorldLocationsCount);
+    fb.Seek(SaveOffsets::sCombatWorldLocationsOffset);
+    assert(cwls.size() == SaveOffsets::sCombatWorldLocationsCount);
     for (const auto& cwl : cwls)
     {
         fb.PutUint32LE(cwl.mPosition.mPosition.x);

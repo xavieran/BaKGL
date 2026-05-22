@@ -8,6 +8,10 @@
 #include "bak/itemNumbers.hpp"
 #include "bak/gameData.hpp"
 
+#include "bak/save/world.hpp"
+#include "bak/save/containers.hpp"
+#include "bak/save/combat.hpp"
+
 #include "bak/state/customStateChoice.hpp"
 #include "bak/state/dialog.hpp"
 #include "bak/state/event.hpp"
@@ -84,13 +88,13 @@ void GameState::LoadGameData(GameData* gameData)
     mContainers.clear();
     for (unsigned i = 0; i < 13; i++)
     {
-        mContainers.emplace_back(mGameData->LoadContainers(i));
+        mContainers.emplace_back(LoadContainers(mGameData->GetFileBuffer(), i));
     }
-    mGDSContainers = mGameData->LoadShops();
-    mCombatContainers = mGameData->LoadCombatInventories();
-    mTimeExpiringState = mGameData->LoadTimeExpiringState();
-    mCombatWorldLocations = mGameData->LoadCombatWorldLocations();
-    mSpellState = mGameData->LoadSpells();
+    mGDSContainers = LoadShops(mGameData->GetFileBuffer());
+    mCombatContainers = LoadCombatInventories(mGameData->GetFileBuffer());
+    mTimeExpiringState = LoadTimeExpiringState(mGameData->GetFileBuffer());
+    mCombatWorldLocations = LoadCombatWorldLocations(mGameData->GetFileBuffer());
+    mSpellState = LoadSpells(mGameData->GetFileBuffer());
     mZone = ZoneNumber{mGameData->mLocation.mZone};
     mChapter = mGameData->mChapter;
 }

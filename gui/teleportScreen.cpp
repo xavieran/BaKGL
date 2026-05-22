@@ -211,7 +211,7 @@ void TeleportScreen::HandleTempleClicked(unsigned templeNumber)
     }
     else if (mGameState.GetChapter() == BAK::Chapter{6}
         && templeNumber == BAK::Temple::sChapelOfIshap
-        && !mGameState.ReadEventBool(BAK::GameData::sPantathiansEventFlag))
+        && !mGameState.ReadEventBool(BAK::SaveOffsets::sPantathiansEventFlag))
     {
         mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossDest, false, false, this);
     }

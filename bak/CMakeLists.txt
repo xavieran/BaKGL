@@ -1,6 +1,11 @@
 enable_testing()
 
 add_library(bak
+    save/party.hpp save/party.cpp
+    save/character.hpp save/character.cpp
+    save/world.hpp save/world.cpp
+    save/combat.hpp save/combat.cpp
+    save/containers.hpp save/containers.cpp
     IContainer.hpp IContainer.cpp
     backgroundSounds.hpp backgroundSounds.cpp
     bard.hpp bard.cpp

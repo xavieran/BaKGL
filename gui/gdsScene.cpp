@@ -249,7 +249,7 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspo
         assert(mSceneHotspots.GetTempleNumber());
         if (mGameState.GetChapter() == BAK::Chapter{6}
             && *mSceneHotspots.GetTempleNumber() == BAK::Temple::sChapelOfIshap
-            && !mGameState.ReadEventBool(BAK::GameData::sPantathiansEventFlag))
+            && !mGameState.ReadEventBool(BAK::SaveOffsets::sPantathiansEventFlag))
         {
             mGuiManager.StartDialog(BAK::DialogSources::mTeleportDialogTeleportBlockedMalacsCrossSource, false, false, this);
             mPendingAction.reset();
