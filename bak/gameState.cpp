@@ -34,37 +34,15 @@ namespace BAK {
 
 GameState::GameState()
 :
-    GameState{nullptr}
-{}
-
-GameState::GameState(
-    GameData* gameData)
-:
     mDialogCharacter{},
     mActiveCharacter{CharIndex{0}},
-    mGameData{gameData},
-    mParty{
-        Royals{1000},
-        Inventory{20},
-        std::vector<Character>{
-            Character{
-                0,
-                "None",
-                Skills{},
-                Spells{{}},
-                {},
-                {},
-                Conditions{},
-                Inventory{5}}},
-        std::vector<CharIndex>{CharIndex{0}}},
+    mGameData{},
     mContextValue_7530{0},
     mShopType_7542{0},
     mItemValue_753e{0},
     mSkillValue{0},
     mSelectedItem{},
     mCurrentMonster{},
-    mChapter{1},
-    mZone{1},
     mEndOfDialogState{0},
     mContainers{},
     mGDSContainers{},
@@ -73,48 +51,33 @@ GameState::GameState(
     mFullMap{},
     mLogger{Logging::LogState::GetLogger("GameState")}
 {
-    if (mGameData != nullptr)
-    {
-        LoadGameData(mGameData);
-    }
 }
 
-void GameState::LoadGameData(GameData* gameData)
+void GameState::LoadGame(std::string savePath)
 {
-    ASSERT(gameData);
-    mGameData = gameData;
+    mGameData.Load(savePath);
     mGDSContainers.clear();
     mCombatContainers.clear();
     mContainers.clear();
     for (unsigned i = 0; i < 13; i++)
     {
-        mContainers.emplace_back(LoadContainers(mGameData->GetFileBuffer(), i));
+        mContainers.emplace_back(LoadContainers(mGameData.GetFileBuffer(), i));
     }
-    mGDSContainers = LoadShops(mGameData->GetFileBuffer());
-    mCombatContainers = LoadCombatInventories(mGameData->GetFileBuffer());
-    mTimeExpiringState = LoadTimeExpiringState(mGameData->GetFileBuffer());
-    mCombatWorldLocations = LoadCombatWorldLocations(mGameData->GetFileBuffer());
-    mSpellState = LoadSpells(mGameData->GetFileBuffer());
-    mZone = ZoneNumber{mGameData->mLocation.mZone};
-    mChapter = mGameData->mChapter;
+    mGDSContainers = LoadShops(mGameData.GetFileBuffer());
+    mCombatContainers = LoadCombatInventories(mGameData.GetFileBuffer());
+    mTimeExpiringState = LoadTimeExpiringState(mGameData.GetFileBuffer());
+    mCombatWorldLocations = LoadCombatWorldLocations(mGameData.GetFileBuffer());
+    mSpellState = LoadSpells(mGameData.GetFileBuffer());
 }
 
 const Party& GameState::GetParty() const
 {
-    if (mGameData)
-    {
-        return mGameData->mParty;
-    }
-    return mParty;
+    return mGameData.mParty;
 }
 
 Party& GameState::GetParty()
 {
-    if (mGameData)
-    {
-        return mGameData->mParty;
-    }
-    return mParty;
+    return mGameData.mParty;
 }
 
 std::int16_t GameState::GetEndOfDialogState() const
@@ -146,12 +109,12 @@ TextVariableStore& GameState::GetTextVariableStore() { return mTextVariableStore
 
 void GameState::SetChapter(Chapter chapter)
 {
-    mChapter = chapter;
+    mGameData.mChapter = chapter;
 }
 
 Chapter GameState::GetChapter() const
 {
-    return mChapter;
+    return mGameData.mChapter;
 }
 
 void GameState::SetMonster(MonsterIndex monster)
@@ -161,84 +124,53 @@ void GameState::SetMonster(MonsterIndex monster)
 
 Royals GameState::GetMoney() const
 {
-    if (mGameData)
-        return GetParty().GetGold();
-
-    return Royals{1000};
+    return GetParty().GetGold();
 }
 
 void GameState::SetLocation(Location loc)
 {
     mLogger.Debug() << "SetLocation to: " << loc << "\n";
-    mZone = ZoneNumber{loc.mZone};
-    if (mGameData)
-    {
-        mGameData->mLocation = loc;
-    }
+    mGameData.mLocation = loc;
 }
 
 void GameState::SetLocation(GamePositionAndHeading posAndHeading)
 {
-    if (mGameData)
-    {
-        const auto loc = Location{
-            mZone,
-            GetTile(posAndHeading.mPosition),
-            posAndHeading};
-        mGameData->mLocation = loc;
-    }
+    const auto loc = Location{
+        mGameData.mLocation.mZone,
+        GetTile(posAndHeading.mPosition),
+        posAndHeading};
+    mGameData.mLocation = loc;
 }
 
-void GameState::SetMapLocation(MapLocation location) const
+void GameState::SetMapLocation(MapLocation location)
 {
-    mLogger.Info() << "Setting map location to: " << location << " from : " << mGameData->mMapLocation << "\n";
-    if (mGameData)
-        mGameData->mMapLocation = location;
+    mLogger.Info() << "Setting map location to: " << location << " from : " << mGameData.mMapLocation << "\n";
+    mGameData.mMapLocation = location;
 }
 
 GamePositionAndHeading GameState::GetLocation() const
 {
-    if (mGameData)
-        return mGameData->mLocation.mLocation;
-
-    return GamePositionAndHeading{glm::uvec2{10 * 64000, 15 * 64000}, 0 };
+    return mGameData.mLocation.mLocation;
 }
 
 MapLocation GameState::GetMapLocation() const
 {
-    if (mGameData)
-        return mGameData->mMapLocation;
-
-    return MapLocation{{20, 20}, 0};
+    return mGameData.mMapLocation;
 }
 
 ZoneNumber GameState::GetZone() const
 {
-    return mZone;
+    return mGameData.mLocation.mZone;
 }
 
 const WorldClock& GameState::GetWorldTime() const
 {
-    if (mGameData)
-    {
-        return mGameData->mTime;
-    }
-    else
-    {
-        return mFakeWorldClock;
-    }
+    return mGameData.mTime;
 }
 
 WorldClock& GameState::GetWorldTime()
 {
-    if (mGameData)
-    {
-        return mGameData->mTime;
-    }
-    else
-    {
-        return mFakeWorldClock;
-    }
+    return mGameData.mTime;
 }
 
 void GameState::SetTransitionChapter_7541(bool value)
@@ -957,7 +889,7 @@ bool GameState::EvaluateDialogChoice(const DialogChoice& choice) const
         //static_cast<std::uint8_t>(choice1 & 0xff),
         //static_cast<std::uint8_t>(choice1 >> 8)
 
-        if (mGameData && bitOffset != 0)
+        if (bitOffset != 0)
         {
             return (state >= xorMask) && (state <= mustEqualExpected);
         }
@@ -1063,16 +995,14 @@ unsigned GameState::GetEventState(Choice choice) const
 
 unsigned GameState::ReadEvent(unsigned eventPtr) const
 {
+    if (!mGameData.IsLoaded())
+        return 0;
+
     if (eventPtr == std::to_underlying(ActiveStateFlag::DayTime))
     {
         return GetGameState(GameStateChoice{ActiveStateFlag::DayTime});
     }
-    if (mGameData != nullptr)
-    {
-        return State::ReadEvent(mGameData->GetFileBuffer(), eventPtr);
-    }
-    else
-        return 0;
+    return State::ReadEvent(mGameData.GetFileBuffer(), eventPtr);
 }
 
 bool GameState::ReadEventBool(unsigned eventPtr) const
@@ -1088,8 +1018,8 @@ void GameState::SetEventValue(unsigned eventPtr, unsigned value)
         return;
     }
 
-    if (mGameData)
-        State::SetEventFlag(mGameData->GetFileBuffer(), eventPtr, value);
+    if (mGameData.IsLoaded())
+        State::SetEventFlag(mGameData.GetFileBuffer(), eventPtr, value);
 }
 
 void GameState::SetEventState(const SetFlag& setFlag)
@@ -1106,24 +1036,20 @@ void GameState::SetEventState(const SetFlag& setFlag)
     {
         mTransitionChapter_7541 = setFlag.mEventValue;
     }
-    else if (mGameData)
+    else if (mGameData.IsLoaded())
     {
-        State::SetEventDialogAction(mGameData->GetFileBuffer(), setFlag);
+        State::SetEventDialogAction(mGameData.GetFileBuffer(), setFlag);
     }
 }
 
 bool GameState::GetMoreThanOneTempleSeen() const
 {
-    if (mGameData)
+    unsigned templesSeen = 0;
+    for (unsigned i = 1; i < 13; i++)
     {
-        unsigned templesSeen = 0;
-        for (unsigned i = 1; i < 13; i++)
-        {
-            templesSeen += State::ReadTempleSeen(*this, i);
-        }
-        return templesSeen > 1;
+        templesSeen += State::ReadTempleSeen(*this, i);
     }
-    return true;
+    return templesSeen > 1;
 }
 
 void GameState::SetDialogContext_7530(unsigned contextValue)
@@ -1153,61 +1079,56 @@ void GameState::SetInventoryItem(const InventoryItem& item)
 
 void GameState::ClearUnseenImprovements(unsigned character)
 {
-    if (mGameData)
-    {
-        State::ClearUnseenImprovements(mGameData->GetFileBuffer(), character);
-    }
+    if (mGameData.IsLoaded())
+        State::ClearUnseenImprovements(mGameData.GetFileBuffer(), character);
 }
 
 bool GameState::SaveState()
 {
-    if (mGameData)
-    {
-        BAK::Save(GetWorldTime(), mGameData->GetFileBuffer());
-        BAK::Save(GetParty(), mGameData->GetFileBuffer());
+    if (!mGameData.IsLoaded())
+        return false;
 
-        for (const auto& container : mGDSContainers)
-            BAK::Save(container, mGameData->GetFileBuffer());
+    BAK::Save(GetWorldTime(), mGameData.GetFileBuffer());
+    BAK::Save(GetParty(), mGameData.GetFileBuffer());
 
-        for (const auto& container : mCombatContainers)
-            BAK::Save(container, mGameData->GetFileBuffer());
+    for (const auto& container : mGDSContainers)
+        BAK::Save(container, mGameData.GetFileBuffer());
 
-        for (const auto& zoneContainers : mContainers)
-            for (const auto& container : zoneContainers)
-                BAK::Save(container, mGameData->GetFileBuffer());
-        BAK::Save(mTimeExpiringState, mGameData->GetFileBuffer());
-        BAK::Save(mSpellState, mGameData->GetFileBuffer());
-        BAK::Save(mChapter, mGameData->GetFileBuffer());
-        auto mapLocation = MapLocation{
-            mFullMap.GetTileCoords(mZone, GetTile(GetLocation().mPosition)),
-            HeadingToFullMapAngle(GetLocation().mHeading)
-        };
-        BAK::Save(mapLocation, mGameData->GetFileBuffer());
-        BAK::Save(mGameData->mLocation, mGameData->GetFileBuffer());
-        BAK::Save(mCombatWorldLocations, mGameData->GetFileBuffer());
-        return true;
-    }
-    return false;
+    for (const auto& container : mCombatContainers)
+        BAK::Save(container, mGameData.GetFileBuffer());
+
+    for (const auto& zoneContainers : mContainers)
+        for (const auto& container : zoneContainers)
+            BAK::Save(container, mGameData.GetFileBuffer());
+    BAK::Save(mTimeExpiringState, mGameData.GetFileBuffer());
+    BAK::Save(mSpellState, mGameData.GetFileBuffer());
+    BAK::Save(mGameData.mChapter, mGameData.GetFileBuffer());
+    auto mapLocation = MapLocation{
+        mFullMap.GetTileCoords(
+            mGameData.mLocation.mZone,
+            GetTile(GetLocation().mPosition)),
+        HeadingToFullMapAngle(GetLocation().mHeading)
+    };
+    BAK::Save(mapLocation, mGameData.GetFileBuffer());
+    BAK::Save(mGameData.mLocation, mGameData.GetFileBuffer());
+    BAK::Save(mCombatWorldLocations, mGameData.GetFileBuffer());
+    return true;
 }
 
 bool GameState::Save(const SaveFile& saveFile)
 {
-    if (SaveState())
-    {
-        mGameData->Save(saveFile);
-        return true;
-    }
-    return false;
+    if (!SaveState())
+        return false;
+    mGameData.Save(saveFile);
+    return true;
 }
 
 bool GameState::Save(const std::string& saveName)
 {
-    if (SaveState())
-    {
-        mGameData->Save(saveName, saveName);
-        return true;
-    }
-    return false;
+    if (!SaveState())
+        return false;
+    mGameData.Save(saveName, saveName);
+    return true;
 }
 
 std::vector<GenericContainer>& GameState::GetContainers(ZoneNumber zone)

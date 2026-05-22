@@ -23,7 +23,6 @@ class Camera;
 namespace BAK {
 class CombatWorldLocation;
 class GameState;
-class GameData;
 class Zone;
 namespace Encounter {
 struct Block;
@@ -137,7 +136,6 @@ public:
     std::unique_ptr<IInteractable> mCurrentInteractable;
     Gui::DynamicDialogScene mDynamicDialogScene;
 
-    std::unique_ptr<BAK::GameData> mGameData;
     std::unique_ptr<BAK::Zone> mZoneData;
 
     const BAK::Encounter::Encounter* mActiveEncounter;

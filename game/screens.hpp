@@ -5,7 +5,6 @@
 class Camera;
 namespace BAK {
 class DialogStore;
-class GameData;
 class GenericContainer;
 }
 
@@ -15,8 +14,7 @@ struct Light;
 
 void ShowDialogGui(
     BAK::Target dialogKey,
-    const BAK::DialogStore& dialogStore,
-    const BAK::GameData* saveData = nullptr);
+    const BAK::DialogStore& dialogStore);
 
 void ShowCameraGui(
     const Camera& camera);

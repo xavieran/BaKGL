@@ -8,6 +8,7 @@
 #include "bak/gameState.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/temple.hpp"
+#include "bak/save/saveOffsets.hpp"
 #include "bak/state/temple.hpp"
 
 #include "com/assert.hpp"

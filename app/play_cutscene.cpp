@@ -90,7 +90,7 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
 
-    auto gameState = BAK::GameState{nullptr};
+    auto gameState = BAK::GameState{};
     auto guiManager = Gui::GuiManager{
             rootWidget.GetCursor(),
             spriteManager,
