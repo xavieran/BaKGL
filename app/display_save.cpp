@@ -12,12 +12,14 @@ extern "C" {
 
 struct Options
 {
+    bool all{};
     bool shops{};
     std::array<bool, 13> zones{};
 
     bool party{};
     bool skill_affectors{};
     bool time_state{};
+    bool spells{};
 
     bool combat_inventories{};
     bool combat_grid{};
@@ -35,11 +37,13 @@ Options Parse(int argc, char** argv)
 
     struct option options[] = {
         {"help", no_argument,       0, 'h'},
+        {"all", no_argument, 0, 'a'},
         {"shop", no_argument, 0, 's'},
         {"zone", required_argument, 0, 'z'},
         {"party", required_argument, 0, 'p'},
         {"skill_affectors", required_argument, 0, 'k'},
         {"time_state", required_argument, 0, 't'},
+        {"spells", no_argument, 0, 'P'},
         {"combat_inventories", no_argument, 0, 'c'},
         {"combat_grid", no_argument, 0, 'g'},
         {"combat_world", no_argument, 0, 'w'},
@@ -49,16 +53,18 @@ Options Parse(int argc, char** argv)
     };
     int optionIndex = 0;
     int opt;
-    while ((opt = getopt_long(argc, argv, "hsz:pktcgwSCl", options, &optionIndex)) != -1)
+    while ((opt = getopt_long(argc, argv, "hasz:pktPcgwSCl", options, &optionIndex)) != -1)
     {   
         if (opt == 'h')
         {
             std::cout << "Arguments determine what information to display\n";
+            std::cout << "\t --all,-a        Show all information\n";
             std::cout << "\t --shop,-s\n";
             std::cout << "\t --zone,-z\n";
             std::cout << "\t --party,-p\n";
             std::cout << "\t --skill_affectors,-k\n";
             std::cout << "\t --time_state,-t\n";
+            std::cout << "\t --spells,-P\n";
             std::cout << "\t --combat_inventories,-c\n";
             std::cout << "\t --combat_grid,-g\n";
             std::cout << "\t --combat_world,-w\n";
@@ -66,6 +72,10 @@ Options Parse(int argc, char** argv)
             std::cout << "\t --combat_click,-C\n";
             std::cout << "\t --combat_lists,-l\n";
             exit(0);
+        }
+        else if (opt == 'a')
+        {
+            values.all = true;
         }
         else if (opt == 's')
         {
@@ -91,6 +101,10 @@ Options Parse(int argc, char** argv)
         {
             values.time_state = true;
         }
+        else if (opt == 'P')
+        {
+            values.spells = true;
+        }
         else if (opt == 'c')
         {
             values.combat_inventories = true;
@@ -115,6 +129,22 @@ Options Parse(int argc, char** argv)
         {
             values.combat_lists = true;
         }
+    }
+
+    if (values.all)
+    {
+        values.shops = true;
+        values.zones.fill(true);
+        values.party = true;
+        values.skill_affectors = true;
+        values.time_state = true;
+        values.spells = true;
+        values.combat_inventories = true;
+        values.combat_grid = true;
+        values.combat_world = true;
+        values.combat_stats = true;
+        values.combat_click = true;
+        values.combat_lists = true;
     }
 
     if (optind < argc)
@@ -145,6 +175,7 @@ int main(int argc, char** argv)
     logger.Info() << "MapLocation: " << gameData.mMapLocation << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
     logger.Info() << "Time: " << gameData.mTime;
+    logger.Info() << "Chapter: " << gameData.mChapter << "\n";
 
     if (options.party)
     {
@@ -164,6 +195,11 @@ int main(int argc, char** argv)
     if (options.time_state)
     {
         logger.Info() << "TimeExpiringState: " << gameData.LoadTimeExpiringState() << "\n";
+    }
+
+    if (options.spells)
+    {
+        logger.Info() << "SpellState: " << std::hex << gameData.LoadSpells().GetSpells() << std::dec << "\n";
     }
 
     for (unsigned i = 0; i < 13; i++)
