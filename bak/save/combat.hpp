@@ -20,4 +20,6 @@ std::vector<CombatWorldLocation> LoadCombatWorldLocations(FileBuffer&);
 std::vector<Skills> LoadCombatStats(FileBuffer&);
 std::vector<Time> LoadCombatClickedTimes(FileBuffer&);
 
+void Save(const std::vector<CombatWorldLocation>&, FileBuffer&);
+
 }

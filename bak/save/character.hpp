@@ -17,4 +17,6 @@ Inventory LoadCharacterInventory(FileBuffer&, unsigned offset);
 Conditions LoadConditions(FileBuffer&, unsigned character);
 std::vector<SkillAffector> GetCharacterSkillAffectors(FileBuffer&, CharIndex);
 
+void Save(const Character&, FileBuffer&);
+
 }

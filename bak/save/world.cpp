@@ -119,4 +119,59 @@ void LoadChapterOffsetP(FileBuffer& fb)
         << std::hex << fb.Tell() << std::dec << std::endl;
 }
 
+void Save(const WorldClock& worldClock, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sTimeOffset);
+    fb.PutUint32LE(worldClock.GetTime().mTime);
+    fb.PutUint32LE(worldClock.GetTimeLastSlept().mTime);
+}
+
+void Save(const std::vector<TimeExpiringState>& storage, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sTimeExpiringEventRecordOffset);
+    fb.PutUint16LE(storage.size());
+    for (const auto& state : storage)
+    {
+        fb.PutUint8(static_cast<std::uint8_t>(state.mType));
+        fb.PutUint8(state.mFlags);
+        fb.PutUint16LE(state.mData);
+        fb.PutUint32LE(state.mDuration.mTime);
+    }
+}
+
+void Save(const SpellState& spells, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sActiveSpells);
+    fb.PutUint16LE(spells.GetSpells());
+}
+
+void Save(Chapter chapter, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sChapterOffset);
+    fb.PutUint16LE(chapter.mValue);
+    // Chapter again..?
+    fb.Seek(0x64);
+    fb.PutUint16LE(chapter.mValue);
+}
+
+void Save(const MapLocation& location, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sMapPositionOffset);
+    fb.PutUint16LE(location.mPosition.x);
+    fb.PutUint16LE(location.mPosition.y);
+    fb.PutUint16LE(location.mHeading);
+}
+
+void Save(const Location& location, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sLocationOffset);
+    fb.PutUint8(location.mZone.mValue);
+    fb.PutUint8(location.mTile.x);
+    fb.PutUint8(location.mTile.y);
+    fb.PutUint32LE(location.mLocation.mPosition.x);
+    fb.PutUint32LE(location.mLocation.mPosition.y);
+    fb.Skip(5);
+    fb.PutUint16LE(location.mLocation.mHeading);
+}
+
 }

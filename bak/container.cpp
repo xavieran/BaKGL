@@ -1,6 +1,6 @@
 #include "bak/container.hpp"
 
-#include "bak/inventory.hpp"
+#include "bak/save/containers.hpp"
 
 #include "com/ostream.hpp"
 
