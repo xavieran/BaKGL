@@ -27,6 +27,9 @@ CHOICE_RANDOM = 0x08
 ACTOR_NONE = 0
 ACTOR_PARTY_LEADER = 0xFF
 
+# Text variables
+ACTIVE_PARTY_MEMBER = 11
+SHOPKEEPER = 28
 
 # --- Data classes ---
 
@@ -147,7 +150,8 @@ def make_root_snippet(
         display_style=DISPLAY_FULLSCREEN,
         display_style2=STYLE_VERT_CENTERED,
         display_style3=CHOICE_RANDOM,
-        actions=[DialogAction(what=28)],
+        actions=[DialogAction(which=0, what=SHOPKEEPER),
+                 DialogAction(which=1, what=ACTIVE_PARTY_MEMBER)],
         choices=choices,
     )
 

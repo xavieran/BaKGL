@@ -22,8 +22,8 @@ void TextVariableStore::Clear()
 
 void TextVariableStore::SetTextVariable(unsigned variable, std::string value)
 {
-    mLogger.Spam() << "Setting " << variable << " to " << value << "\n";
-    mTextVariables.emplace(MakeVariableName(variable), value);
+    mLogger.Info() << "Setting " << variable << " to " << value << "\n";
+    mTextVariables[MakeVariableName(variable)] = value;
 }
 
 void TextVariableStore::SetActiveCharacter(std::string value)
