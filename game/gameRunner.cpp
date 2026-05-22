@@ -50,7 +50,6 @@ GameRunner::GameRunner(
         [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
         [&](const auto&){ }
     },
-    mGameData{nullptr},
     mZoneData{nullptr},
     mActiveEncounter{nullptr},
     mEncounters{},
@@ -92,8 +91,7 @@ void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)
 
 void GameRunner::LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter)
 {
-    mGameData = std::make_unique<BAK::GameData>(savePath);
-    mGameState.LoadGameData(mGameData.get());
+    mGameState.LoadGame(savePath);
     if (chapter)
     {
         BAK::TransitionToChapter(*chapter, mGameState);

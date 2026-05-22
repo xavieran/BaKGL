@@ -7,15 +7,15 @@
 #include "bak/fmap.hpp"
 #include "bak/gameData.hpp"
 #include "bak/inventoryItem.hpp"
-#include "bak/party.hpp"
 #include "bak/spells.hpp"
 #include "bak/textVariableStore.hpp"
 #include "bak/timeExpiringState.hpp"
-#include "bak/worldClock.hpp"
 #include "bak/types.hpp"
 
 #include "com/random.hpp"
 #include "com/visit.hpp"
+
+#include <memory>
 #include <type_traits>
 
 namespace BAK {
@@ -29,36 +29,29 @@ class GameState
 {
 public:
     GameState();
-    GameState(GameData* gameData);
 
     template <typename F, typename ...Args>
     void Apply(F&& func, Args&&... args) const
         requires(std::is_void_v<invoke_result_with_fb<F, Args...>>)
     {
-        if (mGameData)
-        {
-            std::invoke(func, mGameData->GetFileBuffer(), args...);
-        }
+        if (mGameData.IsLoaded())
+            std::invoke(func, mGameData.GetFileBuffer(), args...);
     }
 
     template <typename F, typename ...Args>
     void Apply(F&& func, Args&&... args)
         requires(std::is_void_v<invoke_result_with_fb<F, Args...>>)
     {
-        if (mGameData)
-        {
-            std::invoke(func, mGameData->GetFileBuffer(), args...);
-        }
+        if (mGameData.IsLoaded())
+            std::invoke(func, mGameData.GetFileBuffer(), args...);
     }
 
     template <typename F, typename ...Args>
     auto Apply(F&& func, Args&&... args)
         requires(!std::is_void_v<invoke_result_with_fb<F, Args...>>)
     {
-        if (mGameData)
-        {
-            return std::invoke(func, mGameData->GetFileBuffer(), args...);
-        }
+        if (mGameData.IsLoaded())
+            return std::invoke(func, mGameData.GetFileBuffer(), args...);
         return invoke_result_with_fb<F, Args...>{};
     }
 
@@ -66,15 +59,15 @@ public:
     auto Apply(F&& func, Args&&... args) const
         requires(!std::is_void_v<invoke_result_with_fb<F, Args...>>)
     {
-        if (mGameData)
-        {
-            return std::invoke(func, mGameData->GetFileBuffer(), args...);
-        }
+        if (mGameData.IsLoaded())
+            return std::invoke(func, mGameData.GetFileBuffer(), args...);
         return invoke_result_with_fb<F, Args...>{};
     }
 
-    void LoadGameData(GameData* gameData);
-    GameData* GetGameData(){ return mGameData; }
+    GameData& GetGameData() { return mGameData; }
+    const GameData& GetGameData() const { return mGameData; }
+
+    void LoadGame(std::string savePath);
 
     const Party& GetParty() const;
     Party& GetParty();
@@ -97,7 +90,7 @@ public:
 
     void SetLocation(Location loc);
     void SetLocation(GamePositionAndHeading posAndHeading);
-    void SetMapLocation(MapLocation) const;
+    void SetMapLocation(MapLocation);
     GamePositionAndHeading GetLocation() const;
     MapLocation GetMapLocation() const;
     ZoneNumber GetZone() const;
@@ -198,8 +191,7 @@ private:
     // 5 - party warrior
     std::array<std::uint8_t, 6> mDialogCharacterList{};
 
-    GameData* mGameData;
-    Party mParty;
+    GameData mGameData;
     unsigned mContextValue_7530{};
     bool mTransitionChapter_7541{};
     unsigned mShopType_7542{};
@@ -210,8 +202,6 @@ private:
 
     std::optional<InventoryItem> mSelectedItem{};
     std::optional<MonsterIndex> mCurrentMonster{};
-    Chapter mChapter{};
-    ZoneNumber mZone{};
     std::int16_t mEndOfDialogState{};
     std::vector<
         std::vector<GenericContainer>> mContainers{};
@@ -222,7 +212,6 @@ private:
     SpellState mSpellState{};
     TextVariableStore mTextVariableStore{};
     FMapXY mFullMap;
-    WorldClock mFakeWorldClock{{0}, {0}};
     const Logging::Logger& mLogger;
 };
 

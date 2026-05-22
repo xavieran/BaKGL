@@ -4,8 +4,6 @@
 #include "bak/container.hpp"
 #include "bak/constants.hpp"
 #include "bak/dialog.hpp"
-#include "bak/gameData.hpp"
-
 #include "graphics/renderer.hpp"
 
 #include "com/logger.hpp"
@@ -24,8 +22,7 @@
 
 void ShowDialogGui(
     BAK::Target dialogKey,
-    const BAK::DialogStore& dialogStore,
-    const BAK::GameData* saveData)
+    const BAK::DialogStore& dialogStore)
 {
     static auto chosenKey = BAK::Target{BAK::KeyTarget{0x72}};
     static auto current = BAK::Target{BAK::KeyTarget{0x72}};

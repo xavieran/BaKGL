@@ -260,7 +260,7 @@ int main(int argc, char** argv)
         width / guiScalar,
         height / guiScalar};
         
-    auto gameState = BAK::GameState{nullptr};
+    auto gameState = BAK::GameState{};
 
     auto guiManager = Gui::GuiManager{
         root.GetCursor(),
@@ -331,7 +331,7 @@ int main(int argc, char** argv)
 
     auto UpdateGameTile = [&]()
     {
-        if (camera.GetGameTile() != currentTile && gameRunner.mGameState.GetGameData())
+        if (camera.GetGameTile() != currentTile)
         {
             currentTile = camera.GetGameTile();
             logger.Debug() << "New tile: " << currentTile << "\n";
@@ -484,26 +484,23 @@ int main(int argc, char** argv)
         lastTime = currentTime;
 
         cameraPtr->SetDeltaTime(deltaTime);
-        if (gameRunner.mGameState.GetGameData())
+        if (guiManager.InMainView())
         {
-            if (guiManager.InMainView())
-            {
-                gameState.SetLocation(cameraPtr->GetGameLocation());
-            }
+            gameState.SetLocation(cameraPtr->GetGameLocation());
         }
 
         glfwPollEvents();
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
         inputHandler.HandleInput(window.get());
 
-        // { *** Draw 3D World ***
-        UpdateLightCamera();
-
-        glEnable(GL_BLEND);
-        glEnable(GL_MULTISAMPLE);  
-
-        if (gameRunner.mGameState.GetGameData() != nullptr)
+        if (gameState.GetGameData().IsLoaded())
         {
+            // { *** Draw 3D World ***
+            UpdateLightCamera();
+
+            glEnable(GL_BLEND);
+            glEnable(GL_MULTISAMPLE);  
+
             double bakTimeOfDay = (gameState.GetWorldTime().GetTime().mTime % 43200);
             auto twoPi = std::numbers::pi_v<double> * 2.0;
             // light starts at 6 after midnight
@@ -593,12 +590,12 @@ int main(int argc, char** argv)
             console.Draw("Console", &consoleOpen);
         }
 
-        if (gameRunner.mGameState.GetGameData() && guiManager.InMainView())
+        if (guiManager.InMainView())
         {
             gameRunner.RunGameUpdate(config.mGame.mAdvanceTime);
             if (config.mAudio.mEnableBackgroundSounds)
             {
-				BAK::PlayBackgroundSounds(gameRunner.mGameState);
+                BAK::PlayBackgroundSounds(gameRunner.mGameState);
             }
         }
 
@@ -616,34 +613,29 @@ int main(int argc, char** argv)
                     [&](const BAK::Encounter::GDSEntry& gds){
                         ShowDialogGui(
                             gds.mEntryDialog,
-                            BAK::DialogStore::Get(),
-                            gameRunner.mGameState.GetGameData());
+                            BAK::DialogStore::Get());
                     },
                     [&](const BAK::Encounter::Block& e){
                         ShowDialogGui(
                             e.mDialog,
-                            BAK::DialogStore::Get(),
-                            gameRunner.mGameState.GetGameData());
+                            BAK::DialogStore::Get());
                     },
                     [&](const BAK::Encounter::Combat& e){
                         ShowDialogGui(
                             e.mEntryDialog,
-                            BAK::DialogStore::Get(),
-                            gameRunner.mGameState.GetGameData());
+                            BAK::DialogStore::Get());
                     },
                     [&](const BAK::Encounter::Dialog& e){
                         ShowDialogGui(
                             e.mDialog,
-                            BAK::DialogStore::Get(),
-                            gameRunner.mGameState.GetGameData());
+                            BAK::DialogStore::Get());
                     },
                     [](const BAK::Encounter::EventFlag&){
                     },
                     [&](const BAK::Encounter::Zone& e){
                         ShowDialogGui(
                             e.mDialog,
-                            BAK::DialogStore::Get(),
-                            gameRunner.mGameState.GetGameData());
+                            BAK::DialogStore::Get());
                     },
                 },
                 encounter);

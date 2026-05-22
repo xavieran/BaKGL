@@ -10,6 +10,7 @@
 #include "bak/shop.hpp"
 #include "bak/sounds.hpp"
 #include "bak/temple.hpp"
+#include "bak/save/saveOffsets.hpp"
 
 #include "com/ostream.hpp"
 #include "com/logger.hpp"

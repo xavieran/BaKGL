@@ -86,15 +86,9 @@ int main(int argc, char** argv)
     const auto root = static_cast<std::uint8_t>(std::atoi(argv[1]));
     auto currentSceneRef = BAK::HotspotRef{root, *argv[2]};
 
-    auto gameState = std::invoke([&](){
-        if (argc >= 4)
-        {
-            auto* data = new BAK::GameData{argv[3]};
-            return BAK::GameState{data};
-        }
-        else
-            return BAK::GameState{};
-    });
+    auto gameState = (argc >= 4)
+        ? BAK::GameState{BAK::GameData{argv[3]}}
+        : BAK::GameState{};
     
     const auto font = Gui::Font{"GAME.FNT", spriteManager};
     const auto actors = Gui::Actors{spriteManager};
@@ -185,8 +179,6 @@ int main(int argc, char** argv)
         && glfwWindowShouldClose(window.get()) == 0);
 
     ImguiWrapper::Shutdown();
-
-    delete gameState.GetGameData();
 
     return 0;
 }
