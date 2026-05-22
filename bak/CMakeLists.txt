@@ -57,7 +57,6 @@ add_library(bak
     ramp.hpp ramp.cpp
     random.hpp random.cpp
     resourceNames.hpp resourceNames.cpp
-    save.hpp save.cpp
     saveManager.hpp saveManager.cpp
     scene.hpp scene.cpp
     sceneData.hpp sceneData.cpp

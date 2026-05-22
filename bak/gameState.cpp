@@ -20,7 +20,7 @@
 #include "bak/state/skill.hpp"
 #include "bak/state/temple.hpp"
 
-#include "bak/save.hpp"
+#include "bak/save/party.hpp"
 #include "bak/spells.hpp"
 #include "bak/state/dialog.hpp"
 #include "bak/dialogAction.hpp"

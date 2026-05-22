@@ -1,5 +1,6 @@
 #include "bak/save/party.hpp"
 #include "bak/save/character.hpp"
+#include "bak/save/containers.hpp"
 
 #include "bak/constants.hpp"
 #include "bak/save/saveOffsets.hpp"
@@ -42,6 +43,27 @@ std::vector<CharIndex> LoadActiveCharacters(FileBuffer& fb)
     }
 
     return active;
+}
+
+void Save(const Party& party, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sGoldOffset);
+    fb.PutUint32LE(party.GetGold().mValue);
+
+    for (const auto& character : party.mCharacters)
+    {
+        Save(character, fb);
+    }
+
+    fb.Seek(BAK::SaveOffsets::sPartyKeyInventoryOffset);
+    fb.PutUint8(party.GetKeys().GetInventory().GetNumberItems());
+    fb.PutUint16LE(party.GetKeys().GetInventory().GetCapacity());
+    Save(party.GetKeys().GetInventory(), fb);
+
+    fb.Seek(SaveOffsets::sActiveCharactersOffset);
+    fb.PutUint8(party.mActiveCharacters.size());
+    for (const auto charIndex : party.mActiveCharacters)
+        fb.PutUint8(charIndex.mValue);
 }
 
 }

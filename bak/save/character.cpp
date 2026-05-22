@@ -1,5 +1,6 @@
 #include "bak/save/character.hpp"
 
+#include "bak/save/containers.hpp"
 #include "bak/save/saveOffsets.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/state/skill.hpp"
@@ -115,6 +116,57 @@ std::vector<SkillAffector> GetCharacterSkillAffectors(
         affectors.emplace_back(SkillAffector{type, skill, adjust, startTime, endTime});
     }
     return affectors;
+}
+
+void Save(const Character& c, FileBuffer& fb)
+{
+    const auto charIndex = c.mCharacterIndex.mValue;
+    // Skills
+    fb.Seek(BAK::SaveOffsets::GetCharacterSkillOffset(charIndex));
+    fb.Skip(2); // Character name offset
+    auto* spells = reinterpret_cast<const std::uint8_t*>(&c.GetSpells().GetSpellBytes());
+    for (unsigned i = 0; i < 6; i++)
+    {
+        fb.PutUint8(spells[i]);
+    }
+
+    const auto& skills = c.GetSkills();
+    for (unsigned i = 0; i < Skills::sSkills; i++)
+    {
+        const auto& skill  = skills.GetSkill(static_cast<BAK::SkillType>(i));
+        fb.PutUint8(skill.mMax);
+        fb.PutUint8(skill.mTrueSkill);
+        fb.PutUint8(skill.mCurrent);
+        fb.PutUint8(skill.mExperience);
+        fb.PutUint8(skill.mModifier);
+
+        State::SetSkillSelected(fb, charIndex, i, skill.mSelected);
+        State::SetSkillUnseenImprovement(fb, charIndex, i, skill.mUnseenImprovement);
+    }
+
+    // Inventory
+    fb.Seek(BAK::SaveOffsets::GetCharacterInventoryOffset(charIndex));
+    fb.PutUint8(c.GetInventory().GetNumberItems());
+    fb.PutUint16LE(c.GetInventory().GetCapacity());
+    Save(c.GetInventory(), fb);
+
+    // Conditions
+    fb.Seek(BAK::SaveOffsets::GetCharacterConditionOffset(charIndex));
+    for (unsigned i = 0; i < Conditions::sNumConditions; i++)
+    {
+        const auto cond = c.mConditions.GetCondition(static_cast<BAK::Condition>(i));
+        fb.PutUint8(cond.Get());
+    }
+
+    fb.Seek(BAK::SaveOffsets::GetCharacterAffectorsOffset(charIndex));
+    for (const auto& affector : c.GetSkillAffectors())
+    {
+        fb.PutUint16LE(affector.mType);
+        fb.PutUint16LE(1 << static_cast<std::uint16_t>(affector.mSkill));
+        fb.PutSint16LE(affector.mAdjustment);
+        fb.PutUint32LE(affector.mStartTime.mTime);
+        fb.PutUint32LE(affector.mEndTime.mTime);
+    }
 }
 
 }

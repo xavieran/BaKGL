@@ -11,4 +11,6 @@ Party LoadParty(FileBuffer&);
 Royals LoadGold(FileBuffer&);
 std::vector<CharIndex> LoadActiveCharacters(FileBuffer&);
 
+void Save(const Party&, FileBuffer&);
+
 }

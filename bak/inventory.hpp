@@ -91,9 +91,4 @@ private:
 
 std::ostream& operator<<(std::ostream&, const Inventory&);
 
-Inventory LoadInventory(
-    FileBuffer& fb,
-    unsigned itemCount,
-    unsigned capacity);
-
 }

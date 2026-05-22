@@ -27,6 +27,7 @@ list(APPEND APP_BINARIES
     extractor
     #instancing
     image_extractor
+    resave
     main3d
     #play_book
     #play_cutscene
