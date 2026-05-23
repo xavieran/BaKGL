@@ -250,6 +250,18 @@ void SaveScreen::SaveGame(bool isBookmark)
     mSaveFn(mSaveManager.MakeSave(saveDir, saveName, isBookmark));
 }
 
+bool SaveScreen::CanSaveBookmark() const
+{
+    return mSelectedDirectory.has_value();
+}
+
+const BAK::SaveFile& SaveScreen::SaveBookmark()
+{
+    mSaveManager.RefreshSaves();
+    const auto& dirName = mSaveManager.GetSaves().at(*mSelectedDirectory).mName;
+    return mSaveManager.MakeSave(dirName, "Bookmark", true);
+}
+
 void SaveScreen::RestoreGame()
 {
     if (!mSelectedDirectory || !mSelectedSave) return;

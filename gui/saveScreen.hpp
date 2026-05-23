@@ -50,6 +50,8 @@ public:
     bool OnMouseEvent(const MouseEvent& event) override;
     void SetSaveOrLoad(bool isSave);
     bool HasSaves();
+    bool CanSaveBookmark() const;
+    const BAK::SaveFile& SaveBookmark();
 private:
     void RemoveDirectory();
     void RemoveFile();

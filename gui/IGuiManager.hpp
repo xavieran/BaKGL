@@ -60,6 +60,7 @@ public:
 
     virtual void LoadGame(std::string, std::optional<BAK::Chapter>) = 0;
     virtual void SaveGame(const BAK::SaveFile&) = 0;
+    virtual void SaveBookmark() = 0;
     virtual void DoTeleport(BAK::Encounter::Teleport) = 0;
 };
 

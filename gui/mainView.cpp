@@ -1,5 +1,7 @@
 #include "gui/mainView.hpp"
 
+#include "bak/dialog.hpp"
+#include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
 
 #include "gui/IGuiManager.hpp"
@@ -17,7 +19,8 @@ MainView::MainView(
     IGuiManager& guiManager,
     const Backgrounds& backgrounds,
     const Icons& icons,
-    const Font& spellFont)
+    const Font& spellFont,
+    const Font& gameFont)
 :
     Widget{
         Graphics::DrawMode::Sprite,
@@ -32,6 +35,7 @@ MainView::MainView(
     mGuiManager{guiManager},
     mIcons{icons},
     mSpellFont{spellFont},
+    mGameFont{gameFont},
     mLayout{sLayoutFile},
     mActiveSpells{},
     mCompass{
@@ -44,8 +48,24 @@ MainView::MainView(
     },
     mButtons{},
     mCharacters{},
+    mBookmarkPopup{
+        glm::vec2{60, 35},
+        glm::vec2{200, 55},
+        mGameFont,
+        "",
+        []{}
+    },
     mLogger{Logging::LogState::GetLogger("Gui::MainView")}
 {
+    const auto& snippet = BAK::DialogStore::Get().GetSnippet(
+        BAK::DialogSources::mBookmarkCheck);
+    const auto popup = snippet.GetPopup();
+    assert(popup);
+    mBookmarkPopup.SetPosition(popup->mPos);
+    mBookmarkPopup.SetDimensions(popup->mDims);
+    mBookmarkPopup.SetText(snippet.GetText(), true);
+    mBookmarkPopup.SetInactive();
+
     mButtons.reserve(mLayout.GetSize());
 
     for (unsigned i = 0; i < mLayout.GetSize(); i++)
@@ -103,7 +123,8 @@ void MainView::HandleButton(unsigned buttonIndex)
         mGuiManager.ShowFullMap();
         break;
     case sBookmark:
-	mGuiManager.EnterCombat([](bool, int){});
+        mShowingBookmarkDialog = true;
+        mNeedRefresh = true;
         break;
     case sMainMenu:
         mGuiManager.EnterMainMenu(true);
@@ -111,6 +132,48 @@ void MainView::HandleButton(unsigned buttonIndex)
     default:
         break;
     }
+}
+
+void MainView::SetCanSaveBookmark(bool canSaveBookmark)
+{
+    mCanSaveBookmark = canSaveBookmark;
+    mNeedRefresh = true;
+}
+
+bool MainView::OnMouseEvent(const MouseEvent& event)
+{
+    if (mShowingBookmarkDialog)
+    {
+        if (std::holds_alternative<LeftMousePress>(event))
+        {
+            mGuiManager.SaveBookmark();
+        }
+
+        if (std::holds_alternative<LeftMousePress>(event)
+            || std::holds_alternative<RightMousePress>(event))
+        {
+            mShowingBookmarkDialog = false;
+            mNeedRefresh = true;
+        }
+
+        if (mNeedRefresh)
+        {
+            AddChildren();
+            mNeedRefresh = false;
+        }
+
+        return true;
+    }
+
+    const bool handled = Widget::OnMouseEvent(event);
+
+    if (mNeedRefresh)
+    {
+        AddChildren();
+        mNeedRefresh = false;
+    }
+
+    return handled;
 }
 
 void MainView::UpdatePartyMembers(const BAK::GameState& gameState)
@@ -186,9 +249,11 @@ void MainView::ShowInventory(BAK::ActiveCharIndex character)
 void MainView::AddChildren()
 {
     ClearChildren();
-    for (auto& button : mButtons)
+    for (unsigned i = 0; i < mButtons.size(); i++)
     {
-        AddChildBack(&button);
+        if (i == sBookmark && !mCanSaveBookmark)
+            continue;
+        AddChildBack(&mButtons[i]);
     }
     for (auto& spell : mActiveSpells)
     {
@@ -198,6 +263,11 @@ void MainView::AddChildren()
 
     for (auto& character : mCharacters)
         AddChildBack(&character);
+
+    if (mShowingBookmarkDialog)
+    {
+        AddChildBack(&mBookmarkPopup);
+    }
 }
 
 }
