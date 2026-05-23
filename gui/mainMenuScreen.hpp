@@ -43,6 +43,7 @@ public:
         const Font& font);
 
     void EnterMainMenu(bool gameRunning);
+    void UpdateRestoreButton();
     [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override;
 private:
     enum class State

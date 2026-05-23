@@ -42,6 +42,7 @@ public:
 
     const std::vector<SaveDirectory>& GetSaves() const;
     void RefreshSaves();
+    void EnsureDefaultDirectory();
 
     void RemoveDirectory(unsigned index);
     void RemoveSave(unsigned directory, unsigned save);

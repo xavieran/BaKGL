@@ -70,6 +70,7 @@ std::pair<glm::vec2, std::string_view> TextBox::SetText(
     auto emphasis = false;
     auto bold     = false;
     auto unbold   = false;
+    auto inactive = false;
     auto red      = false;
     auto white    = false;
     auto inWord   = false;
@@ -91,6 +92,7 @@ std::pair<glm::vec2, std::string_view> TextBox::SetText(
 
         italic = false;
         unbold = false;
+        inactive = false;
         red = false;
         white = false;
         emphasis = false;
@@ -215,6 +217,10 @@ std::pair<glm::vec2, std::string_view> TextBox::SetText(
         {
             unbold = !unbold;
         }
+        else if (c == static_cast<char>(0xf9))
+        {
+            inactive = !inactive;
+        }
         else if (c == static_cast<char>(0xf5))
         {
             red = !red;
@@ -257,6 +263,10 @@ std::pair<glm::vec2, std::string_view> TextBox::SetText(
                 // Maybe "lowlight", inactive
                 DrawBold(charPos, c, Color::black, Color::fontUnbold);
                 //DrawUnbold(charPos, c);
+            }
+            else if (inactive)
+            {
+                DrawBold(charPos, c, Color::buttonShadow, Color::fontInactive);
             }
             else if (red)
             {

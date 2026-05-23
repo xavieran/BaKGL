@@ -14,6 +14,7 @@ constexpr auto frameMaroon      = glm::vec4{.300, .110, .094, 1};
 constexpr auto fontHighlight    = glm::vec4{.859, .780, .475, 1};
 constexpr auto fontLowlight     = glm::vec4{.302, .110, .094, 1};
 constexpr auto fontUnbold       = glm::vec4{.333, .271, .173, 1};
+constexpr auto fontInactive     = glm::vec4{.573, .380, .204, 1};
 constexpr auto fontEmphasis     = glm::vec4{.094, .125, .204, 1};
 
 constexpr auto fontWhiteHighlight = glm::vec4{.969, .780, .651, 1};
