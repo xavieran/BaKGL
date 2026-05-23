@@ -66,6 +66,7 @@ public:
     ScreenStack& GetScreenStack() override;
     void LoadGame(std::string save, std::optional<BAK::Chapter> chapter) override;
     void SaveGame(const BAK::SaveFile& saveFile) override;
+    void SaveBookmark() override;
 
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader);
     void SetDebugDisableFades(bool disable);

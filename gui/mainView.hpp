@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/coordinates.hpp"
+#include "bak/dialog.hpp"
 #include "bak/layout.hpp"
 
 #include "gui/compass.hpp"
@@ -44,19 +45,23 @@ public:
         IGuiManager& guiManager,
         const Backgrounds& backgrounds,
         const Icons& icons,
-        const Font& spellFont);
+        const Font& spellFont,
+        const Font& gameFont);
 
     void SetHeading(BAK::GameHeading heading);
     void HandleButton(unsigned buttonIndex);
     void UpdatePartyMembers(const BAK::GameState& gameState);
     void ShowPortrait(BAK::ActiveCharIndex character);
     void ShowInventory(BAK::ActiveCharIndex character);
+    void SetCanSaveBookmark(bool can);
+    [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override;
 private:
     void AddChildren();
 
     IGuiManager& mGuiManager;
     const Icons& mIcons;
     const Font& mSpellFont;
+    const Font& mGameFont;
 
     BAK::Layout mLayout;
 
@@ -64,6 +69,11 @@ private:
     Compass mCompass;
     std::vector<ClickButtonImage> mButtons;
     std::vector<ClickButtonImage> mCharacters;
+
+    bool mCanSaveBookmark{false};
+    bool mShowingBookmarkDialog{false};
+    bool mNeedRefresh{false};
+    ClickButton mBookmarkPopup;
 
     const Logging::Logger& mLogger;
 };

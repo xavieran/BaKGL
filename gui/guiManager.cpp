@@ -58,7 +58,7 @@ GuiManager::GuiManager(
         *this,
         [this](){ CutsceneFinished(); }
     },
-    mMainView{*this, mBackgrounds, mIcons, mFontManager.GetSpellFont()},
+    mMainView{*this, mBackgrounds, mIcons, mFontManager.GetSpellFont(), mFontManager.GetGameFont()},
     mMainMenu{*this, mSpriteManager, mBackgrounds, mIcons, mFontManager.GetGameFont()},
     mInfoScreen{
         *this,
@@ -182,6 +182,11 @@ void GuiManager::SaveGame(const BAK::SaveFile& saveFile)
     EnterMainView();
 }
 
+void GuiManager::SaveBookmark()
+{
+    mGameState.Save(mMainMenu.SaveBookmark());
+}
+
 void GuiManager::SetZoneLoader(BAK::IZoneLoader* zoneLoader)
 {
     ASSERT(zoneLoader);
@@ -245,6 +250,7 @@ bool GuiManager::InCombatView() const
 void GuiManager::EnterMainView()
 {
     mLogger.Info() << "Entering main view\n";
+    mMainView.SetCanSaveBookmark(mMainMenu.CanSaveBookmark());
     mMainView.UpdatePartyMembers(mGameState);
     DoFade(1.0, [this]{
         mScreenStack.PopScreen();

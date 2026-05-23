@@ -212,6 +212,16 @@ void MainMenuScreen::Load(std::string file)
     mGuiManager.ShowGameStartMap();
 }
 
+bool MainMenuScreen::CanSaveBookmark() const
+{
+    return mSaveScreen.CanSaveBookmark();
+}
+
+const BAK::SaveFile& MainMenuScreen::SaveBookmark()
+{
+    return mSaveScreen.SaveBookmark();
+}
+
 void MainMenuScreen::AddChildren()
 {
     ClearChildren();

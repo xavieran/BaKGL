@@ -1,5 +1,7 @@
 #include "gui/clickButton.hpp"
 
+#include "gui/fontManager.hpp"
+
 #include "com/assert.hpp"
 #include "com/logger.hpp"
 #include "com/visit.hpp"
@@ -32,6 +34,9 @@ ClickButtonBase::ClickButtonBase(
 
 bool ClickButtonBase::OnMouseEvent(const MouseEvent& event)
 {
+    if (!mActive)
+        return false;
+
     return std::visit(overloaded{
         [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
         [this](const RightMousePress& p){ return RightMousePressed(p.mValue); },
@@ -79,6 +84,7 @@ ClickButton::ClickButton(
         [](){}
     },
     mFont{font},
+    mLabel{label},
     mNormal{
         glm::vec2{0, 0},
         dims,
@@ -100,15 +106,30 @@ ClickButton::ClickButton(
     AddChildren();
 }
 
-void ClickButton::SetText(std::string_view label)
+void ClickButton::SetText(std::string_view label, bool centerVertical)
 {
+    mLabel = label;
     const auto textPos = glm::vec2{3, 2};
     const auto& dims = GetPositionInfo().mDimensions;
     const auto& [endPos, text] = mText.SetText(mFont, label);
-    mText.SetPosition(
-        glm::vec2{
-            textPos.x + (dims.x - endPos.x) / 2,
-            textPos.y});
+
+    const auto xPos = textPos.x + (dims.x - endPos.x) / 2;
+    const auto fontHeight = mFont.GetFont().GetHeight();
+    const auto textHeight = endPos.y;
+    const auto yPos = centerVertical
+        ? (dims.y - textHeight) / 2.0f
+        : textPos.y;
+
+    mText.SetPosition(glm::vec2{xPos, yPos});
+}
+
+void ClickButton::SetDimensions(glm::vec2 dims)
+{
+    Widget::SetDimensions(dims);
+    mNormal.SetDimensions(dims);
+    mPressed.SetDimensions(dims);
+    mText.SetDimensions(dims);
+    SetText(mLabel);
 }
 
 bool ClickButton::OnMouseEvent(const MouseEvent& event)
@@ -241,6 +262,9 @@ ClickButtonImage::ClickButtonImage(
 
 bool ClickButtonImage::OnMouseEvent(const MouseEvent& event)
 {
+    if (!mActive)
+        return false;
+
     std::visit(overloaded{
         [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
         [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },

@@ -39,7 +39,8 @@ public:
         const std::string& label,
         std::function<void()>&& onLeftMousePress);
     
-    void SetText(std::string_view label);
+    void SetText(std::string_view label, bool centerVertical = false);
+    void SetDimensions(glm::vec2 dims) override;
     bool OnMouseEvent(const MouseEvent& event) override;
     bool LeftMousePressed(glm::vec2 click);
     bool LeftMouseReleased(glm::vec2 click);
@@ -50,6 +51,7 @@ private:
     bool UpdateState(bool newState);
 
     const Font& mFont;
+    std::string mLabel;
 
     Button mNormal;
     Button mPressed;

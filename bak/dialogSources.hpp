@@ -26,6 +26,8 @@ public:
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;
 
+    static constexpr auto mBookmarkCheck = KeyTarget{0x14c};
+
     static constexpr auto mItemDescription  = KeyTarget{0x1b7741};
     static constexpr auto mItemUseSucessful = KeyTarget{0x1b7742};
     static constexpr auto mItemUseFailure   = KeyTarget{0x1b7743};
