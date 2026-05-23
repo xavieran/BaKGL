@@ -1,5 +1,4 @@
-build/*
-build.clang/*
+build*
 data/*
 data
 compile_commands.json
