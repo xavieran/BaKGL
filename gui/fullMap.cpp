@@ -97,7 +97,7 @@ void FullMap::DisplayMapMode()
     AddChildren();
 }
 
-void FullMap::DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation location)
+void FullMap::DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation location, bool shortTransition)
 {
     mGameStartScreenMode = true;
     SetPlayerLocation(location);
@@ -112,7 +112,7 @@ void FullMap::DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation locati
                 mGuiManager.EnterMainView();
                 mPlayerPositionFlasher->Stop();
             },
-            3));
+            shortTransition ? 0.1 : 3));
 }
 
 void FullMap::UpdateLocation()

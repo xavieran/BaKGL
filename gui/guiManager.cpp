@@ -181,10 +181,17 @@ void GuiManager::SetZoneLoader(BAK::IZoneLoader* zoneLoader)
     mZoneLoader = zoneLoader;
 }
 
+void GuiManager::SetDebugDisableFades(bool disable)
+{
+    mDebugDisableFades = disable;
+}
+
 void GuiManager::DoFade(double duration, std::function<void()>&& fadeFunction)
 {
     CPPTRACE(mLogger.Info(), __FUNCTION__);
     
+    if (mDebugDisableFades) duration = 0.1;
+
     mFadeFunction.emplace_back(std::move(fadeFunction));
     if (!HaveChild(&mFadeScreen))
     {
@@ -584,7 +591,7 @@ void GuiManager::ShowGameStartMap()
 {
     DoFade(1.0, [this]{
         mScreenStack.PopScreen();
-        mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation());
+        mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation(), mDebugDisableFades);
         mScreenStack.PushScreen(&mFullMap);
     });
 }

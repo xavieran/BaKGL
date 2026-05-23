@@ -272,6 +272,7 @@ int main(int argc, char** argv)
         gameState
     };
 
+    guiManager.SetDebugDisableFades(config.mGraphics.mDebugDisableFades);
     root.AddChildFront(&guiManager);
     guiManager.EnterMainMenu(false);
 

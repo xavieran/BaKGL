@@ -67,6 +67,7 @@ public:
     void SaveGame(const BAK::SaveFile& saveFile) override;
 
     void SetZoneLoader(BAK::IZoneLoader* zoneLoader);
+    void SetDebugDisableFades(bool disable);
     void DoFade(double duration, std::function<void()>&& fadeFunction) override;
     void PlayCutscene(
         std::vector<BAK::CutsceneAction> actions,
@@ -157,6 +158,7 @@ private:
     MoredhelScreen mMoredhelScreen;
     TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
+    bool mDebugDisableFades{false};
     std::vector<std::function<void()>> mFadeFunction;
     std::function<void()> mEndFadeFunction;
     std::function<void()> mCutsceneFinished;

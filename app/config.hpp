@@ -20,6 +20,7 @@ struct Graphics
     float mResolutionScale{4.0};
     bool mShadows{true};
     bool mEnableImGui{true};
+    bool mDebugDisableFades{false};
 };
 
 struct Logging

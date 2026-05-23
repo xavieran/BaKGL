@@ -33,6 +33,7 @@ Graphics LoadGraphics(const nlohmann::json& config)
         graphics.mResolutionScale = c.value("ResolutionScale", 4.0);
         graphics.mShadows = c.value("EnableShadows", true);
         graphics.mEnableImGui = c.value("EnableImGui", true);
+        graphics.mDebugDisableFades = c.value("DebugDisableFades", false);
     }
     return graphics;
 }

@@ -38,7 +38,7 @@ public:
         BAK::GameState& gameState);
     
     void DisplayMapMode();
-    void DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation location);
+    void DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation location, bool shortTransition);
     void UpdateLocation();
 
 private:

@@ -8,7 +8,8 @@
     "Graphics": {
         "ResolutionScale": 4.0,
         "EnableShadows": true,
-        "EnableImGui": false
+        "EnableImGui": false,
+        "DebugDisableFades": false
     },
     "Audio": {
         // ADLMIDI | OPNMIDI | FluidSynth
