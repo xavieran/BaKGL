@@ -8,7 +8,6 @@
 #include "bak/camera.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/coordinates.hpp"
-#include "bak/dialog.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
@@ -24,7 +23,6 @@
 
 #include "graphics/glm.hpp"
 #include "gui/guiManager.hpp"
-#include "gui/IDialogScene.hpp"
 
 #include <utility>
 #include <variant>
@@ -44,11 +42,6 @@ GameRunner::GameRunner(
         mGameState,
         [this](const auto& pos){ CheckAndDoEncounter(pos); }},
     mCurrentInteractable{nullptr},
-    mDynamicDialogScene{
-        [&](){ mCamera.SetAngle(mSavedAngle); },
-        [&](){ mCamera.SetAngle(mSavedAngle + glm::vec2{3.14, 0}); },
-        [&](const auto&){ }
-    },
     mZoneData{nullptr},
     mActiveEncounter{nullptr},
     mEncounters{},
@@ -63,11 +56,18 @@ GameRunner::GameRunner(
         std::nullopt,
         BAK::Inventory{0}},
     mSystems{nullptr},
-    mSavedAngle{0},
     mTeleportFactory{},
+    mEncounterHandler{
+        mGameState,
+        mGuiManager,
+        mCamera},
     mClickablesEnabled{false},
     mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
 {
+    mEncounterHandler.SetTransitionCallback(
+        [this](BAK::ZoneNumber targetZone, BAK::GamePositionAndHeading targetLocation){
+            DoTransition(targetZone, targetLocation);
+        });
     mActiveCombatants.reserve(2056);
 }
 
@@ -258,16 +258,16 @@ void GameRunner::LoadSystems()
         {
             auto id = mSystems->GetNextItemId();
             const auto dims = enc.GetDims();
-            //if (std::holds_alternative<BAK::Encounter::Combat>(enc.GetEncounter()))
-            //{
-            //    mSystems->AddRenderable(
-            //        Renderable{
-            //            id,
-            //            mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
-            //            enc.GetLocation(),
-            //            glm::vec3{0.0},
-            //            glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
-            //}
+            if (std::holds_alternative<BAK::Encounter::EventFlag>(enc.GetEncounter()))
+            {
+                mSystems->AddRenderable(
+                    Renderable{
+                        id,
+                        mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
+                        enc.GetLocation(),
+                        glm::vec3{0.0},
+                        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+            }
 
             mSystems->AddIntersectable(
                 Intersectable{
@@ -376,158 +376,8 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
     mCurrentInteractable->BeginInteraction(container, et);
 }
 
-CombatCheckResult GameRunner::CheckCombatEncounter(
-    const BAK::Encounter::Encounter& encounter,
-    const BAK::Encounter::Combat& combat)
-{
-    mLogger.Debug() << __FUNCTION__ << " Checking combat active\n";
-    if (!BAK::State::CheckCombatActive(mGameState, encounter, mGameState.GetZone()))
-    {
-        mLogger.Debug() << __FUNCTION__ << " Combat inactive\n";
-        return CombatCheckResult(false, false);
-    }
-
-    if (!combat.mIsAmbush)
-    {
-        mLogger.Debug() << __FUNCTION__ << " Combat is not ambush\n";
-        return CombatCheckResult(true, false);
-    }
-    else
-    {
-        // This seems to be a variable used to prevent the scouting of multiple combats
-        // at once...
-        const auto arg_dontDoCombatIfIsAmbush = false;
-        if (arg_dontDoCombatIfIsAmbush)
-        {
-            return CombatCheckResult(false, false);
-        }
-        else
-        {
-            if (!BAK::State::CheckRecentlyEncountered(mGameState, encounter.GetIndex().mValue))
-            {
-                mGameState.Apply(BAK::State::SetRecentlyEncountered, encounter.GetIndex().mValue);
-                auto chance = GetRandomNumber(0, 0xfff) % 100;
-                const auto [character, scoutSkill] = mGameState.GetPartySkill(BAK::SkillType::Scouting, true);
-                mLogger.Debug() << __FUNCTION__ << " Trying to scout combat: "
-                    << scoutSkill << " chance: " << chance << "\n";
-                if (scoutSkill > chance)
-                {
-                    mGameState.GetParty().ImproveSkillForAll(
-                        BAK::SkillType::Scouting, BAK::SkillChange::ExercisedSkill, 1);
-                    mGuiManager.StartDialog(
-                        combat.mScoutDialog,
-                        false,
-                        false,
-                        &mDynamicDialogScene);
-
-                    mGameState.Apply(BAK::State::SetCombatEncounterScoutedState,
-                        encounter.GetIndex().mValue, true);
-
-                    return CombatCheckResult(false, true);
-                }
-                else
-                {
-                    return CombatCheckResult(true, false);
-                }
-            }
-            else
-            {
-                mLogger.Debug() << __FUNCTION__ << " Combat was scouted already\n";
-                return CombatCheckResult(true, false);
-            }
-        }
-    }
-}
-
-void GameRunner::CheckAndDoCombatEncounter(
-    const BAK::Encounter::Encounter& encounter,
-    const BAK::Encounter::Combat& combat)
-{
-    const auto [combatActive, combatScouted] = CheckCombatEncounter(encounter, combat);
-
-    mLogger.Debug() << __FUNCTION__ << " Combat checked, result: [" << combatActive << ", " << combatScouted << "]\n";
-
-    if (!combatActive)
-    {
-        mLogger.Debug() << __FUNCTION__ << " Combat not active, not doing it\n";
-        return;
-    }
-
-    const auto [character, stealthSkill] = mGameState.GetPartySkill(BAK::SkillType::Stealth, false);
-    auto lowestStealth = stealthSkill;
-    if (lowestStealth < 0x5a) // 90
-    {
-        lowestStealth *= 0x1e; // 30
-        lowestStealth += (lowestStealth / 100);
-    }
-    if (lowestStealth > 0x5a) lowestStealth = 0x5a;
-
-    if (combat.mIsAmbush)
-    {
-        if (mGameState.GetSpellActive(BAK::StaticSpells::DragonsBreath))
-        {
-            lowestStealth = lowestStealth + ((100 - lowestStealth) >> 1);
-        }
-    }
-
-    auto chance = GetRandomNumber(0, 0xfff) % 100;
-    if (lowestStealth > chance)
-    {
-        mGameState.GetParty().ImproveSkillForAll(
-            BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
-
-        mLogger.Debug() << __FUNCTION__ << " Avoided combat due to stealth\n";
-        return;
-    }
-
-    // Check whether players are in valid combatable position???
-    auto timeOfScouting = mGameState.Apply(BAK::State::GetCombatClickedTime, combat.mCombatIndex);
-    auto timeDiff = (mGameState.GetWorldTime().GetTime() - timeOfScouting).mTime;
-    if ((timeDiff / 0x1e) < 0x1e) // within scouting valid time
-    {
-        auto chance = GetRandomNumber(0, 0xfff) % 100;
-        if (chance > lowestStealth)
-        {
-            // failed to sneak up
-            mGameState.SetDialogContext_7530(1);
-        }
-        else
-        {
-            // Successfully snuck
-            mGameState.GetParty().ImproveSkillForAll(
-                BAK::SkillType::Stealth , BAK::SkillChange::ExercisedSkill, 1);
-            mGameState.SetDialogContext_7530(0);
-        }
-    }
-    else
-    {
-        mGameState.SetDialogContext_7530(2);
-    }
-
-    if (!combat.mCombatants.empty())
-    {
-        mGameState.SetMonster(BAK::MonsterIndex{combat.mCombatants.back().mMonster + 1u});
-    }
-
-    if (combat.mEntryDialog.mValue != 0)
-    {
-        mDynamicDialogScene.SetDialogFinished(
-            [&](const auto& choice){
-                Logging::LogDebug("Game::GameRunner") << "Enter Combat\n";
-                mGuiManager.EnterCombat();
-            });
-
-        mGuiManager.StartDialog(
-            combat.mEntryDialog,
-            false,
-            false,
-            &mDynamicDialogScene);
-    }
-
-}
-
 void GameRunner::CombatCompleted(bool retreated, int combatResult)
-{/*
+{
     // The below needs to be called in the return from the combat screen
     bool combatRetreated;
     //auto combatResult = EnterCombatScreen(surprisedEnemy, &combatRetreated);
@@ -566,7 +416,9 @@ void GameRunner::CombatCompleted(bool retreated, int combatResult)
     {
         // I happen to know all this "dialog" does is set a bunch of flags,
         // so it's safe to do this rather than triggering an actual dialog.
-        for (const auto& action : BAK::DialogStore::Get().GetSnippet(BAK::DialogSources::mAfterNagoCombatSetKeys).mActions)
+        auto afterNagoKeys = BAK::DialogStore::Get()
+            .GetSnippet(BAK::DialogSources::mAfterNagoCombatSetKeys);
+        for (const auto& action : afterNagoKeys.mActions)
         {
             mGameState.EvaluateAction(action);
         }
@@ -598,183 +450,6 @@ void GameRunner::CombatCompleted(bool retreated, int combatResult)
         it->Update();
         mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
     }
-*/}
-
-void GameRunner::DoBlockEncounter(
-    const BAK::Encounter::Encounter& encounter,
-    const BAK::Encounter::Block& block)
-{
-    if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
-
-    mGuiManager.StartDialog(
-            block.mDialog,
-            false,
-            false,
-            &mDynamicDialogScene);
-
-    mCamera.UndoPositionChange();
-    mGameState.Apply(
-        BAK::State::SetPostEnableOrDisableEventFlags,
-        encounter,
-        mGameState.GetZone());
-}
-
-void GameRunner::DoEventFlagEncounter(
-    const BAK::Encounter::Encounter& encounter,
-    const BAK::Encounter::EventFlag& flag)
-{
-    if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
-
-    if (flag.mEventPointer != 0)
-        mGameState.SetEventValue(flag.mEventPointer, flag.mIsEnable ? 1 : 0);
-
-    mGameState.Apply(
-        BAK::State::SetPostEnableOrDisableEventFlags,
-        encounter,
-        mGameState.GetZone());
-}
-
-void GameRunner::DoZoneEncounter(
-    const BAK::Encounter::Encounter& encounter,
-    const BAK::Encounter::Zone& zone)
-{
-    if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
-    const auto& choices = BAK::DialogStore::Get().GetSnippet(zone.mDialog).mChoices;
-    const bool isNoAffirmative = choices.size() == 2
-        && std::holds_alternative<BAK::QueryChoice>(choices.begin()->mChoice)
-        && std::get<BAK::QueryChoice>(choices.begin()->mChoice).mQueryIndex == BAK::Keywords::sNoIndex;
-    mDynamicDialogScene.SetDialogFinished(
-        [&, isNoAffirmative=isNoAffirmative, zone=zone](const auto& choice){
-            // These dialogs should always result in a choice
-            ASSERT(choice);
-            Logging::LogDebug("Game::GameRunner") << "Switch to zone: " << zone << " got choice: " << choice << "\n";
-            if ((choice->mValue == BAK::Keywords::sYesIndex && !isNoAffirmative)
-                || (choice->mValue == BAK::Keywords::sNoIndex && isNoAffirmative))
-            {
-                DoTransition(
-                    zone.mTargetZone,
-                    zone.mTargetLocation);
-                Logging::LogDebug("Game::GameRunner") << "Transition to: " << zone.mTargetZone << " complete\n";
-            }
-            else
-            {
-                mCamera.UndoPositionChange();
-            }
-            mDynamicDialogScene.ResetDialogFinished();
-        });
-    mLogger.Info() << "Zone transition: " << zone << "\n";
-    mGuiManager.StartDialog(
-        zone.mDialog,
-        false,
-        false,
-        &mDynamicDialogScene);
-}
-
-void GameRunner::DoDialogEncounter(
-    const BAK::Encounter::Encounter& encounter,
-    const BAK::Encounter::Dialog& dialog)
-{
-    if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
-
-    mSavedAngle = mCamera.GetAngle();
-    mDynamicDialogScene.SetDialogFinished(
-        [&](const auto&){
-            mCamera.SetAngle(mSavedAngle);
-            mDynamicDialogScene.ResetDialogFinished();
-        });
-
-    mGuiManager.StartDialog(
-        dialog.mDialog,
-        false,
-        true,
-        &mDynamicDialogScene);
-
-    mGameState.Apply(
-        BAK::State::SetPostDialogEventFlags,
-        encounter,
-        mGameState.GetZone());
-}
-
-void GameRunner::DoGDSEncounter(
-    const BAK::Encounter::Encounter& encounter,
-    const BAK::Encounter::GDSEntry& gds)
-{
-    // Pretty sure GDS encoutners will always happen...
-    //if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
-    //    return;
-
-    mDynamicDialogScene.SetDialogFinished(
-        [&, gds=gds](const auto& choice){
-            // These dialogs should always result in a choice
-            ASSERT(choice);
-            if (choice->mValue == BAK::Keywords::sYesIndex)
-            {
-                mGuiManager.DoFade(.8, [this, gds=gds]{
-                    mGuiManager.EnterGDSScene(
-                        gds.mHotspot, 
-                        [&, exitDialog=gds.mExitDialog](){
-                            mGuiManager.StartDialog(
-                                exitDialog,
-                                false,
-                                false,
-                                &mDynamicDialogScene);
-                            });
-                            mCamera.SetGameLocation(gds.mExitPosition);
-                });
-            }
-            else
-            {
-                mCamera.UndoPositionChange();
-            }
-
-            mGameState.Apply(BAK::State::SetPostGDSEventFlags, encounter);
-            mDynamicDialogScene.ResetDialogFinished();
-        });
-
-    mGuiManager.StartDialog(
-        gds.mEntryDialog,
-        false,
-        false,
-        &mDynamicDialogScene);
-}
-
-void GameRunner::DoEncounter(const BAK::Encounter::Encounter& encounter)
-{
-    mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
-    std::visit(
-        overloaded{
-        [&](const BAK::Encounter::GDSEntry& gds){
-            if (mGuiManager.InMainView())
-                DoGDSEncounter(encounter, gds);
-        },
-        [&](const BAK::Encounter::Block& block){
-            if (mGuiManager.InMainView())
-                DoBlockEncounter(encounter, block);
-        },
-        [&](const BAK::Encounter::Combat& combat){
-            if (mGuiManager.InMainView())
-            {
-                CheckAndDoCombatEncounter(encounter, combat);
-            }
-        },
-        [&](const BAK::Encounter::Dialog& dialog){
-            if (mGuiManager.InMainView())
-                DoDialogEncounter(encounter, dialog);
-        },
-        [&](const BAK::Encounter::EventFlag& flag){
-            if (mGuiManager.InMainView())
-                DoEventFlagEncounter(encounter, flag);
-        },
-        [&](const BAK::Encounter::Zone& zone){
-            if (mGuiManager.InMainView())
-                DoZoneEncounter(encounter, zone);
-        },
-    },
-    encounter.GetEncounter());
 }
 
 void GameRunner::CheckAndDoEncounter(glm::uvec2 position)
@@ -790,7 +465,7 @@ void GameRunner::CheckAndDoEncounter(glm::uvec2 position)
             const auto* encounter = it->second;
             mActiveEncounter = encounter;
             if (mActiveEncounter)
-                DoEncounter(*mActiveEncounter);
+                mEncounterHandler.DoEncounter(*mActiveEncounter);
         }
     }
 }
@@ -799,9 +474,7 @@ void GameRunner::RunGameUpdate(bool advanceTime)
 {
     if (mCamera.CheckAndResetDirty())
     {
-        // This class var is only really necessary so that
-        // we can us IMGUI to pull the latest triggered interactable.
-        // Might want to clean this up.
+        // only required for imgui, can remove at some point
         mActiveEncounter = nullptr;
 
         // Need to handle multiple intersectables.
@@ -821,13 +494,14 @@ void GameRunner::RunGameUpdate(bool advanceTime)
             auto camp = BAK::TimeChanger{ mGameState };
             camp.ElapseTimeInMainView(
                 BAK::Time{0x1e * unitsTravelled});
+
             // 1. If within X units of a tile, load the combat encounters into the CombatWorldLocation
             //    if they haven't been already
         }
 
         if (mActiveEncounter)
         {
-            DoEncounter(*mActiveEncounter);
+            mEncounterHandler.DoEncounter(*mActiveEncounter);
         }
     }
 }
