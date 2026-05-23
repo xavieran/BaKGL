@@ -74,6 +74,17 @@ void SaveManager::RefreshSaves()
     mDirectories = MakeSaveDirectories();
 }
 
+void SaveManager::EnsureDefaultDirectory()
+{
+    if (!mDirectories.empty())
+        return;
+
+    auto directory = SaveDirectory{1, "SAVES", {}};
+    std::filesystem::create_directory(mSavePath / directory.GetPath());
+    mLogger.Info() << "Created default save directory: " << mSavePath / directory.GetPath() << std::endl;
+    RefreshSaves();
+}
+
 void SaveManager::RemoveDirectory(unsigned index)
 {
     mLogger.Info() << "Removing save directory: " << mDirectories.at(index) << "\n";

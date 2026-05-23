@@ -130,9 +130,24 @@ void MainMenuScreen::EnterMainMenu(bool gameRunning)
 {
     mGameRunning = gameRunning;
 
+    UpdateRestoreButton();
     AddChildren();
 
     AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sMainMenuSong});
+}
+
+void MainMenuScreen::UpdateRestoreButton()
+{
+    if (mSaveScreen.HasSaves())
+    {
+        mRestore.SetText("#Restore Game");
+        mRestore.SetActive();
+    }
+    else
+    {
+        mRestore.SetText("\xf9Restore Game");
+        mRestore.SetInactive();
+    }
 }
 
 [[nodiscard]] bool MainMenuScreen::OnMouseEvent(const MouseEvent& event)

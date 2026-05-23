@@ -113,6 +113,9 @@ void ClickButton::SetText(std::string_view label)
 
 bool ClickButton::OnMouseEvent(const MouseEvent& event)
 {
+    if (!mActive)
+        return false;
+
     const bool dirty = std::visit(overloaded{
         [this](const LeftMousePress& p){ return LeftMousePressed(p.mValue); },
         [this](const LeftMouseRelease& p){ return LeftMouseReleased(p.mValue); },

@@ -49,6 +49,7 @@ public:
     
     bool OnMouseEvent(const MouseEvent& event) override;
     void SetSaveOrLoad(bool isSave);
+    bool HasSaves();
 private:
     void RemoveDirectory();
     void RemoveFile();

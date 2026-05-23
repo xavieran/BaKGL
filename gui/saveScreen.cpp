@@ -149,6 +149,12 @@ bool SaveScreen::OnMouseEvent(const MouseEvent& event)
     return handled;
 }
 
+bool SaveScreen::HasSaves()
+{
+    mSaveManager.RefreshSaves();
+    return !mSaveManager.GetSaves().empty();
+}
+
 void SaveScreen::SetSaveOrLoad(bool isSave)
 {
     mSaveManager.RefreshSaves();
@@ -156,6 +162,11 @@ void SaveScreen::SetSaveOrLoad(bool isSave)
     mIsSave = isSave;
     mDirectories.SetDimensions(glm::vec2{100, mIsSave ? 90 : 108});
     mFiles.SetDimensions(glm::vec2{160, mIsSave ? 90 : 108});
+
+    if (mIsSave && mSaveManager.GetSaves().empty())
+    {
+        mSaveManager.EnsureDefaultDirectory();
+    }
 
     if (!mSelectedDirectory || !mSelectedSave)
     {
@@ -178,6 +189,12 @@ void SaveScreen::SetSaveOrLoad(bool isSave)
         (mSelectedDirectory && mSelectedSave)
             ? mSaveManager.GetSaves().at(*mSelectedDirectory).mSaves.at(*mSelectedSave).mName
             : "");
+
+    if (mIsSave && mSelectedDirectory && !mSelectedSave)
+    {
+        mDirectorySaveInput.SetFocus(false);
+        mFileSaveInput.SetFocus(true);
+    }
 
     mRefreshSaves = true;
     mRefreshDirectories = true;
@@ -235,7 +252,7 @@ void SaveScreen::SaveGame(bool isBookmark)
 
 void SaveScreen::RestoreGame()
 {
-    assert(mSelectedDirectory && mSelectedSave);
+    if (!mSelectedDirectory || !mSelectedSave) return;
     const auto savePath = mSaveManager.GetSaves().at(*mSelectedDirectory)
         .mSaves.at(*mSelectedSave).mPath;
     std::invoke(mLoadSaveFn, savePath);
