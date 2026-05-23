@@ -4,13 +4,11 @@
 #include "bak/encounter/encounter.hpp"
 #include "bak/gameState.hpp"
 #include "bak/party.hpp"
-#include "bak/random.hpp"
 #include "bak/spells.hpp"
 #include "bak/state/encounter.hpp"
 #include "bak/time.hpp"
 
 #include "com/logger.hpp"
-#include "com/ostream.hpp"
 
 #include "gui/IGuiManager.hpp"
 
@@ -24,8 +22,14 @@ CombatEncounterHandler::CombatEncounterHandler(
     mGameState{gameState},
     mGuiManager{guiManager},
     mDynamicDialogScene{dynamicDialogScene},
+    mEnterCombatCallback{},
     mLogger{Logging::LogState::GetLogger("Game::CombatEncounterHandler")}
 {}
+
+void CombatEncounterHandler::SetEnterCombatCallback(std::function<void()>&& callback)
+{
+    mEnterCombatCallback = std::move(callback);
+}
 
 CombatCheckResult CombatEncounterHandler::CheckCombatEncounter(
     const BAK::Encounter::Encounter& encounter,
@@ -162,10 +166,13 @@ void CombatEncounterHandler::CheckAndDoCombatEncounter(
 
     if (combat.mEntryDialog.mValue != 0)
     {
+        // FIXME: Need to add surprise to EnterCombatScreen
+        // recordTimeOfCombat at (combatIndex << 2) + 0x3967
         mDynamicDialogScene.SetDialogFinished(
             [&](const auto& choice){
                 Logging::LogDebug("Game::CombatEncounterHandler") << "Enter Combat\n";
-                mGuiManager.EnterCombat();
+                ASSERT(mEnterCombatCallback);
+                mEnterCombatCallback();
             });
 
         mGuiManager.StartDialog(

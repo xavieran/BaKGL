@@ -105,7 +105,8 @@ public:
     void ExitSimpleScreen() override;
     void ShowInventory(BAK::ActiveCharIndex character) override;
     void ShowContainer(BAK::GenericContainer* container, BAK::EntityType containerType) override;
-    void EnterCombat() override;
+    void EnterCombat(std::function<void(bool, int)>&& finished) override;
+    void ExitCombat(bool retreated, int combatResult) override;
     void SelectItem(
         std::function<void(
             std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected) override;
@@ -167,6 +168,7 @@ private:
     std::function<void()> mEndFadeFunction;
     std::function<void()> mCutsceneFinished;
     std::function<void()> mOnEnterMainView;
+    std::function<void(bool, int)> mCombatFinishedCallback;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;

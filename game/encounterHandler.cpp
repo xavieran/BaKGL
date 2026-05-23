@@ -18,6 +18,7 @@
 
 #include "gui/IGuiManager.hpp"
 
+#include <cassert>
 #include <utility>
 
 namespace Game {
@@ -46,11 +47,6 @@ void EncounterHandler::SetTransitionCallback(TransitionCallback&& callback)
     mTransitionCallback = std::move(callback);
 }
 
-CombatEncounterHandler& EncounterHandler::GetCombatHandler()
-{
-    return mCombatHandler;
-}
-
 void EncounterHandler::DoEncounter(const BAK::Encounter::Encounter& encounter)
 {
     mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
@@ -66,9 +62,7 @@ void EncounterHandler::DoEncounter(const BAK::Encounter::Encounter& encounter)
         },
         [&](const BAK::Encounter::Combat& combat){
             if (mGuiManager.InMainView())
-            {
                 mCombatHandler.CheckAndDoCombatEncounter(encounter, combat);
-            }
         },
         [&](const BAK::Encounter::Dialog& dialog){
             if (mGuiManager.InMainView())
@@ -84,6 +78,11 @@ void EncounterHandler::DoEncounter(const BAK::Encounter::Encounter& encounter)
         },
     },
     encounter.GetEncounter());
+}
+
+CombatEncounterHandler& EncounterHandler::GetCombatHandler()
+{
+    return mCombatHandler;
 }
 
 void EncounterHandler::DoBlockEncounter(

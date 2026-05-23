@@ -494,13 +494,23 @@ void GuiManager::ShowContainer(BAK::GenericContainer* container, BAK::EntityType
     mScreenStack.PushScreen(&mInventoryScreen);
 }
 
-void GuiManager::EnterCombat()
+void GuiManager::EnterCombat(std::function<void(bool, int)>&& finished)
 {
+    mCombatFinishedCallback = std::move(finished);
     DoFade(.8, [this]{
         mCursor.PushCursor(0);
         mCombatScreen.SetSelectedCharacter(BAK::ActiveCharIndex{0});
         mScreenStack.PushScreen(&mCombatScreen);
     });
+}
+
+void GuiManager::ExitCombat(bool retreated, int combatResult)
+{
+    mCursor.PopCursor();
+    mScreenStack.PopScreen();
+    ASSERT(mCombatFinishedCallback);
+    mCombatFinishedCallback(retreated, combatResult);
+    mCombatFinishedCallback = nullptr;
 }
 
 void GuiManager::SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected)
