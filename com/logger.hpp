@@ -37,6 +37,11 @@ public:
         sDisabledLoggers.emplace_back(logger);
     }
 
+    static void Enable(const std::string& logger)
+    {
+        sEnabledLoggers.emplace_back(logger);
+    }
+
     static void SetLevel(LogLevel level)
     {
         sGlobalLogLevel = level;
@@ -82,14 +87,27 @@ public:
 
     static std::ostream& Log(LogLevel level, const std::string& loggerName)
     {
-        const auto it = std::find(
-            sDisabledLoggers.begin(), sDisabledLoggers.end(),
-            loggerName);
+        if (level < sGlobalLogLevel)
+            return nullStream;
 
-        if (level >= sGlobalLogLevel && it == sDisabledLoggers.end())
-            return DoLog(level, loggerName);
+        if (!sEnabledLoggers.empty())
+        {
+            const auto it = std::find(
+                sEnabledLoggers.begin(), sEnabledLoggers.end(),
+                loggerName);
+            if (it == sEnabledLoggers.end())
+                return nullStream;
+        }
+        else
+        {
+            const auto it = std::find(
+                sDisabledLoggers.begin(), sDisabledLoggers.end(),
+                loggerName);
+            if (it != sDisabledLoggers.end())
+                return nullStream;
+        }
 
-        return nullStream;
+        return DoLog(level, loggerName);
     }
     
     static const Logger& GetLogger(const std::string& name){ return GetLoggerT<Logger>(name); }

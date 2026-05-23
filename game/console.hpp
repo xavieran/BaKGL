@@ -46,6 +46,9 @@ struct Console : public std::streambuf
     void SetPosition(const std::vector<std::string>& words);
     void SetChapter(const std::vector<std::string>& words);
     void SetLogLevel(const std::vector<std::string>& words);
+    void SetSkill(const std::vector<std::string>& words);
+    void ListSkill(const std::vector<std::string>& words);
+    void MaxAllSpells(const std::vector<std::string>& words);
     
     void DisableLogger(const std::vector<std::string>& words);
     Console();

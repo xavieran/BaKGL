@@ -38,7 +38,7 @@ public:
         mBuffer.Seek(0);
         mBuffer.PutString(saveName);
 
-        mLogger.Info() << "Saving game to: " << savePath << std::endl;
+        mLogger.Info() << "Saving [" << saveName << "] game to: " << savePath << std::endl;
         auto saveFile = std::ofstream{
             savePath,
             std::ios::binary | std::ios::out};
