@@ -140,8 +140,10 @@ void Save(const Character& c, FileBuffer& fb)
         fb.PutUint8(skill.mExperience);
         fb.PutUint8(skill.mModifier);
 
+        const auto pos = fb.Tell();
         State::SetSkillSelected(fb, charIndex, i, skill.mSelected);
         State::SetSkillUnseenImprovement(fb, charIndex, i, skill.mUnseenImprovement);
+        fb.Seek(pos);
     }
 
     // Inventory

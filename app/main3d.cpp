@@ -187,6 +187,10 @@ int main(int argc, char** argv)
     {
         Logging::LogState::Disable(disabled);
     }
+    for (const auto& enabled : config.mLogging.mEnabledLoggers)
+    {
+        Logging::LogState::Enable(enabled);
+    }
     
     if (!config.mPaths.mGameData.empty())
     {

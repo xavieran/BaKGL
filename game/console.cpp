@@ -484,6 +484,104 @@ void Console::SetLogLevel(const std::vector<std::string>& words)
     }
 }
 
+void Console::ListSkill(const std::vector<std::string>&)
+{
+    for (std::uint16_t i = 0; i <= static_cast<std::uint16_t>(BAK::SkillType::Stealth); i++)
+    {
+        AddLog("(%d) %s", i, BAK::ToString(static_cast<BAK::SkillType>(i)).data());
+    }
+}
+
+void Console::MaxAllSpells(const std::vector<std::string>& words)
+{
+    if (words.size() < 2)
+    {
+        std::stringstream ss{};
+        for (const auto& w : words)
+            ss << w << "|";
+        AddLog("[error] Usage: MAX_ALL_SPELLS ACTIVE_CHAR_INDEX (%s)", ss.str().c_str());
+        return;
+    }
+
+    std::uint16_t character;
+    {
+        std::stringstream ss{};
+        ss << words[1];
+        ss >> character;
+    }
+
+    if (character > 2)
+    {
+        AddLog("[error] Character must be between 0 and 2 (%d)", character);
+        return;
+    }
+
+    auto& charSpells = mGameState->GetParty().GetCharacter(BAK::ActiveCharIndex{character})
+        .GetSpells();
+    const auto& allSpells = BAK::SpellDatabase::Get().GetSpells();
+    for (const auto& spell : allSpells)
+    {
+        charSpells.SetSpell(spell.mIndex);
+    }
+    AddLog("All spells learned for character %d", character);
+}
+
+void Console::SetSkill(const std::vector<std::string>& words)
+{
+    if (words.size() < 4)
+    {
+        std::stringstream ss{};
+        for (const auto& w : words)
+            ss << w << "|";
+        AddLog("[error] Usage: SET_SKILL CHARACTER SKILL VALUE (%s)", ss.str().c_str());
+        return;
+    }
+
+    std::uint16_t character;
+    {
+        std::stringstream ss{};
+        ss << words[1];
+        ss >> character;
+    }
+
+    if (character > 2)
+    {
+        AddLog("[error] Character must be between 0 and 2 (%d)", character);
+	return;
+    }
+
+    std::uint16_t skill;
+    {
+        std::stringstream ss{};
+        ss << words[2];
+        ss >> skill;
+    }
+
+    if (skill > 15)
+    {
+        AddLog("[error] Skill must be between 0 and 15");
+	return;
+    }
+
+    std::uint16_t value;
+    {
+        std::stringstream ss{};
+        ss << words[3];
+        ss >> value;
+    }
+
+    auto& charSkills = mGameState->GetParty().GetCharacter(BAK::ActiveCharIndex{character})
+        .GetSkills();
+
+    auto& mySkill = charSkills.GetSkill(BAK::SkillType{skill});
+    mySkill.mMax = value;
+    mySkill.mTrueSkill = value;
+    mySkill.mCurrent = value;
+    mySkill.mExperience = 0;
+    mGameState->GetParty().GetCharacter(BAK::ActiveCharIndex{character})
+        .UpdateSkills();
+}
+
 void Console::DisableLogger(const std::vector<std::string>& words)
 {
     if (words.size() < 2)
@@ -571,6 +669,15 @@ Console::Console()
 
     mCommands.push_back("NEXT_CHAPTER");
     mCommandActions.emplace_back([this](const auto& cmd){ NextChapter(cmd); });
+
+    mCommands.push_back("SET_SKILL");
+    mCommandActions.emplace_back([this](const auto& cmd){ SetSkill(cmd); });
+
+    mCommands.push_back("LIST_SKILL");
+    mCommandActions.emplace_back([this](const auto& cmd){ ListSkill(cmd); });
+
+    mCommands.push_back("MAX_ALL_SPELLS");
+    mCommandActions.emplace_back([this](const auto& cmd){ MaxAllSpells(cmd); });
 
     mCommands.push_back("CLEAR");
     mCommandActions.emplace_back([this](const auto& cmd)

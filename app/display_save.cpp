@@ -34,7 +34,10 @@ struct Options
     bool combat_lists{};
 
     std::string saveFile{};
+    std::string character{};
 };
+
+static constexpr int CHARACTER_OPT = 1000;
 
 Options Parse(int argc, char** argv)
 {
@@ -55,6 +58,7 @@ Options Parse(int argc, char** argv)
         {"combat_stats", no_argument, 0, 'S'},
         {"combat_click", no_argument, 0, 'C'},
         {"combat_lists", no_argument, 0, 'l'},
+        {"character", required_argument, 0, CHARACTER_OPT},
     };
     int optionIndex = 0;
     int opt;
@@ -63,7 +67,7 @@ Options Parse(int argc, char** argv)
         if (opt == 'h')
         {
             std::cout << "Arguments determine what information to display\n";
-            std::cout << "\t --all,-a        Show all information\n";
+            std::cout << "\t --all,-a Show all info\n";
             std::cout << "\t --shop,-s\n";
             std::cout << "\t --zone,-z\n";
             std::cout << "\t --party,-p\n";
@@ -76,6 +80,7 @@ Options Parse(int argc, char** argv)
             std::cout << "\t --combat_stats,-S\n";
             std::cout << "\t --combat_click,-C\n";
             std::cout << "\t --combat_lists,-l\n";
+            std::cout << "\t --character <name> Display character stats matching name\n";
             exit(0);
         }
         else if (opt == 'a')
@@ -134,6 +139,10 @@ Options Parse(int argc, char** argv)
         {
             values.combat_lists = true;
         }
+        else if (opt == CHARACTER_OPT)
+        {
+            values.character = optarg;
+        }
     }
 
     if (values.all)
@@ -186,6 +195,30 @@ int main(int argc, char** argv)
     {
         auto party = LoadParty(gameData.GetFileBuffer());
         logger.Info() << "Party: " << party << "\n";
+    }
+
+    if (!options.character.empty())
+    {
+        auto party = LoadParty(gameData.GetFileBuffer());
+        auto searchName = ToUpper(options.character);
+        bool found = false;
+        for (const auto& c : party.mCharacters)
+        {
+            if (ToUpper(c.mName).find(searchName) != std::string::npos)
+            {
+                logger.Info() << c << "\n";
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            logger.Info() << "No character matching '" << options.character << "' found.\n";
+            logger.Info() << "Available characters:\n";
+            for (const auto& c : party.mCharacters)
+            {
+                logger.Info() << "  " << c.mName << "\n";
+            }
+        }
     }
 
     if (options.skill_affectors)

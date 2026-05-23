@@ -30,6 +30,7 @@ struct Logging
     std::string mLogFilePath{};
     std::string mLogLevel{"DEBUG"};
     std::vector<std::string> mDisabledLoggers{};
+    std::vector<std::string> mEnabledLoggers{};
 };
 
 struct Audio

@@ -53,6 +53,13 @@ Logging LoadLogging(const nlohmann::json& config)
                 logging.mDisabledLoggers.emplace_back(logger);
             }
         }
+        if (c.contains("EnabledLoggers"))
+        {
+            for (const auto& logger : c["EnabledLoggers"])
+            {
+                logging.mEnabledLoggers.emplace_back(logger);
+            }
+        }
     }
     return logging;
 }
