@@ -2,6 +2,7 @@
 
 #include "bak/combatModel.hpp"
 #include "game/combatModelLoader.hpp"
+#include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
@@ -14,8 +15,6 @@
 
 #include "com/logger.hpp"
 
-#include "gui/IDialogScene.hpp"
-
 #include <optional>
 #include <unordered_map>
 
@@ -25,13 +24,7 @@ class CombatWorldLocation;
 class GameState;
 class Zone;
 namespace Encounter {
-struct Block;
-class Combat;
-struct Dialog;
 class Encounter;
-struct EventFlag;
-struct GDSEntry;
-class Zone;
 }
 }
 
@@ -46,12 +39,6 @@ class ClickableEntity
 public:
     BAK::EntityType mEntityType;
     BAK::GenericContainer* mContainer;
-};
-
-struct CombatCheckResult
-{
-    bool mCombatActive;
-    bool mCombatScouted;
 };
 
 class ActiveCombatant {
@@ -101,28 +88,6 @@ public:
     void LoadSystems();
 
     void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container);
-    CombatCheckResult CheckCombatEncounter(
-        const BAK::Encounter::Encounter& encounter,
-        const BAK::Encounter::Combat& combat);
-    void CheckAndDoCombatEncounter(
-        const BAK::Encounter::Encounter& encounter,
-        const BAK::Encounter::Combat& combat);
-    void DoBlockEncounter(
-        const BAK::Encounter::Encounter& encounter,
-        const BAK::Encounter::Block& block);
-    void DoEventFlagEncounter(
-        const BAK::Encounter::Encounter& encounter,
-        const BAK::Encounter::EventFlag& flag);
-    void DoZoneEncounter(
-        const BAK::Encounter::Encounter& encounter,
-        const BAK::Encounter::Zone& zone);
-    void DoDialogEncounter(
-        const BAK::Encounter::Encounter& encounter,
-        const BAK::Encounter::Dialog& dialog);
-    void DoGDSEncounter(
-        const BAK::Encounter::Encounter& encounter,
-        const BAK::Encounter::GDSEntry& gds);
-    void DoEncounter(const BAK::Encounter::Encounter& encounter);
     void CheckAndDoEncounter(glm::uvec2 position);
     
     void RunGameUpdate(bool advanceTime);
@@ -140,7 +105,6 @@ public:
     Gui::GuiManager& mGuiManager;
     InteractableFactory mInteractableFactory;
     std::unique_ptr<IInteractable> mCurrentInteractable;
-    Gui::DynamicDialogScene mDynamicDialogScene;
 
     std::unique_ptr<BAK::Zone> mZoneData;
 
@@ -149,11 +113,11 @@ public:
     std::unordered_map<BAK::EntityIndex, ClickableEntity> mClickables{};
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems;
-    glm::vec2 mSavedAngle;
     BAK::Encounter::TeleportFactory mTeleportFactory;
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
     CombatModelLoader mCombatModelLoader{};
+    EncounterHandler mEncounterHandler;
 
     std::vector<ActiveCombatant> mActiveCombatants{};
     std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatsToActiveCombatants{};
