@@ -1,21 +1,25 @@
 #include "game/gameRunner.hpp"
 
 #include "bak/combatModel.hpp"
+#include "bak/dialogSources.hpp"
 #include "bak/entityType.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
 #include "bak/camera.hpp"
 #include "bak/chapterTransitions.hpp"
-#include "bak/coordinates.hpp"
+#include "bak/dialogSources.hpp"
+#include "bak/encounter/combat.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
 #include "bak/state/encounter.hpp"
+#include "bak/state/event.hpp"
 #include "bak/time.hpp"
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 
@@ -68,6 +72,8 @@ GameRunner::GameRunner(
         [this](BAK::ZoneNumber targetZone, BAK::GamePositionAndHeading targetLocation){
             DoTransition(targetZone, targetLocation);
         });
+    mEncounterHandler.GetCombatHandler().SetEnterCombatCallback(
+        [this](){ EnterCombatFromEncounter(); });
     mActiveCombatants.reserve(2056);
 }
 
@@ -378,11 +384,11 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
 
 void GameRunner::CombatCompleted(bool retreated, int combatResult)
 {
-    // The below needs to be called in the return from the combat screen
-    bool combatRetreated;
-    //auto combatResult = EnterCombatScreen(surprisedEnemy, &combatRetreated);
-    auto combatResult = 1;
-    //recordTimeOfCombat at (combatIndex << 2) + 0x3967
+    ASSERT(mActiveEncounter);
+    ASSERT(std::holds_alternative<BAK::Encounter::Combat>(mActiveEncounter->GetEncounter()));
+    const auto& encounter = *mActiveEncounter;
+    const auto& combat = std::get<BAK::Encounter::Combat>(encounter.GetEncounter());
+
     if (combatResult == 2)
     {
         // retreat to a combat retreat location based on player entry
@@ -414,8 +420,6 @@ void GameRunner::CombatCompleted(bool retreated, int combatResult)
     static constexpr auto NagoCombatIndex = 74;
     if (combat.mCombatIndex == NagoCombatIndex)
     {
-        // I happen to know all this "dialog" does is set a bunch of flags,
-        // so it's safe to do this rather than triggering an actual dialog.
         auto afterNagoKeys = BAK::DialogStore::Get()
             .GetSnippet(BAK::DialogSources::mAfterNagoCombatSetKeys);
         for (const auto& action : afterNagoKeys.mActions)
@@ -450,6 +454,13 @@ void GameRunner::CombatCompleted(bool retreated, int combatResult)
         it->Update();
         mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
     }
+}
+
+void GameRunner::EnterCombatFromEncounter()
+{
+    mGuiManager.EnterCombat([this](bool retreated, int combatResult){
+        CombatCompleted(retreated, combatResult);
+    });
 }
 
 void GameRunner::CheckAndDoEncounter(glm::uvec2 position)

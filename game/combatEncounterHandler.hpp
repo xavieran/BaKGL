@@ -1,6 +1,5 @@
 #pragma once
 
-#include "bak/types.hpp"
 #include "com/logger.hpp"
 
 #include <glm/glm.hpp>
@@ -44,10 +43,13 @@ public:
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Combat& combat);
 
+    void SetEnterCombatCallback(std::function<void()>&& callback);
+
 private:
     BAK::GameState& mGameState;
     Gui::IGuiManager& mGuiManager;
     Gui::DynamicDialogScene& mDynamicDialogScene;
+    std::function<void()> mEnterCombatCallback;
     const Logging::Logger& mLogger;
 };
 

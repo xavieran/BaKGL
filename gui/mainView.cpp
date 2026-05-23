@@ -103,7 +103,7 @@ void MainView::HandleButton(unsigned buttonIndex)
         mGuiManager.ShowFullMap();
         break;
     case sBookmark:
-	mGuiManager.EnterCombat();
+	mGuiManager.EnterCombat([](bool, int){});
         break;
     case sMainMenu:
         mGuiManager.EnterMainMenu(true);

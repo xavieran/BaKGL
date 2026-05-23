@@ -93,6 +93,7 @@ public:
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
     void CombatCompleted(bool, int);
+    void EnterCombatFromEncounter();
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);

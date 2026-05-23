@@ -75,7 +75,7 @@ CombatScreen::CombatScreen(
         mLayout.GetWidgetDimensions(mExitRequest),
         mIcons.GetButtonTextures(mExitButton),
         [this]{
-            mGuiManager.ExitSimpleScreen();
+            mGuiManager.ExitCombat(false, 1);
         },
         []{}
     },
