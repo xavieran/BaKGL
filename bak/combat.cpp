@@ -11,11 +11,23 @@
 
 namespace BAK {
 
+std::string_view ToString(CombatantWorldState s)
+{
+    switch (s)
+    {
+        case CombatantWorldState::Invisible0: return "Invisible0";
+        case CombatantWorldState::Invisible1: return "Invisible1";
+        case CombatantWorldState::Moving0: return "Moving0";
+        case CombatantWorldState::Moving1: return "Moving1";
+        case CombatantWorldState::Dead: return "Dead";
+    }
+    return "Unknown";
+}
 
 std::ostream& operator<<(std::ostream& os, const CombatWorldLocation& cwl)
 {
     os << "CombatWorldLocation{" << cwl.mPosition << " ImageIndex: " << +cwl.mImageIndex
-        << " State: " << +cwl.mState << "}";
+        << " State: " << ToString(cwl.mState) << "}";
     return os;
 }
 

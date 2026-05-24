@@ -97,7 +97,10 @@ void GenericCombatFactory<isTrap>::Load()
         }
 
         auto unknown = fb.GetUint16LE();
-        const bool isAmbush = fb.GetUint16LE() == 0x1;
+        assert(unknown == 0);
+        auto ambushVar = fb.GetUint16LE();
+        assert(ambushVar == 0 || ambushVar == 1);
+        const bool isAmbush = ambushVar == 0x1;
 
         mCombats.emplace_back(
             combatIndex,

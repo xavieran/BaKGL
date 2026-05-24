@@ -44,24 +44,24 @@ public:
 
     void SetTransitionCallback(TransitionCallback&& callback);
 
-    void DoEncounter(const BAK::Encounter::Encounter& encounter);
+    bool DoEncounter(const BAK::Encounter::Encounter& encounter);
 
     CombatEncounterHandler& GetCombatHandler();
 
 private:
-    void DoBlockEncounter(
+    bool DoBlockEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Block& block);
-    void DoDialogEncounter(
+    bool DoDialogEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Dialog& dialog);
-    void DoZoneEncounter(
+    bool DoZoneEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Zone& zone);
-    void DoGDSEncounter(
+    bool DoGDSEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::GDSEntry& gds);
-    void DoEventFlagEncounter(
+    bool DoEventFlagEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::EventFlag& flag);
 

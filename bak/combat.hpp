@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <string_view>
 
 namespace BAK {
 
@@ -15,6 +16,8 @@ enum class CombatantWorldState : std::uint8_t
     Dead
 };
 
+std::string_view ToString(CombatantWorldState);
+
 class CombatWorldLocation
 {
 public:
@@ -23,12 +26,7 @@ public:
     // controls which of these variants is displayed. As the
     // combatant moves the index changes to simulate movement.
     std::uint8_t mImageIndex;
-    // 0 - invisible?
-    // 1 - invisible?
-    // 2 - moving
-    // 3 - moving
-    // 4 - dead
-    std::uint8_t mState;
+    CombatantWorldState mState;
 };
 
 std::ostream& operator<<(std::ostream&, const CombatWorldLocation&);

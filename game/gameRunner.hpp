@@ -88,7 +88,7 @@ public:
     void LoadSystems();
 
     void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container);
-    void CheckAndDoEncounter(glm::uvec2 position);
+    bool CheckAndDoEncounter(glm::uvec2 position);
     
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);

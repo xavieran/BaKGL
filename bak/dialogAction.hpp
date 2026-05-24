@@ -49,7 +49,14 @@ enum class SpecialActionType : std::uint16_t
     ReduceGold = 0, // reduces party gold by val of item or to 0 if lt
     IncreaseGold = 1,
     RepairAllEquippedArmor = 2,
+    // handleSpecialAction is IDA function
+    // From dialog key: 0x1cfe0e (Lord Lyton tax collectors)
+    //++ SpecialAction{ Type: ResetCombatState [151, 0, 0]}
+    //++ SpecialAction{ Type: ResetCombatState [152, 0, 0]}
+
     ResetCombatState = 3,
+    // From dialog key: 2191e8 (nighthawk self poisons)
+    // ++ SpecialAction{ Type: SetCombatState [645, 0, 0]}
     SetCombatState = 4,
     CopyStandardInnToShop0 = 5,
     CopyStandardInnToShop1 = 6,
@@ -58,6 +65,9 @@ enum class SpecialActionType : std::uint16_t
     RepairAndBlessEquippedSwords = 9, // this does something funky with inventory
     ReturnAlcoholToShops = 10,
     ResetGambleValueTo = 11,
+    // From dialog key: 0x1cfe16 (man in dimwood with conjured scorpion combat)
+    // ++ SpecialAction{ Type: ResetCombatState [375, 0, 0]}
+    // ++ SpecialAction{ Type: BeginCombat [0, 0, 0]}
     BeginCombat = 12,
     ExtinguishAllLightSources = 13, // seems to expire TESs
     EmptyArlieContainer = 14,

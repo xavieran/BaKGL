@@ -44,7 +44,7 @@ GameRunner::GameRunner(
     mInteractableFactory{
         mGuiManager,
         mGameState,
-        [this](const auto& pos){ CheckAndDoEncounter(pos); }},
+        [this](const auto& pos) -> bool { return CheckAndDoEncounter(pos); }},
     mCurrentInteractable{nullptr},
     mZoneData{nullptr},
     mActiveEncounter{nullptr},
@@ -308,7 +308,7 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
             auto& cwl = mGameState.GetCombatWorldLocation(tileIndex, encounter.mIndex.mValue, i);
             // Combatants that aren't dead in a completed combat should not be shown
             if (combatComplete
-                && static_cast<BAK::CombatantWorldState>(cwl.mState) != BAK::CombatantWorldState::Dead)
+                && cwl.mState != BAK::CombatantWorldState::Dead)
             {
                 continue;
             }
@@ -320,7 +320,7 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
             }
 
             cwl.mImageIndex = 0;
-            cwl.mState = combatant.mMovementType;
+            cwl.mState = static_cast<BAK::CombatantWorldState>(combatant.mMovementType);
             cwl.mPosition = combatant.mLocation;
 
             auto entityId = mSystems->GetNextItemId();
@@ -448,7 +448,7 @@ void GameRunner::CombatCompleted(bool retreated, int combatResult)
 
         const auto& monster = *mCombatModelLoader.mCombatModels[it->mMonster.mValue];
         const auto deadFrameOffset = monster.GetAnimation(BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
-        it->mCombatantBAKLocation.mState = std::to_underlying(BAK::CombatantWorldState::Dead);
+        it->mCombatantBAKLocation.mState = BAK::CombatantWorldState::Dead;
         it->mAnimationType = BAK::AnimationType::Dead;
         it->mFrame = deadFrameOffset;
         it->Update();
@@ -463,7 +463,7 @@ void GameRunner::EnterCombatFromEncounter()
     });
 }
 
-void GameRunner::CheckAndDoEncounter(glm::uvec2 position)
+bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
 {
     mLogger.Debug() << __FUNCTION__ << " Pos: " << position << "\n";
     auto intersectables = mSystems->RunIntersection(
@@ -476,9 +476,12 @@ void GameRunner::CheckAndDoEncounter(glm::uvec2 position)
             const auto* encounter = it->second;
             mActiveEncounter = encounter;
             if (mActiveEncounter)
-                mEncounterHandler.DoEncounter(*mActiveEncounter);
+            {
+                return mEncounterHandler.DoEncounter(*mActiveEncounter);
+            }
         }
     }
+    return false;
 }
 
 void GameRunner::RunGameUpdate(bool advanceTime)
@@ -600,7 +603,7 @@ void GameRunner::CleanCombatsOnNewZone()
     {
         cwl.mPosition = BAK::GamePositionAndHeading{};
         cwl.mImageIndex = 0;
-        cwl.mState = 1;
+        cwl.mState = BAK::CombatantWorldState::Invisible1;
     }
 }
 }

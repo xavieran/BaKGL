@@ -31,6 +31,33 @@ void CombatEncounterHandler::SetEnterCombatCallback(std::function<void()>&& call
     mEnterCombatCallback = std::move(callback);
 }
 
+bool CombatEncounterHandler::CombatIsUnavoidable(BAK::CombatIndex combatIndex)
+{
+    if (mGameState.GetCombatTriggeredFromInteractable())
+    {
+        return true;
+    }
+
+    switch (combatIndex.mValue)
+    {
+        case 151: [[fallthrough]];
+        case 152: [[fallthrough]];
+        case 235: [[fallthrough]];
+        case 245: [[fallthrough]];
+        case 291: [[fallthrough]];
+        case 293: [[fallthrough]];
+        case 335: [[fallthrough]];
+        case 337: [[fallthrough]];
+        case 338: [[fallthrough]];
+        case 375: [[fallthrough]];
+        case 410: [[fallthrough]];
+        case 429: [[fallthrough]];
+        case 430:
+            return true;
+    }
+    return false;
+}
+
 CombatCheckResult CombatEncounterHandler::CheckCombatEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Combat& combat)
@@ -41,6 +68,13 @@ CombatCheckResult CombatEncounterHandler::CheckCombatEncounter(
         mLogger.Debug() << __FUNCTION__ << " Combat inactive\n";
         return CombatCheckResult(false, false);
     }
+
+    if (CombatIsUnavoidable(BAK::CombatIndex{combat.mCombatIndex}))
+    {
+        mLogger.Debug() << __FUNCTION__ << " Combat is unavoidable\n";
+        return CombatCheckResult(true, false);
+    }
+
 
     if (!combat.mIsAmbush)
     {
@@ -65,7 +99,7 @@ CombatCheckResult CombatEncounterHandler::CheckCombatEncounter(
                 const auto [character, scoutSkill] = mGameState.GetPartySkill(BAK::SkillType::Scouting, true);
                 mLogger.Debug() << __FUNCTION__ << " Trying to scout combat: "
                     << scoutSkill << " chance: " << chance << "\n";
-                if (scoutSkill > chance)
+                if (scoutSkill >= chance)
                 {
                     mGameState.GetParty().ImproveSkillForAll(
                         BAK::SkillType::Scouting, BAK::SkillChange::ExercisedSkill, 1);
@@ -94,26 +128,14 @@ CombatCheckResult CombatEncounterHandler::CheckCombatEncounter(
     }
 }
 
-void CombatEncounterHandler::CheckAndDoCombatEncounter(
-    const BAK::Encounter::Encounter& encounter,
+unsigned CombatEncounterHandler::CalculateAvoidanceStealth(
     const BAK::Encounter::Combat& combat)
 {
-    const auto [combatActive, combatScouted] = CheckCombatEncounter(encounter, combat);
-
-    mLogger.Debug() << __FUNCTION__ << " Combat checked, result: [" << combatActive << ", " << combatScouted << "]\n";
-
-    if (!combatActive)
-    {
-        mLogger.Debug() << __FUNCTION__ << " Combat not active, not doing it\n";
-        return;
-    }
-
     const auto [character, stealthSkill] = mGameState.GetPartySkill(BAK::SkillType::Stealth, false);
     auto lowestStealth = stealthSkill;
     if (lowestStealth < 0x5a) // 90
     {
-        lowestStealth *= 0x1e; // 30
-        lowestStealth += (lowestStealth / 100);
+        lowestStealth += (lowestStealth * 0x1e) / 100; // 30
     }
     if (lowestStealth > 0x5a) lowestStealth = 0x5a;
 
@@ -125,25 +147,63 @@ void CombatEncounterHandler::CheckAndDoCombatEncounter(
         }
     }
 
+    return lowestStealth;
+}
+
+bool CombatEncounterHandler::CheckAvoidCombatDueToStealth(
+    const BAK::Encounter::Encounter& encounter,
+    const BAK::Encounter::Combat& combat)
+{
+
+    auto stealth = CalculateAvoidanceStealth(combat);
     auto chance = GetRandomNumber(0, 0xfff) % 100;
-    if (lowestStealth > chance)
+    if (stealth >= chance)
     {
         mGameState.GetParty().ImproveSkillForAll(
             BAK::SkillType::Stealth, BAK::SkillChange::ExercisedSkill, 1);
 
         mLogger.Debug() << __FUNCTION__ << " Avoided combat due to stealth\n";
-        return;
+        return true;
     }
 
+    return false;
+}
+
+bool CombatEncounterHandler::CheckAndDoCombatEncounter(
+    const BAK::Encounter::Encounter& encounter,
+    const BAK::Encounter::Combat& combat)
+{
+    mLogger.Debug() << __FUNCTION__ << " Handling combat: " << combat << "\n";
+    const auto [combatActive, combatScouted] = CheckCombatEncounter(encounter, combat);
+
+    mLogger.Debug() << __FUNCTION__ << " Combat checked, result: [" << combatActive << ", " << combatScouted << "]\n";
+
+    if (!combatActive)
+    {
+        mLogger.Debug() << __FUNCTION__ << " Combat not active, not doing it\n";
+        return combatScouted;
+    }
+
+    if (!CombatIsUnavoidable(BAK::CombatIndex{combat.mCombatIndex}))
+    {
+        auto avoidedDueToStealth = CheckAvoidCombatDueToStealth(encounter, combat);
+        if (avoidedDueToStealth)
+        {
+            return true;
+        }
+    }
+
+    const auto [character, stealth] = mGameState.GetPartySkill(BAK::SkillType::Stealth, false);
     // Check whether players are in valid combatable position???
     auto timeOfScouting = mGameState.Apply(BAK::State::GetCombatClickedTime, combat.mCombatIndex);
     auto timeDiff = (mGameState.GetWorldTime().GetTime() - timeOfScouting).mTime;
     if ((timeDiff / 0x1e) < 0x1e) // within scouting valid time
     {
         auto chance = GetRandomNumber(0, 0xfff) % 100;
-        if (chance > lowestStealth)
+        if (chance > stealth)
         {
             // failed to sneak up
+            // mGameState.SetActiveCharacter(character);
             mGameState.SetDialogContext_7530(1);
         }
         else
@@ -181,6 +241,8 @@ void CombatEncounterHandler::CheckAndDoCombatEncounter(
             false,
             &mDynamicDialogScene);
     }
+
+    return true;
 }
 
 }
