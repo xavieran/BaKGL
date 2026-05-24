@@ -492,6 +492,11 @@ void GuiManager::ShowContainer(BAK::GenericContainer* container, BAK::EntityType
                 StartDialog(container->GetDialog().mDialog, false, false, mDialogScene);
             }
         }
+
+        if (container->HasEncounter() && container->GetEncounter().mSetEventFlag != 0)
+        {
+            mGameState.SetEventValue(container->GetEncounter().mSetEventFlag, 1);
+        }
     }});
 
     mInventoryScreen.SetSelectionMode(false, nullptr);

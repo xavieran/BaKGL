@@ -7,12 +7,13 @@
 #include "bak/dialog.hpp"
 #include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
-#include "bak/itemNumbers.hpp"
 
 #include "com/logger.hpp"
 
 #include "gui/IDialogScene.hpp"
 #include "gui/IGuiManager.hpp"
+
+#include <utility>
 
 namespace Game::Interactable {
 
@@ -39,11 +40,10 @@ void Building::BeginInteraction(BAK::GenericContainer& building, BAK::EntityType
 
     ASSERT(mCurrentBuilding->HasDialog());
 
-    mGameState.SetDialogContext_7530(2);
+    mShowDialogFirst = CheckBitSet(mCurrentBuilding->GetDialog().mDialogOrder, 5); // test 0x20
 
-    if (!CheckBitSet(mCurrentBuilding->GetDialog().mDialogOrder, 5))
+    if (!mShowDialogFirst)
     {
-        // Skip dialog
         mState = State::SkipFirstDialog;
         Logging::LogDebug("Building") << "State: SkipFirstDialog\n";
         TryDoEncounter();
@@ -87,6 +87,12 @@ void Building::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     if (mState == State::DoFirstDialog)
     {
         Logging::LogDebug("Building") << "State: DoneFirstDialog: \n";
+        if (mGameState.GetEndOfDialogState() == -1)
+        {
+            Logging::LogDebug("Building") << "EndOfDialogState -1 -> exiting interaction early\n";
+            mState = State::Done;
+            return;
+        }
         TryDoEncounter();
         StartDialog(mCurrentBuilding->GetDialog().mDialog);
         return;
@@ -133,17 +139,27 @@ void Building::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 void Building::TryDoEncounter()
 {
     if (mCurrentBuilding->HasEncounter()
-    // Hack... probably there's a nicer way
-        && !mCurrentBuilding->GetEncounter().mHotspotRef)
+        && mCurrentBuilding->GetEncounter().mEncounterPos)
     {
         Logging::LogInfo("Building") << __FUNCTION__ << " " 
             << mCurrentBuilding->GetEncounter() << "\n";
-        std::invoke(
+
+        // Combats triggered from buildings should be unavoidable
+        mGameState.SetCombatTriggeredFromInteractable(true);
+        auto encounterActive = std::invoke(
             mEncounterCallback,
             *mCurrentBuilding->GetEncounter().mEncounterPos + glm::uvec2{600, 600});
-        // If this encounter is now inactive, we can run this dialog instead
-        //StartDialog(mCurrentBuilding->GetDialog().mDialog);
-        //mState = State::Done;
+        mGameState.SetCombatTriggeredFromInteractable(false);
+
+        if (!encounterActive)
+        {
+            if (mCurrentBuilding->GetDialog().mDialog != BAK::Target{BAK::KeyTarget{0}})
+            {
+                StartDialog(mCurrentBuilding->GetDialog().mDialog);
+                // is this the right state?
+                mState = State::Done;
+            }
+        }
     }
     else
     {
@@ -161,11 +177,21 @@ void Building::TryDoLock()
     }
     else
     {
+        auto forceDayContext = !CheckBitSet(mCurrentBuilding->GetDialog().mDialogOrder, 0);
+        auto isDayTime = mGameState.ReadEvent(std::to_underlying(BAK::ActiveStateFlag::DayTime));
+
+        mGameState.SetDialogContext_7530(
+            (forceDayContext || isDayTime) ? 0 : 1);
+
         mState = State::TryDoGDS;
-        if (!CheckBitSet(mCurrentBuilding->GetDialog().mDialogOrder, 5))
+        if (!mShowDialogFirst)
+        {
             StartDialog(mCurrentBuilding->GetDialog().mDialog);
+        }
         else
+        {
             TryDoGDS();
+        }
 
     }
 }

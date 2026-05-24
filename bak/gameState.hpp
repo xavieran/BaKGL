@@ -178,6 +178,10 @@ public:
         std::uint8_t encounterIndex,
         std::uint8_t combatantRelativeIndex);
 
+    // Super lame, but BaK uses a global so I will too
+    void SetCombatTriggeredFromInteractable(bool value) { mCombatTriggeredFromInteractable = value; }
+    bool GetCombatTriggeredFromInteractable() const { return mCombatTriggeredFromInteractable; }
+
 private:
     std::optional<CharIndex> mDialogCharacter{};
     CharIndex mActiveCharacter{};
@@ -199,6 +203,7 @@ private:
     Royals mItemValue_753e{};
     unsigned mSkillValue{};
     unsigned mContextVar_753f{};
+    bool mCombatTriggeredFromInteractable{};
 
     std::optional<InventoryItem> mSelectedItem{};
     std::optional<MonsterIndex> mCurrentMonster{};

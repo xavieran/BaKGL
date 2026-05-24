@@ -128,7 +128,7 @@ std::vector<CombatWorldLocation> LoadCombatWorldLocations(FileBuffer& fb)
         const auto heading = static_cast<std::uint16_t>(fb.GetUint16LE() >> 8);
         const auto combatantPosition = GamePositionAndHeading{{x, y}, heading};
         const auto imageIndex = fb.GetUint8();
-        const auto combatantState = fb.GetUint8();
+        const auto combatantState = CombatantWorldState{fb.GetUint8()};
         data.emplace_back(CombatWorldLocation{combatantPosition, imageIndex, combatantState});
         logger.Spam() << "CWL #" << k << " " << data.back() << "\n";
     }
@@ -162,7 +162,7 @@ void Save(const std::vector<CombatWorldLocation>& cwls, FileBuffer& fb)
         fb.PutUint32LE(cwl.mPosition.mPosition.y);
         fb.PutUint16LE(cwl.mPosition.mHeading << 8);
         fb.PutUint8(cwl.mImageIndex);
-        fb.PutUint8(cwl.mState);
+        fb.PutUint8(std::to_underlying(cwl.mState));
     }
 }
 

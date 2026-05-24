@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 #include <functional>
-#include <string_view>
 
 namespace BAK {
 class GenericContainer;
@@ -13,7 +12,7 @@ class GenericContainer;
 
 namespace Game {
 
-using EncounterCallback = std::function<void(glm::uvec2)>;
+using EncounterCallback = std::function<bool(glm::uvec2)>;
 
 class IInteractable
 {

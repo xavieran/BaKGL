@@ -47,34 +47,52 @@ void EncounterHandler::SetTransitionCallback(TransitionCallback&& callback)
     mTransitionCallback = std::move(callback);
 }
 
-void EncounterHandler::DoEncounter(const BAK::Encounter::Encounter& encounter)
+bool EncounterHandler::DoEncounter(const BAK::Encounter::Encounter& encounter)
 {
     mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
-    std::visit(
+    return std::visit(
         overloaded{
         [&](const BAK::Encounter::GDSEntry& gds){
             if (mGuiManager.InMainView())
-                DoGDSEncounter(encounter, gds);
+            {
+                return DoGDSEncounter(encounter, gds);
+            }
+            return false;
         },
         [&](const BAK::Encounter::Block& block){
             if (mGuiManager.InMainView())
-                DoBlockEncounter(encounter, block);
+            {
+                return DoBlockEncounter(encounter, block);
+            }
+            return false;
         },
         [&](const BAK::Encounter::Combat& combat){
             if (mGuiManager.InMainView())
-                mCombatHandler.CheckAndDoCombatEncounter(encounter, combat);
+            {
+                return mCombatHandler.CheckAndDoCombatEncounter(encounter, combat);
+            }
+            return false;
         },
         [&](const BAK::Encounter::Dialog& dialog){
             if (mGuiManager.InMainView())
-                DoDialogEncounter(encounter, dialog);
+            {
+                return DoDialogEncounter(encounter, dialog);
+            }
+            return false;
         },
         [&](const BAK::Encounter::EventFlag& flag){
             if (mGuiManager.InMainView())
-                DoEventFlagEncounter(encounter, flag);
+            {
+                return DoEventFlagEncounter(encounter, flag);
+            }
+            return false;
         },
         [&](const BAK::Encounter::Zone& zone){
             if (mGuiManager.InMainView())
-                DoZoneEncounter(encounter, zone);
+            {
+                return DoZoneEncounter(encounter, zone);
+            }
+            return false;
         },
     },
     encounter.GetEncounter());
@@ -85,12 +103,14 @@ CombatEncounterHandler& EncounterHandler::GetCombatHandler()
     return mCombatHandler;
 }
 
-void EncounterHandler::DoBlockEncounter(
+bool EncounterHandler::DoBlockEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Block& block)
 {
     if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
+        return false;
+
+    mLogger.Info() << "DoBlockEncounter for: " << block << "\n";
 
     mGuiManager.StartDialog(
             block.mDialog,
@@ -103,14 +123,17 @@ void EncounterHandler::DoBlockEncounter(
         BAK::State::SetPostEnableOrDisableEventFlags,
         encounter,
         mGameState.GetZone());
+    return true;
 }
 
-void EncounterHandler::DoEventFlagEncounter(
+bool EncounterHandler::DoEventFlagEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::EventFlag& flag)
 {
     if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
+        return false;
+
+    mLogger.Info() << "DoEventFlagEncounter for: " << flag << "\n";
 
     if (flag.mEventPointer != 0)
         mGameState.SetEventValue(flag.mEventPointer, flag.mIsEnable ? 1 : 0);
@@ -119,14 +142,15 @@ void EncounterHandler::DoEventFlagEncounter(
         BAK::State::SetPostEnableOrDisableEventFlags,
         encounter,
         mGameState.GetZone());
+    return true;
 }
 
-void EncounterHandler::DoZoneEncounter(
+bool EncounterHandler::DoZoneEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Zone& zone)
 {
     if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
+        return false;
     const auto& choices = BAK::DialogStore::Get().GetSnippet(zone.mDialog).mChoices;
     const bool isNoAffirmative = choices.size() == 2
         && std::holds_alternative<BAK::QueryChoice>(choices.begin()->mChoice)
@@ -157,14 +181,19 @@ void EncounterHandler::DoZoneEncounter(
         false,
         false,
         &mDynamicDialogScene);
+    return true;
 }
 
-void EncounterHandler::DoDialogEncounter(
+bool EncounterHandler::DoDialogEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Dialog& dialog)
 {
     if (!BAK::State::CheckEncounterActive(mGameState, encounter, mGameState.GetZone()))
-        return;
+    {
+        return false;
+    }
+
+    mLogger.Info() << "DoDialogEncounter for: " << dialog << "\n";
 
     mSavedAngle = mCamera.GetAngle();
     mDynamicDialogScene.SetDialogFinished(
@@ -183,12 +212,15 @@ void EncounterHandler::DoDialogEncounter(
         BAK::State::SetPostDialogEventFlags,
         encounter,
         mGameState.GetZone());
+
+    return true;
 }
 
-void EncounterHandler::DoGDSEncounter(
+bool EncounterHandler::DoGDSEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::GDSEntry& gds)
 {
+    mLogger.Info() << "DoGdsEncounter for: " << gds << "\n";
     // Pretty sure GDS encoutners will always happen...
     //if (!mGameState.Apply(BAK::State::CheckEncounterActive, encounter, mGameState.GetZone()))
     //    return;
@@ -225,6 +257,7 @@ void EncounterHandler::DoGDSEncounter(
         false,
         false,
         &mDynamicDialogScene);
+    return true;
 }
 
 }

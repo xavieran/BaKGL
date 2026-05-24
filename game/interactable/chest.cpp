@@ -204,14 +204,6 @@ void Chest::Explode()
 
 void Chest::ShowChestContents()
 {
-    if (mCurrentChest->HasEncounter()
-        && mCurrentChest->GetEncounter().mSetEventFlag != 0)
-    {
-        mGameState.SetEventValue(
-            mCurrentChest->GetEncounter().mSetEventFlag,
-            1);
-    }
-
     mGuiManager.ShowContainer(mCurrentChest, BAK::EntityType::CHEST);
 }
 

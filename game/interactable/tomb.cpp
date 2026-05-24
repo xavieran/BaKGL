@@ -110,9 +110,16 @@ void Tomb::DoEncounter()
 {
     Logging::LogInfo("Tomb") << __FUNCTION__ << " " 
         << mCurrentTomb->GetEncounter() << "\n";
-    std::invoke(
+    mGameState.SetCombatTriggeredFromInteractable(true);
+    auto encounterActive = std::invoke(
         mEncounterCallback,
         *mCurrentTomb->GetEncounter().mEncounterPos);
+    mGameState.SetCombatTriggeredFromInteractable(false);
+
+    if (!encounterActive)
+    {
+        DigTomb();
+    }
 }
 
 void Tomb::EncounterFinished()
@@ -131,14 +138,6 @@ void Tomb::StartDialog(BAK::Target target)
 
 void Tomb::ShowTombContents()
 {
-    if (mCurrentTomb->HasEncounter()
-        && mCurrentTomb->GetEncounter().mSetEventFlag != 0)
-    {
-        mGameState.SetEventValue(
-            mCurrentTomb->GetEncounter().mSetEventFlag,
-            1);
-    }
-
     mGuiManager.ShowContainer(mCurrentTomb, BAK::EntityType::TOMBSTONE);
 }
 

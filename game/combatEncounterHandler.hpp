@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/types.hpp"
+
 #include "com/logger.hpp"
 
 #include <glm/glm.hpp>
@@ -35,11 +37,20 @@ public:
         Gui::IGuiManager& guiManager,
         Gui::DynamicDialogScene& dynamicDialogScene);
 
+    bool CombatIsUnavoidable(BAK::CombatIndex);
+
     CombatCheckResult CheckCombatEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Combat& combat);
 
-    void CheckAndDoCombatEncounter(
+    unsigned CalculateAvoidanceStealth(
+        const BAK::Encounter::Combat& combat);
+
+    bool CheckAvoidCombatDueToStealth(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::Combat& combat);
+
+    bool CheckAndDoCombatEncounter(
         const BAK::Encounter::Encounter& encounter,
         const BAK::Encounter::Combat& combat);
 

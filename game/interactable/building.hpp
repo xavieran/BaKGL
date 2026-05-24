@@ -60,6 +60,7 @@ private:
     Gui::DynamicDialogScene mDialogScene;
     BAK::GenericContainer* mCurrentBuilding;
     State mState;
+    bool mShowDialogFirst{false};
     const EncounterCallback& mEncounterCallback;
 };
 
