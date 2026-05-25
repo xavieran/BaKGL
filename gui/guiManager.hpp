@@ -3,6 +3,7 @@
 #include "bak/IZoneLoader.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/cutscenes.hpp"
+#include "bak/combat.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/entityType.hpp"
 #include "bak/saveManager.hpp"
@@ -106,8 +107,8 @@ public:
     void ExitSimpleScreen() override;
     void ShowInventory(BAK::ActiveCharIndex character) override;
     void ShowContainer(BAK::GenericContainer* container, BAK::EntityType containerType) override;
-    void EnterCombat(std::function<void(bool, int)>&& finished) override;
-    void ExitCombat(bool retreated, int combatResult) override;
+    void EnterCombat(std::function<void(BAK::CombatResult)>&& finished) override;
+    void ExitCombat(BAK::CombatResult) override;
     void SelectItem(
         std::function<void(
             std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&& itemSelected) override;
@@ -169,7 +170,7 @@ private:
     std::function<void()> mEndFadeFunction;
     std::function<void()> mCutsceneFinished;
     std::function<void()> mOnEnterMainView;
-    std::function<void(bool, int)> mCombatFinishedCallback;
+    std::function<void(BAK::CombatResult)> mCombatFinishedCallback;
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;

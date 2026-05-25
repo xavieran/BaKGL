@@ -1,12 +1,13 @@
 #pragma once
 
-#include "bak/combatModel.hpp"
 #include "game/combatModelLoader.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
 #include "bak/IZoneLoader.hpp"
+#include "bak/combat.hpp"
+#include "bak/combatModel.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/types.hpp"
@@ -92,7 +93,7 @@ public:
     
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
-    void CombatCompleted(bool, int);
+    void CombatCompleted(BAK::CombatResult);
     void EnterCombatFromEncounter();
 
     const Graphics::RenderData& GetZoneRenderData() const;

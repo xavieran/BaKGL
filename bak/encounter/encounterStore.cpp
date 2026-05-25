@@ -80,8 +80,9 @@ std::vector<Encounter> LoadEncounters(
         const unsigned top    = fb.GetUint8();
         const unsigned right  = fb.GetUint8();
         const unsigned bottom = fb.GetUint8();
-        const auto topLeft = glm::uvec2{left, top};
-        const auto bottomRight = glm::uvec2{right, bottom};
+        const auto topLeft = glm::uvec2{left * gCellSize, top * gCellSize};
+
+        const auto bottomRight = glm::uvec2{right * gCellSize, bottom * gCellSize};
 
         const auto& [location, dimensions] = CalculateLocationAndDims(
             tile,
@@ -114,6 +115,7 @@ std::vector<Encounter> LoadEncounters(
             encounterTableIndex,
             topLeft,
             bottomRight,
+            (topLeft + bottomRight) / 2u,
             location,
             dimensions,
             tile,

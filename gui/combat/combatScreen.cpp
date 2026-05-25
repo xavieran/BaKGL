@@ -1,6 +1,7 @@
 #include "gui/combat/combatScreen.hpp"
 
 #include "bak/gameState.hpp"
+#include "bak/dialogSources.hpp"
 
 #include "com/logger.hpp"
 
@@ -75,7 +76,7 @@ CombatScreen::CombatScreen(
         mLayout.GetWidgetDimensions(mExitRequest),
         mIcons.GetButtonTextures(mExitButton),
         [this]{
-            mGuiManager.ExitCombat(false, 1);
+            ExitCombat();
         },
         []{}
     },
@@ -185,7 +186,7 @@ void CombatScreen::HandleButton(unsigned buttonIndex)
             mLogger.Debug() << "Cast\n";
             break;
         case mRetreatButton:
-            mLogger.Debug() << "Retreat\n";
+            Retreat();
             break;
         case mDefendButton:
             mLogger.Debug() << "Defend\n";
@@ -203,6 +204,22 @@ void CombatScreen::HandleButton(unsigned buttonIndex)
             mLogger.Debug() << "Unhandled button: " << buttonIndex << "\n";
             break;
     }
+}
+
+void CombatScreen::ExitCombat()
+{
+    mDialogScene.SetDialogFinished([this](auto choice){
+        mGuiManager.ExitCombat(BAK::CombatResult::Won);
+    });
+    StartDialog(BAK::DialogSources::mWonBattle);
+}
+
+void CombatScreen::Retreat()
+{
+    mDialogScene.SetDialogFinished([this](auto choice){
+        mGuiManager.ExitCombat(BAK::CombatResult::Fled);
+    });
+    StartDialog(BAK::DialogSources::mRetreatSuccessful);
 }
 
 void CombatScreen::AddChildren()

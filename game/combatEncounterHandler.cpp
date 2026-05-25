@@ -2,10 +2,12 @@
 
 #include "bak/encounter/combat.hpp"
 #include "bak/encounter/encounter.hpp"
+#include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
 #include "bak/party.hpp"
 #include "bak/spells.hpp"
 #include "bak/state/encounter.hpp"
+#include "bak/state/event.hpp"
 #include "bak/time.hpp"
 
 #include "com/logger.hpp"
@@ -245,4 +247,38 @@ bool CombatEncounterHandler::CheckAndDoCombatEncounter(
     return true;
 }
 
+void CombatEncounterHandler::UpdatePostEncounterFlags(
+    const BAK::Encounter::Encounter& encounter,
+    const BAK::Encounter::Combat& combat)
+{
+    if (encounter.mSaveAddress3 != 0)
+    {
+        mGameState.Apply(BAK::State::SetEventFlagTrue, encounter.mSaveAddress3);
+    }
+    mGameState.Apply(
+        BAK::State::SetUniqueEncounterStateFlag,
+        mGameState.GetZone(),
+        encounter.GetTileIndex(),
+        encounter.GetIndex().mValue,
+        true);
+
+    mGameState.Apply(
+        BAK::State::SetCombatEncounterState,
+        combat.mCombatIndex,
+        true);
+
+    BAK::State::SetPostCombatCombatSpecificFlags(mGameState, combat.mCombatIndex);
+    // This is a part of the above function, but I separate it out here
+    // to keep things cleaner. Yes this is hardcoded in the game code.
+    static constexpr auto NagoCombatIndex = 74;
+    if (combat.mCombatIndex == NagoCombatIndex)
+    {
+        auto afterNagoKeys = BAK::DialogStore::Get()
+            .GetSnippet(BAK::DialogSources::mAfterNagoCombatSetKeys);
+        for (const auto& action : afterNagoKeys.mActions)
+        {
+            mGameState.EvaluateAction(action);
+        }
+    }
+}
 }

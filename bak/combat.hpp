@@ -7,6 +7,14 @@
 
 namespace BAK {
 
+enum class CombatResult : std::uint8_t
+{
+    None = 0,
+    Won = 1,
+    Fled = 2,
+    Dead = 3
+};
+
 enum class CombatantWorldState : std::uint8_t
 {
     Invisible0,

@@ -74,6 +74,9 @@ private:
     void RefreshGui();
 
     void UpdateActiveCharacter();
+
+    void ExitCombat();
+    void Retreat();
     
 private:
     void AddChildren();

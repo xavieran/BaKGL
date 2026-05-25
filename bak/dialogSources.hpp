@@ -159,13 +159,17 @@ public:
     static constexpr auto mAlreadyPlannedAttack = KeyTarget{0xfc};
     static constexpr auto mWeCantTakeAllTheseFellas = KeyTarget{0x130};
 
-    static constexpr auto mCharacterFlavourDialog = BAK::KeyTarget{0x69};
+    static constexpr auto mCharacterFlavourDialog = KeyTarget{0x69};
 
-    static constexpr auto mAfterNagoCombatSetKeys = BAK::KeyTarget{0x1cfdf1};
+    static constexpr auto mAfterNagoCombatSetKeys = KeyTarget{0x1cfdf1};
     static constexpr auto mChapterFullMapScreenText = 0x126;
     static constexpr auto mStartOfChapterActions =
         KeyTarget{0x1e8497};
     static constexpr auto mDragonsBreath = 0xc7;
+
+    /* COMBAT */
+    static constexpr auto mWonBattle         = KeyTarget{0x20};
+    static constexpr auto mRetreatSuccessful = KeyTarget{0x22};
 
 };
 

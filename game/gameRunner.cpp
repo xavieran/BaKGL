@@ -382,84 +382,52 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
     mCurrentInteractable->BeginInteraction(container, et);
 }
 
-void GameRunner::CombatCompleted(bool retreated, int combatResult)
+void GameRunner::CombatCompleted(BAK::CombatResult result)
 {
     ASSERT(mActiveEncounter);
     ASSERT(std::holds_alternative<BAK::Encounter::Combat>(mActiveEncounter->GetEncounter()));
     const auto& encounter = *mActiveEncounter;
     const auto& combat = std::get<BAK::Encounter::Combat>(encounter.GetEncounter());
 
-    if (combatResult == 2)
+    if (result == BAK::CombatResult::Fled)
     {
         // retreat to a combat retreat location based on player entry
+        return;
     }
-    else if (combatResult == 1)
+    else if (result == BAK::CombatResult::Won)
     {
-        // Victory?
-        if (encounter.mSaveAddress3 != 0)
+        mEncounterHandler.GetCombatHandler().UpdatePostEncounterFlags(encounter, combat);
+
+        const auto& entities = mCombatsToActiveCombatants.at(BAK::CombatIndex{combat.mCombatIndex});
+        for (auto entityId : entities)
         {
-            mGameState.Apply(BAK::State::SetEventFlagTrue, encounter.mSaveAddress3);
+            auto it = std::find_if(
+                mActiveCombatants.begin(),
+                mActiveCombatants.end(),
+                [&entityId](const auto& combatant) {
+                    return entityId == combatant.mItemId;
+                });
+
+            if (it == mActiveCombatants.end())
+            {
+                continue;
+            }
+
+            const auto& monster = *mCombatModelLoader.mCombatModels[it->mMonster.mValue];
+            const auto deadFrameOffset = monster.GetAnimation(BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
+            it->mCombatantBAKLocation.mState = BAK::CombatantWorldState::Dead;
+            it->mAnimationType = BAK::AnimationType::Dead;
+            it->mFrame = deadFrameOffset;
+            it->Update();
+            mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
         }
-    }
-
-    mGameState.Apply(
-        BAK::State::SetUniqueEncounterStateFlag,
-        mGameState.GetZone(),
-        encounter.GetTileIndex(),
-        encounter.GetIndex().mValue,
-        true);
-
-    mGameState.Apply(
-        BAK::State::SetCombatEncounterState,
-        combat.mCombatIndex,
-        true);
-
-    BAK::State::SetPostCombatCombatSpecificFlags(mGameState, combat.mCombatIndex);
-    // This is a part of the above function, but I separate it out here
-    // to keep things cleaner. Yes this is hardcoded in the game code.
-    static constexpr auto NagoCombatIndex = 74;
-    if (combat.mCombatIndex == NagoCombatIndex)
-    {
-        auto afterNagoKeys = BAK::DialogStore::Get()
-            .GetSnippet(BAK::DialogSources::mAfterNagoCombatSetKeys);
-        for (const auto& action : afterNagoKeys.mActions)
-        {
-            mGameState.EvaluateAction(action);
-        }
-    }
-
-    if (combatResult == 3)
-    {
-    }
-
-    const auto& entities = mCombatsToActiveCombatants.at(BAK::CombatIndex{combat.mCombatIndex});
-    for (auto entityId : entities)
-    {
-        auto it = std::find_if(
-            mActiveCombatants.begin(),
-            mActiveCombatants.end(), 
-            [&entityId](const auto& combatant) {
-                return entityId == combatant.mItemId;
-            });
-        if (it == mActiveCombatants.end())
-        {
-            continue;
-        }
-
-        const auto& monster = *mCombatModelLoader.mCombatModels[it->mMonster.mValue];
-        const auto deadFrameOffset = monster.GetAnimation(BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
-        it->mCombatantBAKLocation.mState = BAK::CombatantWorldState::Dead;
-        it->mAnimationType = BAK::AnimationType::Dead;
-        it->mFrame = deadFrameOffset;
-        it->Update();
-        mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
     }
 }
 
 void GameRunner::EnterCombatFromEncounter()
 {
-    mGuiManager.EnterCombat([this](bool retreated, int combatResult){
-        CombatCompleted(retreated, combatResult);
+    mGuiManager.EnterCombat([this](BAK::CombatResult result){
+        CombatCompleted(result);
     });
 }
 

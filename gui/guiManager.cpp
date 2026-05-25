@@ -505,7 +505,7 @@ void GuiManager::ShowContainer(BAK::GenericContainer* container, BAK::EntityType
     mScreenStack.PushScreen(&mInventoryScreen);
 }
 
-void GuiManager::EnterCombat(std::function<void(bool, int)>&& finished)
+void GuiManager::EnterCombat(std::function<void(BAK::CombatResult)>&& finished)
 {
     mCombatFinishedCallback = std::move(finished);
     DoFade(.8, [this]{
@@ -515,12 +515,12 @@ void GuiManager::EnterCombat(std::function<void(bool, int)>&& finished)
     });
 }
 
-void GuiManager::ExitCombat(bool retreated, int combatResult)
+void GuiManager::ExitCombat(BAK::CombatResult combatResult)
 {
     mCursor.PopCursor();
     mScreenStack.PopScreen();
     ASSERT(mCombatFinishedCallback);
-    mCombatFinishedCallback(retreated, combatResult);
+    mCombatFinishedCallback(combatResult);
     mCombatFinishedCallback = nullptr;
 }
 

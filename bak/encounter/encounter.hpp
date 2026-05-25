@@ -84,6 +84,7 @@ public:
         std::uint16_t encounterTableIndex,
         glm::uvec2 topLeft,
         glm::uvec2 bottomRight,
+        glm::uvec2 center,
         glm::uvec2 location,
         glm::uvec2 dims,
         glm::uvec2 tile,
@@ -101,6 +102,7 @@ public:
         mEncounterTableIndex{encounterTableIndex},
         mTopLeft{topLeft},
         mBottomRight{bottomRight},
+        mCenter{(topLeft + bottomRight) / 2u},
         mLocation{location},
         mDimensions{dims},
         mTile{tile},
@@ -132,11 +134,17 @@ public:
         return mDimensions;
     }
 
+    auto GetCenter() const
+    {
+        return mCenter;
+    }
+
     EncounterT mEncounter;
     EncounterIndex mIndex;
     std::uint16_t mEncounterTableIndex;
     glm::uvec2 mTopLeft;
     glm::uvec2 mBottomRight;
+    glm::uvec2 mCenter;
     glm::uvec2 mLocation;
     glm::uvec2 mDimensions;
     glm::uvec2 mTile;

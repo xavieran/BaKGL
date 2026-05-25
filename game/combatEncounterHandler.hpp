@@ -56,6 +56,10 @@ public:
 
     void SetEnterCombatCallback(std::function<void()>&& callback);
 
+    void UpdatePostEncounterFlags(
+        const BAK::Encounter::Encounter& encounter,
+        const BAK::Encounter::Combat& combat);
+
 private:
     BAK::GameState& mGameState;
     Gui::IGuiManager& mGuiManager;
