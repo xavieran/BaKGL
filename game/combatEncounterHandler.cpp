@@ -251,10 +251,11 @@ void CombatEncounterHandler::UpdatePostEncounterFlags(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Combat& combat)
 {
-    if (encounter.mSaveAddress3 != 0)
+    if (encounter.mCompletionState != 0)
     {
-        mGameState.Apply(BAK::State::SetEventFlagTrue, encounter.mSaveAddress3);
+        mGameState.Apply(BAK::State::SetEventFlagTrue, encounter.mCompletionState);
     }
+
     mGameState.Apply(
         BAK::State::SetUniqueEncounterStateFlag,
         mGameState.GetZone(),
@@ -267,7 +268,7 @@ void CombatEncounterHandler::UpdatePostEncounterFlags(
         combat.mCombatIndex,
         true);
 
-    BAK::State::SetPostCombatCombatSpecificFlags(mGameState, combat.mCombatIndex);
+    BAK::State::SetPostCombatCombatSpecificFlags(mGameState, encounter, combat.mCombatIndex);
     // This is a part of the above function, but I separate it out here
     // to keep things cleaner. Yes this is hardcoded in the game code.
     static constexpr auto NagoCombatIndex = 74;

@@ -21,6 +21,7 @@ struct Graphics
     bool mShadows{true};
     bool mEnableImGui{true};
     bool mDebugDisableFades{false};
+    bool mDebugRenderEncounters{false};
 };
 
 struct Logging

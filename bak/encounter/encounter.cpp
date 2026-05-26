@@ -65,14 +65,14 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
         << " TL: " << e.mTopLeft
         << " BR: " << e.mBottomRight
         << " center: " << e.mCenter
-        << " tile: " << e.mTile 
+        << " tile: " << e.mTile
         << " tileIndex: " << e.mTileIndex 
-        << std::hex << " savePtr: ("
-        << e.mSaveAddress << ", " << e.mSaveAddress2 << ", "
-        << e.mSaveAddress3
+        << std::hex << " savePtr: (req: "
+        << e.mRequiredState << ", inh: " << e.mInhibitState << ", comp: "
+        << e.mCompletionState
         << ") Unknown [" << +e.mUnknown0 << ","
-        << +e.mUnknown1 << "," << +e.mUnknown2 << "," 
-        << +e.mUnknown3 << "]" << std::dec
+        << +e.mUnknown1 << ", chap: " << +e.mChapterFlag << ", rep: " 
+        << +e.mRepeatable << "]" << std::dec
         << "{" << e.mEncounter << "}}";
     return os;
 }

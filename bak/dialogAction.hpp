@@ -51,13 +51,13 @@ enum class SpecialActionType : std::uint16_t
     RepairAllEquippedArmor = 2,
     // handleSpecialAction is IDA function
     // From dialog key: 0x1cfe0e (Lord Lyton tax collectors)
-    //++ SpecialAction{ Type: ResetCombatState [151, 0, 0]}
-    //++ SpecialAction{ Type: ResetCombatState [152, 0, 0]}
+    //++ SpecialAction{ Type: ReactivateCombat [151, 0, 0]}
+    //++ SpecialAction{ Type: ReactivateCombat [152, 0, 0]}
 
-    ResetCombatState = 3,
+    ReactivateCombat = 3,
     // From dialog key: 2191e8 (nighthawk self poisons)
-    // ++ SpecialAction{ Type: SetCombatState [645, 0, 0]}
-    SetCombatState = 4,
+    // ++ SpecialAction{ Type: DeactivateCombat [645, 0, 0]}
+    DeactivateCombat = 4,
     CopyStandardInnToShop0 = 5,
     CopyStandardInnToShop1 = 6,
     Increase753f = 7, // this literally adds the value to 753f
@@ -66,7 +66,7 @@ enum class SpecialActionType : std::uint16_t
     ReturnAlcoholToShops = 10,
     ResetGambleValueTo = 11,
     // From dialog key: 0x1cfe16 (man in dimwood with conjured scorpion combat)
-    // ++ SpecialAction{ Type: ResetCombatState [375, 0, 0]}
+    // ++ SpecialAction{ Type: ReactivateCombat [375, 0, 0]}
     // ++ SpecialAction{ Type: BeginCombat [0, 0, 0]}
     BeginCombat = 12,
     ExtinguishAllLightSources = 13, // seems to expire TESs

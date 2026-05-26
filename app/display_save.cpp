@@ -18,6 +18,7 @@ extern "C" {
 struct Options
 {
     bool all{};
+    bool containers{};
     bool shops{};
     std::array<bool, 13> zones{};
 
@@ -46,6 +47,7 @@ Options Parse(int argc, char** argv)
     struct option options[] = {
         {"help", no_argument,       0, 'h'},
         {"all", no_argument, 0, 'a'},
+        {"containers", no_argument, 0, 'o'},
         {"shop", no_argument, 0, 's'},
         {"zone", required_argument, 0, 'z'},
         {"party", required_argument, 0, 'p'},
@@ -62,12 +64,13 @@ Options Parse(int argc, char** argv)
     };
     int optionIndex = 0;
     int opt;
-    while ((opt = getopt_long(argc, argv, "hasz:pktPcgwSCl", options, &optionIndex)) != -1)
+    while ((opt = getopt_long(argc, argv, "hasoz:pktPcgwSCl", options, &optionIndex)) != -1)
     {   
         if (opt == 'h')
         {
             std::cout << "Arguments determine what information to display\n";
             std::cout << "\t --all,-a Show all info\n";
+            std::cout << "\t --containers,-o Show all containers (zone + shops)\n";
             std::cout << "\t --shop,-s\n";
             std::cout << "\t --zone,-z\n";
             std::cout << "\t --party,-p\n";
@@ -86,6 +89,10 @@ Options Parse(int argc, char** argv)
         else if (opt == 'a')
         {
             values.all = true;
+        }
+        else if (opt == 'o')
+        {
+            values.containers = true;
         }
         else if (opt == 's')
         {
@@ -147,6 +154,7 @@ Options Parse(int argc, char** argv)
 
     if (values.all)
     {
+        values.containers = true;
         values.shops = true;
         values.zones.fill(true);
         values.party = true;
@@ -250,6 +258,25 @@ int main(int argc, char** argv)
             {
                 logger.Info() << "  " << con << "\n";
             }
+        }
+    }
+
+    if (options.containers)
+    {
+        for (unsigned i = 0; i < 13; i++)
+        {
+            auto containers = LoadContainers(gameData.GetFileBuffer(), i);
+            logger.Info() << "Containers(" << i << ")\n";
+            for (auto& con : containers)
+            {
+                logger.Info() << "  " << con << "\n";
+            }
+        }
+        logger.Info() << "Shops\n";
+        auto shopContainers = LoadShops(gameData.GetFileBuffer());
+        for (auto& con : shopContainers)
+        {
+            logger.Info() << "  " << con << "\n";
         }
     }
 

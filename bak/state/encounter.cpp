@@ -27,12 +27,12 @@ bool CheckEncounterActive(
         encounterIndex);
     const bool recentlyEncountered = CheckRecentlyEncountered(gs, encounterIndex);
     // event flag 1 - this flag must be set to encounter the event
-    const bool eventFlag1 = encounter.mSaveAddress != 0
-        ? !gs.GetEventState(CreateChoice(encounter.mSaveAddress))
+    const bool eventFlag1 = encounter.mRequiredState != 0
+        ? !gs.GetEventState(CreateChoice(encounter.mRequiredState))
         : false;
     // event flag 2 - this flag must _not_ be set to encounter this event
-    const bool eventFlag2 = encounter.mSaveAddress2 != 0
-        ? gs.GetEventState(CreateChoice(encounter.mSaveAddress2))
+    const bool eventFlag2 = encounter.mInhibitState != 0
+        ? gs.GetEventState(CreateChoice(encounter.mInhibitState))
         : false;
     return !(alreadyEncountered
         || recentlyEncountered
@@ -59,12 +59,12 @@ bool CheckCombatActive(
     const bool encounterFlag1464 = CheckCombatEncounterStateFlag(gs, combatIndex);
 
     // event flag 1 - this flag must be set to encounter the event
-    const bool eventFlag1 = encounter.mSaveAddress != 0
-        ? !gs.GetEventState(CreateChoice(encounter.mSaveAddress))
+    const bool eventFlag1 = encounter.mRequiredState != 0
+        ? !gs.GetEventState(CreateChoice(encounter.mRequiredState))
         : false;
     // event flag 2 - this flag must _not_ be set to encounter this event
-    const bool eventFlag2 = encounter.mSaveAddress2 != 0
-        ? gs.GetEventState(CreateChoice(encounter.mSaveAddress2))
+    const bool eventFlag2 = encounter.mInhibitState != 0
+        ? gs.GetEventState(CreateChoice(encounter.mInhibitState))
         : false;
 
     Logging::LogInfo(__FUNCTION__) << " alreadyEncountered: " << alreadyEncountered
@@ -86,17 +86,17 @@ void SetPostDialogEventFlags(
     const auto tileIndex = encounter.GetTileIndex();
     const auto encounterIndex = encounter.GetIndex().mValue;
 
-    if (encounter.mSaveAddress3 != 0)
+    if (encounter.mCompletionState != 0)
     {
-        SetEventFlagTrue(fb, encounter.mSaveAddress3);
+        SetEventFlagTrue(fb, encounter.mCompletionState);
     }
 
-    // Unknown 3 flag is associated with events like the sleeping glade and 
+    // Repeatable flag is associated with events like the sleeping glade and 
     // timirianya danger zone (effectively, always encounter this encounter)
-    if (encounter.mUnknown3 == 0)
+    if (encounter.mRepeatable == 0)
     {
         // Inhibit for this chapter
-        if (encounter.mUnknown2 != 0)
+        if (encounter.mChapterFlag != 0)
         {
             SetEventFlagTrue(
                 fb,
@@ -117,8 +117,8 @@ void SetPostGDSEventFlags(
     FileBuffer& fb,
     const Encounter::Encounter& encounter)
 {
-    if (encounter.mSaveAddress3 != 0)
-        SetEventFlagTrue(fb, encounter.mSaveAddress3);
+    if (encounter.mCompletionState != 0)
+        SetEventFlagTrue(fb, encounter.mCompletionState);
 }
 
 // Used by Block, Disable, Enable, Sound, Zone
@@ -127,12 +127,12 @@ void SetPostEnableOrDisableEventFlags(
     const Encounter::Encounter& encounter,
     ZoneNumber zone)
 {
-    if (encounter.mSaveAddress3 != 0)
+    if (encounter.mCompletionState != 0)
     {
-        SetEventFlagTrue(fb, encounter.mSaveAddress3);
+        SetEventFlagTrue(fb, encounter.mCompletionState);
     }
 
-    if (encounter.mUnknown2 != 0)
+    if (encounter.mChapterFlag != 0)
     {
         SetUniqueEncounterStateFlag(
             fb,
@@ -270,7 +270,10 @@ void ClearTileRecentEncounters(
     }
 }
 
-void SetPostCombatCombatSpecificFlags(GameState& gs, unsigned combatIndex)
+void SetPostCombatCombatSpecificFlags(
+    GameState& gs,
+    const Encounter::Encounter& encounter,
+    unsigned combatIndex)
 {
     switch (combatIndex)
     {
@@ -291,7 +294,7 @@ void SetPostCombatCombatSpecificFlags(GameState& gs, unsigned combatIndex)
                 gs.SetEventValue(0xdb1c, 1);
             }
             return;
-        // The never-ending combats?
+        // Never-ending combats
         case 235: [[fallthrough]];
         case 245: [[fallthrough]];
         case 291: [[fallthrough]];
@@ -303,11 +306,9 @@ void SetPostCombatCombatSpecificFlags(GameState& gs, unsigned combatIndex)
         case 410: [[fallthrough]];
         case 429: [[fallthrough]];
         case 430:
-            // Zero State 0x190  UniqueEncounterStateFlag
-            // Zero state 0x1450 Recently encountered encounter
-            // Zero state 145a
-            // Zero state 1464
-            // Zero combat clicked...
+            gs.Apply(
+                ReactivateCombat,
+                gs.GetZone(), encounter, combatIndex);
             break;
         case 610: [[fallthrough]];
         case 613: [[fallthrough]];
@@ -331,6 +332,34 @@ void SetPostCombatCombatSpecificFlags(GameState& gs, unsigned combatIndex)
 void ZeroCombatClicked(unsigned combatIndex)
 {
     auto offset = (combatIndex * 0xe) + 0x131f;
+}
+
+void ReactivateCombat(
+    FileBuffer& fb,
+    ZoneNumber zone,
+    const Encounter::Encounter& encounter,
+    unsigned combatIndex)
+{
+    const auto encounterIndex = encounter.GetIndex().mValue;
+    auto tileIndex = encounter.GetTileIndex();
+    SetUniqueEncounterStateFlag(fb, zone, tileIndex, encounterIndex, false);
+    SetRecentlyEncountered(fb, encounterIndex);
+    SetCombatEncounterScoutedState(fb, encounterIndex, false);
+    SetCombatEncounterState(fb, combatIndex, false);
+    //ResetCombatantsWorldState(combatIndex);
+}
+
+void DeactivateCombat(
+    FileBuffer& fb,
+    unsigned combatIndex)
+{
+    SetCombatEncounterState(fb, combatIndex, true);
+    for (unsigned i = 0; i < 7; i++)
+    {
+        // set each monster state to 0x04 -> dead
+    }
+    ZeroCombatClicked(combatIndex);
+    //ResetCombatantsWorldState(combatIndex);
 }
 
 Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex)

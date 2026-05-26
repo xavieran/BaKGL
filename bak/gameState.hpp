@@ -15,12 +15,17 @@
 #include "com/random.hpp"
 #include "com/visit.hpp"
 
+#include <functional>
 #include <memory>
 #include <type_traits>
 
 namespace BAK {
 
 class GameData;
+
+namespace Encounter {
+class Encounter;
+}
 
 template <typename F, typename ...Args>
 using invoke_result_with_fb = std::invoke_result_t<F, FileBuffer&, Args...>;
@@ -126,6 +131,9 @@ public:
 
     void SelectRandomActiveCharacter(unsigned index, unsigned attribute);
 
+    using FindEncounterCallback = std::function<const Encounter::Encounter&(BAK::CombatIndex)>;
+    void SetFindEncounterCallback(FindEncounterCallback callback);
+
     void EvaluateAction(const DialogAction& action);
     void EvaluateSpecialAction(const SpecialAction& action);
     void DoGamble(unsigned playerChance, unsigned gamblerChance, unsigned reward);
@@ -196,6 +204,7 @@ private:
     std::array<std::uint8_t, 6> mDialogCharacterList{};
 
     GameData mGameData;
+    FindEncounterCallback mFindEncounterCallback;
     unsigned mContextValue_7530{};
     bool mTransitionChapter_7541{};
     unsigned mShopType_7542{};

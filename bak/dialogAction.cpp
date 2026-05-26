@@ -44,8 +44,8 @@ std::ostream& operator<<(std::ostream& os, const SpecialActionType& a)
         case SpecialActionType::ReduceGold: return os << "ReduceGold";
         case SpecialActionType::IncreaseGold: return os << "IncreaseGold";
         case SpecialActionType::RepairAllEquippedArmor: return os << "RepairAllEquippedArmor";
-        case SpecialActionType::ResetCombatState: return os << "ResetCombatState";
-        case SpecialActionType::SetCombatState: return os << "SetCombatState";
+        case SpecialActionType::ReactivateCombat: return os << "ReactivateCombat";
+        case SpecialActionType::DeactivateCombat: return os << "DeactivateCombat";
         case SpecialActionType::CopyStandardInnToShop0: return os << "CopyStandardInnToShop0";
         case SpecialActionType::CopyStandardInnToShop1: return os << "CopyStandardInnToShop1";
         case SpecialActionType::Increase753f: return os << "Increase753f";

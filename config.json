@@ -9,7 +9,8 @@
         "ResolutionScale": 4.0,
         "EnableShadows": true,
         "EnableImGui": false,
-        "DebugDisableFades": false
+        "DebugDisableFades": false,
+        "DebugRenderEncounters": false
     },
     "Audio": {
         // ADLMIDI | OPNMIDI | FluidSynth
