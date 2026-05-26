@@ -192,6 +192,12 @@ public:
     // Super lame, but BaK uses a global so I will too
     void SetCombatTriggeredFromInteractable(bool value) { mCombatTriggeredFromInteractable = value; }
     bool GetCombatTriggeredFromInteractable() const { return mCombatTriggeredFromInteractable; }
+    std::optional<CombatIndex> GetAndResetReactivatedCombat()
+    {
+        auto tmp = mReactivatedCombat;
+        mReactivatedCombat.reset();
+        return tmp;
+    }
 
     void SetFixCombatEntityLists(bool value) { mFixCombatEntityLists = value; }
 
@@ -222,6 +228,7 @@ private:
     bool mCombatTriggeredFromInteractable{};
     bool mFixCombatEntityLists{false};
 
+    std::optional<CombatIndex> mReactivatedCombat{};
     std::optional<InventoryItem> mSelectedItem{};
     std::optional<MonsterIndex> mCurrentMonster{};
     std::int16_t mEndOfDialogState{};

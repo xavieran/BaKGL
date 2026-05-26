@@ -425,6 +425,14 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
             mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
         }
     }
+
+    auto reactivatedCombat = mGameState.GetAndResetReactivatedCombat();
+    if (reactivatedCombat)
+    {
+        auto& reactivateEncounter = FindEncounterByCombatIndex(*reactivatedCombat);
+        mGameState.Apply(
+            BAK::State::ReactivateCombat, mGameState.GetZone(), reactivateEncounter, reactivatedCombat->mValue);
+    }
 }
 
 void GameRunner::EnterCombatFromEncounter()

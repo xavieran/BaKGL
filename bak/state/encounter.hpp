@@ -124,6 +124,18 @@ void DeactivateCombat(
     const Encounter::Encounter& encounter,
     unsigned combatIndex);
 
+void ReactivateCombat(
+    FileBuffer& fb,
+    ZoneNumber zone,
+    const Encounter::Encounter& encounter,
+    unsigned combatIndex);
+
+void DeactivateCombat(
+    FileBuffer& fb,
+    ZoneNumber zone,
+    const Encounter::Encounter& encounter,
+    unsigned combatIndex);
+
 Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex);
 void SetCombatClickedTime(FileBuffer& fb, unsigned combatIndex, Time time);
 
