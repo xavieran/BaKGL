@@ -89,13 +89,13 @@ public:
         glm::uvec2 dims,
         glm::uvec2 tile,
         unsigned tileIndex,
-        unsigned saveAddress,
-        unsigned saveAddress2,
-        unsigned saveAddress3,
+        unsigned requiredState,
+        unsigned inhibitState,
+        unsigned completionState,
         std::uint8_t unknown0,
         std::uint8_t unknown1,
-        std::uint8_t unknown2,
-        std::uint16_t unknown3)
+        std::uint8_t chapterFlag,
+        std::uint16_t repeatable)
     :
         mEncounter{encounter},
         mIndex{index},
@@ -107,20 +107,20 @@ public:
         mDimensions{dims},
         mTile{tile},
         mTileIndex{tileIndex},
-        mSaveAddress{saveAddress},
-        mSaveAddress2{saveAddress2},
-        mSaveAddress3{saveAddress3},
+        mRequiredState{requiredState},
+        mInhibitState{inhibitState},
+        mCompletionState{completionState},
         mUnknown0{unknown0},
         mUnknown1{unknown1},
-        mUnknown2{unknown2},
-        mUnknown3{unknown3}
+        mChapterFlag{chapterFlag},
+        mRepeatable{repeatable}
     {}
 
     const auto& GetEncounter() const { return mEncounter; }
     // This is specifically the index of the encounter in the DAT file
     // NOT the index of the encounter type in its table (DEF_BLOC etc.)
     auto GetIndex() const { return mIndex; }
-    auto GetSaveAddress() const { return mSaveAddress; }
+    auto GetRequiredState() const { return mRequiredState; }
     auto GetTile() const { return mTile; }
     auto GetTileIndex() const { return mTileIndex; }
 
@@ -150,16 +150,13 @@ public:
     glm::uvec2 mTile;
     unsigned mTileIndex;
 
-    // Place in the save file that is checked
-    // by this encounter to see if it has
-    // already been encountered
-    unsigned mSaveAddress;
-    unsigned mSaveAddress2;
-    unsigned mSaveAddress3;
+    unsigned mRequiredState;
+    unsigned mInhibitState;
+    unsigned mCompletionState;
     std::uint8_t mUnknown0;
     std::uint8_t  mUnknown1;
-    std::uint8_t  mUnknown2;
-    std::uint16_t mUnknown3;
+    std::uint8_t  mChapterFlag;
+    std::uint16_t mRepeatable;
     friend std::ostream& operator<<(std::ostream&, const Encounter&);
 };
 

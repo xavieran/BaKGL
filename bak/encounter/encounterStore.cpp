@@ -95,17 +95,17 @@ std::vector<Encounter> LoadEncounters(
         // Don't know
         const auto unknown0 = fb.GetUint8();
         const auto unknown1 = fb.GetUint8();
-        const auto unknown2 = fb.GetUint8();
-        const auto saveAddr = fb.GetUint16LE();
-        const unsigned saveAddr2 = fb.GetUint16LE();
-        const unsigned saveAddr3 = fb.GetUint16LE();
-        const auto unknown3 = fb.GetUint16LE();
+        const auto chapterFlag = fb.GetUint8();
+        const auto requiredState = fb.GetUint16LE();
+        const unsigned inhibitState = fb.GetUint16LE();
+        const unsigned completionState = fb.GetUint16LE();
+        const auto repeatable = fb.GetUint16LE();
 
         logger.Debug() << "Loaded encounter: " << tile << " loc: " << location
             << " dims: " << dimensions << " @ 0x" << std::hex << loc
             << std::dec << " type: " << encounterType << " index: " << encounterTableIndex
-            << " saveAddr: 0x" << std::hex << saveAddr << ", " << saveAddr2 << ", "
-            << saveAddr3 << std::dec << "\n";
+            << " saveAddr: 0x" << std::hex << requiredState << ", " << inhibitState << ", "
+            << completionState << std::dec << "\n";
         encounters.emplace_back(
             ef.MakeEncounter(
                 encounterType,
@@ -120,13 +120,13 @@ std::vector<Encounter> LoadEncounters(
             dimensions,
             tile,
             tileIndex,
-            saveAddr,
-            saveAddr2,
-            saveAddr3,
+            requiredState,
+            inhibitState,
+            completionState,
             unknown0,
             unknown1,
-            unknown2,
-            unknown3);
+            chapterFlag,
+            repeatable);
     }
 
     return encounters;

@@ -65,7 +65,7 @@ void Building::LockFinished()
         // Unlockable buildings must always have a dialog
         ASSERT(mCurrentBuilding->HasDialog());
         mState = State::ShowInventory;
-        if (!CheckBitSet(mCurrentBuilding->GetDialog().mDialogOrder, 5))
+        if (!mShowDialogFirst)
         {
             StartDialog(mCurrentBuilding->GetDialog().mDialog);
         }

@@ -34,6 +34,7 @@ Graphics LoadGraphics(const nlohmann::json& config)
         graphics.mShadows = c.value("EnableShadows", true);
         graphics.mEnableImGui = c.value("EnableImGui", true);
         graphics.mDebugDisableFades = c.value("DebugDisableFades", false);
+        graphics.mDebugRenderEncounters = c.value("DebugRenderEncounters", false);
     }
     return graphics;
 }

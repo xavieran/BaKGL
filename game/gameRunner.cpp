@@ -36,7 +36,8 @@ namespace Game {
 GameRunner::GameRunner(
     Camera& camera,
     BAK::GameState& gameState,
-    Gui::GuiManager& guiManager)
+    Gui::GuiManager& guiManager,
+    bool debugRenderEncounters)
 :
     mCamera{camera},
     mGameState{gameState},
@@ -66,8 +67,13 @@ GameRunner::GameRunner(
         mGuiManager,
         mCamera},
     mClickablesEnabled{false},
+    mDebugRenderEncounters{debugRenderEncounters},
     mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
 {
+    mGameState.SetFindEncounterCallback(
+        [this](BAK::CombatIndex combatIndex) -> const BAK::Encounter::Encounter& {
+            return FindEncounterByCombatIndex(combatIndex);
+        });
     mEncounterHandler.SetTransitionCallback(
         [this](BAK::ZoneNumber targetZone, BAK::GamePositionAndHeading targetLocation){
             DoTransition(targetZone, targetLocation);
@@ -264,7 +270,7 @@ void GameRunner::LoadSystems()
         {
             auto id = mSystems->GetNextItemId();
             const auto dims = enc.GetDims();
-            if (std::holds_alternative<BAK::Encounter::EventFlag>(enc.GetEncounter()))
+            if (mDebugRenderEncounters)
             {
                 mSystems->AddRenderable(
                     Renderable{
@@ -555,6 +561,22 @@ const Graphics::RenderData& GameRunner::GetZoneRenderData() const
 {
     assert(mZoneRenderData);
     return *mZoneRenderData;
+}
+
+const BAK::Encounter::Encounter& GameRunner::FindEncounterByCombatIndex(BAK::CombatIndex combatIndex) const
+{
+    for (const auto& world : mZoneData->mWorldTiles.GetTiles())
+    {
+        for (const auto& encounter : world.GetEncounters(mGameState.GetChapter()))
+        {
+            if (!std::holds_alternative<BAK::Encounter::Combat>(encounter.GetEncounter()))
+                continue;
+            const auto& combat = std::get<BAK::Encounter::Combat>(encounter.GetEncounter());
+            if (combat.mCombatIndex == combatIndex.mValue)
+                return encounter;
+        }
+    }
+    ASSERT(false);
 }
 
 void GameRunner::CleanCombatsOnNewZone()

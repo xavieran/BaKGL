@@ -107,7 +107,22 @@ void SetCombatEncounterScoutedState(
 void SetRecentlyEncountered(FileBuffer&, std::uint8_t encounterIndex);
 bool CheckRecentlyEncountered(const GameState&, std::uint8_t encounterIndex);
 void ClearTileRecentEncounters(FileBuffer&);
-void SetPostCombatCombatSpecificFlags(GameState& gs, unsigned combatIndex);
+void SetPostCombatCombatSpecificFlags(
+    GameState& gs,
+    const Encounter::Encounter&,
+    unsigned combatIndex);
+
+void ReactivateCombat(
+    FileBuffer& fb,
+    ZoneNumber zone,
+    const Encounter::Encounter& encounter,
+    unsigned combatIndex);
+
+void DeactivateCombat(
+    FileBuffer& fb,
+    ZoneNumber zone,
+    const Encounter::Encounter& encounter,
+    unsigned combatIndex);
 
 Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex);
 void SetCombatClickedTime(FileBuffer& fb, unsigned combatIndex, Time time);

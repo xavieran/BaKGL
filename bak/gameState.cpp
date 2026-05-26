@@ -689,6 +689,18 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
             return Loop::Continue;
         });
         break;
+    case ReactivateCombat:
+    {
+        auto combatIndex = action.mVar1;
+        ASSERT(mFindEncounterCallback);
+        auto& encounter = mFindEncounterCallback(BAK::CombatIndex{combatIndex});
+        BAK::State::ReactivateCombat(
+            mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
+        break;
+    }
+    case DeactivateCombat:
+        // DeactivateCombat(mGameData.GetBuffer(), mZone, encounter, combatIndex);
+        break;
     // I don't think this is used anywhere
     case CopyStandardInnToShop0: [[fallthrough]];
     case CopyStandardInnToShop1:
@@ -740,6 +752,11 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
             return Loop::Continue;
         });
         break;
+    case BeginCombat:
+    {
+        // Need to call back to gameRunner here to
+        // kick off a combat
+    } break;
     case ExtinguishAllLightSources:
     {
         for (auto& state : mTimeExpiringState)
@@ -1075,6 +1092,11 @@ unsigned GameState::GetBardReward_754d()
 void GameState::SetInventoryItem(const InventoryItem& item)
 {
     mSelectedItem = item;
+}
+
+void GameState::SetFindEncounterCallback(FindEncounterCallback callback)
+{
+    mFindEncounterCallback = std::move(callback);
 }
 
 void GameState::ClearUnseenImprovements(unsigned character)

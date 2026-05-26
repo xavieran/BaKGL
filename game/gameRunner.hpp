@@ -77,7 +77,8 @@ public:
     GameRunner(
         Camera& camera,
         BAK::GameState& gameState,
-        Gui::GuiManager& guiManager);
+        Gui::GuiManager& guiManager,
+        bool debugRenderEncounters = false);
     
     void DoTeleport(BAK::Encounter::Teleport teleport) override;
     void LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter) override;
@@ -101,6 +102,8 @@ public:
 
     void LoadCombatants(std::uint8_t tileIndex);
     void CleanCombatsOnNewZone();
+    const BAK::Encounter::Encounter& FindEncounterByCombatIndex(
+        BAK::CombatIndex combatIndex) const;
     
     Camera& mCamera;
     BAK::GameState& mGameState;
@@ -124,6 +127,7 @@ public:
     std::vector<ActiveCombatant> mActiveCombatants{};
     std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatsToActiveCombatants{};
     bool mClickablesEnabled{};
+    bool mDebugRenderEncounters{false};
     double mAccumulatedTime{};
 
     const Logging::Logger& mLogger;

@@ -304,7 +304,8 @@ int main(int argc, char** argv)
     Game::GameRunner gameRunner{
         camera,
         gameState,
-        guiManager};
+        guiManager,
+        config.mGraphics.mDebugRenderEncounters};
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
