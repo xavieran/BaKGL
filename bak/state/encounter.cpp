@@ -347,19 +347,16 @@ void ReactivateCombat(
     SetCombatEncounterScoutedState(fb, encounterIndex, false);
     SetCombatEncounterState(fb, combatIndex, false);
     //ResetCombatantsWorldState(combatIndex);
+    SetCombatClickedTime(fb, combatIndex, Time{0});
 }
 
 void DeactivateCombat(
     FileBuffer& fb,
+    ZoneNumber zone,
+    const Encounter::Encounter& encounter,
     unsigned combatIndex)
 {
     SetCombatEncounterState(fb, combatIndex, true);
-    for (unsigned i = 0; i < 7; i++)
-    {
-        // set each monster state to 0x04 -> dead
-    }
-    ZeroCombatClicked(combatIndex);
-    //ResetCombatantsWorldState(combatIndex);
 }
 
 Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex)

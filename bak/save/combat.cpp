@@ -1,11 +1,11 @@
 #include "bak/save/combat.hpp"
 
 #include "bak/save/saveOffsets.hpp"
+#include "bak/spells.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/state/encounter.hpp"
 
 #include "com/logger.hpp"
-#include "com/ostream.hpp"
 
 namespace BAK {
 
@@ -94,26 +94,36 @@ std::vector<CombatantGridLocation> LoadCombatantGridLocations(FileBuffer& fb)
     fb.Seek(SaveOffsets::sCombatantGridLocationsOffset + (initial * 22));
     for (unsigned i = 0; i < SaveOffsets::sCombatantGridLocationsCount; i++)
     {
-        fb.Skip(2);
+        const auto unknown0 = fb.GetUint16LE();
         const auto monsterType = fb.GetUint16LE();
         const auto gridX = fb.GetUint8();
         const auto gridY = fb.GetUint8();
-        fb.Skip(16);
-        data.emplace_back(CombatantGridLocation{MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}});
+        const auto unknown1 = fb.GetUint16LE();
+        const auto unknown2 = fb.GetUint8();
+        const auto rest = fb.GetArray<13>();
+        data.emplace_back(CombatantGridLocation{unknown0, MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}, unknown1, unknown2, rest});
         logger.Spam() << "CGL #" << i << data.back() << "\n";
     }
     return data;
 }
 
-CombatantGridLocation LoadCombatantGridLocation(FileBuffer& fb, CombatIndex index)
+void Save(const std::vector<CombatantGridLocation>& cgls, FileBuffer& fb)
 {
-    fb.Seek(SaveOffsets::sCombatantGridLocationsOffset + (index.mValue * 22));
-    fb.Skip(2);
-    const auto monsterType = fb.GetUint16LE();
-    const auto gridX = fb.GetUint8();
-    const auto gridY = fb.GetUint8();
-    fb.Skip(16);
-    return CombatantGridLocation{MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}};
+    fb.Seek(SaveOffsets::sCombatantGridLocationsOffset);
+    assert(cgls.size() == SaveOffsets::sCombatantGridLocationsCount);
+    for (const auto& cgl : cgls)
+    {
+        fb.PutUint16LE(cgl.mUnknown0);
+        fb.PutUint16LE(cgl.mMonster.mValue);
+        fb.PutUint8(cgl.mGridPos.x);
+        fb.PutUint8(cgl.mGridPos.y);
+        fb.PutUint16LE(cgl.mUnknown1);
+        fb.PutUint8(cgl.mUnknown2);
+        for (auto val : cgl.mRest)
+        {
+            fb.PutUint8(val);
+        }
+    }
 }
 
 std::vector<CombatWorldLocation> LoadCombatWorldLocations(FileBuffer& fb)

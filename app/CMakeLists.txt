@@ -9,7 +9,7 @@ list(APPEND APP_BINARIES
     dialog_explorer
     display_book
     display_dialog
-    #display_encounters
+    display_encounters
     #display_fo
     #display_fmap
     #display_gds

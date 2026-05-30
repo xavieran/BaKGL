@@ -175,7 +175,7 @@ bool CombatEncounterHandler::CheckAndDoCombatEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Combat& combat)
 {
-    mLogger.Debug() << __FUNCTION__ << " Handling combat: " << combat << "\n";
+    mLogger.Debug() << __FUNCTION__ << " Handling encounter: " << encounter << "\n with combat " << "\n";
     const auto [combatActive, combatScouted] = CheckCombatEncounter(encounter, combat);
 
     mLogger.Debug() << __FUNCTION__ << " Combat checked, result: [" << combatActive << ", " << combatScouted << "]\n";

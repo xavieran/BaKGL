@@ -10,4 +10,6 @@ tags
 shaders/gen
 shaders/shader_binary_cache.hxx
 */*pycache*
+*pycache*
 dialog
+

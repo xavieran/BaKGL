@@ -1,0 +1,44 @@
+// From dialog key: 2191c5 (nighthawk self poisons) 
+// ++ SpecialAction{ Type: DeactivateCombat [645, 0, 0]}
+
+Combat Ix 645
+zone: 12, tile 10 (14, 11), Chap 10
+
+
+Encounter { index: 1 ETI: 219 dims: uvec2(1600, 1600) worldLocation: uvec2(925600, 711200) TL: uvec2(28800, 6400) BR: uvec2(28800, 6400) center: uvec2(28800, 6400)
+tile: uvec2(14, 11)
+tileIndex: 10
+savePtr: (req: 0, inh: 0, comp: 0) Unknown [0,0, chap: 0, rep: 0]
+
+ with combatWorldLocation
+ encounter.mTileIndex * 35 + encounter.mIndex * 7 + relativeCombatantInde
+10 * 35 + 7 * 1 + 0 -- 357
+
+{Combat { #645 Entry: f8 Scout: 0 
+Trap: [[null]] 
+North: { pos: uvec2(924000, 711200), angle: 0} 
+West: { pos: uvec2(924000, 711200), angle: 0} 
+South: { pos: uvec2(924000, 711200), angle: 0} 
+East: { pos: uvec2(924000, 711200), angle: 0}
+unknown: 0 isAmbush: 0 
+Combatants: [{ Monster: 23, MoveType: 0, { pos: uvec2(27243, 4054), angle: 32} min: ivec2(969292128, 1022770320),  max: ivec2(982661676, 1036139868)}, ]}}
+
+INFO [main]   #645 CombatEntityList{1630}
+
+INFO [main]   #671 CombatEntityList{1665}
+This is associated with combat #671
+BUT Combat entity is actually 1665 based on inventory contents???
+
+
+
+
+INFO [main] #1665 GenericContainer{ ContainerHeader @5115f {CCL { arr: 64 0a 00 00 combat: 645 person: 0} LocType: 7 Items: 4 Capacity: 4 Flags: 0} Inventory {
+#0 -> Standard Kingdom Armor #48 pct/qty: 89 status: 96 mods: [] IsEquipped: 1
+
+#1 -> Two-Handed Broadsword #29 pct/qty: 63 status: 96 mods: [] IsEquipped: 1
+
+#2 -> Gold Sovereigns #53 pct/qty: 20 status: 0 mods: [] IsEquipped: 0
+
+#3 -> Restoratives #119 pct/qty: 4 status: 0 mods: [] IsEquipped: 0
+
+

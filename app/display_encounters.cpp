@@ -40,7 +40,7 @@ int main(int argc, char** argv)
                         const auto encounters = BAK::Encounter::LoadEncounters(
                                 ef, fb, BAK::Chapter{c}, glm::vec<2, unsigned>(x, y), tileIndex);
                         for (const auto& encounter : encounters)
-                            logger.Info() << "Encounter: " << encounter << "\n";
+                            logger.Info() << "Encounter: " << encounter << "\n\n";
                 }
             }
         }
