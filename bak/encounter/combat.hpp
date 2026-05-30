@@ -141,6 +141,7 @@ public:
     GenericCombatFactory();
 
     const Combat& Get(unsigned i) const;
+    unsigned size() const { return mCombats.size(); }
 
 private:
     void Load();

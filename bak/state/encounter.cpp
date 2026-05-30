@@ -306,9 +306,7 @@ void SetPostCombatCombatSpecificFlags(
         case 410: [[fallthrough]];
         case 429: [[fallthrough]];
         case 430:
-            gs.Apply(
-                ReactivateCombat,
-                gs.GetZone(), encounter, combatIndex);
+            gs.ReactivateCombat(encounter, BAK::CombatIndex{combatIndex});
             break;
         case 610: [[fallthrough]];
         case 613: [[fallthrough]];
@@ -346,7 +344,6 @@ void ReactivateCombat(
     SetRecentlyEncountered(fb, encounterIndex);
     SetCombatEncounterScoutedState(fb, encounterIndex, false);
     SetCombatEncounterState(fb, combatIndex, false);
-    //ResetCombatantsWorldState(combatIndex);
     SetCombatClickedTime(fb, combatIndex, Time{0});
 }
 

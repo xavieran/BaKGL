@@ -45,6 +45,7 @@ struct Audio
 struct Game
 {
     bool mAdvanceTime{true};
+    bool mFixCombatEntityLists{false};
 };
 
 struct Config

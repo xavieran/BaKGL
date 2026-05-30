@@ -86,6 +86,7 @@ Game LoadGame(const nlohmann::json& config)
     {
         const auto& c = config["Game"];
         game.mAdvanceTime = c.value("AdvanceTime", true);
+        game.mFixCombatEntityLists = c.value("FixCombatEntityLists", false);
     }
     return game;
 }

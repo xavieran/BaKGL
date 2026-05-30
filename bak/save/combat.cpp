@@ -42,23 +42,6 @@ std::vector<CombatEntityList> LoadCombatEntityLists(FileBuffer& fb)
     return data;
 }
 
-CombatEntityList LoadCombatEntityList(FileBuffer& fb, CombatIndex index)
-{
-    constexpr unsigned maxCombatants = 7;
-    fb.Seek(SaveOffsets::sCombatEntityListOffset + index.mValue * maxCombatants * 2);
-    auto list = CombatEntityList{};
-
-    for (unsigned i = 0; i < maxCombatants; i++)
-    {
-        auto combatant = fb.GetUint16LE();
-        if (combatant != 0xffff)
-        {
-            list.mCombatants.emplace_back(CombatantIndex{combatant});
-        }
-    }
-    return list;
-}
-
 std::vector<Skills> LoadCombatStats(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadCombatStats");
@@ -160,6 +143,26 @@ std::vector<Time> LoadCombatClickedTimes(FileBuffer& fb)
         }
     }
     return times;
+}
+
+void Save(const std::vector<CombatEntityList>& cels, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sCombatEntityListOffset);
+    assert(cels.size() == SaveOffsets::sCombatEntityListCount);
+    constexpr unsigned maxCombatants = 7;
+    for (const auto& cel : cels)
+    {
+        unsigned i = 0;
+        for (const auto& combatant : cel.mCombatants)
+        {
+            fb.PutUint16LE(combatant.mValue);
+            i++;
+        }
+        for (; i < maxCombatants; i++)
+        {
+            fb.PutUint16LE(0xffff);
+        }
+    }
 }
 
 void Save(const std::vector<CombatWorldLocation>& cwls, FileBuffer& fb)

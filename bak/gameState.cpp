@@ -9,9 +9,10 @@
 #include "bak/itemNumbers.hpp"
 #include "bak/gameData.hpp"
 
-#include "bak/save/world.hpp"
 #include "bak/save/containers.hpp"
 #include "bak/save/combat.hpp"
+#include "bak/save/saveOffsets.hpp"
+#include "bak/save/world.hpp"
 
 #include "bak/state/customStateChoice.hpp"
 #include "bak/state/dialog.hpp"
@@ -67,6 +68,15 @@ void GameState::LoadGame(std::string savePath)
     mGDSContainers = LoadShops(mGameData.GetFileBuffer());
     mCombatContainers = LoadCombatInventories(mGameData.GetFileBuffer());
     mTimeExpiringState = LoadTimeExpiringState(mGameData.GetFileBuffer());
+    if (mFixCombatEntityLists)
+    {
+        mLogger.Info() << "Regenerating combat entity lists\n";
+        mCombatEntityLists = RegenerateCombatEntityLists();
+    }
+    else
+    {
+        mCombatEntityLists = LoadCombatEntityLists(mGameData.GetFileBuffer());
+    }
     mCombatWorldLocations = LoadCombatWorldLocations(mGameData.GetFileBuffer());
     mCombatantGridLocations = LoadCombatantGridLocations(mGameData.GetFileBuffer());
     mSpellState = LoadSpells(mGameData.GetFileBuffer());
@@ -696,8 +706,7 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
         auto combatIndex = action.mVar1;
         ASSERT(mFindEncounterCallback);
         auto& encounter = mFindEncounterCallback(BAK::CombatIndex{combatIndex});
-        BAK::State::ReactivateCombat(
-            mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
+        this->ReactivateCombat(encounter, BAK::CombatIndex{combatIndex});
         break;
     }
     case DeactivateCombat:
@@ -709,17 +718,11 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
         BAK::State::DeactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
 
         assert(std::holds_alternative<Encounter::Combat>(encounter.GetEncounter()));
-        // Strictly speaking we should use the combat entity list to go from combatIndex
-        // to combatants, however the combat entity list in the game is incorrect after
-        // entry number 20. Unclear what this next part does since the game seems to 
-        // function correctly event though it modifies the wrong combatant state.
-        for (unsigned combatantIndex = 0; combatantIndex < mCombatContainers.size(); combatantIndex++)
+        auto& cel = GetCombatEntityList(BAK::CombatIndex{combatIndex});
+        for (auto combatantIndex : cel.mCombatants)
         {
-            auto& combatant = mCombatContainers[combatantIndex];
-            if (combatant.GetHeader().GetCombatNumber() != combatIndex) continue;
-            mLogger.Info() << "Deactivate combat, deactivating combatant: " << combatantIndex << "\n";
-
-            auto& cgl = GetCombatantGridLocation(BAK::CombatantIndex{combatantIndex});
+            mLogger.Info() << "Deactivate combat, deactivating combatant: " << combatantIndex.mValue << "\n";
+            auto& cgl = GetCombatantGridLocation(combatantIndex);
             cgl.mUnknown2 |= 2;
         }
 
@@ -1172,6 +1175,7 @@ bool GameState::SaveState()
     BAK::Save(mGameData.mLocation, mGameData.GetFileBuffer());
     BAK::Save(mCombatWorldLocations, mGameData.GetFileBuffer());
     BAK::Save(mCombatantGridLocations, mGameData.GetFileBuffer());
+    BAK::Save(mCombatEntityLists, mGameData.GetFileBuffer());
     return true;
 }
 
@@ -1529,4 +1533,41 @@ CombatantGridLocation& GameState::GetCombatantGridLocation(
 {
     return mCombatantGridLocations[index.mValue];
 }
+
+CombatEntityList& GameState::GetCombatEntityList(
+    CombatIndex index)
+{
+    return mCombatEntityLists[index.mValue];
+}
+
+void GameState::ReactivateCombat(const Encounter::Encounter& encounter, CombatIndex combatIndex)
+{
+    BAK::State::ReactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex.mValue);
+    auto& cel = GetCombatEntityList(combatIndex);
+    for (const auto& combatantIndex : cel.mCombatants)
+    {
+        auto& cgl = GetCombatantGridLocation(combatantIndex);
+        cgl.mUnknown2 = 1;
+    }
+}
+
+std::vector<CombatEntityList> GameState::RegenerateCombatEntityLists()
+{
+    std::vector<CombatEntityList> mLists{};
+    mLists.reserve(SaveOffsets::sCombatEntityListCount);
+    for (unsigned i = 0; i < SaveOffsets::sCombatEntityListCount; i++)
+    {
+        mLists.emplace_back();
+    }
+
+    for (unsigned combatantIndex = 0; combatantIndex < mCombatContainers.size(); combatantIndex++)
+    {
+        const auto& combatant = mCombatContainers[combatantIndex];
+        const auto combatIndex = combatant.GetHeader().GetCombatNumber();
+        mLists[combatIndex].mCombatants.emplace_back(CombatantIndex{combatantIndex});
+    }
+
+    return mLists;
+}
+
 }

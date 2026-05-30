@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     auto layout = BAK::Layout(reqFile);
 
     std::stringstream ss{};
-    ss << "i \t  widget \t action \t vis \t pos \t dim \t tele \t img \t grp \t label\n";
+    ss << "\ni \t  widget \t action \t vis \t pos \t dim \t tele \t img \t grp \t label\n";
     for (unsigned i = 0; i < layout.GetSize(); i++)
     {
         const auto& widget = layout.GetWidget(i);

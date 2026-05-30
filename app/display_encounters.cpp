@@ -10,7 +10,7 @@
 int main(int argc, char** argv)
 {
     const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Spam);
+    Logging::LogState::SetLevel(Logging::LogLevel::Info);
     
     BAK::Encounter::GenericCombatFactory<false>();
     BAK::Encounter::DialogFactory();
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     BAK::Encounter::EnableFactory();
     const auto ef = BAK::Encounter::EncounterFactory{};
 
-    for (unsigned zone = 1; zone < 12; zone++)
+    for (unsigned zone = 1; zone <= 12; zone++)
     {
         auto zoneLabel = BAK::ZoneLabel{zone};
         const auto tiles = BAK::LoadZoneRef(zoneLabel.GetZoneReference());
@@ -40,7 +40,9 @@ int main(int argc, char** argv)
                         const auto encounters = BAK::Encounter::LoadEncounters(
                                 ef, fb, BAK::Chapter{c}, glm::vec<2, unsigned>(x, y), tileIndex);
                         for (const auto& encounter : encounters)
+                        {
                             logger.Info() << "Encounter: " << encounter << "\n\n";
+                        }
                 }
             }
         }
