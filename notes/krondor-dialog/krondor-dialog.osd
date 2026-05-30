@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Structure definition for Betrayal at Krondor dialog snippets -->
+<!-- Apply at any offset within a DIAL_Zxx.DDX file to decode a snippet -->
+<data>
+	<enumDef name="dialogResult" type="uint16">
+		<entry name="SetTextVariable" value="1"/>
+		<entry name="GiveItem" value="2"/>
+		<entry name="LoseItem" value="3"/>
+		<entry name="SetFlag" value="4"/>
+		<entry name="LoadActor" value="5"/>
+		<entry name="SetPopupDimensions" value="6"/>
+		<entry name="SpecialAction" value="7"/>
+		<entry name="GainCondition" value="8"/>
+		<entry name="GainSkill" value="9"/>
+		<entry name="LoadSkillValue" value="10"/>
+		<entry name="FreeMemory" value="15"/>
+		<entry name="PlaySound" value="12"/>
+		<entry name="ElapseTime" value="13"/>
+		<entry name="SetAddResetState" value="14"/>
+		<entry name="PushNextDialog" value="16"/>
+		<entry name="UpdateCharacters" value="17"/>
+		<entry name="HealCharacters" value="18"/>
+		<entry name="LearnSpell" value="19"/>
+		<entry name="Teleport" value="20"/>
+		<entry name="SetEndOfDialogState" value="21"/>
+		<entry name="SetTimeExpiringState" value="22"/>
+		<entry name="LoseNOfItem" value="23"/>
+	</enumDef>
+
+	<enumDef name="specialActionType" type="uint16">
+		<entry name="ReduceGold" value="0"/>
+		<entry name="IncreaseGold" value="1"/>
+		<entry name="RepairAllEquippedArmor" value="2"/>
+		<entry name="ReactivateCombat" value="3"/>
+		<entry name="DeactivateCombat" value="4"/>
+		<entry name="CopyStandardInnToShop0" value="5"/>
+		<entry name="CopyStandardInnToShop1" value="6"/>
+		<entry name="Increase753f" value="7"/>
+		<entry name="Gamble" value="8"/>
+		<entry name="RepairAndBlessEquippedSwords" value="9"/>
+		<entry name="ReturnAlcoholToShops" value="10"/>
+		<entry name="ResetGambleValueTo" value="11"/>
+		<entry name="BeginCombat" value="12"/>
+		<entry name="ExtinguishAllLightSources" value="13"/>
+		<entry name="EmptyArlieContainer" value="14"/>
+		<entry name="CheatIncreaseSkill" value="15"/>
+		<entry name="UnifyOwynAndPugsSpells" value="16"/>
+	</enumDef>
+
+	<enumDef name="condition" type="uint16">
+		<entry name="Sick" value="0"/>
+		<entry name="Plagued" value="1"/>
+		<entry name="Poisoned" value="2"/>
+		<entry name="Drunk" value="3"/>
+		<entry name="Healing" value="4"/>
+		<entry name="Starving" value="5"/>
+		<entry name="NearDeath" value="6"/>
+	</enumDef>
+
+	<struct name="dialogSnippet">
+		<primitive name="displayStyle" type="uint8"/>
+		<primitive name="actor" type="uint16"/>
+		<primitive name="displayStyle2" type="uint8"/>
+		<primitive name="displayStyle3" type="uint8"/>
+		<primitive name="numChoices" type="uint8"/>
+		<primitive name="numActions" type="uint8"/>
+		<primitive name="textLength" type="uint16"/>
+
+		<array name="choices" length="numChoices">
+			<struct name="choice">
+				<primitive name="state" type="uint16"/>
+				<primitive name="min" type="uint16"/>
+				<primitive name="max" type="uint16"/>
+				<primitive name="target" type="uint32"/>
+			</struct>
+		</array>
+
+		<array name="actions" length="numActions">
+			<struct name="action">
+				<enum name="type" enum="dialogResult" type="uint16"/>
+				<union name="data">
+					<struct name="setTextVariable">
+						<primitive name="which" type="uint16"/>
+						<primitive name="what" type="uint16"/>
+						<array name="rest" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="giveItem">
+						<primitive name="item" type="uint8"/>
+						<primitive name="character" type="uint8"/>
+						<primitive name="quantity" type="uint16"/>
+						<array name="rest" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="loseItem">
+						<primitive name="item" type="uint16"/>
+						<primitive name="quantity" type="uint16"/>
+						<array name="rest" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="setFlag">
+						<primitive name="eventPtr" type="uint16"/>
+						<primitive name="mask" type="uint8"/>
+						<primitive name="data" type="uint8"/>
+						<primitive name="alwaysZero" type="uint16"/>
+						<primitive name="value" type="uint16"/>
+					</struct>
+					<struct name="loadActor">
+						<primitive name="actor1" type="uint16"/>
+						<primitive name="actor2" type="uint16"/>
+						<primitive name="actor3" type="uint16"/>
+						<primitive name="unknown" type="uint16"/>
+					</struct>
+					<struct name="setPopupDimensions">
+						<primitive name="posX" type="uint16"/>
+						<primitive name="posY" type="uint16"/>
+						<primitive name="dimsX" type="uint16"/>
+						<primitive name="dimsY" type="uint16"/>
+					</struct>
+					<struct name="specialAction">
+						<enum name="actionType" enum="specialActionType" type="uint16"/>
+						<primitive name="var1" type="uint16"/>
+						<primitive name="var2" type="uint16"/>
+						<primitive name="var3" type="uint16"/>
+					</struct>
+					<struct name="gainCondition">
+						<primitive name="who" type="uint16"/>
+						<enum name="condition" enum="condition" type="uint16"/>
+						<primitive name="min" type="int16"/>
+						<primitive name="max" type="int16"/>
+					</struct>
+					<struct name="gainSkill">
+						<primitive name="who" type="uint16"/>
+						<primitive name="skill" type="uint16"/>
+						<primitive name="min" type="int16"/>
+						<primitive name="max" type="int16"/>
+					</struct>
+					<struct name="loadSkillValue">
+						<primitive name="target" type="uint16"/>
+						<primitive name="skill" type="uint16"/>
+						<array name="padding" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="playSound">
+						<primitive name="soundIndex" type="uint16"/>
+						<primitive name="flag" type="uint16"/>
+						<primitive name="rest" type="uint32"/>
+					</struct>
+					<struct name="elapseTime">
+						<primitive name="time" type="uint32"/>
+						<array name="rest" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="setAddResetState">
+						<primitive name="eventPtr" type="uint16"/>
+						<primitive name="unknown0" type="uint16"/>
+						<primitive name="timeToExpire" type="uint32"/>
+					</struct>
+					<struct name="pushNextDialog">
+						<primitive name="target" type="uint32"/>
+						<array name="rest" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="updateCharacters">
+						<primitive name="count" type="uint16"/>
+						<primitive name="char1" type="uint16"/>
+						<primitive name="char2" type="uint16"/>
+						<primitive name="char3" type="uint16"/>
+					</struct>
+					<struct name="healCharacters">
+						<primitive name="who" type="uint16"/>
+						<primitive name="howMuch" type="uint16"/>
+						<array name="padding" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="learnSpell">
+						<primitive name="who" type="uint16"/>
+						<primitive name="whichSpell" type="uint16"/>
+						<array name="rest" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="teleport">
+						<primitive name="teleportIndex" type="uint16"/>
+						<array name="padding" length="6">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="setEndOfDialogState">
+						<primitive name="state" type="int16"/>
+						<array name="rest" length="6">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+					<struct name="setTimeExpiringState">
+						<primitive name="type" type="uint8"/>
+						<primitive name="flags" type="uint8"/>
+						<primitive name="eventPtr" type="uint16"/>
+						<primitive name="timeToExpire" type="uint32"/>
+					</struct>
+					<struct name="loseNOfItem">
+						<primitive name="item" type="uint16"/>
+						<primitive name="quantity" type="uint16"/>
+						<array name="rest" length="4">
+							<primitive type="uint8"/>
+						</array>
+					</struct>
+				</union>
+			</struct>
+		</array>
+
+		<array name="text" length="textLength">
+			<primitive type="char"/>
+		</array>
+	</struct>
+</data>

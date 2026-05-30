@@ -1,0 +1,12 @@
+[Desktop Entry]
+Icon=comment
+Type=Service
+ServiceTypes=KPluginInfo
+Name=Krondor Dialog Snippet (extended)
+Comment=Extended JS-based structure for BaK dialog snippets - dispatches on action type
+X-KDE-PluginInfo-Author=BaKGL
+X-KDE-PluginInfo-Name=krondor-dialogExt
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Category=structure/js
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=false

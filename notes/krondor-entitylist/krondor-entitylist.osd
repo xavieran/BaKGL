@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <array name="combatEntityLists" length="700">
+    <struct name="entry">
+      <array name="combatants" length="7">
+        <primitive name="combatant" type="uint16"/>
+      </array>
+    </struct>
+  </array>
+</data>
