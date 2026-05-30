@@ -19,7 +19,11 @@
         "EnableBackgroundSounds": true 
     },
     "Game": {
-        "AdvanceTime": true
+        "AdvanceTime": true,
+        // Set this to true to fix the combat entity lists in the game
+        // Note: the lists in the original are bugged, so this fixes it
+        // but if you care about fidelity to the original leave this off
+        "FixCombatEntityLists": false
     },
     "Logging": {
         "LogToFile": true,

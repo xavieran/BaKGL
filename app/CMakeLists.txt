@@ -8,6 +8,7 @@ list(APPEND APP_BINARIES
     #decomp_ttm
     dialog_explorer
     display_book
+    display_combat
     display_dialog
     display_encounters
     #display_fo

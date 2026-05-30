@@ -186,12 +186,18 @@ public:
         std::uint8_t encounterIndex,
         std::uint8_t combatantRelativeIndex);
     CombatantGridLocation& GetCombatantGridLocation(CombatantIndex);
+    CombatEntityList& GetCombatEntityList(CombatIndex);
+    void ReactivateCombat(const Encounter::Encounter&, CombatIndex);
 
     // Super lame, but BaK uses a global so I will too
     void SetCombatTriggeredFromInteractable(bool value) { mCombatTriggeredFromInteractable = value; }
     bool GetCombatTriggeredFromInteractable() const { return mCombatTriggeredFromInteractable; }
 
+    void SetFixCombatEntityLists(bool value) { mFixCombatEntityLists = value; }
+
 private:
+    std::vector<CombatEntityList> RegenerateCombatEntityLists();
+
     std::optional<CharIndex> mDialogCharacter{};
     CharIndex mActiveCharacter{};
     CharIndex mSkillCheckedCharacter{};
@@ -214,6 +220,7 @@ private:
     unsigned mSkillValue{};
     unsigned mContextVar_753f{};
     bool mCombatTriggeredFromInteractable{};
+    bool mFixCombatEntityLists{false};
 
     std::optional<InventoryItem> mSelectedItem{};
     std::optional<MonsterIndex> mCurrentMonster{};
@@ -223,6 +230,7 @@ private:
     std::vector<GenericContainer> mGDSContainers{};
     std::vector<GenericContainer> mCombatContainers;
     std::vector<TimeExpiringState> mTimeExpiringState{};
+    std::vector<CombatEntityList> mCombatEntityLists{};
     std::vector<CombatWorldLocation> mCombatWorldLocations{};
     std::vector<CombatantGridLocation> mCombatantGridLocations{};
     SpellState mSpellState{};
