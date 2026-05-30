@@ -30,12 +30,14 @@ static constexpr auto sActiveSpells = 0x6b8;
 
 static constexpr auto sPantathiansEventFlag = 0x1ed4;
 
+// 0x131F in the game
 static constexpr auto sCombatEntityListCount  = 700;
 static constexpr auto sCombatEntityListOffset = 0x1383;
 
 static constexpr auto sCombatWorldLocationsOffset = 0x4fab;
 static constexpr auto sCombatWorldLocationsCount = 1400;
 
+// 0x312E5 in the game
 static constexpr auto sCombatantGridLocationsOffset = 0x31349;
 static constexpr auto sCombatantGridLocationsCount = 1699;
 

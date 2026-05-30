@@ -2,7 +2,6 @@
 
 #include "bak/combat.hpp"
 #include "bak/skills.hpp"
-#include "bak/spells.hpp"
 #include "bak/types.hpp"
 #include "bak/worldClock.hpp"
 
@@ -15,11 +14,11 @@ class FileBuffer;
 std::vector<CombatEntityList> LoadCombatEntityLists(FileBuffer&);
 CombatEntityList LoadCombatEntityList(FileBuffer&, CombatIndex);
 std::vector<CombatantGridLocation> LoadCombatantGridLocations(FileBuffer&);
-CombatantGridLocation LoadCombatantGridLocation(FileBuffer&, CombatIndex);
 std::vector<CombatWorldLocation> LoadCombatWorldLocations(FileBuffer&);
 std::vector<Skills> LoadCombatStats(FileBuffer&);
 std::vector<Time> LoadCombatClickedTimes(FileBuffer&);
 
+void Save(const std::vector<CombatantGridLocation>&, FileBuffer& fb);
 void Save(const std::vector<CombatWorldLocation>&, FileBuffer&);
 
 }

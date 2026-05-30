@@ -185,6 +185,7 @@ public:
         std::uint8_t tileIndex,
         std::uint8_t encounterIndex,
         std::uint8_t combatantRelativeIndex);
+    CombatantGridLocation& GetCombatantGridLocation(CombatantIndex);
 
     // Super lame, but BaK uses a global so I will too
     void SetCombatTriggeredFromInteractable(bool value) { mCombatTriggeredFromInteractable = value; }
@@ -223,6 +224,7 @@ private:
     std::vector<GenericContainer> mCombatContainers;
     std::vector<TimeExpiringState> mTimeExpiringState{};
     std::vector<CombatWorldLocation> mCombatWorldLocations{};
+    std::vector<CombatantGridLocation> mCombatantGridLocations{};
     SpellState mSpellState{};
     TextVariableStore mTextVariableStore{};
     FMapXY mFullMap;

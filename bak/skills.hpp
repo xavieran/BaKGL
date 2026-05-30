@@ -54,6 +54,7 @@ enum class SkillTypeMask
     Stealth     = 0x8000,
     TotalHealth = 0x10000
 };
+
 enum class SkillChange
 {
     Direct = 0,

@@ -3,6 +3,7 @@
 #include "bak/coordinates.hpp"
 #include "bak/constants.hpp"
 #include "bak/dialogChoice.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "bak/money.hpp"
 #include "bak/monster.hpp"
 #include "bak/itemNumbers.hpp"
@@ -67,6 +68,7 @@ void GameState::LoadGame(std::string savePath)
     mCombatContainers = LoadCombatInventories(mGameData.GetFileBuffer());
     mTimeExpiringState = LoadTimeExpiringState(mGameData.GetFileBuffer());
     mCombatWorldLocations = LoadCombatWorldLocations(mGameData.GetFileBuffer());
+    mCombatantGridLocations = LoadCombatantGridLocations(mGameData.GetFileBuffer());
     mSpellState = LoadSpells(mGameData.GetFileBuffer());
 }
 
@@ -699,8 +701,38 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
         break;
     }
     case DeactivateCombat:
-        // DeactivateCombat(mGameData.GetBuffer(), mZone, encounter, combatIndex);
-        break;
+    {
+        auto combatIndex = action.mVar1;
+        mLogger.Info() << "Handling deactivate combat - " << combatIndex << "\n";
+        ASSERT(mFindEncounterCallback);
+        auto& encounter = mFindEncounterCallback(BAK::CombatIndex{combatIndex});
+        BAK::State::DeactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
+
+        assert(std::holds_alternative<Encounter::Combat>(encounter.GetEncounter()));
+        // Strictly speaking we should use the combat entity list to go from combatIndex
+        // to combatants, however the combat entity list in the game is incorrect after
+        // entry number 20. Unclear what this next part does since the game seems to 
+        // function correctly event though it modifies the wrong combatant state.
+        for (unsigned combatantIndex = 0; combatantIndex < mCombatContainers.size(); combatantIndex++)
+        {
+            auto& combatant = mCombatContainers[combatantIndex];
+            if (combatant.GetHeader().GetCombatNumber() != combatIndex) continue;
+            mLogger.Info() << "Deactivate combat, deactivating combatant: " << combatantIndex << "\n";
+
+            auto& cgl = GetCombatantGridLocation(BAK::CombatantIndex{combatantIndex});
+            cgl.mUnknown2 |= 2;
+        }
+
+        auto index = encounter.GetIndex().mValue;
+        auto tileIndex = encounter.GetTileIndex();
+        for (unsigned i = 0; i < 7; i++)
+        {
+            auto& cwl = GetCombatWorldLocation(tileIndex, index, i);
+            cwl.mImageIndex = 0;
+            cwl.mState = CombatantWorldState::Dead;
+        }
+
+    } break;
     // I don't think this is used anywhere
     case CopyStandardInnToShop0: [[fallthrough]];
     case CopyStandardInnToShop1:
@@ -774,6 +806,11 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
         auto* container = GetWorldContainer(ZoneNumber{3}, GamePosition{1308000, 1002400});
         assert(container);
         container->GetInventory().GetItems().clear();
+    } break;
+    case CheatIncreaseSkill:
+    {
+        // Need to wire this up to the cheat screen
+        //mParty.GetActiveChar.GetSkills().ImproveSkill(mContextVar_753f, 0x200, Direct);
     } break;
     case UnifyOwynAndPugsSpells:
     {
@@ -1134,6 +1171,7 @@ bool GameState::SaveState()
     BAK::Save(mapLocation, mGameData.GetFileBuffer());
     BAK::Save(mGameData.mLocation, mGameData.GetFileBuffer());
     BAK::Save(mCombatWorldLocations, mGameData.GetFileBuffer());
+    BAK::Save(mCombatantGridLocations, mGameData.GetFileBuffer());
     return true;
 }
 
@@ -1484,5 +1522,11 @@ CombatWorldLocation& GameState::GetCombatWorldLocation(
     const std::size_t cwlNumber = tileIndex * 35 + encounterIndex * 7 + combatantRelativeIndex;
     assert(cwlNumber < mCombatWorldLocations.size());
     return mCombatWorldLocations[cwlNumber];
+}
+
+CombatantGridLocation& GameState::GetCombatantGridLocation(
+    CombatantIndex index)
+{
+    return mCombatantGridLocations[index.mValue];
 }
 }

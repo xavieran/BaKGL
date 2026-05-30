@@ -275,10 +275,12 @@ void Character::CheckPostConditions()
 {
     if (IsSpellcaster())
     {
-        ASSERT(GetInventory().FindEquipped(ItemType::Sword) 
-            == GetInventory().GetItems().end());
-        ASSERT(GetInventory().FindEquipped(ItemType::Crossbow) 
-            == GetInventory().GetItems().end());
+        // For some reason the game itself can put items in such a state
+        // so need to comment these out to be compatible with saves...
+        //ASSERT(GetInventory().FindEquipped(ItemType::Sword)
+        //    == GetInventory().GetItems().end());
+        //ASSERT(GetInventory().FindEquipped(ItemType::Crossbow)
+        //    == GetInventory().GetItems().end());
 
         unsigned staffCount = 0;
         for (const auto& item : GetInventory().GetItems())

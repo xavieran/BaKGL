@@ -42,12 +42,21 @@ std::ostream& operator<<(std::ostream&, const CombatWorldLocation&);
 class CombatantGridLocation
 {
 public:
+    std::uint16_t mUnknown0;
     MonsterIndex mMonster;
     glm::uvec2 mGridPos;
+    std::uint16_t mUnknown1;
+    std::uint8_t mUnknown2;
+    std::array<std::uint8_t, 13> mRest;
 };
 
 std::ostream& operator<<(std::ostream&, const CombatantGridLocation&);
 
+/* The combat entity lists in the game (at least versions I have
+ * access to) seem to be incorrect. They begin to differ from the
+ * combatant inventories (which I take to be the truth) at entry 20.
+ * Refer to notes/combat_entity_list.txt for more info.
+ */
 class CombatEntityList
 {
 public:
