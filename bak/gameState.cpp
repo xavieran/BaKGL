@@ -15,6 +15,7 @@
 #include "bak/save/world.hpp"
 
 #include "bak/state/customStateChoice.hpp"
+#include "bak/state/offsets.hpp"
 #include "bak/state/dialog.hpp"
 #include "bak/state/event.hpp"
 #include "bak/state/encounter.hpp"
@@ -411,12 +412,13 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
         // the skill that increased, either the party's or the
         // selected character
         // mContext_whichSkillIncreased
-        mTextVariableStore.SetTextVariable(index, "skill");
+        mTextVariableStore.SetTextVariable(
+            index, std::string{ToString(mRecentlyImprovedSkill)});
         break;
     case 9:
     case 29:
         // character index is stored in checkSkillValue
-        //mDialogCharacterList[index] =checkedSkillValue;
+        //mDialogCharacterList[index] = checkedSkillValue;
         mTextVariableStore.SetTextVariable(
             index,
             ""); // character at checked skill value
@@ -1059,6 +1061,7 @@ unsigned GameState::ReadEvent(unsigned eventPtr) const
     {
         return GetGameState(GameStateChoice{ActiveStateFlag::DayTime});
     }
+
     return State::ReadEvent(mGameData.GetFileBuffer(), eventPtr);
 }
 
@@ -1112,6 +1115,11 @@ bool GameState::GetMoreThanOneTempleSeen() const
 void GameState::SetDialogContext_7530(unsigned contextValue)
 {
     mContextValue_7530 = contextValue;
+}
+
+void GameState::SetImprovedSkill(SkillType skill)
+{
+    mRecentlyImprovedSkill = skill;
 }
 
 void GameState::SetItemValue(Royals value)
@@ -1246,7 +1254,7 @@ bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
             return GetEventState(CreateChoice(0xdb9e)) != 0;
         case 44:
             if (!enabled) return false;
-            return ReadEventBool(0x1f6c);
+            return ReadEventBool(State::sQuestFlag_1f6c);
         case 117:
             if (!enabled) return false;
             return GetChapter() == Chapter{6};
@@ -1259,13 +1267,13 @@ bool GameState::CheckConversationItemAvailable(unsigned conversationItem) const
             return false; // (owynsSpells & 0x10) != 0; (Have spell 20 (Unfortunate flux))
         case 132:
             if (!enabled) return false;
-            return HaveNote(0x15) || ReadEventBool(0x1979);
+            return HaveNote(0x15) || ReadEventBool(State::sQuestFlag_1979);
         case 106:
             if (!enabled) return false;
             return true; // owynsOtherSpells & 0x200
         case 164:
             if (!enabled) return false;
-            return ReadEventBool(0x1972);
+            return ReadEventBool(State::sQuestFlag_1972);
         case 76: [[fallthrough]];
         case 148:
             if (!enabled) return false;

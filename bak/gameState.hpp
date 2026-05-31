@@ -164,6 +164,8 @@ public:
     bool GetMoreThanOneTempleSeen() const;
 
     void SetDialogContext_7530(unsigned contextValue);
+    void SetImprovedSkill(SkillType skill);
+
     void SetBardReward_754d(unsigned value);
     unsigned GetBardReward_754d();
     void SetItemValue(Royals value);
@@ -216,6 +218,7 @@ private:
     bool mTransitionChapter_7541{};
     unsigned mShopType_7542{};
     unsigned mBardReward_754d{};
+    SkillType mRecentlyImprovedSkill{};
     Royals mItemValue_753e{};
     unsigned mSkillValue{};
     unsigned mContextVar_753f{};

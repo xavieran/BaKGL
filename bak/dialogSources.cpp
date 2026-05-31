@@ -1,5 +1,6 @@
 #include "bak/dialogSources.hpp"
 
+#include "bak/condition.hpp"
 #include "bak/dialog.hpp"
 
 namespace BAK {
@@ -45,7 +46,7 @@ KeyTarget DialogSources::GetTTMDialogKey(unsigned index)
 
 KeyTarget DialogSources::GetChapterStartText(Chapter chapter)
 {
-    return BAK::KeyTarget{mChapterFullMapScreenText + (chapter.mValue - 1)};
+    return KeyTarget{mChapterFullMapScreenText + (chapter.mValue - 1)};
 }
 
 Target DialogSources::GetChoiceResult(KeyTarget dialog, unsigned index)
@@ -56,6 +57,22 @@ Target DialogSources::GetChoiceResult(KeyTarget dialog, unsigned index)
         return a.mMin == index ;} );
     ASSERT(it != choices.end());
     return it->mTarget;
+}
+
+std::optional<Target> DialogSources::GetConditionNotification(Condition c)
+{
+    using enum Condition;
+    switch (c)
+    {
+    case Sick:      return Target{DialogSources::mNotifySick};
+    case Plagued:   return Target{DialogSources::mNotifyPlagued};
+    case Poisoned:  return Target{DialogSources::mNotifyPoisoned};
+    case Starving:  return Target{DialogSources::mNotifyStarving};
+    case NearDeath: return Target{DialogSources::mNotifyNearDeath};
+    case Drunk:     [[fallthrough]];
+    case Healing:   return std::nullopt;
+    }
+    return std::nullopt;
 }
 
 }

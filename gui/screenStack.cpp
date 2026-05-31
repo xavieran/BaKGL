@@ -40,6 +40,11 @@ bool ScreenStack::OnMouseEvent(const MouseEvent& event)
 void ScreenStack::PushScreen(Widget* widget)
 {
     mLogger.Debug() << "Widgets: " << GetChildren() << " Pushed widget " << std::hex << widget << std::dec << "\n";
+    if (std::find(GetChildren().begin(), GetChildren().end(), widget) != GetChildren().end())
+    {
+        mLogger.Error() << "Current stack: " << GetChildren() << "\n";
+        mLogger.Error() << "Tried to push a widget to the stack that is already in the stack: " << widget << std::endl;
+    }
     AddChildBack(widget);
 }
 

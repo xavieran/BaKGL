@@ -1,8 +1,11 @@
 #pragma once
 
 #include "bak/coordinates.hpp"
+#include "bak/dialogTarget.hpp"
 #include "bak/types.hpp"
+
 #include "com/logger.hpp"
+
 #include "game/combatEncounterHandler.hpp"
 #include "gui/IDialogScene.hpp"
 
@@ -47,6 +50,8 @@ public:
     bool DoEncounter(const BAK::Encounter::Encounter& encounter);
 
     CombatEncounterHandler& GetCombatHandler();
+
+    void StartDialog(BAK::Target, bool clearFinished = false);
 
 private:
     bool DoBlockEncounter(

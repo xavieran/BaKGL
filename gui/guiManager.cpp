@@ -1,20 +1,18 @@
 #include "gui/guiManager.hpp"
 
-#include "gui/IDialogScene.hpp"
-#include "gui/cursor.hpp"
-
+#include "bak/checkPartyChanges.hpp"
 #include "bak/gameState.hpp"
 #include "bak/startupFiles.hpp"
+
+#include "gui/IDialogScene.hpp"
+#include "gui/cursor.hpp"
 
 #include "com/cpptrace.hpp"
 #include "com/ostream.hpp"
 
-namespace Gui {
+#include <stdexcept>
 
-GuiScreen::GuiScreen(std::function<void()> finished)
-:
-    mFinished{finished}
-{}
+namespace Gui {
 
 GuiManager::GuiManager(
     Cursor& cursor,
@@ -142,9 +140,10 @@ GuiManager::GuiManager(
     mFadeFunction{},
     mGdsScenes{},
     mDialogScene{nullptr},
-    mGuiScreens{},
+    mOnExitCallbacks{},
     mAnimatorStore{},
     mZoneLoader{nullptr},
+    mPartyDiedScene{[]{}, []{}, [](const auto&){}},
     mLogger{Logging::LogState::GetLogger("Gui::GuiManager")}
 {
     mGdsScenes.reserve(4);
@@ -225,9 +224,9 @@ void GuiManager::PlayCutscene(
         if (mScreenStack.HasChildren())
         {
             mPreviousScreen = mScreenStack.Top();
-            mScreenStack.PopScreen();
+            auto checkMainView = PopScreen();
         }
-        mScreenStack.PushScreen(&mCutscenePlayer);
+        PushScreen(&mCutscenePlayer);
         mCutscenePlayer.Play();
     });
 }
@@ -253,8 +252,8 @@ void GuiManager::EnterMainView()
     mMainView.SetCanSaveBookmark(mMainMenu.CanSaveBookmark());
     mMainView.UpdatePartyMembers(mGameState);
     DoFade(1.0, [this]{
-        mScreenStack.PopScreen();
-        mScreenStack.PushScreen(&mMainView);
+        auto checkMainView = PopScreen();
+        PushScreen(&mMainView);
         if (mOnEnterMainView)
         {
             mOnEnterMainView();
@@ -268,9 +267,9 @@ void GuiManager::EnterMainMenu(bool gameRunning)
     DoFade(1.0, [this, gameRunning]{
         if (gameRunning)
         {
-            mScreenStack.PopScreen();
+            auto checkMainView = PopScreen();
         }
-        mScreenStack.PushScreen(&mMainMenu);
+        PushScreen(&mMainMenu);
         mMainMenu.EnterMainMenu(gameRunning);
     });
 }
@@ -323,18 +322,17 @@ void GuiManager::EnterGDSScene(
     if (song != 0)
     {
         AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{song});
-        mGuiScreens.push(GuiScreen{
-            [fin = std::move(finished)](){
+        mOnExitCallbacks.push([fin = std::move(finished)](){
                 AudioA::GetAudioManager().PopTrack();
                 std::invoke(fin);
-        }});
+        });
     }
     else
     {
-        mGuiScreens.push(finished);
+        mOnExitCallbacks.push(std::move(finished));
     }
 
-    mScreenStack.PushScreen(mGdsScenes.back().get());
+    PushScreen(mGdsScenes.back().get());
     mGdsScenes.back()->EnterGDSScene();
 }
 
@@ -348,13 +346,10 @@ void GuiManager::RemoveGDSScene(bool runFinished)
 {
     ASSERT(!mGdsScenes.empty());
     mLogger.Debug() << __FUNCTION__ << " Widgets: " << mScreenStack.GetChildren() << "\n";
-    mScreenStack.PopScreen();
+    auto checkMainView = PopScreen();
     mCursor.PopCursor();
     mCursor.PopCursor();
-    if (runFinished)
-        PopAndRunGuiScreen();
-    else
-        PopGuiScreen();
+    PopOnExitCallback(runFinished ? OnExit::Run : OnExit::Discard);
     mLogger.Debug() << "Removed GDS Scene: " << mGdsScenes.back() << std::endl;
     mGdsScenes.pop_back();
 }
@@ -365,12 +360,17 @@ void GuiManager::StartDialog(
     bool drawWorldFrame,
     IDialogScene* scene)
 {
+    mLogger.Debug() << "StartDialog(" << dialog << ")\n";
+    if (mScreenStack.Top() == &mDialogRunner)
+    {
+        mLogger.Fatal() << "Tried to start a dialog from GuiManager but one is already running" << std::endl;
+        throw std::runtime_error("failure");
+    }
     mCursor.PushCursor(0);
     mDialogRunner.SetInWorldView(InMainView() || drawWorldFrame);
-    mGuiScreens.push(GuiScreen{[](){
-    }});
+    mOnExitCallbacks.push(nullptr);
 
-    mScreenStack.PushScreen(&mDialogRunner);
+    PushScreen(&mDialogRunner);
     mDialogScene = scene;
     mDialogRunner.SetDialogScene(scene);
     mDialogRunner.BeginDialog(dialog, isTooltip);
@@ -379,8 +379,8 @@ void GuiManager::StartDialog(
 void GuiManager::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
     ASSERT(mDialogScene);
-    PopAndRunGuiScreen();
-    mScreenStack.PopScreen(); // Dialog runner
+    PopOnExitCallback(OnExit::Run);
+    auto checkMainView = PopScreen(); // Dialog runner
     mCursor.PopCursor();
 
     mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
@@ -455,24 +455,24 @@ void GuiManager::ShowCharacterPortrait(BAK::ActiveCharIndex character)
     DoFade(.8, [this, character]{
         mInfoScreen.SetSelectedCharacter(character);
         mInfoScreen.UpdateCharacter();
-        mScreenStack.PushScreen(&mInfoScreen);
+        PushScreen(&mInfoScreen);
     });
 }
 
 void GuiManager::ExitSimpleScreen()
 {
-    mScreenStack.PopScreen();
+    auto checkMainView = PopScreen();
 }
 
 void GuiManager::ShowInventory(BAK::ActiveCharIndex character)
 {
     DoFade(.8, [this, character]{
         mCursor.PushCursor(0);
-        mGuiScreens.push(GuiScreen{[](){}});
+        mOnExitCallbacks.push(nullptr);
         mInventoryScreen.SetSelectionMode(false, nullptr);
 
         mInventoryScreen.SetSelectedCharacter(character);
-        mScreenStack.PushScreen(&mInventoryScreen);
+        PushScreen(&mInventoryScreen);
     });
 }
 
@@ -482,7 +482,7 @@ void GuiManager::ShowContainer(BAK::GenericContainer* container, BAK::EntityType
     ASSERT(container);
     ASSERT(container->GetInventory().GetCapacity() > 0);
 
-    mGuiScreens.push(GuiScreen{[this, container, containerType](){
+    mOnExitCallbacks.push([this, container, containerType](){
         mLogger.Debug() << "ExitContainer guiScreen hasDiag: " << container->HasDialog() << " et: " << std::to_underlying(containerType) << "\n";
         mInventoryScreen.ClearContainer();
         if (container->HasDialog())
@@ -497,12 +497,12 @@ void GuiManager::ShowContainer(BAK::GenericContainer* container, BAK::EntityType
         {
             mGameState.SetEventValue(container->GetEncounter().mSetEventFlag, 1);
         }
-    }});
+    });
 
     mInventoryScreen.SetSelectionMode(false, nullptr);
     mInventoryScreen.SetContainer(container, containerType);
     mLogger.Debug() << __FUNCTION__ << " Pushing inv\n";
-    mScreenStack.PushScreen(&mInventoryScreen);
+    PushScreen(&mInventoryScreen);
 }
 
 void GuiManager::EnterCombat(std::function<void(BAK::CombatResult)>&& finished)
@@ -511,14 +511,14 @@ void GuiManager::EnterCombat(std::function<void(BAK::CombatResult)>&& finished)
     DoFade(.8, [this]{
         mCursor.PushCursor(0);
         mCombatScreen.SetSelectedCharacter(BAK::ActiveCharIndex{0});
-        mScreenStack.PushScreen(&mCombatScreen);
+        PushScreen(&mCombatScreen);
     });
 }
 
 void GuiManager::ExitCombat(BAK::CombatResult combatResult)
 {
     mCursor.PopCursor();
-    mScreenStack.PopScreen();
+    auto checkMainView = PopScreen();
     ASSERT(mCombatFinishedCallback);
     mCombatFinishedCallback(combatResult);
     mCombatFinishedCallback = nullptr;
@@ -528,14 +528,14 @@ void GuiManager::SelectItem(std::function<void(std::optional<std::pair<BAK::Acti
 {
     mCursor.PushCursor(0);
 
-    mGuiScreens.push(GuiScreen{[&, selected=itemSelected]() mutable {
+    mOnExitCallbacks.push([&, selected=itemSelected]() mutable {
             mLogger.Debug() << __FUNCTION__ << " SelectItem\n";
             selected(std::nullopt);
-    }});
+    });
 
     mInventoryScreen.SetSelectionMode(true, std::move(itemSelected));
     mLogger.Debug() << __FUNCTION__ << " Pushing select item\n";
-    mScreenStack.PushScreen(&mInventoryScreen);
+    PushScreen(&mInventoryScreen);
 }
 
 void GuiManager::ExitInventory()
@@ -544,8 +544,8 @@ void GuiManager::ExitInventory()
 
     auto exitInventory = [&]{
         mCursor.PopCursor();
-        mScreenStack.PopScreen();
-        PopAndRunGuiScreen();
+        auto checkMainView = PopScreen();
+        PopOnExitCallback(OnExit::Run);
     };
 
     if (mGameState.GetTransitionChapter_7541())
@@ -577,31 +577,31 @@ void GuiManager::ShowLock(
     if (container->GetLock().IsFairyChest())
     {
         mMoredhelScreen.SetContainer(container);
-        mScreenStack.PushScreen(&mMoredhelScreen);
+        PushScreen(&mMoredhelScreen);
         AudioA::GetAudioManager().ChangeMusicTrack(AudioA::PUZZLE_CHEST_THEME);
-        mGuiScreens.push(GuiScreen{
+        mOnExitCallbacks.push(
             [fin = std::move(finished)](){
                 AudioA::GetAudioManager().PopTrack();
                 std::invoke(fin);
-        }});
+        });
     }
     else
     {
         mLockScreen.SetContainer(container);
-        mScreenStack.PushScreen(&mLockScreen);
-        mGuiScreens.push(finished);
+        PushScreen(&mLockScreen);
+        mOnExitCallbacks.push(std::move(finished));
     }
 }
 
 void GuiManager::ShowCamp(bool isInn, BAK::ShopStats* inn)
 {
     assert(!isInn || inn);
-    mGuiScreens.push(GuiScreen{[this]{
+    mOnExitCallbacks.push([this]{
         mCursor.PopCursor();
-    }});
+    });
 
     DoFade(.8, [this, isInn, inn]{
-        mScreenStack.PushScreen(&mCampScreen);
+        PushScreen(&mCampScreen);
         mCursor.PushCursor(0);
         mCampScreen.BeginCamp(isInn, inn);
     });
@@ -609,12 +609,12 @@ void GuiManager::ShowCamp(bool isInn, BAK::ShopStats* inn)
 
 void GuiManager::ShowCast(bool inCombat)
 {
-    mGuiScreens.push(GuiScreen{[this]{
+    mOnExitCallbacks.push([this]{
         mCursor.PopCursor();
-    }});
+    });
 
     DoFade(.8, [this, inCombat]{
-        mScreenStack.PushScreen(&mCastScreen);
+        PushScreen(&mCastScreen);
         mCursor.PushCursor(0);
         mCastScreen.BeginCast(inCombat);
     });
@@ -625,16 +625,16 @@ void GuiManager::ShowFullMap()
     mFullMap.UpdateLocation();
     mFullMap.DisplayMapMode();
     DoFade(1.0, [this]{
-        mScreenStack.PushScreen(&mFullMap);
+        PushScreen(&mFullMap);
     });
 }
 
 void GuiManager::ShowGameStartMap()
 {
     DoFade(1.0, [this]{
-        mScreenStack.PopScreen();
+        auto checkMainView = PopScreen();
         mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation(), mDebugDisableFades);
-        mScreenStack.PushScreen(&mFullMap);
+        PushScreen(&mFullMap);
     });
 }
 
@@ -645,7 +645,7 @@ void GuiManager::ShowCureScreen(
 {
     DoFade(.8, [this, templeNumber, cureFactor, finished=std::move(finished)]() mutable {
         mCureScreen.EnterScreen(templeNumber, cureFactor, std::move(finished));
-        mScreenStack.PushScreen(&mCureScreen);
+        PushScreen(&mCureScreen);
     });
 }
 
@@ -654,15 +654,15 @@ void GuiManager::ShowTeleport(unsigned sourceTemple, BAK::ShopStats* temple)
     mTeleportScreen.SetSourceTemple(sourceTemple, temple);
     DoFade(.8, [this]{
         mCursor.PopCursor();
-        mScreenStack.PushScreen(&mTeleportScreen);
+        PushScreen(&mTeleportScreen);
     });
 }
 
 void GuiManager::ExitLock()
 {
     mCursor.PopCursor();
-    mScreenStack.PopScreen();
-    PopAndRunGuiScreen();
+    auto checkMainView = PopScreen();
+    PopOnExitCallback(OnExit::Run);
 }
 
 bool GuiManager::IsLockOpened() const
@@ -675,18 +675,88 @@ bool GuiManager::IsWordLockOpened() const
     return mMoredhelScreen.IsUnlocked();
 }
 
-void GuiManager::PopGuiScreen()
+void GuiManager::PopOnExitCallback(OnExit action)
 {
-    mGuiScreens.pop();
+    // Avoids reentrancy by ensuring this gui screen is not
+    // in the stack when it is executed.
+    auto callback = std::move(mOnExitCallbacks.top());
+    mOnExitCallbacks.pop();
+    if (action == OnExit::Run && callback)
+        callback();
 }
 
-void GuiManager::PopAndRunGuiScreen()
+void GuiManager::PushScreen(Widget* screen)
 {
-    // Avoids reentrancy issue by ensuring this gui screen is not
-    // in the stack when it is executed.
-    auto guiScreen = mGuiScreens.top();
-    mGuiScreens.pop();
-    guiScreen.mFinished();
+    mLogger.Info() << "PushScreen: " << screen << " "
+        << std::boolalpha << " AmInMainView: "
+        << mAmInMainView << " InMainView() " << InMainView() << "\n";
+    if (mAmInMainView && InMainView())
+    {
+        mAmInMainView = false;
+        CacheState();
+    }
+    mScreenStack.PushScreen(screen);
+}
+
+ScopeGuard<std::function<void()>> GuiManager::PopScreen()
+{
+    mLogger.Info() << "Pop screen. InMainView? " << std::boolalpha << InMainView() << "\n";
+    mScreenStack.PopScreen();
+    return ScopeGuard<std::function<void()>>([this]{
+        mLogger.Info() << "Scope guard fired after pop screen. InMainView? " << std::boolalpha << InMainView() << "\n";
+        if (InMainView() && !mAmInMainView)
+        {
+            if (std::exchange(mCombatSequenceActive, false))
+            {
+                // Defer stat/condition checking until after combat
+                return;
+            }
+            else
+            {
+                mAmInMainView = !NotifyPartyChanges();
+            }
+        };
+    });
+}
+
+void GuiManager::CacheState()
+{
+    BAK::CachePartyState(mPartyChangeCache, mGameState);
+}
+
+bool GuiManager::NotifyPartyChanges()
+{
+    auto result = BAK::CheckPartyChanges(
+        mPartyChangeCache, mGameState);
+    if (result.mChanged)
+    {
+        if (result.mDead)
+        {
+            PartyDied(result.mDialog);
+        }
+        else
+        {
+            StartDialog(
+                result.mDialog,
+                false,
+                true,
+                &mNullDialogScene);
+        }
+    }
+    return result.mChanged;
+}
+
+void GuiManager::PartyDied(BAK::Target dialog)
+{
+    mPartyDiedScene.SetDialogFinished(
+        [this](const auto&){
+            EnterMainMenu(false);
+        });
+    StartDialog(
+        dialog,
+        false,
+        true,
+        &mPartyDiedScene);
 }
 
 void GuiManager::FadeInDone()

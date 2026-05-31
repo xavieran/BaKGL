@@ -13,6 +13,7 @@
 
 #include "bak/state/event.hpp"
 #include "bak/state/money.hpp"
+#include "bak/state/offsets.hpp"
 
 namespace BAK {
 
@@ -44,9 +45,9 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
     }
 
     // Set all encounter unique state flags back to false
-    for (unsigned i = 0; i < 0x12c0; i++)
+    for (unsigned i = 0; i < State::sEncounterStateCount; i++)
     {
-        gs.Apply(State::SetEventFlagFalse, 0x190 + i);
+        gs.Apply(State::SetEventFlagFalse, State::sEncounterStateOffset + i);
     }
 
     switch (chapter.mValue)
@@ -63,7 +64,7 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
         } break;
         case 3:
         {
-            gs.SetEventValue(0x1fbc, 0);
+            gs.SetEventValue(State::sQuestFlag_1fbc, 0);
         } break;
         case 4:
         {
@@ -136,7 +137,7 @@ std::optional<BAK::Teleport> TransitionToChapter(Chapter chapter, GameState& gs)
         } break;
         case 7:
             gs.GetParty().SetMoney(gs.Apply(State::ReadPartyMoney, Chapter{6}));
-            gs.SetEventValue(0x1ab1, 1);
+            gs.SetEventValue(State::sChapterTransitionFlag_1ab1, 1);
             break;
         case 8:
             gs.GetParty().SetMoney(gs.Apply(State::ReadPartyMoney, Chapter{7}));

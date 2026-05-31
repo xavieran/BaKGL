@@ -103,6 +103,20 @@ CombatEncounterHandler& EncounterHandler::GetCombatHandler()
     return mCombatHandler;
 }
 
+void EncounterHandler::StartDialog(BAK::Target dialog, bool clearFinished)
+{
+    if (clearFinished)
+    {
+        mDynamicDialogScene.SetDialogFinished([](auto){});
+    }
+
+    mGuiManager.StartDialog(
+            dialog,
+            false,
+            false,
+            &mDynamicDialogScene);
+}
+
 bool EncounterHandler::DoBlockEncounter(
     const BAK::Encounter::Encounter& encounter,
     const BAK::Encounter::Block& block)
@@ -112,11 +126,7 @@ bool EncounterHandler::DoBlockEncounter(
 
     mLogger.Info() << "DoBlockEncounter for: " << block << "\n";
 
-    mGuiManager.StartDialog(
-            block.mDialog,
-            false,
-            false,
-            &mDynamicDialogScene);
+    StartDialog(block.mDialog);
 
     mCamera.UndoPositionChange();
     mGameState.Apply(
@@ -176,11 +186,7 @@ bool EncounterHandler::DoZoneEncounter(
             mDynamicDialogScene.ResetDialogFinished();
         });
     mLogger.Info() << "Zone transition: " << zone << "\n";
-    mGuiManager.StartDialog(
-        zone.mDialog,
-        false,
-        false,
-        &mDynamicDialogScene);
+    StartDialog(zone.mDialog);
     return true;
 }
 
@@ -234,13 +240,9 @@ bool EncounterHandler::DoGDSEncounter(
                     mGuiManager.EnterGDSScene(
                         gds.mHotspot,
                         [&, exitDialog=gds.mExitDialog](){
-                            mGuiManager.StartDialog(
-                                exitDialog,
-                                false,
-                                false,
-                                &mDynamicDialogScene);
-                            });
-                            mCamera.SetGameLocation(gds.mExitPosition);
+                            StartDialog(exitDialog);
+                        });
+                    mCamera.SetGameLocation(gds.mExitPosition);
                 });
             }
             else
@@ -252,11 +254,7 @@ bool EncounterHandler::DoGDSEncounter(
             mDynamicDialogScene.ResetDialogFinished();
         });
 
-    mGuiManager.StartDialog(
-        gds.mEntryDialog,
-        false,
-        false,
-        &mDynamicDialogScene);
+    StartDialog(gds.mEntryDialog);
     return true;
 }
 

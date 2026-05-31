@@ -208,18 +208,12 @@ void CombatScreen::HandleButton(unsigned buttonIndex)
 
 void CombatScreen::ExitCombat()
 {
-    mDialogScene.SetDialogFinished([this](auto choice){
-        mGuiManager.ExitCombat(BAK::CombatResult::Won);
-    });
-    StartDialog(BAK::DialogSources::mWonBattle);
+    mGuiManager.ExitCombat(BAK::CombatResult::Won);
 }
 
 void CombatScreen::Retreat()
 {
-    mDialogScene.SetDialogFinished([this](auto choice){
-        mGuiManager.ExitCombat(BAK::CombatResult::Fled);
-    });
-    StartDialog(BAK::DialogSources::mRetreatSuccessful);
+    mGuiManager.ExitCombat(BAK::CombatResult::Fled);
 }
 
 void CombatScreen::AddChildren()

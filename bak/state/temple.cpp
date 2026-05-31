@@ -2,12 +2,11 @@
 
 #include "bak/file/fileBuffer.hpp"
 #include "bak/state/event.hpp"
+#include "bak/state/offsets.hpp"
 
 #include "bak/gameState.hpp"
 
 namespace BAK::State {
-
-static constexpr auto sTempleSeenFlag = 0x1950;
 
 bool ReadTempleSeen(const GameState& gs, unsigned temple)
 {

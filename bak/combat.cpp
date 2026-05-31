@@ -11,6 +11,18 @@
 
 namespace BAK {
 
+std::string_view ToString(CombatResult r)
+{
+    switch (r)
+    {
+        case CombatResult::None: return "None";
+        case CombatResult::Won: return "Won";
+        case CombatResult::Fled: return "Fled";
+        case CombatResult::Dead: return "Dead";
+    }
+    return "Unknown";
+}
+
 std::string_view ToString(CombatantWorldState s)
 {
     switch (s)
@@ -62,6 +74,29 @@ void LoadP1Dat()
         ss = {};
     }
     Logging::LogDebug(__FUNCTION__) << "Remaining: " << fb.GetBytesLeft() << "\n";
+}
+
+bool IsSpecialBattle(CombatIndex index)
+{
+    switch (index.mValue)
+    {
+        case 151: [[fallthrough]];
+        case 152: [[fallthrough]];
+        case 235: [[fallthrough]];
+        case 245: [[fallthrough]];
+        case 291: [[fallthrough]];
+        case 293: [[fallthrough]];
+        case 335: [[fallthrough]];
+        case 337: [[fallthrough]];
+        case 338: [[fallthrough]];
+        case 375: [[fallthrough]];
+        case 410: [[fallthrough]];
+        case 429: [[fallthrough]];
+        case 430:
+            return true;
+        default:
+            return false;
+    }
 }
 
 }

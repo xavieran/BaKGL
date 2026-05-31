@@ -230,6 +230,7 @@ bool CombatEncounterHandler::CheckAndDoCombatEncounter(
     {
         // FIXME: Need to add surprise to EnterCombatScreen
         // recordTimeOfCombat at (combatIndex << 2) + 0x3967
+        mGuiManager.SetCombatSequenceActive();
         mDynamicDialogScene.SetDialogFinished(
             [&](const auto& choice){
                 Logging::LogDebug("Game::CombatEncounterHandler") << "Enter Combat\n";

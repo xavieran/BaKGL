@@ -154,7 +154,12 @@ void CampScreen::BeginCamp(bool isInn, BAK::ShopStats* shopStats)
 
 void CampScreen::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
-    assert(choice);
+    //assert(choice);
+    if (!choice)
+    {
+        Exit();
+        return;
+    }
     if (mGameState.GetEndOfDialogState() == -1 || choice->mValue == BAK::Keywords::sNoIndex)
     {
         Exit();

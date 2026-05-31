@@ -151,12 +151,11 @@ unsigned CalculateUniqueEncounterStateFlagOffset(
     std::uint8_t tileIndex,
     std::uint8_t encounterIndex) 
 {
-    constexpr auto encounterStateOffset = 0x190;
     constexpr auto maxEncountersPerTile = 0xa;
-    const auto zoneOffset = (zone.mValue - 1) * encounterStateOffset;
+    const auto zoneOffset = (zone.mValue - 1) * sEncounterStateOffset;
     const auto tileOffset = tileIndex * maxEncountersPerTile;
     const auto offset = zoneOffset + tileOffset + encounterIndex;
-    return offset + encounterStateOffset;
+    return offset + sEncounterStateOffset;
 }
 
 bool CheckUniqueEncounterStateFlag(
@@ -191,23 +190,20 @@ void SetUniqueEncounterStateFlag(
 unsigned CalculateCombatEncounterScoutedStateFlag(
     std::uint8_t encounterIndex) 
 {
-    constexpr auto offset = 0x145a;
-    return offset + encounterIndex;
+    return sCombatScoutedOffset + encounterIndex;
 }
 
 unsigned CalculateCombatEncounterStateFlag(
     unsigned combatIndex) 
 {
-    constexpr auto combatEncounterFlag = 0x1464;
-    return combatIndex + combatEncounterFlag;
+    return combatIndex + sCombatEncounterOffset;
 }
 
 bool CheckCombatEncounterStateFlag(
     const GameState& gs,
     unsigned combatIndex) 
 {
-    constexpr auto alwaysTriggeredIndex = 0x3e8;
-    if (combatIndex >= alwaysTriggeredIndex)
+    if (combatIndex >= sMaxCombatIndex)
         return true;
     else
         return gs.ReadEventBool(
@@ -219,8 +215,7 @@ void SetCombatEncounterState(
     unsigned combatIndex,
     bool state)
 {
-    constexpr auto alwaysTriggeredIndex = 0x3e8;
-    if (combatIndex >= alwaysTriggeredIndex)
+    if (combatIndex >= sMaxCombatIndex)
     {
         return;
     }
@@ -243,8 +238,7 @@ unsigned CalculateRecentEncounterStateFlag(
 {
     // Refer readEncounterEventState1450 in IDA
     // These get cleared when we load a new tile
-    constexpr auto offset = 0x1450;
-    return offset + encounterIndex;
+    return sRecentEncounterOffset + encounterIndex;
 }
 
 bool CheckRecentlyEncountered(const GameState& gs, std::uint8_t encounterIndex)
@@ -321,7 +315,7 @@ void SetPostCombatCombatSpecificFlags(
                 && gs.ReadEventBool(0x16cf)
                 && gs.ReadEventBool(0x16d1))
             {
-                gs.SetEventValue(0x1d17, 1);
+                gs.SetEventValue(sEncounterFlag_1d17, 1);
             }
         default:break;
     }
