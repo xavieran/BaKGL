@@ -26,17 +26,6 @@ ResourceIndex::ResourceIndex(
         const unsigned hashKey = resourceIndex.GetUint32LE();
         const std::streamoff offset = resourceIndex.GetUint32LE();
         mResourceIndexData.emplace_back(ResourceIndexData{hashKey, offset});
-        //packedResource.Seek(offset);
-        //const auto resourceName = packedResource.GetString(sFilenameLength);
-        //const auto resourceSize = packedResource.GetUint32LE();
-        //Logging::LogDebug("BAK::ResourceIndex") << "Resource: " << resourceName << " hash: " << std::hex << hashKey
-        //    << std::dec << " offset: " << offset << " size: " << resourceSize << "\n";
-        //mResourceIndexMap.emplace(
-        //    resourceName,
-        //    ResourceIndexData{
-        //        hashKey,
-        //        offset + sFilenameLength + 4,
-        //        resourceSize});
     }
 }
 
