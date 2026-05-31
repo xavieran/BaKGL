@@ -67,6 +67,7 @@ void Conditions::SetCondition(BAK::Condition cond, std::uint8_t amount)
 void Conditions::AdjustCondition(Skills& skills, BAK::Condition cond, signed amount)
 {
     Logging::LogDebug(__FUNCTION__) << " called with : cond: " << ToString(cond) << " amt: " << amount << "\n";
+    if (amount == 0) return;
     const auto currentValue = GetCondition(cond).Get();
     int newValue = currentValue + amount;
     if (newValue > 100)
@@ -80,22 +81,6 @@ void Conditions::AdjustCondition(Skills& skills, BAK::Condition cond, signed amo
 
     SetCondition(cond, newValue);
 
-    const bool inCombat = false;
-
-    if (cond != Condition::Healing
-        && cond != Condition::Drunk
-        && (cond != Condition::NearDeath || !inCombat))
-    {
-        if (currentValue != 0 && newValue == 0)
-        {
-            //mGameState.SetEventFlag(activeCharIndex * 7 + static_cast<unsigned>(cond) + sConditionBasedFlag, 0);
-        }
-        else if (currentValue == 0 && newValue != 0)
-        {
-            //mGameState.SetEventFlag(activeCharIndex * 7 + static_cast<unsigned>(cond) + sConditionBasedFlag, 1);
-        }
-    }
-    
     if (cond == Condition::NearDeath)
     {
         // Check all character NearDeath

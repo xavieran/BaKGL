@@ -13,6 +13,15 @@ extern "C" {
 #include "com/ostream.hpp"
 #include "com/string.hpp"
 
+#include "bak/state/event.hpp"
+#include "bak/state/offsets.hpp"
+
+#include "bak/save/saveOffsets.hpp"
+
+#include "bak/condition.hpp"
+#include "bak/dialogChoice.hpp"
+#include "bak/types.hpp"
+
 #include "graphics/glm.hpp"
 
 struct Options
@@ -33,12 +42,95 @@ struct Options
     bool combat_stats{};
     bool combat_click{};
     bool combat_lists{};
+    bool event_flags{};
 
     std::string saveFile{};
     std::string character{};
 };
 
 static constexpr int CHARACTER_OPT = 1000;
+static constexpr int EVENT_FLAGS_OPT = 1001;
+
+struct EventFlagRange
+{
+    unsigned start;
+    unsigned end;
+    std::string_view name;
+};
+
+constexpr EventFlagRange sEventFlagRanges[] = {
+    {BAK::State::sEncounterStateOffset,
+        BAK::State::sEncounterStateOffset + BAK::State::sEncounterStateCount - 1,
+        "encounter_unique_state"},
+    {BAK::State::sRecentEncounterOffset,
+        BAK::State::sRecentEncounterOffset + 9,
+        "recent_encounter"},
+    {BAK::State::sCombatScoutedOffset,
+        BAK::State::sCombatScoutedOffset + 9,
+        "combat_scouted"},
+    {BAK::State::sCombatEncounterOffset,
+        BAK::State::sCombatEncounterOffset + BAK::State::sMaxCombatIndex - 1,
+        "combat_encounter"},
+    {BAK::State::sSkillSelectedEventFlag,
+        BAK::State::sSkillSelectedEventFlag + BAK::sMaxCharacters * BAK::State::sMaxSkills - 1,
+        "skill_selected"},
+    {BAK::State::sSkillImprovementEventFlag,
+        BAK::State::sSkillImprovementEventFlag + BAK::sMaxCharacters * BAK::State::sMaxSkills - 1,
+        "skill_improvement"},
+    {BAK::State::sTempleSeenFlag,
+        BAK::State::sTempleSeenFlag + 12,
+        "temple_seen"},
+    {BAK::State::sSpynoteHasBeenRead,
+        BAK::State::sSpynoteHasBeenRead + 13,
+        "spynote_read"},
+    {BAK::State::sQuestFlag_1972,
+        BAK::State::sQuestFlag_1972,
+        "quest_flag"},
+    {BAK::State::sQuestFlag_1979,
+        BAK::State::sQuestFlag_1979,
+        "quest_flag"},
+    {BAK::State::sItemUsedForCharacterAtLeastOnce,
+        BAK::State::sItemUsedForCharacterAtLeastOnce + BAK::sMaxCharacters * BAK::State::sMaxTrackedItems - 1,
+        "item_used"},
+    {BAK::State::sChapterTransitionFlag_1ab1,
+        BAK::State::sChapterTransitionFlag_1ab1,
+        "chapter_transition"},
+    {BAK::State::sConversationOptionInhibitedFlag,
+        BAK::State::sConversationOptionInhibitedFlag + static_cast<unsigned>(BAK::ChoiceMask::Conversation),
+        "conversation_inhibited"},
+    {BAK::State::sDoorFlag,
+        BAK::State::sDoorFlag + 11,
+        "door"},
+    {BAK::State::sLockHasBeenSeenFlag,
+        BAK::State::sLockHasBeenSeenFlag + 7,
+        "lock_seen"},
+    {BAK::State::sConditionStateEventFlag,
+        BAK::State::sConditionStateEventFlag + BAK::sMaxCharacters * BAK::Conditions::sNumConditions - 1,
+        "condition_state"},
+    {BAK::State::sEncounterFlag_1d17,
+        BAK::State::sEncounterFlag_1d17,
+        "encounter_flag"},
+    {BAK::State::sConversationChoiceMarkedFlag,
+        BAK::State::sConversationChoiceMarkedFlag + static_cast<unsigned>(BAK::ChoiceMask::Conversation),
+        "conversation_marked"},
+    {BAK::SaveOffsets::sPantathiansEventFlag,
+        BAK::SaveOffsets::sPantathiansEventFlag,
+        "pantathians"},
+    {BAK::State::sQuestFlag_1f6c,
+        BAK::State::sQuestFlag_1f6c,
+        "quest_flag"},
+    {BAK::State::sQuestFlag_1fbc,
+        BAK::State::sQuestFlag_1fbc,
+        "quest_flag"},
+};
+
+std::string_view GetEventFlagRangeName(unsigned ep)
+{
+    for (const auto& r : sEventFlagRanges)
+        if (ep >= r.start && ep <= r.end)
+            return r.name;
+    return "unknown";
+}
 
 Options Parse(int argc, char** argv)
 {
@@ -61,6 +153,7 @@ Options Parse(int argc, char** argv)
         {"combat_click", no_argument, 0, 'C'},
         {"combat_lists", no_argument, 0, 'l'},
         {"character", required_argument, 0, CHARACTER_OPT},
+        {"event-flags", no_argument, 0, EVENT_FLAGS_OPT},
     };
     int optionIndex = 0;
     int opt;
@@ -83,6 +176,7 @@ Options Parse(int argc, char** argv)
             std::cout << "\t --combat_stats,-S\n";
             std::cout << "\t --combat_click,-C\n";
             std::cout << "\t --combat_lists,-l\n";
+            std::cout << "\t --event-flags Print all event flags as CSV\n";
             std::cout << "\t --character <name> Display character stats matching name\n";
             exit(0);
         }
@@ -149,6 +243,10 @@ Options Parse(int argc, char** argv)
         else if (opt == CHARACTER_OPT)
         {
             values.character = optarg;
+        }
+        else if (opt == EVENT_FLAGS_OPT)
+        {
+            values.event_flags = true;
         }
     }
 
@@ -348,6 +446,18 @@ int main(int argc, char** argv)
             logger.Info() << "  #" << i << " " << times[i] << "\n";
         }
     }
+
+    if (options.event_flags)
+    {
+        auto& fb = gameData.GetFileBuffer();
+        for (unsigned ep = BAK::State::sEncounterStateOffset; ep < BAK::State::sMaxStandardEventPtr; ep++)
+        {
+            logger.Info() << GetEventFlagRangeName(ep) << ","
+                << std::hex << ep << std::dec << ","
+                << (BAK::State::ReadEventBool(fb, ep) ? "true" : "false") << "\n";
+        }
+    }
+
     return 0;
 }
 

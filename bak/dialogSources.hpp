@@ -1,10 +1,12 @@
 #pragma once
 
+#include "bak/condition.hpp"
 #include "bak/types.hpp"
 #include "bak/dialogTarget.hpp"
 
 #include <functional>
 #include <iomanip>
+#include <optional>
 #include <type_traits>
 #include <variant>
 
@@ -22,6 +24,7 @@ public:
     static KeyTarget GetTTMDialogKey(unsigned index);
     static KeyTarget GetChapterStartText(Chapter chapter);
     static Target GetChoiceResult(KeyTarget dialog, unsigned index);
+    static std::optional<Target> GetConditionNotification(Condition);
     
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;
@@ -169,8 +172,30 @@ public:
 
     /* COMBAT */
     static constexpr auto mWonBattle         = KeyTarget{0x20};
+    static constexpr auto mDied              = KeyTarget{0x21};
     static constexpr auto mRetreatSuccessful = KeyTarget{0x22};
+    static constexpr auto mKilledByTrap      = KeyTarget{0x6b};
+    static constexpr auto mDefeatedOneEnemy  = KeyTarget{0x81};
+    static constexpr auto mEnemyFled         = KeyTarget{0x82};
+    static constexpr auto mSomeoneDied       = KeyTarget{0x83};
+    static constexpr auto mSolvedTrap        = KeyTarget{0x1f};
+    static constexpr auto mWonVersusGhosts   = KeyTarget{0x131};
+    static constexpr auto mWonVersusGhost    = KeyTarget{0x132};
+    static constexpr auto mWonSpecialBattle  = KeyTarget{0x142};
+    static constexpr auto mDeathDueToCondition = KeyTarget{0x145};
+    static constexpr auto mDefeatedMakala    = KeyTarget{0x150};
 
+    /* NOTIFICATIONS */
+    static constexpr auto mSkillImprovedOneSkillManyMembers = KeyTarget{0x200b30};
+    static constexpr auto mSkillImprovedManySkillsManyMembers = KeyTarget{0x200b31};
+    static constexpr auto mSkillImprovedOneSkillOneMember = KeyTarget{0x200b32};
+    static constexpr auto mSkillImprovedManySkillsOneMember = KeyTarget{0x200b33};
+
+    static constexpr auto mNotifySick = KeyTarget{0xf6};
+    static constexpr auto mNotifyPlagued = KeyTarget{0x146};
+    static constexpr auto mNotifyPoisoned = KeyTarget{0xf7};
+    static constexpr auto mNotifyStarving = KeyTarget{0x3f};
+    static constexpr auto mNotifyNearDeath = KeyTarget{0x41};
 };
 
 }

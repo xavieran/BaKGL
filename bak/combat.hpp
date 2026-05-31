@@ -15,6 +15,8 @@ enum class CombatResult : std::uint8_t
     Dead = 3
 };
 
+std::string_view ToString(CombatResult);
+
 enum class CombatantWorldState : std::uint8_t
 {
     Invisible0,
@@ -66,5 +68,10 @@ public:
 std::ostream& operator<<(std::ostream&, const CombatEntityList&);
 
 void LoadP1Dat();
+
+// Used by combat end to decide whether to use dialog 0x142
+bool IsSpecialBattle(CombatIndex);
+
+static constexpr CombatIndex MakalaCombat{0x221};
     
 }

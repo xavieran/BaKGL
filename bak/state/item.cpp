@@ -9,13 +9,11 @@
 
 namespace BAK::State {
 
-static constexpr auto maxItems = 0x14;
-
 bool ReadItemHasBeenUsed(const GameState& gs, unsigned character, unsigned itemIndex) 
 {
     return gs.ReadEventBool(
         sItemUsedForCharacterAtLeastOnce
-            + ((character * maxItems) + itemIndex));
+            + ((character * sMaxTrackedItems) + itemIndex));
 }
 
 void SetItemHasBeenUsed(FileBuffer& fb, unsigned character, unsigned itemIndex)
@@ -23,7 +21,7 @@ void SetItemHasBeenUsed(FileBuffer& fb, unsigned character, unsigned itemIndex)
     SetEventFlagTrue(
         fb,
         sItemUsedForCharacterAtLeastOnce
-            + ((character * maxItems) + itemIndex));
+            + ((character * sMaxTrackedItems) + itemIndex));
 }
 
 }

@@ -8,6 +8,8 @@
 #include "bak/entityType.hpp"
 #include "bak/saveManager.hpp"
 
+#include "com/scopeGuard.hpp"
+
 #include "gui/IGuiManager.hpp"
 
 #include "gui/actors.hpp"
@@ -31,9 +33,16 @@
 #include "gui/teleportScreen.hpp"
 #include "gui/cutscenePlayer.hpp"
 #include "gui/core/widget.hpp"
+#include "gui/IDialogScene.hpp"
+
+#include "bak/checkPartyChanges.hpp"
+#include "bak/condition.hpp"
+#include "bak/skills.hpp"
+#include "bak/types.hpp"
 
 #include <glm/glm.hpp>
 
+#include <array>
 #include <functional>
 #include <utility>
 
@@ -43,15 +52,10 @@ class GameState;
 
 namespace Gui {
 
+enum class OnExit { Discard, Run };
+
 class IDialogScene;
 class Cursor;
-
-class GuiScreen
-{
-public:
-    GuiScreen(std::function<void()> finished);
-    std::function<void()> mFinished;
-};
 
 class GuiManager final : public Widget, public IGuiManager
 {
@@ -80,6 +84,7 @@ public:
     bool InCombatView() const override;
     void EnterMainView() override;
     void EnterMainMenu(bool gameRunning) override;
+    void PartyDied(BAK::Target dialog);
 
     void TeleportToGDS(
         const BAK::HotspotRef& hotspot);
@@ -129,9 +134,14 @@ public:
     bool IsLockOpened() const override;
     bool IsWordLockOpened() const override;
 
-    void PopGuiScreen();
-    void PopAndRunGuiScreen();
+    void PushScreen(Widget* screen);
+    ScopeGuard<std::function<void()>> PopScreen();
+
+    void SetCombatSequenceActive() override { mCombatSequenceActive = true; }
+    void PopOnExitCallback(OnExit action);
 private:
+    void CacheState();
+    bool NotifyPartyChanges();
     void FadeInDone();
     void FadeOutDone();
 
@@ -174,13 +184,20 @@ private:
     std::vector<std::unique_ptr<GDSScene>> mGdsScenes;
 
     IDialogScene* mDialogScene;
-    std::stack<GuiScreen> mGuiScreens;
+    std::stack<std::function<void()>> mOnExitCallbacks;
 
     AnimatorStore mAnimatorStore;
     BAK::IZoneLoader* mZoneLoader;
     Widget* mPreviousScreen{nullptr};
 
     BAK::Encounter::TeleportFactory mTeleportFactory{};
+
+    bool mAmInMainView{false};
+    bool mCombatSequenceActive{false};
+
+    NullDialogScene mNullDialogScene{};
+    DynamicDialogScene mPartyDiedScene;
+    BAK::PartyChangeCache mPartyChangeCache{};
 
     const Logging::Logger& mLogger;
 };

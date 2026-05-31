@@ -217,6 +217,11 @@ public:
         return LogState::Log(LogLevel::Error, mName);
     }
 
+    std::ostream& Fatal() const
+    {
+        return LogState::Log(LogLevel::Fatal, mName);
+    }
+
     std::ostream& Spam() const
     {
         return LogState::Log(LogLevel::Spam, mName);

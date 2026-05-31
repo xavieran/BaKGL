@@ -10,42 +10,38 @@ namespace BAK::State {
 
 bool ReadSkillSelected(FileBuffer& fb, unsigned character, unsigned skill) 
 {
-    constexpr auto maxSkills = 0x11;
     return ReadEventBool(
         fb,
         sSkillSelectedEventFlag
-        + (character * maxSkills)
+        + (character * sMaxSkills)
         + skill);
 }
 
 bool ReadSkillUnseenImprovement(FileBuffer& fb, unsigned character, unsigned skill) 
 {
-    constexpr auto maxSkills = 0x11;
     return ReadEventBool(
         fb,
         sSkillImprovementEventFlag
-        + (character * maxSkills)
+        + (character * sMaxSkills)
         + skill);
 }
 
 void SetSkillSelected(FileBuffer& fb, unsigned character, unsigned skill, bool enabled) 
 {
-    constexpr auto maxSkills = 0x11;
     SetEventFlag(
         fb,
         sSkillSelectedEventFlag
-            + (character * maxSkills)
+            + (character * sMaxSkills)
             + skill,
         enabled);
 }
 
 void SetSkillUnseenImprovement(FileBuffer& fb, unsigned character, unsigned skill, bool enabled)
 {
-    constexpr auto maxSkills = 0x11;
     SetEventFlag(
         fb,
         sSkillImprovementEventFlag
-            + (character * maxSkills)
+            + (character * sMaxSkills)
             + skill,
         enabled);
 }
@@ -63,12 +59,11 @@ void SetSelectedSkillPool(FileBuffer& fb, unsigned character, std::uint8_t value
 
 void ClearUnseenImprovements(FileBuffer& fb, unsigned character)
 {
-    constexpr auto maxSkills = 0x11;
-    for (unsigned i = 0; i < maxSkills; i++)
+    for (unsigned i = 0; i < sMaxSkills; i++)
     {
         const auto flag = 
             sSkillImprovementEventFlag
-            + (character * maxSkills)
+            + (character * sMaxSkills)
             + i;
 
         SetEventFlagFalse(fb, flag);

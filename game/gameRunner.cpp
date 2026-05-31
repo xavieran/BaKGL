@@ -387,6 +387,7 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
 
 void GameRunner::CombatCompleted(BAK::CombatResult result)
 {
+    mLogger.Debug() << __FUNCTION__ << " " << ToString(result) << "\n";
     ASSERT(mActiveEncounter);
     ASSERT(std::holds_alternative<BAK::Encounter::Combat>(mActiveEncounter->GetEncounter()));
     const auto& encounter = *mActiveEncounter;
@@ -395,6 +396,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
     if (result == BAK::CombatResult::Fled)
     {
         // retreat to a combat retreat location based on player entry
+        mEncounterHandler.StartDialog(BAK::DialogSources::mRetreatSuccessful, true);
         return;
     }
     else if (result == BAK::CombatResult::Won)
@@ -417,12 +419,66 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
             }
 
             const auto& monster = *mCombatModelLoader.mCombatModels[it->mMonster.mValue];
-            const auto deadFrameOffset = monster.GetAnimation(BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
+            const auto deadFrameOffset = monster.GetAnimation(
+                BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
             it->mCombatantBAKLocation.mState = BAK::CombatantWorldState::Dead;
             it->mAnimationType = BAK::AnimationType::Dead;
             it->mFrame = deadFrameOffset;
             it->Update();
             mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
+        }
+
+        if (BAK::CombatIndex{combat.mCombatIndex} == BAK::MakalaCombat)
+        {
+            mEncounterHandler.StartDialog(BAK::DialogSources::mDefeatedMakala, true);
+            return;
+        }
+
+        unsigned deadCount = 0;
+
+        mGameState.GetParty().ForEachActiveCharacter(
+            [&](const auto& character){
+                if (character.GetConditions()
+                    .GetCondition(BAK::Condition::NearDeath).Get() > 0)
+                {
+                    mGameState.SetDialogTextVariable(0, character.GetIndex().mValue);
+                    deadCount++;
+                }
+                return BAK::Loop::Continue;
+        });
+
+
+        if (deadCount > 0)
+        {
+            mEncounterHandler.StartDialog(BAK::DialogSources::mSomeoneDied, true);
+        }
+        else
+        {
+            if (true) // multiple combatants killed
+            {
+                //if (MonstersWereGhosts)
+                //{
+                //    mEncounterHandler.StartDialog(BAK::DialogSources::mWonVersusGhosts, true);
+                //}
+                if (BAK::IsSpecialBattle(BAK::CombatIndex{combat.mCombatIndex}))
+                {
+                    mEncounterHandler.StartDialog(BAK::DialogSources::mWonSpecialBattle, true);
+                }
+                else
+                {
+                    mEncounterHandler.StartDialog(BAK::DialogSources::mWonBattle, true);
+                }
+            }
+            else // if (OneMonsterInCombat && IsGhost)
+            {
+                mEncounterHandler.StartDialog(BAK::DialogSources::mWonVersusGhost, true);
+            }
+            // else if (OneMonsterInCombat && !IsGhost)
+            // mEncounterHandler.StartDialog(BAK::DialogSources::mDefeatedOneEnemy, true);
+            // else if (NoCombatantsRemaining && IsTrap)
+            // mEncounterHandler.StartDialog(BAK::DialogSources::mSolvedTrap, true);
+            // else if (NoCombatantsRemaining)
+            // mEncounterHandler.StartDialog(BAK::DialogSources::mEnemyFled, true);
         }
     }
 }
@@ -519,7 +575,7 @@ void GameRunner::CheckClickable(unsigned entityId)
 
 void GameRunner::OnTimeDelta(double timeDelta)
 {
-    return;
+    //return;
     mAccumulatedTime += timeDelta;
     if (mAccumulatedTime > .2)
     {
