@@ -9,6 +9,7 @@
         "ResolutionScale": 4.0,
         "EnableShadows": true,
         "EnableImGui": false,
+        "DrawDistance": 128000,
         "DebugDisableFades": false,
         "DebugRenderEncounters": false
     },

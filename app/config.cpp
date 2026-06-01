@@ -35,6 +35,7 @@ Graphics LoadGraphics(const nlohmann::json& config)
         graphics.mEnableImGui = c.value("EnableImGui", true);
         graphics.mDebugDisableFades = c.value("DebugDisableFades", false);
         graphics.mDebugRenderEncounters = c.value("DebugRenderEncounters", false);
+        graphics.mDrawDistance = c.value("DrawDistance", 128000);
     }
     return graphics;
 }

@@ -300,7 +300,8 @@ int main(int argc, char** argv)
         width,
         height,
         sShadowDim,
-        sShadowDim};
+        sShadowDim,
+        config.mGraphics.mDrawDistance};
 
     Game::GameRunner gameRunner{
         camera,

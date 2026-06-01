@@ -22,6 +22,7 @@ struct Graphics
     bool mEnableImGui{true};
     bool mDebugDisableFades{false};
     bool mDebugRenderEncounters{false};
+    int mDrawDistance{128000};
 };
 
 struct Logging

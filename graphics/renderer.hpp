@@ -53,14 +53,14 @@ struct DepthMapShaderUniforms
 
 class Renderer
 {
-    static constexpr auto sDrawDistance = 128000;
     static constexpr auto sClickDistance = 16000;
 public:
     Renderer(
         float screenWidth,
         float screenHeight,
         unsigned depthMapWidth,
-        unsigned depthMapHeight)
+        unsigned depthMapHeight,
+        int drawDistance = 128000)
     :
         mModelShader{std::invoke([]{
             auto shader = ShaderProgram{
@@ -153,6 +153,7 @@ public:
         mPickFB{},
         mPickTexture{GL_TEXTURE_2D},
         mPickDepth{GL_TEXTURE_2D},
+        mDrawDistance{drawDistance},
         mDepthMapDims{depthMapWidth, depthMapHeight},
         mDepthFB{},
         mDepthBuffer{GL_TEXTURE_2D},
@@ -290,7 +291,7 @@ public:
 
         for (const auto& item : renderables)
         {
-            if (glm::distance(camera.GetPosition(), item.GetLocation()) > sDrawDistance) continue;
+            if (glm::distance(camera.GetPosition(), item.GetLocation()) > mDrawDistance) continue;
             const auto [offset, length] = item.GetObject();
             const auto& modelMatrix = item.GetModelMatrix();
 
@@ -359,7 +360,7 @@ public:
 
         for (const auto& item : renderables)
         {
-            if (glm::distance(lightCamera.GetPosition(), item.GetLocation()) > sDrawDistance) continue;
+            if (glm::distance(lightCamera.GetPosition(), item.GetLocation()) > mDrawDistance) continue;
             const auto [offset, length] = item.GetObject();
             const auto& modelMatrix = item.GetModelMatrix();
 
@@ -391,6 +392,7 @@ private:
     FrameBuffer mPickFB;
     TextureBuffer mPickTexture;
     TextureBuffer mPickDepth;
+    int mDrawDistance;
     glm::uvec2 mDepthMapDims;
     FrameBuffer mDepthFB;
     TextureBuffer mDepthBuffer;
