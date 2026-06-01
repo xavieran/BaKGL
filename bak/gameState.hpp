@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/partyChangeCache.hpp"
 #include "bak/combat.hpp"
 #include "bak/container.hpp"
 #include "bak/dialogAction.hpp"
@@ -196,6 +197,8 @@ public:
 
     void SetFixCombatEntityLists(bool value) { mFixCombatEntityLists = value; }
 
+    PartyChangeCache& GetPartyChangeCache() { return mPartyChangeCache; }
+
 private:
     std::vector<CombatEntityList> RegenerateCombatEntityLists();
 
@@ -221,6 +224,7 @@ private:
     Royals mItemValue_753e{};
     unsigned mSkillValue{};
     unsigned mContextVar_753f{};
+    PartyChangeCache mPartyChangeCache{};
     bool mCombatTriggeredFromInteractable{};
     bool mFixCombatEntityLists{false};
 

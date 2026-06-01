@@ -68,6 +68,7 @@ private:
     unsigned GetHour();
     void StartCamping(std::optional<unsigned> hourTil);
     void HandleTick();
+    void OnPostTick();
     void FinishedTicking();
     void HandleButton(unsigned button);
     void Exit();
@@ -101,6 +102,7 @@ private:
     std::optional<unsigned> mTargetHour;
     BAK::Time mTimeBeganCamping;
     TickAnimator* mTimeElapser;
+    bool mPausedForDialog;
     BAK::ShopStats* mShopStats;
 
     const Logging::Logger& mLogger;

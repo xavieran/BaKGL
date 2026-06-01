@@ -52,6 +52,7 @@ public:
         unsigned templeNumber,
         unsigned cureFactor,
         std::function<void()>&& finished) = 0;
+    virtual void PartyDied(BAK::Target dialog) = 0;
     virtual void ExitLock() = 0;
     virtual bool IsLockOpened() const = 0;
     virtual bool IsWordLockOpened() const = 0;

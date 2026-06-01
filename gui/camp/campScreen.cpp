@@ -1,5 +1,6 @@
 #include "gui/camp/campScreen.hpp"
 
+#include "bak/partyChangeCache.hpp"
 #include "bak/camp.hpp"
 #include "bak/gameState.hpp"
 #include "bak/constants.hpp"
@@ -10,9 +11,6 @@
 #include "bak/shop.hpp"
 #include "bak/time.hpp"
 
-#include "graphics/texture.hpp"
-
-#include "gui/core/clickable.hpp"
 #include "gui/core/highlightable.hpp"
 
 #include "gui/tickAnimator.hpp"
@@ -26,7 +24,6 @@
 
 #include <iostream>
 #include <utility>
-#include <variant>
 
 namespace Gui::Camp {
 
@@ -84,6 +81,7 @@ CampScreen::CampScreen(
     mIsInInn{false},
     mState{State::Idle},
     mTimeElapser{nullptr},
+    mPausedForDialog{false},
     mLogger{Logging::LogState::GetLogger("Gui::Encamp")}
 {
     mButtons.reserve(mLayout.GetSize());
@@ -154,10 +152,12 @@ void CampScreen::BeginCamp(bool isInn, BAK::ShopStats* shopStats)
 
 void CampScreen::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
-    //assert(choice);
-    if (!choice)
+    if (mPausedForDialog)
     {
-        Exit();
+        assert(mTimeElapser);
+        mPausedForDialog = false;
+        mTimeElapser->Continue();
+        OnPostTick();
         return;
     }
     if (mGameState.GetEndOfDialogState() == -1 || choice->mValue == BAK::Keywords::sNoIndex)
@@ -285,6 +285,7 @@ void CampScreen::HandleTick()
         mIsInInn ? 0x85 : 0x64,
         mIsInInn ? 0x64 : 0x50);
 
+
     if ((mGameState.GetWorldTime().GetTime() - mTimeBeganCamping) > BAK::Times::ThirteenHours)
     {
         mGameState.GetParty().ForEachActiveCharacter([&](auto& character){
@@ -292,6 +293,30 @@ void CampScreen::HandleTick()
             return BAK::Loop::Continue;
         });
     }
+
+    bool camping = true;
+    auto [changed, dialog, dead] = mGameState.GetPartyChangeCache().CheckPartyChanges(mGameState, camping, mIsInInn);
+
+    if (changed)
+    {
+        if (dead)
+        {
+            mTimeElapser->Stop();
+            mGuiManager.PartyDied(dialog);
+            return;
+        }
+
+        mTimeElapser->Pause();
+        mPausedForDialog = true;
+        mGuiManager.StartDialog(dialog, false, false, this);
+        return;
+    }
+
+    OnPostTick();
+}
+
+void CampScreen::OnPostTick()
+{
     bool isLast = GetHour() == mTargetHour;
 
     if (isLast || (mState == State::CampingTilHealed && !AnyCharacterCanHeal()))
@@ -413,7 +438,6 @@ void CampScreen::AddChildren()
     {
         SetActive();
     }
-
 }
 
 }

@@ -1,6 +1,6 @@
 #include "gui/guiManager.hpp"
 
-#include "bak/checkPartyChanges.hpp"
+#include "bak/partyChangeCache.hpp"
 #include "bak/gameState.hpp"
 #include "bak/startupFiles.hpp"
 
@@ -297,6 +297,7 @@ void GuiManager::OnTimeDelta(double delta)
 
 void GuiManager::AddAnimator(std::unique_ptr<IAnimator>&& animator)
 {
+    mLogger.Debug() << "Adding animator: " << animator.get() << "\n";
     mAnimatorStore.AddAnimator(std::move(animator));
 }
 
@@ -721,13 +722,16 @@ ScopeGuard<std::function<void()>> GuiManager::PopScreen()
 
 void GuiManager::CacheState()
 {
-    BAK::CachePartyState(mPartyChangeCache, mGameState);
+    mGameState.GetPartyChangeCache().CacheState(mGameState);
 }
 
 bool GuiManager::NotifyPartyChanges()
 {
-    auto result = BAK::CheckPartyChanges(
-        mPartyChangeCache, mGameState);
+    bool camping = false;
+    bool inInn = false;
+    auto result = mGameState.GetPartyChangeCache().CheckPartyChanges(
+        mGameState, camping, inInn);
+
     if (result.mChanged)
     {
         if (result.mDead)

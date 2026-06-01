@@ -190,6 +190,14 @@ void CombatScreen::HandleButton(unsigned buttonIndex)
             break;
         case mDefendButton:
             mLogger.Debug() << "Defend\n";
+            if (mSelectedCharacter)
+            {
+                mGameState.GetParty().GetCharacter(*mSelectedCharacter)
+                    .ImproveSkill(
+                        BAK::SkillType::TotalHealth,
+                        BAK::SkillChange::HealMultiplier_100,
+                        (-30) << 8);
+            }
             break;
         case mAutoBattleButton:
             mLogger.Debug() << "AutoBattle\n";

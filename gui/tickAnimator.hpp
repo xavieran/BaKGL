@@ -17,10 +17,13 @@ public:
     void OnTimeDelta(double delta) override;
     bool IsAlive() const override;
     void Stop();
+    void Pause();
+    void Continue();
 private:
     double mTickSpeed;
-    double mAccumulatedTimeDelta;
-    bool mAlive;
+    double mAccumulatedTimeDelta{0};
+    bool mAlive{true};
+    bool mPaused{false};
     std::function<void()> mCallback;
 };
 

@@ -9,14 +9,17 @@ TickAnimator::TickAnimator(
     std::function<void()>&& callback)
 :
     mTickSpeed{tickSpeed},
-    mAccumulatedTimeDelta{0},
-    mAlive{true},
     mCallback{std::move(callback)}
 {
 }
 
 void TickAnimator::OnTimeDelta(double delta)
 {
+    if (mPaused)
+    {
+        return;
+    }
+
     mAccumulatedTimeDelta += delta;
     if (mAccumulatedTimeDelta > mTickSpeed && mAlive)
     {
@@ -30,9 +33,19 @@ bool TickAnimator::IsAlive() const
     return mAlive;
 }
 
+void TickAnimator::Continue()
+{
+    mPaused = false;
+}
+
 void TickAnimator::Stop()
 {
     mAlive = false;
+}
+
+void TickAnimator::Pause()
+{
+    mPaused = true;
 }
 
 }
