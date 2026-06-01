@@ -441,7 +441,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
                 if (character.GetConditions()
                     .GetCondition(BAK::Condition::NearDeath).Get() > 0)
                 {
-                    mGameState.SetDialogTextVariable(0, character.GetIndex().mValue);
+                    mGameState.SetActiveCharacter(character.GetIndex());
                     deadCount++;
                 }
                 return BAK::Loop::Continue;
@@ -450,6 +450,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
 
         if (deadCount > 0)
         {
+            mGameState.GetPartyChangeCache().ClearCondition(mGameState, BAK::Condition::NearDeath);
             mEncounterHandler.StartDialog(BAK::DialogSources::mSomeoneDied, true);
         }
         else

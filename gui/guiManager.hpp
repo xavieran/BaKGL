@@ -35,7 +35,7 @@
 #include "gui/core/widget.hpp"
 #include "gui/IDialogScene.hpp"
 
-#include "bak/checkPartyChanges.hpp"
+#include "bak/partyChangeCache.hpp"
 #include "bak/condition.hpp"
 #include "bak/skills.hpp"
 #include "bak/types.hpp"
@@ -84,7 +84,7 @@ public:
     bool InCombatView() const override;
     void EnterMainView() override;
     void EnterMainMenu(bool gameRunning) override;
-    void PartyDied(BAK::Target dialog);
+    void PartyDied(BAK::Target dialog) override;
 
     void TeleportToGDS(
         const BAK::HotspotRef& hotspot);
@@ -197,8 +197,6 @@ private:
 
     NullDialogScene mNullDialogScene{};
     DynamicDialogScene mPartyDiedScene;
-    BAK::PartyChangeCache mPartyChangeCache{};
-
     const Logging::Logger& mLogger;
 };
 

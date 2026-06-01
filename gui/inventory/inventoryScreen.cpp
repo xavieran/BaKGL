@@ -959,6 +959,19 @@ void InventoryScreen::UpdatePartyMembers()
     mCharacters.clear();
 
     const auto& party = mGameState.GetParty();
+    bool inShop = mDisplayContainer && mContainer && mContainer->IsShop();
+    bool allNearDeath = inShop;
+    if (allNearDeath)
+    {
+        party.ForEachActiveCharacter([&](const auto& character) {
+            auto nearDeath = character.GetConditions()
+                .GetCondition(BAK::Condition::NearDeath).Get();
+            if (nearDeath == 0)
+                allNearDeath = false;
+            return BAK::Loop::Continue;
+        });
+    }
+
     BAK::ActiveCharIndex person{0};
     do
     {
@@ -968,10 +981,13 @@ void InventoryScreen::UpdatePartyMembers()
             [this, character=person](InventorySlot& slot){
                 SplitStackBeforeTransferItemToCharacter(slot, character);
             },
-            [this, character=person]{
-                // Switch character
-                SetSelectedCharacter(character);
-            },
+            allNearDeath
+                ? std::function<void()>{[this]{
+                    mGuiManager.ExitInventory();
+                }}
+                : std::function<void()>{[this, character=person]{
+                    SetSelectedCharacter(character);
+                }},
             [this, character=person]{
                 mGuiManager.ShowCharacterPortrait(character);
             },

@@ -1,4 +1,4 @@
-#include "bak/checkPartyChanges.hpp"
+#include "bak/partyChangeCache.hpp"
 
 #include "bak/dialogSources.hpp"
 #include "bak/gameState.hpp"
@@ -9,12 +9,12 @@
 
 namespace BAK {
 
-void CachePartyState(PartyChangeCache& cache, const GameState& gs)
+void PartyChangeCache::CacheState(GameState& gs)
 {
     for (unsigned i = 0; i < sMaxCharacters; i++)
     {
         const auto& character = gs.GetParty().GetCharacter(CharIndex{i});
-        cache.mCachedConditions[i] = character.GetConditions();
+        mCachedConditions[i] = character.GetConditions();
         std::uint16_t bitmask = 0;
         for (unsigned s = 0; s < Skills::sSkills; s++)
         {
@@ -22,11 +22,22 @@ void CachePartyState(PartyChangeCache& cache, const GameState& gs)
                 static_cast<SkillType>(s)).mUnseenImprovement)
                 bitmask |= (1 << s);
         }
-        cache.mCachedUnseenImprovements[i] = bitmask;
+        mCachedUnseenImprovements[i] = bitmask;
     }
 }
 
-PartyChangeResult CheckPartyChanges(PartyChangeCache& cache, GameState& gameState)
+void PartyChangeCache::ClearCondition(const GameState& gs, Condition condition)
+{
+    for (unsigned i = 0; i < sMaxCharacters; i++)
+    {
+        const auto& character = gs.GetParty().GetCharacter(CharIndex{i});
+        mCachedConditions[i].SetCondition(
+            condition,
+            character.GetConditions().GetCondition(condition).Get());
+    }
+}
+
+std::optional<PartyChangeResult> PartyChangeCache::CheckForDeath(GameState& gameState)
 {
     bool anyAlive = false;
     gameState.GetParty().ForEachActiveCharacter([&](const auto& character) {
@@ -45,6 +56,11 @@ PartyChangeResult CheckPartyChanges(PartyChangeCache& cache, GameState& gameStat
             true, DialogSources::mDeathDueToCondition, true};
     }
 
+    return std::nullopt;
+}
+
+std::optional<PartyChangeResult> PartyChangeCache::CheckSkillImprovements(GameState& gameState)
+{
     std::optional<SkillType> whichSkill{};
     std::optional<CharIndex> who{};
     unsigned howManySkills{};
@@ -58,10 +74,10 @@ PartyChangeResult CheckPartyChanges(PartyChangeCache& cache, GameState& gameStat
             auto skill = static_cast<SkillType>(s);
             const auto current = character.GetSkills()
                 .GetSkill(skill).mUnseenImprovement;
-            const auto cached = (cache.mCachedUnseenImprovements[charIdx] >> s) & 1;
+            const auto cached = (mCachedUnseenImprovements[charIdx] >> s) & 1;
             if (current && !cached)
             {
-                cache.mCachedUnseenImprovements[charIdx] |= (1 << s);
+                mCachedUnseenImprovements[charIdx] |= (1 << s);
                 if (!whichSkill)
                 {
                     howManySkills = 1;
@@ -109,9 +125,15 @@ PartyChangeResult CheckPartyChanges(PartyChangeCache& cache, GameState& gameStat
         return PartyChangeResult{true, dialog};
     }
 
+    return std::nullopt;
+}
+
+std::optional<PartyChangeResult> PartyChangeCache::CheckNewConditions(GameState& gameState, bool inInn)
+{
     for (unsigned condIdx = 0; condIdx < Conditions::sNumConditions; condIdx++)
     {
         const auto cond = static_cast<Condition>(condIdx);
+        if (inInn && cond == Condition::NearDeath) continue;
         const auto notification = DialogSources::GetConditionNotification(cond);
         if (!notification) continue;
 
@@ -119,11 +141,11 @@ PartyChangeResult CheckPartyChanges(PartyChangeCache& cache, GameState& gameStat
 
         gameState.GetParty().ForEachActiveCharacter([&](const auto& character) {
             const unsigned charIdx = character.GetIndex().mValue;
-            const auto oldVal = cache.mCachedConditions[charIdx].GetCondition(cond).Get();
+            const auto oldVal = mCachedConditions[charIdx].GetCondition(cond).Get();
             const auto newVal = character.GetConditions().GetCondition(cond).Get();
             if (oldVal == 0 && newVal != 0)
             {
-                cache.mCachedConditions[charIdx].SetCondition(cond, newVal);
+                mCachedConditions[charIdx].SetCondition(cond, newVal);
                 howManyAffected++;
                 gameState.SetActiveCharacter(character.GetIndex());
             }
@@ -137,7 +159,34 @@ PartyChangeResult CheckPartyChanges(PartyChangeCache& cache, GameState& gameStat
         }
     }
 
+    return std::nullopt;
+}
+
+PartyChangeResult PartyChangeCache::CheckPartyChanges(GameState& gameState, bool camping, bool inInn)
+{
+    if (!inInn)
+    {
+        if (auto result = CheckForDeath(gameState))
+        {
+            return *result;
+        }
+    }
+
+    if (!camping)
+    {
+        if (auto result = CheckSkillImprovements(gameState))
+        {
+            return *result;
+        }
+    }
+
+    if (auto result = CheckNewConditions(gameState, inInn))
+    {
+        return *result;
+    }
+
     return PartyChangeResult{};
 }
 
 }
+

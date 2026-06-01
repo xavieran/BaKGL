@@ -12,7 +12,7 @@ add_library(bak
     book.hpp book.cpp
     camera.hpp camera.cpp
     camp.hpp camp.cpp
-    checkPartyChanges.hpp checkPartyChanges.cpp
+    partyChangeCache.hpp partyChangeCache.cpp
     chapterTransitions.hpp chapterTransitions.cpp
     combat.hpp combat.cpp
     combatModel.hpp combatModel.cpp
