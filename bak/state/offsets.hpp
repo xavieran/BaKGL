@@ -29,7 +29,7 @@ static constexpr auto sDoorFlag = 0x1b58;
 static constexpr auto sEncounterStateOffset = 0x190;
 static constexpr auto sEncounterStateCount = 0x12c0;
 
-// Encounter sub-ranges
+// Encounter ranges
 static constexpr auto sRecentEncounterOffset = 0x1450;
 static constexpr auto sCombatScoutedOffset = 0x145a;
 static constexpr auto sCombatEncounterOffset = 0x1464;
@@ -37,17 +37,13 @@ static constexpr auto sCombatEncounterOffset = 0x1464;
 // Maximum combat index before always-triggered
 static constexpr auto sMaxCombatIndex = 0x3e8;
 
-// Per-character sizes for skill and item tracking
 static constexpr auto sMaxSkills = 0x11;
 static constexpr auto sMaxTrackedItems = 0x14;
 
-// Temple base (moved from temple.cpp local)
 static constexpr auto sTempleSeenFlag = 0x1950;
 
-// Max standard event pointer (one-past-end, derived from buffer layout)
 static constexpr auto sMaxStandardEventPtr = 0x2140;
 
-// Named individual event flags
 static constexpr auto sQuestFlag_1972 = 0x1972;
 static constexpr auto sQuestFlag_1979 = 0x1979;
 static constexpr auto sChapterTransitionFlag_1ab1 = 0x1ab1;

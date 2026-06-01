@@ -80,6 +80,7 @@ bool IsSpecialBattle(CombatIndex index)
 {
     switch (index.mValue)
     {
+        // These seem to be perpetual battles?
         case 151: [[fallthrough]];
         case 152: [[fallthrough]];
         case 235: [[fallthrough]];

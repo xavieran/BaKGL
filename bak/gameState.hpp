@@ -165,7 +165,6 @@ public:
 
     void SetDialogContext_7530(unsigned contextValue);
     void SetImprovedSkill(SkillType skill);
-
     void SetBardReward_754d(unsigned value);
     unsigned GetBardReward_754d();
     void SetItemValue(Royals value);

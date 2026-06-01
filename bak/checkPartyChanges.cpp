@@ -90,6 +90,10 @@ PartyChangeResult CheckPartyChanges(PartyChangeCache& cache, GameState& gameStat
         gameState.SetActiveCharacter(*who);
         gameState.SetImprovedSkill(*whichSkill);
         Target dialog{};
+        if (howManySkills > 1 && howManyPeople > 1)
+        {
+            dialog = DialogSources::mSkillImprovedManySkillsManyMembers;
+        }
         if (howManySkills > 1)
         {
             dialog = DialogSources::mSkillImprovedManySkillsOneMember;
