@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+	<array name="combatantGridLocations" length="100">
+		<struct name="combatantGridLocation">
+		<primitive name="unknown0" type="uint16"/>
+		<primitive name="monster" type="uint16"/>
+		<primitive name="gridX" type="uint8"/>
+		<primitive name="gridY" type="uint8"/>
+		<primitive name="unknown1" type="uint16"/>
+		<primitive name="unknown2" type="uint8"/>
+		<array name="rest" length="13">
+			<primitive name="val" type="uint8"/>
+		</array>
+	</struct>
+	</array>
+</data>
