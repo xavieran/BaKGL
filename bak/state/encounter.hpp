@@ -85,15 +85,15 @@ unsigned CalculateRecentEncounterStateFlag(
 
 // 1464 is combat completed flag
 unsigned CalculateCombatEncounterStateFlag(
-    unsigned combatIndex);
+    CombatIndex);
 
 bool CheckCombatEncounterStateFlag(
     const GameState&,
-    unsigned combatIndex);
+    CombatIndex);
 
 void SetCombatEncounterState(
     FileBuffer& fb,
-    unsigned combatIndex,
+    CombatIndex,
     bool state);
 
 // 145a is combat scouted flag
@@ -110,21 +110,21 @@ void ClearTileRecentEncounters(FileBuffer&);
 void SetPostCombatCombatSpecificFlags(
     GameState& gs,
     const Encounter::Encounter&,
-    unsigned combatIndex);
+    CombatIndex);
 
 void ReactivateCombat(
     FileBuffer& fb,
     ZoneNumber zone,
     const Encounter::Encounter& encounter,
-    unsigned combatIndex);
+    CombatIndex);
 
 void DeactivateCombat(
     FileBuffer& fb,
     ZoneNumber zone,
     const Encounter::Encounter& encounter,
-    unsigned combatIndex);
+    CombatIndex);
 
-Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex);
-void SetCombatClickedTime(FileBuffer& fb, unsigned combatIndex, Time time);
+Time GetCombatClickedTime(FileBuffer& fb, CombatIndex);
+void SetCombatClickedTime(FileBuffer& fb, CombatIndex, Time);
 
 }

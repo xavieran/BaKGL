@@ -135,7 +135,7 @@ std::vector<Time> LoadCombatClickedTimes(FileBuffer& fb)
     std::vector<Time> times{};
     for (unsigned i = 0; i < 100; i++)
     {
-        auto time = State::GetCombatClickedTime(fb, i);
+        auto time = State::GetCombatClickedTime(fb, CombatIndex{i});
         times.emplace_back(time);
         if (time.mTime > 0)
         {

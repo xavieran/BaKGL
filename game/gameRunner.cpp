@@ -308,7 +308,7 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
         const auto tilePos = tile.GetTile() * static_cast<unsigned>(64000);
         for (unsigned i = 0; i < combat.mCombatants.size(); i++)
         {
-            auto& cwl = mGameState.GetCombatWorldLocation(tileIndex, encounter.mIndex.mValue, i);
+            auto& cwl = mGameState.GetCombatWorldLocation(tileIndex, encounter.mIndex, i);
             // Combatants that aren't dead in a completed combat should not be shown
             if (combatComplete
                 && cwl.mState != BAK::CombatantWorldState::Dead)
@@ -371,7 +371,7 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
             }
         }
 
-        mCombatsToActiveCombatants.emplace(combat.mCombatIndex, entityIndices);
+        mCombatsToActiveCombatants.emplace(combat.mCombatIndex.mValue, std::move(entityIndices));
     }
 }
 
@@ -402,8 +402,12 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
     else if (result == BAK::CombatResult::Won)
     {
         mEncounterHandler.GetCombatHandler().UpdatePostEncounterFlags(encounter, combat);
+        for (unsigned i = 0; i < combat.mCombatants.size(); i++)
+        {
+            auto& cwl = mGameState.GetCombatWorldLocation(encounter.GetTileIndex(), encounter.GetIndex(), i);
+        }
 
-        const auto& entities = mCombatsToActiveCombatants.at(BAK::CombatIndex{combat.mCombatIndex});
+        const auto& entities = mCombatsToActiveCombatants.at(combat.mCombatIndex);
         for (auto entityId : entities)
         {
             auto it = std::find_if(
@@ -428,7 +432,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
             mClickables.at(entityId).mEntityType = BAK::EntityType::DEAD_COMBATANT;
         }
 
-        if (BAK::CombatIndex{combat.mCombatIndex} == BAK::MakalaCombat)
+        if (combat.mCombatIndex == BAK::MakalaCombat)
         {
             mEncounterHandler.StartDialog(BAK::DialogSources::mDefeatedMakala, true);
             return;
@@ -461,7 +465,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
                 //{
                 //    mEncounterHandler.StartDialog(BAK::DialogSources::mWonVersusGhosts, true);
                 //}
-                if (BAK::IsSpecialBattle(BAK::CombatIndex{combat.mCombatIndex}))
+                if (BAK::IsSpecialBattle(combat.mCombatIndex))
                 {
                     mEncounterHandler.StartDialog(BAK::DialogSources::mWonSpecialBattle, true);
                 }
@@ -576,7 +580,7 @@ void GameRunner::CheckClickable(unsigned entityId)
 
 void GameRunner::OnTimeDelta(double timeDelta)
 {
-    //return;
+    return;
     mAccumulatedTime += timeDelta;
     if (mAccumulatedTime > .2)
     {
@@ -626,7 +630,7 @@ const BAK::Encounter::Encounter& GameRunner::FindEncounterByCombatIndex(BAK::Com
             if (!std::holds_alternative<BAK::Encounter::Combat>(encounter.GetEncounter()))
                 continue;
             const auto& combat = std::get<BAK::Encounter::Combat>(encounter.GetEncounter());
-            if (combat.mCombatIndex == combatIndex.mValue)
+            if (combat.mCombatIndex == combatIndex)
                 return encounter;
         }
     }

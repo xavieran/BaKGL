@@ -3,14 +3,13 @@
 #include "bak/types.hpp"
 #include "bak/worldClock.hpp"
 
-#include <string>
-
 namespace BAK {
 
 static constexpr float gWorldScale = 100.;
 
 static constexpr float gTileSize = 64000.;
-static constexpr auto gCellSize = 0x640; // (1600)
+static constexpr auto gCellSize = 1600;
+static constexpr auto gCombatGridSize = 300;
 
 enum class Terrain 
 {

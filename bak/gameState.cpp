@@ -713,14 +713,14 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
     }
     case DeactivateCombat:
     {
-        auto combatIndex = action.mVar1;
+        auto combatIndex = BAK::CombatIndex{action.mVar1};
         mLogger.Info() << "Handling deactivate combat - " << combatIndex << "\n";
         ASSERT(mFindEncounterCallback);
-        auto& encounter = mFindEncounterCallback(BAK::CombatIndex{combatIndex});
+        auto& encounter = mFindEncounterCallback(combatIndex);
         BAK::State::DeactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
 
         assert(std::holds_alternative<Encounter::Combat>(encounter.GetEncounter()));
-        auto& cel = GetCombatEntityList(BAK::CombatIndex{combatIndex});
+        auto& cel = GetCombatEntityList(combatIndex);
         for (auto combatantIndex : cel.mCombatants)
         {
             mLogger.Info() << "Deactivate combat, deactivating combatant: " << combatantIndex.mValue << "\n";
@@ -728,7 +728,7 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
             cgl.mUnknown2 |= 2;
         }
 
-        auto index = encounter.GetIndex().mValue;
+        auto index = encounter.GetIndex();
         auto tileIndex = encounter.GetTileIndex();
         for (unsigned i = 0; i < 7; i++)
         {
@@ -1528,10 +1528,11 @@ void GameState::HealCharacter(CharIndex who, unsigned amount)
 
 CombatWorldLocation& GameState::GetCombatWorldLocation(
     std::uint8_t tileIndex,
-    std::uint8_t encounterIndex,
+    Encounter::EncounterIndex encounterIndex,
     std::uint8_t combatantRelativeIndex)
 {
-    const std::size_t cwlNumber = tileIndex * 35 + encounterIndex * 7 + combatantRelativeIndex;
+    const std::size_t cwlNumber = tileIndex * 35
+        + encounterIndex.mValue * 7 + combatantRelativeIndex;
     assert(cwlNumber < mCombatWorldLocations.size());
     return mCombatWorldLocations[cwlNumber];
 }
@@ -1550,7 +1551,7 @@ CombatEntityList& GameState::GetCombatEntityList(
 
 void GameState::ReactivateCombat(const Encounter::Encounter& encounter, CombatIndex combatIndex)
 {
-    BAK::State::ReactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex.mValue);
+    BAK::State::ReactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
     auto& cel = GetCombatEntityList(combatIndex);
     for (const auto& combatantIndex : cel.mCombatants)
     {
@@ -1572,7 +1573,7 @@ std::vector<CombatEntityList> GameState::RegenerateCombatEntityLists()
     {
         const auto& combatant = mCombatContainers[combatantIndex];
         const auto combatIndex = combatant.GetHeader().GetCombatNumber();
-        mLists[combatIndex].mCombatants.emplace_back(CombatantIndex{combatantIndex});
+        mLists[combatIndex.mValue].mCombatants.emplace_back(CombatantIndex{combatantIndex});
     }
 
     return mLists;

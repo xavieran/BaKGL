@@ -7,6 +7,12 @@
 
 namespace BAK {
 
+// The combat grid 0,0 point is placed at -1200, +3200 from the
+// player location, when facing north. Combatants are placed in 
+// the centre of each grid square, but the bottom leftmost corner
+// will be at -1200, +3200
+static constexpr glm::vec2 gCombatGridOffset{-1200, 3200};
+
 enum class CombatResult : std::uint8_t
 {
     None = 0,

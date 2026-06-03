@@ -41,7 +41,7 @@ void GenericCombatFactory<isTrap>::Load()
         logger.Spam() << "Combat #" << i << " @" 
             << std::hex << fb.Tell() << std::dec << "\n";
         fb.Skip(3);
-        const auto combatIndex = fb.GetUint32LE();
+        const auto combatIndex = CombatIndex{fb.GetUint32LE()};
         const auto entryDialog = fb.GetUint32LE();
         const auto scoutDialog = fb.GetUint32LE();
 

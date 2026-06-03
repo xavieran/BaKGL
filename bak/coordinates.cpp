@@ -20,6 +20,13 @@ glm::uvec2 GetTile(
         / glm::vec2{BAK::gTileSize});
 }
 
+glm::uvec2 GetTileSpaceOffset(GamePosition pos)
+{
+    auto tile = GetTile(pos);
+    return glm::floor(
+        glm::cast<float>(pos) - (glm::cast<float>(tile) * gTileSize));
+}
+
 GamePosition MakeGamePositionFromTileAndCell(
     glm::uvec2 tile,
     glm::vec<2, std::uint8_t> cell)
@@ -32,6 +39,15 @@ GamePosition MakeGamePositionFromTileAndCell(
     return GamePosition{
         Convert(tile.x, cell.x),
         Convert(tile.y, cell.y)};
+}
+
+GamePosition MakeGamePositionFromGridCell(
+    GamePosition worldPos,
+    glm::uvec2 gridPos)
+{
+    return glm::floor(
+        glm::cast<float>(worldPos) 
+            + (glm::cast<float>(gridPos) * static_cast<float>(gCombatGridSize)));
 }
 
 // Convert a 16 bit BAK angle to radians

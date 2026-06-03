@@ -71,7 +71,7 @@ CombatCheckResult CombatEncounterHandler::CheckCombatEncounter(
         return CombatCheckResult(false, false);
     }
 
-    if (CombatIsUnavoidable(BAK::CombatIndex{combat.mCombatIndex}))
+    if (CombatIsUnavoidable(combat.mCombatIndex))
     {
         mLogger.Debug() << __FUNCTION__ << " Combat is unavoidable\n";
         return CombatCheckResult(true, false);
@@ -186,7 +186,7 @@ bool CombatEncounterHandler::CheckAndDoCombatEncounter(
         return combatScouted;
     }
 
-    if (!CombatIsUnavoidable(BAK::CombatIndex{combat.mCombatIndex}))
+    if (!CombatIsUnavoidable(combat.mCombatIndex))
     {
         auto avoidedDueToStealth = CheckAvoidCombatDueToStealth(encounter, combat);
         if (avoidedDueToStealth)
@@ -272,7 +272,7 @@ void CombatEncounterHandler::UpdatePostEncounterFlags(
     BAK::State::SetPostCombatCombatSpecificFlags(mGameState, encounter, combat.mCombatIndex);
     // This is a part of the above function, but I separate it out here
     // to keep things cleaner. Yes this is hardcoded in the game code.
-    static constexpr auto NagoCombatIndex = 74;
+    static constexpr auto NagoCombatIndex = BAK::CombatIndex{74};
     if (combat.mCombatIndex == NagoCombatIndex)
     {
         auto afterNagoKeys = BAK::DialogStore::Get()

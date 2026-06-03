@@ -33,9 +33,9 @@ void Combatant::BeginInteraction(BAK::GenericContainer& container, BAK::EntityTy
     mContainer = &container;
     mEntityType = entityType;
 
-    const auto combatNumber = container.GetHeader().GetCombatNumber();
+    const auto combatIndex = container.GetHeader().GetCombatNumber();
     
-    if (combatNumber == 64)
+    if (combatIndex.mValue == 64)
     {
         auto factory = BAK::Encounter::GenericCombatFactory<false>{};
         // fix this so the combatant has this info already.
@@ -43,17 +43,17 @@ void Combatant::BeginInteraction(BAK::GenericContainer& container, BAK::EntityTy
         StartDialog(combat.mEntryDialog);
         return;
     }
-    else if (combatNumber == 63)
+    else if (combatIndex.mValue == 63)
     {
         StartDialog(BAK::DialogSources::mWeCantTakeAllTheseFellas);
         return;
     }
 
-    auto combatPlannedTime = mGameState.Apply(BAK::State::GetCombatClickedTime, combatNumber);
+    auto combatPlannedTime = mGameState.Apply(BAK::State::GetCombatClickedTime, BAK::CombatIndex{combatIndex});
     const bool alreadyPlannedAttack = (mGameState.GetWorldTime().GetTime() - combatPlannedTime) < BAK::Times::OneDay;
     if (!alreadyPlannedAttack)
     {
-        mGameState.Apply(BAK::State::SetCombatClickedTime, combatNumber, mGameState.GetWorldTime().GetTime());
+        mGameState.Apply(BAK::State::SetCombatClickedTime, combatIndex, mGameState.GetWorldTime().GetTime());
     }
 
     StartDialog(alreadyPlannedAttack

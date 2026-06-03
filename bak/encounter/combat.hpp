@@ -87,7 +87,7 @@ class Combat
 {
 public:
     Combat(
-        unsigned combatIndex,
+        CombatIndex combatIndex,
         KeyTarget entryDialog,
         KeyTarget scoutDialog,
         std::optional<GamePositionAndHeading> trap,
@@ -112,7 +112,7 @@ public:
         mIsAmbush{isAmbush}
     {}
 
-    unsigned mCombatIndex;
+    CombatIndex mCombatIndex;
     KeyTarget mEntryDialog;
     KeyTarget mScoutDialog;
 

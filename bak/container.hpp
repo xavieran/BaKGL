@@ -86,7 +86,7 @@ public:
     ZoneNumber GetZone() const;
     GamePosition GetPosition() const;
     HotspotRef GetHotspotRef() const;
-    unsigned GetCombatNumber() const;
+    CombatIndex GetCombatNumber() const;
     unsigned GetCombatantNumber() const;
     unsigned GetModel() const;
     bool PresentInChapter(Chapter) const;

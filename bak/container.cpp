@@ -148,10 +148,10 @@ HotspotRef ContainerHeader::GetHotspotRef() const
     return std::get<ContainerGDSLocation>(mLocation).mLocation;
 }
 
-unsigned ContainerHeader::GetCombatNumber() const
+CombatIndex ContainerHeader::GetCombatNumber() const
 {
     ASSERT(std::holds_alternative<ContainerCombatLocation>(mLocation));
-    return std::get<ContainerCombatLocation>(mLocation).mCombat;
+    return CombatIndex{std::get<ContainerCombatLocation>(mLocation).mCombat};
 }
 
 unsigned ContainerHeader::GetCombatantNumber() const

@@ -194,28 +194,28 @@ unsigned CalculateCombatEncounterScoutedStateFlag(
 }
 
 unsigned CalculateCombatEncounterStateFlag(
-    unsigned combatIndex) 
+    CombatIndex combatIndex) 
 {
-    return combatIndex + sCombatEncounterOffset;
+    return combatIndex.mValue + sCombatEncounterOffset;
 }
 
 bool CheckCombatEncounterStateFlag(
     const GameState& gs,
-    unsigned combatIndex) 
+    CombatIndex index)
 {
-    if (combatIndex >= sMaxCombatIndex)
+    if (index.mValue >= sMaxCombatIndex)
         return true;
     else
         return gs.ReadEventBool(
-            CalculateCombatEncounterStateFlag(combatIndex));
+            CalculateCombatEncounterStateFlag(index));
 }
 
 void SetCombatEncounterState(
     FileBuffer& fb,
-    unsigned combatIndex,
+    CombatIndex combatIndex,
     bool state)
 {
-    if (combatIndex >= sMaxCombatIndex)
+    if (combatIndex.mValue >= sMaxCombatIndex)
     {
         return;
     }
@@ -267,9 +267,9 @@ void ClearTileRecentEncounters(
 void SetPostCombatCombatSpecificFlags(
     GameState& gs,
     const Encounter::Encounter& encounter,
-    unsigned combatIndex)
+    CombatIndex combatIndex)
 {
-    switch (combatIndex)
+    switch (combatIndex.mValue)
     {
         case 74: return; // this runs dialog 1cfdf1 (nago combat flags)
                          // and is handled externally in my code
@@ -330,7 +330,7 @@ void ReactivateCombat(
     FileBuffer& fb,
     ZoneNumber zone,
     const Encounter::Encounter& encounter,
-    unsigned combatIndex)
+    CombatIndex combatIndex)
 {
     const auto encounterIndex = encounter.GetIndex().mValue;
     auto tileIndex = encounter.GetTileIndex();
@@ -345,22 +345,22 @@ void DeactivateCombat(
     FileBuffer& fb,
     ZoneNumber zone,
     const Encounter::Encounter& encounter,
-    unsigned combatIndex)
+    CombatIndex combatIndex)
 {
     SetCombatEncounterState(fb, combatIndex, true);
 }
 
-Time GetCombatClickedTime(FileBuffer& fb, unsigned combatIndex)
+Time GetCombatClickedTime(FileBuffer& fb, CombatIndex combatIndex)
 {
     static constexpr auto offset = 0x4457 + 0x64;
-    fb.Seek(offset + (combatIndex << 2));
+    fb.Seek(offset + (combatIndex.mValue << 2));
     return Time{fb.GetUint32LE()};
 }
 
-void SetCombatClickedTime(FileBuffer& fb, unsigned combatIndex, Time time)
+void SetCombatClickedTime(FileBuffer& fb, CombatIndex combatIndex, Time time)
 {
     static constexpr auto offset = 0x4457 + 0x64;
-    fb.Seek(offset + (combatIndex << 2));
+    fb.Seek(offset + (combatIndex.mValue << 2));
     fb.PutUint32LE(time.mTime);
 }
 

@@ -5,6 +5,7 @@
 #include "bak/container.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "bak/fmap.hpp"
 #include "bak/gameData.hpp"
 #include "bak/inventoryItem.hpp"
@@ -185,7 +186,7 @@ public:
     std::vector<CombatWorldLocation>& GetCombatWorldLocations() { return mCombatWorldLocations; }
     CombatWorldLocation& GetCombatWorldLocation(
         std::uint8_t tileIndex,
-        std::uint8_t encounterIndex,
+        Encounter::EncounterIndex,
         std::uint8_t combatantRelativeIndex);
     CombatantGridLocation& GetCombatantGridLocation(CombatantIndex);
     CombatEntityList& GetCombatEntityList(CombatIndex);
