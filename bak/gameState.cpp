@@ -2,6 +2,7 @@
 
 #include "bak/coordinates.hpp"
 #include "bak/constants.hpp"
+#include "bak/combat/mechanics.hpp"
 #include "bak/dialogChoice.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/money.hpp"
@@ -707,17 +708,17 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
     {
         auto combatIndex = action.mVar1;
         ASSERT(mFindEncounterCallback);
-        auto& encounter = mFindEncounterCallback(BAK::CombatIndex{combatIndex});
-        this->ReactivateCombat(encounter, BAK::CombatIndex{combatIndex});
+        auto& encounter = mFindEncounterCallback(CombatIndex{combatIndex});
+        this->ReactivateCombat(encounter, CombatIndex{combatIndex});
         break;
     }
     case DeactivateCombat:
     {
-        auto combatIndex = BAK::CombatIndex{action.mVar1};
+        auto combatIndex = CombatIndex{action.mVar1};
         mLogger.Info() << "Handling deactivate combat - " << combatIndex << "\n";
         ASSERT(mFindEncounterCallback);
         auto& encounter = mFindEncounterCallback(combatIndex);
-        BAK::State::DeactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
+        State::DeactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
 
         assert(std::holds_alternative<Encounter::Combat>(encounter.GetEncounter()));
         auto& cel = GetCombatEntityList(combatIndex);
@@ -725,10 +726,10 @@ void GameState::EvaluateSpecialAction(const SpecialAction& action)
         {
             mLogger.Info() << "Deactivate combat, deactivating combatant: " << combatantIndex.mValue << "\n";
             auto& cgl = GetCombatantGridLocation(combatantIndex);
-            cgl.mUnknown2 |= 2;
+            cgl.mState |= std::to_underlying(Combat::CombatantState::Dead);
         }
 
-        auto index = encounter.GetIndex();
+        auto index = encounter.GetTileCombatIndex();
         auto tileIndex = encounter.GetTileIndex();
         for (unsigned i = 0; i < 7; i++)
         {
@@ -1528,11 +1529,11 @@ void GameState::HealCharacter(CharIndex who, unsigned amount)
 
 CombatWorldLocation& GameState::GetCombatWorldLocation(
     std::uint8_t tileIndex,
-    Encounter::EncounterIndex encounterIndex,
+    unsigned tileCombatIndex,
     std::uint8_t combatantRelativeIndex)
 {
     const std::size_t cwlNumber = tileIndex * 35
-        + encounterIndex.mValue * 7 + combatantRelativeIndex;
+        + tileCombatIndex * 7 + combatantRelativeIndex;
     assert(cwlNumber < mCombatWorldLocations.size());
     return mCombatWorldLocations[cwlNumber];
 }
@@ -1551,12 +1552,12 @@ CombatEntityList& GameState::GetCombatEntityList(
 
 void GameState::ReactivateCombat(const Encounter::Encounter& encounter, CombatIndex combatIndex)
 {
-    BAK::State::ReactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
+    State::ReactivateCombat(mGameData.GetFileBuffer(), GetZone(), encounter, combatIndex);
     auto& cel = GetCombatEntityList(combatIndex);
     for (const auto& combatantIndex : cel.mCombatants)
     {
         auto& cgl = GetCombatantGridLocation(combatantIndex);
-        cgl.mUnknown2 = 1;
+        cgl.mState = std::to_underlying(Combat::CombatantState::Alive);
     }
 }
 

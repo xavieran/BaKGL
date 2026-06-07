@@ -89,6 +89,7 @@ public:
         glm::uvec2 dims,
         glm::uvec2 tile,
         unsigned tileIndex,
+        unsigned tileCombatIndex,
         unsigned requiredState,
         unsigned inhibitState,
         unsigned completionState,
@@ -107,6 +108,7 @@ public:
         mDimensions{dims},
         mTile{tile},
         mTileIndex{tileIndex},
+        mTileCombatIndex{tileCombatIndex},
         mRequiredState{requiredState},
         mInhibitState{inhibitState},
         mCompletionState{completionState},
@@ -123,6 +125,7 @@ public:
     auto GetRequiredState() const { return mRequiredState; }
     auto GetTile() const { return mTile; }
     auto GetTileIndex() const { return mTileIndex; }
+    auto GetTileCombatIndex() const { return mTileCombatIndex; }
 
     auto GetLocation() const
     {
@@ -149,6 +152,7 @@ public:
     glm::uvec2 mDimensions;
     glm::uvec2 mTile;
     unsigned mTileIndex;
+    unsigned mTileCombatIndex;
 
     unsigned mRequiredState;
     unsigned mInhibitState;

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "game/combatModelLoader.hpp"
+#include "game/combat/combatManager.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
 #include "bak/IZoneLoader.hpp"
-#include "bak/combat.hpp"
-#include "bak/combatModel.hpp"
+#include "bak/combat/combat.hpp"
+#include "bak/combat/combatModel.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/types.hpp"
@@ -126,6 +127,7 @@ public:
 
     std::vector<ActiveCombatant> mActiveCombatants{};
     std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatsToActiveCombatants{};
+    Combat::CombatManager mCombatManager{};
     bool mClickablesEnabled{};
     bool mDebugRenderEncounters{false};
     double mAccumulatedTime{};

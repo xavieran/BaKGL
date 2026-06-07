@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/partyChangeCache.hpp"
-#include "bak/combat.hpp"
+#include "bak/combat/combat.hpp"
 #include "bak/container.hpp"
 #include "bak/dialogAction.hpp"
 #include "bak/dialogChoice.hpp"
@@ -186,7 +186,7 @@ public:
     std::vector<CombatWorldLocation>& GetCombatWorldLocations() { return mCombatWorldLocations; }
     CombatWorldLocation& GetCombatWorldLocation(
         std::uint8_t tileIndex,
-        Encounter::EncounterIndex,
+        unsigned tileCombatIndex,
         std::uint8_t combatantRelativeIndex);
     CombatantGridLocation& GetCombatantGridLocation(CombatantIndex);
     CombatEntityList& GetCombatEntityList(CombatIndex);

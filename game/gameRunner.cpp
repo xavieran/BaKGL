@@ -1,11 +1,12 @@
 #include "game/gameRunner.hpp"
 
-#include "bak/combatModel.hpp"
+#include "bak/combat/combatModel.hpp"
 #include "bak/entityType.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
 #include "bak/camera.hpp"
+#include "bak/combat/mechanics.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/encounter/combat.hpp"
 #include "bak/encounter/encounter.hpp"
@@ -18,6 +19,7 @@
 
 #include "com/assert.hpp"
 #include "com/logger.hpp"
+#include "com/bits.hpp"
 #include "com/ostream.hpp"
 
 #include "game/combatModelLoader.hpp"
@@ -308,23 +310,31 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
         const auto tilePos = tile.GetTile() * static_cast<unsigned>(64000);
         for (unsigned i = 0; i < combat.mCombatants.size(); i++)
         {
-            auto& cwl = mGameState.GetCombatWorldLocation(tileIndex, encounter.mIndex, i);
+            auto& cwl = mGameState.GetCombatWorldLocation(tileIndex, encounter.GetTileCombatIndex(), i);
+            const auto& combatant = combat.mCombatants[i];
+            if (!cwl.IsLoaded())
+            {
+                cwl.mImageIndex = 0;
+                cwl.mState = static_cast<BAK::CombatantWorldState>(combatant.mMovementType);
+                cwl.mPosition = combatant.mLocation;
+            }
+            auto combatantDead = cwl.mState == BAK::CombatantWorldState::Dead;
+
             // Combatants that aren't dead in a completed combat should not be shown
-            if (combatComplete
-                && cwl.mState != BAK::CombatantWorldState::Dead)
+            if (combatComplete && !combatantDead)
             {
                 continue;
             }
-            const auto& combatant = combat.mCombatants[i];
+
             if (!mCombatModelLoader.mCombatModelDatas[combatant.mMonster])
             {
                 mLogger.Error() << "Couldn't load combat model: " << combatant.mMonster << "\n";
                 continue;
             }
 
-            cwl.mImageIndex = 0;
-            cwl.mState = static_cast<BAK::CombatantWorldState>(combatant.mMovementType);
-            cwl.mPosition = combatant.mLocation;
+            auto worldPos = cwl.mPosition.mPosition + tilePos;
+
+            mLogger.Info() << "Combatant @" << cwl << " placed at pos: " << worldPos << "\n";
 
             auto entityId = mSystems->GetNextItemId();
             entityIndices.emplace_back(entityId);
@@ -336,13 +346,13 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
                 ActiveCombatant{
                     entityId,
                     {},
-                    BAK::ToGlCoord<float>(combatant.mLocation.mPosition + tilePos),
+                    BAK::ToGlCoord<float>(worldPos),
                     Graphics::sNinetyDegreeRotation,
                     glm::vec3{1},
                     BAK::MonsterIndex{combatant.mMonster},
-                    combatComplete ? BAK::AnimationType::Dead : BAK::AnimationType::Idle,
-                    combatComplete ? BAK::Direction::North : BAK::Direction::South,
-                    combatComplete ? deadFrameOffset : 3,
+                    combatantDead ? BAK::AnimationType::Dead : BAK::AnimationType::Idle,
+                    combatantDead ? BAK::Direction::North : BAK::Direction::South,
+                    combatantDead ? deadFrameOffset : 3,
                     mCombatModelLoader,
                     cwl});
 
@@ -402,9 +412,22 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
     else if (result == BAK::CombatResult::Won)
     {
         mEncounterHandler.GetCombatHandler().UpdatePostEncounterFlags(encounter, combat);
-        for (unsigned i = 0; i < combat.mCombatants.size(); i++)
+
+        unsigned i = 0;
+        for (auto cIdx: mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
         {
-            auto& cwl = mGameState.GetCombatWorldLocation(encounter.GetTileIndex(), encounter.GetIndex(), i);
+            auto& cgl = mGameState.GetCombatantGridLocation(cIdx);
+            cgl.mState |= std::to_underlying(BAK::Combat::CombatantState::Dead);
+
+            auto& cwl = mGameState.GetCombatWorldLocation(
+                encounter.GetTileIndex(), encounter.GetTileCombatIndex(), i);
+            cwl.mState = BAK::CombatantWorldState::Dead;
+
+            static constexpr glm::vec2 lCombatGridOffset{-1050, 3350};
+            auto pos = mGameState.GetLocation().mPosition + glm::cast<uint>(lCombatGridOffset);
+            auto combatantPos = BAK::MakeGamePositionFromGridCell(pos, cgl.mGridPos);
+            cwl.mPosition.mPosition = BAK::GetTileSpaceOffset(combatantPos);
+            i += 1;
         }
 
         const auto& entities = mCombatsToActiveCombatants.at(combat.mCombatIndex);
@@ -490,6 +513,29 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
 
 void GameRunner::EnterCombatFromEncounter()
 {
+    ASSERT(mActiveEncounter);
+    ASSERT(std::holds_alternative<BAK::Encounter::Combat>(mActiveEncounter->GetEncounter()));
+    const auto& encounter = *mActiveEncounter;
+    const auto& combat = std::get<BAK::Encounter::Combat>(encounter.GetEncounter());
+
+    mCombatManager.Clear();
+
+    for (auto cIdx: mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
+    {
+        const auto& cgl = mGameState.GetCombatantGridLocation(cIdx);
+        if (CheckBitSet(cgl.mState, BAK::Combat::CombatantState::Dead))
+        {
+            continue;
+        }
+
+        mCombatManager.AddCombatant({
+            nullptr,
+            cgl.mMonster,
+            cgl.mGridPos,
+            // we probably just want to pass the whole cgl in tbh...
+            BAK::Combat::CombatantState::Alive});
+    }
+
     mGuiManager.EnterCombat([this](BAK::CombatResult result){
         CombatCompleted(result);
     });

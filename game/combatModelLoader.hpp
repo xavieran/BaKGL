@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/types.hpp"
-#include "bak/combatModel.hpp"
+#include "bak/combat/combatModel.hpp"
 
 #include "graphics/meshObject.hpp"
 #include "graphics/renderData.hpp"

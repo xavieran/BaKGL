@@ -1,5 +1,5 @@
 #include "bak/startupFiles.hpp"
-#include "bak/combat.hpp"
+#include "bak/combat/combat.hpp"
 
 #include "com/logger.hpp"
 

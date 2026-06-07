@@ -82,9 +82,9 @@ std::vector<CombatantGridLocation> LoadCombatantGridLocations(FileBuffer& fb)
         const auto gridX = fb.GetUint8();
         const auto gridY = fb.GetUint8();
         const auto unknown1 = fb.GetUint16LE();
-        const auto unknown2 = fb.GetUint8();
+        const auto state = fb.GetUint8();
         const auto rest = fb.GetArray<13>();
-        data.emplace_back(CombatantGridLocation{unknown0, MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}, unknown1, unknown2, rest});
+        data.emplace_back(CombatantGridLocation{unknown0, MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}, unknown1, state, rest});
         logger.Spam() << "CGL #" << i << data.back() << "\n";
     }
     return data;
@@ -101,7 +101,7 @@ void Save(const std::vector<CombatantGridLocation>& cgls, FileBuffer& fb)
         fb.PutUint8(cgl.mGridPos.x);
         fb.PutUint8(cgl.mGridPos.y);
         fb.PutUint16LE(cgl.mUnknown1);
-        fb.PutUint8(cgl.mUnknown2);
+        fb.PutUint8(cgl.mState);
         for (auto val : cgl.mRest)
         {
             fb.PutUint8(val);
@@ -180,4 +180,3 @@ void Save(const std::vector<CombatWorldLocation>& cwls, FileBuffer& fb)
 }
 
 }
-

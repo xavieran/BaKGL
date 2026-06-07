@@ -71,6 +71,7 @@ std::vector<Encounter> LoadEncounters(
     encounters.reserve(numberOfEncounters);
     
     logger.Debug() << "Loading encounters for chapter: " << chapter.mValue << " encounters: " << numberOfEncounters << "\n";
+    unsigned tileCombatIndex = 0;
     for (unsigned i = 0; i < numberOfEncounters; i++)
     {
         auto loc = fb.Tell();
@@ -120,6 +121,7 @@ std::vector<Encounter> LoadEncounters(
             dimensions,
             tile,
             tileIndex,
+            tileCombatIndex,
             requiredState,
             inhibitState,
             completionState,
@@ -127,6 +129,12 @@ std::vector<Encounter> LoadEncounters(
             unknown1,
             chapterFlag,
             repeatable);
+
+        if (encounterType == EncounterType::Combat
+            || encounterType == EncounterType::Trap)
+        {
+            tileCombatIndex++;
+        }
     }
 
     return encounters;

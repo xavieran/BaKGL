@@ -288,7 +288,7 @@ int main(int argc, char** argv)
         static_cast<unsigned>(width),
         static_cast<unsigned>(height),
         400 * 30.0f,
-        2.0f};
+        1.0f};
     Camera* cameraPtr = &camera;
 
     guiManager.mMainView.SetHeading(camera.GetHeading());
@@ -375,6 +375,8 @@ int main(int argc, char** argv)
             cameraPtr->RotateRight();
             guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         }});
+    inputHandler.Bind(GLFW_KEY_Z, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeUp();     UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_V, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeDown();   UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });

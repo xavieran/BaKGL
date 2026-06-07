@@ -1,6 +1,6 @@
 #include "game/combatModelLoader.hpp"
 
-#include "bak/combatModel.hpp"
+#include "bak/combat/combatModel.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/image.hpp"
 #include "bak/imageStore.hpp"

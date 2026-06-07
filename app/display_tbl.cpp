@@ -1,6 +1,6 @@
 #include "bak/model.hpp"
 
-#include "bak/combatModel.hpp"
+#include "bak/combat/combatModel.hpp"
 #include "bak/dataTags.hpp"
 #include "bak/fileBufferFactory.hpp"
 

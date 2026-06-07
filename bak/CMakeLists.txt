@@ -14,8 +14,8 @@ add_library(bak
     camp.hpp camp.cpp
     partyChangeCache.hpp partyChangeCache.cpp
     chapterTransitions.hpp chapterTransitions.cpp
-    combat.hpp combat.cpp
-    combatModel.hpp combatModel.cpp
+    combat/combat.hpp combat/combat.cpp
+    combat/combatModel.hpp combat/combatModel.cpp
     condition.hpp condition.cpp
     constants.hpp
     cutscenes.hpp cutscenes.cpp

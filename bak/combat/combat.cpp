@@ -1,4 +1,4 @@
-#include "bak/combat.hpp"
+#include "bak/combat/combat.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 
@@ -43,12 +43,19 @@ std::ostream& operator<<(std::ostream& os, const CombatWorldLocation& cwl)
     return os;
 }
 
+bool CombatWorldLocation::IsLoaded() const
+{
+    return mPosition != GamePositionAndHeading{{}, {}}
+        || mImageIndex != 0
+        || mState != CombatantWorldState::Invisible1;
+}
+
 std::ostream& operator<<(std::ostream& os, const CombatantGridLocation& cgl)
 {
     os << "CombatantGridLocation{ unk0: " << cgl.mUnknown0 << " Monster: "
         << cgl.mMonster << " pos: " << cgl.mGridPos
         << " unk1: " << cgl.mUnknown1
-        << " unk2: " << +cgl.mUnknown2
+        << " state: " << +cgl.mState
         << " rest: " << cgl.mRest<< "}";
     return os;
 }

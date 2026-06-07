@@ -103,6 +103,7 @@ void ShowCameraGui(
         << "\nHPos: " << std::hex << static_cast<std::uint32_t>(pos.x) 
         << ", " << static_cast<std::uint32_t>(-pos.z) << std::dec
         << "\nTile: " << camera.GetGameTile()
+        << "\nRelPos: " << BAK::GetTileSpaceOffset(camera.GetGameLocation().mPosition)
         << "\nAngle: " << (360.0f * (camera.GetAngle() / (2.0f*3.141592f)));
     ImGui::TextWrapped(ss.str().c_str());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f 

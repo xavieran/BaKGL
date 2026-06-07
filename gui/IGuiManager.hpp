@@ -4,7 +4,7 @@
 #include "gui/IDialogScene.hpp"
 #include "gui/screenStack.hpp"
 
-#include "bak/combat.hpp"
+#include "bak/combat/combat.hpp"
 #include "bak/container.hpp"
 #include "bak/cutscenes.hpp"
 #include "bak/entityType.hpp"

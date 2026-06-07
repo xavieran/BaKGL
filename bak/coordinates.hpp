@@ -32,6 +32,8 @@ struct GamePositionAndHeading
 {
     GamePosition mPosition;
     GameHeading mHeading;
+
+    bool operator==(const GamePositionAndHeading&) const = default;
 };
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
