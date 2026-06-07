@@ -43,6 +43,8 @@ public:
     // combatant moves the index changes to simulate movement.
     std::uint8_t mImageIndex;
     CombatantWorldState mState;
+
+    bool IsLoaded() const;
 };
 
 std::ostream& operator<<(std::ostream&, const CombatWorldLocation&);
@@ -54,7 +56,7 @@ public:
     MonsterIndex mMonster;
     glm::uvec2 mGridPos;
     std::uint16_t mUnknown1;
-    std::uint8_t mUnknown2;
+    std::uint8_t mState;
     std::array<std::uint8_t, 13> mRest;
 };
 

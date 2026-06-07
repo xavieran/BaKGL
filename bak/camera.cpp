@@ -43,7 +43,7 @@ glm::mat4 Camera::CalculateOrthoMatrix(unsigned width, unsigned height)
 glm::mat4 Camera::CalculatePerspectiveMatrix(unsigned width, unsigned height)
 {
     return glm::perspective(
-        glm::radians(45.0f),
+        glm::radians(22.5f),
         static_cast<float>(width) / static_cast<float>(height),
         1.0f,
         4000.0f
@@ -146,13 +146,13 @@ void Camera::StrafeLeft()
 void Camera::StrafeUp()
 {
     PositionChanged();
-    mPosition += GetUp() * (mMoveSpeed * mDeltaTime);
+    mPosition += glm::vec3{0, 1, 0} * ((mMoveSpeed / 10) * mDeltaTime);
 }
 
 void Camera::StrafeDown()
 {
     PositionChanged();
-    mPosition -= GetUp() * (mMoveSpeed * mDeltaTime);
+    mPosition -= glm::vec3{0, 1, 0} * ((mMoveSpeed / 10) * mDeltaTime);
 }
 
 void Camera::PositionChanged()
@@ -188,7 +188,7 @@ void Camera::RotateVerticalUp()
     SetAngle(
         glm::vec2{
             mAngle.x,
-            mAngle.y + mTurnSpeed * mDeltaTime});
+            mAngle.y + (mTurnSpeed / 5) * mDeltaTime});
 }
 
 void Camera::RotateVerticalDown()
@@ -196,7 +196,7 @@ void Camera::RotateVerticalDown()
     SetAngle(
         glm::vec2{
             mAngle.x,
-            mAngle.y - mTurnSpeed * mDeltaTime});
+            mAngle.y - (mTurnSpeed  / 5) * mDeltaTime});
 }
 
 glm::vec3 Camera::GetDirection() const

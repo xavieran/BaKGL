@@ -1,4 +1,4 @@
-#include "bak/combatModel.hpp"
+#include "bak/combat/combatModel.hpp"
 
 #include "bak/model.hpp"
 

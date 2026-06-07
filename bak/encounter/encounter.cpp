@@ -67,6 +67,7 @@ std::ostream& operator<<(std::ostream& os, const Encounter& e)
         << " center: " << e.mCenter
         << " tile: " << e.mTile
         << " tileIndex: " << e.mTileIndex 
+        << " tileCombatIndex: " << e.mTileCombatIndex
         << std::hex << " savePtr: (req: "
         << e.mRequiredState << ", inh: " << e.mInhibitState << ", comp: "
         << e.mCompletionState

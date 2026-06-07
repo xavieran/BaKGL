@@ -3,7 +3,7 @@
 #include "bak/IZoneLoader.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/cutscenes.hpp"
-#include "bak/combat.hpp"
+#include "bak/combat/combat.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/entityType.hpp"
 #include "bak/saveManager.hpp"

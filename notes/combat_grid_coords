@@ -1,0 +1,27 @@
+cwp = combatant world pos derived from player pos and combatant grid pos
+pw = player world pos
+cg = combatant grid pos
+
+# when facing south
+data['cwxp'] = data.pwx - (data.cgx * 300) + 1050
+data['cwyp'] = data.pwy - (data.cgy * 300) - 3350
+
+# when facing north
+data['cwxp'] = data.pwx + (data.cgx * 300) - 1050
+data['cwyp'] = data.pwy + (data.cgy * 300) + 3350
+data['cwp'] = data.pw + data.cg*300 + [-1050, 3350]
+
+# This is what gets written into CombatWorldLocation entry
+data['ctxp'] = data.pwx + (data.cgx * 300) - 1050 - (64000 * data.tx)
+data['ctyp'] = data.pwy + (data.cgy * 300) + 3350 - (64000 * data.ty)
+
+Grid bottom leftmost edge is at player pos [-1200, 3200]
+If we then add 300 the top rightmost edge of the grid cell is [-900, 3500]
+The combatant is in the center of the cell,
+
+so (-1200 + -900) / 2, (3200 + 3500) / 2 = 1050, 3350
+there are eight rows in the combat
+so leftmost edge + rightmost edge = (1200 + 1200) = 2400 / 3 = 8
+
+4 left of the player center and 4 right of the player center
+offset of 8 from the player center in y

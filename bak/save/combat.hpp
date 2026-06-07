@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bak/combat.hpp"
+#include "bak/combat/combat.hpp"
 #include "bak/skills.hpp"
 #include "bak/types.hpp"
 #include "bak/worldClock.hpp"
