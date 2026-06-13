@@ -30,6 +30,8 @@ public:
     const Graphics::Texture& GetTexture(const unsigned i) const;
     const std::vector<Graphics::Texture>& GetTextures() const;
 
+    void AddTexture(const Graphics::Texture& texture);
+
     unsigned GetMaxDim() const;
     unsigned GetTerrainOffset(BAK::Terrain t) const;
     unsigned GetHorizonOffset() const;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/combatModelLoader.hpp"
+#include "game/combat/combatantManager.hpp"
 #include "game/combat/combatManager.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
@@ -8,7 +9,6 @@
 
 #include "bak/IZoneLoader.hpp"
 #include "bak/combat/combat.hpp"
-#include "bak/combat/combatModel.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/types.hpp"
@@ -43,35 +43,6 @@ public:
     BAK::GenericContainer* mContainer;
 };
 
-class ActiveCombatant {
-public:
-    BAK::EntityIndex mItemId;
-    std::pair<unsigned, unsigned> mObject;
-    glm::vec3 mLocation;
-    glm::vec3 mRotation;
-    glm::vec3 mScale;
-
-    BAK::MonsterIndex mMonster;
-    BAK::AnimationType mAnimationType;
-    BAK::Direction mDirection;
-    std::size_t mFrame;
-    const CombatModelLoader& mCombatModelLoader;
-    BAK::CombatWorldLocation& mCombatantBAKLocation;
-
-    void Update()
-    {
-        auto request = AnimationRequest{mAnimationType, mDirection};
-        const auto& datas = *mCombatModelLoader.mCombatModelDatas[mMonster.mValue];
-        if (!datas.mOffsetMap.contains(request))
-        {
-            return;
-        }
-        auto animOff = datas.mOffsetMap.at(request);
-        mFrame = mFrame % animOff.mFrames;
-        mObject = datas.mObjectDrawData[animOff.mOffset + mFrame];
-    }
-};
-
 class GameRunner : public BAK::IZoneLoader
 {
 public:
@@ -95,13 +66,20 @@ public:
     
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
+
+    void ToggleGrid();
+    bool IsGridVisible() const { return mGridVisible; }
+    bool HandleGridCellClick(unsigned entityId);
+
+    void SetupCombatCamera();
+    void RestoreCombatCamera();
     void CombatCompleted(BAK::CombatResult);
     void EnterCombatFromEncounter();
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
 
-    void LoadCombatants(std::uint8_t tileIndex);
+    void LoadTileVisibleCombatants(std::uint8_t tileIndex);
     void CleanCombatsOnNewZone();
     const BAK::Encounter::Encounter& FindEncounterByCombatIndex(
         BAK::CombatIndex combatIndex) const;
@@ -118,18 +96,31 @@ public:
     std::unordered_map<BAK::EntityIndex, const BAK::Encounter::Encounter*> mEncounters;
     std::unordered_map<BAK::EntityIndex, ClickableEntity> mClickables{};
     BAK::GenericContainer mNullContainer;
-    std::unique_ptr<Systems> mSystems;
-    BAK::Encounter::TeleportFactory mTeleportFactory;
+    std::unique_ptr<Systems> mSystems{nullptr};
+    BAK::Encounter::TeleportFactory mTeleportFactory{};
+    CombatantManager mCombatantManager;
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
     CombatModelLoader mCombatModelLoader{};
     EncounterHandler mEncounterHandler;
 
-    std::vector<ActiveCombatant> mActiveCombatants{};
     std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatsToActiveCombatants{};
     Combat::CombatManager mCombatManager{};
     bool mClickablesEnabled{};
     bool mDebugRenderEncounters{false};
+
+    glm::vec3 mSavedCameraPos{};
+    glm::vec2 mSavedCameraAngle{};
+
+    bool mGridVisible{false};
+    std::vector<Renderable> mGridCellRenderables{};
+    std::vector<BAK::EntityIndex> mGridCellEntityIds{};
+    glm::vec4 mGridColor{0.6f, 0.8f, 1.0f, 1.0f};
+
+    static constexpr auto sGridRows = 13u;
+    static constexpr auto sGridCols = 8u;
+    static constexpr auto sGridCellSize = 300u;
+
     double mAccumulatedTime{};
 
     const Logging::Logger& mLogger;
