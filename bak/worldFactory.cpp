@@ -149,12 +149,13 @@ ZoneItem::ZoneItem(
         // Need this to set the right dimensions for the texture
         const auto& tex = textureStore.GetTexture(mSpriteIndex);
         const auto spriteScale = 7.0f;
-        auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * (spriteScale * .75));
-        auto height = tex.GetTargetHeight() * spriteScale;
-        mVertices.emplace_back(-width, height, 0);
-        mVertices.emplace_back(width, height, 0);
-        mVertices.emplace_back(width, 0, 0);
-        mVertices.emplace_back(-width, 0, 0);
+        auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * spriteScale);
+        auto height = tex.GetTargetHeight() * spriteScale;//spriteScale * 1.2;
+        auto halfWidth = width / 2;
+        mVertices.emplace_back(-halfWidth, height, 0);
+        mVertices.emplace_back(halfWidth, height, 0);
+        mVertices.emplace_back(halfWidth, 0, 0);
+        mVertices.emplace_back(-halfWidth, 0, 0);
 
         auto faces = std::vector<std::uint16_t>{};
         faces.emplace_back(0);
@@ -189,13 +190,14 @@ ZoneItem::ZoneItem(
     mPush{}
 {
     // Need this to set the right dimensions for the texture
-    const auto spriteScale = 7.0f;
-    auto width  = static_cast<int>(static_cast<float>(texture.GetTargetWidth()) * (spriteScale * .75));
-    auto height = texture.GetTargetHeight() * spriteScale;
-    mVertices.emplace_back(-width, height, 0);
-    mVertices.emplace_back(width, height, 0);
-    mVertices.emplace_back(width, 0, 0);
-    mVertices.emplace_back(-width, 0, 0);
+    const auto spriteScale = 5.0f;
+    auto width  = static_cast<int>(static_cast<float>(texture.GetTargetWidth()) * spriteScale);
+    auto height = texture.GetTargetHeight() * spriteScale * 1.2;
+    auto halfWidth = width / 2;
+    mVertices.emplace_back(-halfWidth, height, 0);
+    mVertices.emplace_back(halfWidth, height, 0);
+    mVertices.emplace_back(halfWidth, 0, 0);
+    mVertices.emplace_back(-halfWidth, 0, 0);
 
     auto faces = std::vector<std::uint16_t>{};
     faces.emplace_back(0);
@@ -374,7 +376,7 @@ Graphics::MeshObject ZoneItemToMeshObject(
                 glmVertices[face[0]] - glmVertices[face[1]]));
         if (item.IsSprite())
         {
-            normal = glm::cross(normal, glm::vec3{1, 0, 1});
+            normal = glm::normalize(glm::cross(normal, glm::vec3{1, 0, 1}));
         }
 
         for (unsigned triangle = 0; triangle < triangles; triangle++)
@@ -387,14 +389,14 @@ Graphics::MeshObject ZoneItemToMeshObject(
             normals.emplace_back(normal);
             normals.emplace_back(normal);
 
-            glm::vec3 zOff = normal;
+            glm::vec3 zOff = normal * 0.02f;
             if (push) zOff = glm::vec3{0};
             
-            vertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
+            vertices.emplace_back(glmVertices[i_a] - zOff);
             indices.emplace_back(vertices.size() - 1);
-            vertices.emplace_back(glmVertices[i_b] - zOff * 0.02f);
+            vertices.emplace_back(glmVertices[i_b] - zOff);
             indices.emplace_back(vertices.size() - 1);
-            vertices.emplace_back(glmVertices[i_c] - zOff * 0.02f);
+            vertices.emplace_back(glmVertices[i_c] - zOff);
             indices.emplace_back(vertices.size() - 1);
             
             // Hacky - only works for quads - but the game only
@@ -557,15 +559,15 @@ Graphics::MeshObject ZoneItemToMeshObject(
 
             if (triangle == 0)
             {
-                textureCoords.emplace_back(u  , v,   textureIndex);
                 textureCoords.emplace_back(0.0, v,   textureIndex);
-                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+                textureCoords.emplace_back(u,   v,   textureIndex);
+                textureCoords.emplace_back(u,   0.0, textureIndex);
             }
             else
             {
-                textureCoords.emplace_back(u,   v,   textureIndex);
-                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+                textureCoords.emplace_back(0.0, v,   textureIndex);
                 textureCoords.emplace_back(u,   0.0, textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
             }
 
             auto color = pal.GetColor(colorIndex);
@@ -701,7 +703,7 @@ Graphics::MeshObject ZoneItemToMeshObject(
                 glmVertices[face[0]] - glmVertices[face[1]]));
         if (item.IsSprite())
         {
-            normal = glm::cross(normal, glm::vec3{1, 0, 1});
+            normal = glm::normalize(glm::cross(normal, glm::vec3{1, 0, 1}));
         }
 
         for (unsigned triangle = 0; triangle < triangles; triangle++)
@@ -714,14 +716,14 @@ Graphics::MeshObject ZoneItemToMeshObject(
             normals.emplace_back(normal);
             normals.emplace_back(normal);
 
-            glm::vec3 zOff = normal;
+            glm::vec3 zOff = normal * 0.02f;
             if (push) zOff = glm::vec3{0};
             
-            vertices.emplace_back(glmVertices[i_a] - zOff * 0.02f);
+            vertices.emplace_back(glmVertices[i_a] - zOff);
             indices.emplace_back(vertices.size() - 1);
-            vertices.emplace_back(glmVertices[i_b] - zOff * 0.02f);
+            vertices.emplace_back(glmVertices[i_b] - zOff);
             indices.emplace_back(vertices.size() - 1);
-            vertices.emplace_back(glmVertices[i_c] - zOff * 0.02f);
+            vertices.emplace_back(glmVertices[i_c] - zOff);
             indices.emplace_back(vertices.size() - 1);
             
             // Hacky - only works for quads - but the game only
@@ -743,15 +745,15 @@ Graphics::MeshObject ZoneItemToMeshObject(
 
             if (triangle == 0)
             {
-                textureCoords.emplace_back(u  , v,   textureIndex);
                 textureCoords.emplace_back(0.0, v,   textureIndex);
-                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+                textureCoords.emplace_back(u,   v,   textureIndex);
+                textureCoords.emplace_back(u,   0.0, textureIndex);
             }
             else
             {
-                textureCoords.emplace_back(u,   v,   textureIndex);
-                textureCoords.emplace_back(0.0, 0.0, textureIndex);
+                textureCoords.emplace_back(0.0, v,   textureIndex);
                 textureCoords.emplace_back(u,   0.0, textureIndex);
+                textureCoords.emplace_back(0.0, 0.0, textureIndex);
             }
 
             auto color = glm::vec4{0};

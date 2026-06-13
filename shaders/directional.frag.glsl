@@ -21,6 +21,7 @@ in float DistanceFromCamera;
 // Ouput data
 out vec4 color;
 
+uniform float fogStrength;
 uniform vec3 fogColor;
 uniform Light light;
 uniform sampler2DArray texture0;
@@ -45,8 +46,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 
 void main()
 {
-    float k = .0005;
-    float fogFactor = exp(-DistanceFromCamera * k);
+    float fogFactor = exp(-DistanceFromCamera * fogStrength);
     
     vec3 materialDiffuseColor = vertexColor.xyz;
     float materialAlpha = vertexColor.a;
@@ -59,7 +59,7 @@ void main()
     vec3 diffuseColor = mix(materialDiffuseColor, textureColor, texBlend);
     float alpha       = mix(materialAlpha, textureAlpha, texBlend);
 
-    if (alpha == 0) discard;
+    if (alpha < 0.05) discard;
 
     vec3 materialAmbientColor = diffuseColor;
     vec3 materialSpecularColor = materialDiffuseColor;

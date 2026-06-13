@@ -318,12 +318,12 @@ int main(int argc, char** argv)
     logger.Info() << " Starting on tile: " << currentTile << "\n";
 
     Graphics::Light light{
-        glm::vec3{.0, -.25,  .00},
-        glm::vec3{.5,  .5,   .5},
-        glm::vec3{ 1,  .85,  .87},
-        glm::vec3{.2,  .2,   .2},
-        .0005f,
-        glm::vec3{.15, .31, .36}
+        .mDirection =     glm::vec3{.0, -.25,  .00},
+        .mAmbientColor =  glm::vec3{.5,  .5,   .5 },
+        .mDiffuseColor =  glm::vec3{ 1,  .85,  .87},
+        .mSpecularColor = glm::vec3{.2,  .2,   .2 },
+        .mFogStrength = 0.0005f,
+        .mFogColor =      glm::vec3{.15, .31,  .36}
     };
 
     const auto UpdateLightCamera = [&]{
@@ -516,7 +516,7 @@ int main(int argc, char** argv)
             // light starts at 6 after midnight
             auto sixHours = 7200.0;
             auto beginDay = bakTimeOfDay - sixHours;
-            bool isNight = bakTimeOfDay < 7200|| bakTimeOfDay > 36000;
+            bool isNight = bakTimeOfDay < 7200 || bakTimeOfDay > 36000;
             light.mDirection = glm::vec3{
                 std::cos(beginDay * (twoPi / (28800 * 2))),
                 isNight ? .1 : -.25,
