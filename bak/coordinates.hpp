@@ -26,7 +26,11 @@ namespace BAK {
 using GamePosition = glm::uvec2;
 using GameHeading  = std::uint16_t;
 
-// Heading 0 => facing north
+// Heading 0 => facing north, 64 => east, 128 => south, 192 => west
+enum class CardinalDirection : std::uint8_t
+{
+    North, East, South, West
+};
 
 struct GamePositionAndHeading
 {
@@ -38,6 +42,8 @@ struct GamePositionAndHeading
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
 
+CardinalDirection HeadingToCardinalDirection(GameHeading heading);
+
 glm::uvec2 GetTile(glm::uvec2 pos);
 glm::uvec2 GetTileSpaceOffset(GamePosition);
 
@@ -45,8 +51,11 @@ GamePosition MakeGamePositionFromTileAndCell(
     glm::uvec2 tile,
     glm::vec<2, std::uint8_t> offset);
 
+GamePosition CalculateCombatGridOrigin(
+    const GamePositionAndHeading& pos);
+
 GamePosition MakeGamePositionFromGridCell(
-    GamePosition worldPos,
+    const GamePositionAndHeading& pos,
     glm::uvec2 gridPos);
 
 

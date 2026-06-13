@@ -137,7 +137,7 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
                 std::move(renderData),
                 std::move(offsetMap),
                 std::move(objectOffsets)}));
-    Logging::LogSpam(__FUNCTION__) <<"Loaded model: " << prefix << "\n";
+    Logging::LogDebug(__FUNCTION__) <<"Loaded model: " << prefix << " at index: " << mCombatModelDatas.size() - 1 << "\n";
 }
 
 }

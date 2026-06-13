@@ -380,6 +380,10 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
+    inputHandler.Bind(GLFW_KEY_O, [&]{
+        if (guiManager.InMainView())
+            gameRunner.ToggleGrid();
+    });
     inputHandler.Bind(GLFW_KEY_I, [&]{ 
         if (!imGuiInitialised)
         {
@@ -411,7 +415,14 @@ int main(int argc, char** argv)
                     gameRunner.mSystems->GetSprites(),
                     gameRunner.mSystems->GetDynamicRenderables(),
                     *cameraPtr);
-                gameRunner.CheckClickable(renderer.GetClickedEntity(clickPos));
+                const auto clickedId = renderer.GetClickedEntity(clickPos);
+                if (gameRunner.IsGridVisible() && gameRunner.HandleGridCellClick(clickedId))
+                {
+                }
+                else
+                {
+                    gameRunner.CheckClickable(clickedId);
+                }
             }
         },
         [&](auto clickPos)

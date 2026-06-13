@@ -59,6 +59,11 @@ const Graphics::Texture& ZoneTextureStore::GetTexture(const unsigned i) const
 
 const std::vector<Graphics::Texture>& ZoneTextureStore::GetTextures() const { return mTextures.GetTextures(); }
 
+void ZoneTextureStore::AddTexture(const Graphics::Texture& texture)
+{
+    mTextures.AddTexture(texture);
+}
+
 unsigned ZoneTextureStore::GetMaxDim() const { return mTextures.GetMaxDim(); }
 unsigned ZoneTextureStore::GetTerrainOffset(BAK::Terrain t) const
 {

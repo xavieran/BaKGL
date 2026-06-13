@@ -21,6 +21,7 @@
 #include "com/logger.hpp"
 #include "com/bits.hpp"
 #include "com/ostream.hpp"
+#include "com/scopeGuard.hpp"
 
 #include "game/combatModelLoader.hpp"
 
@@ -59,8 +60,10 @@ GameRunner::GameRunner(
         std::nullopt,
         std::nullopt,
         BAK::Inventory{0}},
-    mSystems{nullptr},
-    mTeleportFactory{},
+    mCombatantManager{
+        mCombatModelLoader,
+        nullptr
+    },
     mEncounterHandler{
         mGameState,
         mGuiManager,
@@ -79,7 +82,6 @@ GameRunner::GameRunner(
         });
     mEncounterHandler.GetCombatHandler().SetEnterCombatCallback(
         [this](){ EnterCombatFromEncounter(); });
-    mActiveCombatants.reserve(2056);
 }
 
 void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)
@@ -137,6 +139,8 @@ void GameRunner::DoTransition(
 void GameRunner::LoadSystems()
 {
     mSystems = std::make_unique<Systems>();
+    mCombatantManager.SetSystems(mSystems.get());
+    mCombatantManager.clear();
     mEncounters.clear();
     mClickables.clear();
     mActiveEncounter = nullptr;
@@ -290,11 +294,15 @@ void GameRunner::LoadSystems()
             mEncounters.emplace(id, &enc);
         }
 
-        LoadCombatants(world.GetTileIndex());
+        LoadTileVisibleCombatants(world.GetTileIndex());
     }
+
+    mGridVisible = false;
+    mGridCellRenderables.clear();
+    mGridCellEntityIds.clear();
 }
 
-void GameRunner::LoadCombatants(std::uint8_t tileIndex)
+void GameRunner::LoadTileVisibleCombatants(std::uint8_t tileIndex)
 {
     const auto& tile = mZoneData->mWorldTiles.GetTiles()[tileIndex];
     for (const auto& encounter : tile.GetEncounters(mGameState.GetChapter()))
@@ -336,32 +344,15 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
 
             mLogger.Info() << "Combatant @" << cwl << " placed at pos: " << worldPos << "\n";
 
-            auto entityId = mSystems->GetNextItemId();
-            entityIndices.emplace_back(entityId);
-            const auto& datas = *mCombatModelLoader.mCombatModelDatas[combatant.mMonster];
-            const auto& monster = *mCombatModelLoader.mCombatModels[combatant.mMonster];
-            const auto deadFrameOffset = monster.GetAnimation(BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
 
-            mActiveCombatants.emplace_back(
-                ActiveCombatant{
-                    entityId,
-                    {},
-                    BAK::ToGlCoord<float>(worldPos),
-                    Graphics::sNinetyDegreeRotation,
-                    glm::vec3{1},
-                    BAK::MonsterIndex{combatant.mMonster},
-                    combatantDead ? BAK::AnimationType::Dead : BAK::AnimationType::Idle,
-                    combatantDead ? BAK::Direction::North : BAK::Direction::South,
-                    combatantDead ? deadFrameOffset : 3,
-                    mCombatModelLoader,
-                    cwl});
-
-            auto& activeCombatant = mActiveCombatants.back();
+            auto entityId = mCombatantManager.AddCombatant(worldPos, BAK::MonsterIndex{combatant.mMonster});
+            entityIndices.push_back(entityId);
+            auto& activeCombatant = *mCombatantManager.GetActiveCombatant(entityId);
             activeCombatant.Update();
             mSystems->AddDynamicRenderable(
                 DynamicRenderable{
                     entityId,
-                    &datas.mRenderData,
+                    &activeCombatant.GetRenderData(),
                     &activeCombatant.mObject,
                     &activeCombatant.mLocation,
                     &activeCombatant.mRotation,
@@ -373,6 +364,7 @@ void GameRunner::LoadCombatants(std::uint8_t tileIndex)
                     return lhs.GetHeader().GetCombatNumber() == combat.mCombatIndex
                         && lhs.GetHeader().GetCombatantNumber() == i;
                 });
+
             if (container != containers.end())
             {
                 const auto entityType = combatComplete ? BAK::EntityType::DEAD_COMBATANT : BAK::EntityType::LIVING_COMBATANT;
@@ -395,8 +387,43 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
     mCurrentInteractable->BeginInteraction(container, et);
 }
 
+void GameRunner::SetupCombatCamera()
+{
+    mSavedCameraAngle = mCamera.GetAngle();
+    mSavedCameraPos = mCamera.GetPosition();
+
+    auto angle = mCamera.GetAngle();
+
+    auto heading = mCamera.GetGameAngle();
+    switch (BAK::HeadingToCardinalDirection(heading))
+    {
+    case BAK::CardinalDirection::North: heading = 0; break;
+    case BAK::CardinalDirection::West:  heading = 64; break;
+    case BAK::CardinalDirection::South: heading = 128; break;
+    case BAK::CardinalDirection::East:  heading = 192; break;
+    }
+    angle.x = BAK::ToGlAngle(heading).x;
+
+    angle.y = glm::radians(-15.0f);
+    mCamera.SetAngle(angle);
+
+    auto pos = mCamera.GetPosition();
+    pos.y = 900.0f;
+    mCamera.SetPosition(pos);
+}
+
+void GameRunner::RestoreCombatCamera()
+{
+    if (mGridVisible)
+        ToggleGrid();
+
+    mCamera.SetAngle(mSavedCameraAngle);
+    mCamera.SetPosition(mSavedCameraPos);
+}
+
 void GameRunner::CombatCompleted(BAK::CombatResult result)
 {
+    auto guard = ScopeGuard{[this]{ RestoreCombatCamera(); }};
     mLogger.Debug() << __FUNCTION__ << " " << ToString(result) << "\n";
     ASSERT(mActiveEncounter);
     ASSERT(std::holds_alternative<BAK::Encounter::Combat>(mActiveEncounter->GetEncounter()));
@@ -423,9 +450,8 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
                 encounter.GetTileIndex(), encounter.GetTileCombatIndex(), i);
             cwl.mState = BAK::CombatantWorldState::Dead;
 
-            static constexpr glm::vec2 lCombatGridOffset{-1050, 3350};
-            auto pos = mGameState.GetLocation().mPosition + glm::cast<std::uint32_t>(lCombatGridOffset);
-            auto combatantPos = BAK::MakeGamePositionFromGridCell(pos, cgl.mGridPos);
+            auto combatantPos = BAK::MakeGamePositionFromGridCell(
+                mGameState.GetLocation(), cgl.mGridPos);
             cwl.mPosition.mPosition = BAK::GetTileSpaceOffset(combatantPos);
             i += 1;
         }
@@ -433,14 +459,8 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
         const auto& entities = mCombatsToActiveCombatants.at(combat.mCombatIndex);
         for (auto entityId : entities)
         {
-            auto it = std::find_if(
-                mActiveCombatants.begin(),
-                mActiveCombatants.end(),
-                [&entityId](const auto& combatant) {
-                    return entityId == combatant.mItemId;
-                });
-
-            if (it == mActiveCombatants.end())
+            auto it = mCombatantManager.GetActiveCombatant(entityId);
+            if (!it)
             {
                 continue;
             }
@@ -448,7 +468,6 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
             const auto& monster = *mCombatModelLoader.mCombatModels[it->mMonster.mValue];
             const auto deadFrameOffset = monster.GetAnimation(
                 BAK::AnimationType::Dead, BAK::Direction::South).mImageIndices.size() - 1;
-            it->mCombatantBAKLocation.mState = BAK::CombatantWorldState::Dead;
             it->mAnimationType = BAK::AnimationType::Dead;
             it->mFrame = deadFrameOffset;
             it->Update();
@@ -520,6 +539,14 @@ void GameRunner::EnterCombatFromEncounter()
 
     mCombatManager.Clear();
 
+    if (mGridVisible)
+    {
+        ToggleGrid();
+    }
+    ToggleGrid();
+
+    const auto& playerPos = mGameState.GetLocation();
+
     for (auto cIdx: mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
     {
         const auto& cgl = mGameState.GetCombatantGridLocation(cIdx);
@@ -528,13 +555,53 @@ void GameRunner::EnterCombatFromEncounter()
             continue;
         }
 
-        mCombatManager.AddCombatant({
-            nullptr,
-            cgl.mMonster,
-            cgl.mGridPos,
-            // we probably just want to pass the whole cgl in tbh...
-            BAK::Combat::CombatantState::Alive});
+        auto combatPos = BAK::MakeGamePositionFromGridCell(playerPos, cgl.mGridPos);
+        auto entityId = mCombatantManager.AddCombatant(
+            combatPos, BAK::MonsterIndex{cgl.mMonster});
+        //entityIndices.push_back(entityId);
+        auto& activeCombatant = *mCombatantManager.GetActiveCombatant(entityId);
+        activeCombatant.Update();
+        mSystems->AddDynamicRenderable(
+            DynamicRenderable{
+                entityId,
+                &activeCombatant.GetRenderData(),
+                &activeCombatant.mObject,
+                &activeCombatant.mLocation,
+                &activeCombatant.mRotation,
+                &activeCombatant.mScale});
+
+
+        //mCombatManager.AddCombatant({
+        //    nullptr,
+        //    cgl.mMonster,
+        //    cgl.mGridPos,
+        //    // we probably just want to pass the whole cgl in tbh...
+        //    BAK::Combat::CombatantState::Alive});
     }
+
+    std::vector<glm::uvec2> charPos = {{0, 1}, {7, 1}, {7, 12}};
+    unsigned i = 0;
+
+    mGameState.GetParty().ForEachActiveCharacter([&](auto& character)
+    {
+        auto combatPos = BAK::MakeGamePositionFromGridCell(playerPos, charPos[i++]);
+        auto entityId = mCombatantManager.AddCombatant(
+            combatPos, BAK::MonsterIndex{character.GetIndex().mValue + 15});
+        //entityIndices.push_back(entityId);
+        auto& activeCombatant = *mCombatantManager.GetActiveCombatant(entityId);
+        activeCombatant.Update();
+        mSystems->AddDynamicRenderable(
+            DynamicRenderable{
+                entityId,
+                &activeCombatant.GetRenderData(),
+                &activeCombatant.mObject,
+                &activeCombatant.mLocation,
+                &activeCombatant.mRotation,
+                &activeCombatant.mScale});
+        return BAK::Loop::Continue;
+    });
+
+    SetupCombatCamera();
 
     mGuiManager.EnterCombat([this](BAK::CombatResult result){
         CombatCompleted(result);
@@ -631,7 +698,7 @@ void GameRunner::OnTimeDelta(double timeDelta)
     if (mAccumulatedTime > .2)
     {
         mAccumulatedTime = 0;
-        for (auto& combatant : mActiveCombatants)
+        /*for (auto& combatant : mActiveCombatants)
         {
             combatant.mFrame += 1;
             combatant.Update();
@@ -657,7 +724,7 @@ void GameRunner::OnTimeDelta(double timeDelta)
                 combatant.mAnimationType = type;
                 combatant.Update();
             }
-        }
+        }*/
     }
 }
 
@@ -683,14 +750,68 @@ const BAK::Encounter::Encounter& GameRunner::FindEncounterByCombatIndex(BAK::Com
     ASSERT(false);
 }
 
+void GameRunner::ToggleGrid()
+{
+    if (!mSystems || !mZoneData)
+        return;
+
+    if (mGridVisible)
+    {
+        for (const auto& id : mGridCellEntityIds)
+            mSystems->RemoveRenderable(id);
+        mGridCellRenderables.clear();
+        mGridCellEntityIds.clear();
+        mGridVisible = false;
+        mLogger.Debug() << "Grid hidden\n";
+    }
+    else
+    {
+        const auto& location = mGameState.GetLocation();
+        for (unsigned row = 0; row < sGridRows; row++)
+        {
+            for (unsigned col = 0; col < sGridCols; col++)
+            {
+                auto worldPos = BAK::MakeGamePositionFromGridCell(
+                    location, glm::uvec2{col, row});
+                auto glPos = BAK::ToGlCoord<float>(worldPos)
+                    + glm::vec3{0, 1.0f, 0};
+
+                auto id = mSystems->GetNextItemId();
+                mGridCellRenderables.emplace_back(Renderable{
+                    id,
+                    mZoneData->mObjects.GetObject("GridCell"),
+                    glPos,
+                    glm::vec3{0},
+                    glm::vec3{sGridCellSize, 1, sGridCellSize} / BAK::gWorldScale});
+                mGridCellEntityIds.emplace_back(id);
+                mSystems->AddRenderable(mGridCellRenderables.back());
+            }
+        }
+        mGridVisible = true;
+        mLogger.Debug() << "Grid shown\n";
+    }
+}
+
+bool GameRunner::HandleGridCellClick(unsigned entityId)
+{
+    for (unsigned i = 0; i < mGridCellEntityIds.size(); i++)
+    {
+        if (mGridCellEntityIds[i].mValue == entityId)
+        {
+            const auto row = i / sGridCols;
+            const auto col = i % sGridCols;
+            mLogger.Info() << "Grid cell [" << row << "][" << col << "] clicked\n";
+            return true;
+        }
+    }
+    return false;
+}
+
 void GameRunner::CleanCombatsOnNewZone()
 {
-    for (auto& combatant : mActiveCombatants)
-    {
-        mSystems->RemoveDynamicRenderable(combatant.mItemId);
-        mClickables.erase(combatant.mItemId);
-    }
-    mActiveCombatants.clear();
+    RestoreCombatCamera();
+    //    mClickables.erase(combatant.mItemId);
+    mCombatantManager.clear();
     mCombatsToActiveCombatants.clear();
 
     for (auto& cwl : mGameState.GetCombatWorldLocations())
