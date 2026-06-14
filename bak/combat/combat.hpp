@@ -5,6 +5,8 @@
 #include <iosfwd>
 #include <string_view>
 
+#include <array>
+
 namespace BAK {
 
 // The combat grid 0,0 point is placed at -1200, +3200 from the

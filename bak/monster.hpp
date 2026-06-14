@@ -9,7 +9,7 @@ namespace BAK {
 
 class MonsterNames
 {
-    static constexpr std::string sInvalidMonster = "INVALID MONSTER";
+    static constexpr std::string_view sInvalidMonster = "INVALID MONSTER";
 public:
     static const MonsterNames& Get();
 
@@ -29,7 +29,7 @@ public:
         std::uint8_t mColorSwap;
     };
 
-    const std::string& GetMonsterName(MonsterIndex monster) const;
+    std::string_view GetMonsterName(MonsterIndex monster) const;
     const std::string& GetMonsterAnimationFile(MonsterIndex monster) const;
     std::uint8_t GetColorSwap(MonsterIndex monster) const;
     Monster GetMonster(MonsterIndex monster) const

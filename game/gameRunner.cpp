@@ -424,7 +424,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
             cwl.mState = BAK::CombatantWorldState::Dead;
 
             static constexpr glm::vec2 lCombatGridOffset{-1050, 3350};
-            auto pos = mGameState.GetLocation().mPosition + glm::cast<uint>(lCombatGridOffset);
+            auto pos = mGameState.GetLocation().mPosition + glm::cast<std::uint32_t>(lCombatGridOffset);
             auto combatantPos = BAK::MakeGamePositionFromGridCell(pos, cgl.mGridPos);
             cwl.mPosition.mPosition = BAK::GetTileSpaceOffset(combatantPos);
             i += 1;

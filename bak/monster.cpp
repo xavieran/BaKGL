@@ -39,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, const MonsterNames::Monster& m)
     return os;
 }
 
-const std::string& MonsterNames::GetMonsterName(MonsterIndex monster) const
+std::string_view MonsterNames::GetMonsterName(MonsterIndex monster) const
 {
     if (monster.mValue < mMonsterNames.size())
     {

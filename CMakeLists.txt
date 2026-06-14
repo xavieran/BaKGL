@@ -37,7 +37,7 @@ cmake_policy(SET CMP0169 OLD)
 if (MSVC)
     # Statically link MSVC runtime
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302 /wd4068")
+    set(CXX_IGNORE "/wd4244 /wd4267 /wd4996 /wd4305 /wd4065 /wd4146 /wd4101 /wd4312 /wd4311 /wd4302 /wd4068 /wd4715")
     set(CXX_FLAGS "/W3 /WX /EHsc /bigobj")
 
     set(BUILD_SHARED_LIBS OFF)
@@ -84,13 +84,14 @@ if (ENABLE_CPPTRACE)
     add_compile_definitions(ENABLE_CPPTRACE)
 endif()
 
+
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/freeglut")
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/glew-2.1.0")
+
 # --- OpenGL related packages --- #
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
-list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/freeglut")
 find_package(GLUT REQUIRED)
-
-list(APPEND CMAKE_PREFIX_PATH "C:/Program Files/Common Files/MSVC/glew-2.1.0")
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIR})
 
@@ -250,8 +251,14 @@ if(NOT SDLMixerX_POPULATED)
     set(MIXERX_ENABLE_LGPL ON)
     set(SDL_MIXER_X_STATIC ON)
     set(SDL_MIXER_X_SHARED OFF)
-    set(USE_MIDI_ADLMIDI ON)
-    set(USE_MIDI_OPNMIDI ON)
+    # FIXME: - not working on windows now..
+    if (MSVC)
+        set(USE_MIDI_ADLMIDI OFF)
+        set(USE_MIDI_OPNMIDI OFF)
+    else()
+        set(USE_MIDI_ADLMIDI ON)
+        set(USE_MIDI_OPNMIDI ON)
+    endif()
     set(USE_MIDI_FLUIDSYNTH ON)
     set(USE_MIDI_FLUIDLITE OFF)
     set(USE_MIDI_TIMIDITY OFF)

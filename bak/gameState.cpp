@@ -365,7 +365,7 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
     case 16:
         mTextVariableStore.SetTextVariable(
             index,
-            mCurrentMonster ? MonsterNames::Get().GetMonsterName(*mCurrentMonster) : "No Monster Specified");
+            mCurrentMonster ? std::string(MonsterNames::Get().GetMonsterName(*mCurrentMonster)) : "No Monster Specified");
         break;
     case 17:
         ASSERT(mSelectedItem);
@@ -396,6 +396,7 @@ void GameState::SetDialogTextVariable(unsigned index, unsigned attribute)
         mTextVariableStore.SetTextVariable(
             index,
             ""); // ToString(mContextVar_753f)
+        break;
     case 22:
         // unused??
         // ToString(mContext_whichSkillIncreased)

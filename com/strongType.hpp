@@ -55,7 +55,6 @@ class Bounded : public StrongT
 public:
     using ConcreteType = Bounded<StrongT, min, max>;
     using typename StrongT::UnderlyingType;
-    using StrongT::operator<=>;
 
     constexpr explicit Bounded(UnderlyingType v) noexcept
     :
@@ -63,6 +62,8 @@ public:
     {
         ASSERT(v >= min && v < max);
     }
+
+    auto operator<=>(const ConcreteType&) const = default;
 
     constexpr Bounded() noexcept : StrongT{min} {}
 
