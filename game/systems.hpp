@@ -148,6 +148,7 @@ public:
     void AddDynamicRenderable(const DynamicRenderable& item);
     void RemoveRenderable(BAK::EntityIndex);
     void RemoveDynamicRenderable(BAK::EntityIndex);
+    void RemoveClickable(BAK::EntityIndex);
     void AddSprite(const Renderable& item);
     std::vector<BAK::EntityIndex> RunIntersection(glm::vec3 cameraPos) const;
 

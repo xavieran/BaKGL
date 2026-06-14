@@ -57,7 +57,7 @@ public:
     virtual bool IsLockOpened() const = 0;
     virtual bool IsWordLockOpened() const = 0;
 
-    virtual void SetCombatSequenceActive() = 0;
+    virtual void SetCombatSequenceActive(bool) = 0;
     virtual void AddAnimator(std::unique_ptr<IAnimator>&&) = 0;
     virtual ScreenStack& GetScreenStack() = 0;
 

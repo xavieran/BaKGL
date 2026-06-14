@@ -9,7 +9,10 @@ static constexpr float gWorldScale = 100.;
 
 static constexpr float gTileSize = 64000.;
 static constexpr auto gCellSize = 1600;
-static constexpr auto gCombatGridSize = 300;
+
+static constexpr auto gCombatGridCellSize = 300;
+static constexpr auto gCombatGridRows = 13u;
+static constexpr auto gCombatGridCols = 8u;
 
 enum class Terrain 
 {

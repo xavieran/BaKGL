@@ -380,10 +380,6 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
-    inputHandler.Bind(GLFW_KEY_O, [&]{
-        if (guiManager.InMainView())
-            gameRunner.ToggleGrid();
-    });
     inputHandler.Bind(GLFW_KEY_I, [&]{ 
         if (!imGuiInitialised)
         {
@@ -611,7 +607,7 @@ int main(int argc, char** argv)
             console.Draw("Console", &consoleOpen);
         }
 
-        if (guiManager.InMainView())
+        if (guiManager.InMainView() && !guiManager.GetCombatSequenceActive())
         {
             gameRunner.RunGameUpdate(config.mGame.mAdvanceTime);
             if (config.mAudio.mEnableBackgroundSounds)

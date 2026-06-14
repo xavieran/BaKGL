@@ -361,7 +361,7 @@ void GuiManager::StartDialog(
     bool drawWorldFrame,
     IDialogScene* scene)
 {
-    mLogger.Debug() << "StartDialog(" << dialog << ")\n";
+    mLogger.Debug() << "StartDialog(" << dialog << ") runner @" << &mDialogRunner << "\n";
     if (mScreenStack.Top() == &mDialogRunner)
     {
         mLogger.Fatal() << "Tried to start a dialog from GuiManager but one is already running" << std::endl;
@@ -381,7 +381,11 @@ void GuiManager::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
     ASSERT(mDialogScene);
     PopOnExitCallback(OnExit::Run);
+    ASSERT(mScreenStack.Top() == &mDialogRunner);
+    mLogger.Debug() << "Finished screen is: " << mScreenStack.Top() << "\n";
     auto checkMainView = PopScreen(); // Dialog runner
+    mLogger.Debug() << "Popped now screen is: " << mScreenStack.Top() << "\n";
+    ASSERT(mScreenStack.Top() != &mDialogRunner);
     mCursor.PopCursor();
 
     mLogger.Debug() << "Finished dialog with choice : " << choice << "\n";
@@ -701,13 +705,14 @@ void GuiManager::PushScreen(Widget* screen)
 
 ScopeGuard<std::function<void()>> GuiManager::PopScreen()
 {
-    mLogger.Info() << "Pop screen. InMainView? " << std::boolalpha << InMainView() << "\n";
+    mLogger.Info() << "Pop screen. InMainView? " << std::boolalpha << InMainView()
+        << " combatSeq: " << mCombatSequenceActive << "\n";
     mScreenStack.PopScreen();
     return ScopeGuard<std::function<void()>>([this]{
         mLogger.Info() << "Scope guard fired after pop screen. InMainView? " << std::boolalpha << InMainView() << "\n";
         if (InMainView() && !mAmInMainView)
         {
-            if (std::exchange(mCombatSequenceActive, false))
+            if (mCombatSequenceActive)
             {
                 // Defer stat/condition checking until after combat
                 return;

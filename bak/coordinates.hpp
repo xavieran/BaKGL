@@ -23,6 +23,10 @@
 
 namespace BAK {
 
+static constexpr float gBakCameraHeight = 100;
+static constexpr float gBakCombatCameraHeight = 900;
+static constexpr float gBakCombatCameraDownAngle = glm::radians(-15.0f);
+
 using GamePosition = glm::uvec2;
 using GameHeading  = std::uint16_t;
 
@@ -43,6 +47,7 @@ struct GamePositionAndHeading
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
 
 CardinalDirection HeadingToCardinalDirection(GameHeading heading);
+GameHeading CardinalDirectionToHeading(CardinalDirection direction);
 
 glm::uvec2 GetTile(glm::uvec2 pos);
 glm::uvec2 GetTileSpaceOffset(GamePosition);
