@@ -9,6 +9,7 @@
 
 #include "bak/IZoneLoader.hpp"
 #include "bak/combat/combat.hpp"
+#include "bak/combat/retreat.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/types.hpp"
@@ -67,12 +68,13 @@ public:
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
 
-    void ToggleGrid();
+    void ShowGrid(const BAK::GamePositionAndHeading& orientation);
+    void HideGrid();
     bool IsGridVisible() const { return mGridVisible; }
     bool HandleGridCellClick(unsigned entityId);
 
-    void SetupCombatCamera();
-    void RestoreCombatCamera();
+    void SetupCombatCamera(const BAK::Encounter::Encounter&);
+    void RestoreCameraAfterCombat();
     void CombatCompleted(BAK::CombatResult);
     void EnterCombatFromEncounter();
 
@@ -80,6 +82,9 @@ public:
     void OnTimeDelta(double timeDelta);
 
     void LoadTileVisibleCombatants(std::uint8_t tileIndex);
+    void UnloadWorldCombatants();
+    void LoadWorldCombatants();
+    void UnloadCombatCombatants();
     void CleanCombatsOnNewZone();
     const BAK::Encounter::Encounter& FindEncounterByCombatIndex(
         BAK::CombatIndex combatIndex) const;
@@ -98,7 +103,8 @@ public:
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems{nullptr};
     BAK::Encounter::TeleportFactory mTeleportFactory{};
-    CombatantManager mCombatantManager;
+    CombatantManager mCombatCombatantManager;
+    CombatantManager mWorldCombatantManager;
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
     CombatModelLoader mCombatModelLoader{};
@@ -111,15 +117,11 @@ public:
 
     glm::vec3 mSavedCameraPos{};
     glm::vec2 mSavedCameraAngle{};
+    BAK::CardinalDirection mRetreatDirection{};
 
     bool mGridVisible{false};
     std::vector<Renderable> mGridCellRenderables{};
     std::vector<BAK::EntityIndex> mGridCellEntityIds{};
-    glm::vec4 mGridColor{0.6f, 0.8f, 1.0f, 1.0f};
-
-    static constexpr auto sGridRows = 13u;
-    static constexpr auto sGridCols = 8u;
-    static constexpr auto sGridCellSize = 300u;
 
     double mAccumulatedTime{};
 

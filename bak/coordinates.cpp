@@ -41,20 +41,48 @@ GamePosition MakeGamePositionFromTileAndCell(
         Convert(tile.y, cell.y)};
 }
 
+// Clamps the heading to a cardinal direction based on a
+// 90 degree cone centred on the cardinal direction
 CardinalDirection HeadingToCardinalDirection(GameHeading heading)
 {
-    // BAK heading: 0 = North, 64 = West, 128 = South, 192 = East
-    // (increases counterclockwise to match the game's convention)
-    const auto clamped = (heading + 32) % 256;
-    switch (clamped / 64)
+    // BAK heading: North = 0, West = 64, South = 128, East = 192
+    const auto fortyFiveDeg = 32;
+    const auto north = 0;
+    const auto west  = 64;
+    const auto south = 128;
+    const auto east  = 192;
+    if (heading > (east + fortyFiveDeg) || heading <= (north + fortyFiveDeg))
     {
-    case 0: return CardinalDirection::North;
-    case 1: return CardinalDirection::West;
-    case 2: return CardinalDirection::South;
-    case 3: return CardinalDirection::East;
+        return CardinalDirection::North;
+    }
+    else if (heading > (west - fortyFiveDeg) && heading <= (west + fortyFiveDeg))
+    {
+        return CardinalDirection::West;
+    }
+    else if (heading > (south - fortyFiveDeg) && heading <= (south + fortyFiveDeg))
+    {
+        return CardinalDirection::South;
+    }
+    else if (heading > (east - fortyFiveDeg) && heading <= (east + fortyFiveDeg))
+    {
+        return CardinalDirection::East;
     }
     return {};
 }
+
+GameHeading CardinalDirectionToHeading(CardinalDirection direction)
+{
+    switch (direction)
+    {
+    case CardinalDirection::North: return 0;
+    case CardinalDirection::West:  return 64;
+    case CardinalDirection::South: return 128;
+    case CardinalDirection::East:  return 192;
+    }
+    ASSERT(false);
+    return 0;
+}
+
 
 // The combat grid 0,0 point is placed at -1200, +3200 from the
 // player location, when facing north. Combatants are placed in
@@ -64,7 +92,7 @@ CardinalDirection HeadingToCardinalDirection(GameHeading heading)
 // I render everything centered around its position, including grid squares,
 // so we need to shift these by half a grid
 static constexpr glm::vec2 gCombatGridOffset =
-    glm::vec2{-1200, 3200} + (glm::vec2{gCombatGridSize} * 0.5f);
+    glm::vec2{-1200, 3200} + (glm::vec2{gCombatGridCellSize} * 0.5f);
 
 GamePosition CalculateCombatGridOrigin(
     const GamePositionAndHeading& pos)
@@ -99,25 +127,26 @@ GamePosition MakeGamePositionFromGridCell(
     switch (dir)
     {
     case CardinalDirection::North:
-        gx = col * gCombatGridSize;
-        gy = row * gCombatGridSize;
+        gx = col;
+        gy = row;
         break;
     case CardinalDirection::South:
-        gx = -col * gCombatGridSize;
-        gy = -row * gCombatGridSize;
+        gx = -col;
+        gy = -row;
         break;
     case CardinalDirection::East:
-        gx = row * gCombatGridSize;
-        gy = -col * gCombatGridSize;
+        gx = row;
+        gy = -col;
         break;
     case CardinalDirection::West:
-        gx = -row * gCombatGridSize;
-        gy = col * gCombatGridSize;
+        gx = -row;
+        gy = col;
         break;
     }
 
     return glm::floor(
-        glm::cast<float>(origin) + glm::vec2{gx, gy});
+        glm::cast<float>(origin)
+            + glm::vec2{gx, gy} * static_cast<float>(gCombatGridCellSize));
 }
 
 // Convert a 16 bit BAK angle to radians

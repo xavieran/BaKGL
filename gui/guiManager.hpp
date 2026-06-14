@@ -137,8 +137,10 @@ public:
     void PushScreen(Widget* screen);
     ScopeGuard<std::function<void()>> PopScreen();
 
-    void SetCombatSequenceActive() override { mCombatSequenceActive = true; }
+    void SetCombatSequenceActive(bool isActive) override { mCombatSequenceActive = isActive; }
+    bool GetCombatSequenceActive() { return mCombatSequenceActive; }
     void PopOnExitCallback(OnExit action);
+
 private:
     void CacheState();
     bool NotifyPartyChanges();

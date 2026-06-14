@@ -16,6 +16,7 @@ add_library(bak
     chapterTransitions.hpp chapterTransitions.cpp
     combat/combat.hpp combat/combat.cpp
     combat/combatModel.hpp combat/combatModel.cpp
+    combat/retreat.hpp combat/retreat.cpp
     condition.hpp condition.cpp
     constants.hpp
     cutscenes.hpp cutscenes.cpp

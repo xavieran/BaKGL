@@ -36,6 +36,16 @@ public:
         mObject = datas.mObjectDrawData[animOff.mOffset + mFrame];
     }
 
+    void SetState(BAK::AnimationType type, BAK::Direction direction)
+    {
+        mAnimationType = type;
+        mDirection = direction;
+        const auto& monster = *mCombatModelLoader.mCombatModels[mMonster.mValue];
+        const auto& anim = monster.GetAnimation(type, direction);
+        mFrame = anim.mImageIndices.size() - 1;
+        Update();
+    }
+
     const auto& GetRenderData() const
     {
         return mCombatModelLoader.mCombatModelDatas[mMonster.mValue]->mRenderData;

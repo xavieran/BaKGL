@@ -210,6 +210,15 @@ void Systems::RemoveDynamicRenderable(BAK::EntityIndex i)
     }
 }
 
+void Systems::RemoveClickable(BAK::EntityIndex i)
+{
+    auto it = std::find_if(
+        mClickables.begin(), mClickables.end(),
+        [i=i](const auto& r){ return r.GetId() == i; });
+    if (it != mClickables.end())
+        mClickables.erase(it);
+}
+
 void Systems::AddSprite(const Renderable& item)
 {
     mSprites.emplace_back(item);

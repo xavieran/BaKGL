@@ -63,8 +63,7 @@ void Camera::UsePerspectiveMatrix(unsigned width, unsigned height)
 void Camera::SetGameLocation(const BAK::GamePositionAndHeading& location)
 {
     auto pos = BAK::ToGlCoord<float>(location.mPosition);
-    //pos.y = mPosition.y;
-    pos.y = 100;
+    pos.y = BAK::gBakCameraHeight;
     SetPosition(pos);
     SetAngle(BAK::ToGlAngle(location.mHeading));
 }
