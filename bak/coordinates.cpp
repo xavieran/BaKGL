@@ -5,6 +5,8 @@
 
 #include "graphics/glm.hpp"
 
+#include <cmath>
+
 namespace BAK {
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading& pah)
@@ -41,48 +43,27 @@ GamePosition MakeGamePositionFromTileAndCell(
         Convert(tile.y, cell.y)};
 }
 
-// Clamps the heading to a cardinal direction based on a
-// 90 degree cone centred on the cardinal direction
-CardinalDirection HeadingToCardinalDirection(GameHeading heading)
+GameHeading SnapHeading(GameHeading heading, GameHeading snapAmount)
 {
-    // BAK heading: North = 0, West = 64, South = 128, East = 192
-    const auto fortyFiveDeg = 32;
-    const auto north = 0;
-    const auto west  = 64;
-    const auto south = 128;
-    const auto east  = 192;
-    if (heading > (east + fortyFiveDeg) || heading <= (north + fortyFiveDeg))
-    {
-        return CardinalDirection::North;
-    }
-    else if (heading > (west - fortyFiveDeg) && heading <= (west + fortyFiveDeg))
-    {
-        return CardinalDirection::West;
-    }
-    else if (heading > (south - fortyFiveDeg) && heading <= (south + fortyFiveDeg))
-    {
-        return CardinalDirection::South;
-    }
-    else if (heading > (east - fortyFiveDeg) && heading <= (east + fortyFiveDeg))
-    {
-        return CardinalDirection::East;
-    }
-    return {};
+    const auto h = static_cast<std::uint8_t>(heading);
+    const auto snapped = static_cast<std::uint8_t>(
+        (h + snapAmount / 2) / snapAmount * snapAmount);
+    return snapped;
 }
 
-GameHeading CardinalDirectionToHeading(CardinalDirection direction)
+static glm::ivec2 RotateByBAKHeading(
+    glm::ivec2 vec,
+    GameHeading snappedHeading)
 {
-    switch (direction)
-    {
-    case CardinalDirection::North: return 0;
-    case CardinalDirection::West:  return 64;
-    case CardinalDirection::South: return 128;
-    case CardinalDirection::East:  return 192;
-    }
-    ASSERT(false);
-    return 0;
+    constexpr double fullCircle = 256.0;
+    double angle = static_cast<double>(snappedHeading)
+        * 2.0 * glm::pi<double>() / fullCircle;
+    double c = std::cos(angle);
+    double s = std::sin(angle);
+    return glm::ivec2{
+        static_cast<int>(std::round(vec.x * c - vec.y * s)),
+        static_cast<int>(std::round(vec.x * s + vec.y * c))};
 }
-
 
 // The combat grid 0,0 point is placed at -1200, +3200 from the
 // player location, when facing north. Combatants are placed in
@@ -97,56 +78,26 @@ static constexpr glm::vec2 gCombatGridOffset =
 GamePosition CalculateCombatGridOrigin(
     const GamePositionAndHeading& pos)
 {
-    const int x = gCombatGridOffset.x;
-    const int y = gCombatGridOffset.y;
-
-    switch (HeadingToCardinalDirection(pos.mHeading))
-    {
-    case CardinalDirection::North:
-        return glm::cast<int>(pos.mPosition) + glm::ivec2{x, y};
-    case CardinalDirection::East:
-        return glm::cast<int>(pos.mPosition) + glm::ivec2{y, -x};
-    case CardinalDirection::South:
-        return glm::cast<int>(pos.mPosition) + glm::ivec2{-x, -y};
-    case CardinalDirection::West:
-        return glm::cast<int>(pos.mPosition) + glm::ivec2{-y, x};
-    }
-    return {};
+    auto snapped = SnapHeading(pos.mHeading);
+    auto offset = RotateByBAKHeading(
+        glm::ivec2{gCombatGridOffset}, snapped);
+    return glm::cast<int>(pos.mPosition) + offset;
 }
 
 GamePosition MakeGamePositionFromGridCell(
     const GamePositionAndHeading& pos,
     glm::uvec2 gridPos)
 {
-    const auto dir = HeadingToCardinalDirection(pos.mHeading);
-    const auto origin = CalculateCombatGridOrigin(pos);
-    const auto col = static_cast<int>(gridPos.x);
-    const auto row = static_cast<int>(gridPos.y);
-
-    int gx, gy;
-    switch (dir)
-    {
-    case CardinalDirection::North:
-        gx = col;
-        gy = row;
-        break;
-    case CardinalDirection::South:
-        gx = -col;
-        gy = -row;
-        break;
-    case CardinalDirection::East:
-        gx = row;
-        gy = -col;
-        break;
-    case CardinalDirection::West:
-        gx = -row;
-        gy = col;
-        break;
-    }
+    auto snapped = SnapHeading(pos.mHeading);
+    auto origin = CalculateCombatGridOrigin(pos);
+    auto gridOffset = RotateByBAKHeading(
+        glm::ivec2{
+            static_cast<int>(gridPos.x),
+            static_cast<int>(gridPos.y)} * static_cast<int>(gCombatGridCellSize),
+        snapped);
 
     return glm::floor(
-        glm::cast<float>(origin)
-            + glm::vec2{gx, gy} * static_cast<float>(gCombatGridCellSize));
+        glm::cast<float>(origin) + glm::cast<float>(gridOffset));
 }
 
 // Convert a 16 bit BAK angle to radians
@@ -203,4 +154,5 @@ std::uint16_t HeadingToFullMapAngle(std::uint16_t heading)
     constexpr auto unit = 0xff / 8;
     return 4 * ((heading / unit) % 8);
 }
+
 }

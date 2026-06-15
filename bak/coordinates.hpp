@@ -30,7 +30,12 @@ static constexpr float gBakCombatCameraDownAngle = glm::radians(-15.0f);
 using GamePosition = glm::uvec2;
 using GameHeading  = std::uint16_t;
 
-// Heading 0 => facing north, 64 => east, 128 => south, 192 => west
+static constexpr GameHeading gBakSmallRotationBakHeading  = 4;
+static constexpr GameHeading gBakMediumRotationBakHeading = 8;
+static constexpr GameHeading gBakLargeRotationBakHeading  = 16;
+
+// Heading 0 => north, 64 => west, 128 => south, 192 => east
+// Full circle = 256
 enum class CardinalDirection : std::uint8_t
 {
     North, East, South, West
@@ -46,8 +51,7 @@ struct GamePositionAndHeading
 
 std::ostream& operator<<(std::ostream& os, const GamePositionAndHeading&);
 
-CardinalDirection HeadingToCardinalDirection(GameHeading heading);
-GameHeading CardinalDirectionToHeading(CardinalDirection direction);
+GameHeading SnapHeading(GameHeading heading, GameHeading snapAmount = gBakSmallRotationBakHeading);
 
 glm::uvec2 GetTile(glm::uvec2 pos);
 glm::uvec2 GetTileSpaceOffset(GamePosition);

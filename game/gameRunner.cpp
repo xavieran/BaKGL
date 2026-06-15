@@ -433,9 +433,8 @@ void GameRunner::SetupCombatCamera(const BAK::Encounter::Encounter&)
     mSavedCameraAngle = mCamera.GetAngle();
     mSavedCameraPos = mCamera.GetPosition();
 
-    // THe camera should be aligned to the cardinal direction of the combat
-    auto heading = BAK::CardinalDirectionToHeading(
-        BAK::HeadingToCardinalDirection(mCamera.GetGameAngle()));
+    // Snap the camera to the nearest 4-bak angle of the heading
+    auto heading = BAK::SnapHeading(mCamera.GetGameAngle());
 
     auto angle = mCamera.GetAngle();
 
@@ -779,6 +778,8 @@ void GameRunner::ShowGrid(const BAK::GamePositionAndHeading& orientation)
     if (!mSystems || !mZoneData)
         return;
 
+    auto gridRotation = BAK::ToGlAngle(orientation.mHeading).x;
+
     for (unsigned row = 0; row < BAK::gCombatGridRows; row++)
     {
         for (unsigned col = 0; col < BAK::gCombatGridCols; col++)
@@ -793,7 +794,7 @@ void GameRunner::ShowGrid(const BAK::GamePositionAndHeading& orientation)
                 id,
                 mZoneData->mObjects.GetObject("GridCell"),
                 glPos,
-                glm::vec3{0},
+                glm::vec3{0, gridRotation, 0},
                 glm::vec3{BAK::gCombatGridCellSize, 1, BAK::gCombatGridCellSize} / BAK::gWorldScale});
             mGridCellEntityIds.emplace_back(id);
             mSystems->AddRenderable(mGridCellRenderables.back());
