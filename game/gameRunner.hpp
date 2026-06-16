@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game/combatModelLoader.hpp"
-#include "game/combat/combatantManager.hpp"
+#include "game/combat/actorStore.hpp"
 #include "game/combat/combatManager.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
@@ -81,10 +81,10 @@ public:
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
 
-    void LoadTileVisibleCombatants(std::uint8_t tileIndex);
-    void UnloadWorldCombatants();
-    void LoadWorldCombatants();
-    void UnloadCombatCombatants();
+    void LoadTileActors(std::uint8_t tileIndex);
+    void UnloadWorldActors();
+    void LoadWorldActors();
+    void ClearCombatActors();
     void CleanCombatsOnNewZone();
     const BAK::Encounter::Encounter& FindEncounterByCombatIndex(
         BAK::CombatIndex combatIndex) const;
@@ -103,14 +103,14 @@ public:
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems{nullptr};
     BAK::Encounter::TeleportFactory mTeleportFactory{};
-    CombatantManager mCombatCombatantManager;
-    CombatantManager mWorldCombatantManager;
+    ActorStore mCombatActorStore;
+    ActorStore mWorldActorStore;
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
     CombatModelLoader mCombatModelLoader{};
     EncounterHandler mEncounterHandler;
 
-    std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatsToActiveCombatants{};
+    std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatActorIds{};
     Combat::CombatManager mCombatManager{};
     bool mClickablesEnabled{};
     bool mDebugRenderEncounters{false};

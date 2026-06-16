@@ -44,6 +44,7 @@ public:
     bool CanSwapItem(const InventoryItem& ref) const;
 
     CharIndex GetIndex() const;
+    MonsterIndex GetMonsterIndex() const;
 
     bool IsSpellcaster() const;
     bool IsSwordsman() const;

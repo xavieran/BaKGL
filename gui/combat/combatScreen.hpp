@@ -103,7 +103,6 @@ private:
 
     CharacterButton mCharacter;
     std::vector<ClickButtonImage> mButtons;
-    ClickButtonImage mExit;
     ClickButtonImage mShoot;
     ClickButtonImage mCast;
 

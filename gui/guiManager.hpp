@@ -112,7 +112,7 @@ public:
     void ExitSimpleScreen() override;
     void ShowInventory(BAK::ActiveCharIndex character) override;
     void ShowContainer(BAK::GenericContainer* container, BAK::EntityType containerType) override;
-    void EnterCombat(std::function<void(BAK::CombatResult)>&& finished) override;
+    void EnterCombat(std::function<void(BAK::CombatResult)>&& finished, std::optional<BAK::ActiveCharIndex> activeChar) override;
     void ExitCombat(BAK::CombatResult) override;
     void SelectItem(
         std::function<void(

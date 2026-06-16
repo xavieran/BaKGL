@@ -9,7 +9,7 @@
 
 namespace Game {
 
-class ActiveCombatant {
+class Actor {
 public:
     BAK::EntityIndex mItemId;
     std::pair<unsigned, unsigned> mObject;
@@ -22,6 +22,12 @@ public:
     BAK::Direction mDirection;
     std::size_t mFrame;
     const CombatModelLoader& mCombatModelLoader;
+    glm::mat4 mModelMatrix{1.0f};
+
+    void CalculateModelMatrix()
+    {
+        mModelMatrix = Graphics::CalculateModelMatrix(mLocation, mScale, mRotation, BAK::gWorldScale);
+    }
 
     void Update()
     {
@@ -34,7 +40,9 @@ public:
         auto animOff = datas.mOffsetMap.at(request);
         mFrame = mFrame % animOff.mFrames;
         mObject = datas.mObjectDrawData[animOff.mOffset + mFrame];
+        CalculateModelMatrix();
     }
+
 
     void SetState(BAK::AnimationType type, BAK::Direction direction)
     {
@@ -53,20 +61,20 @@ public:
 };
 
 
-class CombatantManager
+class ActorStore
 {
 public:
-    CombatantManager(
+    ActorStore(
         const CombatModelLoader& loader,
         Systems* systems)
     :
         mLoader{loader},
         mSystems{systems}
     {
-        mCombatants.reserve(2048);
+        mActors.reserve(2048);
     }
 
-    BAK::EntityIndex AddCombatant(
+    BAK::EntityIndex AddActor(
         BAK::GamePosition pos,
         BAK::MonsterIndex monsterIndex)
     {
@@ -79,8 +87,8 @@ public:
             BAK::AnimationType::Dead,
             BAK::Direction::South).mImageIndices.size() - 1;
 
-        mCombatants.emplace_back(
-            ActiveCombatant{
+        mActors.emplace_back(
+            Actor{
                 entityId,
                 {},
                 BAK::ToGlCoord<float>(pos),
@@ -91,18 +99,19 @@ public:
                 BAK::Direction::South,
                 0,
                 mLoader});
+        mActors.back().Update();
 
         return entityId;
     }
 
-    ActiveCombatant* GetActiveCombatant(BAK::EntityIndex id)
+    Actor* GetActor(BAK::EntityIndex id)
     {
-        auto it = std::find_if(mCombatants.begin(), mCombatants.end(), [id](auto c)
+        auto it = std::find_if(mActors.begin(), mActors.end(), [id](auto c)
         {
             return c.mItemId == id;
         });
 
-        if (it == mCombatants.end())
+        if (it == mActors.end())
         {
             return nullptr;
         }
@@ -117,15 +126,20 @@ public:
 
     void clear()
     {
-        for (auto& combatant : mCombatants)
+        for (auto& actor : mActors)
         {
-            mSystems->RemoveDynamicRenderable(combatant.mItemId);
+            mSystems->RemoveDynamicRenderable(actor.mItemId);
         }
-        mCombatants.clear();
+        mActors.clear();
+    }
+
+    auto& GetActors()
+    {
+        return mActors;
     }
 
 private:
-    std::vector<ActiveCombatant> mCombatants{};
+    std::vector<Actor> mActors{};
     const CombatModelLoader& mLoader;
     Systems* mSystems;
 

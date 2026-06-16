@@ -112,28 +112,22 @@ public:
         const Graphics::RenderData* renderData,
         std::pair<unsigned, unsigned>* object,
         glm::vec3* location,
-        glm::vec3* rotation,
-        glm::vec3* scale);
+        glm::mat4* modelMatrix);
 
     BAK::EntityIndex GetId() const;
 
     const glm::mat4& GetModelMatrix() const;
-	const glm::vec3& GetLocation() const;
+    glm::vec3 GetLocation() const;
 
     std::pair<unsigned, unsigned> GetObject() const;
     const Graphics::RenderData* GetRenderData() const;
 private:
-    glm::mat4 CalculateModelMatrix();
-
     BAK::EntityIndex mItemId;
     const Graphics::RenderData* mRenderData;
 
     std::pair<unsigned, unsigned>* mObject;
     glm::vec3* mLocation;
-    glm::vec3* mRotation;
-    glm::vec3* mScale;
-
-    glm::mat4 mModelMatrix;
+    glm::mat4* mModelMatrix;
 };
 
 class Systems
@@ -145,8 +139,8 @@ public:
     void AddIntersectable(const Intersectable& item);
     void AddClickable(const Clickable& item);
     void AddRenderable(const Renderable& item);
-    void AddDynamicRenderable(const DynamicRenderable& item);
     void RemoveRenderable(BAK::EntityIndex);
+    void AddDynamicRenderable(const DynamicRenderable& item);
     void RemoveDynamicRenderable(BAK::EntityIndex);
     void RemoveClickable(BAK::EntityIndex);
     void AddSprite(const Renderable& item);

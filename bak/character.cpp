@@ -178,6 +178,8 @@ LockStats& Character::GetLock() { ASSERT(false); return *reinterpret_cast<LockSt
 
 CharIndex Character::GetIndex() const { return mCharacterIndex; }
 
+MonsterIndex Character::GetMonsterIndex() const { return MonsterIndex{mCharacterIndex.mValue + 15}; }
+
 bool Character::IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mMax != 0; }
 bool Character::IsSwordsman() const { return !IsSpellcaster(); }
 

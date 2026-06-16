@@ -92,16 +92,7 @@ std::pair<unsigned, unsigned> Renderable::GetObject() const
 
 glm::mat4 Renderable::CalculateModelMatrix()
 {
-    auto modelMatrix = glm::mat4{1.0};
-    modelMatrix = glm::translate(modelMatrix, mLocation / BAK::gWorldScale);
-    modelMatrix = glm::scale(modelMatrix, mScale);
-    // Dodgy... only works for rotation about y
-    modelMatrix = glm::rotate(
-        modelMatrix,
-        mRotation.y,
-        glm::vec3(0,1,0));
-
-    return modelMatrix;
+    return Graphics::CalculateModelMatrix(mLocation, mScale, mRotation, BAK::gWorldScale);
 }
 
 DynamicRenderable::DynamicRenderable(
@@ -109,26 +100,28 @@ DynamicRenderable::DynamicRenderable(
     const Graphics::RenderData* renderData,
     std::pair<unsigned, unsigned>* object,
     glm::vec3* location,
-    glm::vec3* rotation,
-    glm::vec3* scale)
+    glm::mat4* modelMatrix)
 :
     mItemId{itemId},
     mRenderData{renderData},
     mObject{object},
     mLocation{location},
-    mRotation{rotation},
-    mScale{scale},
-    mModelMatrix{CalculateModelMatrix()}
+    mModelMatrix{modelMatrix}
 {}
 
 BAK::EntityIndex DynamicRenderable::GetId() const { return mItemId; }
 
 const glm::mat4& DynamicRenderable::GetModelMatrix() const
 {
-    return mModelMatrix;
+    assert(mModelMatrix);
+    return *mModelMatrix;
 }
 
-const glm::vec3& DynamicRenderable::GetLocation() const { return *mLocation; }
+glm::vec3 DynamicRenderable::GetLocation() const
+{
+    assert(mLocation);
+    return *mLocation;
+}
 
 std::pair<unsigned, unsigned> DynamicRenderable::GetObject() const
 {
@@ -140,23 +133,6 @@ const Graphics::RenderData* DynamicRenderable::GetRenderData() const
 {
     assert(mRenderData);
     return mRenderData;
-}
-
-glm::mat4 DynamicRenderable::CalculateModelMatrix()
-{
-    assert(mLocation);
-    assert(mScale);
-    assert(mRotation);
-    auto modelMatrix = glm::mat4{1.0};
-    modelMatrix = glm::translate(modelMatrix, *mLocation / BAK::gWorldScale);
-    modelMatrix = glm::scale(modelMatrix, *mScale);
-    // Dodgy... only works for rotation about y
-    modelMatrix = glm::rotate(
-        modelMatrix,
-        mRotation->y,
-        glm::vec3(0,1,0));
-
-    return modelMatrix;
 }
 
 

@@ -31,7 +31,7 @@ Graphics::MeshObject MakeGridQuadMesh(unsigned textureLayer)
 
     constexpr auto normal = glm::vec3{0.0f, 1.0f, 0.0f};
     constexpr auto color = glm::vec4{0.0f, 0.8f, 0.2f, 1.0f};
-    constexpr auto texBlend = 1.0;
+    constexpr auto texBlend = 0.99;
 
     const Corner verts[6] = {vd, va, vb, vd, vb, vc};
     auto vertices = std::vector<glm::vec3>{};
@@ -111,7 +111,7 @@ Zone::Zone(unsigned zoneNumber)
                     alpha = t * t;
                 }
 
-                gridTex.SetPixel(x, y, glm::vec4{0.0f, 0.7f, 0.5f, alpha});
+                gridTex.SetPixel(x, y, glm::vec4{0.0f, 0.7f, 0.5f, alpha + 0.03});
             }
         }
         const auto gridLayer = mZoneTextures.GetTextures().size();

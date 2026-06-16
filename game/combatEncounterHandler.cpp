@@ -223,7 +223,7 @@ bool CombatEncounterHandler::CheckAndDoCombatEncounter(
 
     if (!combat.mCombatants.empty())
     {
-        mGameState.SetMonster(BAK::MonsterIndex{combat.mCombatants.back().mMonster + 1u});
+        mGameState.SetMonster(BAK::MonsterIndex{combat.mCombatants.back().mMonster});
     }
 
     if (combat.mEntryDialog.mValue != 0)

@@ -319,8 +319,8 @@ void SpellDatabase::LoadSpellWeaknesses()
                 ss << spell.mName << ",";
             }
         }
-        Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - "
-            << monsters.GetMonsterName(MonsterIndex{i - 1}) << " (" << std::hex << spells.GetSpells() << std::dec << ") " << ss.str() << "\n";
+        Logging::LogDebug(__FUNCTION__) << "Monster: " << i << std::dec << "(" << i << ") - "
+            << monsters.GetMonsterName(MonsterIndex{i}) << " (" << std::hex << spells.GetSpells() << std::dec << ") " << ss.str() << "\n";
     }
 }
 
@@ -341,8 +341,8 @@ void SpellDatabase::LoadSpellResistances()
                 ss << spell.mName << ",";
             }
         }
-        Logging::LogDebug(__FUNCTION__) << "Monster: " << i - 1 << std::dec << "(" << i - 1<< ") - "
-            << monsters.GetMonsterName(MonsterIndex{i - 1}) << " " << ss.str() << "\n";
+        Logging::LogDebug(__FUNCTION__) << "Monster: " << i << std::dec << "(" << i << ") - "
+            << monsters.GetMonsterName(MonsterIndex{i}) << " " << ss.str() << "\n";
     }
 }
 
