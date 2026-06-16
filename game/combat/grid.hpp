@@ -1,26 +1,33 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <vector>
 
 
 namespace Game {
 
-template <typename T>
+template <typename T, unsigned Cols = 8, unsigned Rows = 13>
 class Grid
 {
 public:
+    Grid()
+        : mStorage(Cols * Rows)
+    {}
+
     const T& Get(unsigned x, unsigned y) const
     {
-        return mStorage[x][y];
+        return mStorage[y * Cols + x];
     }
 
     T& Get(unsigned x, unsigned y)
     {
-        return mStorage[x][y];
+        return mStorage[y * Cols + x];
     }
 
+    static constexpr auto GetCols() { return Cols; }
+    static constexpr auto GetRows() { return Rows; }
+
 private:
-    glm::mat<8, 13, T> mStorage;
+    std::vector<T> mStorage;
 };
 
 }

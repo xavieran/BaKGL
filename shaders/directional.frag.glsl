@@ -59,7 +59,7 @@ void main()
     vec3 diffuseColor = mix(materialDiffuseColor, textureColor, texBlend);
     float alpha       = mix(materialAlpha, textureAlpha, texBlend);
 
-    if (alpha < 0.05) discard;
+    if (alpha < 0.02) discard;
 
     vec3 materialAmbientColor = diffuseColor;
     vec3 materialSpecularColor = materialDiffuseColor;

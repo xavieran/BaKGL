@@ -71,15 +71,6 @@ CombatScreen::CombatScreen(
         true
     },
     mButtons{},
-    mExit{
-        mLayout.GetWidgetLocation(mExitRequest) - glm::vec2{30, 30},
-        mLayout.GetWidgetDimensions(mExitRequest),
-        mIcons.GetButtonTextures(mExitButton),
-        [this]{
-            ExitCombat();
-        },
-        []{}
-    },
     mShoot{
         mLayout.GetWidgetLocation(mShootButton) + gButtonPosOffset,
         mLayout.GetWidgetDimensions(mShootButton) + gButtonDimOffset,
@@ -133,6 +124,7 @@ CombatScreen::CombatScreen(
 void CombatScreen::SetSelectedCharacter(
     BAK::ActiveCharIndex character)
 {
+    mSelectedCharacter = character;
     RefreshGui();
 }
 
@@ -201,6 +193,7 @@ void CombatScreen::HandleButton(unsigned buttonIndex)
             break;
         case mAutoBattleButton:
             mLogger.Debug() << "AutoBattle\n";
+            ExitCombat();
             break;
         case mAssessButton:
             mLogger.Debug() << "Assess\n";
@@ -227,8 +220,6 @@ void CombatScreen::Retreat()
 void CombatScreen::AddChildren()
 {
     AddChildBack(&mFrame);
-
-    AddChildBack(&mExit);
 
     AddChildBack(&mCharacter);
 

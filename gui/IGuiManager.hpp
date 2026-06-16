@@ -37,7 +37,7 @@ public:
 
     virtual void ShowInventory(BAK::ActiveCharIndex) = 0;
     virtual void ShowContainer(BAK::GenericContainer*, BAK::EntityType containerType) = 0;
-    virtual void EnterCombat(std::function<void(BAK::CombatResult)>&& finished) = 0;
+    virtual void EnterCombat(std::function<void(BAK::CombatResult)>&& finished, std::optional<BAK::ActiveCharIndex> activeChar) = 0;
     virtual void ExitCombat(BAK::CombatResult) = 0;
     virtual void SelectItem(std::function<void(std::optional<std::pair<BAK::ActiveCharIndex, BAK::InventoryIndex>>)>&&) = 0;
     virtual void ExitInventory() = 0;

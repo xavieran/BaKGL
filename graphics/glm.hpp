@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 namespace glm {
@@ -38,5 +39,22 @@ bool PointWithinRectangle(glm::vec<2, T> point, glm::vec<2, T> topLeft, glm::vec
 }
 
 constexpr auto sNinetyDegreeRotation = glm::vec3{0, glm::pi<float>() * .5, 0};
+
+inline glm::mat4 CalculateModelMatrix(
+    const glm::vec3& location,
+    const glm::vec3& scale,
+    const glm::vec3& rotation,
+    float worldScale)
+{
+    auto modelMatrix = glm::mat4{1.0};
+    modelMatrix = glm::translate(modelMatrix, location / worldScale);
+    modelMatrix = glm::scale(modelMatrix, scale);
+    // Dodgy... only works for rotation about y
+    modelMatrix = glm::rotate(
+        modelMatrix,
+        rotation.y,
+        glm::vec3{0, 1, 0});
+    return modelMatrix;
+}
 
 }

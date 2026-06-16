@@ -1,20 +1,30 @@
 #pragma once
 
+#include "game/combat/grid.hpp"
+
 #include "bak/character.hpp"
 #include "bak/combat/mechanics.hpp"
+#include "bak/coordinates.hpp"
 
 #include <vector>
 
 namespace Game::Combat {
 
 
+// Make it polymorphic?
 struct Combatant
 {
     BAK::Character* mCharacter;
     BAK::MonsterIndex mMonster;
     glm::uvec2 mGridPos;
     BAK::Combat::CombatantState mState;
+    BAK::EntityIndex mEntityIndex;
+};
 
+struct GridElem
+{
+    BAK::GamePositionAndHeading mPos;
+    Combatant* mElement;
 };
 
 class CombatManager
@@ -23,6 +33,52 @@ public:
     void AddCombatant(Combatant combatant)
     {
         mCombatants.emplace_back(combatant);
+    }
+
+    Combatant* GetCombatant(BAK::CharIndex character)
+    {
+        auto it = std::find_if(mCombatants.begin(), mCombatants.end(),
+            [&](auto& combatant){
+                return (combatant.mCharacter != nullptr)
+                    && combatant.mCharacter->GetIndex() == character;
+        });
+
+        if (it != mCombatants.end())
+        {
+            return &(*it);
+        }
+
+        return nullptr;
+    }
+
+    Combatant* GetCombatant(BAK::EntityIndex entityIndex)
+    {
+        auto it = std::find_if(mCombatants.begin(), mCombatants.end(),
+            [&](auto& combatant){
+                return combatant.mEntityIndex == entityIndex;
+        });
+
+        if (it != mCombatants.end())
+        {
+            return &(*it);
+        }
+
+        return nullptr;
+    }
+
+    Combatant* GetCombatant(glm::uvec2 gridPos)
+    {
+        auto it = std::find_if(mCombatants.begin(), mCombatants.end(),
+            [&](auto& combatant){
+                return combatant.mGridPos == gridPos;
+        });
+
+        if (it != mCombatants.end())
+        {
+            return &(*it);
+        }
+
+        return nullptr;
     }
 
     std::vector<Combatant> GetCombatants()
@@ -37,6 +93,7 @@ public:
 
 private:
     std::vector<Combatant> mCombatants{};
+    Grid<GridElem> mGrid;
 
 };
 
