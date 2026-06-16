@@ -1,6 +1,8 @@
 add_executable (compile_shaders compile_shaders.cpp)
 
-add_library(shaders shaders.hpp shaders.cpp)
+set(SHADER_CACHE_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/shader_binary_cache.hxx)
+
+add_library(shaders shaders.hpp shaders.cpp ${SHADER_CACHE_HEADER})
 
 target_link_libraries(compile_shaders
     ${LINK_UNIX_LIBRARIES}
@@ -29,23 +31,13 @@ else()
     endforeach()
 endif()
 
-function(make_includable input_file output_file)
-    file(READ ${input_file} content)
-    set(delim "for_c++_include")
-    set(content "R\"${delim}(\n${content})${delim}\"")
-    file(WRITE ${output_file} "${content}")
-endfunction(make_includable)
+file(GLOB SHADER_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.glsl)
 
-file(GLOB SHADER_FILES *.glsl)
-
-set(SHADER_BINARY_CACHE "")
-set(SEPARATOR "\n")
-
-foreach (SHADER_PATH IN LISTS SHADER_FILES)
-    get_filename_component(SHADER_FILE "${SHADER_PATH}" NAME)
-    make_includable(${SHADER_PATH} gen/${SHADER_FILE})
-    set(SHADER_BINARY_CACHE "${SHADER_BINARY_CACHE}${SEPARATOR}{\"${SHADER_FILE}\", \n#include \"shaders/gen/${SHADER_FILE}\"\n}")
-    set(SEPARATOR ",\n")
-endforeach()
-
-file(WRITE "shader_binary_cache.hxx" "${SHADER_BINARY_CACHE}")
+add_custom_command(
+    OUTPUT ${SHADER_CACHE_HEADER}
+    COMMAND ${CMAKE_COMMAND}
+        -DSHADER_SRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -DOUTPUT_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/GenerateShaderCache.cmake
+    DEPENDS ${SHADER_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/GenerateShaderCache.cmake
+    VERBATIM)
