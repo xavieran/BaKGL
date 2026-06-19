@@ -74,11 +74,14 @@ private:
     void RefreshGui();
 
     void UpdateActiveCharacter();
+    void PrintCharacterInformation();
+    void PrintMeleeInformation();
+    void PrintCastInformation();
+    void PrintCrossbowInformation();
 
     void ExitCombat();
     void Retreat();
     
-private:
     void AddChildren();
     
     void HandleButton(unsigned buttonIndex);
@@ -105,6 +108,7 @@ private:
     std::vector<ClickButtonImage> mButtons;
     ClickButtonImage mShoot;
     ClickButtonImage mCast;
+    TextBox mTextArea;
 
     std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
     bool mNeedRefresh;

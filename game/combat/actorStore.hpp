@@ -124,7 +124,7 @@ public:
         mSystems = systems;
     }
 
-    void clear()
+    void Clear()
     {
         for (auto& actor : mActors)
         {

@@ -85,6 +85,9 @@ CombatScreen::CombatScreen(
         [this]{ HandleButton(mCastButton); },
         []{}
     },
+    mTextArea{
+        glm::vec2{80, 132},
+        glm::vec2{100, 88}},
     mSelectedCharacter{},
     mNeedRefresh{false},
     mLogger{Logging::LogState::GetLogger("Gui::CombatScreen")}
@@ -163,6 +166,22 @@ void CombatScreen::UpdateActiveCharacter()
             party.GetCharacter(*mSelectedCharacter).GetIndex().mValue);
         mCharacter.SetSpriteSheet(spriteSheet);
         mCharacter.SetTexture(image);
+        PrintCharacterInformation();
+    }
+}
+
+void CombatScreen::PrintCharacterInformation()
+{
+    std::stringstream ss{};
+    if (mSelectedCharacter)
+    {
+        auto& character = mGameState.GetParty().GetCharacter(*mSelectedCharacter);
+        ss << character.GetName() << "\n";
+        ss << "Health: " << character.GetSkill(BAK::SkillType::Health) << "\n";
+        ss << "Stamina: " << character.GetSkill(BAK::SkillType::Stamina) << "\n";
+        ss << "Speed: " << character.GetSkill(BAK::SkillType::Speed) << "\n";
+        ss << "Strength: " << character.GetSkill(BAK::SkillType::Strength) << "\n";
+        mTextArea.SetText(mFont, ss.str(), true);
     }
 }
 
@@ -244,5 +263,7 @@ void CombatScreen::AddChildren()
     {
         AddChildBack(&button);
     }
+
+    AddChildBack(&mTextArea);
 }
 }

@@ -145,7 +145,6 @@ void GameRunner::LoadSystems()
     mSystems = std::make_unique<Systems>();
     mCombatActorStore.SetSystems(mSystems.get());
     mWorldActorStore.SetSystems(mSystems.get());
-    mCombatActorStore.clear();
     mEncounters.clear();
     mClickables.clear();
     mActiveEncounter = nullptr;
@@ -399,7 +398,7 @@ void GameRunner::UnloadWorldActors()
         }
     }
     mCombatActorIds.clear();
-    mWorldActorStore.clear();
+    mWorldActorStore.Clear();
 }
 
 void GameRunner::LoadWorldActors()
@@ -412,7 +411,8 @@ void GameRunner::LoadWorldActors()
 
 void GameRunner::ClearCombatActors()
 {
-    mCombatActorStore.clear();
+    mCombatActorStore.Clear();
+    mCombatManager.Clear();
 }
 
 void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container)
@@ -854,7 +854,6 @@ bool GameRunner::HandleGridCellClick(unsigned entityId)
 void GameRunner::CleanCombatsOnNewZone()
 {
     UnloadWorldActors();
-    mCombatActorStore.clear();
 
     for (auto& cwl : mGameState.GetCombatWorldLocations())
     {
