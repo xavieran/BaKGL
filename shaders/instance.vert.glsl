@@ -12,6 +12,7 @@ layout(location = 3) in ivec4 params;
 //     depth,
 //     textureSampler)
 
+out vec3 Position_worldspace;
 out vec3 uvCoords;
 flat out int colorMode;
 out vec4 blockColor;
@@ -32,6 +33,7 @@ void main(){
     M[3] = vec4(transform.x, transform.y, 0, 1);
      
 	gl_Position = V * M * vec4(vertexPosition_modelspace, 1);
+	Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;
     vec4 uv = texelFetch(texCoords, gl_VertexID + texCoord * 6);
     uvCoords = uv.xyz;
     blockColor = color;

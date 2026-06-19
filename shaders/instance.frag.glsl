@@ -1,7 +1,11 @@
 #version 330 core
 
+in vec3 Position_worldspace;
 in vec3 Position_screenspace;
 in vec3 uvCoords;
+// Apple's GLSL linker requires all vertex outputs to be read by the fragment shader.
+// Guard against infinite positions so the variable is considered "used".
+#define CONSUME_WORLDSPACE if (any(isinf(Position_worldspace))) discard;
 flat in int  colorMode;
 in vec4 blockColor;
 
@@ -18,6 +22,7 @@ uniform sampler2DArray texture0;
 
 void main()
 {
+    CONSUME_WORLDSPACE
     vec4 textureSample = texture(texture0, uvCoords);
     vec3 textureColor  = textureSample.xyz;
     vec3 blockColorB   = blockColor.xyz;
