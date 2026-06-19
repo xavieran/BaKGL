@@ -321,9 +321,11 @@ if (UNIX)
     set(LINK_UNIX_LIBRARIES
         m
         dl
-        rt
         stdc++
         pthread)
+    if (NOT APPLE)
+        list(APPEND LINK_UNIX_LIBRARIES rt)
+    endif()
 endif()
 
 # --- My project CXX flags --- #
