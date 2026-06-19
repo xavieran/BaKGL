@@ -93,6 +93,17 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
+# CMake 4.x only creates imported targets (GLEW::glew), not the legacy vars.
+# Extract them so the rest of the build can use ${GLEW_INCLUDE_DIR} / ${GLEW_LIBRARIES}.
+# Note: GLEW_INCLUDE_DIR may already be set, but GLEW_LIBRARIES ends up as GLEW_LIBRARY-NOTFOUND,
+# so always re-derive both from the imported target when it exists.
+if (TARGET GLEW::glew AND NOT GLEW_LIBRARIES)
+    get_target_property(GLEW_INCLUDE_DIR GLEW::glew INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(GLEW_LIBRARIES   GLEW::glew IMPORTED_LOCATION_RELEASE)
+    if (NOT GLEW_LIBRARIES)
+        get_target_property(GLEW_LIBRARIES GLEW::glew IMPORTED_LOCATION)
+    endif()
+endif()
 include_directories(${GLEW_INCLUDE_DIR})
 
 include(FetchContent)
