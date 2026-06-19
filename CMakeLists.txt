@@ -31,8 +31,10 @@ string(CONCAT CXX_IGNORES
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Silence complaints about using Populate - needed until AudioCodecs exports
-# proper cmake targets
-cmake_policy(SET CMP0169 OLD)
+# proper cmake targets (CMP0169 introduced in CMake 3.30)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
+    cmake_policy(SET CMP0169 OLD)
+endif()
 
 if (MSVC)
     # Statically link MSVC runtime
