@@ -58,7 +58,7 @@ else()
     #set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
     set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
     #set(CXX_TSAN "-fsanitize=thread")
-    
+
     set(CXX_USAN "")
     set(CXX_ASAN "")
     set(CXX_TSAN "")
@@ -95,10 +95,7 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
-# CMake 4.x only creates imported targets (GLEW::glew), not the legacy vars.
-# Extract them so the rest of the build can use ${GLEW_INCLUDE_DIR} / ${GLEW_LIBRARIES}.
-# Note: GLEW_INCLUDE_DIR may already be set, but GLEW_LIBRARIES ends up as GLEW_LIBRARY-NOTFOUND,
-# so always re-derive both from the imported target when it exists.
+
 if (TARGET GLEW::glew AND NOT GLEW_LIBRARIES)
     get_target_property(GLEW_INCLUDE_DIR GLEW::glew INTERFACE_INCLUDE_DIRECTORIES)
     get_target_property(GLEW_LIBRARIES   GLEW::glew IMPORTED_LOCATION_RELEASE)
@@ -113,7 +110,7 @@ include(FetchContent)
 # --- GLM --- #
 
 FetchContent_Declare(
-    glm 
+    glm
     GIT_REPOSITORY https://github.com/g-truc/glm
     GIT_TAG 1.0
 )
@@ -277,7 +274,9 @@ if(NOT SDLMixerX_POPULATED)
     set(USE_MIDI_TIMIDITY OFF)
     set(USE_GME OFF)
     set(USE_OPUS OFF)
-    set(USE_WAVPACK OFF)
+    if(macosx)
+        set(USE_WAVPACK OFF)
+    endif()
     set(USE_MODPLUG OFF)
     set(USE_MP3_MPG123 OFF)
     set(USE_XMP OFF)
@@ -311,10 +310,10 @@ include_directories(${SDLMixerX_SOURCE_DIR}/include)
 link_directories(${SDLMixerX_BINARY_DIR}/lib)
 
 # --- Common Link Libraries --- #
-set(LINK_3D_LIBRARIES 
-    ${GLEW_LIBRARIES} 
+set(LINK_3D_LIBRARIES
+    ${GLEW_LIBRARIES}
     glm
-    ${OPENGL_LIBRARY} 
+    ${OPENGL_LIBRARY}
     ${GLFW3_LIBRARY}
     )
 
