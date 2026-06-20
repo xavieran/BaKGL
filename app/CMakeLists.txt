@@ -7,6 +7,7 @@ target_link_libraries(app com)
 list(APPEND APP_BINARIES
     #decomp_ttm
     dialog_explorer
+    sound_explorer
     display_book
     display_combat
     display_dialog

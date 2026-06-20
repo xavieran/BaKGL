@@ -16,6 +16,8 @@ public:
         std::vector<Sound>&& sounds);
 
     std::vector<Sound>& GetSounds();
+    const std::string& GetName() const { return mName; }
+    unsigned GetType() const { return mType; }
 
 private:
     std::string mName;
