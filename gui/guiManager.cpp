@@ -1,7 +1,8 @@
 #include "gui/guiManager.hpp"
 
-#include "bak/partyChangeCache.hpp"
+#include "bak/combat/ICombatUI.hpp"
 #include "bak/gameState.hpp"
+#include "bak/partyChangeCache.hpp"
 #include "bak/startupFiles.hpp"
 
 #include "gui/IDialogScene.hpp"
@@ -793,6 +794,22 @@ void GuiManager::FadeOutDone()
         mEndFadeFunction();
         mEndFadeFunction = nullptr;
     }
+}
+
+void GuiManager::SetCombatManager(BAK::ICombatManager& combatManager)
+{
+    mCombatManager = &combatManager;
+}
+
+BAK::ICombatUI& GuiManager::GetCombatUI()
+{
+    return mCombatScreen;
+}
+
+BAK::ICombatManager& GuiManager::GetCombatManager()
+{
+    ASSERT(mCombatManager);
+    return *mCombatManager;
 }
 
 }

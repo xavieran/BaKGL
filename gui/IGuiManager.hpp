@@ -2,6 +2,8 @@
 
 #include "gui/IAnimator.hpp"
 #include "gui/IDialogScene.hpp"
+#include "bak/combat/ICombatManager.hpp"
+#include "bak/combat/ICombatUI.hpp"
 #include "gui/screenStack.hpp"
 
 #include "bak/combat/combat.hpp"
@@ -65,6 +67,10 @@ public:
     virtual void SaveGame(const BAK::SaveFile&) = 0;
     virtual void SaveBookmark() = 0;
     virtual void DoTeleport(BAK::Encounter::Teleport) = 0;
+
+    virtual void SetCombatManager(BAK::ICombatManager&) = 0;
+    virtual BAK::ICombatUI& GetCombatUI() = 0;
+    virtual BAK::ICombatManager& GetCombatManager() = 0;
 };
 
 }

@@ -5,6 +5,7 @@
 #include "bak/types.hpp"
 
 #include "gui/IDialogScene.hpp"
+#include "bak/combat/ICombatUI.hpp"
 #include "gui/core/clickable.hpp"
 #include "gui/core/mouseEvent.hpp"
 #include "gui/clickButton.hpp"
@@ -31,7 +32,7 @@ class Icons;
 
 namespace Gui::Combat {
 
-class CombatScreen : public Widget
+class CombatScreen : public Widget, public BAK::ICombatUI
 {
 public:
     static constexpr auto sLayoutFile = "COMBAT.DAT";
@@ -64,7 +65,7 @@ public:
         BAK::GameState& gameState);
 
     void SetSelectedCharacter(
-        BAK::ActiveCharIndex character);
+        BAK::ActiveCharIndex character) override;
 
     /* Widget */
     bool OnMouseEvent(const MouseEvent& event) override;

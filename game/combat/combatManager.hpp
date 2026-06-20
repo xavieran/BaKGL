@@ -2,6 +2,8 @@
 
 #include "game/combat/grid.hpp"
 
+#include "bak/combat/ICombatManager.hpp"
+
 #include "bak/character.hpp"
 #include "bak/combat/mechanics.hpp"
 #include "bak/coordinates.hpp"
@@ -27,9 +29,30 @@ struct GridElem
     Combatant* mElement;
 };
 
-class CombatManager
+/* 
+ * Combat procedure
+ * Each turn
+ *   Order the combatants by speed
+ *   In order, combatants take a turn
+ *
+ * Combatant turn
+ *   | Defend
+ *   | Rest
+ *   | Assess
+ *   | Cast
+ *   | Shoot
+ *   | Move
+ *     + Melee
+ *   | Melee
+ *   Next combatant
+ */
+
+class CombatManager : public BAK::ICombatManager
 {
 public:
+    void SetCastingSpell(BAK::SpellIndex) override {}
+    void SetUsingCrossbow() override {}
+
     void AddCombatant(Combatant combatant)
     {
         mCombatants.emplace_back(combatant);
