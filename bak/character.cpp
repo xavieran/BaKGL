@@ -15,26 +15,29 @@ Character::Character(
     const Skills& skills,
     Spells spells,
     const std::array<std::uint8_t, 2>& unknown,
-    const std::array<std::uint8_t, 7>& unknown2,
+    uint8_t combatCharIndex,
+    const std::array<std::uint8_t, 6>& unknown2,
     const Conditions& conditions,
-    Inventory&& inventory)
+    Inventory* inventory)
 :
     mCharacterIndex{index},
     mName{name},
     mSkills{skills},
     mSpells{spells},
     mUnknown{unknown},
+    mCombatCharIndex{combatCharIndex},
     mUnknown2{unknown2},
     mConditions{conditions},
-    mInventory{std::move(inventory)},
+    mInventory{inventory},
     mSkillAffectors{},
     mLogger{Logging::LogState::GetLogger("BAK::Character")}
-{}
+{
+}
 
 /* IContainer */
 
-Inventory& Character::GetInventory() { return mInventory; }
-const Inventory& Character::GetInventory() const { return mInventory; }
+Inventory& Character::GetInventory() { assert(mInventory); return *mInventory; }
+const Inventory& Character::GetInventory() const { return *mInventory; }
 
 bool Character::CanSwapItem(const InventoryItem& ref) const
 {
@@ -52,7 +55,7 @@ bool Character::CanAddItem(const InventoryItem& ref) const
         item = InventoryItemFactory::MakeItem(BAK::sRations, 1);
     }
 
-    if (mInventory.CanAddCharacter(item) > 0)
+    if (mInventory->CanAddCharacter(item) > 0)
         return true;
     else if (item.IsItemType(ItemType::Staff)
         && HasEmptyStaffSlot())
@@ -77,8 +80,8 @@ bool Character::GiveItem(const InventoryItem& ref)
 
     bool equipped = false;
     if (CanReplaceEquippableItem(item.GetObject().mType)
-        && mInventory.FindEquipped(item.GetObject().mType)
-            == mInventory.GetItems().end())
+        && mInventory->FindEquipped(item.GetObject().mType)
+            == mInventory->GetItems().end())
     {
         item.SetEquipped(true);
         equipped = true;
@@ -144,9 +147,9 @@ bool Character::GiveItem(const InventoryItem& ref)
     bool added = false;
     for (const auto& item : items)
     {
-        if (mInventory.CanAddCharacter(item) || equipped)
+        if (mInventory->CanAddCharacter(item) || equipped)
         {
-            mInventory.AddItem(item);
+            mInventory->AddItem(item);
             added = true;
         }
     }
@@ -156,9 +159,9 @@ bool Character::GiveItem(const InventoryItem& ref)
 
 bool Character::RemoveItem(const InventoryItem& item)
 {
-    if (mInventory.HaveItem(item))
+    if (mInventory->HaveItem(item))
     {
-        mInventory.RemoveItem(item);
+        mInventory->RemoveItem(item);
         return true;
     }
 
@@ -186,34 +189,34 @@ bool Character::IsSwordsman() const { return !IsSpellcaster(); }
 bool Character::HasEmptyStaffSlot() const
 {
     return IsSpellcaster() 
-        && mInventory.FindEquipped(ItemType::Staff) 
-            == mInventory.GetItems().end();
+        && mInventory->FindEquipped(ItemType::Staff)
+            == mInventory->GetItems().end();
 }
 
 bool Character::HasEmptySwordSlot() const
 {
     return IsSwordsman() 
-        && mInventory.FindEquipped(ItemType::Sword) 
-            == mInventory.GetItems().end();
+        && mInventory->FindEquipped(ItemType::Sword)
+            == mInventory->GetItems().end();
 }
 
 bool Character::HasEmptyCrossbowSlot() const
 {
     return IsSwordsman() 
-        && mInventory.FindEquipped(ItemType::Crossbow) 
-            == mInventory.GetItems().end();
+        && mInventory->FindEquipped(ItemType::Crossbow)
+            == mInventory->GetItems().end();
 }
 
 bool Character::HasEmptyArmorSlot() const
 {
-    return mInventory.FindEquipped(ItemType::Armor) 
-        == mInventory.GetItems().end();
+    return mInventory->FindEquipped(ItemType::Armor)
+        == mInventory->GetItems().end();
 }
 
 InventoryIndex Character::GetItemAtSlot(ItemType slot) const
 {
-    auto it = mInventory.FindEquipped(slot) ;
-    const auto index = mInventory.GetIndexFromIt(it);
+    auto it = mInventory->FindEquipped(slot) ;
+    const auto index = mInventory->GetIndexFromIt(it);
     assert(index);
     return *index;
 }
@@ -240,16 +243,16 @@ bool Character::CanReplaceEquippableItem(ItemType type) const
 
 void Character::ApplyItemToSlot(InventoryIndex index, ItemType slot)
 {
-    auto& item = mInventory.GetAtIndex(index);
-    auto equipped = mInventory.FindEquipped(slot);
+    auto& item = mInventory->GetAtIndex(index);
+    auto equipped = mInventory->FindEquipped(slot);
 
-    if (equipped == mInventory.GetItems().end())
+    if (equipped == mInventory->GetItems().end())
     {
         item.SetEquipped(true);
         return;
     }
 
-    const auto slotIndex = *mInventory.GetIndexFromIt(equipped);
+    const auto slotIndex = *mInventory->GetIndexFromIt(equipped);
     // We are trying to move this item onto itself
     if (slotIndex == index)
     {
@@ -259,7 +262,7 @@ void Character::ApplyItemToSlot(InventoryIndex index, ItemType slot)
     if (item.IsItemType(slot))
     {
         item.SetEquipped(true);
-        if (equipped != mInventory.GetItems().end())
+        if (equipped != mInventory->GetItems().end())
             equipped->SetEquipped(false);
     }
     else
@@ -269,7 +272,7 @@ void Character::ApplyItemToSlot(InventoryIndex index, ItemType slot)
     }
 
     Logging::LogDebug("CharacterAFMove") << __FUNCTION__ << " " << item << " " << BAK::ToString(slot) << "\n";
-    if (equipped != mInventory.GetItems().end())
+    if (equipped != mInventory->GetItems().end())
         Logging::LogDebug("CharacterAFEquip") << __FUNCTION__ << " " << *equipped << " " << equipped->IsEquipped() << " " << BAK::ToString(slot) << "\n";
 }
 
@@ -386,7 +389,7 @@ unsigned Character::GetSkill(SkillType skill) const
 {
     if (skill != SkillType::TotalHealth)
     {
-        mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        mSkills.GetSkill(skill).mModifier = mInventory->CalculateModifiers(skill);
     }
     return CalculateEffectiveSkillValue(
         skill,
@@ -400,7 +403,7 @@ unsigned Character::GetMaxSkill(SkillType skill) const
 {
     if (skill != SkillType::TotalHealth)
     {
-        mSkills.GetSkill(skill).mModifier = mInventory.CalculateModifiers(skill);
+        mSkills.GetSkill(skill).mModifier = mInventory->CalculateModifiers(skill);
     }
     return CalculateEffectiveSkillValue(
         skill,
@@ -449,16 +452,23 @@ const std::vector<SkillAffector>& Character::GetSkillAffectors() const
     return mSkillAffectors;
 }
 
+bool Character::IsEnemy() const
+{
+    return mCombatCharIndex == 0;
+}
+
 std::ostream& operator<<(std::ostream& os, const Character& c)
 {
-os << "Character [" << c.mName << " Skills: \n" << c.mSkills;
-os << "Spells: " << std::hex << c.mSpells << std::dec << "\n";
-os << "Unknown: " << std::hex << c.mUnknown << std::dec << "\n";
-os << "Unknown2: " << std::hex << c.mUnknown2 << std::dec << "\n";
-os << c.mConditions << "\n";
-os << "SkillAffectors: " << c.mSkillAffectors << "\n";
-os << "Inventory: " << c.mInventory << "\n";
-return os;
+    os << "Character [(" << c.mCharacterIndex << ") " << c.mName << "\n"
+        << "  Skills: \n" << c.mSkills << "\n"
+        << "  Spells: " << std::hex << c.mSpells << std::dec << "\n"
+        << "  Unknown: " << std::hex << c.mUnknown << std::dec << "\n"
+        << "  CombatIndex: " << +c.mCombatCharIndex << "\n"
+        << "  Unknown2: " << std::hex << c.mUnknown2 << std::dec << "\n"
+        << "  " << c.mConditions << "\n"
+        << "  SkillAffectors: " << c.mSkillAffectors << "\n"
+        << "  Inventory: " << c.GetInventory() << "\n";
+    return os;
 }
 
 }

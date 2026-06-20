@@ -54,7 +54,9 @@ public:
     glm::uvec2 mGridPos;
     std::uint16_t mUnknown1;
     std::uint8_t mState;
-    std::array<std::uint8_t, 13> mRest;
+    std::array<std::uint8_t, 5> mRest0;
+    std::uint8_t mRetreatFactor;
+    std::array<std::uint8_t, 7> mRest1;
 };
 
 std::ostream& operator<<(std::ostream&, const CombatantGridLocation&);

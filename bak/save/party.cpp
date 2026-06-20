@@ -12,15 +12,17 @@ namespace BAK {
 
 Party LoadParty(FileBuffer& fb)
 {
-    auto characters = LoadCharacters(fb);
+    auto inventories = LoadCharacterInventories(fb);
+    auto characters = LoadCharacters(fb, inventories);
     auto activeCharacters = LoadActiveCharacters(fb);
     auto gold = LoadGold(fb);
     auto keys = LoadCharacterInventory(fb, SaveOffsets::sPartyKeyInventoryOffset);
     auto party = Party{
         gold,
         std::move(keys),
-        characters,
-        activeCharacters};
+        std::move(inventories),
+        std::move(characters),
+        std::move(activeCharacters)};
     return party;
 }
 

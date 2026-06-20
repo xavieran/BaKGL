@@ -7,6 +7,19 @@
 #include "com/logger.hpp"
 
 namespace BAK {
+Party::Party(
+    Royals gold,
+    KeyContainer&& keys,
+    std::vector<Inventory>&& inventories,
+    std::vector<Character>&& characters,
+    std::vector<CharIndex>&& activeChars)
+:
+    mGold{gold},
+    mKeys{std::move(keys)},
+    mInventories{std::move(inventories)},
+    mCharacters{std::move(characters)},
+    mActiveCharacters{std::move(activeChars)}
+{}
 
 std::size_t Party::GetNumCharacters() const
 {

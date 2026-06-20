@@ -21,6 +21,10 @@ struct Combatant
     glm::uvec2 mGridPos;
     BAK::Combat::CombatantState mState;
     BAK::EntityIndex mEntityIndex;
+
+    bool mTurnPending{true};
+    bool mIsDead{false};
+    bool mIsPoisoned{false};
 };
 
 struct GridElem
@@ -114,8 +118,45 @@ public:
         mCombatants.clear();
     }
 
+    void SetCurrentCombatant(bool onlyParty)
+    {
+        std::optional<unsigned> bestSpeed{};
+        auto combatant = 0;
+        for (unsigned i = 0; i < mCombatants.size(); i++)
+        {
+            auto* character = mCombatants[combatant].mCharacter;
+            if (!character)
+            {
+                continue;
+            }
+
+            if (onlyParty && character->IsEnemy())
+            {
+                continue;
+            }
+
+            auto speed = character->GetSkill(BAK::SkillType::Speed);
+
+            if (!bestSpeed || speed > *bestSpeed)
+            {
+                bestSpeed = speed;
+                combatant = i;
+            }
+        }
+
+        mCurrentCombatant = combatant;
+    }
+
+    Combatant& GetCurrentCombatant()
+    {
+        assert(mCurrentCombatant < mCombatants.size());
+        return mCombatants[mCurrentCombatant];
+    }
+
 private:
     std::vector<Combatant> mCombatants{};
+
+    std::size_t mCurrentCombatant;
     Grid<GridElem> mGrid;
 
 };

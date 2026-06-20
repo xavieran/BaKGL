@@ -42,6 +42,7 @@ struct Options
     bool combat_stats{};
     bool combat_click{};
     bool combat_lists{};
+    bool combatant_characters{};
     bool event_flags{};
 
     std::string saveFile{};
@@ -50,6 +51,7 @@ struct Options
 
 static constexpr int CHARACTER_OPT = 1000;
 static constexpr int EVENT_FLAGS_OPT = 1001;
+static constexpr int COMBATANT_CHARACTERS_OPT = 1002;
 
 struct EventFlagRange
 {
@@ -152,6 +154,7 @@ Options Parse(int argc, char** argv)
         {"combat_stats", no_argument, 0, 'S'},
         {"combat_click", no_argument, 0, 'C'},
         {"combat_lists", no_argument, 0, 'l'},
+        {"combatant_characters", no_argument, 0, COMBATANT_CHARACTERS_OPT},
         {"character", required_argument, 0, CHARACTER_OPT},
         {"event-flags", no_argument, 0, EVENT_FLAGS_OPT},
     };
@@ -176,6 +179,7 @@ Options Parse(int argc, char** argv)
             std::cout << "\t --combat_stats,-S\n";
             std::cout << "\t --combat_click,-C\n";
             std::cout << "\t --combat_lists,-l\n";
+            std::cout << "\t --combatant_characters Display all combatant characters (stats + inventory)\n";
             std::cout << "\t --event-flags Print all event flags as CSV\n";
             std::cout << "\t --character <name> Display character stats matching name\n";
             exit(0);
@@ -240,6 +244,10 @@ Options Parse(int argc, char** argv)
         {
             values.combat_lists = true;
         }
+        else if (opt == COMBATANT_CHARACTERS_OPT)
+        {
+            values.combatant_characters = true;
+        }
         else if (opt == CHARACTER_OPT)
         {
             values.character = optarg;
@@ -265,6 +273,7 @@ Options Parse(int argc, char** argv)
         values.combat_stats = true;
         values.combat_click = true;
         values.combat_lists = true;
+        values.combatant_characters = true;
     }
 
     if (optind < argc)
@@ -444,6 +453,19 @@ int main(int argc, char** argv)
         for (unsigned i = 0; i < times.size(); i++)
         {
             logger.Info() << "  #" << i << " " << times[i] << "\n";
+        }
+    }
+
+    if (options.combatant_characters)
+    {
+        logger.Info() << "Combatant Characters:\n";
+        auto& fb = gameData.GetFileBuffer();
+        auto combatInventories = LoadCombatInventories(fb);
+        for (unsigned i = 0; i < BAK::SaveOffsets::sCombatStatsCount; i++)
+        {
+            auto character = LoadCombatant(
+                BAK::CombatantIndex{i}, fb, combatInventories[i]);
+            logger.Info() << character << "\n";
         }
     }
 
