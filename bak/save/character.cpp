@@ -10,7 +10,23 @@
 
 namespace BAK {
 
-std::vector<Character> LoadCharacters(FileBuffer& fb)
+std::vector<Inventory> LoadCharacterInventories(FileBuffer& fb)
+{
+    const auto& logger = Logging::LogState::GetLogger("LoadInventories");
+
+    std::vector<Inventory> inventories;
+
+    for (unsigned character = 0; character < SaveOffsets::sCharacterCount; character++)
+    {
+        inventories.emplace_back(LoadCharacterInventory(
+            fb,
+            SaveOffsets::GetCharacterInventoryOffset(character)));
+    }
+
+    return inventories;
+}
+
+std::vector<Character> LoadCharacters(FileBuffer& fb, std::vector<Inventory>& inventories)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadCharacters");
     unsigned characters = SaveOffsets::sCharacterCount;
@@ -44,12 +60,9 @@ std::vector<Character> LoadCharacters(FileBuffer& fb)
 
         skills.SetSelectedSkillPool(skills.CalculateSelectedSkillPool());
 
-        auto unknown2 = fb.GetArray<7>();
+        auto combatCharIndex = fb.GetUint8();
+        auto unknown2 = fb.GetArray<6>();
         logger.Spam() << " Finished loading : " << name << std::hex << fb.Tell() << std::dec << "\n";
-
-        auto inventory = LoadCharacterInventory(
-            fb,
-            SaveOffsets::GetCharacterInventoryOffset(character));
 
         auto conditions = LoadConditions(fb, character);
 
@@ -59,9 +72,10 @@ std::vector<Character> LoadCharacters(FileBuffer& fb)
             skills,
             spells,
             characterNameOffset,
+            combatCharIndex,
             unknown2,
             conditions,
-            std::move(inventory));
+            &inventories[character]);
 
         auto affectors = GetCharacterSkillAffectors(fb, CharIndex{character});
         for (const auto& affector : affectors)

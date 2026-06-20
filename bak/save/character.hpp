@@ -12,7 +12,9 @@ namespace BAK {
 
 class FileBuffer;
 
-std::vector<Character> LoadCharacters(FileBuffer&);
+
+std::vector<Inventory> LoadCharacterInventories(FileBuffer&);
+std::vector<Character> LoadCharacters(FileBuffer&, std::vector<Inventory>&);
 Inventory LoadCharacterInventory(FileBuffer&, unsigned offset);
 Conditions LoadConditions(FileBuffer&, unsigned character);
 std::vector<SkillAffector> GetCharacterSkillAffectors(FileBuffer&, CharIndex);

@@ -12,6 +12,20 @@ namespace BAK {
 class Party
 {
 public:
+    Party() = delete;
+    Party(const Party&) = delete;
+    Party& operator=(const Party&) = delete;
+
+    Party(Party&&) = default;
+    Party& operator=(Party&&) = default;
+
+    Party(
+        Royals,
+        KeyContainer&&,
+        std::vector<Inventory>&&,
+        std::vector<Character>&&,
+        std::vector<CharIndex>&&);
+
     std::size_t GetNumCharacters() const;
     const Character& GetCharacter(CharIndex i) const;
     Character& GetCharacter(CharIndex i);
@@ -71,6 +85,7 @@ public:
     Royals mGold;
     KeyContainer mKeys;
 
+    std::vector<Inventory> mInventories;
     std::vector<Character> mCharacters;
     std::vector<CharIndex> mActiveCharacters;
 };

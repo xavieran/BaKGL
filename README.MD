@@ -81,6 +81,14 @@ make
 
 The relevant binaries will be placed in your build directory.
 
+#### Audio
+To use the fluidsynth backend, change the audio backend in your config.json to FluidSynth.
+You will also need to specify a soundfont using environment variable SDL_SOUNDFONTS.
+e.g. on manjaro after installing `soundfont-fluid` package
+```
+export SDL_SOUNDFONTS=/usr/share/soundfonts/FluidR3_GM.sf2
+```
+
 ### Windows
 You can build on Windows by opening the project in Visual Studio.
 

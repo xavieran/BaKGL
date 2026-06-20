@@ -81,6 +81,15 @@ void GameState::LoadGame(std::string savePath)
     }
     mCombatWorldLocations = LoadCombatWorldLocations(mGameData.GetFileBuffer());
     mCombatantGridLocations = LoadCombatantGridLocations(mGameData.GetFileBuffer());
+    mCombatCharacters.clear();
+    mCombatCharacters.reserve(SaveOffsets::sCombatStatsCount);
+    for (unsigned i = 0; i < SaveOffsets::sCombatStatsCount; i++)
+    {
+        mCombatCharacters.emplace_back(LoadCombatant(
+            CombatantIndex{i},
+            mGameData.GetFileBuffer(),
+            mCombatContainers[i]));
+    }
     mSpellState = LoadSpells(mGameData.GetFileBuffer());
 }
 
@@ -1181,11 +1190,14 @@ bool GameState::SaveState()
             GetTile(GetLocation().mPosition)),
         HeadingToFullMapAngle(GetLocation().mHeading)
     };
+
     BAK::Save(mapLocation, mGameData.GetFileBuffer());
     BAK::Save(mGameData.mLocation, mGameData.GetFileBuffer());
     BAK::Save(mCombatWorldLocations, mGameData.GetFileBuffer());
     BAK::Save(mCombatantGridLocations, mGameData.GetFileBuffer());
     BAK::Save(mCombatEntityLists, mGameData.GetFileBuffer());
+    BAK::Save(mCombatCharacters, mGameData.GetFileBuffer());
+
     return true;
 }
 
@@ -1543,6 +1555,13 @@ CombatantGridLocation& GameState::GetCombatantGridLocation(
     CombatantIndex index)
 {
     return mCombatantGridLocations[index.mValue];
+}
+
+Character* GameState::GetCombatantCharacter(CombatantIndex index)
+{
+    if (index.mValue < mCombatCharacters.size())
+        return &mCombatCharacters[index.mValue];
+    return nullptr;
 }
 
 CombatEntityList& GameState::GetCombatEntityList(

@@ -21,6 +21,7 @@ GameData::GameData()
     mParty{
         Royals{1000},
         Inventory{20},
+        {},
         std::vector<Character>{
             Character{
                 0,
@@ -28,9 +29,10 @@ GameData::GameData()
                 Skills{},
                 Spells{{}},
                 {},
+                uint8_t{0},
                 {},
                 Conditions{},
-                Inventory{5}}},
+                nullptr}},
         std::vector<CharIndex>{CharIndex{0}}}
 {
 }

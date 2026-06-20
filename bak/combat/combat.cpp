@@ -56,7 +56,9 @@ std::ostream& operator<<(std::ostream& os, const CombatantGridLocation& cgl)
         << cgl.mMonster << " pos: " << cgl.mGridPos
         << " unk1: " << cgl.mUnknown1
         << " state: " << +cgl.mState
-        << " rest: " << cgl.mRest<< "}";
+        << " rest0: " << cgl.mRest0
+        << " retreat: " << +cgl.mRetreatFactor
+        << " rest1: " << cgl.mRest1<< "}";
     return os;
 }
 

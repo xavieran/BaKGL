@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/partyChangeCache.hpp"
+#include "bak/character.hpp"
 #include "bak/combat/combat.hpp"
 #include "bak/container.hpp"
 #include "bak/dialogAction.hpp"
@@ -189,6 +190,7 @@ public:
         unsigned tileCombatIndex,
         std::uint8_t combatantRelativeIndex);
     CombatantGridLocation& GetCombatantGridLocation(CombatantIndex);
+    Character* GetCombatantCharacter(CombatantIndex);
     CombatEntityList& GetCombatEntityList(CombatIndex);
     void ReactivateCombat(const Encounter::Encounter&, CombatIndex);
 
@@ -240,6 +242,7 @@ private:
     std::vector<CombatEntityList> mCombatEntityLists{};
     std::vector<CombatWorldLocation> mCombatWorldLocations{};
     std::vector<CombatantGridLocation> mCombatantGridLocations{};
+    std::vector<Character> mCombatCharacters{};
     SpellState mSpellState{};
     TextVariableStore mTextVariableStore{};
     FMapXY mFullMap;

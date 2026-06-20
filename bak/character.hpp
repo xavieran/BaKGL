@@ -25,9 +25,12 @@ public:
         const Skills& skills,
         Spells spells,
         const std::array<std::uint8_t, 2>& unknown,
-        const std::array<std::uint8_t, 7>& unknown2,
+        uint8_t combatCharIndex,
+        const std::array<std::uint8_t, 6>& unknown2,
         const Conditions& conditions,
-        Inventory&& inventory);
+        Inventory* inventory);
+
+    bool IsEnemy() const;
 
     /* IContainer */
     Inventory& GetInventory() override;
@@ -88,9 +91,10 @@ public:
     mutable Skills mSkills;
     Spells mSpells;
     std::array<std::uint8_t, 2> mUnknown;
-    std::array<std::uint8_t, 7> mUnknown2;
+    uint8_t mCombatCharIndex{};
+    std::array<std::uint8_t, 6> mUnknown2;
     Conditions mConditions;
-    Inventory mInventory;
+    Inventory* mInventory;
     std::vector<SkillAffector> mSkillAffectors;
 
     const Logging::Logger& mLogger;

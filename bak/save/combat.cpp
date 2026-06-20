@@ -1,11 +1,15 @@
 #include "bak/save/combat.hpp"
 
 #include "bak/save/saveOffsets.hpp"
+#include "bak/character.hpp"
+#include "bak/container.hpp"
 #include "bak/spells.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/state/encounter.hpp"
 
 #include "com/logger.hpp"
+
+#include <sstream>
 
 namespace BAK {
 
@@ -68,6 +72,44 @@ std::vector<Skills> LoadCombatStats(FileBuffer& fb)
     return data;
 }
 
+Character LoadCombatant(
+    CombatantIndex combatant,
+    FileBuffer& fb,
+    GenericContainer& container)
+{
+    const auto& logger = Logging::LogState::GetLogger("LoadCombatant");
+    const auto offset = SaveOffsets::sCombatStatsOffset
+                      + combatant.mValue * SaveOffsets::sCharacterSkillLength;
+    fb.Seek(offset);
+    logger.Spam() << "Loading Combatant #" << combatant.mValue
+        << " skills @" << std::hex << offset << std::dec << std::endl;
+
+    auto unknown  = fb.GetArray<2>();
+    auto spells   = Spells{fb.GetArray<6>()};
+    auto skills   = LoadSkills(fb);
+    auto combatCharIndex = fb.GetUint8();
+    assert(combatCharIndex == 0);
+    auto unknown2 = fb.GetArray<6>();
+
+    std::stringstream ss{};
+    ss << "Combatant #" << combatant.mValue;
+    auto name = ss.str();
+
+    logger.Spam() << "Loaded Combatant #" << combatant.mValue
+        << " \"" << name << "\" " << skills << "\n";
+
+    return Character{
+        combatCharIndex,
+        name,
+        skills,
+        std::move(spells),
+        unknown,
+        combatCharIndex,
+        unknown2,
+        Conditions{},
+        &container.GetInventory()};
+}
+
 std::vector<CombatantGridLocation> LoadCombatantGridLocations(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadCombatantGridLocations");
@@ -83,8 +125,10 @@ std::vector<CombatantGridLocation> LoadCombatantGridLocations(FileBuffer& fb)
         const auto gridY = fb.GetUint8();
         const auto unknown1 = fb.GetUint16LE();
         const auto state = fb.GetUint8();
-        const auto rest = fb.GetArray<13>();
-        data.emplace_back(CombatantGridLocation{unknown0, MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}, unknown1, state, rest});
+        const auto rest0 = fb.GetArray<5>();
+        const auto retreatFactor = fb.GetUint8();
+        const auto rest1 = fb.GetArray<7>();
+        data.emplace_back(CombatantGridLocation{unknown0, MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}, unknown1, state, rest0, retreatFactor, rest1});
         logger.Spam() << "CGL #" << i << data.back() << "\n";
     }
     return data;
@@ -102,10 +146,9 @@ void Save(const std::vector<CombatantGridLocation>& cgls, FileBuffer& fb)
         fb.PutUint8(cgl.mGridPos.y);
         fb.PutUint16LE(cgl.mUnknown1);
         fb.PutUint8(cgl.mState);
-        for (auto val : cgl.mRest)
-        {
-            fb.PutUint8(val);
-        }
+        for (auto val : cgl.mRest0) fb.PutUint8(val);
+        fb.PutUint8(cgl.mRetreatFactor);
+        for (auto val : cgl.mRest1) fb.PutUint8(val);
     }
 }
 
@@ -176,6 +219,60 @@ void Save(const std::vector<CombatWorldLocation>& cwls, FileBuffer& fb)
         fb.PutUint16LE(cwl.mPosition.mHeading << 8);
         fb.PutUint8(cwl.mImageIndex);
         fb.PutUint8(std::to_underlying(cwl.mState));
+    }
+}
+
+void Save(const std::vector<Skills>& stats, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sCombatStatsOffset);
+    assert(stats.size() == SaveOffsets::sCombatStatsCount);
+    for (const auto& skills : stats)
+    {
+        fb.Skip(2);
+        fb.Skip(6);
+        for (unsigned i = 0; i < Skills::sSkills; i++)
+        {
+            const auto& skill = skills.GetSkill(static_cast<SkillType>(i));
+            fb.PutUint8(skill.mMax);
+            fb.PutUint8(skill.mTrueSkill);
+            fb.PutUint8(skill.mCurrent);
+            fb.PutUint8(skill.mExperience);
+            fb.PutUint8(skill.mModifier);
+        }
+        fb.Skip(7);
+    }
+}
+
+void Save(const std::vector<Time>& times, FileBuffer& fb)
+{
+    assert(times.size() == 100);
+    for (unsigned i = 0; i < 100; i++)
+    {
+        State::SetCombatClickedTime(fb, CombatIndex{i}, times[i]);
+    }
+}
+
+void Save(const std::vector<Character>& chars, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sCombatStatsOffset);
+    assert(chars.size() == SaveOffsets::sCombatStatsCount);
+    for (const auto& c : chars)
+    {
+        for (auto v : c.mUnknown) fb.PutUint8(v);
+        const auto* spells = reinterpret_cast<const std::uint8_t*>(&c.GetSpells().GetSpellBytes());
+        for (unsigned i = 0; i < 6; i++) fb.PutUint8(spells[i]);
+        const auto& skills = c.GetSkills();
+        for (unsigned i = 0; i < Skills::sSkills; i++)
+        {
+            const auto& skill = skills.GetSkill(static_cast<SkillType>(i));
+            fb.PutUint8(skill.mMax);
+            fb.PutUint8(skill.mTrueSkill);
+            fb.PutUint8(skill.mCurrent);
+            fb.PutUint8(skill.mExperience);
+            fb.PutUint8(skill.mModifier);
+        }
+        fb.PutUint8(c.mCombatCharIndex);
+        for (auto v : c.mUnknown2) fb.PutUint8(v);
     }
 }
 

@@ -491,9 +491,9 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
         mEncounterHandler.GetCombatHandler().UpdatePostEncounterFlags(encounter, combat);
 
         unsigned i = 0;
-        for (auto cIdx: mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
+        for (auto combatantIndex: mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
         {
-            auto& cgl = mGameState.GetCombatantGridLocation(cIdx);
+            auto& cgl = mGameState.GetCombatantGridLocation(combatantIndex);
             cgl.mState |= std::to_underlying(BAK::Combat::CombatantState::Dead);
 
             auto& cwl = mGameState.GetCombatWorldLocation(
@@ -580,9 +580,9 @@ void GameRunner::EnterCombatFromEncounter()
         HideGrid();
     ShowGrid(playerPos);
 
-    for (auto cIdx: mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
+    for (auto combatantIndex : mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
     {
-        const auto& cgl = mGameState.GetCombatantGridLocation(cIdx);
+        const auto& cgl = mGameState.GetCombatantGridLocation(combatantIndex);
         if (CheckBitSet(cgl.mState, BAK::Combat::CombatantState::Dead))
         {
             continue;
@@ -604,7 +604,7 @@ void GameRunner::EnterCombatFromEncounter()
                 &actor.mModelMatrix});
 
         mCombatManager.AddCombatant(Combat::Combatant{
-            nullptr,
+            mGameState.GetCombatantCharacter(combatantIndex),
             monsterIndex,
             cgl.mGridPos,
             BAK::Combat::CombatantState::Alive,
