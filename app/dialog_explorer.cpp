@@ -4,15 +4,13 @@
 
 #include "com/logger.hpp"
 
+#include "graphics/glfw.hpp"
+
 #include "imgui/imguiWrapper.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-
-#include <GL/glew.h>
-
-#include <GLFW/glfw3.h>
 
 #include <stack>
 
@@ -28,48 +26,12 @@ int main(int argc, char** argv)
 
     const auto& dialogStore = BAK::DialogStore::Get();
 
-    if( !glfwInit() )
-    {
-        logger.Error() << "Failed to initialize GLFW" << std::endl;
-        std::exit(1);
-    }
+    auto window = Graphics::MakeGlfwWindow(
+        800,
+        600,
+        argc == 2 ? argv[1] : "Dialog Explorer");
 
-    GLFWwindow* window;
-
-    const unsigned antiAliasingSamples = 4;
-    glfwWindowHint(GLFW_SAMPLES, antiAliasingSamples);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    unsigned height = 800;
-    unsigned width  = 600;
-    /*unsigned height = 1600;
-    unsigned width  = 2400;*/
-
-    window = glfwCreateWindow(width, height, argc == 2 ? argv[1] : "Dialog Explorer", NULL, NULL);
-    if( window == NULL )
-    {
-        logger.Log(Logging::LogLevel::Error) << "Failed to open GLFW window" << std::endl;
-        glfwTerminate();
-        std::exit(1);
-    }
-
-    glfwMakeContextCurrent(window);
-
-    // Initialize GLEW
-    glewExperimental = true; // Needed for core profile
-    if (glewInit() != GLEW_OK)
-    {
-        logger.Log(Logging::LogLevel::Error) << "Failed to initialize GLEW" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    
-    ImguiWrapper::Initialise(window);
+    ImguiWrapper::Initialise(window.get());
     
     // Dark blue background
     glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
@@ -164,18 +126,15 @@ int main(int argc, char** argv)
         
         glClear(GL_COLOR_BUFFER_BIT);
 
-        ImguiWrapper::Draw(window);
+        ImguiWrapper::Draw(window.get());
         
         // Swap buffers
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window.get());
     } // Check if the ESC key was pressed or the window was closed
-    while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS 
-        && glfwWindowShouldClose(window) == 0);
+    while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS 
+        && glfwWindowShouldClose(window.get()) == 0);
 
     ImguiWrapper::Shutdown();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 
     return 0;
 }
