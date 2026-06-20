@@ -31,8 +31,10 @@ string(CONCAT CXX_IGNORES
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Silence complaints about using Populate - needed until AudioCodecs exports
-# proper cmake targets
-cmake_policy(SET CMP0169 OLD)
+# proper cmake targets (CMP0169 introduced in CMake 3.30)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
+    cmake_policy(SET CMP0169 OLD)
+endif()
 
 if (MSVC)
     # Statically link MSVC runtime
@@ -56,7 +58,7 @@ else()
     #set(CXX_USAN "-fvisibility=hidden -fsanitize=undefined -fno-sanitize=vptr -fno-sanitize=alignment")
     set(CXX_ASAN "-fsanitize=address -fno-omit-frame-pointer")
     #set(CXX_TSAN "-fsanitize=thread")
-    
+
     set(CXX_USAN "")
     set(CXX_ASAN "")
     set(CXX_TSAN "")
@@ -93,6 +95,14 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
+
+if (TARGET GLEW::glew AND NOT GLEW_LIBRARIES)
+    get_target_property(GLEW_INCLUDE_DIR GLEW::glew INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(GLEW_LIBRARIES   GLEW::glew IMPORTED_LOCATION_RELEASE)
+    if (NOT GLEW_LIBRARIES)
+        get_target_property(GLEW_LIBRARIES GLEW::glew IMPORTED_LOCATION)
+    endif()
+endif()
 include_directories(${GLEW_INCLUDE_DIR})
 
 include(FetchContent)
@@ -100,7 +110,7 @@ include(FetchContent)
 # --- GLM --- #
 
 FetchContent_Declare(
-    glm 
+    glm
     GIT_REPOSITORY https://github.com/g-truc/glm
     GIT_TAG 1.0
 )
@@ -264,6 +274,9 @@ if(NOT SDLMixerX_POPULATED)
     set(USE_MIDI_TIMIDITY OFF)
     set(USE_GME OFF)
     set(USE_OPUS OFF)
+    if (APPLE)
+        set(USE_WAVPACK OFF)
+    endif()
     set(USE_MODPLUG OFF)
     set(USE_MP3_MPG123 OFF)
     set(USE_XMP OFF)
@@ -297,10 +310,10 @@ include_directories(${SDLMixerX_SOURCE_DIR}/include)
 link_directories(${SDLMixerX_BINARY_DIR}/lib)
 
 # --- Common Link Libraries --- #
-set(LINK_3D_LIBRARIES 
-    ${GLEW_LIBRARIES} 
+set(LINK_3D_LIBRARIES
+    ${GLEW_LIBRARIES}
     glm
-    ${OPENGL_LIBRARY} 
+    ${OPENGL_LIBRARY}
     ${GLFW3_LIBRARY}
     )
 
@@ -309,9 +322,11 @@ if (UNIX)
     set(LINK_UNIX_LIBRARIES
         m
         dl
-        rt
         stdc++
         pthread)
+    if (NOT APPLE)
+        list(APPEND LINK_UNIX_LIBRARIES rt)
+    endif()
 endif()
 
 # --- My project CXX flags --- #

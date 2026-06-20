@@ -1,4 +1,5 @@
 #include "com/demangle.hpp"
+#include <cstdlib>
 
 namespace com {
 

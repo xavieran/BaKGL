@@ -56,6 +56,7 @@ std::unique_ptr<GLFWwindow, DestroyGlfwWindow> MakeGlfwWindow(
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     window = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
     if( window == nullptr)
@@ -75,8 +76,12 @@ std::unique_ptr<GLFWwindow, DestroyGlfwWindow> MakeGlfwWindow(
         throw std::runtime_error("Failed to initialize GLEW");
     }
 
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(OpenGlMessageCallback, 0);
+    // glDebugMessageCallback requires GL 4.3 / GL_ARB_debug_output; not available on macOS.
+    if (glDebugMessageCallback)
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(OpenGlMessageCallback, 0);
+    }
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
