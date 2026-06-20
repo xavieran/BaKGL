@@ -36,18 +36,17 @@
 #include "gui/IDialogScene.hpp"
 
 #include "bak/partyChangeCache.hpp"
-#include "bak/condition.hpp"
-#include "bak/skills.hpp"
 #include "bak/types.hpp"
 
 #include <glm/glm.hpp>
 
-#include <array>
 #include <functional>
 #include <utility>
 
 namespace BAK {
 class GameState;
+class ICombatManager;
+class ICombatUI;
 }
 
 namespace Gui {
@@ -141,6 +140,10 @@ public:
     bool GetCombatSequenceActive() { return mCombatSequenceActive; }
     void PopOnExitCallback(OnExit action);
 
+    void SetCombatManager(BAK::ICombatManager& combatManager) override;
+    BAK::ICombatUI& GetCombatUI() override;
+    BAK::ICombatManager& GetCombatManager() override;
+
 private:
     void CacheState();
     bool NotifyPartyChanges();
@@ -190,6 +193,7 @@ private:
 
     AnimatorStore mAnimatorStore;
     BAK::IZoneLoader* mZoneLoader;
+    BAK::ICombatManager* mCombatManager{nullptr};
     Widget* mPreviousScreen{nullptr};
 
     BAK::Encounter::TeleportFactory mTeleportFactory{};

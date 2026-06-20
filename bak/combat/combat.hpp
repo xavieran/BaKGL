@@ -22,11 +22,11 @@ std::string_view ToString(CombatResult);
 
 enum class CombatantWorldState : std::uint8_t
 {
-    Invisible0,
-    Invisible1,
-    Moving0,
-    Moving1,
-    Dead
+    Invisible0 = 0,
+    Invisible1 = 1,
+    Moving0 = 2,
+    Moving1 = 3,
+    Dead = 4
 };
 
 std::string_view ToString(CombatantWorldState);

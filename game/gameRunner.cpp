@@ -86,6 +86,8 @@ GameRunner::GameRunner(
         });
     mEncounterHandler.GetCombatHandler().SetEnterCombatCallback(
         [this](){ EnterCombatFromEncounter(); });
+
+    mGuiManager.SetCombatManager(mCombatManager);
 }
 
 void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)

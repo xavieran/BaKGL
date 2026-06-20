@@ -3,6 +3,8 @@
 #include "bak/dataTags.hpp"
 #include "bak/tags.hpp"
 
+#include "com/logger.hpp"
+
 namespace BAK {
 
 SoundData::SoundData(
@@ -90,6 +92,8 @@ SoundStore::SoundStore()
                 sound.GenerateBuffer();
                 code = fb.GetUint8();
             }
+
+            Logging::LogDebug("SoundStore") << "Sound #" << id << " " << *name << "\n";
 
             mSoundMap.try_emplace(id, *name, soundType, std::move(sounds));
         }
