@@ -1,19 +1,24 @@
 #pragma once
 
 #include "game/combat/grid.hpp"
+#include "game/combat/gridAlgorithms.hpp"
+#include "game/combat/ICombatStage.hpp"
 
 #include "bak/combat/ICombatManager.hpp"
+#include "bak/combat/ICombatUI.hpp"
 
 #include "bak/character.hpp"
 #include "bak/combat/mechanics.hpp"
 #include "bak/coordinates.hpp"
 
+#include "com/bits.hpp"
+#include "com/logger.hpp"
+
+#include <cassert>
 #include <vector>
 
 namespace Game::Combat {
 
-
-// Make it polymorphic?
 struct Combatant
 {
     BAK::Character* mCharacter;
@@ -27,10 +32,21 @@ struct Combatant
     bool mIsPoisoned{false};
 };
 
+enum class StateFlags
+{
+    Reachable     = 0,
+    Attackable    = 1,
+    LOSAttackable = 2,
+    HasZap        = 3,
+    HasMine       = 4,
+    HasCrystal    = 5
+};
+
 struct GridElem
 {
     BAK::GamePositionAndHeading mPos;
-    Combatant* mElement;
+    std::uint16_t mState;
+    Combatant* mElement{nullptr};
 };
 
 /* 
@@ -50,115 +66,53 @@ struct GridElem
  *   | Melee
  *   Next combatant
  */
-
 class CombatManager : public BAK::ICombatManager
 {
 public:
-    void SetCastingSpell(BAK::SpellIndex) override {}
-    void SetUsingCrossbow() override {}
+    CombatManager(ICombatStage& stage, BAK::ICombatUI& ui);
 
-    void AddCombatant(Combatant combatant)
-    {
-        mCombatants.emplace_back(combatant);
-    }
+    void SetCastingSpell(BAK::SpellIndex) override;
+    void SetUsingCrossbow() override;
 
-    Combatant* GetCombatant(BAK::CharIndex character)
-    {
-        auto it = std::find_if(mCombatants.begin(), mCombatants.end(),
-            [&](auto& combatant){
-                return (combatant.mCharacter != nullptr)
-                    && combatant.mCharacter->GetIndex() == character;
-        });
+    void AddCombatant(Combatant combatant);
 
-        if (it != mCombatants.end())
-        {
-            return &(*it);
-        }
+    void BeginCombat();
 
-        return nullptr;
-    }
+    void GridCellClicked(glm::uvec2 targetGrid);
 
-    Combatant* GetCombatant(BAK::EntityIndex entityIndex)
-    {
-        auto it = std::find_if(mCombatants.begin(), mCombatants.end(),
-            [&](auto& combatant){
-                return combatant.mEntityIndex == entityIndex;
-        });
-
-        if (it != mCombatants.end())
-        {
-            return &(*it);
-        }
-
-        return nullptr;
-    }
-
-    Combatant* GetCombatant(glm::uvec2 gridPos)
-    {
-        auto it = std::find_if(mCombatants.begin(), mCombatants.end(),
-            [&](auto& combatant){
-                return combatant.mGridPos == gridPos;
-        });
-
-        if (it != mCombatants.end())
-        {
-            return &(*it);
-        }
-
-        return nullptr;
-    }
-
-    std::vector<Combatant> GetCombatants()
-    {
-        return mCombatants;
-    }
-
-    void Clear()
-    {
-        mCombatants.clear();
-    }
-
-    void SetCurrentCombatant(bool onlyParty)
-    {
-        std::optional<unsigned> bestSpeed{};
-        auto combatant = 0;
-        for (unsigned i = 0; i < mCombatants.size(); i++)
-        {
-            auto* character = mCombatants[combatant].mCharacter;
-            if (!character)
-            {
-                continue;
-            }
-
-            if (onlyParty && character->IsEnemy())
-            {
-                continue;
-            }
-
-            auto speed = character->GetSkill(BAK::SkillType::Speed);
-
-            if (!bestSpeed || speed > *bestSpeed)
-            {
-                bestSpeed = speed;
-                combatant = i;
-            }
-        }
-
-        mCurrentCombatant = combatant;
-    }
-
-    Combatant& GetCurrentCombatant()
-    {
-        assert(mCurrentCombatant < mCombatants.size());
-        return mCombatants[mCurrentCombatant];
-    }
+    void EndCombat();
 
 private:
+    Combatant* GetCombatant(BAK::CharIndex character);
+    Combatant* GetCombatant(BAK::EntityIndex entityIndex);
+    Combatant* GetCombatant(glm::uvec2 gridPos);
+
+    std::vector<Combatant> GetCombatants();
+
+    void SetCurrentCombatant(bool onlyParty);
+    Combatant& GetCurrentCombatant();
+
+    void ComputeGrid();
+
+    void PrintGridState();
+
+    bool CanMoveTo(const Combatant& combatant, glm::uvec2 target) const;
+    bool CanAttack(const Combatant& combatant, glm::uvec2 target) const;
+
+    void CompleteMove(BAK::EntityIndex entityIndex, glm::uvec2 target);
+
+    void FinishTurn();
+
+    void ClearGrid();
+
     std::vector<Combatant> mCombatants{};
 
-    std::size_t mCurrentCombatant;
+    unsigned mCurrentCombatant{0};
     Grid<GridElem> mGrid;
-
+    ICombatStage& mStage;
+    BAK::ICombatUI& mCombatUI;
+    const Logging::Logger& mLogger;
 };
 
 }
+

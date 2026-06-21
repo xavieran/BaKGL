@@ -50,17 +50,17 @@ CombatScreen::CombatScreen(
         true
     },
     mCharacter{
-        [this]{
-            if (!mSelectedCharacter)
-                mSelectedCharacter = BAK::ActiveCharIndex{0};
-            else
-                mSelectedCharacter = mGameState.GetParty().NextActiveCharacter(*mSelectedCharacter);
-            RefreshGui();
+        []{
+            // Open combatant inventory...
         },
         [this]{
             if (mSelectedCharacter)
             {
-                mGuiManager.ShowCharacterPortrait(*mSelectedCharacter);
+                if (auto activeIdx = mGameState.GetParty().FindActiveCharacter(
+                        *mSelectedCharacter))
+                {
+                    mGuiManager.ShowCharacterPortrait(*activeIdx);
+                }
             }
         },
         ImageTag{},
@@ -125,7 +125,7 @@ CombatScreen::CombatScreen(
 }
 
 void CombatScreen::SetSelectedCharacter(
-    BAK::ActiveCharIndex character)
+    BAK::CharIndex character)
 {
     mSelectedCharacter = character;
     RefreshGui();

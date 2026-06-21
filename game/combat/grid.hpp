@@ -2,7 +2,6 @@
 
 #include <vector>
 
-
 namespace Game {
 
 template <typename T, unsigned Cols = 8, unsigned Rows = 13>
@@ -23,8 +22,13 @@ public:
         return mStorage[y * Cols + x];
     }
 
-    static constexpr auto GetCols() { return Cols; }
-    static constexpr auto GetRows() { return Rows; }
+    auto GetCols() const { return Cols; }
+    auto GetRows() const { return Rows; }
+
+    bool WithinBounds(unsigned x, unsigned y) const
+    {
+        return x < Cols && y < Rows;
+    }
 
 private:
     std::vector<T> mStorage;

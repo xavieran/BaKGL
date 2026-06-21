@@ -347,6 +347,11 @@ int main(int argc, char** argv)
         }
     };
 
+    auto InputAllowed = [&]{
+        return guiManager.InMainView()
+            || (guiManager.InCombatView() && !gameRunner.IsAnimationActive());
+    };
+
     Graphics::InputHandler inputHandler{};
     inputHandler.Bind(GLFW_KEY_G,     [&]{ if (guiManager.InMainView()) cameraPtr = &camera; });
     inputHandler.Bind(GLFW_KEY_H,     [&]{ if (guiManager.InMainView()) cameraPtr = &lightCamera; });
@@ -354,31 +359,31 @@ int main(int argc, char** argv)
         if (guiManager.InMainView())
             UpdateLightCamera();
     });
-    inputHandler.Bind(GLFW_KEY_UP,   [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeForward(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeBackward(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeRight(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_UP,   [&]{ if (InputAllowed()){cameraPtr->StrafeForward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ if (InputAllowed()){cameraPtr->StrafeBackward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (InputAllowed()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (InputAllowed()){cameraPtr->StrafeRight(); UpdateGameTile();}});
 
-    inputHandler.Bind(GLFW_KEY_W, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->MoveForward(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_A, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_D, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeRight(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_S, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->MoveBackward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_W, [&]{ if (InputAllowed()){cameraPtr->MoveForward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_A, [&]{ if (InputAllowed()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_D, [&]{ if (InputAllowed()){cameraPtr->StrafeRight(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_S, [&]{ if (InputAllowed()){cameraPtr->MoveBackward(); UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_Q, [&]{
-        if (guiManager.InMainView() || guiManager.InCombatView())
+        if (InputAllowed())
         {
             cameraPtr->RotateLeft();
             guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         }});
     inputHandler.Bind(GLFW_KEY_E, [&]{ 
-        if (guiManager.InMainView() || guiManager.InCombatView())
+        if (InputAllowed())
         {
             cameraPtr->RotateRight();
             guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         }});
-    inputHandler.Bind(GLFW_KEY_Z, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeUp();     UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_V, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()){cameraPtr->StrafeDown();   UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_X, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalUp(); });
-    inputHandler.Bind(GLFW_KEY_Y, [&]{ if (guiManager.InMainView() || guiManager.InCombatView()) cameraPtr->RotateVerticalDown(); });
+    inputHandler.Bind(GLFW_KEY_Z, [&]{ if (InputAllowed()){cameraPtr->StrafeUp();     UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_V, [&]{ if (InputAllowed()){cameraPtr->StrafeDown();   UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_X, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalUp(); });
+    inputHandler.Bind(GLFW_KEY_Y, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
     inputHandler.Bind(GLFW_KEY_I, [&]{ 
         if (!imGuiInitialised)
@@ -401,7 +406,7 @@ int main(int argc, char** argv)
         {
             bool guiHandled = root.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * clickPos});
-            if (!guiHandled && (guiManager.InMainView() || guiManager.InCombatView()))
+            if (!guiHandled && InputAllowed())
             {
                 glDisable(GL_BLEND);
                 glDisable(GL_MULTISAMPLE);

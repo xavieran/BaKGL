@@ -181,7 +181,21 @@ LockStats& Character::GetLock() { ASSERT(false); return *reinterpret_cast<LockSt
 
 CharIndex Character::GetIndex() const { return mCharacterIndex; }
 
-MonsterIndex Character::GetMonsterIndex() const { return MonsterIndex{mCharacterIndex.mValue + 15}; }
+MonsterIndex Character::GetMonsterIndex() const
+{
+    // FIXME: Maybe there's a way to do this without 
+    // an explicit mapping to these hardcoded values...
+    switch (mCharacterIndex.mValue)
+    {
+        case 0: return MonsterIndex{17};
+        case 1: return MonsterIndex{15};
+        case 2: return MonsterIndex{16};
+        case 3: return MonsterIndex{45};
+        case 4: return MonsterIndex{51};
+        case 5: return MonsterIndex{47};
+    }
+    return MonsterIndex{0};
+}
 
 bool Character::IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mMax != 0; }
 bool Character::IsSwordsman() const { return !IsSpellcaster(); }
