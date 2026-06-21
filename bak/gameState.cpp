@@ -70,6 +70,9 @@ void GameState::LoadGame(std::string savePath)
     mGDSContainers = LoadShops(mGameData.GetFileBuffer());
     mCombatContainers = LoadCombatInventories(mGameData.GetFileBuffer());
     mTimeExpiringState = LoadTimeExpiringState(mGameData.GetFileBuffer());
+    // There's too many inconsistencies in the game for this to work.
+    // e.g. The combatant associated with Baby Irisa grave is 1699 according
+    // to it's inventory, but there is no CGL associated with 1699.
     if (mFixCombatEntityLists)
     {
         mLogger.Info() << "Regenerating combat entity lists\n";

@@ -65,7 +65,7 @@ public:
         BAK::GameState& gameState);
 
     void SetSelectedCharacter(
-        BAK::ActiveCharIndex character) override;
+        BAK::CharIndex character) override;
 
     /* Widget */
     bool OnMouseEvent(const MouseEvent& event) override;
@@ -111,7 +111,7 @@ private:
     ClickButtonImage mCast;
     TextBox mTextArea;
 
-    std::optional<BAK::ActiveCharIndex> mSelectedCharacter;
+    std::optional<BAK::CharIndex> mSelectedCharacter;
     bool mNeedRefresh;
 
     const Logging::Logger& mLogger;

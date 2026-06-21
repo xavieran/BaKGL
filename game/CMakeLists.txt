@@ -4,6 +4,8 @@ add_library(game
     console.hpp console.cpp
     encounterHandler.hpp encounterHandler.cpp
     gameRunner.hpp gameRunner.cpp
+    combat/combatManager.hpp combat/combatManager.cpp
+    combat/gridAlgorithms.hpp combat/gridAlgorithms.cpp
     screens.hpp screens.cpp
     systems.hpp systems.cpp
     interactable/IInteractable.hpp

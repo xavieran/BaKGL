@@ -4,7 +4,12 @@
 
 #include "com/logger.hpp"
 
+#include "graphics/glm.hpp"
+#include <glm/glm.hpp>
+
 #include <cassert>
+#include <cmath>
+#include <numbers>
 #include <utility>
 
 namespace BAK {
@@ -51,6 +56,32 @@ const std::vector<BAK::Direction>& GetDirections(bool granular)
     static const auto three = std::vector<Direction>{South, East, North};
     static const auto five = std::vector<Direction>{South, SouthEast, East, NorthEast, North};
     return granular ? five : three;
+}
+
+BAK::Direction GetDirectionBetween(GamePosition source, GamePosition dest)
+{
+    const auto delta = glm::ivec2(dest) - glm::ivec2(source);
+    if (delta.x == 0 && delta.y == 0)
+        return Direction::South;
+
+    auto radians = std::atan2(
+        static_cast<double>(delta.y),
+        static_cast<double>(delta.x));
+
+    auto heading = ToBakAngle(radians + glm::pi<float>() / 2.0);
+    return static_cast<BAK::Direction>(
+        ((heading + 144u) % 256u) / 32u);
+}
+
+BAK::Direction ToSpriteDirection(Direction direction)
+{
+    switch (direction)
+    {
+        case Direction::NorthWest: return Direction::NorthEast;
+        case Direction::West:      return Direction::East;
+        case Direction::SouthWest: return Direction::SouthEast;
+        default:                   return direction;
+    }
 }
 
 CombatModel::CombatModel(const Model& model)

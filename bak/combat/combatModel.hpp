@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/coordinates.hpp"
+
 #include <array>
 #include <cstdint>
 #include <string_view>
@@ -39,6 +41,8 @@ enum class Direction : std::uint8_t
 
 std::string_view ToString(Direction direction);
 const std::vector<BAK::Direction>& GetDirections(bool granular);
+BAK::Direction GetDirectionBetween(GamePosition source, GamePosition dest);
+BAK::Direction ToSpriteDirection(Direction direction);
 
 class CombatAnimation
 {

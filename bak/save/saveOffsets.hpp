@@ -42,7 +42,7 @@ static constexpr auto sCombatantGridLocationsOffset = 0x31349;
 static constexpr auto sCombatantGridLocationsCount = 1699;
 
 static constexpr auto sCombatStatsOffset = 0x914b;
-static constexpr auto sCombatStatsCount = 1698;
+static constexpr auto sCombatStatsCount = 1699;
 
 static constexpr auto sCharacterInventoryOffset = 0x3a804;
 static constexpr auto sCharacterInventoryLength = 0x70;

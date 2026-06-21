@@ -512,13 +512,11 @@ void GuiManager::ShowContainer(BAK::GenericContainer* container, BAK::EntityType
 }
 
 void GuiManager::EnterCombat(
-    std::function<void(BAK::CombatResult)>&& finished,
-    std::optional<BAK::ActiveCharIndex> activeChar)
+    std::function<void(BAK::CombatResult)>&& finished)
 {
     mCombatFinishedCallback = std::move(finished);
-    DoFade(.8, [this, activeChar]{
+    DoFade(.8, [this]{
         mCursor.PushCursor(0);
-        mCombatScreen.SetSelectedCharacter(activeChar.value_or(BAK::ActiveCharIndex{0}));
         PushScreen(&mCombatScreen);
     });
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bak/coordinates.hpp"
-#include "bak/combat/combat.hpp"
 #include "bak/types.hpp"
 
 #include "game/combatModelLoader.hpp"
@@ -26,19 +25,23 @@ public:
 
     void CalculateModelMatrix()
     {
-        mModelMatrix = Graphics::CalculateModelMatrix(mLocation, mScale, mRotation, BAK::gWorldScale);
+        auto adjustedScale = mScale;
+        if (BAK::ToSpriteDirection(mDirection) != mDirection)
+            adjustedScale.x *= -1.0f;
+        mModelMatrix = Graphics::CalculateModelMatrix(
+            mLocation, adjustedScale, mRotation, BAK::gWorldScale);
     }
 
     void Update()
     {
-        auto request = AnimationRequest{mAnimationType, mDirection};
+        auto request = AnimationRequest{mAnimationType, BAK::ToSpriteDirection(mDirection)};
         const auto& datas = *mCombatModelLoader.mCombatModelDatas[mMonster.mValue];
         if (!datas.mOffsetMap.contains(request))
         {
             return;
         }
         auto animOff = datas.mOffsetMap.at(request);
-        mFrame = mFrame % animOff.mFrames;
+        mFrame = animOff.mFrames == 0 ? 0 : mFrame % animOff.mFrames;
         mObject = datas.mObjectDrawData[animOff.mOffset + mFrame];
         CalculateModelMatrix();
     }
@@ -49,7 +52,7 @@ public:
         mAnimationType = type;
         mDirection = direction;
         const auto& monster = *mCombatModelLoader.mCombatModels[mMonster.mValue];
-        const auto& anim = monster.GetAnimation(type, direction);
+        const auto& anim = monster.GetAnimation(type, BAK::ToSpriteDirection(direction));
         mFrame = anim.mImageIndices.size() - 1;
         Update();
     }

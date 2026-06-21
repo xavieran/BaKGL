@@ -3,6 +3,7 @@
 #include "game/combatModelLoader.hpp"
 #include "game/combat/actorStore.hpp"
 #include "game/combat/combatManager.hpp"
+#include "game/combat/ICombatStage.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
@@ -44,7 +45,7 @@ public:
     BAK::GenericContainer* mContainer;
 };
 
-class GameRunner : public BAK::IZoneLoader
+class GameRunner : public BAK::IZoneLoader, public Combat::ICombatStage
 {
 public:
     GameRunner(
@@ -71,12 +72,27 @@ public:
     void ShowGrid(const BAK::GamePositionAndHeading& orientation);
     void HideGrid();
     bool IsGridVisible() const { return mGridVisible; }
+    bool IsAnimationActive() const { return mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId);
 
     void SetupCombatCamera(const BAK::Encounter::Encounter&);
     void RestoreCameraAfterCombat();
     void CombatCompleted(BAK::CombatResult);
     void EnterCombatFromEncounter();
+
+    void MoveCombatant(
+        BAK::EntityIndex entityId,
+        glm::uvec2 sourceGrid,
+        glm::uvec2 targetGrid,
+        std::function<void()>&& onComplete) override;
+
+    void SetCombatantAction(
+        BAK::EntityIndex entityId,
+        BAK::AnimationType animType) override;
+
+    void AnimateCombatant(
+        BAK::EntityIndex entityId,
+        std::function<void()>&& onComplete) override;
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
@@ -111,7 +127,7 @@ public:
     EncounterHandler mEncounterHandler;
 
     std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatActorIds{};
-    Combat::CombatManager mCombatManager{};
+    Combat::CombatManager mCombatManager;
     bool mClickablesEnabled{};
     bool mDebugRenderEncounters{false};
 
@@ -122,6 +138,8 @@ public:
     bool mGridVisible{false};
     std::vector<Renderable> mGridCellRenderables{};
     std::vector<BAK::EntityIndex> mGridCellEntityIds{};
+
+    bool mAnimationActive{false};
 
     double mAccumulatedTime{};
 
