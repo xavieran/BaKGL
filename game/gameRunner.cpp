@@ -39,7 +39,8 @@ GameRunner::GameRunner(
     Camera& camera,
     BAK::GameState& gameState,
     Gui::GuiManager& guiManager,
-    bool debugRenderEncounters)
+    bool debugRenderEncounters,
+    double animationSpeedMultiplier)
 :
     mCamera{camera},
     mGameState{gameState},
@@ -77,6 +78,7 @@ GameRunner::GameRunner(
     mCombatManager{*this, mGuiManager.GetCombatUI()},
     mClickablesEnabled{false},
     mDebugRenderEncounters{debugRenderEncounters},
+    mAnimationSpeedMultiplier{animationSpeedMultiplier},
     mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
 {
     mGameState.SetFindEncounterCallback(
@@ -503,7 +505,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
             cwl.mState = BAK::CombatantWorldState::Dead;
 
             auto combatantPos = BAK::MakeGamePositionFromGridCell(
-                mGameState.GetLocation(), cgl.mGridPos);
+                mCombatPlayerPos, cgl.mGridPos);
             cwl.mPosition.mPosition = BAK::GetTileSpaceOffset(combatantPos);
             i += 1;
         }
@@ -573,14 +575,14 @@ void GameRunner::EnterCombatFromEncounter()
 
     UnloadWorldActors();
 
-    auto playerPos = mGameState.GetLocation();
+    mCombatPlayerPos = mGameState.GetLocation();
     mRetreatDirection = BAK::Encounter::CalculateRetreatDirection(
-        encounter, playerPos.mPosition);
+        encounter, mCombatPlayerPos.mPosition);
     SetupCombatCamera(encounter);
 
     if (mGridVisible)
         HideGrid();
-    ShowGrid(playerPos);
+    ShowGrid();
 
     for (auto combatantIndex : mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
     {
@@ -592,7 +594,7 @@ void GameRunner::EnterCombatFromEncounter()
 
         auto monsterIndex = BAK::MonsterIndex{cgl.mMonster.mValue};
 
-        auto combatPos = BAK::MakeGamePositionFromGridCell(playerPos, cgl.mGridPos);
+        auto combatPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, cgl.mGridPos);
         auto entityId = mCombatActorStore.AddActor(
             combatPos, monsterIndex);
         auto& actor = *mCombatActorStore.GetActor(entityId);
@@ -619,7 +621,7 @@ void GameRunner::EnterCombatFromEncounter()
 
     mGameState.GetParty().ForEachActiveCharacter([&](auto& character)
     {
-        auto combatPos = BAK::MakeGamePositionFromGridCell(playerPos, charPos[i]);
+        auto combatPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, charPos[i]);
         auto entityId = mCombatActorStore.AddActor(
             combatPos, character.GetMonsterIndex());
         auto& actor = *mCombatActorStore.GetActor(entityId);
@@ -773,19 +775,19 @@ const BAK::Encounter::Encounter& GameRunner::FindEncounterByCombatIndex(BAK::Com
     ASSERT(false);
 }
 
-void GameRunner::ShowGrid(const BAK::GamePositionAndHeading& orientation)
+void GameRunner::ShowGrid()
 {
     if (!mSystems || !mZoneData)
         return;
 
-    auto gridRotation = BAK::ToGlAngle(orientation.mHeading).x;
+    auto gridRotation = BAK::ToGlAngle(mCombatPlayerPos.mHeading).x;
 
     for (unsigned row = 0; row < BAK::gCombatGridRows; row++)
     {
         for (unsigned col = 0; col < BAK::gCombatGridCols; col++)
         {
             auto worldPos = BAK::MakeGamePositionFromGridCell(
-                orientation, glm::uvec2{col, row});
+                mCombatPlayerPos, glm::uvec2{col, row});
             auto glPos = BAK::ToGlCoord<float>(worldPos)
                 + glm::vec3{0, 1.0f, 0};
 
@@ -820,25 +822,22 @@ void GameRunner::HideGrid()
 void GameRunner::MoveCombatant(
     BAK::EntityIndex entityId,
     glm::uvec2 sourceGrid,
-    glm::uvec2 targetGrid,
-    std::function<void()>&& onComplete)
+    glm::uvec2 targetGrid)
 {
     auto* actor = mCombatActorStore.GetActor(entityId);
     assert(actor);
-    mLogger.Debug() << "Moving combatant: " << entityId << " mid: " << actor->mMonster << "\n";
+    auto bakPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, targetGrid);
+    auto targetPos = BAK::ToGlCoord<float>(bakPos);
+    mLogger.Debug() << "Moving combatant: " << entityId
+        << " cam: " << mCombatPlayerPos << " pos: " << bakPos << "\n";
 
-    auto cameraPos = mGameState.GetLocation();
-    auto targetPos = BAK::ToGlCoord<float>(BAK::MakeGamePositionFromGridCell(cameraPos, targetGrid));
     auto startPos = actor->mLocation;
 
     auto direction = BAK::GetDirectionBetween(sourceGrid, targetGrid);
     actor->mDirection = direction;
     actor->Update();
 
-    auto gridDist = glm::distance(
-        glm::vec2{sourceGrid},
-        glm::vec2{targetGrid});
-    auto moveDuration = 0.1 * gridDist;
+    auto moveDuration = sMoveDuration * mAnimationSpeedMultiplier;
 
     mAnimationActive = true;
     mGuiManager.AddAnimator(
@@ -847,9 +846,10 @@ void GameRunner::MoveCombatant(
             startPos,
             targetPos,
             moveDuration,
-            [this, complete=std::move(onComplete)]() mutable {
+            [this, targetGrid]() mutable {
                 mAnimationActive = false;
-                complete();
+                mCombatManager.CompleteMove(
+                    Combat::GridPos(targetGrid));
             }));
 }
 
@@ -867,9 +867,20 @@ void GameRunner::SetCombatantAction(
     actor->Update();
 }
 
-void GameRunner::AnimateCombatant(
+void GameRunner::SetCombatantDirection(
     BAK::EntityIndex entityId,
-    std::function<void()>&& onComplete)
+    BAK::Direction direction)
+{
+    auto* actor = mCombatActorStore.GetActor(entityId);
+    assert(actor);
+    mLogger.Debug() << "Setting combatant direction: " << entityId 
+        << " dir: " << static_cast<unsigned>(direction) << "\n";
+    actor->mDirection = direction;
+    actor->Update();
+}
+
+void GameRunner::AnimateCombatant(
+    BAK::EntityIndex entityId)
 {
     auto* actor = mCombatActorStore.GetActor(entityId);
     assert(actor);
@@ -894,16 +905,56 @@ void GameRunner::AnimateCombatant(
         break;
     }
 
-    auto frameTime = 0.3;
+    auto frameTime = sFrameTime * mAnimationSpeedMultiplier;
 
     mAnimationActive = true;
     mGuiManager.AddAnimator(
         std::make_unique<Combat::FrameAnimator>(
             *actor,
             frameTime,
-            [this, complete=std::move(onComplete)]() mutable {
+            [this]() mutable {
                 mAnimationActive = false;
-                complete();
+            }));
+}
+
+void GameRunner::AnimateAttack(
+    BAK::EntityIndex entityId,
+    glm::uvec2 targetGrid)
+{
+    auto* actor = mCombatActorStore.GetActor(entityId);
+    assert(actor);
+    mLogger.Debug() << "Animating attack: " << entityId 
+        << " mid: " << actor->mMonster << "\n";
+
+    switch (actor->mDirection)
+    {
+    case BAK::Direction::NorthEast:
+        actor->mDirection = BAK::Direction::North;
+        break;
+    case BAK::Direction::NorthWest:
+        actor->mDirection = BAK::Direction::West;
+        break;
+    case BAK::Direction::SouthEast:
+        actor->mDirection = BAK::Direction::East;
+        break;
+    case BAK::Direction::SouthWest:
+        actor->mDirection = BAK::Direction::South;
+        break;
+    default:
+        break;
+    }
+
+    auto frameTime = sFrameTime * mAnimationSpeedMultiplier;
+
+    mAnimationActive = true;
+    mGuiManager.AddAnimator(
+        std::make_unique<Combat::FrameAnimator>(
+            *actor,
+            frameTime,
+            [this, targetGrid]() mutable {
+                mAnimationActive = false;
+                mCombatManager.CompleteAttack(
+                    Combat::GridPos(targetGrid));
             }));
 }
 

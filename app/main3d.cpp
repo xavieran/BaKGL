@@ -307,7 +307,8 @@ int main(int argc, char** argv)
         camera,
         gameState,
         guiManager,
-        config.mGraphics.mDebugRenderEncounters};
+        config.mGraphics.mDebugRenderEncounters,
+        config.mGame.mCombatSpeed};
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);

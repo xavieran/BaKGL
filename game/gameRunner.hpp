@@ -48,11 +48,15 @@ public:
 class GameRunner : public BAK::IZoneLoader, public Combat::ICombatStage
 {
 public:
+    static constexpr double sMoveDuration = 0.15;
+    static constexpr double sFrameTime = 0.25;
+
     GameRunner(
         Camera& camera,
         BAK::GameState& gameState,
         Gui::GuiManager& guiManager,
-        bool debugRenderEncounters = false);
+        bool debugRenderEncounters = false,
+        double animationSpeedMultiplier = 1.0);
     
     void DoTeleport(BAK::Encounter::Teleport teleport) override;
     void LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter) override;
@@ -69,7 +73,7 @@ public:
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
 
-    void ShowGrid(const BAK::GamePositionAndHeading& orientation);
+    void ShowGrid();
     void HideGrid();
     bool IsGridVisible() const { return mGridVisible; }
     bool IsAnimationActive() const { return mAnimationActive; }
@@ -83,16 +87,22 @@ public:
     void MoveCombatant(
         BAK::EntityIndex entityId,
         glm::uvec2 sourceGrid,
-        glm::uvec2 targetGrid,
-        std::function<void()>&& onComplete) override;
+        glm::uvec2 targetGrid) override;
 
     void SetCombatantAction(
         BAK::EntityIndex entityId,
         BAK::AnimationType animType) override;
 
-    void AnimateCombatant(
+    void SetCombatantDirection(
         BAK::EntityIndex entityId,
-        std::function<void()>&& onComplete) override;
+        BAK::Direction direction) override;
+
+    void AnimateCombatant(
+        BAK::EntityIndex entityId) override;
+
+    void AnimateAttack(
+        BAK::EntityIndex entityId,
+        glm::uvec2 targetGrid) override;
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
@@ -134,12 +144,15 @@ public:
     glm::vec3 mSavedCameraPos{};
     glm::vec2 mSavedCameraAngle{};
     BAK::CardinalDirection mRetreatDirection{};
+    BAK::GamePositionAndHeading mCombatPlayerPos{};
 
     bool mGridVisible{false};
     std::vector<Renderable> mGridCellRenderables{};
     std::vector<BAK::EntityIndex> mGridCellEntityIds{};
 
     bool mAnimationActive{false};
+
+    double mAnimationSpeedMultiplier{1.0};
 
     double mAccumulatedTime{};
 

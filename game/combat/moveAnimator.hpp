@@ -45,6 +45,9 @@ public:
 
         if (progress >= 1.0)
         {
+
+            mActor.mLocation = mTarget;
+            mActor.CalculateModelMatrix();
             mAlive = false;
             mOnFinished();
         }

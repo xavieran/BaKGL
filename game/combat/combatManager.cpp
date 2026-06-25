@@ -1,8 +1,13 @@
 #include "game/combat/combatManager.hpp"
 
+#include "game/combat/gridAlgorithms.hpp"
+
+#include "com/bits.hpp"
+#include "com/visit.hpp"
+#include "com/ostream.hpp"
+
 #include <algorithm>
 #include <optional>
-#include <sstream>
 
 namespace Game::Combat {
 
@@ -53,7 +58,7 @@ Combatant* CombatManager::GetCombatant(BAK::EntityIndex entityIndex)
     return nullptr;
 }
 
-Combatant* CombatManager::GetCombatant(glm::uvec2 gridPos)
+Combatant* CombatManager::GetCombatant(GridPos gridPos)
 {
     auto it = std::find_if(mCombatants.begin(), mCombatants.end(),
         [&](auto& combatant){
@@ -84,38 +89,55 @@ Combatant& CombatManager::GetCurrentCombatant()
     return mCombatants[mCurrentCombatant];
 }
 
-void CombatManager::GridCellClicked(glm::uvec2 targetGrid)
+void CombatManager::GridCellClicked(GridPos targetCell)
 {
     auto& combatant = GetCurrentCombatant();
-    mLogger.Debug() << "Moving combatant: " << mCurrentCombatant 
+    mLogger.Debug() << "Cell clicked: " << targetCell
         << " " << GetCurrentCombatant().mCharacter->GetName()
         << " eid: " << combatant.mEntityIndex << "\n";
 
-    if (CanAttack(combatant, targetGrid))
-    {
-        auto* target = GetCombatant(targetGrid);
-        assert(target);
-        mStage.SetCombatantAction(target->mEntityIndex, BAK::AnimationType::ParryHigh);
-        mStage.AnimateCombatant(target->mEntityIndex, []{});
+    auto myPos = combatant.mGridPos;
 
-        auto entityIndex = combatant.mEntityIndex;
-        auto sourceGrid = combatant.mGridPos;
-        mStage.SetCombatantAction(entityIndex, BAK::AnimationType::Slash);
-        mStage.AnimateCombatant(entityIndex, [this]{ FinishTurn(); });
+    if (mGrid.CanAttack(myPos, targetCell))
+    {
+        auto moveTo = SelectBestAttackPosition(myPos, targetCell, mGrid);
+        mLogger.Debug() << "Attacking: " << targetCell << " should move to: " << moveTo << "\n";
+        if (!moveTo)
+        {
+            return;
+        }
+        else if (*moveTo != myPos)
+        {
+            auto moves = CalculatePath(myPos, *moveTo, mGrid);
+            if (moves.empty())
+            {
+                return;
+            }
+            for (auto move : moves) mActions.Push(Move{move});
+        }
+
+        mActions.Push(Attack(targetCell, AttackType::Thrust));
+        mLogger.Debug() << "Queued Actions: " << mActions << "\n";
+
+        ExecuteAction();
+
+        return;
     }
 
-    if (!CanMoveTo(combatant, targetGrid))
+    if (!mGrid.CanMoveTo(targetCell))
     {
         return;
     }
 
-    auto entityIndex = combatant.mEntityIndex;
-    auto sourceGrid = combatant.mGridPos;
-    mStage.MoveCombatant(entityIndex, sourceGrid, targetGrid,
-        [this, entityIndex, targetGrid]()
-        {
-            CompleteMove(entityIndex, targetGrid);
-        });
+    auto moves = CalculatePath(combatant.mGridPos, targetCell, mGrid);
+    mLogger.Debug() << "Path to target: " << moves << "\n";
+    if (moves.empty())
+    {
+        return;
+    }
+
+    for (auto move : moves) mActions.Push(Move{move});
+    ExecuteAction();
 }
 
 void CombatManager::EndCombat()
@@ -181,80 +203,131 @@ void CombatManager::ComputeGrid()
         for (unsigned y = 0; y < mGrid.GetRows(); y++)
         {
             auto& cell = mGrid.Get(x, y);
-            auto distance = ChebyshevDistance(me.mGridPos, glm::uvec2{x, y});
-            if (distance <= speed)
-            {
-                cell.mState = SetBit(cell.mState, StateFlags::Reachable, true);
-            }
+            cell.mState = SetBit(cell.mState, StateFlags::Reachable, true);
         }
     }
-
+  
     for (auto& combatant : mCombatants)
     {
-        auto& cell = mGrid.Get(combatant.mGridPos.x, combatant.mGridPos.y);
+        auto& cell = mGrid.Get(combatant.mGridPos);
         cell.mElement = &combatant;
         if (!combatant.mIsDead)
         {
             cell.mState = SetBit(cell.mState, StateFlags::Reachable, false);
         }
 
-        if (me.mCharacter->IsEnemy() != combatant.mCharacter->IsEnemy())
+        if (!combatant.mIsDead)
         {
-            if (!combatant.mIsDead)
+            auto isEnemy = me.mCharacter->IsEnemy() != combatant.mCharacter->IsEnemy();
+            auto state = isEnemy ? StateFlags::Attackable : StateFlags::IsAlly;
+            cell.mState = SetBit(cell.mState, state, true);
+        }
+    }
+
+    for (unsigned x = 0; x < mGrid.GetCols(); x++)
+    {
+        for (unsigned y = 0; y < mGrid.GetRows(); y++)
+        {
+            auto cellPos = GridPos{static_cast<int>(x), static_cast<int>(y)};
+            if (!mGrid.CanMoveTo(cellPos))
             {
-                cell.mState = SetBit(cell.mState, StateFlags::Attackable, true);
+                continue;
+            }
+
+            auto moves = CalculatePath(me.mGridPos, cellPos, mGrid);
+            if (moves.size() > speed)
+            {
+                auto& cell = mGrid.Get(cellPos);
+                cell.mState = SetBit(cell.mState, StateFlags::Reachable, false);
             }
         }
     }
 
-    PrintGridState();
+    mLogger.Debug() << "GridState: \n" << mGrid << "\n";
 }
 
-void CombatManager::PrintGridState()
+void CombatManager::CompleteMove(GridPos target)
 {
-    std::stringstream ss{};
-    ss << std::hex;
-    for (unsigned _y = mGrid.GetRows(); _y > 0; _y--)
-    {
-        auto y = _y - 1;
-        for (unsigned x = 0; x < mGrid.GetCols(); x++)
-        {
-            auto& cell = mGrid.Get(x, y);
-            ss << cell.mState << " ";
-        }
-        ss << "\n";
-    }
-    mLogger.Debug() << "GridState: \n" << ss.str() << "\n";
-}
+    auto& combatant = GetCurrentCombatant();
 
-bool CombatManager::CanMoveTo(const Combatant& combatant, glm::uvec2 target) const
-{
-    if (!mGrid.WithinBounds(target.x, target.y)) return false;
-    auto& cell = mGrid.Get(target.x, target.y);
-    return CheckBitSet(cell.mState, StateFlags::Reachable);
-}
-
-bool CombatManager::CanAttack(const Combatant& combatant, glm::uvec2 target) const
-{
-    if (!mGrid.WithinBounds(target.x, target.y)) return false;
-    auto& cell = mGrid.Get(target.x, target.y);
-    return CheckBitSet(cell.mState, StateFlags::Attackable);
-}
-
-void CombatManager::CompleteMove(BAK::EntityIndex entityIndex, glm::uvec2 target)
-{
-    auto* combatant = GetCombatant(entityIndex);
-    if (!combatant) return;
-
-    auto& oldCell = mGrid.Get(combatant->mGridPos.x, combatant->mGridPos.y);
+    auto& oldCell = mGrid.Get(combatant.mGridPos.x, combatant.mGridPos.y);
     oldCell.mElement = nullptr;
 
-    combatant->mGridPos = target;
+    combatant.mGridPos = target;
 
     auto& newCell = mGrid.Get(target.x, target.y);
-    newCell.mElement = combatant;
+    newCell.mElement = &combatant;
+
+    if (mActions.HasAction())
+    {
+        ExecuteAction();
+    }
+    else
+    {
+        FinishTurn();
+    }
+}
+
+void CombatManager::CompleteAttack(GridPos target)
+{
+    auto& combatant = GetCurrentCombatant();
+
+    auto& enemy = mGrid.Get(target);
+
+    mStage.SetCombatantAction(enemy.mElement->mEntityIndex, BAK::AnimationType::Idle);
+    mStage.SetCombatantAction(combatant.mEntityIndex, BAK::AnimationType::Idle);
 
     FinishTurn();
+}
+
+void CombatManager::ExecuteAction()
+{
+    assert(mActions.HasAction());
+
+    auto action = mActions.Pop();
+    std::visit(
+        overloaded{
+            [&](const Move& move){
+                Execute(move);
+            },
+            [&](const Attack& attack){
+                Execute(attack);
+            }},
+        action);
+}
+
+void CombatManager::Execute(const Move& move)
+{
+    mLogger.Debug() << "Execute: " << move << "\n";
+    auto entityIndex = GetCurrentCombatant().mEntityIndex;
+    auto sourceGrid = GetCurrentCombatant().mGridPos;
+    mStage.MoveCombatant(entityIndex, sourceGrid, move.mTarget);
+}
+
+void CombatManager::Execute(const Attack& attack)
+{
+    mLogger.Debug() << "Execute: " << attack << "\n";
+
+    auto& me = GetCurrentCombatant();
+    auto* target = GetCombatant(attack.mTarget);
+    assert(target);
+    auto defenseDirection = BAK::GetDirectionBetween(attack.mTarget, me.mGridPos);
+    mStage.SetCombatantDirection(target->mEntityIndex, defenseDirection);
+    auto defense = attack.mType == AttackType::Slash
+        ? BAK::AnimationType::ParryHigh
+        : BAK::AnimationType::ParryLow;
+    mStage.SetCombatantAction(target->mEntityIndex, defense);
+    mStage.AnimateCombatant(target->mEntityIndex);
+
+    auto entityIndex = me.mEntityIndex;
+    auto sourceGrid = me.mGridPos;
+    auto attackDirection = BAK::GetDirectionBetween(me.mGridPos, attack.mTarget);
+    auto attackAnim = attack.mType == AttackType::Slash
+        ? BAK::AnimationType::Slash
+        : BAK::AnimationType::Thrust;
+    mStage.SetCombatantDirection(entityIndex, attackDirection);
+    mStage.SetCombatantAction(entityIndex, attackAnim);
+    mStage.AnimateAttack(entityIndex, attack.mTarget);
 }
 
 void CombatManager::FinishTurn()

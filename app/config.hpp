@@ -47,6 +47,7 @@ struct Game
 {
     bool mAdvanceTime{true};
     bool mFixCombatEntityLists{false};
+    double mCombatSpeed{1.0};
 };
 
 struct Config

@@ -4,6 +4,8 @@ add_library(game
     console.hpp console.cpp
     encounterHandler.hpp encounterHandler.cpp
     gameRunner.hpp gameRunner.cpp
+    combat/types.hpp combat/types.cpp
+    combat/actionQueue.hpp combat/actionQueue.cpp
     combat/combatManager.hpp combat/combatManager.cpp
     combat/gridAlgorithms.hpp combat/gridAlgorithms.cpp
     screens.hpp screens.cpp
@@ -20,3 +22,5 @@ target_link_libraries(game
     graphics
     gui
     imgui)
+
+add_subdirectory(combat/test)
