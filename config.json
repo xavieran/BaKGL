@@ -24,7 +24,8 @@
         // Set this to true to fix the combat entity lists in the game
         // Note: the lists in the original are bugged, so this fixes it
         // but if you care about fidelity to the original leave this off
-        "FixCombatEntityLists": false
+        "FixCombatEntityLists": false,
+        "CombatSpeed": 1.0
     },
     "Logging": {
         "LogToFile": true,

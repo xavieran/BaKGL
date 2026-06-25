@@ -6,6 +6,7 @@
 #include "graphics/glm.hpp"
 
 #include <cmath>
+#include <utility>
 
 namespace BAK {
 
@@ -153,6 +154,81 @@ std::uint16_t HeadingToFullMapAngle(std::uint16_t heading)
 {
     constexpr auto unit = 0xff / 8;
     return 4 * ((heading / unit) % 8);
+}
+
+std::string_view ToString(Direction direction)
+{
+    using enum Direction;
+    switch (direction)
+    {
+        case South: return "South";
+        case SouthEast: return "SouthEast";
+        case East: return "East";
+        case NorthEast: return "NorthEast";
+        case North: return "North";
+        case NorthWest: return "NorthWest";
+        case West: return "West";
+        case SouthWest: return "SouthWest";
+    }
+    std::unreachable();
+}
+
+Direction GetDirectionBetween(GamePosition source, GamePosition dest)
+{
+    const auto delta = glm::ivec2(dest) - glm::ivec2(source);
+    if (delta.x == 0 && delta.y == 0)
+        return Direction::South;
+
+    auto radians = std::atan2(
+        static_cast<double>(delta.y),
+        static_cast<double>(delta.x));
+
+    auto heading = ToBakAngle(radians + glm::pi<float>() / 2.0);
+    return static_cast<BAK::Direction>(
+        ((heading + 144u) % 256u) / 32u);
+}
+
+bool IsCardinal(Direction direction)
+{
+    using enum Direction;
+    switch (direction)
+    {
+        case South: [[fallthrough]];
+        case East: [[fallthrough]]; 
+        case North: [[fallthrough]];
+        case West: return true;
+        default: return false;
+    }
+    std::unreachable();
+}
+
+Direction NextAnticlockwise(Direction direction, unsigned steps)
+{
+    return static_cast<Direction>(
+        (static_cast<unsigned>(direction) + steps) % 8);
+}
+
+Direction NextClockwise(Direction direction, unsigned steps)
+{
+    return static_cast<Direction>(
+        (static_cast<unsigned>(direction) + 8 - (steps % 8)) % 8);
+}
+
+glm::ivec2 ToDelta(Direction direction)
+{
+    using enum Direction;
+    switch (direction)
+    {
+        case South: return {0, -1};
+        case SouthEast: return {1, -1};
+        case East: return {1, 0};
+        case NorthEast: return {1, 1};
+        case North: return {0, 1};
+        case NorthWest: return {-1, 1};
+        case West: return {-1, 0};
+        case SouthWest: return {-1, -1};
+    }
+    std::unreachable();
 }
 
 }

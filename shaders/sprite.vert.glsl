@@ -33,7 +33,8 @@ uniform mat4 lightSpaceMatrix;
 
 void main() {
     vec3 vertexPosition_worldspace = (M * vec4(vertexPosition_modelspace, 1.0)).xyz;
-    vec3 direction_toCamera = normalize(cameraPosition_worldspace - vertexPosition_worldspace);
+    vec3 centerPosition_worldspace = (M * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+    vec3 direction_toCamera = normalize(cameraPosition_worldspace - centerPosition_worldspace);
 
     mat4 billboardRotationMatrix;
 

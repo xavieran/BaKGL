@@ -41,6 +41,25 @@ enum class CardinalDirection : std::uint8_t
     North, East, South, West
 };
 
+enum class Direction : std::uint8_t
+{
+    South,
+    SouthEast,
+    East,
+    NorthEast,
+    North,
+    // These are always created by mirroring their opposites
+    NorthWest,
+    West,
+    SouthWest
+};
+
+Direction GetDirectionBetween(GamePosition source, GamePosition dest);
+bool IsCardinal(Direction);
+glm::ivec2 ToDelta(Direction);
+Direction NextAnticlockwise(Direction direction, unsigned steps = 1);
+Direction NextClockwise(Direction direction, unsigned steps = 1);
+
 struct GamePositionAndHeading
 {
     GamePosition mPosition;

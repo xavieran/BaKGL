@@ -1,37 +1,105 @@
 #pragma once
 
+#include "game/combat/types.hpp"
+#include "com/bits.hpp"
+
+#include <ostream>
 #include <vector>
 
-namespace Game {
+namespace Game::Combat {
 
-template <typename T, unsigned Cols = 8, unsigned Rows = 13>
+struct GridElem
+{
+    BAK::GamePositionAndHeading mPos;
+    std::uint16_t mState;
+    Combatant* mElement{nullptr};
+};
+
 class Grid
 {
 public:
-    Grid()
-        : mStorage(Cols * Rows)
+    Grid(
+        unsigned cols,
+        unsigned rows)
+    :
+        mCols{cols},
+        mRows{rows},
+        mStorage(rows * cols)
     {}
 
-    const T& Get(unsigned x, unsigned y) const
+    const GridElem& Get(int x, int y) const
     {
-        return mStorage[y * Cols + x];
+        assert(WithinBounds(GridPos{x, y}));
+        return mStorage[GetIndex({x, y})];
     }
 
-    T& Get(unsigned x, unsigned y)
+    GridElem& Get(int x, int y)
     {
-        return mStorage[y * Cols + x];
+        assert(WithinBounds(GridPos{x, y}));
+        return mStorage[GetIndex({x, y})];
     }
 
-    auto GetCols() const { return Cols; }
-    auto GetRows() const { return Rows; }
-
-    bool WithinBounds(unsigned x, unsigned y) const
+    const GridElem& Get(GridPos cell) const
     {
-        return x < Cols && y < Rows;
+        assert(WithinBounds(cell));
+        return mStorage[GetIndex(cell)];
+    }
+
+    GridElem& Get(GridPos cell)
+    {
+        assert(WithinBounds(cell));
+        return mStorage[GetIndex(cell)];
+    }
+
+    unsigned GetIndex(GridPos cell) const
+    {
+        return cell.y * mCols + cell.x;
+    }
+
+    auto GetCols() const { return mCols; }
+    auto GetRows() const { return mRows; }
+
+    bool WithinBounds(GridPos cell) const
+    {
+        return cell.x >= 0 && cell.x < static_cast<int>(mCols)
+            && cell.y >= 0 && cell.y < static_cast<int>(mRows);
+    }
+
+    bool CanMoveTo(GridPos target) const
+    {
+        if (!WithinBounds(target)) return false;
+
+        const auto& cell = Get(target);
+        return CheckBitSet(cell.mState, StateFlags::Reachable);
+    }
+
+    bool CanAttack(GridPos src, GridPos target) const
+    {
+        if (!WithinBounds(target)) return false;
+
+        auto& cell = Get(target);
+        return CheckBitSet(cell.mState, StateFlags::Attackable);
     }
 
 private:
-    std::vector<T> mStorage;
+    unsigned mCols;
+    unsigned mRows;
+    std::vector<GridElem> mStorage;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Grid& grid)
+{
+    os << std::hex;
+    for (unsigned _y = grid.GetRows(); _y > 0; _y--)
+    {
+        auto y = _y - 1;
+        for (unsigned x = 0; x < grid.GetCols(); x++)
+        {
+            os << grid.Get(x, y).mState << " ";
+        }
+        os << "\n";
+    }
+    return os;
+}
 
 }

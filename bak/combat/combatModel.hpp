@@ -25,23 +25,8 @@ enum class AnimationType : std::uint8_t
 };
 
 std::string_view ToString(AnimationType);
-
-enum class Direction : std::uint8_t
-{
-    South,
-    SouthEast,
-    East,
-    NorthEast,
-    North,
-    // These are always created by mirroring their opposites
-    NorthWest,
-    West,
-    SouthWest
-};
-
 std::string_view ToString(Direction direction);
 const std::vector<BAK::Direction>& GetDirections(bool granular);
-BAK::Direction GetDirectionBetween(GamePosition source, GamePosition dest);
 BAK::Direction ToSpriteDirection(Direction direction);
 
 class CombatAnimation

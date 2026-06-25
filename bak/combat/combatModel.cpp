@@ -32,45 +32,12 @@ std::string_view ToString(AnimationType animationType)
     std::unreachable();
 }
 
-std::string_view ToString(Direction direction)
-{
-    using enum Direction;
-    switch (direction)
-    {
-        case South: return "South";
-        case SouthEast: return "SouthEast";
-        case East: return "East";
-        case NorthEast: return "NorthEast";
-        case North: return "North";
-        case NorthWest: return "NorthWest";
-        case West: return "West";
-        case SouthWest: return "SouthWest";
-    }
-    std::unreachable();
-}
-
-
 const std::vector<BAK::Direction>& GetDirections(bool granular)
 {
     using enum Direction;
     static const auto three = std::vector<Direction>{South, East, North};
     static const auto five = std::vector<Direction>{South, SouthEast, East, NorthEast, North};
     return granular ? five : three;
-}
-
-BAK::Direction GetDirectionBetween(GamePosition source, GamePosition dest)
-{
-    const auto delta = glm::ivec2(dest) - glm::ivec2(source);
-    if (delta.x == 0 && delta.y == 0)
-        return Direction::South;
-
-    auto radians = std::atan2(
-        static_cast<double>(delta.y),
-        static_cast<double>(delta.x));
-
-    auto heading = ToBakAngle(radians + glm::pi<float>() / 2.0);
-    return static_cast<BAK::Direction>(
-        ((heading + 144u) % 256u) / 32u);
 }
 
 BAK::Direction ToSpriteDirection(Direction direction)
