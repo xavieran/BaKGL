@@ -338,4 +338,64 @@ void TextureBuffer::LoadTexturesGL(
     UnbindGL();
 }
 
+PixelPackBuffer::PixelPackBuffer()
+:
+    mBuffer{GenBufferGL()},
+    mActive{true}
+{}
+
+PixelPackBuffer::PixelPackBuffer(PixelPackBuffer&& other) noexcept
+{
+    (*this) = std::move(other);
+}
+
+PixelPackBuffer& PixelPackBuffer::operator=(PixelPackBuffer&& other) noexcept
+{
+    if (this == &other) return *this;
+    mBuffer = other.mBuffer;
+    other.mActive = false;
+    return *this;
+}
+
+PixelPackBuffer::~PixelPackBuffer()
+{
+    if (mActive)
+    {
+        Logging::LogDebug("GLBuffers") << "Deleting pixel pack buffer id: " << mBuffer << " @" << this << "\n";
+        glDeleteBuffers(1, &mBuffer);
+    }
+}
+
+void PixelPackBuffer::BindGL() const
+{
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, mBuffer);
+}
+
+void PixelPackBuffer::UnbindGL() const
+{
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+}
+
+GLuint PixelPackBuffer::GetId() const
+{
+    return mBuffer;
+}
+
+void* PixelPackBuffer::Map(GLenum access) const
+{
+    return glMapBuffer(GL_PIXEL_PACK_BUFFER, access);
+}
+
+void PixelPackBuffer::Unmap() const
+{
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+}
+
+GLuint PixelPackBuffer::GenBufferGL()
+{
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    return buffer;
+}
+
 }

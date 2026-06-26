@@ -6,6 +6,9 @@
 #include "graphics/renderData.hpp"
 #include "graphics/shaderProgram.hpp"
 
+#include <cstdint>
+#include <optional>
+
 namespace Graphics {
 
 struct Light
@@ -164,6 +167,8 @@ public:
         mPickFB.AttachTexture(mPickTexture);
         mPickFB.AttachDepthTexture(mPickDepth, false);
 
+        mHoverPBO.Allocate<glm::vec4>(GL_DYNAMIC_READ);
+
         mDepthBuffer.MakeDepthBuffer(
             mDepthMapDims.x, 
             mDepthMapDims.y);
@@ -244,7 +249,6 @@ public:
         }
 
         mPickFB.UnbindGL();
-        glFinish();
     }
 
     template <typename Renderables, typename Camera>
@@ -319,11 +323,27 @@ public:
         newClick.y = mScreenDims.y - click.y;
         glReadPixels(newClick.x, newClick.y, 1, 1, GL_RGBA, GL_FLOAT, &data);
         mPickFB.UnbindGL();
-        const auto entityIndex = static_cast<unsigned>(data.r)
-            | (static_cast<unsigned>(data.g) << 8)
-            | (static_cast<unsigned>(data.b) << 16)
-            | (static_cast<unsigned>(data.a) << 24);
-        return entityIndex;
+        return DecodeEntityId(data);
+    }
+
+    std::optional<std::uint32_t> GetHoveredEntity()
+    {
+        CheckHover();
+        return mHoveredEntity;
+    }
+
+    void StartPickReadback(glm::vec2 mousePos)
+    {
+        mPickFB.BindGL();
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        mHoverPBO.BindGL();
+        glReadPixels(
+            mousePos.x, mScreenDims.y - mousePos.y,
+            1, 1, GL_RGBA, GL_FLOAT, nullptr);
+        mHoverPBO.UnbindGL();
+        mPickFB.UnbindGL();
+
+        mPickReadbackIssued = true;
     }
 
     void BeginDepthMapDraw()
@@ -377,6 +397,39 @@ public:
     }
 
 private:
+    static unsigned DecodeEntityId(const glm::vec4& data)
+    {
+        return static_cast<unsigned>(data.r)
+            | (static_cast<unsigned>(data.g) << 8)
+            | (static_cast<unsigned>(data.b) << 16)
+            | (static_cast<unsigned>(data.a) << 24);
+    }
+
+    void CheckHover()
+    {
+        if (!mPickReadbackIssued)
+        {
+            mHoveredEntity.reset();
+            return;
+        }
+
+        mHoverPBO.BindGL();
+
+        if (void* data = mHoverPBO.Map(GL_READ_ONLY))
+        {
+            glm::vec4 result;
+            std::memcpy(&result, data, sizeof(result));
+            mHoverPBO.Unmap();
+            mHoveredEntity = DecodeEntityId(result);
+        }
+        else
+        {
+            mHoveredEntity.reset();
+        }
+
+        mHoverPBO.UnbindGL();
+    }
+
     ShaderProgramHandle mModelShader;
     WorldShaderUniforms mModelShaderUniforms;
     ShaderProgramHandle mSpriteShader;
@@ -392,6 +445,9 @@ private:
     FrameBuffer mPickFB;
     TextureBuffer mPickTexture;
     TextureBuffer mPickDepth;
+    PixelPackBuffer mHoverPBO{};
+    std::optional<std::uint32_t> mHoveredEntity{};
+    bool mPickReadbackIssued{false};
     int mDrawDistance;
     glm::uvec2 mDepthMapDims;
     FrameBuffer mDepthFB;

@@ -211,4 +211,38 @@ private:
     bool mActive;
 };
 
+class PixelPackBuffer
+{
+public:
+    explicit PixelPackBuffer();
+    PixelPackBuffer(PixelPackBuffer&& other) noexcept;
+    PixelPackBuffer& operator=(PixelPackBuffer&& other) noexcept;
+    PixelPackBuffer(const PixelPackBuffer&) = delete;
+    PixelPackBuffer& operator=(const PixelPackBuffer&) = delete;
+
+    ~PixelPackBuffer();
+
+    void BindGL() const;
+    void UnbindGL() const;
+    GLuint GetId() const;
+
+    template <typename T>
+    void Allocate(GLenum usage)
+    {
+        BindGL();
+        glBufferData(GL_PIXEL_PACK_BUFFER, sizeof(T), nullptr, usage);
+        UnbindGL();
+    }
+
+    void* Map(GLenum access) const;
+    void Unmap() const;
+
+private:
+    static GLuint GenBufferGL();
+
+    GLuint mBuffer;
+    bool mActive;
+};
+
 }
+
