@@ -409,14 +409,6 @@ int main(int argc, char** argv)
                 Gui::LeftMousePress{guiScaleInv * clickPos});
             if (!guiHandled && InputAllowed())
             {
-                glDisable(GL_BLEND);
-                glDisable(GL_MULTISAMPLE);
-                renderer.DrawForPicking(
-                    gameRunner.GetZoneRenderData(),
-                    gameRunner.mSystems->GetRenderables(),
-                    gameRunner.mSystems->GetSprites(),
-                    gameRunner.mSystems->GetDynamicRenderables(),
-                    *cameraPtr);
                 const auto clickedId = renderer.GetClickedEntity(clickPos);
                 if (gameRunner.IsGridVisible() && gameRunner.HandleGridCellClick(clickedId))
                 {
@@ -438,8 +430,12 @@ int main(int argc, char** argv)
         GLFW_MOUSE_BUTTON_RIGHT,
         [&](auto click)
         {
-            root.OnMouseEvent(
+            auto guiHandled = root.OnMouseEvent(
                 Gui::RightMousePress{guiScaleInv * click});
+            if (!guiHandled && InputAllowed())
+            {
+                gameRunner.LogHoveredEntity();
+            }
         },
         [&](auto click)
         {
@@ -505,6 +501,11 @@ int main(int argc, char** argv)
         guiManager.OnTimeDelta(currentTime - lastTime);
         gameRunner.OnTimeDelta(currentTime - lastTime);
         lastTime = currentTime;
+
+        if (auto hovered = renderer.GetHoveredEntity())
+        {
+            gameRunner.SetHoveredEntity(BAK::EntityIndex{*hovered});
+        }
 
         cameraPtr->SetDeltaTime(deltaTime);
         if (guiManager.InMainView())
@@ -595,6 +596,23 @@ int main(int argc, char** argv)
                     *cameraPtr,
                     true);
             }
+        }
+
+        if (gameState.GetGameData().IsLoaded())
+        {
+            glDisable(GL_BLEND);
+            glDisable(GL_MULTISAMPLE);
+
+            renderer.DrawForPicking(
+                gameRunner.GetZoneRenderData(),
+                gameRunner.mSystems->GetRenderables(),
+                gameRunner.mSystems->GetSprites(),
+                gameRunner.mSystems->GetDynamicRenderables(),
+                *cameraPtr);
+            renderer.StartPickReadback({pointerPosX, pointerPosY});
+
+            glEnable(GL_BLEND);
+            glEnable(GL_MULTISAMPLE);
         }
 
         //// { *** Draw 2D GUI ***

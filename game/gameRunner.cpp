@@ -712,6 +712,21 @@ void GameRunner::RunGameUpdate(bool advanceTime)
     }
 }
 
+void GameRunner::SetHoveredEntity(BAK::EntityIndex id)
+{
+    mHoveredEntity = id;
+}
+
+BAK::EntityIndex GameRunner::GetHoveredEntity() const
+{
+    return mHoveredEntity;
+}
+
+void GameRunner::LogHoveredEntity() const
+{
+    mLogger.Debug() << "Right click on entity: " << mHoveredEntity.mValue << "\n";
+}
+
 void GameRunner::CheckClickable(unsigned entityId)
 {
     assert(mSystems);

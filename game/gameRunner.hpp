@@ -72,6 +72,9 @@ public:
     
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
+    void SetHoveredEntity(BAK::EntityIndex id);
+    BAK::EntityIndex GetHoveredEntity() const;
+    void LogHoveredEntity() const;
 
     void ShowGrid();
     void HideGrid();
@@ -155,6 +158,8 @@ public:
     double mAnimationSpeedMultiplier{1.0};
 
     double mAccumulatedTime{};
+
+    BAK::EntityIndex mHoveredEntity{0};
 
     const Logging::Logger& mLogger;
 };
