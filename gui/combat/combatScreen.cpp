@@ -128,7 +128,20 @@ void CombatScreen::SetSelectedCharacter(
     BAK::CharIndex character)
 {
     mSelectedCharacter = character;
+    UpdateActiveCharacter();
     RefreshGui();
+}
+
+void CombatScreen::DisplayMeleeInfo(BAK::MeleeInfo info)
+{
+    PrintMeleeInformation(info);
+    RefreshGui();
+}
+
+void CombatScreen::ResetDisplay()
+{
+    assert(mSelectedCharacter);
+    SetSelectedCharacter(*mSelectedCharacter);
 }
 
 void CombatScreen::StartDialog(BAK::Target target)
@@ -151,8 +164,6 @@ bool CombatScreen::OnMouseEvent(const MouseEvent& event)
 void CombatScreen::RefreshGui()
 {
     ClearChildren();
-
-    UpdateActiveCharacter();
 
     AddChildren();
 }
@@ -183,6 +194,27 @@ void CombatScreen::PrintCharacterInformation()
         ss << "Strength: " << character.GetSkill(BAK::SkillType::Strength) << "\n";
         mTextArea.SetText(mFont, ss.str(), true);
     }
+}
+
+void CombatScreen::PrintMeleeInformation(BAK::MeleeInfo info)
+{
+    std::stringstream ss{};
+    if (info.mSlashChance > 0 && info.mSlashDamage > 0)
+    {
+        ss << "Thrust        Slash\n\n";
+        ss << info.mThrustDamage << "   Damage   " << info.mSlashDamage << "\n";
+        ss << info.mThrustChance << "%   Accuracy   " << info.mSlashChance << "%\n";
+        ss << "Left          Right\n";
+    }
+    else
+    {
+        ss << "Thrust\n\n";
+        ss << info.mThrustDamage << "         Damage\n";
+        ss << info.mThrustChance << "%       Accuracy\n";
+        ss << "Left\n";
+    }
+    mTextArea.SetText(mFont, ss.str(), true);
+    mLogger.Debug() << "Print melee info: " << ss.str();
 }
 
 void CombatScreen::HandleButton(unsigned buttonIndex)

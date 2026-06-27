@@ -15,6 +15,7 @@ add_library(bak
     partyChangeCache.hpp partyChangeCache.cpp
     chapterTransitions.hpp chapterTransitions.cpp
     combat/combat.hpp combat/combat.cpp
+    combat/calculations.hpp combat/calculations.cpp
     combat/combatModel.hpp combat/combatModel.cpp
     combat/retreat.hpp combat/retreat.cpp
     condition.hpp condition.cpp

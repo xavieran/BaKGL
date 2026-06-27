@@ -2,6 +2,8 @@
 
 #include "game/combat/gridAlgorithms.hpp"
 
+#include "bak/combat/calculations.hpp"
+
 #include "com/bits.hpp"
 #include "com/visit.hpp"
 #include "com/ostream.hpp"
@@ -80,6 +82,7 @@ std::vector<Combatant> CombatManager::GetCombatants()
 
 void CombatManager::BeginCombat()
 {
+    mCombatActive = true;
     SetCurrentCombatant(true);
 }
 
@@ -89,7 +92,7 @@ Combatant& CombatManager::GetCurrentCombatant()
     return mCombatants[mCurrentCombatant];
 }
 
-void CombatManager::GridCellClicked(GridPos targetCell)
+void CombatManager::GridCellClicked(GridPos targetCell, bool)
 {
     auto& combatant = GetCurrentCombatant();
     mLogger.Debug() << "Cell clicked: " << targetCell
@@ -142,8 +145,35 @@ void CombatManager::GridCellClicked(GridPos targetCell)
 
 void CombatManager::EndCombat()
 {
+    mCombatActive = false;
     mCombatants.clear();
     ClearGrid();
+}
+
+void CombatManager::OnHoverChanged(std::optional<GridPos> gridPos)
+{
+    mLogger.Debug() << "Hover changed to: " << gridPos << "\n";
+    auto* hovered = gridPos ? GetCombatant(*gridPos) : nullptr;
+    if (hovered
+        && GetCurrentCombatant().mCharacter->IsEnemy() != hovered->mCharacter->IsEnemy())
+    {
+        auto meleeInfo = BAK::CalculateMeleeInfo(*GetCurrentCombatant().mCharacter);
+        if (!IsAdjacent(GetCurrentCombatant().mGridPos, hovered->mGridPos))
+        {
+            meleeInfo.mSlashChance = 0;
+            meleeInfo.mSlashDamage = 0;
+        }
+        mCombatUI.DisplayMeleeInfo(meleeInfo);
+    }
+    else
+    {
+        mCombatUI.ResetDisplay();
+    }
+}
+
+bool CombatManager::IsCombatActive() const
+{
+    return mCombatActive;
 }
 
 void CombatManager::SetCurrentCombatant(bool onlyParty)

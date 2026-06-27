@@ -72,15 +72,13 @@ public:
     
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
-    void SetHoveredEntity(BAK::EntityIndex id);
-    BAK::EntityIndex GetHoveredEntity() const;
-    void LogHoveredEntity() const;
+    void SetHoveredEntity(std::optional<BAK::EntityIndex> id);
 
     void ShowGrid();
     void HideGrid();
     bool IsGridVisible() const { return mGridVisible; }
     bool IsAnimationActive() const { return mAnimationActive; }
-    bool HandleGridCellClick(unsigned entityId);
+    bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
     void SetupCombatCamera(const BAK::Encounter::Encounter&);
     void RestoreCameraAfterCombat();
@@ -117,7 +115,16 @@ public:
     void CleanCombatsOnNewZone();
     const BAK::Encounter::Encounter& FindEncounterByCombatIndex(
         BAK::CombatIndex combatIndex) const;
-    
+
+private:
+    static Game::Combat::GridPos IndexToGridPos(unsigned i)
+    {
+        return Game::Combat::GridPos{
+            static_cast<int>(i % BAK::gCombatGridCols),
+            static_cast<int>(i / BAK::gCombatGridCols)};
+    }
+
+public:
     Camera& mCamera;
     BAK::GameState& mGameState;
     Gui::GuiManager& mGuiManager;
@@ -159,7 +166,7 @@ public:
 
     double mAccumulatedTime{};
 
-    BAK::EntityIndex mHoveredEntity{0};
+    std::optional<BAK::EntityIndex> mHoveredEntity;
 
     const Logging::Logger& mLogger;
 };

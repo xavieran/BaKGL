@@ -67,6 +67,9 @@ public:
     void SetSelectedCharacter(
         BAK::CharIndex character) override;
 
+    void DisplayMeleeInfo(BAK::MeleeInfo) override;
+    void ResetDisplay() override;
+
     /* Widget */
     bool OnMouseEvent(const MouseEvent& event) override;
 
@@ -76,7 +79,7 @@ private:
 
     void UpdateActiveCharacter();
     void PrintCharacterInformation();
-    void PrintMeleeInformation();
+    void PrintMeleeInformation(BAK::MeleeInfo);
     void PrintCastInformation();
     void PrintCrossbowInformation();
 

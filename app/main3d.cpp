@@ -410,8 +410,9 @@ int main(int argc, char** argv)
             if (!guiHandled && InputAllowed())
             {
                 const auto clickedId = renderer.GetClickedEntity(clickPos);
-                if (gameRunner.IsGridVisible() && gameRunner.HandleGridCellClick(clickedId))
+                if (gameRunner.IsGridVisible())
                 {
+                    gameRunner.HandleGridCellClick(clickedId, false);
                 }
                 else
                 {
@@ -434,7 +435,11 @@ int main(int argc, char** argv)
                 Gui::RightMousePress{guiScaleInv * click});
             if (!guiHandled && InputAllowed())
             {
-                gameRunner.LogHoveredEntity();
+                const auto clickedId = renderer.GetClickedEntity(click);
+                if (gameRunner.IsGridVisible())
+                {
+                    gameRunner.HandleGridCellClick(clickedId, true);
+                }
             }
         },
         [&](auto click)
@@ -502,10 +507,9 @@ int main(int argc, char** argv)
         gameRunner.OnTimeDelta(currentTime - lastTime);
         lastTime = currentTime;
 
-        if (auto hovered = renderer.GetHoveredEntity())
-        {
-            gameRunner.SetHoveredEntity(BAK::EntityIndex{*hovered});
-        }
+        gameRunner.SetHoveredEntity(
+            renderer.GetHoveredEntity().transform(
+                [](auto v){ return BAK::EntityIndex{v}; }));
 
         cameraPtr->SetDeltaTime(deltaTime);
         if (guiManager.InMainView())
@@ -603,12 +607,26 @@ int main(int argc, char** argv)
             glDisable(GL_BLEND);
             glDisable(GL_MULTISAMPLE);
 
-            renderer.DrawForPicking(
-                gameRunner.GetZoneRenderData(),
-                gameRunner.mSystems->GetRenderables(),
-                gameRunner.mSystems->GetSprites(),
-                gameRunner.mSystems->GetDynamicRenderables(),
-                *cameraPtr);
+            if (gameRunner.mCombatManager.IsCombatActive())
+            {
+                auto emptyRenderables = std::vector<Renderable>{};
+                auto emptyDynamicRenderables = std::vector<DynamicRenderable>{};
+                renderer.DrawForPicking(
+                    gameRunner.GetZoneRenderData(),
+                    gameRunner.mGridCellRenderables,
+                    emptyRenderables,
+                    emptyDynamicRenderables,
+                    *cameraPtr);
+            }
+            else
+            {
+                renderer.DrawForPicking(
+                    gameRunner.GetZoneRenderData(),
+                    gameRunner.mSystems->GetRenderables(),
+                    gameRunner.mSystems->GetSprites(),
+                    gameRunner.mSystems->GetDynamicRenderables(),
+                    *cameraPtr);
+            }
             renderer.StartPickReadback({pointerPosX, pointerPosY});
 
             glEnable(GL_BLEND);

@@ -243,6 +243,13 @@ ItemType Character::GetWeaponType() const
         return ItemType::Sword;
 }
 
+const InventoryItem& Character::GetMeleeWeapon() const
+{
+    const auto it = mInventory->FindEquipped(GetWeaponType());
+    assert(it != mInventory->GetItems().end());
+    return *it;
+}
+
 bool Character::CanReplaceEquippableItem(ItemType type) const
 {
     if (IsSpellcaster() && type == ItemType::Staff)

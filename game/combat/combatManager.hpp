@@ -11,6 +11,7 @@
 #include "com/logger.hpp"
 
 #include <cassert>
+#include <optional>
 #include <vector>
 
 namespace Game::Combat {
@@ -43,12 +44,15 @@ public:
 
     void BeginCombat();
 
-    void GridCellClicked(GridPos targetGrid);
+    void GridCellClicked(GridPos targetGrid, bool isRightClick);
 
     void EndCombat();
 
     void CompleteMove(GridPos target);
     void CompleteAttack(GridPos target);
+
+    void OnHoverChanged(std::optional<GridPos> gridPos);
+    bool IsCombatActive() const;
 
 private:
     Combatant* GetCombatant(BAK::CharIndex character);
@@ -80,6 +84,7 @@ private:
     ICombatStage& mStage;
     BAK::ICombatUI& mCombatUI;
     const Logging::Logger& mLogger;
+    bool mCombatActive{false};
 };
 
 }
