@@ -38,7 +38,7 @@ const GameObject& InventoryItem::GetObject() const { ASSERT(mObject); return *mO
 ItemIndex InventoryItem::GetItemIndex() const { return mItemIndex; }
 unsigned InventoryItem::GetQuantity() const { return mCondition; }
 SpellIndex InventoryItem::GetSpell() const { return SpellIndex{mCondition}; }
-unsigned InventoryItem::GetCondition() const { return mCondition; }
+unsigned InventoryItem::GetCondition() const { return IsConditionBased() ? mCondition : 100; }
 std::uint8_t InventoryItem::GetStatus() const { return mStatus; }
 std::uint8_t InventoryItem::GetModifierMask() const { return mModifiers; }
 

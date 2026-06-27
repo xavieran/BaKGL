@@ -19,9 +19,11 @@ public:
     BAK::MonsterIndex mMonster;
     BAK::AnimationType mAnimationType;
     BAK::Direction mDirection;
-    std::size_t mFrame;
+    int mFrame{0};
+    int mIdleDelta{1};
     const CombatModelLoader& mCombatModelLoader;
     glm::mat4 mModelMatrix{1.0f};
+    bool mAnimating{false};
 
     void CalculateModelMatrix()
     {
@@ -101,6 +103,7 @@ public:
                 BAK::AnimationType::Idle,
                 BAK::Direction::South,
                 0,
+                1,
                 mLoader});
         mActors.back().Update();
 

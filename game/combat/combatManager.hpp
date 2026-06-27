@@ -39,6 +39,8 @@ public:
 
     void SetCastingSpell(BAK::SpellIndex) override;
     void SetUsingCrossbow() override;
+    void DoDefend() override;
+    void DoRest() override;
 
     void AddCombatant(Combatant combatant);
 
@@ -75,6 +77,14 @@ private:
     void FinishTurn();
 
     void ClearGrid();
+    void DamageCombatant(
+        Combatant& victim,
+        int damage,
+        bool useArmor,
+        bool damageTypeMelee,
+        std::uint16_t modifierFlags,
+        bool skipDirectDamage
+    );
 
     std::vector<Combatant> mCombatants{};
 

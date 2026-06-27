@@ -18,6 +18,7 @@ add_library(bak
     combat/calculations.hpp combat/calculations.cpp
     combat/combatModel.hpp combat/combatModel.cpp
     combat/retreat.hpp combat/retreat.cpp
+    combat/types.hpp combat/types.cpp
     condition.hpp condition.cpp
     constants.hpp
     cutscenes.hpp cutscenes.cpp
