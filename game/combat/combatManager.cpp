@@ -92,7 +92,7 @@ Combatant& CombatManager::GetCurrentCombatant()
     return mCombatants[mCurrentCombatant];
 }
 
-void CombatManager::GridCellClicked(GridPos targetCell, bool)
+void CombatManager::GridCellClicked(GridPos targetCell, bool isRightClick)
 {
     auto& combatant = GetCurrentCombatant();
     mLogger.Debug() << "Cell clicked: " << targetCell
@@ -111,6 +111,12 @@ void CombatManager::GridCellClicked(GridPos targetCell, bool)
         }
         else if (*moveTo != myPos)
         {
+            // If we had to move to attack then we can't slash
+            if (isRightClick)
+            {
+                return;
+            }
+
             auto moves = CalculatePath(myPos, *moveTo, mGrid);
             if (moves.empty())
             {
@@ -119,7 +125,9 @@ void CombatManager::GridCellClicked(GridPos targetCell, bool)
             for (auto move : moves) mActions.Push(Move{move});
         }
 
-        mActions.Push(Attack(targetCell, AttackType::Thrust));
+        auto attackType = isRightClick ? AttackType::Slash : AttackType::Thrust;
+
+        mActions.Push(Attack(targetCell, attackType));
         mLogger.Debug() << "Queued Actions: " << mActions << "\n";
 
         ExecuteAction();
