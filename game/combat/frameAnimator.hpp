@@ -25,6 +25,7 @@ public:
         mAccumulated{0},
         mOnFinished{std::move(onFinished)}
     {
+        actor.mAnimating = true;
         assert(actor.mFrame == 0);
         assert(mOnFinished);
     }
@@ -45,6 +46,7 @@ public:
 
             if (mActor.mFrame == 0)
             {
+                mActor.mAnimating = false;
                 mAlive = false;
                 mOnFinished();
             }

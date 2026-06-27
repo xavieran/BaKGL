@@ -2,6 +2,7 @@
 
 #include "bak/character.hpp"
 #include "bak/combat/mechanics.hpp"
+#include "bak/combat/types.hpp"
 #include "bak/coordinates.hpp"
 
 #include "graphics/glm.hpp"
@@ -14,6 +15,7 @@ namespace Game::Combat
 {
 
 using GridPos = glm::ivec2;
+using BAK::AttackType;
 
 struct Combatant
 {
@@ -22,10 +24,18 @@ struct Combatant
     GridPos mGridPos;
     BAK::Combat::CombatantState mState;
     BAK::EntityIndex mEntityIndex;
+    BAK::CombatState mCombatState{};
 
-    bool mTurnPending{true};
-    bool mIsDead{false};
-    bool mIsPoisoned{false};
+    bool& GetTurnPending() { return mCombatState.mTurnPending; }
+    bool GetTurnPending() const { return mCombatState.mTurnPending; }
+    bool& IsDead() { return mCombatState.mIsDead; }
+    bool IsDead() const { return mCombatState.mIsDead; }
+    bool& IsPoisoned() { return mCombatState.mIsPoisoned; }
+    bool IsPoisoned() const { return mCombatState.mIsPoisoned; }
+    bool& IsDefending() { return mCombatState.mIsDefending; }
+    bool IsDefending() const { return mCombatState.mIsDefending; }
+    bool& IsFleeing() { return mCombatState.mIsFleeing; }
+    bool IsFleeing() const { return mCombatState.mIsFleeing; }
 };
 
 enum class StateFlags
@@ -44,16 +54,10 @@ struct Move
     GridPos mTarget;
 };
 
-enum class AttackType
-{
-    Slash,
-    Thrust
-};
-
 struct Attack
 {
     GridPos mTarget;
-    AttackType mType;
+    BAK::AttackType mType;
 };
 
 using CombatAction = std::variant<
@@ -61,7 +65,6 @@ using CombatAction = std::variant<
     Attack>;
 
 std::ostream& operator<<(std::ostream& os, Move move);
-std::ostream& operator<<(std::ostream& os, AttackType type);
 std::ostream& operator<<(std::ostream& os, const Attack& attack);
 std::ostream& operator<<(std::ostream& os, const CombatAction& action);
 

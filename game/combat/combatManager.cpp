@@ -1,15 +1,19 @@
 #include "game/combat/combatManager.hpp"
 
+#include "audio/audio.hpp"
+
 #include "game/combat/gridAlgorithms.hpp"
 
 #include "bak/combat/calculations.hpp"
 
 #include "com/bits.hpp"
-#include "com/visit.hpp"
 #include "com/ostream.hpp"
+#include "com/random.hpp"
+#include "com/visit.hpp"
 
 #include <algorithm>
 #include <optional>
+#include <utility>
 
 namespace Game::Combat {
 
@@ -23,6 +27,17 @@ CombatManager::CombatManager(ICombatStage& stage, BAK::ICombatUI& ui)
 void CombatManager::SetCastingSpell(BAK::SpellIndex) {}
 
 void CombatManager::SetUsingCrossbow() {}
+
+void CombatManager::DoDefend()
+{
+    GetCurrentCombatant().IsDefending() = true;
+    FinishTurn();
+}
+
+void CombatManager::DoRest()
+{
+    FinishTurn();
+}
 
 void CombatManager::AddCombatant(Combatant combatant)
 {
@@ -125,7 +140,7 @@ void CombatManager::GridCellClicked(GridPos targetCell, bool isRightClick)
             for (auto move : moves) mActions.Push(Move{move});
         }
 
-        auto attackType = isRightClick ? AttackType::Slash : AttackType::Thrust;
+        auto attackType = isRightClick ? BAK::AttackType::Slash : BAK::AttackType::Thrust;
 
         mActions.Push(Attack(targetCell, attackType));
         mLogger.Debug() << "Queued Actions: " << mActions << "\n";
@@ -177,6 +192,13 @@ void CombatManager::OnHoverChanged(std::optional<GridPos> gridPos)
     {
         mCombatUI.ResetDisplay();
     }
+
+    if (gridPos)
+    {
+        auto& me = GetCurrentCombatant();
+        auto lookDirection = BAK::GetDirectionBetween(me.mGridPos, *gridPos);
+        mStage.SetCombatantDirection(me.mEntityIndex, lookDirection);
+    }
 }
 
 bool CombatManager::IsCombatActive() const
@@ -202,7 +224,7 @@ void CombatManager::SetCurrentCombatant(bool onlyParty)
             continue;
         }
 
-        if (!combatant.mTurnPending)
+        if (!combatant.GetTurnPending())
         {
             continue;
         }
@@ -249,12 +271,12 @@ void CombatManager::ComputeGrid()
     {
         auto& cell = mGrid.Get(combatant.mGridPos);
         cell.mElement = &combatant;
-        if (!combatant.mIsDead)
+        if (!combatant.IsDead())
         {
             cell.mState = SetBit(cell.mState, StateFlags::Reachable, false);
         }
 
-        if (!combatant.mIsDead)
+        if (!combatant.IsDead())
         {
             auto isEnemy = me.mCharacter->IsEnemy() != combatant.mCharacter->IsEnemy();
             auto state = isEnemy ? StateFlags::Attackable : StateFlags::IsAlly;
@@ -347,22 +369,99 @@ void CombatManager::Execute(const Attack& attack)
     mLogger.Debug() << "Execute: " << attack << "\n";
 
     auto& me = GetCurrentCombatant();
-    auto* target = GetCombatant(attack.mTarget);
-    assert(target);
+    assert(me.mCharacter);
+    assert(GetCombatant(attack.mTarget));
+    auto& target = *GetCombatant(attack.mTarget);
+    assert(target.mCharacter);
+
+    me.mCharacter->ImproveSkill(BAK::SkillType::Melee, BAK::SkillChange::FractionOfSkill, 3);
+    target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
+
+    auto* weapon = me.mCharacter->GetMeleeWeapon();
+    assert(weapon);
+
+    auto accuracy = attack.mType == BAK::AttackType::Thrust
+        ? weapon->GetObject().mAccuracyThrust
+        : weapon->GetObject().mAccuracySwing;
+
+    auto attackResult = BAK::CalculateMeleeResult(
+        *me.mCharacter,
+        *target.mCharacter,
+        target.mCombatState,
+        accuracy);
+
+    unsigned sound = 0;
+
+    auto attackerHasStaff = weapon && weapon->GetObject().mType == BAK::ItemType::Staff;
+    auto targetIsDefending = target.IsDefending();
+    bool isThrust = attack.mType == BAK::AttackType::Thrust;
+
+    if (attackResult == BAK::MeleeResult::Hit)
+    {
+        me.mCharacter->ImproveSkill(BAK::SkillType::Melee, BAK::SkillChange::FractionOfSkill, 3);
+        me.mCharacter->ImproveSkill(BAK::SkillType::Strength, BAK::SkillChange::FractionOfSkill, 3);
+        //useCombatItemAndDull(defender, 0x1, 4);
+        //useCombatItemAndDull(attacker, 0x8, 1L);
+
+        sound = BAK::GetAttackSound(me.mMonster, attackerHasStaff);
+        auto damage = BAK::CalculateMeleeDamage(*me.mCharacter, *target.mCharacter, isThrust);
+        bool useArmor = true;
+        bool damageTypeMelee = true;
+        auto modifierFlags = BAK::GetMeleeModifierFlags(*me.mCharacter);
+        bool skipDirectDamage = false;
+        //damageCombatant(target, damage, useArmor, damageTypeMelee, modifierFlags, skipDirectDamage);
+    }
+    else
+    {
+        // useCombatItemAndDull(target, 0x1, 000004L);
+        target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
+        if (targetIsDefending) // && isActive
+        {
+            target.IsDefending() = false; // true??
+
+            auto* defenderWeapon = target.mCharacter->GetMeleeWeapon();
+            auto defenderHasStaff = defenderWeapon && defenderWeapon->GetObject().mType == BAK::ItemType::Staff;
+            sound = BAK::GetDefenseSound(attackerHasStaff, defenderHasStaff);
+
+            target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
+        }
+        else
+        {
+            // I don't understand why we would improve defense more if the target wasn't defending,
+            // but this is what the game does.
+            target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
+            // useCombatItemAndDull(attacker, 0x8, 00001L);
+            // play sound 25 -> doesn't exist?
+        }
+
+        //target.ptrToCombatState->field_14 = 1;
+        //target.ptrToCombatState->field_15 = 0xF8;
+        // dull armor
+    }
+
+    if (sound != 0)
+    {
+        AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{sound});
+    }
+
     auto defenseDirection = BAK::GetDirectionBetween(attack.mTarget, me.mGridPos);
-    mStage.SetCombatantDirection(target->mEntityIndex, defenseDirection);
-    auto defense = attack.mType == AttackType::Slash
-        ? BAK::AnimationType::ParryHigh
-        : BAK::AnimationType::ParryLow;
-    mStage.SetCombatantAction(target->mEntityIndex, defense);
-    mStage.AnimateCombatant(target->mEntityIndex);
+    mStage.SetCombatantDirection(target.mEntityIndex, defenseDirection);
+
+    if (targetIsDefending)
+    {
+        auto defense = isThrust 
+            ? BAK::AnimationType::ParryLow
+            : BAK::AnimationType::ParryHigh;
+        mStage.SetCombatantAction(target.mEntityIndex, defense);
+        mStage.AnimateCombatant(target.mEntityIndex);
+    }
 
     auto entityIndex = me.mEntityIndex;
     auto sourceGrid = me.mGridPos;
     auto attackDirection = BAK::GetDirectionBetween(me.mGridPos, attack.mTarget);
-    auto attackAnim = attack.mType == AttackType::Slash
-        ? BAK::AnimationType::Slash
-        : BAK::AnimationType::Thrust;
+    auto attackAnim = isThrust
+        ? BAK::AnimationType::Thrust
+        : BAK::AnimationType::Slash;
     mStage.SetCombatantDirection(entityIndex, attackDirection);
     mStage.SetCombatantAction(entityIndex, attackAnim);
     mStage.AnimateAttack(entityIndex, attack.mTarget);
@@ -371,14 +470,24 @@ void CombatManager::Execute(const Attack& attack)
 void CombatManager::FinishTurn()
 {
     auto& combatant = GetCurrentCombatant();
-    combatant.mTurnPending = false;
+    combatant.GetTurnPending() = false;
 
-    auto it = std::find_if(mCombatants.begin(), mCombatants.end(), [](auto& c){ return c.mTurnPending; });
+    // TODO: Current combatant should always end their turn facing the nearest enemy/their target
+    // Unless they are fleeing or dead...
+    //if (!combatant.IsDead())
+    //{
+    //    auto nearestEnemy = 
+    //    auto lookDirection = BAK::GetDirectionBetween(me.mGridPos, *gridPos);
+    //    mStage.SetCombatantDirection(me.mEntityIndex, lookDirection);
+    //}
+
+
+    auto it = std::find_if(mCombatants.begin(), mCombatants.end(), [](auto& c){ return c.GetTurnPending(); });
     if (it == mCombatants.end())
     {
         for (auto& combatant : mCombatants)
         {
-            combatant.mTurnPending = true;
+            combatant.GetTurnPending() = true;
         }
     }
 
@@ -396,6 +505,41 @@ void CombatManager::ClearGrid()
             gridCell.mState = 0;
         }
     }
+}
+
+void CombatManager::DamageCombatant(
+    Combatant& victim,
+    int damage,
+    bool useArmor,
+    bool damageTypeMelee,
+    std::uint16_t modifierFlags,
+    bool skipDirectDamage
+)
+{
+    assert(victim.mCharacter);
+
+    if (useArmor)
+    {
+        auto reduction = BAK::CalculateArmorReduction(*victim.mCharacter);
+        damage = damage * (100 - reduction) / 100;
+        if (damage <= 0)
+        {
+            damage = GetRandomNumber(1, 2);
+        }
+    }
+
+    if (!skipDirectDamage)
+    {
+    }
+
+    damage = BAK::CalculateMonsterWeakness(victim.mCharacter->GetMonsterIndex(), damage, modifierFlags);
+    damage = BAK::CalculateMonsterResistance(victim.mCharacter->GetMonsterIndex(), damage, modifierFlags);
+
+    if (damage > 0 && (modifierFlags & std::to_underlying(BAK::ModifierFlags::Poison)))
+    {
+        //PoisonCombatant(victim);
+    }
+    // ...
 }
 
 }

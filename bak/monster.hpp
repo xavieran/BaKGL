@@ -5,7 +5,22 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+
 namespace BAK {
+
+
+static constexpr auto sMoredhelWarrior      = MonsterIndex{18};
+static constexpr auto sBrakNurr             = MonsterIndex{19};
+static constexpr auto sMoredhelSpellcaster  = MonsterIndex{21};
+static constexpr auto sPantathian           = MonsterIndex{25};
+static constexpr auto sPanthTiandn          = MonsterIndex{26};
+static constexpr auto sServitorOfLimsKragma = MonsterIndex{28};
+static constexpr auto sRogueMage            = MonsterIndex{30};
+static constexpr auto sBulldrakeWyvern      = MonsterIndex{41};
+static constexpr auto sGrandsireWyvern      = MonsterIndex{42};
+static constexpr auto sHatchlingWyvern      = MonsterIndex{43};
+static constexpr auto sTroll                = MonsterIndex{48};
+static constexpr auto sNethermander         = MonsterIndex{58};
 
 class MonsterNames
 {

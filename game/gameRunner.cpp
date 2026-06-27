@@ -757,15 +757,35 @@ void GameRunner::CheckClickable(unsigned entityId)
 
 void GameRunner::OnTimeDelta(double timeDelta)
 {
-    return;
+    //return;
     mAccumulatedTime += timeDelta;
     if (mAccumulatedTime > .5)
     {
+        // Idle animations continue during attacks
         mAccumulatedTime = 0;
         for (auto& actor : mCombatActorStore.GetActors())
         {
-            actor.mFrame += 1;
-            actor.Update();
+            if (actor.mAnimating)
+            {
+                continue;
+            }
+
+            actor.mFrame += actor.mIdleDelta;
+            if (actor.mFrame < 0)
+            {
+                actor.mIdleDelta = 1;
+                actor.mFrame += actor.mIdleDelta;
+            }
+            else
+            {
+                auto b4 = actor.mFrame;
+                actor.Update();
+                if (b4 != actor.mFrame)
+                {
+                    actor.mFrame = b4 - 1;
+                    actor.mIdleDelta = -1;
+                }
+            }
         }
     }
 }
@@ -904,23 +924,8 @@ void GameRunner::AnimateCombatant(
     mLogger.Debug() << "Animating combatant: " << entityId 
         << " mid: " << actor->mMonster << "\n";
 
-    switch (actor->mDirection)
-    {
-    case BAK::Direction::NorthEast:
-        actor->mDirection = BAK::Direction::North;
-        break;
-    case BAK::Direction::NorthWest:
-        actor->mDirection = BAK::Direction::West;
-        break;
-    case BAK::Direction::SouthEast:
-        actor->mDirection = BAK::Direction::East;
-        break;
-    case BAK::Direction::SouthWest:
-        actor->mDirection = BAK::Direction::South;
-        break;
-    default:
-        break;
-    }
+    // This might fail when we're doing crossbow I think?
+    assert(BAK::IsCardinal(actor->mDirection));
 
     auto frameTime = sFrameTime * mAnimationSpeedMultiplier;
 
@@ -942,24 +947,7 @@ void GameRunner::AnimateAttack(
     assert(actor);
     mLogger.Debug() << "Animating attack: " << entityId 
         << " mid: " << actor->mMonster << "\n";
-
-    switch (actor->mDirection)
-    {
-    case BAK::Direction::NorthEast:
-        actor->mDirection = BAK::Direction::North;
-        break;
-    case BAK::Direction::NorthWest:
-        actor->mDirection = BAK::Direction::West;
-        break;
-    case BAK::Direction::SouthEast:
-        actor->mDirection = BAK::Direction::East;
-        break;
-    case BAK::Direction::SouthWest:
-        actor->mDirection = BAK::Direction::South;
-        break;
-    default:
-        break;
-    }
+    assert(BAK::IsCardinal(actor->mDirection));
 
     auto frameTime = sFrameTime * mAnimationSpeedMultiplier;
 

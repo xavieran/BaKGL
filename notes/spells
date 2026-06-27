@@ -1,0 +1,45 @@
+14:47:24.06 DEBUG [LoadSpells] Spell{0 - Dragon's Breath minCost: 5 maxCost: 15 isCmbt: 0 targTp: 1 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 10}
+14:47:24.06 DEBUG [LoadSpells] Spell{1 - Dannon's Delusions minCost: 5 maxCost: 10 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[17]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 1 len: 1}
+14:47:24.06 DEBUG [LoadSpells] Spell{2 - Candle Glow minCost: 1 maxCost: 15 isCmbt: 0 targTp: 3 effCol: [[1]] anim: [[15]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 48}
+14:47:24.06 DEBUG [LoadSpells] Spell{3 - Despair Thy Eyes minCost: 2 maxCost: 2 isCmbt: 1 targTp: 1 effCol: [[175]] anim: [[2]] objReq: [[null]] (0) calcTp: CostTimesDuration dmg: 20 len: 1}
+14:47:24.06 DEBUG [LoadSpells] Spell{4 - Flamecast minCost: 1 maxCost: 20 isCmbt: 1 targTp: 0 effCol: [[200]] anim: [[3]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 3 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{5 - Skyfire minCost: 12 maxCost: 12 isCmbt: 1 targTp: 1 effCol: [[null]] anim: [[4]] objReq: [[null]] (0) calcTp: FixedAmount dmg: 40 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{6 - Hocho's Haven minCost: 7 maxCost: 14 isCmbt: 1 targTp: 3 effCol: [[232]] anim: [[5]] objReq: [[null]] (0) calcTp: CostTimesDuration dmg: 0 len: 4}
+14:47:24.06 DEBUG [LoadSpells] Spell{7 - Gift of Sung minCost: 1 maxCost: 20 isCmbt: 1 targTp: 2 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 1 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{8 - Scent of Sarig minCost: 5 maxCost: 5 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 720}
+14:47:24.06 DEBUG [LoadSpells] Spell{9 - Bane of Black Slayers minCost: 10 maxCost: 15 isCmbt: 1 targTp: 0 effCol: [[175]] anim: [[3]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 5 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{10 - Eagle Wing minCost: 5 maxCost: 20 isCmbt: 0 targTp: 65535 effCol: [[null]] anim: [[7]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{11 - Eyes of Ishap minCost: 1 maxCost: 10 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{12 - Nightfingers minCost: 14 maxCost: 14 isCmbt: 0 targTp: 4 effCol: [[175]] anim: [[6]] objReq: [[10]] (10) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{13 - Grief of 1000 Nights minCost: 4 maxCost: 16 isCmbt: 1 targTp: 1 effCol: [[3]] anim: [[15]] objReq: [[null]] (0) calcTp: CostTimesDuration dmg: 0 len: 2}
+14:47:24.06 DEBUG [LoadSpells] Spell{14 - Mirrorwall minCost: 20 maxCost: 20 isCmbt: 1 targTp: 5 effCol: [[7]] anim: [[5]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 1}
+14:47:24.06 DEBUG [LoadSpells] Spell{15 - Touch of Lims-Kragma minCost: 50 maxCost: 50 isCmbt: 1 targTp: 1 effCol: [[null]] anim: [[11]] objReq: [[null]] (0) calcTp: FixedAmount dmg: 1000 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{16 - River Song minCost: 20 maxCost: 20 isCmbt: 1 targTp: 6 effCol: [[56]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{17 - The Unseen minCost: 1 maxCost: 10 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{18 - Nacre Cicatrix minCost: 5 maxCost: 14 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[6]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{19 - Wrath of Killian minCost: 20 maxCost: 20 isCmbt: 1 targTp: 1 effCol: [[null]] anim: [[8]] objReq: [[null]] (0) calcTp: Special1 dmg: 1 len: 1}
+14:47:24.06 DEBUG [LoadSpells] Spell{20 - Unfortunate Flux minCost: 20 maxCost: 20 isCmbt: 1 targTp: 1 effCol: [[200]] anim: [[9]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{21 - Mad God's Rage minCost: 20 maxCost: 20 isCmbt: 1 targTp: 1 effCol: [[null]] anim: [[8]] objReq: [[null]] (0) calcTp: FixedAmount dmg: 100 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{22 - Mind Melt minCost: 5 maxCost: 15 isCmbt: 1 targTp: 1 effCol: [[208]] anim: [[13]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 3 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{23 - Skin of the Dragon minCost: 4 maxCost: 20 isCmbt: 1 targTp: 2 effCol: [[208]] anim: [[6]] objReq: [[null]] (0) calcTp: CostTimesDuration dmg: 0 len: 4294967295}
+14:47:24.06 DEBUG [LoadSpells] Spell{24 - Aether Bridge minCost: 12 maxCost: 12 isCmbt: 0 targTp: 65535 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{25 - Steelfire minCost: 10 maxCost: 10 isCmbt: 1 targTp: 2 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: CostTimesDuration dmg: 0 len: 1}
+14:47:24.06 DEBUG [LoadSpells] Spell{26 - Stardusk minCost: 5 maxCost: 15 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 48}
+14:47:24.06 DEBUG [LoadSpells] Spell{27 - Winds of Eortis minCost: 1 maxCost: 14 isCmbt: 1 targTp: 0 effCol: [[null]] anim: [[12]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{28 - Firestorm minCost: 1 maxCost: 30 isCmbt: 1 targTp: 0 effCol: [[200]] anim: [[19]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 4 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{29 - Gambit of the Eight minCost: 2 maxCost: 18 isCmbt: 1 targTp: 5 effCol: [[8]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 1 len: 10}
+14:47:24.06 DEBUG [LoadSpells] Spell{30 - Invitation minCost: 1 maxCost: 10 isCmbt: 1 targTp: 1 effCol: [[null]] anim: [[14]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{31 - Thoughts Like Clouds minCost: 10 maxCost: 20 isCmbt: 1 targTp: 1 effCol: [[4]] anim: [[15]] objReq: [[null]] (0) calcTp: CostTimesDuration dmg: 0 len: 4294967294}
+14:47:24.06 DEBUG [LoadSpells] Spell{32 - Final Rest minCost: 5 maxCost: 5 isCmbt: 1 targTp: 7 effCol: [[null]] anim: [[16]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{33 - Dawn of Truth minCost: 1 maxCost: 10 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{34 - Union minCost: 15 maxCost: 15 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 20}
+14:47:24.06 DEBUG [LoadSpells] Spell{35 - And the Light Shall Lie minCost: 15 maxCost: 15 isCmbt: 0 targTp: 3 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 120}
+14:47:24.06 DEBUG [LoadSpells] Spell{36 - The Fetters of Rime minCost: 1 maxCost: 20 isCmbt: 1 targTp: 0 effCol: [[232]] anim: [[3]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 2 len: 1}
+14:47:24.06 DEBUG [LoadSpells] Spell{37 - Black Nimbus minCost: 1 maxCost: 10 isCmbt: 1 targTp: 8 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{38 - Arachnos minCost: 1 maxCost: 10 isCmbt: 1 targTp: 6 effCol: [[44]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{39 - Grave's Disquiet minCost: 10 maxCost: 20 isCmbt: 1 targTp: 6 effCol: [[57]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{40 - Asphyxiation minCost: 15 maxCost: 15 isCmbt: 1 targTp: 5 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{41 - Thy Master's Will minCost: 20 maxCost: 20 isCmbt: 1 targTp: 4 effCol: [[41]] anim: [[18]] objReq: [[17]] (17) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{42 - Strength Drain minCost: 10 maxCost: 20 isCmbt: 1 targTp: 0 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: Special2 dmg: -1 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{43 - Summon Riftmare minCost: 20 maxCost: 20 isCmbt: 1 targTp: 6 effCol: [[57]] anim: [[null]] objReq: [[null]] (0) calcTp: NonCostRelated dmg: 0 len: 0}
+14:47:24.06 DEBUG [LoadSpells] Spell{44 - Evil Seek minCost: 20 maxCost: 30 isCmbt: 1 targTp: 0 effCol: [[null]] anim: [[null]] objReq: [[null]] (0) calcTp: CostTimesDamage dmg: 2 len: 0}

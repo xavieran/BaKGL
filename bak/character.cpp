@@ -237,17 +237,55 @@ InventoryIndex Character::GetItemAtSlot(ItemType slot) const
 
 ItemType Character::GetWeaponType() const
 {
+    // This will not necessarily work for monsters
     if (IsSpellcaster())
         return ItemType::Staff;
     else
         return ItemType::Sword;
 }
 
-const InventoryItem& Character::GetMeleeWeapon() const
+InventoryItem* Character::GetMeleeWeapon()
 {
-    const auto it = mInventory->FindEquipped(GetWeaponType());
-    assert(it != mInventory->GetItems().end());
-    return *it;
+    auto it = mInventory->FindEquipped(ItemType::Staff);
+    if (it == mInventory->GetItems().end())
+    {
+        it = mInventory->FindEquipped(ItemType::Sword);
+    }
+    if (it == mInventory->GetItems().end())
+    {
+        return nullptr;
+    }
+    return &(*it);
+}
+
+const InventoryItem* Character::GetMeleeWeapon() const
+{
+    auto it = mInventory->FindEquipped(ItemType::Staff);
+    if (it == mInventory->GetItems().end())
+    {
+        it = mInventory->FindEquipped(ItemType::Sword);
+    }
+    if (it == mInventory->GetItems().end())
+    {
+        return nullptr;
+    }
+    return &(*it);
+}
+
+InventoryItem* Character::GetArmor()
+{
+    auto it = mInventory->FindEquipped(ItemType::Armor);
+    if (it == mInventory->GetItems().end())
+        return nullptr;
+    return &(*it);
+}
+
+const InventoryItem* Character::GetArmor() const
+{
+    auto it = mInventory->FindEquipped(ItemType::Armor);
+    if (it == mInventory->GetItems().end())
+        return nullptr;
+    return &(*it);
 }
 
 bool Character::CanReplaceEquippableItem(ItemType type) const

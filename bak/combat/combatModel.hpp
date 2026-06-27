@@ -13,15 +13,15 @@ struct Model;
 
 enum class AnimationType : std::uint8_t
 {
-    Idle,
-    Dead,
-    Slash,
-    Thrust,
-    ParryLow,
-    ParryHigh,
-    Ranged,
-    RangedCast,
-    StaticCast
+    Idle = 0,
+    Dead = 1,
+    Slash = 2,
+    Thrust = 3,
+    ParryLow = 4,
+    ParryHigh = 5,
+    Ranged = 6,
+    RangedCast = 7,
+    StaticCast = 8
 };
 
 std::string_view ToString(AnimationType);

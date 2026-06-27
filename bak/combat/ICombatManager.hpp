@@ -9,6 +9,8 @@ class ICombatManager
 public:
     virtual void SetCastingSpell(SpellIndex) = 0;
     virtual void SetUsingCrossbow() = 0;
+    virtual void DoDefend() = 0;
+    virtual void DoRest() = 0;
 
     virtual ~ICombatManager() = default;
 };

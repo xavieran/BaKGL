@@ -7,16 +7,6 @@ std::ostream& operator<<(std::ostream& os, Move move)
     return os << "Move {" << move.mTarget << "}";
 }
 
-std::ostream& operator<<(std::ostream& os, AttackType type)
-{
-    switch (type)
-    {
-    case AttackType::Slash: return os << "Slash";
-    case AttackType::Thrust: return os << "Thrust";
-    }
-    return os;
-}
-
 std::ostream& operator<<(std::ostream& os, const Attack& attack)
 {
     return os << "Attack {" << attack.mTarget << ", " << attack.mType << "}";

@@ -21,7 +21,7 @@ list(APPEND APP_BINARIES
     display_save
     display_startup_files
     display_sound
-    #display_spells
+    display_spells
     display_req
     display_tbl
     display_tile
