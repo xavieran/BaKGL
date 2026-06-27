@@ -712,19 +712,21 @@ void GameRunner::RunGameUpdate(bool advanceTime)
     }
 }
 
-void GameRunner::SetHoveredEntity(BAK::EntityIndex id)
+void GameRunner::SetHoveredEntity(std::optional<BAK::EntityIndex> entityId)
 {
-    mHoveredEntity = id;
-}
-
-BAK::EntityIndex GameRunner::GetHoveredEntity() const
-{
-    return mHoveredEntity;
-}
-
-void GameRunner::LogHoveredEntity() const
-{
-    mLogger.Debug() << "Right click on entity: " << mHoveredEntity.mValue << "\n";
+    if (entityId == mHoveredEntity) return;
+    mHoveredEntity = entityId;
+    if (mCombatManager.IsCombatActive() && entityId)
+    {
+        for (unsigned i = 0; i < mGridCellEntityIds.size(); i++)
+        {
+            if (mGridCellEntityIds[i] == *entityId)
+            {
+                mCombatManager.OnHoverChanged(IndexToGridPos(i));
+                return;
+            }
+        }
+    }
 }
 
 void GameRunner::CheckClickable(unsigned entityId)
@@ -973,7 +975,7 @@ void GameRunner::AnimateAttack(
             }));
 }
 
-bool GameRunner::HandleGridCellClick(unsigned entityId)
+bool GameRunner::HandleGridCellClick(unsigned entityId, bool isRightClick)
 {
     if (mAnimationActive)
     {
@@ -984,11 +986,11 @@ bool GameRunner::HandleGridCellClick(unsigned entityId)
     {
         if (mGridCellEntityIds[i].mValue == entityId)
         {
-            const auto row = i / BAK::gCombatGridCols;
-            const auto col = i % BAK::gCombatGridCols;
-            mLogger.Info() << "Grid cell (" << col << ", " << row << ") clicked\n";
+            auto gridPos = IndexToGridPos(i);
+            mLogger.Info() << "Grid cell (" << gridPos.x << ", " << gridPos.y << ") "
+                << (isRightClick ? "right-" : "") << "clicked\n";
 
-            mCombatManager.GridCellClicked(glm::uvec2{col, row});
+            mCombatManager.GridCellClicked(glm::uvec2{gridPos}, isRightClick);
             return true;
         }
     }

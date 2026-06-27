@@ -11,6 +11,16 @@
 
 namespace Game::Combat {
 
+bool IsAdjacent(GridPos src, GridPos dest)
+{
+    if (ChebyshevDistance(src, dest) != 1)
+    {
+        return false;
+    }
+
+    return (src.x == dest.x) || (src.y == dest.y);
+}
+
 unsigned ChebyshevDistance(GridPos src, GridPos dest)
 {
     return std::max(

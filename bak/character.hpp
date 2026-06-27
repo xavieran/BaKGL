@@ -52,6 +52,8 @@ public:
     bool IsSpellcaster() const;
     bool IsSwordsman() const;
 
+    const InventoryItem& GetMeleeWeapon() const;
+
     bool HasEmptyStaffSlot() const;
     bool HasEmptySwordSlot() const;
     bool HasEmptyCrossbowSlot() const;
