@@ -120,11 +120,7 @@ void InventoryItem::SetCondition(unsigned condition)
 
 void InventoryItem::SetQuantity(unsigned quantity)
 {
-    ASSERT(!IsStackable());
-    // Turns out in many situations the game does allow you to
-    // have quantities greater than the max stack size. Turn the
-    // assert off to prevent crashes in saves because of this.
-    // || (IsStackable() && quantity <= GetObject().mStackSize));
+    ASSERT(!IsStackable() || (IsStackable() && quantity <= GetObject().mStackSize));
     mCondition = quantity;
 }
 
