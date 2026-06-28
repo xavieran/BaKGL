@@ -6,6 +6,8 @@
 #include "game/combatModelLoader.hpp"
 #include "game/systems.hpp"
 
+#include <optional>
+
 namespace Game {
 
 class Actor {
@@ -19,11 +21,132 @@ public:
     BAK::MonsterIndex mMonster;
     BAK::AnimationType mAnimationType;
     BAK::Direction mDirection;
-    int mFrame{0};
-    int mIdleDelta{1};
+
     const CombatModelLoader& mCombatModelLoader;
     glm::mat4 mModelMatrix{1.0f};
     bool mAnimating{false};
+
+    Actor(
+        BAK::EntityIndex itemId,
+        glm::vec3 location,
+        BAK::MonsterIndex monster,
+        const CombatModelLoader& loader)
+    :
+        mItemId{itemId},
+        mLocation{location},
+        mRotation{Graphics::sNinetyDegreeRotation},
+        mScale{glm::vec3{1}},
+        mMonster{monster},
+        mAnimationType{BAK::AnimationType::Idle},
+        mDirection{BAK::Direction::South},
+        mCombatModelLoader{loader}
+    {
+    }
+
+    void SetPosition(glm::vec3 pos)
+    {
+        mLocation = pos;
+        CalculateModelMatrix();
+    }
+
+    void Update()
+    {
+        if (auto anim = GetAnimData())
+        {
+            auto frameCount = anim->offset.mFrames;
+            mFrame = frameCount == 0 ? 0 : mFrame % frameCount;
+            ApplyFrame(*anim);
+        }
+    }
+
+    void StartAnimation(BAK::AnimationType type)
+    {
+        mAnimationType = type;
+        mFrame = 0;
+        Update();
+    }
+
+    void SetDirection(BAK::Direction direction)
+    {
+        mDirection = direction;
+        Update();
+    }
+
+    void SetState(BAK::AnimationType type, BAK::Direction direction)
+    {
+        mAnimationType = type;
+        mDirection = direction;
+        if (auto anim = GetAnimData())
+        {
+            mFrame = anim->offset.mFrames > 0
+                ? static_cast<int>(anim->offset.mFrames) - 1
+                : 0;
+            ApplyFrame(*anim);
+        }
+    }
+
+    bool AdvanceAnimation()
+    {
+        mFrame++;
+        if (auto anim = GetAnimData())
+        {
+            auto frameCount = anim->offset.mFrames;
+            if (frameCount > 0)
+                mFrame %= frameCount;
+            ApplyFrame(*anim);
+        }
+        return mFrame == 0;
+    }
+
+    void AdvanceIdleFrame()
+    {
+        auto anim = GetAnimData();
+        if (!anim || anim->offset.mFrames <= 1)
+            return;
+
+        mFrame += mIdleDelta;
+        auto maxFrame = static_cast<int>(anim->offset.mFrames) - 1;
+        if (mFrame > maxFrame)
+        {
+            mFrame = maxFrame - 1;
+            mIdleDelta = -1;
+        }
+        else if (mFrame < 0)
+        {
+            mFrame = 1;
+            mIdleDelta = 1;
+        }
+        ApplyFrame(*anim);
+    }
+
+    const auto& GetRenderData() const
+    {
+        return mCombatModelLoader.mCombatModelDatas[mMonster.mValue]->mRenderData;
+    }
+
+private:
+    int mFrame{0};
+    int mIdleDelta{1};
+
+    struct AnimData {
+        const CombatModelData* datas;
+        AnimationOffset offset;
+    };
+
+    std::optional<AnimData> GetAnimData() const
+    {
+        auto request = AnimationRequest{mAnimationType, BAK::ToSpriteDirection(mDirection)};
+        auto& datas = mCombatModelLoader.mCombatModelDatas[mMonster.mValue];
+        if (!datas || !datas->mOffsetMap.contains(request))
+            return std::nullopt;
+        return AnimData{&(*datas), datas->mOffsetMap.at(request)};
+    }
+
+    void ApplyFrame(const AnimData& anim)
+    {
+        mObject = anim.datas->mObjectDrawData[anim.offset.mOffset + mFrame];
+        CalculateModelMatrix();
+    }
 
     void CalculateModelMatrix()
     {
@@ -34,36 +157,6 @@ public:
         }
         mModelMatrix = Graphics::CalculateModelMatrix(
             mLocation, mScale, adjustedRotation, BAK::gWorldScale);
-    }
-
-    void Update()
-    {
-        auto request = AnimationRequest{mAnimationType, BAK::ToSpriteDirection(mDirection)};
-        const auto& datas = *mCombatModelLoader.mCombatModelDatas[mMonster.mValue];
-        if (!datas.mOffsetMap.contains(request))
-        {
-            return;
-        }
-        auto animOff = datas.mOffsetMap.at(request);
-        mFrame = animOff.mFrames == 0 ? 0 : mFrame % animOff.mFrames;
-        mObject = datas.mObjectDrawData[animOff.mOffset + mFrame];
-        CalculateModelMatrix();
-    }
-
-
-    void SetState(BAK::AnimationType type, BAK::Direction direction)
-    {
-        mAnimationType = type;
-        mDirection = direction;
-        const auto& monster = *mCombatModelLoader.mCombatModels[mMonster.mValue];
-        const auto& anim = monster.GetAnimation(type, BAK::ToSpriteDirection(direction));
-        mFrame = anim.mImageIndices.size() - 1;
-        Update();
-    }
-
-    const auto& GetRenderData() const
-    {
-        return mCombatModelLoader.mCombatModelDatas[mMonster.mValue]->mRenderData;
     }
 };
 
@@ -88,25 +181,12 @@ public:
         assert(mSystems);
         auto entityId = mSystems->GetNextItemId();
         assert(mLoader.mCombatModelDatas[monsterIndex.mValue]);
-        const auto& datas = *mLoader.mCombatModelDatas[monsterIndex.mValue];
-        const auto& monster = *mLoader.mCombatModels[monsterIndex.mValue];
-        const auto deadFrameOffset = monster.GetAnimation(
-            BAK::AnimationType::Dead,
-            BAK::Direction::South).mImageIndices.size() - 1;
 
         mActors.emplace_back(
-            Actor{
-                entityId,
-                {},
-                BAK::ToGlCoord<float>(pos),
-                Graphics::sNinetyDegreeRotation,
-                glm::vec3{1},
-                monsterIndex,
-                BAK::AnimationType::Idle,
-                BAK::Direction::South,
-                0,
-                1,
-                mLoader});
+            entityId,
+            BAK::ToGlCoord<float>(pos),
+            monsterIndex,
+            mLoader);
         mActors.back().Update();
 
         return entityId;

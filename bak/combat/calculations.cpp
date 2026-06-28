@@ -21,6 +21,14 @@ static constexpr auto sItemRaceEffect = std::array<std::int16_t, 12>
     -1,   -1,    0,   -2,   // Elf
 };
 
+// triple check this, might be off by one or two ....
+static const std::array<std::uint16_t, 64> sMonsterResistanceArr = {
+    0,     0,     0,     0, 0, 0,    0, 0, 0,    0,    0,     0,    0,     0, 0,     1,
+    0x200, 0,     0,     1, 0, 0xC0, 1, 0, 0,    0xC0, 0x200, 0x0C, 0,     0, 0,     0,
+    0,     0,     2,     0, 0, 0,    0, 0, 1,    0,    0x0C,  2,    0,     1, 0x200, 0,
+    0x200, 0x100, 0x300, 1, 1, 0,    0, 0, 0,    0xC0, 0xC0,  0,    0,     0, 0x300, 0
+ };
+
 
 MeleeInfo CalculateMeleeInfo(const Character& character)
 {
@@ -359,15 +367,7 @@ std::uint16_t GetMeleeModifierFlags(Character& attacker)
 
 int CalculateMonsterResistance(MonsterIndex monster, std::uint16_t modifierFlags, int damage)
 {
-    // triple check this, might be off by one or two ....
-    static const std::array<std::uint16_t, 64> monsterResistanceArr = {
-        0,     0,     0,     0, 0, 0,    0, 0, 0,    0,    0,     0,    0,     0, 0,     1,
-        0x200, 0,     0,     1, 0, 0xC0, 1, 0, 0,    0xC0, 0x200, 0x0C, 0,     0, 0,     0,
-        0,     0,     2,     0, 0, 0,    0, 0, 1,    0,    0x0C,  2,    0,     1, 0x200, 0,
-        0x200, 0x100, 0x300, 1, 1, 0,    0, 0, 0,    0xC0, 0xC0,  0,    0,     0, 0x300, 0
-     };
-
-    bool resistsModifier = monsterResistanceArr[monster.mValue];
+    bool resistsModifier = sMonsterResistanceArr[monster.mValue];
     if (resistsModifier)
     {
         damage /= 2;
@@ -548,6 +548,29 @@ void UseCombatItemAndDull(Character& character, ItemType itemType, int factor)
     }
 
     item->SetCondition(newCondition);
+}
+
+void PoisonCombatant(Character& combatant, CombatState& state)
+{
+    auto monsterIx = combatant.GetMonsterIndex().mValue;
+    assert(monsterIx < sMonsterResistanceArr.size());
+
+    if ((sMonsterResistanceArr[monsterIx] & std::to_underlying(ModifierFlags::Poison)) != 0)
+    {
+        return;
+    }
+
+    auto* armor = combatant.GetArmor();
+    if (armor && armor->IsPoisoned())
+    {
+        return;
+    }
+
+    state.mIsPoisoned = true;
+
+    auto poisonAmount = (GetRandomNumber(0, 0xfff) % 50) + 10;
+
+    combatant.AdjustCondition(BAK::Condition::Poisoned, poisonAmount);
 }
 
 }

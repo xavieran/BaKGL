@@ -360,13 +360,7 @@ void GameRunner::LoadTileActors(std::uint8_t tileIndex)
             entityIndices.push_back(entityId);
             auto& actor = *mWorldActorStore.GetActor(entityId);
             if (combatantDead)
-            {
                 actor.SetState(BAK::AnimationType::Dead, BAK::Direction::South);
-            }
-            else
-            {
-                actor.Update();
-            }
             mSystems->AddDynamicRenderable(
                 DynamicRenderable{
                     entityId,
@@ -594,7 +588,6 @@ void GameRunner::EnterCombatFromEncounter()
         auto entityId = mCombatActorStore.AddActor(
             combatPos, monsterIndex);
         auto& actor = *mCombatActorStore.GetActor(entityId);
-        actor.Update();
         mSystems->AddDynamicRenderable(
             DynamicRenderable{
                 entityId,
@@ -622,7 +615,6 @@ void GameRunner::EnterCombatFromEncounter()
             combatPos, character.GetMonsterIndex());
         auto& actor = *mCombatActorStore.GetActor(entityId);
         actor.SetState(BAK::AnimationType::Idle, BAK::Direction::North);
-        actor.Update();
         mSystems->AddDynamicRenderable(
             DynamicRenderable{
                 entityId,
@@ -757,31 +749,13 @@ void GameRunner::OnTimeDelta(double timeDelta)
     mAccumulatedTime += timeDelta;
     if (mAccumulatedTime > .5)
     {
-        // Idle animations continue during attacks
         mAccumulatedTime = 0;
         for (auto& actor : mCombatActorStore.GetActors())
         {
             if (actor.mAnimating)
-            {
                 continue;
-            }
 
-            actor.mFrame += actor.mIdleDelta;
-            if (actor.mFrame < 0)
-            {
-                actor.mIdleDelta = 1;
-                actor.mFrame += actor.mIdleDelta;
-            }
-            else
-            {
-                auto b4 = actor.mFrame;
-                actor.Update();
-                if (b4 != actor.mFrame)
-                {
-                    actor.mFrame = b4 - 1;
-                    actor.mIdleDelta = -1;
-                }
-            }
+            actor.AdvanceIdleFrame();
         }
     }
 }
@@ -867,8 +841,7 @@ void GameRunner::MoveCombatant(
     auto startPos = actor->mLocation;
 
     auto direction = BAK::GetDirectionBetween(sourceGrid, targetGrid);
-    actor->mDirection = direction;
-    actor->Update();
+    actor->SetDirection(direction);
 
     auto moveDuration = sMoveDuration * mAnimationSpeedMultiplier;
 
@@ -895,9 +868,7 @@ void GameRunner::SetCombatantAction(
     mLogger.Debug() << "Setting combatant action: " << entityId 
         << " mid: " << actor->mMonster 
         << " anim: " << ToString(animType) << "\n";
-    actor->mAnimationType = animType;
-    actor->mFrame = 0;
-    actor->Update();
+    actor->StartAnimation(animType);
 }
 
 void GameRunner::SetCombatantDirection(
@@ -908,8 +879,7 @@ void GameRunner::SetCombatantDirection(
     assert(actor);
     mLogger.Spam() << "Setting combatant direction: " << entityId
         << " dir: " << static_cast<unsigned>(direction) << "\n";
-    actor->mDirection = direction;
-    actor->Update();
+    actor->SetDirection(direction);
 }
 
 void GameRunner::AnimateCombatant(
