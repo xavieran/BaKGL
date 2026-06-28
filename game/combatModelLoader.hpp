@@ -37,7 +37,7 @@ template<> struct hash<Game::AnimationRequest>
 
 namespace Game {
 
-struct AnimationOffset
+struct AnimationMeta
 {
     std::size_t mOffset;
     std::size_t mFrames;
@@ -46,7 +46,7 @@ struct AnimationOffset
 struct CombatModelData
 {
     Graphics::RenderData mRenderData{};
-    std::unordered_map<AnimationRequest, AnimationOffset> mOffsetMap;
+    std::unordered_map<AnimationRequest, AnimationMeta> mOffsetMap;
     std::vector<Graphics::MeshObjectStorage::OffsetAndLength> mObjectDrawData;
 };
 

@@ -28,7 +28,7 @@ enum class ModifierFlags
     Bless    = 0x800,
 };
 
-MeleeInfo CalculateMeleeInfo(const Character&);
+MeleeInfo CalculateMeleeInfo(Character&);
 MeleeResult CalculateMeleeResult(
     Character& attacker,
     Character& defender,

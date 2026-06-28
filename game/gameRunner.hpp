@@ -164,8 +164,6 @@ public:
 
     double mAnimationSpeedMultiplier{1.0};
 
-    double mAccumulatedTime{};
-
     std::optional<BAK::EntityIndex> mHoveredEntity;
 
     const Logging::Logger& mLogger;

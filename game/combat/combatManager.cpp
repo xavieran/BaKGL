@@ -2,6 +2,7 @@
 
 #include "audio/audio.hpp"
 
+#include "bak/combat/types.hpp"
 #include "game/combat/gridAlgorithms.hpp"
 
 #include "bak/combat/calculations.hpp"
@@ -186,12 +187,26 @@ void CombatManager::EndCombat()
 
 void CombatManager::OnHoverChanged(std::optional<GridPos> gridPos)
 {
-    mLogger.Debug() << "Hover changed to: " << gridPos << "\n";
+    mLogger.Spam() << "Hover changed to: " << gridPos << "\n";
     auto* hovered = gridPos ? GetCombatant(*gridPos) : nullptr;
+    assert(!hovered || hovered->mCharacter);
+    auto& me = GetCurrentCombatant();
+    assert(me.mCharacter);
+
     if (hovered
-        && GetCurrentCombatant().mCharacter->IsEnemy() != hovered->mCharacter->IsEnemy())
+        && me.mCharacter->IsEnemy() != hovered->mCharacter->IsEnemy())
     {
-        auto meleeInfo = BAK::CalculateMeleeInfo(*GetCurrentCombatant().mCharacter);
+        BAK::MeleeInfo meleeInfo{
+            me.mCharacter->GetSkill(BAK::SkillType::Melee),
+            me.mCharacter->GetSkill(BAK::SkillType::Strength),
+            0,
+            0};
+
+        if (me.mCharacter->GetMeleeWeapon() != nullptr)
+        {
+            meleeInfo = BAK::CalculateMeleeInfo(*GetCurrentCombatant().mCharacter);
+        }
+
         if (!IsAdjacent(GetCurrentCombatant().mGridPos, hovered->mGridPos))
         {
             meleeInfo.mSlashChance = 0;

@@ -6,12 +6,18 @@
 #include "game/combatModelLoader.hpp"
 #include "game/systems.hpp"
 
+#include "com/random.hpp"
+
 #include <optional>
 
 namespace Game {
 
 class Actor {
 public:
+
+    static constexpr auto sMinIdleTimeMs = 400;
+    static constexpr auto sMaxIdleTimeMs = 800;
+
     BAK::EntityIndex mItemId;
     std::pair<unsigned, unsigned> mObject;
     glm::vec3 mLocation;
@@ -53,7 +59,7 @@ public:
     {
         if (auto anim = GetAnimData())
         {
-            auto frameCount = anim->offset.mFrames;
+            auto frameCount = anim->mMeta.mFrames;
             mFrame = frameCount == 0 ? 0 : mFrame % frameCount;
             ApplyFrame(*anim);
         }
@@ -78,8 +84,8 @@ public:
         mDirection = direction;
         if (auto anim = GetAnimData())
         {
-            mFrame = anim->offset.mFrames > 0
-                ? static_cast<int>(anim->offset.mFrames) - 1
+            mFrame = anim->mMeta.mFrames > 0
+                ? static_cast<int>(anim->mMeta.mFrames) - 1
                 : 0;
             ApplyFrame(*anim);
         }
@@ -90,7 +96,7 @@ public:
         mFrame++;
         if (auto anim = GetAnimData())
         {
-            auto frameCount = anim->offset.mFrames;
+            auto frameCount = anim->mMeta.mFrames;
             if (frameCount > 0)
                 mFrame %= frameCount;
             ApplyFrame(*anim);
@@ -101,11 +107,11 @@ public:
     void AdvanceIdleFrame()
     {
         auto anim = GetAnimData();
-        if (!anim || anim->offset.mFrames <= 1)
+        if (!anim || anim->mMeta.mFrames <= 1)
             return;
 
         mFrame += mIdleDelta;
-        auto maxFrame = static_cast<int>(anim->offset.mFrames) - 1;
+        auto maxFrame = static_cast<int>(anim->mMeta.mFrames) - 1;
         if (mFrame > maxFrame)
         {
             mFrame = maxFrame - 1;
@@ -119,6 +125,34 @@ public:
         ApplyFrame(*anim);
     }
 
+    void RandomiseIdleFrame()
+    {
+        auto anim = GetAnimData();
+        if (!anim || anim->mMeta.mFrames <= 1)
+            return;
+
+        mFrame = GetRandomNumber(0, anim->mMeta.mFrames - 1);
+        mIdleAccumulator = GetRandomIdleInterval();
+        mIdleInterval = GetRandomIdleInterval();
+        ApplyFrame(*anim);
+    }
+
+    bool AdvanceIdle(double timeDelta)
+    {
+        if (mAnimating) return false;
+        mIdleAccumulator += timeDelta;
+        if (mIdleAccumulator < mIdleInterval) return false;
+        mIdleAccumulator -= mIdleInterval;
+        AdvanceIdleFrame();
+        mIdleInterval = GetRandomIdleInterval();
+        return true;
+    }
+
+    double GetRandomIdleInterval() const
+    {
+        return GetRandomNumber(sMinIdleTimeMs, sMaxIdleTimeMs) / 1000.0;
+    }
+
     const auto& GetRenderData() const
     {
         return mCombatModelLoader.mCombatModelDatas[mMonster.mValue]->mRenderData;
@@ -127,10 +161,12 @@ public:
 private:
     int mFrame{0};
     int mIdleDelta{1};
+    double mIdleAccumulator{0};
+    double mIdleInterval{0.5};
 
     struct AnimData {
-        const CombatModelData* datas;
-        AnimationOffset offset;
+        const CombatModelData* mDatas;
+        AnimationMeta mMeta;
     };
 
     std::optional<AnimData> GetAnimData() const
@@ -144,7 +180,7 @@ private:
 
     void ApplyFrame(const AnimData& anim)
     {
-        mObject = anim.datas->mObjectDrawData[anim.offset.mOffset + mFrame];
+        mObject = anim.mDatas->mObjectDrawData[anim.mMeta.mOffset + mFrame];
         CalculateModelMatrix();
     }
 

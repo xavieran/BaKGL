@@ -588,6 +588,7 @@ void GameRunner::EnterCombatFromEncounter()
         auto entityId = mCombatActorStore.AddActor(
             combatPos, monsterIndex);
         auto& actor = *mCombatActorStore.GetActor(entityId);
+        actor.RandomiseIdleFrame();
         mSystems->AddDynamicRenderable(
             DynamicRenderable{
                 entityId,
@@ -615,6 +616,7 @@ void GameRunner::EnterCombatFromEncounter()
             combatPos, character.GetMonsterIndex());
         auto& actor = *mCombatActorStore.GetActor(entityId);
         actor.SetState(BAK::AnimationType::Idle, BAK::Direction::North);
+        actor.RandomiseIdleFrame();
         mSystems->AddDynamicRenderable(
             DynamicRenderable{
                 entityId,
@@ -745,18 +747,9 @@ void GameRunner::CheckClickable(unsigned entityId)
 
 void GameRunner::OnTimeDelta(double timeDelta)
 {
-    //return;
-    mAccumulatedTime += timeDelta;
-    if (mAccumulatedTime > .5)
+    for (auto& actor : mCombatActorStore.GetActors())
     {
-        mAccumulatedTime = 0;
-        for (auto& actor : mCombatActorStore.GetActors())
-        {
-            if (actor.mAnimating)
-                continue;
-
-            actor.AdvanceIdleFrame();
-        }
+        actor.AdvanceIdle(timeDelta);
     }
 }
 
@@ -865,7 +858,7 @@ void GameRunner::SetCombatantAction(
 {
     auto* actor = mCombatActorStore.GetActor(entityId);
     assert(actor);
-    mLogger.Debug() << "Setting combatant action: " << entityId 
+    mLogger.Spam() << "Setting combatant action: " << entityId
         << " mid: " << actor->mMonster 
         << " anim: " << ToString(animType) << "\n";
     actor->StartAnimation(animType);

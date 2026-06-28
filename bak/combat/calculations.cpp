@@ -30,7 +30,7 @@ static const std::array<std::uint16_t, 64> sMonsterResistanceArr = {
  };
 
 
-MeleeInfo CalculateMeleeInfo(const Character& character)
+MeleeInfo CalculateMeleeInfo(Character& character)
 {
     const auto meleeAcc = character.GetSkill(SkillType::Melee);
     const auto strength = character.GetSkill(SkillType::Strength);
