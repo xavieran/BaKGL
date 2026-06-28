@@ -56,6 +56,8 @@ struct WorldShaderUniforms
     GLuint mMVP;
     GLuint mM;
     GLuint mV;
+    GLuint mUseInstanceColor;
+    GLuint mInstanceColor;
 };
 
 struct Text3DShaderUniforms
@@ -105,7 +107,9 @@ public:
             mModelShader.GetUniformLocation("cameraPosition_worldspace"),
             mModelShader.GetUniformLocation("MVP"),
             mModelShader.GetUniformLocation("M"),
-            mModelShader.GetUniformLocation("V")
+            mModelShader.GetUniformLocation("V"),
+            mModelShader.GetUniformLocation("useInstanceColor"),
+            mModelShader.GetUniformLocation("instanceColor")
         },
         mSpriteShader{std::invoke([]{
             auto shader = ShaderProgram{
@@ -126,7 +130,9 @@ public:
             mSpriteShader.GetUniformLocation("cameraPosition_worldspace"),
             mSpriteShader.GetUniformLocation("MVP"),
             mSpriteShader.GetUniformLocation("M"),
-            mSpriteShader.GetUniformLocation("V")
+            mSpriteShader.GetUniformLocation("V"),
+            mSpriteShader.GetUniformLocation("useInstanceColor"),
+            mSpriteShader.GetUniformLocation("instanceColor")
         },
         mPickShader{std::invoke([]{
             auto shader = ShaderProgram{
@@ -330,7 +336,7 @@ public:
 
         for (const auto& item : renderables)
         {
-            if (glm::distance(camera.GetPosition(), item.GetLocation()) > mDrawDistance) continue;
+            if (glm::distance(camera.GetPosition(), item.GetLocation()) > mDrawDistance || !item.GetVisible()) continue;
             const auto [offset, length] = item.GetObject();
             const auto& modelMatrix = item.GetModelMatrix();
 
@@ -339,6 +345,11 @@ public:
             shader.SetUniform(mvpMatrixId, MVP);
             shader.SetUniform(modelMatrixId, modelMatrix);
             shader.SetUniform(viewMatrixId, viewMatrix);
+
+            auto instanceColor = item.GetInstanceColor();
+            shader.SetUniform(uniforms.mUseInstanceColor, instanceColor.has_value() ? 1 : 0);
+            if (instanceColor)
+                shader.SetUniform(uniforms.mInstanceColor, *instanceColor);
 
             glDrawElementsBaseVertex(
                 GL_TRIANGLES,

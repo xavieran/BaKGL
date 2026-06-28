@@ -18,6 +18,8 @@
 #include "com/random.hpp"
 #include "com/visit.hpp"
 
+#include "gui/colors.hpp"
+
 #include <algorithm>
 #include <optional>
 #include <utility>
@@ -203,6 +205,7 @@ void CombatManager::OnHoverChanged(std::optional<GridPos> gridPos)
     assert(!hovered || hovered->mCharacter);
     auto& me = GetCurrentCombatant();
     assert(me.mCharacter);
+    mHovered = gridPos;
 
     if (hovered
         && me.mCharacter->IsEnemy() != hovered->mCharacter->IsEnemy())
@@ -300,6 +303,7 @@ void CombatManager::ComputeGrid()
 
 void CombatManager::CompleteMove(GridPos target)
 {
+    mIsMoving = false;
     auto& combatant = GetCurrentCombatant();
 
     auto& oldCell = mGrid.Get(combatant.mGridPos.x, combatant.mGridPos.y);
@@ -373,6 +377,7 @@ void CombatManager::Execute(const Move& move)
     mLogger.Debug() << "Execute: " << move << "\n";
     auto entityIndex = GetCurrentCombatant().mEntityIndex;
     auto sourceGrid = GetCurrentCombatant().mGridPos;
+    mIsMoving = true;
     mStage.MoveCombatant(entityIndex, sourceGrid, move.mTarget);
 }
 
@@ -819,6 +824,36 @@ void CombatManager::ClearGrid()
             gridCell.mState = 0;
         }
     }
+}
+
+glm::vec4 CombatManager::GetGridCellColor(unsigned col, unsigned row)
+{
+    auto pos = GridPos(col, row);
+    const auto& cell = mGrid.Get(pos);
+    if (cell.mElement)
+    {
+        if (cell.mElement == &GetCurrentCombatant())
+        {
+            if (mIsMoving) return glm::vec4{};
+            return Gui::Color::gridOccupied;
+        }
+    }
+
+    if (mHovered && mHovered == pos)
+    {
+        auto& me = GetCurrentCombatant();
+        assert(me.mCharacter);
+        if (cell.mElement && cell.mElement->mCharacter->IsEnemy() != me.mCharacter->IsEnemy())
+        {
+            return Gui::Color::gridAttack;
+        }
+        else if (mGrid.CanMoveTo(pos))
+        {
+            return Gui::Color::gridMoveable;
+        }
+    }
+
+    return glm::vec4{};
 }
 
 }

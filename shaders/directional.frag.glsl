@@ -27,6 +27,8 @@ uniform Light light;
 uniform sampler2DArray texture0;
 uniform sampler2D shadowMap;
 uniform mat4 lightSpaceMatrix;
+uniform int useInstanceColor;
+uniform vec4 instanceColor;
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
@@ -48,21 +50,27 @@ void main()
 {
     float fogFactor = exp(-DistanceFromCamera * fogStrength);
     
-    vec3 materialDiffuseColor = vertexColor.xyz;
-    float materialAlpha = vertexColor.a;
-
     vec4 textureSample = texture(texture0, uvCoords);
     vec3 textureColor  = textureSample.xyz;
     float textureAlpha = textureSample.a;
 
-    // Choose either vertex color or texture color with the texBlend
-    vec3 diffuseColor = mix(materialDiffuseColor, textureColor, texBlend);
-    float alpha       = mix(materialAlpha, textureAlpha, texBlend);
+    vec3 diffuseColor;
+    float alpha;
+    if (useInstanceColor == 1)
+    {
+        diffuseColor = instanceColor.xyz;
+        alpha = textureAlpha;
+    }
+    else
+    {
+        diffuseColor = mix(vertexColor.xyz, textureColor, texBlend);
+        alpha = mix(vertexColor.a, textureAlpha, texBlend);
+    }
 
     if (alpha < 0.02) discard;
 
     vec3 materialAmbientColor = diffuseColor;
-    vec3 materialSpecularColor = materialDiffuseColor;
+    vec3 materialSpecularColor = diffuseColor;
 
     // Normal of the computed fragment, in camera space
     vec3 n = Normal_cameraspace;

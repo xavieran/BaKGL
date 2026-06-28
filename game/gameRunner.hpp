@@ -43,6 +43,13 @@ class GuiManager;
 
 namespace Game {
 
+struct GridCellInfo
+{
+    std::optional<glm::vec4> mColor{};
+    BAK::EntityIndex mEntityId{0};
+    Game::Combat::GridPos mGridPos{0, 0};
+};
+
 class ClickableEntity
 {
 public:
@@ -180,7 +187,8 @@ public:
 
     bool mGridVisible{false};
     std::vector<Renderable> mGridCellRenderables{};
-    std::vector<BAK::EntityIndex> mGridCellEntityIds{};
+    std::vector<GridCellInfo> mGridCells{};
+    void UpdateGridCellColors();
 
     bool mAnimationActive{false};
 
