@@ -435,7 +435,7 @@ int CalculateArmorReduction(Character& defender)
 
     auto condition = armor->GetCondition();
     // I guess I should use a union or something for this...
-    reduction = (condition * armor->GetObject().mAccuracySwing) / 100;
+    reduction += (condition * armor->GetObject().mAccuracySwing) / 100;
 
     auto raceEffect = CalculateRaceEffect(defender, *armor);
     reduction = reduction * (raceEffect + 100) / 100;

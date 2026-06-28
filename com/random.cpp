@@ -2,10 +2,35 @@
 
 #include <random>
 
+Random::Random()
+    : mEngine{std::random_device{}()}
+{
+}
+
+Random& Random::Get()
+{
+    static Random instance;
+    return instance;
+}
+
+unsigned Random::Generate(unsigned min, unsigned max)
+{
+    if (mForcedReturn)
+    {
+        auto result = *mForcedReturn;
+        mForcedReturn.reset();
+        return result;
+    }
+    std::uniform_int_distribution<> dist(min, max);
+    return dist(mEngine);
+}
+
+void Random::SetReturn(std::optional<unsigned> value)
+{
+    mForcedReturn = value;
+}
+
 unsigned GetRandomNumber(unsigned min, unsigned max)
 {
-    static std::random_device random_device;
-    static std::mt19937 engine{random_device()};
-    std::uniform_int_distribution<> dist(min, max);
-    return dist(engine);
+    return Random::Get().Generate(min, max);
 }

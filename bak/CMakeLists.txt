@@ -92,6 +92,7 @@ add_subdirectory(encounter)
 add_subdirectory(file)
 add_subdirectory(state)
 add_subdirectory(test)
+add_subdirectory(combat/test)
 
 target_link_libraries(bak
     audio
