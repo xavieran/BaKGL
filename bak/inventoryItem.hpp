@@ -13,6 +13,7 @@ enum class Modifier;
 enum class ItemStatus : std::uint8_t
 {
     Activated  = 1,
+    Used       = 2,
     Broken     = 4,
     Repairable = 5,
     Equipped   = 6,
@@ -55,6 +56,7 @@ public:
     std::uint8_t GetModifierMask() const;
 
     bool IsActivated() const;
+    bool IsUsed() const;
     bool IsEquipped() const;
     bool IsBroken() const;
     bool IsRepairable() const;
@@ -81,6 +83,7 @@ public:
     bool HasModifier(Modifier mod) const;
 
     void SetActivated(bool state);
+    void SetUsed(bool state);
     void SetEquipped(bool state);
     void SetRepairable(bool state);
     void SetBroken(bool state);

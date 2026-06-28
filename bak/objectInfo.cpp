@@ -183,7 +183,7 @@ std::ostream& operator<<(std::ostream& os, const GameObject& go)
         << " ) potionPower: " << go.mPotionPowerOrBookChance
         << " altEff: " << std::dec << go.mAlternativeEffect
         << " mod (" << std::hex << go.mModifierMask << ", " << std::dec << go.mModifier
-        << ") df0: " << go.mDullFactor0 << " df1: " << go.mDullFactor1 
+        << ") df0: " << go.mDullChance << " df1: " << go.mMaxDullAmount
         << " minCond: " << go.mMinCondition << "}";
     return os;
 }
@@ -220,8 +220,8 @@ ObjectIndex::ObjectIndex()
         const auto alternativeEffect = fb.GetUint16LE();
         const auto modifierMask = fb.GetUint16LE();
         const auto modifier = fb.GetSint16LE();
-        const auto dullFactor0 = fb.GetUint16LE();
-        const auto dullFactor1 = fb.GetUint16LE();
+        const auto dullChance = fb.GetUint16LE();
+        const auto maxDullAmount = fb.GetUint16LE();
         const auto minimumCondition = fb.GetUint16LE();
 
         mObjects[i] = GameObject{
@@ -248,8 +248,8 @@ ObjectIndex::ObjectIndex()
             alternativeEffect,
             modifierMask,
             modifier,
-            dullFactor0,
-            dullFactor1,
+            dullChance,
+            maxDullAmount,
             minimumCondition};
 
         logger.Spam() << i << std::hex << " Unknown0: " << unknown << "|2 "

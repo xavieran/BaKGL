@@ -47,6 +47,11 @@ bool InventoryItem::IsActivated() const
     return CheckItemStatus(mStatus, ItemStatus::Activated);
 }
 
+bool InventoryItem::IsUsed() const
+{
+    return CheckItemStatus(mStatus, ItemStatus::Used);
+}
+
 bool InventoryItem::IsEquipped() const
 {
     return CheckItemStatus(mStatus, ItemStatus::Equipped);
@@ -91,6 +96,11 @@ void InventoryItem::SetActivated(bool state)
 void InventoryItem::SetEquipped(bool state)
 {
     mStatus = SetItemStatus(mStatus, ItemStatus::Equipped, state);
+}
+
+void InventoryItem::SetUsed(bool state)
+{
+    mStatus = SetItemStatus(mStatus, ItemStatus::Used, state);
 }
 
 void InventoryItem::SetRepairable(bool state)
