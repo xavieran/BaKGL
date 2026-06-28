@@ -456,18 +456,18 @@ int main(int argc, char** argv)
         }
     }
 
-    if (options.combatant_characters)
-    {
-        logger.Info() << "Combatant Characters:\n";
-        auto& fb = gameData.GetFileBuffer();
-        auto combatInventories = LoadCombatInventories(fb);
-        for (unsigned i = 0; i < BAK::SaveOffsets::sCombatStatsCount; i++)
-        {
-            auto character = LoadCombatant(
-                BAK::CombatantIndex{i}, fb, combatInventories[i]);
-            logger.Info() << character << "\n";
-        }
-    }
+    //if (options.combatant_characters)
+    //{
+    //    logger.Info() << "Combatant Characters:\n";
+    //    auto& fb = gameData.GetFileBuffer();
+    //    auto combatInventories = LoadCombatInventories(fb);
+    //    for (unsigned i = 0; i < BAK::SaveOffsets::sCombatStatsCount; i++)
+    //    {
+    //        auto character = LoadCombatant(
+    //            BAK::CombatantIndex{i}, fb, combatInventories[i]);
+    //        logger.Info() << character << "\n";
+    //    }
+    //}
 
     if (options.event_flags)
     {

@@ -375,18 +375,14 @@ void GameRunner::LoadTileActors(std::uint8_t tileIndex)
                     &actor.mLocation,
                     &actor.mModelMatrix});
 
-            auto& containers = mGameState.GetCombatContainers();
-            auto container = std::find_if(containers.begin(), containers.end(),
-                [&](auto& lhs){
-                    return lhs.GetHeader().GetCombatNumber() == combat.mCombatIndex
-                        && lhs.GetHeader().GetCombatantNumber() == i;
-                });
-
-            if (container != containers.end())
+            auto* container = mGameState.GetCombatContainer(BAK::CombatRelInfo{combat.mCombatIndex, i});
+            if (container)
             {
-                const auto entityType = combatComplete ? BAK::EntityType::DEAD_COMBATANT : BAK::EntityType::LIVING_COMBATANT;
+                const auto entityType = combatComplete
+                    ? BAK::EntityType::DEAD_COMBATANT
+                    : BAK::EntityType::LIVING_COMBATANT;
                 mSystems->AddClickable(Clickable{entityId});
-                mClickables.emplace(entityId, ClickableEntity(entityType, &(*container)));
+                mClickables.emplace(entityId, ClickableEntity(entityType, container));
             }
         }
 
@@ -910,7 +906,7 @@ void GameRunner::SetCombatantDirection(
 {
     auto* actor = mCombatActorStore.GetActor(entityId);
     assert(actor);
-    mLogger.Debug() << "Setting combatant direction: " << entityId 
+    mLogger.Spam() << "Setting combatant direction: " << entityId
         << " dir: " << static_cast<unsigned>(direction) << "\n";
     actor->mDirection = direction;
     actor->Update();

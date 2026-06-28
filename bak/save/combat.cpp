@@ -75,7 +75,7 @@ std::vector<Skills> LoadCombatStats(FileBuffer& fb)
 Character LoadCombatant(
     CombatantIndex combatant,
     FileBuffer& fb,
-    GenericContainer& container)
+    Inventory* inventory)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadCombatant");
     const auto offset = SaveOffsets::sCombatStatsOffset
@@ -107,7 +107,7 @@ Character LoadCombatant(
         combatCharIndex,
         unknown2,
         Conditions{},
-        &container.GetInventory()};
+        inventory};
 }
 
 std::vector<CombatantGridLocation> LoadCombatantGridLocations(FileBuffer& fb)

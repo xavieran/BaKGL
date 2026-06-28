@@ -192,13 +192,13 @@ public:
     CombatantGridLocation& GetCombatantGridLocation(CombatantIndex);
     Character* GetCombatantCharacter(CombatantIndex);
     CombatEntityList& GetCombatEntityList(CombatIndex);
+    std::optional<CombatRelInfo> GetCombatRelInfo(CombatantIndex combatant) const;
+    GenericContainer* GetCombatContainer(CombatRelInfo);
     void ReactivateCombat(const Encounter::Encounter&, CombatIndex);
 
     // Super lame, but BaK uses a global so I will too
     void SetCombatTriggeredFromInteractable(bool value) { mCombatTriggeredFromInteractable = value; }
     bool GetCombatTriggeredFromInteractable() const { return mCombatTriggeredFromInteractable; }
-
-    void SetFixCombatEntityLists(bool value) { mFixCombatEntityLists = value; }
 
     PartyChangeCache& GetPartyChangeCache() { return mPartyChangeCache; }
 
@@ -229,7 +229,6 @@ private:
     unsigned mContextVar_753f{};
     PartyChangeCache mPartyChangeCache{};
     bool mCombatTriggeredFromInteractable{};
-    bool mFixCombatEntityLists{false};
 
     std::optional<InventoryItem> mSelectedItem{};
     std::optional<MonsterIndex> mCurrentMonster{};

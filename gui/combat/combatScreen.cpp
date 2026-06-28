@@ -214,7 +214,6 @@ void CombatScreen::PrintMeleeInformation(BAK::MeleeInfo info)
         ss << "Left\n";
     }
     mTextArea.SetText(mFont, ss.str(), true);
-    mLogger.Debug() << "Print melee info: " << ss.str();
 }
 
 void CombatScreen::HandleButton(unsigned buttonIndex)

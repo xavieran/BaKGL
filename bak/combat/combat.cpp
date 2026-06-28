@@ -62,6 +62,13 @@ std::ostream& operator<<(std::ostream& os, const CombatantGridLocation& cgl)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const CombatRelInfo & cri)
+{
+    os << "CombatRelInfo{ Combat# " << cri.mCombatIndex
+        << " RelEnemy #" << cri.mCombatantRelativeIndex << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const CombatEntityList& cel)
 {
     os << "CombatEntityList{" << cel.mCombatants << "}";

@@ -46,7 +46,6 @@ struct Audio
 struct Game
 {
     bool mAdvanceTime{true};
-    bool mFixCombatEntityLists{false};
     double mCombatSpeed{1.0};
 };
 

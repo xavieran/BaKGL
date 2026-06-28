@@ -70,28 +70,26 @@ void GameState::LoadGame(std::string savePath)
     mGDSContainers = LoadShops(mGameData.GetFileBuffer());
     mCombatContainers = LoadCombatInventories(mGameData.GetFileBuffer());
     mTimeExpiringState = LoadTimeExpiringState(mGameData.GetFileBuffer());
-    // There's too many inconsistencies in the game for this to work.
-    // e.g. The combatant associated with Baby Irisa grave is 1699 according
-    // to it's inventory, but there is no CGL associated with 1699.
-    if (mFixCombatEntityLists)
-    {
-        mLogger.Info() << "Regenerating combat entity lists\n";
-        mCombatEntityLists = RegenerateCombatEntityLists();
-    }
-    else
-    {
-        mCombatEntityLists = LoadCombatEntityLists(mGameData.GetFileBuffer());
-    }
+    mCombatEntityLists = LoadCombatEntityLists(mGameData.GetFileBuffer());
     mCombatWorldLocations = LoadCombatWorldLocations(mGameData.GetFileBuffer());
     mCombatantGridLocations = LoadCombatantGridLocations(mGameData.GetFileBuffer());
     mCombatCharacters.clear();
     mCombatCharacters.reserve(SaveOffsets::sCombatStatsCount);
     for (unsigned i = 0; i < SaveOffsets::sCombatStatsCount; i++)
     {
+        auto combatRelInfo = GetCombatRelInfo(CombatantIndex{i});
+        assert(combatRelInfo);
+        auto* container = GetCombatContainer(*combatRelInfo);
+        if (!container)
+        {
+            mLogger.Warn() << "No combat container for entity #" << i
+                << " " << combatRelInfo << "\n";
+        }
+        auto* inventory = container ? (&container->GetInventory()) : nullptr;
         mCombatCharacters.emplace_back(LoadCombatant(
             CombatantIndex{i},
             mGameData.GetFileBuffer(),
-            mCombatContainers[i]));
+            inventory));
     }
     mSpellState = LoadSpells(mGameData.GetFileBuffer());
 }
@@ -1198,7 +1196,7 @@ bool GameState::SaveState()
     BAK::Save(mGameData.mLocation, mGameData.GetFileBuffer());
     BAK::Save(mCombatWorldLocations, mGameData.GetFileBuffer());
     BAK::Save(mCombatantGridLocations, mGameData.GetFileBuffer());
-    BAK::Save(mCombatEntityLists, mGameData.GetFileBuffer());
+    //BAK::Save(mCombatEntityLists, mGameData.GetFileBuffer());
     BAK::Save(mCombatCharacters, mGameData.GetFileBuffer());
 
     return true;
@@ -1571,6 +1569,39 @@ CombatEntityList& GameState::GetCombatEntityList(
     CombatIndex index)
 {
     return mCombatEntityLists[index.mValue];
+}
+
+std::optional<CombatRelInfo> GameState::GetCombatRelInfo(CombatantIndex combatant) const
+{
+    for (unsigned combatIx = 0; combatIx < mCombatEntityLists.size(); combatIx++)
+    {
+        const auto& entityList = mCombatEntityLists[combatIx].mCombatants;
+        for (unsigned combatantIx = 0; combatantIx < entityList.size(); combatantIx++)
+        {
+            if (entityList[combatantIx] == combatant)
+            {
+                return CombatRelInfo{CombatIndex{combatIx}, combatantIx};
+            }
+        }
+    }
+
+    return std::nullopt;
+}
+
+GenericContainer* GameState::GetCombatContainer(CombatRelInfo info)
+{
+    auto& containers = GetCombatContainers();
+    auto container = std::find_if(containers.begin(), containers.end(),
+        [&](auto& lhs){
+            return lhs.GetHeader().GetCombatNumber() == info.mCombatIndex
+                && lhs.GetHeader().GetCombatantNumber() == info.mCombatantRelativeIndex;
+        });
+    if (container != containers.end())
+    {
+        return &(*container);
+    }
+
+    return nullptr;
 }
 
 void GameState::ReactivateCombat(const Encounter::Encounter& encounter, CombatIndex combatIndex)
