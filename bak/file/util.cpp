@@ -19,7 +19,10 @@ FileBuffer CreateFileBuffer(const std::string& fileName)
     std::ifstream in{};
     in.open(fileName, std::ios::in | std::ios::binary);
 
-    if (!in.good())
+    // Check is_open() rather than good(): on mingw-w64, a successful open() leaves eofbit set
+    // (so good() == false even though the file is open). Clear the spurious bit and the stream
+    // reads normally (byte-identical to a stdio read).
+    if (!in.is_open())
     {
         std::cerr << "Failed to open file: " << fileName<< std::endl;
         std::stringstream ss{};
@@ -27,6 +30,7 @@ FileBuffer CreateFileBuffer(const std::string& fileName)
         Logging::LogFatal("FileBuffer") << ss.str() << std::endl;
         throw std::runtime_error(ss.str());
     }
+    in.clear();
 
     FileBuffer fb{GetStreamSize(in)};
     fb.Load(in);
