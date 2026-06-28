@@ -246,29 +246,20 @@ ItemType Character::GetWeaponType() const
 
 InventoryItem* Character::GetMeleeWeapon()
 {
-    auto it = mInventory->FindEquipped(ItemType::Staff);
-    if (it == mInventory->GetItems().end())
-    {
-        it = mInventory->FindEquipped(ItemType::Sword);
-    }
-    if (it == mInventory->GetItems().end())
-    {
-        return nullptr;
-    }
-    return &(*it);
-}
+    auto it = mInventory->GetItems().end();
 
-const InventoryItem* Character::GetMeleeWeapon() const
-{
-    auto it = mInventory->FindEquipped(ItemType::Staff);
+    if (IsSpellcaster())
+        it = mInventory->FindEquipped(ItemType::Staff);
     if (it == mInventory->GetItems().end())
-    {
         it = mInventory->FindEquipped(ItemType::Sword);
-    }
     if (it == mInventory->GetItems().end())
     {
-        return nullptr;
+        it = mInventory->FindItemType(GetWeaponType());
+        if (it != mInventory->GetItems().end())
+            it->SetEquipped(true);
     }
+    if (it == mInventory->GetItems().end())
+        return nullptr;
     return &(*it);
 }
 
@@ -276,13 +267,11 @@ InventoryItem* Character::GetArmor()
 {
     auto it = mInventory->FindEquipped(ItemType::Armor);
     if (it == mInventory->GetItems().end())
-        return nullptr;
-    return &(*it);
-}
-
-const InventoryItem* Character::GetArmor() const
-{
-    auto it = mInventory->FindEquipped(ItemType::Armor);
+    {
+        it = mInventory->FindItemType(ItemType::Armor);
+        if (it != mInventory->GetItems().end())
+            it->SetEquipped(true);
+    }
     if (it == mInventory->GetItems().end())
         return nullptr;
     return &(*it);

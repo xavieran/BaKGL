@@ -92,7 +92,7 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
     assert(mCombatModels[m.mValue]);
     const auto& model = *mCombatModels[m.mValue];
     Graphics::MeshObjectStorage objects{};
-    std::unordered_map<AnimationRequest, AnimationOffset> offsetMap{};
+    std::unordered_map<AnimationRequest, AnimationMeta> offsetMap{};
     std::vector<Graphics::MeshObjectStorage::OffsetAndLength> objectOffsets{};
     using enum BAK::Direction;
     std::stringstream ss{};
@@ -105,7 +105,7 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
             const auto& animation = model.GetAnimation(animType, direction);
             offsetMap.emplace(
                 AnimationRequest{animType, direction},
-                AnimationOffset{objects.size(), animation.mImageIndices.size()});
+                AnimationMeta{objects.size(), animation.mImageIndices.size()});
 
             for (const auto& index : animation.mImageIndices)
             {

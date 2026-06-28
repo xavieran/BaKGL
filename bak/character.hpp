@@ -53,9 +53,7 @@ public:
     bool IsSwordsman() const;
 
     InventoryItem* GetMeleeWeapon();
-    const InventoryItem* GetMeleeWeapon() const;
     InventoryItem* GetArmor();
-    const InventoryItem* GetArmor() const;
 
     bool HasEmptyStaffSlot() const;
     bool HasEmptySwordSlot() const;
