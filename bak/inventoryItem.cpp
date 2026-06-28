@@ -38,7 +38,7 @@ const GameObject& InventoryItem::GetObject() const { ASSERT(mObject); return *mO
 ItemIndex InventoryItem::GetItemIndex() const { return mItemIndex; }
 unsigned InventoryItem::GetQuantity() const { return mCondition; }
 SpellIndex InventoryItem::GetSpell() const { return SpellIndex{mCondition}; }
-unsigned InventoryItem::GetCondition() const { return IsConditionBased() ? mCondition : 100; }
+unsigned InventoryItem::GetCondition() const { return mCondition; }
 std::uint8_t InventoryItem::GetStatus() const { return mStatus; }
 std::uint8_t InventoryItem::GetModifierMask() const { return mModifiers; }
 
@@ -120,7 +120,11 @@ void InventoryItem::SetCondition(unsigned condition)
 
 void InventoryItem::SetQuantity(unsigned quantity)
 {
-    ASSERT(!IsStackable() || (IsStackable() && quantity <= GetObject().mStackSize));
+    ASSERT(!IsStackable());
+    // Turns out in many situations the game does allow you to
+    // have quantities greater than the max stack size. Turn the
+    // assert off to prevent crashes in saves because of this.
+    // || (IsStackable() && quantity <= GetObject().mStackSize));
     mCondition = quantity;
 }
 

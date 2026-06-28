@@ -377,13 +377,15 @@ void CombatManager::Execute(const Move& move)
 
 void CombatManager::Execute(const Attack& attack)
 {
-    mLogger.Debug() << "Execute: " << attack << "\n";
 
     auto& me = GetCurrentCombatant();
     assert(me.mCharacter);
     assert(GetCombatant(attack.mTarget));
     auto& target = *GetCombatant(attack.mTarget);
     assert(target.mCharacter);
+
+    mLogger.Debug() << "Execute: " << attack << " Me: " << *me.mCharacter
+        << "\nThem: " << *target.mCharacter << "\n";
 
     me.mCharacter->ImproveSkill(BAK::SkillType::Melee, BAK::SkillChange::FractionOfSkill, 3);
     target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);

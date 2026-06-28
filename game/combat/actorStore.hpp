@@ -27,11 +27,13 @@ public:
 
     void CalculateModelMatrix()
     {
-        auto adjustedScale = mScale;
+        auto adjustedRotation = mRotation;
         if (BAK::ToSpriteDirection(mDirection) != mDirection)
-            adjustedScale.x *= -1.0f;
+        {
+            adjustedRotation = -mRotation;
+        }
         mModelMatrix = Graphics::CalculateModelMatrix(
-            mLocation, adjustedScale, mRotation, BAK::gWorldScale);
+            mLocation, mScale, adjustedRotation, BAK::gWorldScale);
     }
 
     void Update()

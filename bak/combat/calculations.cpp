@@ -145,9 +145,10 @@ MeleeResult CalculateMeleeResult(
     if (weapon)
     {
         auto raceEffect = CalculateRaceEffect(attacker, *weapon);
+        auto condition = weapon->IsConditionBased() ? weapon->GetCondition() : 100;
         weaponBonus = CalculateAccuracyBonus(
             raceEffect,
-            weapon->GetCondition(),
+            condition,
             weaponAccuracy);
     }
 
