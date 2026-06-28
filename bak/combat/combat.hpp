@@ -61,11 +61,14 @@ public:
 
 std::ostream& operator<<(std::ostream&, const CombatantGridLocation&);
 
-/* The combat entity lists in the game (at least versions I have
- * access to) seem to be incorrect. They begin to differ from the
- * combatant inventories (which I take to be the truth) at entry 20.
- * Refer to notes/combat_entity_list.txt for more info.
- */
+struct CombatRelInfo
+{
+    CombatIndex mCombatIndex;
+    unsigned mCombatantRelativeIndex;
+};
+
+std::ostream& operator<<(std::ostream&, const CombatRelInfo&);
+
 class CombatEntityList
 {
 public:

@@ -265,7 +265,6 @@ int main(int argc, char** argv)
         height / guiScalar};
         
     auto gameState = BAK::GameState{};
-    gameState.SetFixCombatEntityLists(config.mGame.mFixCombatEntityLists);
 
     auto guiManager = Gui::GuiManager{
         root.GetCursor(),
