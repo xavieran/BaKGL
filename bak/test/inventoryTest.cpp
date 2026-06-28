@@ -27,6 +27,7 @@ struct InventoryTestFixture : public ::testing::Test
 
         mObjects.emplace_back(GameObject{
             .mName = "Armor",
+            .mFlags = 0x1000,
             .mImageSize = 4,
             .mType = ItemType::Armor,
             });

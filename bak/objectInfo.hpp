@@ -140,8 +140,8 @@ struct GameObject
     std::uint16_t mAlternativeEffect{};
     std::uint16_t mModifierMask{};
     std::int16_t mModifier{};
-    std::uint16_t mDullFactor0{};
-    std::uint16_t mDullFactor1{};
+    std::uint16_t mDullChance{};
+    std::uint16_t mMaxDullAmount{};
     std::uint16_t mMinCondition{};
 };
 

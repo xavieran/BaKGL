@@ -3,6 +3,7 @@
 #include "bak/character.hpp"
 #include "bak/combat/types.hpp"
 #include "bak/itemNumbers.hpp"
+#include "bak/inventoryItem.hpp"
 #include "bak/monster.hpp"
 #include "bak/sounds.hpp"
 
@@ -359,11 +360,11 @@ int CalculateMonsterResistance(MonsterIndex monster, std::uint16_t modifierFlags
 {
     // triple check this, might be off by one or two ....
     static const std::array<std::uint16_t, 64> monsterResistanceArr = {
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        0x200,0,0,1,0,0xC0,1,0,0,0xC0,0x200,0x0C,0,0,0,0,
-        0,0,2,0,0,0,0,0,1,0,0x0C,2,0,1,0x200,0,
-        0x200,0x100,0x300,1,1,0,0,0,0,0xC0,0xC0,0,0,0,0x300,0
-    };
+        0,     0,     0,     0, 0, 0,    0, 0, 0,    0,    0,     0,    0,     0, 0,     1,
+        0x200, 0,     0,     1, 0, 0xC0, 1, 0, 0,    0xC0, 0x200, 0x0C, 0,     0, 0,     0,
+        0,     0,     2,     0, 0, 0,    0, 0, 1,    0,    0x0C,  2,    0,     1, 0x200, 0,
+        0x200, 0x100, 0x300, 1, 1, 0,    0, 0, 0,    0xC0, 0xC0,  0,    0,     0, 0x300, 0
+     };
 
     bool resistsModifier = monsterResistanceArr[monster.mValue];
     if (resistsModifier)
@@ -485,6 +486,67 @@ unsigned GetDefenseSound(bool attackerHasStaff, bool defenderHasStaff)
     {
         return sParrySword;
     }
+}
+
+void UseCombatItemAndDull(Character& character, ItemType itemType, int factor)
+{
+    auto& inv = character.GetInventory();
+    auto item = inv.FindEquipped(itemType);
+    if (item == inv.GetItems().end())
+    {
+        return;
+    }
+
+    if (!item->IsConditionBased())
+    {
+        // Can't dull staves
+        return;
+    }
+
+    const auto& object = item->GetObject();
+
+    unsigned willDullRoll = GetRandomNumber(0, 0xfff);
+    if ((willDullRoll % 100) >= object.mDullChance)
+    {
+        return;
+    }
+
+
+    int dullAmount = 1;
+
+    if (object.mMaxDullAmount > 1)
+    {
+        int dullRoll = GetRandomNumber(0, 0xfff);
+        dullAmount = (dullRoll % (object.mMaxDullAmount - 1)) + 1;
+    }
+
+    dullAmount = (dullAmount * factor) / 256;
+    int newCondition = item->GetCondition() - dullAmount;
+
+    if (item->IsItemType(ItemType::Crossbow))
+    {
+        int bowBreakCheck = GetRandomNumber(0, 0xfff);
+        if ((bowBreakCheck % 50) >= newCondition)
+        {
+            newCondition = 0;
+        }
+    }
+
+    item->SetRepairable(true);
+    item->SetUsed(true);
+
+    if (newCondition < object.mMinCondition)
+    {
+        newCondition = object.mMinCondition;
+    }
+
+    if (newCondition <= 0)
+    {
+        newCondition = 0;
+        item->SetBroken(true);
+    }
+
+    item->SetCondition(newCondition);
 }
 
 }

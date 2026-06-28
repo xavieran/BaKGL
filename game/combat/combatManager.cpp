@@ -5,6 +5,7 @@
 #include "game/combat/gridAlgorithms.hpp"
 
 #include "bak/combat/calculations.hpp"
+#include "bak/sounds.hpp"
 
 #include "com/bits.hpp"
 #include "com/ostream.hpp"
@@ -110,11 +111,21 @@ Combatant& CombatManager::GetCurrentCombatant()
 void CombatManager::GridCellClicked(GridPos targetCell, bool isRightClick)
 {
     auto& combatant = GetCurrentCombatant();
+    assert(combatant.mCharacter);
+
     mLogger.Debug() << "Cell clicked: " << targetCell
         << " " << GetCurrentCombatant().mCharacter->GetName()
         << " eid: " << combatant.mEntityIndex << "\n";
 
     auto myPos = combatant.mGridPos;
+
+    bool isSlash = isRightClick;
+
+    if (isSlash && combatant.mCharacter->GetSkill(BAK::SkillType::TotalHealth) <= 1)
+    {
+        // Slash consumes 1 stamina per hit.
+        return;
+    }
 
     if (mGrid.CanAttack(myPos, targetCell))
     {
@@ -127,7 +138,7 @@ void CombatManager::GridCellClicked(GridPos targetCell, bool isRightClick)
         else if (*moveTo != myPos)
         {
             // If we had to move to attack then we can't slash
-            if (isRightClick)
+            if (isSlash)
             {
                 return;
             }
@@ -395,13 +406,24 @@ void CombatManager::Execute(const Attack& attack)
     auto attackerHasStaff = weapon && weapon->GetObject().mType == BAK::ItemType::Staff;
     auto targetIsDefending = target.IsDefending();
     bool isThrust = attack.mType == BAK::AttackType::Thrust;
+    auto swordDullFactor = isThrust ? BAK::sDullHalf : BAK::sDullFull;
+
+    if (!isThrust)
+    {
+        //damageCombatant(target, 1, false, false, true, false);
+        // attacker.StateFlags &= (~0x40) -- not sure what 0x40 is used for yet
+    }
 
     if (attackResult == BAK::MeleeResult::Hit)
     {
         me.mCharacter->ImproveSkill(BAK::SkillType::Melee, BAK::SkillChange::FractionOfSkill, 3);
         me.mCharacter->ImproveSkill(BAK::SkillType::Strength, BAK::SkillChange::FractionOfSkill, 3);
-        //useCombatItemAndDull(defender, 0x1, 4);
-        //useCombatItemAndDull(attacker, 0x8, 1L);
+        if (!attackerHasStaff)
+        {
+            BAK::UseCombatItemAndDull(*me.mCharacter, BAK::ItemType::Sword, swordDullFactor);
+        }
+
+        BAK::UseCombatItemAndDull(*target.mCharacter, BAK::ItemType::Armor, BAK::sDullFull);
 
         sound = BAK::GetAttackSound(me.mMonster, attackerHasStaff);
         auto damage = BAK::CalculateMeleeDamage(*me.mCharacter, *target.mCharacter, isThrust);
@@ -413,8 +435,8 @@ void CombatManager::Execute(const Attack& attack)
     }
     else
     {
-        // useCombatItemAndDull(target, 0x1, 000004L);
         target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
+
         if (targetIsDefending) // && isActive
         {
             target.IsDefending() = false; // true??
@@ -428,15 +450,20 @@ void CombatManager::Execute(const Attack& attack)
         else
         {
             // I don't understand why we would improve defense more if the target wasn't defending,
-            // but this is what the game does.
+            // but this is what the game does. It also makes no sense to dull the attacker's weapon
+            // if they missed, right? I wonder if these paths are flipped?
             target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
-            // useCombatItemAndDull(attacker, 0x8, 00001L);
+            if (!attackerHasStaff)
+            {
+
+                BAK::UseCombatItemAndDull(*me.mCharacter, BAK::ItemType::Sword, swordDullFactor);
+            }
             // play sound 25 -> doesn't exist?
         }
 
-        //target.ptrToCombatState->field_14 = 1;
-        //target.ptrToCombatState->field_15 = 0xF8;
-        // dull armor
+        // TODO: for some reason miss sound thrust is missing in my files.
+        //sound = isThrust ? BAK::sMissSoundThrust : BAK::sMissSoundSwing;
+        sound = BAK::sMissSoundSwing;
     }
 
     if (sound != 0)

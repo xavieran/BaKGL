@@ -10,6 +10,10 @@ class Character;
 struct CombatState;
 struct MeleeInfo;
 enum class MeleeResult;
+enum class ItemType;
+
+static constexpr auto sDullFull = 0x100;
+static constexpr auto sDullHalf = 0x80;
 
 enum class ModifierFlags
 {
@@ -41,5 +45,7 @@ int CalculateArmorReduction(Character& defender);
 
 unsigned GetAttackSound(MonsterIndex, bool hasStaff);
 unsigned GetDefenseSound(bool attackerHasStaff, bool defenderHasStaff);
+
+void UseCombatItemAndDull(Character& character, ItemType item, int factor);
 
 }
