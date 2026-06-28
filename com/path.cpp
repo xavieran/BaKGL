@@ -3,11 +3,11 @@
 
 std::string GetHomeDirectory()
 {
-#ifdef _MSC_VER
+#if defined(_WIN32)
     constexpr auto homeVar = "APPDATA";
 #else
     constexpr auto homeVar = "HOME";
-#endif 
+#endif
     auto* home = getenv(homeVar);
 
     if (home == nullptr)
