@@ -146,7 +146,7 @@ private:
             const auto t = std::chrono::system_clock::now();
             const auto time = std::chrono::system_clock::to_time_t(t);
             auto gmt_time = tm{};
-#ifdef _MSC_VER
+#if defined(_WIN32)
             gmtime_s(&gmt_time , &time);
 #else
             gmtime_r(&time, &gmt_time);
