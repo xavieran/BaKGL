@@ -40,14 +40,12 @@ public:
 
         mAccumulated += delta;
         auto progress = std::min(mAccumulated / mDuration, 1.0);
-        mActor.mLocation = glm::mix(mSource, mTarget, static_cast<float>(progress));
-        mActor.CalculateModelMatrix();
+        mActor.SetPosition(glm::mix(mSource, mTarget, static_cast<float>(progress)));
 
         if (progress >= 1.0)
         {
 
-            mActor.mLocation = mTarget;
-            mActor.CalculateModelMatrix();
+            mActor.SetPosition(mTarget);
             mAlive = false;
             mOnFinished();
         }

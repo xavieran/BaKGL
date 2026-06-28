@@ -26,25 +26,19 @@ public:
         mOnFinished{std::move(onFinished)}
     {
         actor.mAnimating = true;
-        assert(actor.mFrame == 0);
         assert(mOnFinished);
     }
 
     void OnTimeDelta(double delta) override
     {
         if (!mAlive)
-        {
             return;
-        }
 
         mAccumulated += delta;
 
         if (mAccumulated > mTimePerFrame)
         {
-            mActor.mFrame += 1;
-            mActor.Update();
-
-            if (mActor.mFrame == 0)
+            if (mActor.AdvanceAnimation())
             {
                 mActor.mAnimating = false;
                 mAlive = false;
