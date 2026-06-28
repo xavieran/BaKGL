@@ -42,12 +42,14 @@ public:
     const TextureType& GetTexture() const;
     TextureType& GetTexture();
 
+    void SetRepeat(bool state) { mRepeat = state; }
 private:
     TextureType mTexture;
     unsigned mWidth;
     unsigned mHeight;
     unsigned mTargetWidth;
     unsigned mTargetHeight;
+    bool mRepeat{true};
 };
 
 class TextureStore

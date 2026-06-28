@@ -312,7 +312,7 @@ void GameRunner::LoadSystems()
 
     mGridVisible = false;
     mGridCellRenderables.clear();
-    mGridCellEntityIds.clear();
+    mGridCells.clear();
 }
 
 void GameRunner::LoadTileActors(std::uint8_t tileIndex)
@@ -625,6 +625,7 @@ void GameRunner::EnterCombatFromEncounter()
     });
 
     mCombatManager.BeginCombat();
+    UpdateGridCellColors();
 
     mGuiManager.EnterCombat([this](BAK::CombatResult result){
             CombatCompleted(result);
@@ -698,14 +699,20 @@ void GameRunner::SetHoveredEntity(std::optional<BAK::EntityIndex> entityId)
     mHoveredEntity = entityId;
     if (mCombatManager.IsCombatActive() && entityId)
     {
-        for (unsigned i = 0; i < mGridCellEntityIds.size(); i++)
+        for (unsigned i = 0; i < mGridCells.size(); i++)
         {
-            if (mGridCellEntityIds[i] == *entityId)
+            if (mGridCells[i].mEntityId == *entityId)
             {
-                mCombatManager.OnHoverChanged(IndexToGridPos(i));
+                mCombatManager.OnHoverChanged(mGridCells[i].mGridPos);
+                UpdateGridCellColors();
                 return;
             }
         }
+    }
+    else if (mGridVisible)
+    {
+        mCombatManager.OnHoverChanged(std::nullopt);
+        UpdateGridCellColors();
     }
 }
 
@@ -771,6 +778,9 @@ void GameRunner::ShowGrid()
         return;
 
     auto gridRotation = BAK::ToGlAngle(mCombatPlayerPos.mHeading).x;
+    auto& grid = mCombatManager.GetGrid();
+
+    mGridCells.resize(BAK::gCombatGridRows * BAK::gCombatGridCols);
 
     for (unsigned row = 0; row < BAK::gCombatGridRows; row++)
     {
@@ -782,18 +792,39 @@ void GameRunner::ShowGrid()
                 + glm::vec3{0, 1.0f, 0};
 
             auto id = mSystems->GetNextItemId();
+            auto i = mGridCellRenderables.size();
+            mGridCells[i] = GridCellInfo{
+                std::nullopt,
+                id,
+                Game::Combat::GridPos{
+                    static_cast<int>(col),
+                    static_cast<int>(row)}};
             mGridCellRenderables.emplace_back(Renderable{
                 id,
                 mZoneData->mObjects.GetObject("GridCell"),
                 glPos,
                 glm::vec3{0, gridRotation, 0},
-                glm::vec3{BAK::gCombatGridCellSize, 1, BAK::gCombatGridCellSize} / BAK::gWorldScale});
-            mGridCellEntityIds.emplace_back(id);
+                glm::vec3{BAK::gCombatGridCellSize - 1, 1, BAK::gCombatGridCellSize - 1} / BAK::gWorldScale,
+                &mGridCells[i].mColor});
             mSystems->AddRenderable(mGridCellRenderables.back());
         }
     }
     mGridVisible = true;
     mLogger.Debug() << "Grid shown\n";
+    UpdateGridCellColors();
+}
+
+void GameRunner::UpdateGridCellColors()
+{
+    for (unsigned i = 0; i < mGridCells.size(); i++)
+    {
+        auto color = mCombatManager.GetGridCellColor(
+            mGridCells[i].mGridPos.x, mGridCells[i].mGridPos.y);
+        mGridCells[i].mColor = color.a > 0
+            ? std::optional<glm::vec4>{color}
+            : std::nullopt;
+        mSystems->EnableRenderable(mGridCells[i].mEntityId, color.a > 0);
+    }
 }
 
 void GameRunner::HideGrid()
@@ -801,10 +832,10 @@ void GameRunner::HideGrid()
     if (!mGridVisible)
         return;
 
-    for (const auto& id : mGridCellEntityIds)
-        mSystems->RemoveRenderable(id);
+    for (const auto& cell : mGridCells)
+        mSystems->RemoveRenderable(cell.mEntityId);
     mGridCellRenderables.clear();
-    mGridCellEntityIds.clear();
+    mGridCells.clear();
     mGridVisible = false;
     mLogger.Debug() << "Grid hidden\n";
 }
@@ -829,6 +860,7 @@ void GameRunner::MoveCombatant(
     auto moveDuration = sMoveDuration * mAnimationSpeedMultiplier;
 
     mAnimationActive = true;
+    UpdateGridCellColors();
     mGuiManager.AddAnimator(
         std::make_unique<Combat::MoveAnimator>(
             *actor,
@@ -839,6 +871,7 @@ void GameRunner::MoveCombatant(
                 mAnimationActive = false;
                 mCombatManager.CompleteMove(
                     Combat::GridPos(targetGrid));
+                UpdateGridCellColors();
             }));
 }
 
@@ -901,6 +934,7 @@ void GameRunner::AnimateCombatant(
             [this, finished=std::move(onFinished)]() mutable {
                 mAnimationActive = false;
                 finished();
+                UpdateGridCellColors();
             }));
 }
 
@@ -925,6 +959,7 @@ void GameRunner::AnimateAttack(
                 mAnimationActive = false;
                 mCombatManager.CompleteAttack(
                     Combat::GridPos(targetGrid));
+                UpdateGridCellColors();
             }));
 }
 
@@ -935,15 +970,14 @@ bool GameRunner::HandleGridCellClick(unsigned entityId, bool isRightClick)
         return true;
     }
 
-    for (unsigned i = 0; i < mGridCellEntityIds.size(); i++)
+    for (unsigned i = 0; i < mGridCells.size(); i++)
     {
-        if (mGridCellEntityIds[i].mValue == entityId)
+        if (mGridCells[i].mEntityId.mValue == entityId)
         {
-            auto gridPos = IndexToGridPos(i);
-            mLogger.Info() << "Grid cell (" << gridPos.x << ", " << gridPos.y << ") "
+            mLogger.Info() << "Grid cell (" << mGridCells[i].mGridPos.x << ", " << mGridCells[i].mGridPos.y << ") "
                 << (isRightClick ? "right-" : "") << "clicked\n";
 
-            mCombatManager.GridCellClicked(glm::uvec2{gridPos}, isRightClick);
+            mCombatManager.GridCellClicked(glm::uvec2{mGridCells[i].mGridPos}, isRightClick);
             return true;
         }
     }

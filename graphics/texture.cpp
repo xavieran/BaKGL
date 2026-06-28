@@ -40,9 +40,22 @@ Texture::Texture(
 // Get pixel wrapping access
 glm::vec4 Texture::GetPixel(unsigned x, unsigned y) const
 {
-    return mTexture[
-        (x % GetWidth()) 
-        + (y % GetHeight()) * GetWidth()];
+    if (mRepeat)
+    {
+        return mTexture[
+            (x % GetWidth())
+            + (y % GetHeight()) * GetWidth()];
+    }
+    else
+    {
+        if (x > GetWidth() || (y > GetHeight()))
+        {
+            return glm::vec4{};
+        }
+        return mTexture[
+            (x % GetWidth())
+            + (y % GetHeight()) * GetWidth()];
+    }
 }
 
 void Texture::SetPixel(unsigned x, unsigned y, glm::vec4 color)

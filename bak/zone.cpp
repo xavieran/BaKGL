@@ -15,7 +15,7 @@ namespace BAK {
 
 namespace {
 
-constexpr auto sGridTexSize = 300u;
+constexpr auto sGridTexSize = 300;
 constexpr auto sGridFadePixels = 6u;
 constexpr auto sGridBorderThick = 4u;
 constexpr auto sGridBorderTotal = 2 * sGridFadePixels + sGridBorderThick;
@@ -24,14 +24,14 @@ Graphics::MeshObject MakeGridQuadMesh(unsigned textureLayer)
 {
     struct Corner { glm::vec3 pos; glm::vec3 uv; };
     // va: back-left, vb: back-right, vc: front-right, vd: front-left
-    const Corner vd{{-0.5f, 2.0f,  0.5f}, {0.05f, 0.05f, static_cast<float>(textureLayer)}};
-    const Corner va{{-0.5f, 2.0f, -0.5f}, {0.05f, 0.95f, static_cast<float>(textureLayer)}};
-    const Corner vb{{ 0.5f, 2.0f, -0.5f}, {0.95f, 0.95f, static_cast<float>(textureLayer)}};
-    const Corner vc{{ 0.5f, 2.0f,  0.5f}, {0.95f, 0.05f, static_cast<float>(textureLayer)}};
+    auto size = 0.55f;
+    const Corner vd{{-size, 2.0f,  size}, {0.00f, 0.00f, static_cast<float>(textureLayer)}};
+    const Corner va{{-size, 2.0f, -size}, {0.00f, 1.0f, static_cast<float>(textureLayer)}};
+    const Corner vb{{ size, 2.0f, -size}, {1.00f, 1.00f, static_cast<float>(textureLayer)}};
+    const Corner vc{{ size, 2.0f,  size}, {1.00f, 0.00f, static_cast<float>(textureLayer)}};
 
     constexpr auto normal = glm::vec3{0.0f, 1.0f, 0.0f};
-    constexpr auto color = glm::vec4{0.0f, 0.8f, 0.2f, 1.0f};
-    constexpr auto texBlend = 0.99;
+    constexpr auto texBlend = 0.0f;
 
     const Corner verts[6] = {vd, va, vb, vd, vb, vc};
     auto vertices = std::vector<glm::vec3>{};
@@ -45,7 +45,7 @@ Graphics::MeshObject MakeGridQuadMesh(unsigned textureLayer)
     {
         vertices.emplace_back(verts[i].pos);
         normals.emplace_back(normal);
-        colors.emplace_back(color);
+        colors.emplace_back(glm::vec4{1.0f});
         texCoords.emplace_back(verts[i].uv);
         texBlends.emplace_back(texBlend);
         indices.emplace_back(i);
@@ -111,10 +111,11 @@ Zone::Zone(unsigned zoneNumber)
                     alpha = t * t;
                 }
 
-                gridTex.SetPixel(x, y, glm::vec4{0.0f, 0.7f, 0.5f, alpha + 0.03});
+                gridTex.SetPixel(x, y, glm::vec4{1.0f, 1.0f, 1.0f, alpha + 0.03});
             }
         }
         const auto gridLayer = mZoneTextures.GetTextures().size();
+        gridTex.SetRepeat(false);
         mZoneTextures.AddTexture(gridTex);
         mObjects.AddObject("GridCell", MakeGridQuadMesh(gridLayer));
     }

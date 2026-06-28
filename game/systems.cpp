@@ -67,14 +67,16 @@ Renderable::Renderable(
     std::pair<unsigned, unsigned> object,
     glm::vec3 location,
     glm::vec3 rotation,
-    glm::vec3 scale)
+    glm::vec3 scale,
+    std::optional<glm::vec4>* instanceColor)
 :
     mItemId{itemId},
     mObject{object},
     mLocation{location},
     mRotation{rotation},
     mScale{scale},
-    mModelMatrix{CalculateModelMatrix()}
+    mModelMatrix{CalculateModelMatrix()},
+    mInstanceColor{instanceColor}
 {}
 
 BAK::EntityIndex Renderable::GetId() const { return mItemId; }
@@ -101,13 +103,15 @@ DynamicRenderable::DynamicRenderable(
     const Graphics::RenderData* renderData,
     std::pair<unsigned, unsigned>* object,
     glm::vec3* location,
-    glm::mat4* modelMatrix)
+    glm::mat4* modelMatrix,
+    std::optional<glm::vec4>* instanceColor)
 :
     mItemId{itemId},
     mRenderData{renderData},
     mObject{object},
     mLocation{location},
-    mModelMatrix{modelMatrix}
+    mModelMatrix{modelMatrix},
+    mInstanceColor{instanceColor}
 {}
 
 BAK::EntityIndex DynamicRenderable::GetId() const { return mItemId; }
@@ -135,7 +139,6 @@ const Graphics::RenderData* DynamicRenderable::GetRenderData() const
     assert(mRenderData);
     return mRenderData;
 }
-
 
 Systems::Systems()
 :
@@ -174,6 +177,15 @@ void Systems::RemoveRenderable(BAK::EntityIndex i)
         [i=i](const auto& r){ return r.GetId() == i; });
     if (it != mRenderables.end())
         mRenderables.erase(it);
+}
+
+void Systems::EnableRenderable(BAK::EntityIndex id, bool render)
+{
+    auto it = std::find_if(
+        mRenderables.begin(), mRenderables.end(),
+        [id=id](const auto& r){ return r.GetId() == id; });
+    if (it != mRenderables.end())
+        it->SetVisible(render);
 }
 
 void Systems::RemoveDynamicRenderable(BAK::EntityIndex i)

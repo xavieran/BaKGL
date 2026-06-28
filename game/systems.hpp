@@ -72,7 +72,8 @@ public:
         std::pair<unsigned, unsigned> object,
         glm::vec3 location,
         glm::vec3 rotation,
-        glm::vec3 scale);
+        glm::vec3 scale,
+        std::optional<glm::vec4>* instanceColor = nullptr);
 
     BAK::EntityIndex GetId() const;
 
@@ -80,6 +81,13 @@ public:
 	const glm::vec3& GetLocation() const;
 
     std::pair<unsigned, unsigned> GetObject() const;
+    std::optional<glm::vec4> GetInstanceColor() const
+    {
+        return mInstanceColor ? *mInstanceColor : std::nullopt;
+    }
+
+    void SetVisible(bool visible) { mVisible = visible; }
+    bool GetVisible() const { return mVisible; }
 private:
     glm::mat4 CalculateModelMatrix();
 
@@ -91,6 +99,9 @@ private:
     glm::vec3 mScale;
 
     glm::mat4 mModelMatrix;
+
+    const std::optional<glm::vec4>* mInstanceColor{nullptr};
+    bool mVisible{true};
 };
 
 class Tickable
@@ -113,7 +124,8 @@ public:
         const Graphics::RenderData* renderData,
         std::pair<unsigned, unsigned>* object,
         glm::vec3* location,
-        glm::mat4* modelMatrix);
+        glm::mat4* modelMatrix,
+        std::optional<glm::vec4>* instanceColor = nullptr);
 
     BAK::EntityIndex GetId() const;
 
@@ -122,6 +134,13 @@ public:
 
     std::pair<unsigned, unsigned> GetObject() const;
     const Graphics::RenderData* GetRenderData() const;
+    std::optional<glm::vec4> GetInstanceColor() const
+    {
+        return mInstanceColor ? *mInstanceColor : std::nullopt;
+    }
+
+    void SetVisible(bool visible) { mVisible = visible; }
+    bool GetVisible() const { return mVisible; }
 private:
     BAK::EntityIndex mItemId;
     const Graphics::RenderData* mRenderData;
@@ -129,6 +148,8 @@ private:
     std::pair<unsigned, unsigned>* mObject;
     glm::vec3* mLocation;
     glm::mat4* mModelMatrix;
+    std::optional<glm::vec4>* mInstanceColor{nullptr};
+    bool mVisible{true};
 };
 
 class Systems
@@ -141,6 +162,7 @@ public:
     void AddClickable(const Clickable& item);
     void AddRenderable(const Renderable& item);
     void RemoveRenderable(BAK::EntityIndex);
+    void EnableRenderable(BAK::EntityIndex id, bool);
     void AddDynamicRenderable(const DynamicRenderable& item);
     void RemoveDynamicRenderable(BAK::EntityIndex);
     void RemoveClickable(BAK::EntityIndex);

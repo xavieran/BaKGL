@@ -65,6 +65,9 @@ public:
     void OnHoverChanged(std::optional<GridPos> gridPos);
     bool IsCombatActive() const;
 
+    glm::vec4 GetGridCellColor(unsigned col, unsigned row);
+    const Grid& GetGrid() const { return mGrid; }
+
 private:
     Combatant* GetCombatant(BAK::CharIndex character);
     Combatant* GetCombatant(BAK::EntityIndex entityIndex);
@@ -113,6 +116,8 @@ private:
     BAK::ICombatUI& mCombatUI;
     const Logging::Logger& mLogger;
     bool mCombatActive{false};
+    bool mIsMoving{false};
+    std::optional<GridPos> mHovered{};
 };
 
 }

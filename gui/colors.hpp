@@ -43,4 +43,8 @@ constexpr auto damageTextEnd     = glm::vec4{.580, .247, .200, 1};
 constexpr auto missStart = glm::vec4{0.000f, .000f, .000f, 1.0f};
 constexpr auto missEnd   = glm::vec4{1.000f, .000f, .000f, 0.0f};
 
+constexpr auto gridAttack   = glm::vec4{.812, .745, .396, 1};
+constexpr auto gridOccupied = glm::vec4{.204, .510, .271, 1};
+constexpr auto gridMoveable = glm::vec4{.173, .380, .188, 1};
+
 }
