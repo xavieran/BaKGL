@@ -3,6 +3,9 @@
 #include "bak/types.hpp"
 
 #include <cstdint>
+#include <vector>
+
+namespace BAK { enum class Modifier; }
 
 namespace BAK {
 
@@ -47,5 +50,13 @@ unsigned GetAttackSound(MonsterIndex, bool hasStaff);
 unsigned GetDefenseSound(bool attackerHasStaff, bool defenderHasStaff);
 
 void UseCombatItemAndDull(Character& character, ItemType item, int factor);
+
+int CalculateParry(Character& defender, CombatState& state);
+
+int CalculateAccuracyBonus(int raceEffect, int condition, int accuracy);
+
+int CalculateBlessingEffect(int value, std::vector<Modifier> modifiers);
+
+int CalculateArmorModReduction(Modifier modifier, const std::vector<Modifier>& modifiers, int armor);
 
 }
