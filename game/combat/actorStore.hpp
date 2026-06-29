@@ -30,6 +30,7 @@ public:
 
     const CombatModelLoader& mCombatModelLoader;
     glm::mat4 mModelMatrix{1.0f};
+    bool mUpdateIdle{true};
     bool mAnimating{false};
 
     Actor(
@@ -78,6 +79,11 @@ public:
         Update();
     }
 
+    void SetUpdateIdle(bool update)
+    {
+        mUpdateIdle = update;
+    }
+
     void SetState(BAK::AnimationType type, BAK::Direction direction)
     {
         mAnimationType = type;
@@ -97,11 +103,16 @@ public:
         if (auto anim = GetAnimData())
         {
             auto frameCount = anim->mMeta.mFrames;
-            if (frameCount > 0)
-                mFrame %= frameCount;
+            if (frameCount > 0
+                && mFrame >= static_cast<int>(frameCount))
+            {
+                mFrame = frameCount - 1;
+                ApplyFrame(*anim);
+                return true;
+            }
             ApplyFrame(*anim);
         }
-        return mFrame == 0;
+        return false;
     }
 
     void AdvanceIdleFrame()
@@ -139,7 +150,7 @@ public:
 
     bool AdvanceIdle(double timeDelta)
     {
-        if (mAnimating) return false;
+        if (mAnimating || !mUpdateIdle) return false;
         mIdleAccumulator += timeDelta;
         if (mIdleAccumulator < mIdleInterval) return false;
         mIdleAccumulator -= mIdleInterval;
@@ -159,12 +170,8 @@ public:
     }
 
 private:
-    int mFrame{0};
-    int mIdleDelta{1};
-    double mIdleAccumulator{0};
-    double mIdleInterval{0.5};
-
-    struct AnimData {
+    struct AnimData
+    {
         const CombatModelData* mDatas;
         AnimationMeta mMeta;
     };
@@ -194,6 +201,11 @@ private:
         mModelMatrix = Graphics::CalculateModelMatrix(
             mLocation, mScale, adjustedRotation, BAK::gWorldScale);
     }
+
+    int mFrame{0};
+    int mIdleDelta{1};
+    double mIdleAccumulator{0};
+    double mIdleInterval{0.5};
 };
 
 

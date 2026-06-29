@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <ostream>
 #include <vector>
 
@@ -28,6 +29,8 @@ struct SpellEffect
     std::uint8_t mFlags;
 };
 
+std::ostream& operator<<(std::ostream& os, const SpellEffect& se);
+
 struct CombatState
 {
     bool mTurnPending{true};
@@ -35,12 +38,14 @@ struct CombatState
     bool mIsPoisoned{false};
     bool mIsDefending{false};
     bool mIsFrozen{false};
-    bool mIsExorcsed{false};
+    bool mIsExorcised{false};
     bool mIsFleeing{false};
 
     //std::optional<GridPos> mCurrentTarget;
     std::vector<SpellEffect> mSpellEffects{};
 };
+
+std::ostream& operator<<(std::ostream& os, const CombatState& state);
 
 enum class AttackType
 {

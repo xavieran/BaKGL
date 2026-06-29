@@ -36,6 +36,8 @@ struct Combatant
     bool IsDefending() const { return mCombatState.mIsDefending; }
     bool& IsFleeing() { return mCombatState.mIsFleeing; }
     bool IsFleeing() const { return mCombatState.mIsFleeing; }
+    bool& IsExorcised() { return mCombatState.mIsExorcised; }
+    bool IsExorcised() const { return mCombatState.mIsExorcised; }
 };
 
 enum class StateFlags
@@ -60,12 +62,20 @@ struct Attack
     BAK::AttackType mType;
 };
 
+struct AnimateDeath
+{
+    GridPos mTarget;
+};
+
 using CombatAction = std::variant<
     Move,
-    Attack>;
+    Attack,
+    AnimateDeath
+    >;
 
-std::ostream& operator<<(std::ostream& os, Move move);
-std::ostream& operator<<(std::ostream& os, const Attack& attack);
-std::ostream& operator<<(std::ostream& os, const CombatAction& action);
+std::ostream& operator<<(std::ostream& os, const Move&);
+std::ostream& operator<<(std::ostream& os, const Attack&);
+std::ostream& operator<<(std::ostream& os, const AnimateDeath&);
+std::ostream& operator<<(std::ostream& os, const CombatAction&);
 
 }

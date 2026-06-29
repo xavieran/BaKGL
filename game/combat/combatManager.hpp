@@ -63,7 +63,6 @@ private:
 
     std::vector<Combatant> GetCombatants();
 
-    void SetCurrentCombatant(bool onlyParty);
     Combatant& GetCurrentCombatant();
 
     void ComputeGrid();
@@ -74,17 +73,18 @@ private:
     void ExecuteAction();
     void Execute(const Move&);
     void Execute(const Attack&);
+    void Execute(const AnimateDeath& death);
+
     void FinishTurn();
+    void StartNextTurn();
+    std::optional<BAK::CombatResult> CheckCombatFinished();
+    void ResurrectNighthawks();
+    void TickCombatEffectsAtEndOfTurn();
+    void SetCurrentCombatant(unsigned index);
+
+    std::vector<Combatant>::iterator SelectNextCombatantForTurn(bool onlyPlayer);
 
     void ClearGrid();
-    void DamageCombatant(
-        Combatant& victim,
-        int damage,
-        bool useArmor,
-        bool damageTypeMelee,
-        std::uint16_t modifierFlags,
-        bool skipDirectDamage
-    );
 
     std::vector<Combatant> mCombatants{};
 

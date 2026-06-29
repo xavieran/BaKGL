@@ -1,12 +1,15 @@
 #include "game/combat/combatManager.hpp"
 
+#include "game/combat/gridAlgorithms.hpp"
+
 #include "audio/audio.hpp"
 
 #include "bak/combat/types.hpp"
+#include "bak/dialogSources.hpp"
 #include "bak/monster.hpp"
-#include "game/combat/gridAlgorithms.hpp"
 
 #include "bak/combat/calculations.hpp"
+#include "bak/combat/spellEffects.hpp"
 #include "bak/sounds.hpp"
 
 #include "com/bits.hpp"
@@ -101,7 +104,13 @@ std::vector<Combatant> CombatManager::GetCombatants()
 void CombatManager::BeginCombat()
 {
     mCombatActive = true;
-    SetCurrentCombatant(true);
+
+    auto it = SelectNextCombatantForTurn(true);
+    assert(it != mCombatants.end());
+
+    auto index = std::distance(mCombatants.begin(), it);
+    SetCurrentCombatant(index);
+
 }
 
 Combatant& CombatManager::GetCurrentCombatant()
@@ -233,57 +242,6 @@ bool CombatManager::IsCombatActive() const
     return mCombatActive;
 }
 
-void CombatManager::SetCurrentCombatant(bool onlyParty)
-{
-    std::optional<unsigned> bestSpeed{};
-    auto combatantIndex = 0;
-    for (unsigned i = 0; i < mCombatants.size(); i++)
-    {
-        auto& combatant = mCombatants[i];
-        auto* character = combatant.mCharacter;
-        if (!character)
-        {
-            continue;
-        }
-
-        if (onlyParty && character->IsEnemy())
-        {
-            continue;
-        }
-
-        if (!combatant.GetTurnPending())
-        {
-            continue;
-        }
-
-        // Find best PC then find best AI
-        // then select between them to store some state for AI specifically..
-        auto speed = character->GetSkill(BAK::SkillType::Speed);
-        if (speed == 0 || combatant.IsDead())
-        {
-            speed = 1;
-        }
-
-        if (!bestSpeed || speed > *bestSpeed)
-        {
-            bestSpeed = speed;
-            combatantIndex = i;
-        }
-    }
-
-    mCurrentCombatant = combatantIndex;
-    auto& character = *GetCurrentCombatant().mCharacter;
-    if (!character.IsEnemy())
-    {
-        mCombatUI.SetSelectedCharacter(character.GetIndex());
-    }
-
-    ComputeGrid();
-
-    mLogger.Debug() << "Current combatant set to: " << combatantIndex << " " << GetCurrentCombatant().mCharacter->GetName()
-        << " charIndex: " << character.GetIndex().mValue << "\n";
-}
-
 void CombatManager::ComputeGrid()
 {
     ClearGrid();
@@ -364,13 +322,21 @@ void CombatManager::CompleteMove(GridPos target)
 void CombatManager::CompleteAttack(GridPos target)
 {
     auto& combatant = GetCurrentCombatant();
-
-    auto& enemy = mGrid.Get(target);
-
-    mStage.SetCombatantAction(enemy.mElement->mEntityIndex, BAK::AnimationType::Idle);
     mStage.SetCombatantAction(combatant.mEntityIndex, BAK::AnimationType::Idle);
 
-    FinishTurn();
+    auto& enemy = mGrid.Get(target);
+    assert(enemy.mElement);
+
+    if (enemy.mElement->IsDead())
+    {
+        mActions.Push(AnimateDeath{target});
+        ExecuteAction();
+    }
+    else
+    {
+        mStage.SetCombatantAction(enemy.mElement->mEntityIndex, BAK::AnimationType::Idle);
+        FinishTurn();
+    }
 }
 
 void CombatManager::ExecuteAction()
@@ -380,11 +346,8 @@ void CombatManager::ExecuteAction()
     auto action = mActions.Pop();
     std::visit(
         overloaded{
-            [&](const Move& move){
-                Execute(move);
-            },
-            [&](const Attack& attack){
-                Execute(attack);
+            [&](const auto& action){
+                Execute(action);
             }},
         action);
 }
@@ -406,8 +369,8 @@ void CombatManager::Execute(const Attack& attack)
     auto& target = *GetCombatant(attack.mTarget);
     assert(target.mCharacter);
 
-    mLogger.Debug() << "Execute: " << attack << " Me: " << *me.mCharacter
-        << "\nThem: " << *target.mCharacter << "\n";
+    //mLogger.Debug() << "Execute: " << attack << " Me: " << *me.mCharacter
+    //    << "\nThem: " << *target.mCharacter << "\n";
 
     me.mCharacter->ImproveSkill(BAK::SkillType::Melee, BAK::SkillChange::FractionOfSkill, 3);
     target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
@@ -434,9 +397,25 @@ void CombatManager::Execute(const Attack& attack)
 
     if (!isThrust)
     {
-        DamageCombatant(target, 1, false, false, true, false);
+        int damage = 1;
+        bool useArmor = false;
+        int damageTypeMelee = 0;
+        std::uint16_t modifierFlags = 1;
+        bool ignoreShields = false;
+        bool died = BAK::DamageCombatant(
+            *target.mCharacter,
+            target.mMonster,
+            target.mCombatState,
+            damage,
+            useArmor,
+            damageTypeMelee,
+            modifierFlags,
+            ignoreShields);
+        assert(!died);
         // attacker.StateFlags &= (~0x40) // i.e. don't display the hit effect
     }
+
+    bool targetDied = false;
 
     if (attackResult == BAK::MeleeResult::Hit)
     {
@@ -454,16 +433,25 @@ void CombatManager::Execute(const Attack& attack)
         bool useArmor = true;
         bool damageTypeMelee = true;
         auto modifierFlags = BAK::GetMeleeModifierFlags(*me.mCharacter);
-        bool skipDirectDamage = false;
-        DamageCombatant(target, damage, useArmor, damageTypeMelee, modifierFlags, skipDirectDamage);
+        bool ignoreShields = false;
+        targetDied = BAK::DamageCombatant(
+            *target.mCharacter,
+            target.mMonster,
+            target.mCombatState,
+            damage,
+            useArmor,
+            damageTypeMelee,
+            modifierFlags,
+            ignoreShields);
     }
     else
     {
         target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
 
-        if (targetIsDefending) // && isActive
+        if (targetIsDefending && BAK::IsCombatantActive(target.mCombatState, false))
         {
-            target.IsDefending() = false; // true??
+            // need to check if we reset this or not, I don't thikn we do
+            //target.IsDefending() = false; // true??
 
             auto* defenderWeapon = target.mCharacter->GetMeleeWeapon();
             auto defenderHasStaff = defenderWeapon && defenderWeapon->GetObject().mType == BAK::ItemType::Staff;
@@ -518,6 +506,18 @@ void CombatManager::Execute(const Attack& attack)
     mStage.AnimateAttack(entityIndex, attack.mTarget);
 }
 
+void CombatManager::Execute(const AnimateDeath& death)
+{
+    auto& cell = mGrid.Get(death.mTarget);
+    assert(cell.mElement);
+    auto& target = *cell.mElement;
+    mStage.SetCombatantUpdateIdle(target.mEntityIndex, false);
+    mStage.SetCombatantAction(target.mEntityIndex, BAK::AnimationType::Dead);
+    mStage.AnimateCombatant(
+        target.mEntityIndex,
+        [this]{ FinishTurn(); });
+}
+
 void CombatManager::FinishTurn()
 {
     auto& combatant = GetCurrentCombatant();
@@ -532,17 +532,253 @@ void CombatManager::FinishTurn()
     //    mStage.SetCombatantDirection(me.mEntityIndex, lookDirection);
     //}
 
-
-    auto it = std::find_if(mCombatants.begin(), mCombatants.end(), [](auto& c){ return c.GetTurnPending(); });
-    if (it == mCombatants.end())
+    if (!combatant.IsDead() && combatant.IsPoisoned())
     {
-        for (auto& combatant : mCombatants)
+        bool died = BAK::ApplyPoisonAtEndOfTurn(*combatant.mCharacter, combatant.mCombatState);
+        if (died)
         {
-            combatant.GetTurnPending() = true;
+            mActions.Push(AnimateDeath{combatant.mGridPos});
+            ExecuteAction();
         }
     }
 
-    SetCurrentCombatant(false);
+    if (auto result = CheckCombatFinished())
+    {
+        mLogger.Debug() << "Combat finished: " << ToString(result->mOutcome) << "\n";
+        //Cleanup();
+        mStage.CombatFinished(*result);
+        return;
+    }
+
+    auto it = SelectNextCombatantForTurn(false);
+
+    if (it == mCombatants.end())
+    {
+        mLogger.Debug() << "Turn completed\n";
+        StartNextTurn();
+    }
+
+    it = SelectNextCombatantForTurn(false);
+    auto index = std::distance(mCombatants.begin(), it);
+    SetCurrentCombatant(index);
+}
+
+void CombatManager::SetCurrentCombatant(unsigned index)
+{
+    mCurrentCombatant = index;
+    auto& character = *GetCurrentCombatant().mCharacter;
+    if (!character.IsEnemy())
+    {
+        mCombatUI.SetSelectedCharacter(character.GetIndex());
+    }
+
+    ComputeGrid();
+
+    mLogger.Debug() << "Current combatant set to: " << index << " " << GetCurrentCombatant().mCharacter->GetName()
+        << " charIndex: " << character.GetIndex().mValue << "\n";
+}
+
+std::optional<BAK::CombatResult> CombatManager::CheckCombatFinished()
+{
+    bool anyAIAlive = false;
+    bool anyPCAlive = false;
+    bool anyGhosts = false;
+    unsigned enemyCount = 0;
+    for (const auto& combatant : mCombatants)
+    {
+        if (!combatant.mCharacter)
+        {
+            continue;
+        }
+
+        if (!combatant.mCharacter->IsEnemy() && !anyPCAlive)
+        {
+            anyPCAlive = !combatant.IsDead();
+        }
+
+        if (combatant.mCharacter->IsEnemy() && !anyAIAlive)
+        {
+            anyAIAlive = !combatant.IsDead();
+            if (combatant.IsDead())
+            {
+                enemyCount++;
+            }
+        }
+    }
+
+    if (!anyPCAlive)
+    {
+        return BAK::CombatResult{BAK::CombatOutcome::Dead};
+    }
+
+    if (anyAIAlive)
+    {
+        return std::nullopt;
+    }
+
+    auto result = BAK::CombatResult{BAK::CombatOutcome::Won};
+    if (enemyCount > 1)
+    {
+        if (anyGhosts)
+        {
+            result.mDialog = BAK::DialogSources::mWonVersusGhosts;
+        }
+        else if (BAK::IsSpecialBattle(BAK::CombatIndex{0})) // mCombatIndex
+        {
+            result.mDialog = BAK::DialogSources::mWonSpecialBattle;
+        }
+        else
+        {
+            result.mDialog = BAK::DialogSources::mWonBattle;
+        }
+
+        return result;
+    }
+
+    if (anyGhosts)
+    {
+        result.mDialog = BAK::DialogSources::mWonVersusGhost;
+    }
+    else
+    {
+        result.mDialog = BAK::DialogSources::mDefeatedOneEnemy;
+    }
+
+    // FIXME THESE
+    // BAK::DialogSources::mSolvedTrap
+    // else if (NoCombatantsRemaining)
+    // BAK::DialogSources::mEnemyFled
+    return result;
+}
+
+void CombatManager::StartNextTurn()
+{
+    for (auto& combatant : mCombatants)
+    {
+        if (combatant.IsDead() || combatant.IsExorcised())
+        {
+            continue;
+        }
+
+        combatant.GetTurnPending() = true;
+        //combatant.Get(bit 4) = false
+        assert(combatant.mCharacter);
+        auto character = *combatant.mCharacter;
+        auto& speed = character.GetSkills().GetSkill(BAK::SkillType::Speed);
+        speed.mTrueSkill = speed.mMax;
+        character.GetSkill(BAK::SkillType::Health);
+        character.GetSkill(BAK::SkillType::Stamina);
+        character.GetSkill(BAK::SkillType::Speed);
+        character.GetSkill(BAK::SkillType::Strength);
+        character.GetSkill(BAK::SkillType::Crossbow);
+        character.GetSkill(BAK::SkillType::Melee);
+        character.GetSkill(BAK::SkillType::Casting);
+
+        if (speed.mCurrent == 0)
+        {
+            speed.mCurrent = 1;
+        }
+    }
+
+    TickCombatEffectsAtEndOfTurn();
+    //DamageAllCombatantsByWrathOfKillian();
+    ResurrectNighthawks();
+
+    // for each AI
+    //   mark as pending
+    //   clear bit 2 of state flags
+    //   if current target dead clear current target
+
+}
+
+void CombatManager::ResurrectNighthawks()
+{
+    unsigned blackslayers = 0;
+    for (const auto& combatant : mCombatants)
+    {
+        if (combatant.mCharacter && combatant.mCharacter->GetMonsterIndex() == BAK::sBlackslayer)
+        {
+            blackslayers++;
+        }
+    }
+
+    if (blackslayers == 0)
+    {
+        return;
+    }
+
+    for (auto& combatant : mCombatants)
+    {
+        if (!combatant.mCharacter)
+        {
+            continue;
+        }
+
+        if (combatant.IsExorcised() || !combatant.IsDead())
+        {
+            continue;
+        }
+
+        auto monsterIndex = combatant.mCharacter->GetMonsterIndex();
+
+        if (!(monsterIndex == BAK::sBlackslayer || monsterIndex == BAK::sNighthawk))
+        {
+            continue;
+        }
+
+        // ResurrectCombatant
+    }
+}
+
+void CombatManager::TickCombatEffectsAtEndOfTurn()
+{
+    for (auto& combatant : mCombatants)
+    {
+        bool expiredCharacter = BAK::TickCombatEffects(combatant.mCombatState);
+        if (expiredCharacter)
+        {
+            // remove the combatant (illusion) from the combat
+        }
+    }
+}
+
+std::vector<Combatant>::iterator CombatManager::SelectNextCombatantForTurn(bool onlyPlayer)
+{
+    std::vector<Combatant>::iterator best = mCombatants.end();
+    std::optional<unsigned> bestSpeed;
+
+    for (auto it = mCombatants.begin(); it != mCombatants.end(); ++it)
+    {
+        if (!BAK::IsCombatantActive(it->mCombatState, true))
+        {
+            continue;
+        }
+
+        auto* character = it->mCharacter;
+        if (!character)
+        {
+            continue;
+        }
+
+        if (onlyPlayer && character->IsEnemy())
+        {
+            continue;
+        }
+
+        auto speed = character->GetSkill(BAK::SkillType::Speed);
+        if (speed == 0)
+        {
+            speed = 1;
+        }
+
+        if (!bestSpeed || speed >= *bestSpeed)
+        {
+            bestSpeed = speed;
+            best = it;
+        }
+    }
+
+    return best;
 }
 
 void CombatManager::ClearGrid()
@@ -556,155 +792,6 @@ void CombatManager::ClearGrid()
             gridCell.mState = 0;
         }
     }
-}
-
-void CombatManager::DamageCombatant(
-    Combatant& victim,
-    const int originalDamage,
-    bool useArmor,
-    bool damageTypeMelee,
-    std::uint16_t modifierFlags,
-    bool skipDirectDamage
-)
-{
-    assert(victim.mCharacter);
-
-    // Only killable using strength drain
-    if (victim.mMonster == BAK::sWindElemental)
-    {
-        return;
-    }
-
-    // The illusion characters don't take damage
-    if (BAK::GetSpellEffect(victim.mCombatState, BAK::sDannonsDelusions))
-    {
-        return;
-    }
-
-    if (victim.IsDead())
-    {
-        return;
-    }
-
-    if (originalDamage < 1)
-    {
-        return;
-    }
-
-    auto damage = originalDamage;
-
-    if (useArmor)
-    {
-        auto reduction = BAK::CalculateArmorReduction(*victim.mCharacter);
-        damage = damage * (100 - reduction) / 100;
-        if (damage <= 0)
-        {
-            damage = GetRandomNumber(1, 2);
-        }
-    }
-
-    auto* shieldEffect = BAK::GetSpellEffect(victim.mCombatState, BAK::sHochosHaven);
-    if (!skipDirectDamage && shieldEffect)
-    {
-        shieldEffect->mAmount -= damage;
-        damage= 0;
-
-        int shieldLeft = shieldEffect->mAmount;
-        if (shieldLeft < 0)
-        {
-            if (shieldLeft == 0x8000)
-            {
-                damage = 0x7FFF;
-            }
-            else
-            {
-                damage = -shieldLeft;
-            }
-        }
-
-        if (damage == 0)
-        {
-            return;
-        }
-    }
-
-    if (!skipDirectDamage)
-    {
-        auto* skinEffect = BAK::GetSpellEffect(victim.mCombatState, BAK::sSkinOfTheDragon);
-        {
-            damage = 0;
-        }
-    }
-
-    damage = BAK::CalculateMonsterWeakness(victim.mCharacter->GetMonsterIndex(), damage, modifierFlags);
-    damage = BAK::CalculateMonsterResistance(victim.mCharacter->GetMonsterIndex(), damage, modifierFlags);
-
-    if (damage > 0 && (modifierFlags & std::to_underlying(BAK::ModifierFlags::Poison)))
-    {
-        BAK::PoisonCombatant(*victim.mCharacter, victim.mCombatState);
-    }
-
-    auto& stamina = victim.mCharacter->GetSkills().GetSkill(BAK::SkillType::Stamina);
-    if (stamina.mTrueSkill < damage)
-    {
-        auto excessDamage = damage - stamina.mTrueSkill;
-        auto& health = victim.mCharacter->GetSkills().GetSkill(BAK::SkillType::Health);
-
-        if (health.mTrueSkill < excessDamage)
-        {
-            health.mTrueSkill = 0;
-        }
-        else
-        {
-            health.mTrueSkill -= excessDamage;
-        }
-    }
-    else
-    {
-        stamina.mTrueSkill -= damage;
-    }
-
-    if (originalDamage > 0 && damageTypeMelee != 0)
-    {
-        // Apply state 0x40;
-        // set state health display type to damage type
-        // set affeted by str drain = 2
-        unsigned displayDamage = 1;
-        if (originalDamage < 1000)
-        {
-            displayDamage = originalDamage;
-        }
-    }
-    else if (damageTypeMelee != 0)
-    {
-        unsigned displayDamage = 1;
-        // display hit text type = 0xf8
-    }
-
-    if ((modifierFlags & std::to_underlying(BAK::ModifierFlags::Fire)) != 0)
-    {
-        // do particle effects of flamecast color
-    }
-
-    if (modifierFlags & std::to_underlying(BAK::ModifierFlags::Frost))
-    {
-        // one shot combat effect 2
-    }
-
-    if (modifierFlags & std::to_underlying(BAK::ModifierFlags::Poison))
-    {
-        // one shot combat effect 0x13
-    }
-
-    auto& health = victim.mCharacter->GetSkills().GetSkill(BAK::SkillType::Health);
-    if (health.mTrueSkill == 0)
-    {
-        // called after death in combat
-        // combatState.mFlags ~= 0x10 -> remove exorcised attribute when die
-    }
-
-    // recalculates the skill values for health
-    victim.mCharacter->GetSkill(BAK::SkillType::TotalHealth);
 }
 
 }

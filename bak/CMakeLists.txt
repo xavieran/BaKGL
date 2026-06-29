@@ -16,6 +16,7 @@ add_library(bak
     chapterTransitions.hpp chapterTransitions.cpp
     combat/combat.hpp combat/combat.cpp
     combat/calculations.hpp combat/calculations.cpp
+    combat/spellEffects.hpp combat/spellEffects.cpp
     combat/combatModel.hpp combat/combatModel.cpp
     combat/retreat.hpp combat/retreat.cpp
     combat/types.hpp combat/types.cpp

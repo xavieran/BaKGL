@@ -138,6 +138,8 @@ public:
 
     void SetCombatSequenceActive(bool isActive) override { mCombatSequenceActive = isActive; }
     bool GetCombatSequenceActive() { return mCombatSequenceActive; }
+    FontManager& GetFontManager() { return mFontManager; }
+    const FontManager& GetFontManager() const { return mFontManager; }
     void PopOnExitCallback(OnExit action);
 
     void SetCombatManager(BAK::ICombatManager& combatManager) override;

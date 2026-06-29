@@ -11,14 +11,14 @@
 
 namespace BAK {
 
-std::string_view ToString(CombatResult r)
+std::string_view ToString(CombatOutcome r)
 {
     switch (r)
     {
-        case CombatResult::None: return "None";
-        case CombatResult::Won: return "Won";
-        case CombatResult::Fled: return "Fled";
-        case CombatResult::Dead: return "Dead";
+        case CombatOutcome::None: return "None";
+        case CombatOutcome::Won: return "Won";
+        case CombatOutcome::Fled: return "Fled";
+        case CombatOutcome::Dead: return "Dead";
     }
     return "Unknown";
 }
