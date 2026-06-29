@@ -11,6 +11,7 @@ namespace BAK {
 
 class Character;
 struct CombatState;
+struct SpellEffect;
 struct MeleeInfo;
 enum class MeleeResult;
 enum class ItemType;
@@ -55,6 +56,11 @@ int CalculateParry(Character& defender, CombatState& state);
 int CalculateAccuracyBonus(int raceEffect, int condition, int accuracy);
 int CalculateBlessingEffect(int value, std::vector<Modifier> modifiers);
 int CalculateArmorModReduction(Modifier modifier, const std::vector<Modifier>& modifiers, int armor);
-void PoisonCombatant(Character& combatant);
+void PoisonCombatant(Character&, CombatState&);
+
+bool IsCombatantActive(CombatState& combatState, bool checkPending);
+bool TickCombatEffects(CombatState& combatState);
+SpellEffect* GetSpellEffect(CombatState& combatState, unsigned effectId);
+void RemoveSpellEffect(CombatState& combatState, unsigned effectId);
 
 }

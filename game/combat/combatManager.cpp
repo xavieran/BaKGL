@@ -3,6 +3,7 @@
 #include "audio/audio.hpp"
 
 #include "bak/combat/types.hpp"
+#include "bak/monster.hpp"
 #include "game/combat/gridAlgorithms.hpp"
 
 #include "bak/combat/calculations.hpp"
@@ -255,7 +256,13 @@ void CombatManager::SetCurrentCombatant(bool onlyParty)
             continue;
         }
 
+        // Find best PC then find best AI
+        // then select between them to store some state for AI specifically..
         auto speed = character->GetSkill(BAK::SkillType::Speed);
+        if (speed == 0 || combatant.IsDead())
+        {
+            speed = 1;
+        }
 
         if (!bestSpeed || speed > *bestSpeed)
         {
@@ -427,8 +434,8 @@ void CombatManager::Execute(const Attack& attack)
 
     if (!isThrust)
     {
-        //damageCombatant(target, 1, false, false, true, false);
-        // attacker.StateFlags &= (~0x40) -- not sure what 0x40 is used for yet
+        DamageCombatant(target, 1, false, false, true, false);
+        // attacker.StateFlags &= (~0x40) // i.e. don't display the hit effect
     }
 
     if (attackResult == BAK::MeleeResult::Hit)
@@ -448,7 +455,7 @@ void CombatManager::Execute(const Attack& attack)
         bool damageTypeMelee = true;
         auto modifierFlags = BAK::GetMeleeModifierFlags(*me.mCharacter);
         bool skipDirectDamage = false;
-        //damageCombatant(target, damage, useArmor, damageTypeMelee, modifierFlags, skipDirectDamage);
+        DamageCombatant(target, damage, useArmor, damageTypeMelee, modifierFlags, skipDirectDamage);
     }
     else
     {
@@ -553,7 +560,7 @@ void CombatManager::ClearGrid()
 
 void CombatManager::DamageCombatant(
     Combatant& victim,
-    int damage,
+    const int originalDamage,
     bool useArmor,
     bool damageTypeMelee,
     std::uint16_t modifierFlags,
@@ -561,6 +568,30 @@ void CombatManager::DamageCombatant(
 )
 {
     assert(victim.mCharacter);
+
+    // Only killable using strength drain
+    if (victim.mMonster == BAK::sWindElemental)
+    {
+        return;
+    }
+
+    // The illusion characters don't take damage
+    if (BAK::GetSpellEffect(victim.mCombatState, BAK::sDannonsDelusions))
+    {
+        return;
+    }
+
+    if (victim.IsDead())
+    {
+        return;
+    }
+
+    if (originalDamage < 1)
+    {
+        return;
+    }
+
+    auto damage = originalDamage;
 
     if (useArmor)
     {
@@ -572,8 +603,37 @@ void CombatManager::DamageCombatant(
         }
     }
 
+    auto* shieldEffect = BAK::GetSpellEffect(victim.mCombatState, BAK::sHochosHaven);
+    if (!skipDirectDamage && shieldEffect)
+    {
+        shieldEffect->mAmount -= damage;
+        damage= 0;
+
+        int shieldLeft = shieldEffect->mAmount;
+        if (shieldLeft < 0)
+        {
+            if (shieldLeft == 0x8000)
+            {
+                damage = 0x7FFF;
+            }
+            else
+            {
+                damage = -shieldLeft;
+            }
+        }
+
+        if (damage == 0)
+        {
+            return;
+        }
+    }
+
     if (!skipDirectDamage)
     {
+        auto* skinEffect = BAK::GetSpellEffect(victim.mCombatState, BAK::sSkinOfTheDragon);
+        {
+            damage = 0;
+        }
     }
 
     damage = BAK::CalculateMonsterWeakness(victim.mCharacter->GetMonsterIndex(), damage, modifierFlags);
@@ -581,9 +641,70 @@ void CombatManager::DamageCombatant(
 
     if (damage > 0 && (modifierFlags & std::to_underlying(BAK::ModifierFlags::Poison)))
     {
-        //PoisonCombatant(victim);
+        BAK::PoisonCombatant(*victim.mCharacter, victim.mCombatState);
     }
-    // ...
+
+    auto& stamina = victim.mCharacter->GetSkills().GetSkill(BAK::SkillType::Stamina);
+    if (stamina.mTrueSkill < damage)
+    {
+        auto excessDamage = damage - stamina.mTrueSkill;
+        auto& health = victim.mCharacter->GetSkills().GetSkill(BAK::SkillType::Health);
+
+        if (health.mTrueSkill < excessDamage)
+        {
+            health.mTrueSkill = 0;
+        }
+        else
+        {
+            health.mTrueSkill -= excessDamage;
+        }
+    }
+    else
+    {
+        stamina.mTrueSkill -= damage;
+    }
+
+    if (originalDamage > 0 && damageTypeMelee != 0)
+    {
+        // Apply state 0x40;
+        // set state health display type to damage type
+        // set affeted by str drain = 2
+        unsigned displayDamage = 1;
+        if (originalDamage < 1000)
+        {
+            displayDamage = originalDamage;
+        }
+    }
+    else if (damageTypeMelee != 0)
+    {
+        unsigned displayDamage = 1;
+        // display hit text type = 0xf8
+    }
+
+    if ((modifierFlags & std::to_underlying(BAK::ModifierFlags::Fire)) != 0)
+    {
+        // do particle effects of flamecast color
+    }
+
+    if (modifierFlags & std::to_underlying(BAK::ModifierFlags::Frost))
+    {
+        // one shot combat effect 2
+    }
+
+    if (modifierFlags & std::to_underlying(BAK::ModifierFlags::Poison))
+    {
+        // one shot combat effect 0x13
+    }
+
+    auto& health = victim.mCharacter->GetSkills().GetSkill(BAK::SkillType::Health);
+    if (health.mTrueSkill == 0)
+    {
+        // called after death in combat
+        // combatState.mFlags ~= 0x10 -> remove exorcised attribute when die
+    }
+
+    // recalculates the skill values for health
+    victim.mCharacter->GetSkill(BAK::SkillType::TotalHealth);
 }
 
 }

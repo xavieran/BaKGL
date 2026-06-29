@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <vector>
 
 namespace BAK {
 
@@ -18,6 +19,15 @@ enum class MeleeResult
     Hit
 };
 
+struct SpellEffect
+{
+    std::uint16_t mEffectId;
+    std::uint16_t mParamA;
+    int mAmount;
+    std::uint16_t mCounter;
+    std::uint8_t mFlags;
+};
+
 struct CombatState
 {
     bool mTurnPending{true};
@@ -25,7 +35,11 @@ struct CombatState
     bool mIsPoisoned{false};
     bool mIsDefending{false};
     bool mIsFrozen{false};
+    bool mIsExorcsed{false};
     bool mIsFleeing{false};
+
+    //std::optional<GridPos> mCurrentTarget;
+    std::vector<SpellEffect> mSpellEffects{};
 };
 
 enum class AttackType

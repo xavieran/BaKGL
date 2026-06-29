@@ -20,6 +20,7 @@ static constexpr auto sBulldrakeWyvern      = MonsterIndex{41};
 static constexpr auto sGrandsireWyvern      = MonsterIndex{42};
 static constexpr auto sHatchlingWyvern      = MonsterIndex{43};
 static constexpr auto sTroll                = MonsterIndex{48};
+static constexpr auto sWindElemental        = MonsterIndex{54};
 static constexpr auto sNethermander         = MonsterIndex{58};
 
 class MonsterNames

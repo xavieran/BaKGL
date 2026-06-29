@@ -83,8 +83,12 @@ int CalculateParry(
     Character& defender,
     CombatState& defenderState)
 {
-    // TODO: there are some attributes that cause the defender skill to be ignored
     auto parry = defender.GetSkill(SkillType::Defense) / 4;
+
+    if (!IsCombatantActive(defenderState, false))
+    {
+        parry = 0;
+    }
 
     auto* armor = defender.GetArmor();
     if (armor)
@@ -571,6 +575,87 @@ void PoisonCombatant(Character& combatant, CombatState& state)
     auto poisonAmount = (GetRandomNumber(0, 0xfff) % 50) + 10;
 
     combatant.AdjustCondition(BAK::Condition::Poisoned, poisonAmount);
+}
+
+bool IsCombatantActive(CombatState& combatState, bool checkPending)
+{
+    if (checkPending)
+    {
+        if (!combatState.mTurnPending || combatState.mIsDead)
+        {
+            return false;
+        }
+    }
+
+    for (const auto& effect : combatState.mSpellEffects)
+    {
+        switch (effect.mEffectId)
+        {
+        case sDannonsDelusions: [[fallthrough]];
+        case sDespairThyEyes: [[fallthrough]];
+        case sGriefOf1000Nights: return false;
+        default: break;
+        }
+    }
+
+    return true;
+}
+
+bool TickCombatEffects(CombatState& combatState)
+{
+    auto& effects = combatState.mSpellEffects;
+    bool expiredCharacter = false;
+
+    for (auto& effect : effects)
+    {
+        effect.mAmount--;
+
+        if (effect.mAmount == 0 && effect.mEffectId == sDannonsDelusions)
+        {
+            expiredCharacter = true;
+        }
+    }
+
+    effects.erase(
+        std::remove_if(effects.begin(), effects.end(), [](auto& effect)
+        {
+            return effect.mAmount == 0;
+        }),
+        effects.end());
+
+    return expiredCharacter;
+}
+
+SpellEffect* GetSpellEffect(CombatState& combatState, unsigned effectId)
+{
+    auto& effects = combatState.mSpellEffects;
+    auto it = std::find_if(effects.begin(), effects.end(), [effectId](const auto& effect)
+    {
+        return effect.mEffectId == effectId;
+    });
+
+    if (it != effects.end())
+    {
+        return &(*it);
+    }
+
+    return nullptr;
+}
+
+void RemoveSpellEffect(CombatState& combatState, unsigned effectId)
+{
+    auto& effects = combatState.mSpellEffects;
+    auto it = std::find_if(effects.begin(), effects.end(), [effectId](const auto& effect)
+    {
+        return effect.mEffectId == effectId;
+    });
+
+    if (it == effects.end())
+    {
+        return;
+    }
+
+    effects.erase(it);
 }
 
 }
