@@ -11,6 +11,12 @@
 
 namespace BAK {
 
+static constexpr auto sDannonsDelusions = 1;
+static constexpr auto sDespairThyEyes = 3;
+static constexpr auto sHochosHaven    = 6;
+static constexpr auto sGriefOf1000Nights = 13;
+static constexpr auto sSkinOfTheDragon = 23;
+
 enum class StaticSpells : std::uint16_t
 {
     DragonsBreath = 0,
