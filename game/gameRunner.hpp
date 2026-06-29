@@ -98,12 +98,23 @@ public:
         BAK::EntityIndex entityId,
         BAK::Direction direction) override;
 
+    void SetCombatantUpdateIdle(
+        BAK::EntityIndex entityId,
+        bool update) override;
+
     void AnimateCombatant(
         BAK::EntityIndex entityId) override;
+
+    void AnimateCombatant(
+        BAK::EntityIndex entityId,
+        std::function<void()> onFinished) override;
 
     void AnimateAttack(
         BAK::EntityIndex entityId,
         glm::uvec2 targetGrid) override;
+
+    void CombatFinished(
+        BAK::CombatResult) override;
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);

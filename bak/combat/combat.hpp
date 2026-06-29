@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/coordinates.hpp"
+#include "bak/dialogTarget.hpp"
 
 #include <cstdint>
 #include <iosfwd>
@@ -10,7 +11,7 @@
 
 namespace BAK {
 
-enum class CombatResult : std::uint8_t
+enum class CombatOutcome : std::uint8_t
 {
     None = 0,
     Won = 1,
@@ -18,7 +19,14 @@ enum class CombatResult : std::uint8_t
     Dead = 3
 };
 
-std::string_view ToString(CombatResult);
+std::string_view ToString(CombatOutcome);
+
+struct CombatResult
+{
+    CombatOutcome mOutcome{};
+    BAK::Target mDialog{};
+    unsigned mContextVar{};
+};
 
 enum class CombatantWorldState : std::uint8_t
 {

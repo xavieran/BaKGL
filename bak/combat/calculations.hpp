@@ -11,7 +11,6 @@ namespace BAK {
 
 class Character;
 struct CombatState;
-struct SpellEffect;
 struct MeleeInfo;
 enum class MeleeResult;
 enum class ItemType;
@@ -19,7 +18,7 @@ enum class ItemType;
 static constexpr auto sDullFull = 0x100;
 static constexpr auto sDullHalf = 0x80;
 
-enum class ModifierFlags
+enum class ModifierFlags : std::uint16_t
 {
     Poison   = 0x1,
     Frost    = 0x2,
@@ -28,6 +27,8 @@ enum class ModifierFlags
     Enhance2 = 0x20,
     Bless    = 0x800,
 };
+
+bool IsCombatantActive(CombatState& combatState, bool checkPending);
 
 MeleeInfo CalculateMeleeInfo(Character&);
 MeleeResult CalculateMeleeResult(
@@ -57,10 +58,15 @@ int CalculateAccuracyBonus(int raceEffect, int condition, int accuracy);
 int CalculateBlessingEffect(int value, std::vector<Modifier> modifiers);
 int CalculateArmorModReduction(Modifier modifier, const std::vector<Modifier>& modifiers, int armor);
 void PoisonCombatant(Character&, CombatState&);
-
-bool IsCombatantActive(CombatState& combatState, bool checkPending);
-bool TickCombatEffects(CombatState& combatState);
-SpellEffect* GetSpellEffect(CombatState& combatState, unsigned effectId);
-void RemoveSpellEffect(CombatState& combatState, unsigned effectId);
+[[nodiscard]] bool ApplyPoisonAtEndOfTurn(Character& , CombatState&);
+[[nodiscard]] bool DamageCombatant(
+    Character& character,
+    MonsterIndex monster,
+    CombatState& combatState,
+    int originalDamage,
+    bool useArmor,
+    unsigned damageType,
+    std::uint16_t modifierFlags,
+    bool avoidsShields);
 
 }

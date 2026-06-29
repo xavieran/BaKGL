@@ -1,4 +1,5 @@
 #include "bak/combat/calculations.hpp"
+#include "bak/combat/spellEffects.hpp"
 
 #include "bak/character.hpp"
 #include "bak/combat/types.hpp"
@@ -6,6 +7,7 @@
 #include "bak/inventoryItem.hpp"
 #include "bak/monster.hpp"
 #include "bak/sounds.hpp"
+#include "bak/spells.hpp"
 
 #include "com/random.hpp"
 
@@ -29,6 +31,29 @@ static const std::array<std::uint16_t, 64> sMonsterResistanceArr = {
     0x200, 0x100, 0x300, 1, 1, 0,    0, 0, 0,    0xC0, 0xC0,  0,    0,     0, 0x300, 0
  };
 
+bool IsCombatantActive(CombatState& combatState, bool checkPending)
+{
+    if (checkPending)
+    {
+        if (!combatState.mTurnPending || combatState.mIsDead)
+        {
+            return false;
+        }
+    }
+
+    for (const auto& effect : combatState.mSpellEffects)
+    {
+        switch (effect.mEffectId)
+        {
+        case sDannonsDelusions: [[fallthrough]];
+        case sDespairThyEyes: [[fallthrough]];
+        case sGriefOf1000Nights: return false;
+        default: break;
+        }
+    }
+
+    return true;
+}
 
 MeleeInfo CalculateMeleeInfo(Character& character)
 {
@@ -577,85 +602,182 @@ void PoisonCombatant(Character& combatant, CombatState& state)
     combatant.AdjustCondition(BAK::Condition::Poisoned, poisonAmount);
 }
 
-bool IsCombatantActive(CombatState& combatState, bool checkPending)
+[[nodiscard]] bool ApplyPoisonAtEndOfTurn(Character& character, CombatState& combatState)
 {
-    if (checkPending)
+    int damageAmount = GetRandomNumber(1, 2);
+    bool useArmor = false;
+    int damageType = 2;
+    std::uint16_t modifierFlags = std::to_underlying(ModifierFlags::Poison);
+    // this is kinda surprising, test this...
+    bool ignoreShields = false;
+
+    return DamageCombatant(
+        character,
+        character.GetMonsterIndex(),
+        combatState,
+        damageAmount,
+        useArmor,
+        damageType,
+        modifierFlags,
+        ignoreShields);
+}
+
+[[nodiscard]] bool DamageCombatant(
+    Character& character,
+    MonsterIndex monster,
+    CombatState& combatState,
+    int originalDamage,
+    bool useArmor,
+    unsigned damageType,
+    std::uint16_t modifierFlags,
+    bool ignoreShields)
+{
+    auto& skills = character.GetSkills();
     {
-        if (!combatState.mTurnPending || combatState.mIsDead)
+        auto health = skills.GetSkill(SkillType::Health);
+        auto stamina = skills.GetSkill(SkillType::Stamina);
+
+        Logging::LogDebug(__FUNCTION__) << " Dead: " << combatState.mIsDead << " Before: \nHealth "
+            << health << "\nStamina " << stamina << "\n";
+    }
+
+    if (monster == sWindElemental)
+    {
+        return false;
+    }
+
+    if (GetSpellEffect(combatState, sDannonsDelusions))
+    {
+        return false;
+    }
+
+    if (combatState.mIsDead)
+    {
+        return false;
+    }
+
+    if (originalDamage < 1)
+    {
+        return false;
+    }
+
+    auto damage = originalDamage;
+
+    if (useArmor)
+    {
+        auto reduction = CalculateArmorReduction(character);
+        damage = damage * (100 - reduction) / 100;
+        if (damage <= 0)
+        {
+            damage = GetRandomNumber(1, 2);
+        }
+        Logging::LogDebug(__FUNCTION__) << " After armor ("
+            << reduction << "% reduction): " << damage << "\n";
+    }
+
+    auto* shieldEffect = GetSpellEffect(combatState, sHochosHaven);
+    if (!ignoreShields && shieldEffect)
+    {
+        shieldEffect->mAmount -= damage;
+        damage = 0;
+
+        int shieldLeft = shieldEffect->mAmount;
+        if (shieldLeft < 0)
+        {
+            damage = -shieldLeft;
+        }
+
+        if (damage == 0)
         {
             return false;
         }
     }
 
-    for (const auto& effect : combatState.mSpellEffects)
+    if (!ignoreShields)
     {
-        switch (effect.mEffectId)
+        auto* skinEffect = GetSpellEffect(combatState, sSkinOfTheDragon);
+        if (skinEffect)
         {
-        case sDannonsDelusions: [[fallthrough]];
-        case sDespairThyEyes: [[fallthrough]];
-        case sGriefOf1000Nights: return false;
-        default: break;
+            damage = 0;
         }
     }
 
-    return true;
-}
+    Logging::LogDebug(__FUNCTION__) << " After shield/skin: " << damage << "\n";
 
-bool TickCombatEffects(CombatState& combatState)
-{
-    auto& effects = combatState.mSpellEffects;
-    bool expiredCharacter = false;
+    damage = CalculateMonsterWeakness(character.GetMonsterIndex(), modifierFlags, damage);
+    damage = CalculateMonsterResistance(character.GetMonsterIndex(), modifierFlags, damage);
 
-    for (auto& effect : effects)
+    Logging::LogDebug(__FUNCTION__) << " After weakness/resistance: " << damage << "\n";
+
+    if (damage > 0 && (modifierFlags & std::to_underlying(ModifierFlags::Poison)))
     {
-        effect.mAmount--;
+        PoisonCombatant(character, combatState);
+    }
 
-        if (effect.mAmount == 0 && effect.mEffectId == sDannonsDelusions)
+    auto& stamina = character.GetSkills().GetSkill(SkillType::Stamina);
+    if (stamina.mTrueSkill < damage)
+    {
+        auto excessDamage = damage - stamina.mTrueSkill;
+        stamina.mTrueSkill = 0;
+        auto& health = character.GetSkills().GetSkill(SkillType::Health);
+
+        if (health.mTrueSkill < excessDamage)
         {
-            expiredCharacter = true;
+            health.mTrueSkill = 0;
+        }
+        else
+        {
+            health.mTrueSkill -= excessDamage;
         }
     }
+    else
+    {
+        stamina.mTrueSkill -= damage;
+    }
 
-    effects.erase(
-        std::remove_if(effects.begin(), effects.end(), [](auto& effect)
+    if (originalDamage > 0 && damageType != 0)
+    {
+        unsigned displayDamage = 1;
+        if (originalDamage < 1000)
         {
-            return effect.mAmount == 0;
-        }),
-        effects.end());
-
-    return expiredCharacter;
-}
-
-SpellEffect* GetSpellEffect(CombatState& combatState, unsigned effectId)
-{
-    auto& effects = combatState.mSpellEffects;
-    auto it = std::find_if(effects.begin(), effects.end(), [effectId](const auto& effect)
+            displayDamage = originalDamage;
+        }
+    }
+    else if (damageType != 0)
     {
-        return effect.mEffectId == effectId;
-    });
-
-    if (it != effects.end())
-    {
-        return &(*it);
+        unsigned displayDamage = 1;
     }
 
-    return nullptr;
-}
-
-void RemoveSpellEffect(CombatState& combatState, unsigned effectId)
-{
-    auto& effects = combatState.mSpellEffects;
-    auto it = std::find_if(effects.begin(), effects.end(), [effectId](const auto& effect)
+    if ((modifierFlags & std::to_underlying(ModifierFlags::Fire)) != 0)
     {
-        return effect.mEffectId == effectId;
-    });
-
-    if (it == effects.end())
-    {
-        return;
     }
 
-    effects.erase(it);
+    if (modifierFlags & std::to_underlying(ModifierFlags::Frost))
+    {
+    }
+
+    if (modifierFlags & std::to_underlying(ModifierFlags::Poison))
+    {
+    }
+
+    auto& health = character.GetSkills().GetSkill(SkillType::Health);
+    if (health.mTrueSkill == 0)
+    {
+        CleanCharacterStateOnDeath(character, combatState);
+        combatState.mIsExorcised = false;
+    }
+
+    character.GetSkill(SkillType::TotalHealth);
+
+    {
+        auto health = skills.GetSkill(SkillType::Health);
+        auto stamina = skills.GetSkill(SkillType::Stamina);
+
+        Logging::LogDebug(__FUNCTION__) << " Dead: " << combatState.mIsDead << " Before: \nHealth "
+            << health << "\nStamina " << stamina << "\n";
+    }
+
+    return combatState.mIsDead;
 }
 
 }

@@ -447,6 +447,13 @@ void GameRunner::RestoreCameraAfterCombat()
     mCamera.SetPosition(mSavedCameraPos);
 }
 
+void GameRunner::CombatFinished(BAK::CombatResult result)
+{
+    // Yuck... we probably don't need to go in and then back
+    // here to exit combat...
+    mGuiManager.ExitCombat(result);
+}
+
 void GameRunner::CombatCompleted(BAK::CombatResult result)
 {
     auto onReturn = ScopeGuard{[this]{
@@ -456,13 +463,13 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
         LoadWorldActors();
     }};
 
-    mLogger.Debug() << __FUNCTION__ << " " << ToString(result) << "\n";
+    mLogger.Debug() << __FUNCTION__ << " " << ToString(result.mOutcome) << "\n";
     ASSERT(mActiveEncounter);
     ASSERT(std::holds_alternative<BAK::Encounter::Combat>(mActiveEncounter->GetEncounter()));
     const auto& encounter = *mActiveEncounter;
     const auto& combat = std::get<BAK::Encounter::Combat>(encounter.GetEncounter());
 
-    if (result == BAK::CombatResult::Fled)
+    if (result.mOutcome == BAK::CombatOutcome::Fled)
     {
         const auto& retreatPos = BAK::Encounter::GetRetreatPosition(
             combat, mRetreatDirection);
@@ -480,7 +487,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
         mEncounterHandler.StartDialog(BAK::DialogSources::mRetreatSuccessful, true);
         return;
     }
-    else if (result == BAK::CombatResult::Won)
+    else if (result.mOutcome == BAK::CombatOutcome::Won)
     {
         mEncounterHandler.GetCombatHandler().UpdatePostEncounterFlags(encounter, combat);
 
@@ -527,31 +534,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
         }
         else
         {
-            if (true) // multiple combatants killed
-            {
-                //if (MonstersWereGhosts)
-                //{
-                //    mEncounterHandler.StartDialog(BAK::DialogSources::mWonVersusGhosts, true);
-                //}
-                if (BAK::IsSpecialBattle(combat.mCombatIndex))
-                {
-                    mEncounterHandler.StartDialog(BAK::DialogSources::mWonSpecialBattle, true);
-                }
-                else
-                {
-                    mEncounterHandler.StartDialog(BAK::DialogSources::mWonBattle, true);
-                }
-            }
-            else // if (OneMonsterInCombat && IsGhost)
-            {
-                mEncounterHandler.StartDialog(BAK::DialogSources::mWonVersusGhost, true);
-            }
-            // else if (OneMonsterInCombat && !IsGhost)
-            // mEncounterHandler.StartDialog(BAK::DialogSources::mDefeatedOneEnemy, true);
-            // else if (NoCombatantsRemaining && IsTrap)
-            // mEncounterHandler.StartDialog(BAK::DialogSources::mSolvedTrap, true);
-            // else if (NoCombatantsRemaining)
-            // mEncounterHandler.StartDialog(BAK::DialogSources::mEnemyFled, true);
+            mEncounterHandler.StartDialog(result.mDialog, true);
         }
     }
 }
@@ -704,7 +687,11 @@ void GameRunner::RunGameUpdate(bool advanceTime)
 
 void GameRunner::SetHoveredEntity(std::optional<BAK::EntityIndex> entityId)
 {
-    if (entityId == mHoveredEntity) return;
+    if (entityId == mHoveredEntity || mAnimationActive)
+    {
+        return;
+    }
+
     mHoveredEntity = entityId;
     if (mCombatManager.IsCombatActive() && entityId)
     {
@@ -875,15 +862,30 @@ void GameRunner::SetCombatantDirection(
     actor->SetDirection(direction);
 }
 
-void GameRunner::AnimateCombatant(
-    BAK::EntityIndex entityId)
+void GameRunner::SetCombatantUpdateIdle(
+    BAK::EntityIndex entityId,
+    bool update)
 {
     auto* actor = mCombatActorStore.GetActor(entityId);
     assert(actor);
-    mLogger.Debug() << "Animating combatant: " << entityId 
+    actor->SetUpdateIdle(false);
+}
+
+void GameRunner::AnimateCombatant(
+    BAK::EntityIndex entityId)
+{
+    AnimateCombatant(entityId, []{});
+}
+
+void GameRunner::AnimateCombatant(
+    BAK::EntityIndex entityId,
+    std::function<void()> onFinished)
+{
+    auto* actor = mCombatActorStore.GetActor(entityId);
+    assert(actor);
+    mLogger.Debug() << "Animating combatant (with callback): " << entityId 
         << " mid: " << actor->mMonster << "\n";
 
-    // This might fail when we're doing crossbow I think?
     assert(BAK::IsCardinal(actor->mDirection));
 
     auto frameTime = sFrameTime * mAnimationSpeedMultiplier;
@@ -893,8 +895,9 @@ void GameRunner::AnimateCombatant(
         std::make_unique<Combat::FrameAnimator>(
             *actor,
             frameTime,
-            [this]() mutable {
+            [this, finished=std::move(onFinished)]() mutable {
                 mAnimationActive = false;
+                finished();
             }));
 }
 

@@ -99,6 +99,7 @@ inline std::ostream& operator<<(std::ostream& os, const Grid& grid)
         }
         os << "\n";
     }
+    os << std::dec;
     return os;
 }
 
