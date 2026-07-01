@@ -13,6 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <optional>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -210,6 +211,49 @@ std::vector<BAK::EntityIndex> Systems::RunIntersection(glm::vec3 cameraPos) cons
     }
 
     return result;
+}
+
+BAK::EntityIndex Systems::AddTextRenderable(Graphics::TextRenderable r)
+{
+    auto id = GetNextItemId();
+    r.mEntityId = id;
+    mTextRenderables.push_back(std::move(r));
+    return id;
+}
+
+Graphics::TextRenderable& Systems::GetTextRenderable(BAK::EntityIndex id)
+{
+    for (auto& r : mTextRenderables)
+    {
+        if (r.mEntityId == id)
+        {
+            return r;
+        }
+    }
+    assert(false);
+    std::unreachable();
+}
+
+void Systems::RemoveTextRenderable(BAK::EntityIndex id)
+{
+    for (auto it = mTextRenderables.begin(); it != mTextRenderables.end(); ++it)
+    {
+        if (it->mEntityId == id)
+        {
+            mTextRenderables.erase(it);
+            return;
+        }
+    }
+}
+
+void Systems::ClearTextRenderables()
+{
+    mTextRenderables.clear();
+}
+
+const std::vector<Graphics::TextRenderable>& Systems::GetTextRenderables() const
+{
+    return mTextRenderables;
 }
 
 const std::vector<Intersectable>& Systems::GetIntersectables() const { return mIntersectables; }

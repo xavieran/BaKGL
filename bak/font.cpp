@@ -63,7 +63,7 @@ char Font::GetIndex(char c) const
     return c - mFirstChar;
 }
 
-const Graphics::TextureStore& Font::GetCharacters(){ return mCharacters; }
+const Graphics::TextureStore& Font::GetCharacters() const { return mCharacters; }
 
 std::size_t Font::GetSpace() const
 {

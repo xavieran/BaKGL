@@ -4,6 +4,8 @@
 #include "game/combat/actorStore.hpp"
 #include "game/combat/combatManager.hpp"
 #include "game/combat/ICombatStage.hpp"
+#include "game/glyphStore.hpp"
+#include "game/textAnimator.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
@@ -16,11 +18,14 @@
 #include "bak/types.hpp"
 
 #include "graphics/renderData.hpp"
+#include "graphics/renderer.hpp"
 
 #include "com/logger.hpp"
 
+#include <memory>
 #include <optional>
 #include <unordered_map>
+#include <vector>
 
 class Camera;
 namespace BAK {
@@ -50,6 +55,7 @@ class GameRunner : public BAK::IZoneLoader, public Combat::ICombatStage
 public:
     static constexpr double sMoveDuration = 0.15;
     static constexpr double sFrameTime = 0.25;
+    static constexpr float sDamageTextHeightOffset = 250.0f;
 
     GameRunner(
         Camera& camera,
@@ -116,6 +122,11 @@ public:
     void CombatFinished(
         BAK::CombatResult) override;
 
+    void DisplayText(
+        BAK::EntityIndex target,
+        std::string text,
+        TextColor color) override;
+
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
 
@@ -174,6 +185,8 @@ public:
     bool mAnimationActive{false};
 
     double mAnimationSpeedMultiplier{1.0};
+
+    GlyphStore mGlyphStore;
 
     std::optional<BAK::EntityIndex> mHoveredEntity;
 

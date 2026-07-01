@@ -37,4 +37,10 @@ constexpr auto tumblerBackground = glm::vec4{.188, .255, .286, 1};
 constexpr auto tumblerShadow     = glm::vec4{.349, .349, .318, 1};
 constexpr auto tumblerHighlight  = glm::vec4{.063, .063, .094, 1};
 
+constexpr auto damageTextStart   = glm::vec4{.835, .710, .392, 1};
+constexpr auto damageTextEnd     = glm::vec4{.580, .247, .200, 1};
+
+constexpr auto missStart = glm::vec4{0.000f, .000f, .000f, 1.0f};
+constexpr auto missEnd   = glm::vec4{1.000f, .000f, .000f, 0.0f};
+
 }

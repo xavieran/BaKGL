@@ -599,6 +599,11 @@ int main(int argc, char** argv)
                     *cameraPtr,
                     true);
             }
+
+            renderer.DrawText3D(
+                gameRunner.mGlyphStore.GetRenderData(),
+                gameRunner.mSystems->GetTextRenderables(),
+                *cameraPtr);
         }
 
         if (gameState.GetGameData().IsLoaded())

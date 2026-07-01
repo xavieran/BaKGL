@@ -6,6 +6,7 @@
 #include "game/combat/ICombatStage.hpp"
 
 #include "bak/combat/ICombatManager.hpp"
+#include "gui/colors.hpp"
 #include "bak/combat/ICombatUI.hpp"
 
 #include "com/logger.hpp"
@@ -35,6 +36,14 @@ namespace Game::Combat {
 class CombatManager : public BAK::ICombatManager
 {
 public:
+    static constexpr TextColor sHitTextColor{
+        Gui::Color::damageTextStart,
+        Gui::Color::damageTextEnd};
+
+    static constexpr TextColor sMissTextColor{
+        Gui::Color::missStart,
+        Gui::Color::missEnd};
+
     CombatManager(ICombatStage& stage, BAK::ICombatUI& ui);
 
     void SetCastingSpell(BAK::SpellIndex) override;
@@ -85,6 +94,15 @@ private:
     std::vector<Combatant>::iterator SelectNextCombatantForTurn(bool onlyPlayer);
 
     void ClearGrid();
+
+    struct PendingTextInfo
+    {
+        BAK::EntityIndex mTarget;
+        std::string mText;
+        TextColor mColor;
+        unsigned mSound{0};
+    };
+    std::optional<PendingTextInfo> mPendingText;
 
     std::vector<Combatant> mCombatants{};
 

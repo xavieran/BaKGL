@@ -2,6 +2,8 @@ add_library(game
     combatModelLoader.hpp combatModelLoader.cpp
     combatEncounterHandler.hpp combatEncounterHandler.cpp
     console.hpp console.cpp
+    glyphStore.hpp glyphStore.cpp
+    textAnimator.hpp textAnimator.cpp
     encounterHandler.hpp encounterHandler.cpp
     gameRunner.hpp gameRunner.cpp
     combat/types.hpp combat/types.cpp

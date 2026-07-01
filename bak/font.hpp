@@ -32,7 +32,7 @@ public:
         Graphics::TextureStore textures);
 
     char GetIndex(char c) const;
-    const Graphics::TextureStore& GetCharacters();
+    const Graphics::TextureStore& GetCharacters() const;
 
     std::size_t GetSpace() const;
 

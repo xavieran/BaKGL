@@ -6,7 +6,7 @@
 #include "bak/combat/combatModel.hpp"
 
 #include <functional>
-#include <glm/glm.hpp>
+#include <string>
 
 namespace Game::Combat {
 
@@ -43,6 +43,11 @@ public:
 
     virtual void CombatFinished(
         BAK::CombatResult) = 0;
+
+    virtual void DisplayText(
+        BAK::EntityIndex target,
+        std::string text,
+        TextColor color) = 0;
 
     virtual ~ICombatStage() = default;
 };

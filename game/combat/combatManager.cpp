@@ -1,5 +1,6 @@
 #include "game/combat/combatManager.hpp"
 
+
 #include "game/combat/gridAlgorithms.hpp"
 
 #include "audio/audio.hpp"
@@ -321,6 +322,21 @@ void CombatManager::CompleteMove(GridPos target)
 
 void CombatManager::CompleteAttack(GridPos target)
 {
+    if (mPendingText)
+    {
+        if (mPendingText->mSound != 0)
+        {
+            AudioA::GetAudioManager().PlaySound(
+                AudioA::SoundIndex{mPendingText->mSound});
+        }
+
+        mStage.DisplayText(
+            mPendingText->mTarget,
+            mPendingText->mText,
+            mPendingText->mColor);
+        mPendingText.reset();
+    }
+
     auto& combatant = GetCurrentCombatant();
     mStage.SetCombatantAction(combatant.mEntityIndex, BAK::AnimationType::Idle);
 
@@ -430,6 +446,12 @@ void CombatManager::Execute(const Attack& attack)
 
         sound = BAK::GetAttackSound(me.mMonster, attackerHasStaff);
         auto damage = BAK::CalculateMeleeDamage(*me.mCharacter, *target.mCharacter, isThrust);
+
+        mPendingText = PendingTextInfo{
+            target.mEntityIndex,
+            std::to_string(damage),
+            sHitTextColor};
+
         bool useArmor = true;
         bool damageTypeMelee = true;
         auto modifierFlags = BAK::GetMeleeModifierFlags(*me.mCharacter);
@@ -446,6 +468,11 @@ void CombatManager::Execute(const Attack& attack)
     }
     else
     {
+        mPendingText = PendingTextInfo{
+            target.mEntityIndex,
+            "miss",
+            sMissTextColor};
+
         target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
 
         if (targetIsDefending && BAK::IsCombatantActive(target.mCombatState, false))
@@ -480,7 +507,7 @@ void CombatManager::Execute(const Attack& attack)
 
     if (sound != 0)
     {
-        AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{sound});
+        mPendingText->mSound = sound;
     }
 
     auto defenseDirection = BAK::GetDirectionBetween(attack.mTarget, me.mGridPos);

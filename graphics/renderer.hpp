@@ -6,10 +6,21 @@
 #include "graphics/renderData.hpp"
 #include "graphics/shaderProgram.hpp"
 
+#include "bak/types.hpp"
+
 #include <cstdint>
 #include <optional>
 
 namespace Graphics {
+
+struct TextRenderable
+{
+    std::pair<unsigned, unsigned> mObject;
+    glm::mat4 mModelMatrix;
+    glm::vec4 mColor;
+    glm::vec3 mBillboardCenter;
+    BAK::EntityIndex mEntityId{0};
+};
 
 struct Light
 {
@@ -45,6 +56,16 @@ struct WorldShaderUniforms
     GLuint mMVP;
     GLuint mM;
     GLuint mV;
+};
+
+struct Text3DShaderUniforms
+{
+    GLuint mTexture0;
+    GLuint mCameraPosition_worldspace;
+    GLuint mMVP;
+    GLuint mM;
+    GLuint mColor;
+    GLuint mBillboardCenter;
 };
 
 struct DepthMapShaderUniforms
@@ -153,6 +174,20 @@ public:
             };
             return shader.Compile();
         })},
+        mText3DShader{std::invoke([]{
+            auto shader = ShaderProgram{
+                "text3d.vert.glsl",
+                "text3d.frag.glsl"};
+            return shader.Compile();
+        })},
+        mText3DShaderUniforms{
+            mText3DShader.GetUniformLocation("texture0"),
+            mText3DShader.GetUniformLocation("cameraPosition_worldspace"),
+            mText3DShader.GetUniformLocation("MVP"),
+            mText3DShader.GetUniformLocation("M"),
+            mText3DShader.GetUniformLocation("uColor"),
+            mText3DShader.GetUniformLocation("billboardCenter")
+        },
         mPickFB{},
         mPickTexture{GL_TEXTURE_2D},
         mPickDepth{GL_TEXTURE_2D},
@@ -396,6 +431,47 @@ public:
         }
     }
 
+    template <typename Camera>
+    void DrawText3D(
+        const RenderData& renderData,
+        const std::vector<TextRenderable>& renderables,
+        const Camera& camera)
+    {
+        renderData.Bind(GL_TEXTURE0);
+
+        mText3DShader.UseProgramGL();
+
+        mText3DShader.SetUniform(mText3DShaderUniforms.mTexture0, 0);
+        mText3DShader.SetUniform(
+            mText3DShaderUniforms.mCameraPosition_worldspace,
+            camera.GetNormalisedPosition());
+
+        const auto& viewMatrix = camera.GetViewMatrix();
+
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(GL_FALSE);
+
+        for (const auto& item : renderables)
+        {
+            glm::mat4 MVP = camera.GetProjectionMatrix() * viewMatrix * item.mModelMatrix;
+            mText3DShader.SetUniform(mText3DShaderUniforms.mMVP, MVP);
+            mText3DShader.SetUniform(mText3DShaderUniforms.mM, item.mModelMatrix);
+            mText3DShader.SetUniform(mText3DShaderUniforms.mColor, item.mColor);
+            mText3DShader.SetUniform(mText3DShaderUniforms.mBillboardCenter, item.mBillboardCenter);
+
+            const auto [offset, length] = item.mObject;
+            glDrawElementsBaseVertex(
+                GL_TRIANGLES,
+                length,
+                GL_UNSIGNED_INT,
+                (void*)(offset * sizeof(GLuint)),
+                offset);
+        }
+
+        glDepthMask(GL_TRUE);
+        glEnable(GL_DEPTH_TEST);
+    }
+
 private:
     static unsigned DecodeEntityId(const glm::vec4& data)
     {
@@ -441,6 +517,8 @@ private:
     ShaderProgramHandle mShadowMapShader;
     DepthMapShaderUniforms mShadowMapShaderUniforms;
     ShaderProgramHandle mNormalShader;
+    ShaderProgramHandle mText3DShader;
+    Text3DShaderUniforms mText3DShaderUniforms;
 
     FrameBuffer mPickFB;
     TextureBuffer mPickTexture;
