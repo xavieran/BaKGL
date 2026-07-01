@@ -2,7 +2,15 @@
 
 #include "com/strongType.hpp"
 
+#include <glm/glm.hpp>
+
 #include <cstdint>
+
+struct TextColor
+{
+    glm::vec4 mStart;
+    glm::vec4 mEnd;
+};
 
 namespace BAK {
 

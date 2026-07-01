@@ -12,6 +12,8 @@ namespace BAK {
 static constexpr auto sMoredhelWarrior      = MonsterIndex{18};
 static constexpr auto sBrakNurr             = MonsterIndex{19};
 static constexpr auto sMoredhelSpellcaster  = MonsterIndex{21};
+static constexpr auto sBlackslayer          = MonsterIndex{22};
+static constexpr auto sNighthawk            = MonsterIndex{23};
 static constexpr auto sPantathian           = MonsterIndex{25};
 static constexpr auto sPanthTiandn          = MonsterIndex{26};
 static constexpr auto sServitorOfLimsKragma = MonsterIndex{28};
@@ -20,10 +22,11 @@ static constexpr auto sBulldrakeWyvern      = MonsterIndex{41};
 static constexpr auto sGrandsireWyvern      = MonsterIndex{42};
 static constexpr auto sHatchlingWyvern      = MonsterIndex{43};
 static constexpr auto sTroll                = MonsterIndex{48};
+static constexpr auto sDread                = MonsterIndex{49};
 static constexpr auto sWindElemental        = MonsterIndex{54};
 static constexpr auto sNethermander         = MonsterIndex{58};
-static constexpr auto sBlackslayer          = MonsterIndex{22};
-static constexpr auto sNighthawk            = MonsterIndex{23};
+static constexpr auto sRusalka              = MonsterIndex{56};
+static constexpr auto sShade                = MonsterIndex{57};
 
 class MonsterNames
 {

@@ -1,6 +1,5 @@
 #include "game/gameRunner.hpp"
 
-
 #include "game/combat/frameAnimator.hpp"
 #include "game/combat/moveAnimator.hpp"
 #include "game/combatModelLoader.hpp"
@@ -8,9 +7,11 @@
 #include "game/systems.hpp"
 
 #include "bak/combat/combatModel.hpp"
-#include "bak/entityType.hpp"
 #include "bak/camera.hpp"
+#include "graphics/glm.hpp"
 #include "bak/combat/mechanics.hpp"
+
+#include "gui/colors.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/encounter/combat.hpp"
 #include "bak/encounter/encounter.hpp"
@@ -27,7 +28,6 @@
 #include "com/ostream.hpp"
 #include "com/scopeGuard.hpp"
 
-#include "graphics/glm.hpp"
 #include "gui/guiManager.hpp"
 
 #include <utility>
@@ -93,6 +93,8 @@ GameRunner::GameRunner(
         [this](){ EnterCombatFromEncounter(); });
 
     mGuiManager.SetCombatManager(mCombatManager);
+
+    mGlyphStore.Init(mGuiManager.GetFontManager().GetGameFont());
 }
 
 void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)
@@ -408,6 +410,7 @@ void GameRunner::LoadWorldActors()
 
 void GameRunner::ClearCombatActors()
 {
+    mSystems->ClearTextRenderables();
     mCombatActorStore.Clear();
     mCombatManager.EndCombat();
 }
@@ -945,6 +948,27 @@ bool GameRunner::HandleGridCellClick(unsigned entityId, bool isRightClick)
         }
     }
     return false;
+}
+
+void GameRunner::DisplayText(
+    BAK::EntityIndex target,
+    std::string text,
+    TextColor color)
+{
+    auto* actor = mCombatActorStore.GetActor(target);
+    assert(actor);
+
+    auto worldPos = actor->mLocation;
+    worldPos.y += sDamageTextHeightOffset;
+
+    mGuiManager.AddAnimator(
+        std::make_unique<TextAnimator>(
+            *mSystems,
+            mGlyphStore,
+            mCamera,
+            worldPos,
+            text,
+            color));
 }
 
 void GameRunner::CleanCombatsOnNewZone()

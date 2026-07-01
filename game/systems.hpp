@@ -6,6 +6,7 @@
 #include "com/visit.hpp"
 
 #include "graphics/glm.hpp"
+#include "graphics/renderer.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtx/intersect.hpp>
@@ -146,6 +147,12 @@ public:
     void AddSprite(const Renderable& item);
     std::vector<BAK::EntityIndex> RunIntersection(glm::vec3 cameraPos) const;
 
+    BAK::EntityIndex AddTextRenderable(Graphics::TextRenderable r);
+    Graphics::TextRenderable& GetTextRenderable(BAK::EntityIndex id);
+    void RemoveTextRenderable(BAK::EntityIndex id);
+    void ClearTextRenderables();
+    const std::vector<Graphics::TextRenderable>& GetTextRenderables() const;
+
     const std::vector<Intersectable>& GetIntersectables() const;
     const std::vector<Renderable>& GetRenderables() const;
     const std::vector<DynamicRenderable>& GetDynamicRenderables() const;
@@ -160,4 +167,5 @@ private:
     std::vector<Renderable> mSprites;
     std::vector<DynamicRenderable> mDynamicRenderables;
     std::vector<Clickable> mClickables;
+    std::vector<Graphics::TextRenderable> mTextRenderables;
 };
