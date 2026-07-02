@@ -58,7 +58,7 @@ void main()
     float alpha;
     if (useInstanceColor == 1)
     {
-        diffuseColor = instanceColor.xyz;
+        diffuseColor = mix(textureColor, instanceColor.xyz, instanceColor.a);
         alpha = textureAlpha;
     }
     else

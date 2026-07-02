@@ -134,6 +134,10 @@ public:
         std::string text,
         TextColor color) override;
 
+    void FlashCombatant(
+        BAK::EntityIndex entityId,
+        glm::vec4 color) override;
+
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
 

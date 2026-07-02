@@ -27,6 +27,7 @@ public:
     BAK::MonsterIndex mMonster;
     BAK::AnimationType mAnimationType;
     BAK::Direction mDirection;
+    std::optional<glm::vec4> mFlashColor{};
 
     const CombatModelLoader& mCombatModelLoader;
     glm::mat4 mModelMatrix{1.0f};
