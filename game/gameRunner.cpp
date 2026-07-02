@@ -1,5 +1,6 @@
 #include "game/gameRunner.hpp"
 
+#include "game/combat/flashAnimator.hpp"
 #include "game/combat/frameAnimator.hpp"
 #include "game/combat/moveAnimator.hpp"
 #include "game/combatModelLoader.hpp"
@@ -581,7 +582,8 @@ void GameRunner::EnterCombatFromEncounter()
                 &actor.GetRenderData(),
                 &actor.mObject,
                 &actor.mLocation,
-                &actor.mModelMatrix});
+                &actor.mModelMatrix,
+                &actor.mFlashColor});
 
         mCombatManager.AddCombatant(Combat::Combatant{
             mGameState.GetCombatantCharacter(combatantIndex),
@@ -609,7 +611,8 @@ void GameRunner::EnterCombatFromEncounter()
                 &actor.GetRenderData(),
                 &actor.mObject,
                 &actor.mLocation,
-                &actor.mModelMatrix});
+                &actor.mModelMatrix,
+                &actor.mFlashColor});
 
         mCombatManager.AddCombatant(Combat::Combatant{
             &character,
@@ -1003,6 +1006,14 @@ void GameRunner::DisplayText(
             worldPos,
             text,
             color));
+}
+
+void GameRunner::FlashCombatant(BAK::EntityIndex entityId, glm::vec4 color)
+{
+    auto* actor = mCombatActorStore.GetActor(entityId);
+    assert(actor);
+    mGuiManager.AddAnimator(
+        std::make_unique<Combat::FlashAnimator>(*actor, color));
 }
 
 void GameRunner::CleanCombatsOnNewZone()

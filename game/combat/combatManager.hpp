@@ -44,6 +44,8 @@ public:
         Gui::Color::missStart,
         Gui::Color::missEnd};
 
+    static constexpr glm::vec4 sPhysicalHitColor{1.0f, 0.2f, 0.2f, 0.5f};
+
     CombatManager(ICombatStage& stage, BAK::ICombatUI& ui);
 
     void SetCastingSpell(BAK::SpellIndex) override;
@@ -98,14 +100,15 @@ private:
 
     void ClearGrid();
 
-    struct PendingTextInfo
+    struct PendingAttackInfo
     {
         BAK::EntityIndex mTarget;
         std::string mText;
         TextColor mColor;
         unsigned mSound{0};
+        bool mHit;
     };
-    std::optional<PendingTextInfo> mPendingText;
+    std::optional<PendingAttackInfo> mPendingAttack;
 
     std::vector<Combatant> mCombatants{};
 
@@ -117,6 +120,8 @@ private:
     const Logging::Logger& mLogger;
     bool mCombatActive{false};
     bool mIsMoving{false};
+    // Need to propagate this per-combatant that gets injured but this will do for now
+    std::uint16_t mHitModifierFlags{};
     std::optional<GridPos> mHovered{};
 };
 

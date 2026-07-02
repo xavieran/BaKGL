@@ -41,6 +41,10 @@ public:
         BAK::EntityIndex,
         glm::uvec2 targetGrid) = 0;
 
+    virtual void FlashCombatant(
+        BAK::EntityIndex,
+        glm::vec4 color) = 0;
+
     virtual void CombatFinished(
         BAK::CombatResult) = 0;
 
