@@ -27,6 +27,7 @@ public:
     }
 
     void Bind(int key, KeyCallback&& callback);
+    void BindPressed(int key, KeyCallback&& callback);
     void BindCharacter(CharacterCallback&& callback);
     void BindMouse(
         int button,
@@ -55,6 +56,7 @@ private:
     bool mHandleInput;
 
     std::unordered_map<int, KeyCallback> mKeyBindings;
+    std::unordered_map<int, KeyCallback> mPressedKeyBindings;
     CharacterCallback mCharacterCallback;
     std::unordered_map<int, std::pair<MouseCallback, MouseCallback>> mMouseBindings;
     MouseCallback mMouseMovedBinding;

@@ -353,7 +353,7 @@ int main(int argc, char** argv)
     };
 
     Graphics::InputHandler inputHandler{};
-    inputHandler.Bind(GLFW_KEY_G,     [&]{
+    inputHandler.BindPressed(GLFW_KEY_G, [&]{
         if (glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
             || glfwGetKey(window.get(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
         {
@@ -394,8 +394,8 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_V, [&]{ if (InputAllowed()){cameraPtr->StrafeDown();   UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalDown(); });
-    inputHandler.Bind(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
-    inputHandler.Bind(GLFW_KEY_I, [&]{ 
+    inputHandler.BindPressed(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
+    inputHandler.BindPressed(GLFW_KEY_I, [&]{
         if (!imGuiInitialised)
         {
             ImguiWrapper::Initialise(window.get());

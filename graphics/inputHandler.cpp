@@ -10,6 +10,7 @@ InputHandler::InputHandler() noexcept
 :
     mHandleInput{true},
     mKeyBindings{},
+    mPressedKeyBindings{},
     mCharacterCallback{},
     mMouseBindings{},
     mMouseMovedBinding{},
@@ -28,12 +29,17 @@ void InputHandler::BindKeyboardToWindow(GLFWwindow* window, InputHandler& handle
 {
     sHandler = &handler;
     glfwSetCharCallback(window, InputHandler::CharacterAction);
-    //glfwSetKeyCallback(window, InputHandler::KeyboardAction);
+    glfwSetKeyCallback(window, InputHandler::KeyboardAction);
 }
 
 void InputHandler::Bind(int key, KeyCallback&& callback)
 {
     mKeyBindings.emplace(key, std::move(callback));
+}
+
+void InputHandler::BindPressed(int key, KeyCallback&& callback)
+{
+    mPressedKeyBindings.emplace(key, std::move(callback));
 }
 
 void InputHandler::BindCharacter(CharacterCallback&& callback)
@@ -99,26 +105,26 @@ void InputHandler::HandleMouseCallback(GLFWwindow* window, int button, int actio
 void InputHandler::HandleMouseMotionCallback(GLFWwindow* window, double xpos, double ypos)
 {
     if (mMouseMovedBinding)
+    {
         std::invoke(mMouseMovedBinding, glm::vec2{xpos, ypos});
+    }
 }
 
 void InputHandler::HandleMouseScrollCallback(GLFWwindow* window, double xpos, double ypos)
 {
     if (mMouseScrolledBinding)
+    {
         std::invoke(mMouseScrolledBinding, glm::vec2{xpos, ypos});
+    }
 }
 
 void InputHandler::HandleKeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (mHandleInput)
+    if (mHandleInput && action == GLFW_PRESS)
     {
-        const auto it = mKeyBindings.find(key);
-        if (it != mKeyBindings.end())
+        if (const auto it = mPressedKeyBindings.find(key); it != mPressedKeyBindings.end())
         {
-            if (action == GLFW_PRESS)
-            {
-                std::invoke(it->second);
-            }
+            std::invoke(it->second);
         }
     }
 }
@@ -145,9 +151,13 @@ void InputHandler::HandleMouseInput(GLFWwindow* window)
         for (const auto& keyVal : mMouseBindings)
         {
             if (glfwGetMouseButton(window, keyVal.first) == GLFW_PRESS)
+            {
                 std::invoke(keyVal.second.first, glm::vec2{pointerX, pointerY});
+            }
             if (glfwGetMouseButton(window, keyVal.first) == GLFW_RELEASE)
+            {
                 std::invoke(keyVal.second.second, glm::vec2{pointerX, pointerY});
+            }
         }
     }
 }
