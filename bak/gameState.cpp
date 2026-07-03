@@ -88,6 +88,7 @@ void GameState::LoadGame(std::string savePath)
         auto* inventory = container ? (&container->GetInventory()) : nullptr;
         mCombatCharacters.emplace_back(LoadCombatant(
             CombatantIndex{i},
+            mCombatantGridLocations[i].mMonster,
             mGameData.GetFileBuffer(),
             inventory));
     }
@@ -1613,25 +1614,6 @@ void GameState::ReactivateCombat(const Encounter::Encounter& encounter, CombatIn
         auto& cgl = GetCombatantGridLocation(combatantIndex);
         cgl.mState = std::to_underlying(Combat::CombatantState::Alive);
     }
-}
-
-std::vector<CombatEntityList> GameState::RegenerateCombatEntityLists()
-{
-    std::vector<CombatEntityList> mLists{};
-    mLists.reserve(SaveOffsets::sCombatEntityListCount);
-    for (unsigned i = 0; i < SaveOffsets::sCombatEntityListCount; i++)
-    {
-        mLists.emplace_back();
-    }
-
-    for (unsigned combatantIndex = 0; combatantIndex < mCombatContainers.size(); combatantIndex++)
-    {
-        const auto& combatant = mCombatContainers[combatantIndex];
-        const auto combatIndex = combatant.GetHeader().GetCombatNumber();
-        mLists[combatIndex.mValue].mCombatants.emplace_back(CombatantIndex{combatantIndex});
-    }
-
-    return mLists;
 }
 
 }

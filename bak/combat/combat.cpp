@@ -52,13 +52,18 @@ bool CombatWorldLocation::IsLoaded() const
 
 std::ostream& operator<<(std::ostream& os, const CombatantGridLocation& cgl)
 {
-    os << "CombatantGridLocation{ unk0: " << cgl.mUnknown0 << " Monster: "
+    os << "CombatantGridLocation{ curTarget: " << cgl.mCurrentTarget << " Monster: "
         << cgl.mMonster << " pos: " << cgl.mGridPos
-        << " unk1: " << cgl.mUnknown1
+        << " target: " << cgl.mTarget
         << " state: " << +cgl.mState
-        << " rest0: " << cgl.mRest0
+        << " health: " << +cgl.mHealthChangeAmount
+        << " effectPtr: " << +cgl.mEffectPtr
+        << " unknown: " << cgl.mUnknown
+        << " healthColor: " << +cgl.mHealthChangeColor
         << " retreat: " << +cgl.mRetreatFactor
-        << " rest1: " << cgl.mRest1<< "}";
+        << " unknown2: " << cgl.mUnknown2
+        << " displayDamage: " << +cgl.mDisplayDamage
+        << " hitText: " << +cgl.mHitTextType << "}";
     return os;
 }
 

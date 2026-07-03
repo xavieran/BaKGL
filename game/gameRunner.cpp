@@ -596,12 +596,10 @@ void GameRunner::EnterCombatFromEncounter()
         });
     }
 
-    std::vector<glm::uvec2> charPos = {{0, 1}, {7, 1}, {7, 12}};
-    unsigned i = 0;
-
     mGameState.GetParty().ForEachActiveCharacter([&](auto& character)
     {
-        auto combatPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, charPos[i]);
+        auto gridPos = character.GetGridPos();
+        auto combatPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, gridPos);
         auto entityId = mCombatActorStore.AddActor(
             combatPos, character.GetMonsterIndex());
         auto& actor = *mCombatActorStore.GetActor(entityId);
@@ -619,13 +617,11 @@ void GameRunner::EnterCombatFromEncounter()
         mCombatManager.AddCombatant(Combat::Combatant{
             &character,
             character.GetMonsterIndex(),
-            charPos[i],
+            gridPos,
             BAK::Combat::CombatantState::Alive,
             entityId
         });
         mLogger.Debug() << "Added character entity: " << entityId << " " << character.GetName() << "\n";
-
-        i++;
         return BAK::Loop::Continue;
     });
 

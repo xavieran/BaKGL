@@ -57,14 +57,19 @@ std::ostream& operator<<(std::ostream&, const CombatWorldLocation&);
 class CombatantGridLocation
 {
 public:
-    std::uint16_t mUnknown0;
+    std::uint16_t mCurrentTarget;
     MonsterIndex mMonster;
     glm::uvec2 mGridPos;
-    std::uint16_t mUnknown1;
+    glm::uvec2 mTarget;
     std::uint8_t mState;
-    std::array<std::uint8_t, 5> mRest0;
+    std::uint8_t mHealthChangeAmount;
+    std::uint8_t mEffectPtr;
+    std::array<std::uint8_t, 2> mUnknown;
+    std::uint8_t mHealthChangeColor;
     std::uint8_t mRetreatFactor;
-    std::array<std::uint8_t, 7> mRest1;
+    std::array<std::uint8_t, 5> mUnknown2;
+    std::uint8_t mDisplayDamage;
+    std::uint8_t mHitTextType;
 };
 
 std::ostream& operator<<(std::ostream&, const CombatantGridLocation&);
