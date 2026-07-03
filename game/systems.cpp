@@ -176,7 +176,9 @@ void Systems::RemoveRenderable(BAK::EntityIndex i)
         mRenderables.begin(), mRenderables.end(),
         [i=i](const auto& r){ return r.GetId() == i; });
     if (it != mRenderables.end())
+    {
         mRenderables.erase(it);
+    }
 }
 
 void Systems::EnableRenderable(BAK::EntityIndex id, bool render)
@@ -185,7 +187,9 @@ void Systems::EnableRenderable(BAK::EntityIndex id, bool render)
         mRenderables.begin(), mRenderables.end(),
         [id=id](const auto& r){ return r.GetId() == id; });
     if (it != mRenderables.end())
+    {
         it->SetVisible(render);
+    }
 }
 
 void Systems::RemoveDynamicRenderable(BAK::EntityIndex i)
@@ -213,6 +217,17 @@ void Systems::AddSprite(const Renderable& item)
     mSprites.emplace_back(item);
 }
 
+void Systems::EnableSprite(BAK::EntityIndex id, bool visible)
+{
+    auto it = std::find_if(
+        mSprites.begin(), mSprites.end(),
+        [id=id](const auto& s){ return s.GetId() == id; });
+    if (it != mSprites.end())
+    {
+        it->SetVisible(visible);
+    }
+}
+
 std::vector<BAK::EntityIndex> Systems::RunIntersection(glm::vec3 cameraPos) const
 {
     auto result = std::vector<BAK::EntityIndex>{};
@@ -233,17 +248,18 @@ BAK::EntityIndex Systems::AddTextRenderable(Graphics::TextRenderable r)
     return id;
 }
 
-Graphics::TextRenderable& Systems::GetTextRenderable(BAK::EntityIndex id)
+Graphics::TextRenderable* Systems::GetTextRenderable(BAK::EntityIndex id)
 {
-    for (auto& r : mTextRenderables)
+    auto it = std::find_if(
+        mTextRenderables.begin(), mTextRenderables.end(),
+        [id=id](const auto& r){ return r.mEntityId == id; });
+
+    if (it == mTextRenderables.end())
     {
-        if (r.mEntityId == id)
-        {
-            return r;
-        }
+        return nullptr;
     }
-    assert(false);
-    std::unreachable();
+
+    return &(*it);
 }
 
 void Systems::RemoveTextRenderable(BAK::EntityIndex id)

@@ -167,10 +167,11 @@ public:
     void RemoveDynamicRenderable(BAK::EntityIndex);
     void RemoveClickable(BAK::EntityIndex);
     void AddSprite(const Renderable& item);
+    void EnableSprite(BAK::EntityIndex id, bool visible);
     std::vector<BAK::EntityIndex> RunIntersection(glm::vec3 cameraPos) const;
 
     BAK::EntityIndex AddTextRenderable(Graphics::TextRenderable r);
-    Graphics::TextRenderable& GetTextRenderable(BAK::EntityIndex id);
+    Graphics::TextRenderable* GetTextRenderable(BAK::EntityIndex id);
     void RemoveTextRenderable(BAK::EntityIndex id);
     void ClearTextRenderables();
     const std::vector<Graphics::TextRenderable>& GetTextRenderables() const;

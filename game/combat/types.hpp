@@ -48,7 +48,8 @@ enum class StateFlags
     LOSAttackable = 3,
     HasZap        = 4,
     HasMine       = 5,
-    HasCrystal    = 6
+    HasCrystal    = 6,
+    Disabled      = 7
 };
 
 struct Move

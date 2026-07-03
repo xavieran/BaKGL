@@ -147,4 +147,8 @@ MonsterNames::MonsterNames()
     }
 }
 
+bool IsMonsterGhost(MonsterIndex index)
+{
+    return index == sDread || index == sRusalka || index == sShade;
+}
 }

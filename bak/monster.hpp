@@ -67,4 +67,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const MonsterNames::Monster& m);
+
+bool IsMonsterGhost(MonsterIndex);
 }

@@ -29,7 +29,7 @@ public:
         glm::vec3 worldPos,
         std::string text,
         TextColor color,
-        float lifetime = 1.0f);
+        float duration);
 
     ~TextAnimator();
 
@@ -41,14 +41,16 @@ private:
     glm::vec3 mWorldPosition;
     std::string mText;
     TextColor mColor;
-    float mLifetime;
-    float mElapsed;
+    float mDuration;
 
     struct CharEntry
     {
         BAK::EntityIndex mSystemId;
     };
     std::vector<CharEntry> mChars;
+
+    float mElapsed{};
+    bool mAlive{true};
 
     static constexpr float sDamageTextScaleConstant = 0.014f;
     static constexpr float sGlyphGap = 0.25f;

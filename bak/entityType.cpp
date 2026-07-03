@@ -33,4 +33,32 @@ EntityType EntityTypeFromModelName(std::string_view name)
     if (name.substr(0, 5) == "stump") return EntityType::STUMP;
     return EntityType::CHEST;
 }
+
+GridEffect GetGridEffect(EntityType entityType)
+{
+    using enum EntityType;
+    switch (entityType)
+    {
+        // TODO: Check these - not sure on all of them
+        case TERRAIN:   [[fallthrough]];
+        case EXTERIOR:  [[fallthrough]];
+        case BRIDGE:    [[fallthrough]];
+        case INTERIOR:
+            return GridEffect::None;
+        case TREE:      [[fallthrough]];
+        case FENCE:     [[fallthrough]];
+        case GROVE:     [[fallthrough]];
+        case FERN:      [[fallthrough]];
+        case CORN:      [[fallthrough]];
+        case COLUMN:    [[fallthrough]];
+        case SCARECROW: [[fallthrough]];
+        case SLAB:      [[fallthrough]];
+        case ROCKPILE:  [[fallthrough]];
+        case DEADBODY1: [[fallthrough]];
+        case DEADBODY2:
+            return GridEffect::Hidden;
+        default:
+            return GridEffect::NotWalkable;
+    }
+}
 }

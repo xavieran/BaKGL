@@ -10,6 +10,7 @@
 #include "bak/combat/combatModel.hpp"
 #include "bak/camera.hpp"
 #include "graphics/glm.hpp"
+#include <glm/gtx/norm.hpp>
 #include "bak/combat/mechanics.hpp"
 
 #include "gui/colors.hpp"
@@ -31,6 +32,7 @@
 
 #include "gui/guiManager.hpp"
 
+#include <unordered_set>
 #include <utility>
 #include <variant>
 
@@ -157,6 +159,7 @@ void GameRunner::LoadSystems()
     mWorldActorStore.SetSystems(mSystems.get());
     mEncounters.clear();
     mClickables.clear();
+    mEntityTypes.clear();
     mActiveEncounter = nullptr;
 
     std::vector<glm::uvec2> handledLocations{};
@@ -168,6 +171,7 @@ void GameRunner::LoadSystems()
             if (item.GetZoneItem().GetVertices().size() > 1)
             {
                 auto id = mSystems->GetNextItemId();
+                mEntityTypes[id] = item.GetZoneItem().GetEntityType();
                 auto rotation = item.GetZoneItem().IsSprite() ? Graphics::sNinetyDegreeRotation : item.GetRotation();
                 auto renderable = Renderable{
                     id,
@@ -239,6 +243,7 @@ void GameRunner::LoadSystems()
 
         const auto id = mSystems->GetNextItemId();
         const auto& item = mZoneData->mZoneItems.GetZoneItem(header.GetModel());
+        mEntityTypes[id] = item.GetEntityType();
         const auto location = BAK::ToGlCoord<float>(bakPosition);
         auto renderable = Renderable{
             id,
@@ -267,6 +272,7 @@ void GameRunner::LoadSystems()
 
         const auto id = mSystems->GetNextItemId();
         const auto& item = mZoneData->mZoneItems.GetZoneItem(header.GetModel());
+        mEntityTypes[id] = item.GetEntityType();
         const auto location = BAK::ToGlCoord<float>(bakPosition);
         auto renderable = Renderable{
             id,
@@ -557,10 +563,6 @@ void GameRunner::EnterCombatFromEncounter()
         encounter, mCombatPlayerPos.mPosition);
     SetupCombatCamera(encounter);
 
-    if (mGridVisible)
-        HideGrid();
-    ShowGrid();
-
     for (auto combatantIndex : mGameState.GetCombatEntityList(combat.mCombatIndex).mCombatants)
     {
         const auto& cgl = mGameState.GetCombatantGridLocation(combatantIndex);
@@ -628,6 +630,13 @@ void GameRunner::EnterCombatFromEncounter()
     });
 
     mCombatManager.BeginCombat();
+
+    if (mGridVisible)
+    {
+        HideGrid();
+    }
+    ShowGrid();
+
     UpdateGridCellColors();
 
     mGuiManager.EnterCombat([this](BAK::CombatResult result){
@@ -785,6 +794,10 @@ void GameRunner::ShowGrid()
 
     mGridCells.resize(BAK::gCombatGridRows * BAK::gCombatGridCols);
 
+    auto gridMin = glm::vec2{};
+    auto gridMax = glm::vec2{};
+    auto gridCellIds = std::unordered_set<BAK::EntityIndex>{};
+
     for (unsigned row = 0; row < BAK::gCombatGridRows; row++)
     {
         for (unsigned col = 0; col < BAK::gCombatGridCols; col++)
@@ -794,6 +807,11 @@ void GameRunner::ShowGrid()
             auto glPos = BAK::ToGlCoord<float>(worldPos)
                 + glm::vec3{0, 1.0f, 0};
 
+            gridMin.x = std::min(gridMin.x, glPos.x);
+            gridMax.x = std::max(gridMax.x, glPos.x);
+            gridMin.y = std::min(gridMin.y, glPos.z);
+            gridMax.y = std::max(gridMax.y, glPos.z);
+
             auto id = mSystems->GetNextItemId();
             auto i = mGridCellRenderables.size();
             mGridCells[i] = GridCellInfo{
@@ -802,6 +820,7 @@ void GameRunner::ShowGrid()
                 Game::Combat::GridPos{
                     static_cast<int>(col),
                     static_cast<int>(row)}};
+            gridCellIds.insert(id);
             mGridCellRenderables.emplace_back(Renderable{
                 id,
                 mZoneData->mObjects.GetObject("GridCell"),
@@ -813,8 +832,91 @@ void GameRunner::ShowGrid()
         }
     }
     mGridVisible = true;
-    mLogger.Debug() << "Grid shown\n";
-    UpdateGridCellColors();
+
+    auto halfCell = BAK::gCombatGridCellSize / 2.0f;
+    gridMin -= halfCell;
+    gridMax += halfCell;
+
+    auto isInBounds = [&](const glm::vec3& loc)
+    {
+        return !(loc.x < gridMin.x || loc.x > gridMax.x
+              || loc.z < gridMin.y || loc.z > gridMax.y);
+    };
+
+    auto processByEffect = [&](BAK::GridEffect desired, auto&& handler)
+    {
+        auto process = [&](const auto& entities)
+        {
+            for (const auto& entity : entities)
+            {
+                auto it = mEntityTypes.find(entity.GetId());
+                if (it == mEntityTypes.end())
+                {
+                    continue;
+                }
+
+                auto effect = BAK::GetGridEffect(it->second);
+                if (effect != desired || !isInBounds(entity.GetLocation()))
+                {
+                    continue;
+                }
+                handler(entity.GetId(), entity.GetLocation());
+            }
+        };
+        process(mSystems->GetRenderables());
+        process(mSystems->GetSprites());
+    };
+
+    processByEffect(BAK::GridEffect::Hidden,
+        [&](auto id, const auto&)
+        {
+            mSystems->EnableRenderable(id, false);
+            mSystems->EnableSprite(id, false);
+            mHiddenWorldItems.emplace_back(id);
+        });
+
+    std::unordered_set<unsigned> disabledCellIndices;
+
+    processByEffect(BAK::GridEffect::NotWalkable,
+        [&](auto id, const auto& loc)
+        {
+            auto bestDistance = halfCell;
+            std::optional<unsigned> bestIndex;
+            for (unsigned i = 0; i < mGridCellRenderables.size(); i++)
+            {
+                const auto& cellLoc = mGridCellRenderables[i].GetLocation();
+                auto distance = glm::distance(
+                    glm::vec2{loc.x, loc.z},
+                    glm::vec2{cellLoc.x, cellLoc.z});
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    bestIndex = i;
+                }
+            }
+            if (bestIndex)
+            {
+                disabledCellIndices.insert(*bestIndex);
+            }
+        });
+
+    if (!disabledCellIndices.empty())
+    {
+        std::vector<Combat::GridPos> disabledCells;
+        disabledCells.reserve(disabledCellIndices.size());
+        for (auto idx : disabledCellIndices)
+        {
+            disabledCells.emplace_back(mGridCells[idx].mGridPos);
+        }
+        mCombatManager.DisableCells(disabledCells);
+    }
+}
+
+void GameRunner::ToggleDisplayAllCells()
+{
+    mCombatManager.ToggleDisplayAllCells();
+    if (mGridVisible)
+        UpdateGridCellColors();
 }
 
 void GameRunner::UpdateGridCellColors()
@@ -834,6 +936,13 @@ void GameRunner::HideGrid()
 {
     if (!mGridVisible)
         return;
+
+    for (auto id : mHiddenWorldItems)
+    {
+        mSystems->EnableRenderable(id, true);
+        mSystems->EnableSprite(id, true);
+    }
+    mHiddenWorldItems.clear();
 
     for (const auto& cell : mGridCells)
         mSystems->RemoveRenderable(cell.mEntityId);
@@ -993,7 +1102,6 @@ void GameRunner::DisplayText(
     TextColor color)
 {
     auto* actor = mCombatActorStore.GetActor(target);
-    assert(actor);
 
     auto worldPos = actor->mLocation;
     worldPos.y += sDamageTextHeightOffset;
@@ -1005,7 +1113,8 @@ void GameRunner::DisplayText(
             mCamera,
             worldPos,
             text,
-            color));
+            color,
+            sHitFlashDuration));
 }
 
 void GameRunner::FlashCombatant(BAK::EntityIndex entityId, glm::vec4 color)
