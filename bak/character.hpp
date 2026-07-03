@@ -25,10 +25,12 @@ public:
         const Skills& skills,
         Spells spells,
         const std::array<std::uint8_t, 2>& unknown,
-        uint8_t combatCharIndex,
+        std::uint8_t combatCharIndex,
+        MonsterIndex monsterIndex,
         const std::array<std::uint8_t, 6>& unknown2,
         const Conditions& conditions,
-        Inventory* inventory);
+        Inventory* inventory,
+        glm::uvec2 gridPos);
 
     bool IsEnemy() const;
 
@@ -89,15 +91,19 @@ public:
     std::vector<SkillAffector>& GetSkillAffectors();
     const std::vector<SkillAffector>& GetSkillAffectors() const;
 
+    glm::uvec2 GetGridPos() const;
+
     CharIndex mCharacterIndex;
     std::string mName;
     mutable Skills mSkills;
     Spells mSpells;
     std::array<std::uint8_t, 2> mUnknown;
-    uint8_t mCombatCharIndex{};
+    std::uint8_t mCombatCharIndex{};
+    MonsterIndex mMonsterIndex{};
     std::array<std::uint8_t, 6> mUnknown2;
     Conditions mConditions;
     Inventory* mInventory;
+    glm::uvec2 mGridPos;
     std::vector<SkillAffector> mSkillAffectors;
 
     const Logging::Logger& mLogger;

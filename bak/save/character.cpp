@@ -1,5 +1,6 @@
 #include "bak/save/character.hpp"
 
+#include "bak/save/combat.hpp"
 #include "bak/save/containers.hpp"
 #include "bak/save/saveOffsets.hpp"
 #include "bak/fileBufferFactory.hpp"
@@ -31,7 +32,17 @@ std::vector<Character> LoadCharacters(FileBuffer& fb, std::vector<Inventory>& in
     const auto& logger = Logging::LogState::GetLogger("LoadCharacters");
     unsigned characters = SaveOffsets::sCharacterCount;
 
-    std::vector<Character> chars;
+    std::vector<CombatantGridLocation> combatStates{};
+    std::vector<Character> chars{};
+
+    {
+        auto playerGridData = FileBufferFactory::Get().CreateDataBuffer("P1.DAT");
+        for (unsigned i = 0; i < 6; i++)
+        {
+            combatStates.emplace_back(LoadCombatantGridLocation(playerGridData));
+            logger.Info() << combatStates.back() << "\n";
+        }
+    }
 
     for (unsigned character = 0; character < characters; character++)
     {
@@ -73,9 +84,11 @@ std::vector<Character> LoadCharacters(FileBuffer& fb, std::vector<Inventory>& in
             spells,
             characterNameOffset,
             combatCharIndex,
+            combatStates[character].mMonster,
             unknown2,
             conditions,
-            &inventories[character]);
+            &inventories[character],
+            combatStates[character].mGridPos);
 
         auto affectors = GetCharacterSkillAffectors(fb, CharIndex{character});
         for (const auto& affector : affectors)

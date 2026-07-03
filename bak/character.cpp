@@ -15,10 +15,12 @@ Character::Character(
     const Skills& skills,
     Spells spells,
     const std::array<std::uint8_t, 2>& unknown,
-    uint8_t combatCharIndex,
+    std::uint8_t combatCharIndex,
+    MonsterIndex monsterIndex,
     const std::array<std::uint8_t, 6>& unknown2,
     const Conditions& conditions,
-    Inventory* inventory)
+    Inventory* inventory,
+    glm::uvec2 gridPos)
 :
     mCharacterIndex{index},
     mName{name},
@@ -26,9 +28,11 @@ Character::Character(
     mSpells{spells},
     mUnknown{unknown},
     mCombatCharIndex{combatCharIndex},
+    mMonsterIndex{monsterIndex},
     mUnknown2{unknown2},
     mConditions{conditions},
     mInventory{inventory},
+    mGridPos{gridPos},
     mSkillAffectors{},
     mLogger{Logging::LogState::GetLogger("BAK::Character")}
 {
@@ -183,18 +187,7 @@ CharIndex Character::GetIndex() const { return mCharacterIndex; }
 
 MonsterIndex Character::GetMonsterIndex() const
 {
-    // FIXME: Maybe there's a way to do this without 
-    // an explicit mapping to these hardcoded values...
-    switch (mCharacterIndex.mValue)
-    {
-        case 0: return MonsterIndex{17};
-        case 1: return MonsterIndex{15};
-        case 2: return MonsterIndex{16};
-        case 3: return MonsterIndex{45};
-        case 4: return MonsterIndex{51};
-        case 5: return MonsterIndex{47};
-    }
-    return MonsterIndex{0};
+    return mMonsterIndex;
 }
 
 bool Character::IsSpellcaster() const { return mSkills.GetSkill(BAK::SkillType::Casting).mMax != 0; }
@@ -503,6 +496,11 @@ const std::vector<SkillAffector>& Character::GetSkillAffectors() const
 bool Character::IsEnemy() const
 {
     return mCombatCharIndex == 0;
+}
+
+glm::uvec2 Character::GetGridPos() const
+{
+    return mGridPos;
 }
 
 std::ostream& operator<<(std::ostream& os, const Character& c)

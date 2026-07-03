@@ -123,9 +123,11 @@ struct CombatCalcFixture : public ::testing::Test
             Spells{{}},
             std::array<std::uint8_t, 2>{},
             0,
+            MonsterIndex{0},
             std::array<std::uint8_t, 6>{},
             Conditions{},
-            invPtr);
+            invPtr,
+            glm::uvec2{});
 
         return CharacterResources{
             .mInventory = std::move(inv),

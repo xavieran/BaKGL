@@ -74,6 +74,7 @@ std::vector<Skills> LoadCombatStats(FileBuffer& fb)
 
 Character LoadCombatant(
     CombatantIndex combatant,
+    MonsterIndex monster,
     FileBuffer& fb,
     Inventory* inventory)
 {
@@ -105,30 +106,50 @@ Character LoadCombatant(
         std::move(spells),
         unknown,
         combatCharIndex,
+        monster,
         unknown2,
         Conditions{},
-        inventory};
+        inventory,
+        {}};
+}
+
+CombatantGridLocation LoadCombatantGridLocation(FileBuffer& fb)
+{
+    const auto currentTarget = fb.GetUint16LE();
+    const auto monsterType = fb.GetUint16LE();
+    const auto gridX = fb.GetUint8();
+    const auto gridY = fb.GetUint8();
+    const auto targetX = fb.GetUint8();
+    const auto targetY = fb.GetUint8();
+    const auto state = fb.GetUint8();
+    const auto healthChangeAmount = fb.GetUint8();
+    const auto effectPtr = fb.GetUint8();
+    const auto unknown = fb.GetArray<2>();
+    const auto healthChangeColor = fb.GetUint8();
+    const auto retreatFactor = fb.GetUint8();
+    const auto unknown2 = fb.GetArray<5>();
+    const auto displayDamage = fb.GetUint8();
+    const auto hitTextType = fb.GetUint8();
+    return CombatantGridLocation{
+        currentTarget,
+        MonsterIndex{monsterType},
+        glm::uvec2{gridX, gridY},
+        glm::uvec2{targetX, targetY},
+        state,
+        healthChangeAmount, effectPtr,
+        unknown, healthChangeColor,
+        retreatFactor, unknown2,
+        displayDamage, hitTextType};
 }
 
 std::vector<CombatantGridLocation> LoadCombatantGridLocations(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadCombatantGridLocations");
     std::vector<CombatantGridLocation> data{};
-    const auto initial = 0;
-    logger.Spam() << "Loading Combat Grid Locations" << std::endl;
-    fb.Seek(SaveOffsets::sCombatantGridLocationsOffset + (initial * 22));
+    fb.Seek(SaveOffsets::sCombatantGridLocationsOffset);
     for (unsigned i = 0; i < SaveOffsets::sCombatantGridLocationsCount; i++)
     {
-        const auto unknown0 = fb.GetUint16LE();
-        const auto monsterType = fb.GetUint16LE();
-        const auto gridX = fb.GetUint8();
-        const auto gridY = fb.GetUint8();
-        const auto unknown1 = fb.GetUint16LE();
-        const auto state = fb.GetUint8();
-        const auto rest0 = fb.GetArray<5>();
-        const auto retreatFactor = fb.GetUint8();
-        const auto rest1 = fb.GetArray<7>();
-        data.emplace_back(CombatantGridLocation{unknown0, MonsterIndex{monsterType}, glm::uvec2{gridX, gridY}, unknown1, state, rest0, retreatFactor, rest1});
+        data.emplace_back(LoadCombatantGridLocation(fb));
         logger.Spam() << "CGL #" << i << data.back() << "\n";
     }
     return data;
@@ -140,15 +161,21 @@ void Save(const std::vector<CombatantGridLocation>& cgls, FileBuffer& fb)
     assert(cgls.size() == SaveOffsets::sCombatantGridLocationsCount);
     for (const auto& cgl : cgls)
     {
-        fb.PutUint16LE(cgl.mUnknown0);
+        fb.PutUint16LE(cgl.mCurrentTarget);
         fb.PutUint16LE(cgl.mMonster.mValue);
         fb.PutUint8(cgl.mGridPos.x);
         fb.PutUint8(cgl.mGridPos.y);
-        fb.PutUint16LE(cgl.mUnknown1);
+        fb.PutUint8(cgl.mTarget.x);
+        fb.PutUint8(cgl.mTarget.y);
         fb.PutUint8(cgl.mState);
-        for (auto val : cgl.mRest0) fb.PutUint8(val);
+        fb.PutUint8(cgl.mHealthChangeAmount);
+        fb.PutUint8(cgl.mEffectPtr);
+        for (auto val : cgl.mUnknown) fb.PutUint8(val);
+        fb.PutUint8(cgl.mHealthChangeColor);
         fb.PutUint8(cgl.mRetreatFactor);
-        for (auto val : cgl.mRest1) fb.PutUint8(val);
+        for (auto val : cgl.mUnknown2) fb.PutUint8(val);
+        fb.PutUint8(cgl.mDisplayDamage);
+        fb.PutUint8(cgl.mHitTextType);
     }
 }
 

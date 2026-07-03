@@ -242,6 +242,7 @@ private:
     std::vector<CombatWorldLocation> mCombatWorldLocations{};
     std::vector<CombatantGridLocation> mCombatantGridLocations{};
     std::vector<Character> mCombatCharacters{};
+    std::vector<CombatantGridLocation> mPlayerGridLocations{};
     SpellState mSpellState{};
     TextVariableStore mTextVariableStore{};
     FMapXY mFullMap;

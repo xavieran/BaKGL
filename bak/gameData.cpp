@@ -29,10 +29,12 @@ GameData::GameData()
                 Skills{},
                 Spells{{}},
                 {},
-                uint8_t{0},
+                0,
+                MonsterIndex{0},
                 {},
                 Conditions{},
-                nullptr}},
+                nullptr,
+                {}}},
         std::vector<CharIndex>{CharIndex{0}}}
 {
 }
