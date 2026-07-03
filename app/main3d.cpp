@@ -353,7 +353,17 @@ int main(int argc, char** argv)
     };
 
     Graphics::InputHandler inputHandler{};
-    inputHandler.Bind(GLFW_KEY_G,     [&]{ if (guiManager.InMainView()) cameraPtr = &camera; });
+    inputHandler.Bind(GLFW_KEY_G,     [&]{
+        if (glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
+            || glfwGetKey(window.get(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+        {
+            if (guiManager.InMainView()) cameraPtr = &camera;
+        }
+        else
+        {
+            gameRunner.ToggleDisplayAllCells();
+        }
+    });
     inputHandler.Bind(GLFW_KEY_H,     [&]{ if (guiManager.InMainView()) cameraPtr = &lightCamera; });
     inputHandler.Bind(GLFW_KEY_R,     [&]{
         if (guiManager.InMainView())

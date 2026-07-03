@@ -174,6 +174,8 @@ public:
     static constexpr auto mWonBattle         = KeyTarget{0x20};
     static constexpr auto mDied              = KeyTarget{0x21};
     static constexpr auto mRetreatSuccessful = KeyTarget{0x22};
+    static constexpr auto mCantLeaveAlly     = KeyTarget{0x23};
+    static constexpr auto mRetreatFailed     = KeyTarget{0x12f};
     static constexpr auto mKilledByTrap      = KeyTarget{0x6b};
     static constexpr auto mDefeatedOneEnemy  = KeyTarget{0x81};
     static constexpr auto mEnemyFled         = KeyTarget{0x82};

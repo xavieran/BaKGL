@@ -53,4 +53,13 @@ enum class EntityType
 unsigned GetContainerTypeFromEntityType(EntityType);
 EntityType EntityTypeFromModelName(std::string_view name);
 
+enum class GridEffect
+{
+    None,
+    NotWalkable,
+    Hidden
+};
+
+GridEffect GetGridEffect(EntityType entityType);
+
 }

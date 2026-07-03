@@ -48,6 +48,58 @@ void CombatManager::DoRest()
     FinishTurn();
 }
 
+void CombatManager::DoAutobattle()
+{
+    if (mIsMoving)
+    {
+        return;
+    }
+    mLogger.Debug() << "Quit combat\n";
+    Cleanup();
+    auto result = BAK::CombatResult{BAK::CombatOutcome::Won, BAK::DialogSources::mWonBattle};
+    mStage.CombatFinished(result);
+    return;
+}
+
+void CombatManager::DoFlee()
+{
+    if (mIsMoving)
+    {
+        return;
+    }
+
+    if (false) //mIsTrap)
+    {
+        return;
+    }
+
+    mLogger.Debug() << "Try flee combat\n";
+    unsigned deadPlayers = CountCombatants([](auto& c)
+    {
+        return c.mCharacter && !c.mCharacter->IsEnemy() && c.IsDead();
+    });
+
+    if (deadPlayers > 1)
+    {
+        //mStage.DisplayDialog(mCantLeaveAlly);
+    }
+    else
+    {
+        //if ((GetRandomNumber(0, 0xfff) % 100) < 50)
+        if (true)
+        {
+            Cleanup();
+            auto result = BAK::CombatResult{BAK::CombatOutcome::Fled};
+            mStage.CombatFinished(result);
+            return;
+        }
+        else
+        {
+            //mStage.DisplayDialog(mRetreatFailed);
+        }
+    }
+}
+
 void CombatManager::AddCombatant(Combatant combatant)
 {
     mCombatants.emplace_back(combatant);
@@ -118,6 +170,10 @@ void CombatManager::BeginCombat()
 
 Combatant& CombatManager::GetCurrentCombatant()
 {
+    if (mCurrentCombatant >= mCombatants.size())
+    {
+        mLogger.Fatal() << "CurComb: " << mCurrentCombatant << " COmbatants: " << mCombatants.size() << "\n";
+    }
     assert(mCurrentCombatant < mCombatants.size());
     return mCombatants[mCurrentCombatant];
 }
@@ -261,7 +317,17 @@ void CombatManager::ComputeGrid()
             cell.mState = SetBit(cell.mState, StateFlags::Reachable, true);
         }
     }
-  
+
+    for (auto cell : mDisabledCells)
+    {
+        if (mGrid.WithinBounds(cell))
+        {
+            auto& gridCell = mGrid.Get(cell);
+            gridCell.mState = SetBit(gridCell.mState, StateFlags::Disabled, true);
+            gridCell.mState = SetBit(gridCell.mState, StateFlags::Reachable, false);
+        }
+    }
+
     for (auto& combatant : mCombatants)
     {
         auto& cell = mGrid.Get(combatant.mGridPos);
@@ -403,7 +469,12 @@ void CombatManager::Execute(const Attack& attack)
     target.mCharacter->ImproveSkill(BAK::SkillType::Defense, BAK::SkillChange::FractionOfSkill, 3);
 
     auto* weapon = me.mCharacter->GetMeleeWeapon();
-    assert(weapon);
+    if (!weapon)
+    {
+        mLogger.Warn() << "NO EQUIPPED WEAPON!\n";
+        FinishTurn();
+    }
+    //assert(weapon);
 
     auto accuracy = attack.mType == BAK::AttackType::Thrust
         ? weapon->GetObject().mAccuracyThrust
@@ -587,7 +658,7 @@ void CombatManager::FinishTurn()
     if (auto result = CheckCombatFinished())
     {
         mLogger.Debug() << "Combat finished: " << ToString(result->mOutcome) << "\n";
-        //Cleanup();
+        Cleanup();
         mStage.CombatFinished(*result);
         return;
     }
@@ -622,46 +693,40 @@ void CombatManager::SetCurrentCombatant(unsigned index)
 
 std::optional<BAK::CombatResult> CombatManager::CheckCombatFinished()
 {
-    bool anyAIAlive = false;
-    bool anyPCAlive = false;
-    bool anyGhosts = false;
-    unsigned enemyCount = 0;
-    for (const auto& combatant : mCombatants)
+    unsigned aliveAI = CountCombatants([](auto& c)
     {
-        if (!combatant.mCharacter)
-        {
-            continue;
-        }
-
-        if (!combatant.mCharacter->IsEnemy() && !anyPCAlive)
-        {
-            anyPCAlive = !combatant.IsDead();
-        }
-
-        if (combatant.mCharacter->IsEnemy() && !anyAIAlive)
-        {
-            anyAIAlive = !combatant.IsDead();
-            if (combatant.IsDead())
-            {
-                enemyCount++;
-            }
-        }
-    }
-
-    if (!anyPCAlive)
+        return c.mCharacter && c.mCharacter->IsEnemy() && !c.IsDead();
+    });
+    unsigned alivePlayers = CountCombatants([](auto& c)
     {
-        return BAK::CombatResult{BAK::CombatOutcome::Dead};
-    }
+        return c.mCharacter && !c.mCharacter->IsEnemy() && !c.IsDead();
+    });
+    mLogger.Info() << "Check Finished, alive AI: " << aliveAI << " alive Players: " << alivePlayers << "\n";
 
-    if (anyAIAlive)
+    if (alivePlayers > 0 && aliveAI > 0)
     {
         return std::nullopt;
     }
 
+    if (alivePlayers == 0)
+    {
+        auto result = BAK::CombatResult{BAK::CombatOutcome::Dead};
+    }
+
+    unsigned enemyCount = CountCombatants([](auto& c)
+    {
+        return c.mCharacter && c.mCharacter->IsEnemy();
+    });
+
+    unsigned ghostCount = CountCombatants([](auto& c)
+    {
+        return c.mCharacter && IsMonsterGhost(c.mCharacter->GetMonsterIndex());
+    });
+
     auto result = BAK::CombatResult{BAK::CombatOutcome::Won};
     if (enemyCount > 1)
     {
-        if (anyGhosts)
+        if (ghostCount > 0)
         {
             result.mDialog = BAK::DialogSources::mWonVersusGhosts;
         }
@@ -677,7 +742,7 @@ std::optional<BAK::CombatResult> CombatManager::CheckCombatFinished()
         return result;
     }
 
-    if (anyGhosts)
+    if (ghostCount > 1)
     {
         result.mDialog = BAK::DialogSources::mWonVersusGhost;
     }
@@ -823,6 +888,11 @@ std::vector<Combatant>::iterator CombatManager::SelectNextCombatantForTurn(bool 
     return best;
 }
 
+void CombatManager::DisableCells(const std::vector<GridPos>& cells)
+{
+    mDisabledCells = cells;
+}
+
 void CombatManager::ClearGrid()
 {
     for (unsigned y = 0; y < mGrid.GetRows(); y++)
@@ -834,6 +904,12 @@ void CombatManager::ClearGrid()
             gridCell.mState = 0;
         }
     }
+}
+
+void CombatManager::Cleanup()
+{
+    ClearGrid();
+    mCurrentCombatant = 0;
 }
 
 glm::vec4 CombatManager::GetGridCellColor(unsigned col, unsigned row)
@@ -863,7 +939,25 @@ glm::vec4 CombatManager::GetGridCellColor(unsigned col, unsigned row)
         }
     }
 
+    if (mDisplayAllCells && !mGrid.IsDisabled(pos))
+    {
+        return Gui::Color::gridOccupied;
+    }
+
     return glm::vec4{};
+}
+
+unsigned CombatManager::CountCombatants(std::function<bool (const Combatant&)>&& check)
+{
+    unsigned count = 0;
+    for (const auto& combatant : mCombatants)
+    {
+        if (check(combatant))
+        {
+            count++;
+        }
+    }
+    return count;
 }
 
 }

@@ -253,12 +253,12 @@ void CombatScreen::HandleButton(unsigned buttonIndex)
 
 void CombatScreen::ExitCombat()
 {
-    mGuiManager.ExitCombat(BAK::CombatResult{BAK::CombatOutcome::Won});
+    mGuiManager.GetCombatManager().DoAutobattle();
 }
 
 void CombatScreen::Retreat()
 {
-    mGuiManager.ExitCombat(BAK::CombatResult{BAK::CombatOutcome::Fled});
+    mGuiManager.GetCombatManager().DoFlee();
 }
 
 void CombatScreen::AddChildren()

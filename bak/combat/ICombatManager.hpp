@@ -11,6 +11,8 @@ public:
     virtual void SetUsingCrossbow() = 0;
     virtual void DoDefend() = 0;
     virtual void DoRest() = 0;
+    virtual void DoAutobattle() = 0;
+    virtual void DoFlee() = 0;
 
     virtual ~ICombatManager() = default;
 };

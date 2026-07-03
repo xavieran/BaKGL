@@ -21,14 +21,13 @@ TextAnimator::TextAnimator(
     glm::vec3 worldPos,
     std::string text,
     TextColor color,
-    float lifetime)
+    float duration)
 :
     mSystems{systems},
     mWorldPosition{worldPos},
     mText{std::move(text)},
     mColor{color},
-    mLifetime{lifetime},
-    mElapsed{0.0f}
+    mDuration{duration}
 {
     auto col = mColor.mStart;
 
@@ -115,18 +114,31 @@ void TextAnimator::OnTimeDelta(double dt)
 {
     mElapsed += static_cast<float>(dt);
 
-    float t = std::min(mElapsed / mLifetime, 1.0f);
+    if (mElapsed >= mDuration)
+    {
+        mAlive = false;
+    }
+
+    float t = std::min(mElapsed / mDuration, 1.0f);
     auto color = glm::mix(mColor.mStart, mColor.mEnd, t * t);
 
     for (const auto& ch : mChars)
     {
-        mSystems.GetTextRenderable(ch.mSystemId).mColor = color;
+        auto* renderable = mSystems.GetTextRenderable(ch.mSystemId);
+        if (renderable)
+        {
+            renderable->mColor = color;
+        }
+        else
+        {
+            mAlive = false;
+        }
     }
 }
 
 bool TextAnimator::IsAlive() const
 {
-    return mElapsed < mLifetime;
+    return mAlive;
 }
 
 }

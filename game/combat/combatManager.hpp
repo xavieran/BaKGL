@@ -52,10 +52,14 @@ public:
     void SetUsingCrossbow() override;
     void DoDefend() override;
     void DoRest() override;
+    void DoAutobattle() override;
+    void DoFlee() override;
 
     void AddCombatant(Combatant combatant);
 
     void BeginCombat();
+
+    void DisableCells(const std::vector<GridPos>& cells);
 
     void GridCellClicked(GridPos targetGrid, bool isRightClick);
 
@@ -69,6 +73,9 @@ public:
 
     glm::vec4 GetGridCellColor(unsigned col, unsigned row);
     const Grid& GetGrid() const { return mGrid; }
+
+    void SetDisplayAllCells(bool value) { mDisplayAllCells = value; }
+    void ToggleDisplayAllCells() { mDisplayAllCells = !mDisplayAllCells; }
 
 private:
     Combatant* GetCombatant(BAK::CharIndex character);
@@ -99,6 +106,9 @@ private:
     std::vector<Combatant>::iterator SelectNextCombatantForTurn(bool onlyPlayer);
 
     void ClearGrid();
+    void Cleanup();
+
+    unsigned CountCombatants(std::function<bool(const Combatant&)>&&);
 
     struct PendingAttackInfo
     {
@@ -109,6 +119,8 @@ private:
         bool mHit;
     };
     std::optional<PendingAttackInfo> mPendingAttack;
+
+    std::vector<GridPos> mDisabledCells{};
 
     std::vector<Combatant> mCombatants{};
 
@@ -123,6 +135,7 @@ private:
     // Need to propagate this per-combatant that gets injured but this will do for now
     std::uint16_t mHitModifierFlags{};
     std::optional<GridPos> mHovered{};
+    bool mDisplayAllCells{};
 };
 
 }

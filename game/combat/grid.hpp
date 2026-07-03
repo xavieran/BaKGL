@@ -81,6 +81,14 @@ public:
         return CheckBitSet(cell.mState, StateFlags::Attackable);
     }
 
+    bool IsDisabled(GridPos target) const
+    {
+        if (!WithinBounds(target)) return false;
+
+        const auto& cell = Get(target);
+        return CheckBitSet(cell.mState, StateFlags::Disabled);
+    }
+
 private:
     unsigned mCols;
     unsigned mRows;

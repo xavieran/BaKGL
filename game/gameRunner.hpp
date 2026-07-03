@@ -63,6 +63,7 @@ public:
     static constexpr double sMoveDuration = 0.15;
     static constexpr double sFrameTime = 0.25;
     static constexpr float sDamageTextHeightOffset = 250.0f;
+    static constexpr float sHitFlashDuration = 1.0f;
 
     GameRunner(
         Camera& camera,
@@ -89,6 +90,7 @@ public:
 
     void ShowGrid();
     void HideGrid();
+    void ToggleDisplayAllCells();
     bool IsGridVisible() const { return mGridVisible; }
     bool IsAnimationActive() const { return mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
@@ -197,6 +199,9 @@ public:
     bool mAnimationActive{false};
 
     double mAnimationSpeedMultiplier{1.0};
+
+    std::vector<BAK::EntityIndex> mHiddenWorldItems{};
+    std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
 
     GlyphStore mGlyphStore;
 
