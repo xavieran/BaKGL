@@ -1,4 +1,5 @@
 #include "game/screens.hpp"
+#include "game/gameRunner.hpp"
 
 #include "bak/camera.hpp"
 #include "bak/container.hpp"
@@ -142,6 +143,21 @@ void ShowContainerGui(
     ImGui::EndTable();
 }
 
+
+void ShowClipDisplayGui(
+    Game::GameRunner& gameRunner)
+{
+    using Game::ClipDisplayMode;
+    ImGui::Begin("Debug Overlay");
+    int mode = static_cast<int>(gameRunner.GetClipDisplayMode());
+    bool changed = false;
+    changed |= ImGui::RadioButton("Normal", &mode, static_cast<int>(ClipDisplayMode::Vanilla));
+    changed |= ImGui::RadioButton("Normal + Clips", &mode, static_cast<int>(ClipDisplayMode::ShowClips));
+    changed |= ImGui::RadioButton("Only Clips", &mode, static_cast<int>(ClipDisplayMode::OnlyClips));
+    if (changed)
+        gameRunner.SetClipDisplayMode(static_cast<ClipDisplayMode>(mode));
+    ImGui::End();
+}
 
 void ShowLightGui(
     Graphics::Light& light)

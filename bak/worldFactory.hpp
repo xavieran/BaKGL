@@ -61,6 +61,7 @@ public:
     float GetScale() const;
     bool GetClickable() const;
     EntityType GetEntityType() const;
+    Terrain GetTerrainType() const;
 
     const auto& GetColors() const { return mColors; }
     const auto& GetFaces() const { return mFaces; }
@@ -72,6 +73,7 @@ private:
     std::string mName;
     unsigned mEntityFlags;
     EntityType mEntityType;
+    Terrain mTerrainType;
     float mScale;
     unsigned mSpriteIndex;
     std::vector<std::uint8_t> mColors;
@@ -79,7 +81,7 @@ private:
     std::vector<std::uint8_t> mPalettes;
     std::vector<std::vector<std::uint16_t>> mFaces;
     std::vector<bool> mPush;
-    std::optional<ModelClip> mModelClip;
+    std::optional<ModelClip> mModelClip{};
 
     friend std::ostream& operator<<(std::ostream& os, const ZoneItem& d);
 };

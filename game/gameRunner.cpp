@@ -8,9 +8,8 @@
 #include "game/systems.hpp"
 
 #include "bak/combat/combatModel.hpp"
+#include "bak/collision.hpp"
 #include "bak/camera.hpp"
-#include "graphics/glm.hpp"
-#include <glm/gtx/norm.hpp>
 #include "bak/combat/mechanics.hpp"
 
 #include "gui/colors.hpp"
@@ -30,8 +29,14 @@
 #include "com/ostream.hpp"
 #include "com/scopeGuard.hpp"
 
+#include "graphics/glm.hpp"
+
 #include "gui/guiManager.hpp"
 
+#include <glm/gtx/norm.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
+#include <cmath>
 #include <unordered_set>
 #include <utility>
 #include <variant>
@@ -316,6 +321,29 @@ void GameRunner::LoadSystems()
         }
 
         LoadTileActors(world.GetTileIndex());
+    }
+
+    mClipRenderables.clear();
+    for (const auto& world : mZoneData->mWorldTiles.GetTiles())
+    {
+        for (const auto& item : world.GetItems())
+        {
+            if (item.GetZoneItem().GetModelClip()
+                && item.GetZoneItem().GetVertices().size() > 1)
+            {
+                auto id = mSystems->GetNextItemId();
+                auto renderable = Renderable{
+                    id,
+                    mZoneData->mObjects.GetObject(
+                        "clip_" + item.GetZoneItem().GetName()),
+                    item.GetLocation(),
+                    item.GetRotation(),
+                    glm::vec3{
+                        static_cast<float>(item.GetZoneItem().GetScale())}};
+                renderable.SetVisible(mClipDisplayMode != ClipDisplayMode::Vanilla);
+                mClipRenderables.emplace_back(std::move(renderable));
+            }
+        }
     }
 
     mGridVisible = false;
@@ -662,10 +690,60 @@ bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
     return false;
 }
 
+bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
+{
+    if (!mZoneData) return false;
+
+    const auto p = glm::ivec2{playerPos};
+
+    for (const auto& world : mZoneData->mWorldTiles.GetTiles())
+    {
+        for (const auto& item : world.GetItems())
+        {
+            const auto& zi = item.GetZoneItem();
+            const auto& modelClip = zi.GetModelClip();
+            if (!modelClip)
+            {
+                continue;
+            }
+
+            if (BAK::GetClipEffect(zi.GetEntityType()) != BAK::ClipEffect::Block)
+            {
+                continue;
+            }
+
+            auto local = glm::vec2{p - glm::ivec2{item.GetBakLocation()}};
+            local /= zi.GetScale();
+
+            const auto angle = item.GetRotation().y;
+            glm::vec2 rot = local;
+            if (angle != 0.0f)
+            {
+                rot = glm::vec2{
+                    glm::rotate(glm::vec3{local, 0}, -angle, glm::vec3{0, 0, 1})};
+            }
+
+            if (BAK::PointInModelClip(rot, *modelClip))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void GameRunner::RunGameUpdate(bool advanceTime)
 {
     if (mCamera.CheckAndResetDirty())
     {
+        if (CannotMoveHere(mCamera.GetGameLocation().mPosition))
+        {
+            mLogger.Debug() << "Move rejected by collision\n";
+            mCamera.UndoPositionChange();
+            return;
+        }
+
         // only required for imgui, can remove at some point
         mActiveEncounter = nullptr;
 
@@ -1131,6 +1209,15 @@ void GameRunner::CleanCombatsOnNewZone()
         cwl.mPosition = BAK::GamePositionAndHeading{};
         cwl.mImageIndex = 0;
         cwl.mState = BAK::CombatantWorldState::Invisible1;
+    }
+}
+
+void GameRunner::SetClipDisplayMode(ClipDisplayMode mode)
+{
+    mClipDisplayMode = mode;
+    for (auto& r : mClipRenderables)
+    {
+        r.SetVisible(mClipDisplayMode != ClipDisplayMode::Vanilla);
     }
 }
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include <string_view>
 
 namespace BAK {
@@ -53,6 +54,15 @@ enum class EntityType
 unsigned GetContainerTypeFromEntityType(EntityType);
 EntityType EntityTypeFromModelName(std::string_view name);
 
+enum class ClipEffect
+{
+    Ignore,
+    Block,
+    Follow
+};
+
+ClipEffect GetClipEffect(EntityType entityType);
+
 enum class GridEffect
 {
     None,
@@ -61,5 +71,8 @@ enum class GridEffect
 };
 
 GridEffect GetGridEffect(EntityType entityType);
+
+glm::vec4 GetDebugColor(EntityType et);
+std::string_view ToString(EntityType et);
 
 }

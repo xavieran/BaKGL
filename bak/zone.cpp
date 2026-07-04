@@ -72,6 +72,15 @@ Zone::Zone(unsigned zoneNumber)
         mObjects.AddObject(
             item.GetName(),
             BAK::ZoneItemToMeshObject(item, mZoneTextures, mPalette));
+
+        if (item.GetModelClip())
+        {
+            mObjects.AddObject(
+                "clip_" + item.GetName(),
+                ClipToMeshObject(
+                    *item.GetModelClip(),
+                    BAK::GetDebugColor(item.GetEntityType())));
+        }
     }
 
     const auto cube = Graphics::Cuboid{1, 1, 50};

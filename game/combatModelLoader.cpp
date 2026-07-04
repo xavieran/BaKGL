@@ -29,7 +29,7 @@ CombatModelLoader::CombatModelLoader()
 {
     const auto& logger = Logging::Logger("CombatModelLoader");
     auto tblBuf = BAK::FileBufferFactory::Get().CreateDataBuffer(sCombatModels);
-    auto [models, clips] = BAK::LoadTBL(tblBuf);
+    auto [models, _] = BAK::LoadTBL(tblBuf);
     for (unsigned i = 0; i < models.size(); i++)
     {
         if (models[i].mEntityType == 0 && models[i].mSprite > 0)
@@ -98,7 +98,7 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
     std::stringstream ss{};
     for (const auto& animType : model.GetSupportedAnimations())
     {
-        logger.Spam() << "AnimatioNType: " << BAK::ToString(animType) << "(" << +std::to_underlying(animType) << ")\n";
+        logger.Spam() << "AnimationType: " << BAK::ToString(animType) << "(" << +std::to_underlying(animType) << ")\n";
         for (const auto& direction : model.GetDirections(animType))
         {
             logger.Spam() << "Direction: " << BAK::ToString(direction) << "\n";

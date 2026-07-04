@@ -12,6 +12,7 @@ add_library(bak
     book.hpp book.cpp
     camera.hpp camera.cpp
     camp.hpp camp.cpp
+    collision.hpp collision.cpp
     partyChangeCache.hpp partyChangeCache.cpp
     chapterTransitions.hpp chapterTransitions.cpp
     combat/combat.hpp combat/combat.cpp
@@ -21,7 +22,7 @@ add_library(bak
     combat/retreat.hpp combat/retreat.cpp
     combat/types.hpp combat/types.cpp
     condition.hpp condition.cpp
-    constants.hpp
+    constants.hpp constants.cpp
     cutscenes.hpp cutscenes.cpp
     character.hpp character.cpp
     container.hpp container.cpp

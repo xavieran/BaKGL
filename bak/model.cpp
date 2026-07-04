@@ -125,7 +125,7 @@ unsigned CalculateOffset(unsigned upper, unsigned lower)
     return (upper << 4) + (lower & 0xf);
 }
 
-ModelClip LoadGidItem(BAK::FileBuffer& fb)
+ModelClip LoadGidItem(BAK::FileBuffer& fb, const std::string& name)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
     struct ElementOffsets
@@ -153,6 +153,7 @@ ModelClip LoadGidItem(BAK::FileBuffer& fb)
     modelClip.mFlags = flags;
     modelClip.mWalkable = flags & 0x01;
     modelClip.mHasVertical = flags & 0x02;
+    modelClip.mName = name;
 
     for (unsigned i = 0; i < elems; i++)
     {
@@ -220,8 +221,7 @@ std::vector<ModelClip> LoadModelClip(FileBuffer& fb, const std::vector<std::stri
     for (unsigned int i = 0; i < numItems; i++)
     {
         fb.Seek(offsets[i]);
-        modelClips.emplace_back(LoadGidItem(fb));
-        modelClips.back().mName = names[i];
+        modelClips.emplace_back(LoadGidItem(fb, names[i]));
     }
 
     return modelClips;

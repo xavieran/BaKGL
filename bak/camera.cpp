@@ -106,28 +106,33 @@ void Camera::SetDeltaTime(double dt)
     mDeltaTime = dt;
 }
 
+void Camera::SetSpeedScale(float scale)
+{
+    mSpeedScale = scale;
+}
+
 void Camera::MoveForward()
 {
     PositionChanged();
-    mPosition += GetDirection() * (mMoveSpeed * mDeltaTime);
+    mPosition += GetDirection() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::MoveBackward()
 {
     PositionChanged();
-    mPosition -= GetDirection() * (mMoveSpeed * mDeltaTime);
+    mPosition -= GetDirection() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::StrafeForward()
 {
     PositionChanged();
-    mPosition += GetForward() * (mMoveSpeed * mDeltaTime);
+    mPosition += GetForward() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::StrafeBackward()
 {
     PositionChanged();
-    mPosition -= GetForward() * (mMoveSpeed * mDeltaTime);
+    mPosition -= GetForward() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::StrafeRight()

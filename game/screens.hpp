@@ -8,6 +8,10 @@ class DialogStore;
 class GenericContainer;
 }
 
+namespace Game {
+class GameRunner;
+}
+
 namespace Graphics {
 struct Light;
 }
@@ -24,3 +28,6 @@ void ShowContainerGui(
 
 void ShowLightGui(
     Graphics::Light& light);
+
+void ShowClipDisplayGui(
+    Game::GameRunner& gameRunner);
