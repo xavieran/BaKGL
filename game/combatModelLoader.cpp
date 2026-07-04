@@ -29,7 +29,7 @@ CombatModelLoader::CombatModelLoader()
 {
     const auto& logger = Logging::Logger("CombatModelLoader");
     auto tblBuf = BAK::FileBufferFactory::Get().CreateDataBuffer(sCombatModels);
-    auto models = BAK::LoadTBL(tblBuf);
+    auto [models, clips] = BAK::LoadTBL(tblBuf);
     for (unsigned i = 0; i < models.size(); i++)
     {
         if (models[i].mEntityType == 0 && models[i].mSprite > 0)

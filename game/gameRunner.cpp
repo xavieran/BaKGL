@@ -132,7 +132,8 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
     mZoneData = std::make_unique<BAK::Zone>(zone.mValue);
     mZoneRenderData = std::make_unique<Graphics::RenderData>();
     mZoneRenderData->LoadData(
-        mZoneData->mObjects, mZoneData->mZoneTextures.GetTextures(),
+        mZoneData->mObjects,
+        mZoneData->mZoneTextures.GetTextures(),
         mZoneData->mZoneTextures.GetMaxDim());
     LoadSystems();
     mCamera.SetGameLocation(mGameState.GetLocation());

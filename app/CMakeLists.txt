@@ -16,7 +16,7 @@ list(APPEND APP_BINARIES
     #display_fmap
     #display_gds
     display_monster
-    #display_object
+    display_object
     #display_ramp
     display_save
     display_startup_files

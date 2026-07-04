@@ -3,6 +3,7 @@
 #include "bak/constants.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/encounterStore.hpp"
+#include "bak/model.hpp"
 #include "bak/resourceNames.hpp"
 #include "bak/entityType.hpp"
 #include "bak/worldItem.hpp"
@@ -18,7 +19,6 @@ class MeshObject;
 namespace BAK {
 
 class Palette;
-struct Model;
 
 class ZoneTextureStore
 {
@@ -48,6 +48,7 @@ class ZoneItem
 public:
     ZoneItem(
         const Model& model,
+        const ModelClip& clip,
         const ZoneTextureStore& textureStore);
 
     ZoneItem(
@@ -66,6 +67,7 @@ public:
     const auto& GetPush() const { return mPush; }
     const auto& GetPalettes() const { return mPalettes; }
     const auto& GetVertices() const { return mVertices; }
+    const std::optional<ModelClip>& GetModelClip() const { return mModelClip; }
 private:
     std::string mName;
     unsigned mEntityFlags;
@@ -77,6 +79,7 @@ private:
     std::vector<std::uint8_t> mPalettes;
     std::vector<std::vector<std::uint16_t>> mFaces;
     std::vector<bool> mPush;
+    std::optional<ModelClip> mModelClip;
 
     friend std::ostream& operator<<(std::ostream& os, const ZoneItem& d);
 };
@@ -91,6 +94,9 @@ Graphics::MeshObject ZoneItemToMeshObject(
 Graphics::MeshObject ZoneItemToMeshObject(
     const ZoneItem& item,
     const Graphics::TextureStore& store);
+
+Graphics::MeshObject ClipToMeshObject(const ModelClip& clip, const glm::vec4& color);
+Graphics::MeshObject ClipsToMeshObject(const std::vector<ModelClip>& clips, const glm::vec4& color = {1, 0, 1, 0.4f});
 
 class ZoneItemStore
 {

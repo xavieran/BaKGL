@@ -6,7 +6,10 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
+
+namespace Graphics { class MeshObject; }
 
 namespace BAK {
 
@@ -16,34 +19,26 @@ constexpr unsigned EF_TERRAIN   = 0x00;
 constexpr unsigned EF_UNBOUNDED = 0x20;
 constexpr unsigned EF_2D_OBJECT = 0x40;
 
-struct ModelClip
-{
-    unsigned xradius;
-    unsigned yradius;
-    unsigned flags;
-    unsigned extras;
-    char extraFlag;
-    std::vector<glm::ivec2> textureCoords;
-    std::vector<glm::ivec2> otherCoords;
-};
-
 struct ClipPoint
 {
-    glm::ivec2 mUV;
+    glm::ivec2 mNormal;
     glm::ivec2 mXY;
 };
 
 struct ClipElement
 {
     std::vector<ClipPoint> mPoints;
-    std::optional<ClipPoint> mExtraPoint;
-    std::array<std::uint8_t, 3> mUnknown;
+    std::optional<ClipPoint> mHeightPoint;
+    std::uint8_t mScale;
+    std::uint16_t mBaseHeight;
 };
 
-struct ModelClipX
+struct ModelClip
 {
     glm::ivec2 mRadius;
-    bool hasVertical;
+    std::uint8_t mFlags;
+    bool mWalkable;
+    bool mHasVertical;
     std::vector<ClipElement> mElements;
     std::string mName;
 };
@@ -83,7 +78,8 @@ struct Model
 };
 
 std::vector<std::string> LoadModelNames(FileBuffer& fb);
-std::vector<ModelClipX> LoadModelClip(FileBuffer& fb, unsigned numItems);
-std::vector<Model> LoadTBL(FileBuffer& fb);
+std::vector<ModelClip> LoadModelClip(FileBuffer& fb, const std::vector<std::string>& names);
+std::vector<Model> LoadModels(FileBuffer& fb, const std::vector<std::string>& itemNames);
+std::pair<std::vector<Model>, std::vector<ModelClip>> LoadTBL(FileBuffer& fb);
 
 }
