@@ -64,7 +64,11 @@ int main(int argc, char** argv)
         height,
         1024,
         1024};
-    renderer.LoadData(zoneData->mObjects, zoneData->mZoneTextures);
+    auto renderData = Graphics::RenderData{};
+    renderData.LoadData(
+        zoneData->mObjects,
+        zoneData->mZoneTextures.GetTextures(),
+        zoneData->mZoneTextures.GetMaxDim());
 
     Camera lightCamera{
         static_cast<unsigned>(width),
@@ -143,10 +147,12 @@ int main(int argc, char** argv)
         glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderer.DrawWithShadow(
+            renderData,
             systems.GetRenderables(),
             light,
             lightCamera,
-            *cameraPtr);
+            *cameraPtr,
+            false);
 
         // Swap buffers
         glfwSwapBuffers(window.get());

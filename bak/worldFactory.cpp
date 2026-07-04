@@ -12,6 +12,7 @@
 
 #include "com/string.hpp"
 
+#include "graphics/glm.hpp"
 #include "graphics/meshObject.hpp"
 
 #include <functional>   
@@ -75,6 +76,7 @@ unsigned ZoneTextureStore::GetHorizonOffset() const { return mHorizonOffset; }
 
 ZoneItem::ZoneItem(
     const Model& model,
+    const ModelClip& clip,
     const ZoneTextureStore& textureStore)
 :
     mName{model.mName},
@@ -86,7 +88,8 @@ ZoneItem::ZoneItem(
     mVertices{},
     mPalettes{},
     mFaces{},
-    mPush{}
+    mPush{},
+    mModelClip{clip}
 {
     // True 3D model
     if (mSpriteIndex == 0 || mSpriteIndex > 400)
@@ -784,6 +787,174 @@ Graphics::MeshObject ZoneItemToMeshObject(
         textureBlends,
         indices};
 }
+
+static glm::vec3 ClipPointToGlCoord(glm::ivec2 xy, float z)
+{
+    auto v = BAK::ToGlCoord<float>(xy);
+    v.y = -z + 0.5f;
+    return v / BAK::gWorldScale;
+}
+
+static std::vector<glm::vec3> TriangulatePoints(
+    const std::vector<ClipPoint>& pts,
+    float z)
+{
+    std::vector<glm::vec3> glVerts;
+    for (const auto& pt : pts)
+    {
+        glVerts.emplace_back(ClipPointToGlCoord(pt.mXY, z));
+    }
+    return glVerts;
+}
+
+Graphics::MeshObject ClipToMeshObject(const ModelClip& clip, const glm::vec4& color)
+{
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec4> colors;
+    std::vector<glm::vec3> textureCoords;
+    std::vector<float> textureBlends;
+    std::vector<unsigned> indices;
+
+    float baseZ = clip.mHasVertical ? -1.0f : 0.0f;
+
+    for (unsigned ei = 0; ei < clip.mElements.size(); ei++)
+    {
+        const auto& elem = clip.mElements[ei];
+        const auto& pts = elem.mPoints;
+        auto n = pts.size();
+        if (n < 3) continue;
+
+        auto glVerts = TriangulatePoints(pts, baseZ);
+
+        auto normal = glm::normalize(glm::cross(
+            glVerts[0] - glVerts[2],
+            glVerts[0] - glVerts[1]));
+
+        unsigned tris = n - 2;
+        for (unsigned tri = 0; tri < tris; tri++)
+        {
+            auto i1 = tri + 1;
+            auto i2 = tri + 2;
+
+            unsigned base = vertices.size();
+            vertices.push_back(glVerts[0]);
+            vertices.push_back(glVerts[i1]);
+            vertices.push_back(glVerts[i2]);
+
+            indices.push_back(base);
+            indices.push_back(base + 1);
+            indices.push_back(base + 2);
+
+            for (unsigned j = 0; j < 3; j++)
+            {
+                normals.push_back(normal);
+                colors.push_back(color);
+                textureCoords.emplace_back(0, 0, 0);
+                textureBlends.emplace_back(0.0f);
+            }
+        }
+
+        if (clip.mHasVertical)
+        {
+            auto topVerts = TriangulatePoints(pts, baseZ + 2.0f);
+            auto topTris = n - 2;
+            auto topNormal = -normal;
+
+            for (unsigned tri = 0; tri < topTris; tri++)
+            {
+                unsigned base = vertices.size();
+                vertices.push_back(topVerts[0]);
+                vertices.push_back(topVerts[tri + 1]);
+                vertices.push_back(topVerts[tri + 2]);
+
+                indices.push_back(base);
+                indices.push_back(base + 1);
+                indices.push_back(base + 2);
+
+                for (unsigned j = 0; j < 3; j++)
+                {
+                    normals.push_back(topNormal);
+                    colors.push_back(color);
+                    textureCoords.emplace_back(0, 0, 0);
+                    textureBlends.emplace_back(0.0f);
+                }
+            }
+
+            for (unsigned edge = 0; edge < n; edge++)
+            {
+                auto next = (edge + 1) % n;
+                unsigned base = vertices.size();
+                vertices.push_back(glVerts[edge]);
+                vertices.push_back(glVerts[next]);
+                vertices.push_back(topVerts[edge]);
+
+                indices.push_back(base);
+                indices.push_back(base + 1);
+                indices.push_back(base + 2);
+
+                vertices.push_back(topVerts[edge]);
+                vertices.push_back(glVerts[next]);
+                vertices.push_back(topVerts[next]);
+
+                indices.push_back(base + 3);
+                indices.push_back(base + 4);
+                indices.push_back(base + 5);
+
+                auto sideNormal = glm::normalize(glm::cross(
+                    topVerts[edge] - glVerts[edge],
+                    glVerts[next] - glVerts[edge]));
+
+                for (unsigned j = 0; j < 6; j++)
+                {
+                    normals.push_back(sideNormal);
+                    colors.push_back(color);
+                    textureCoords.emplace_back(0, 0, 0);
+                    textureBlends.emplace_back(0.0f);
+                }
+            }
+        }
+    }
+
+    return Graphics::MeshObject{
+        vertices, normals, colors, textureCoords, textureBlends, indices};
+}
+
+Graphics::MeshObject ClipsToMeshObject(const std::vector<ModelClip>& clips, const glm::vec4& color)
+{
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec4> colors;
+    std::vector<glm::vec3> textureCoords;
+    std::vector<float> textureBlends;
+    std::vector<unsigned> indices;
+
+    for (const auto& clip : clips)
+    {
+        auto mesh = ClipToMeshObject(clip, color);
+        auto base = static_cast<unsigned>(vertices.size());
+
+        std::copy(mesh.mVertices.begin(), mesh.mVertices.end(),
+            std::back_inserter(vertices));
+        std::copy(mesh.mNormals.begin(), mesh.mNormals.end(),
+            std::back_inserter(normals));
+        std::copy(mesh.mColors.begin(), mesh.mColors.end(),
+            std::back_inserter(colors));
+        std::copy(mesh.mTextureCoords.begin(), mesh.mTextureCoords.end(),
+            std::back_inserter(textureCoords));
+        std::copy(mesh.mTextureBlends.begin(), mesh.mTextureBlends.end(),
+            std::back_inserter(textureBlends));
+
+        for (auto i : mesh.mIndices)
+        {
+            indices.emplace_back(base + i);
+        }
+    }
+
+    return Graphics::MeshObject{
+        vertices, normals, colors, textureCoords, textureBlends, indices};
+}
+
 ZoneItemStore::ZoneItemStore(
     const ZoneLabel& zoneLabel,
     // Should one really need a texture store to load this?
@@ -794,12 +965,13 @@ ZoneItemStore::ZoneItemStore(
 {
     auto fb = FileBufferFactory::Get()
         .CreateDataBuffer(mZoneLabel.GetTable());
-    const auto models = LoadTBL(fb);
+    auto [models, clips] = LoadTBL(fb);
 
     for (unsigned i = 0; i < models.size(); i++)
     {
         mItems.emplace_back(
             models[i],
+            clips[i],
             textureStore);
     }
 }

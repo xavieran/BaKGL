@@ -97,6 +97,15 @@ glm::vec<3, T> ToGlCoord(const glm::ivec3& coord)
 }
 
 template <typename T>
+glm::vec<3, T> ToGlCoord(const glm::ivec2& coord)
+{
+    return glm::vec<3, T>{
+        static_cast<T>(coord.x),
+        static_cast<T>(0),
+        -static_cast<T>(coord.y)};
+}
+
+template <typename T>
 glm::vec<3, T> ToGlCoord(const glm::uvec2& coord)
 {
     return glm::vec<3, T>{

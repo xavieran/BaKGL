@@ -68,9 +68,11 @@ Zone::Zone(unsigned zoneNumber)
     mObjects{}
 {
     for (auto& item : mZoneItems.GetItems())
+    {
         mObjects.AddObject(
             item.GetName(),
             BAK::ZoneItemToMeshObject(item, mZoneTextures, mPalette));
+    }
 
     const auto cube = Graphics::Cuboid{1, 1, 50};
     mObjects.AddObject("Combat", cube.ToMeshObject(glm::vec4{1.0, 0, 0, .3}));

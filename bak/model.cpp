@@ -60,28 +60,29 @@ inline std::ostream& operator<<(std::ostream& os, const Model& m)
 
 inline std::ostream& operator<<(std::ostream& os, const ClipPoint& p)
 {
-    os << "[" << p.mUV << "] (" << p.mXY << ")";
+    os << "[" << p.mNormal << "] (" << p.mXY << ")";
     return os;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const ClipElement& c)
 {
-    os << "    UnknownFlags: " << std::hex << c.mUnknown << std::dec << "\n";
+    os << "    Scale: " << +c.mScale << " BaseOrValue: " << c.mBaseHeight << "\n";
     for (const auto& pt : c.mPoints)
     {
         os << "    " << pt << "\n";
     }
-    if (c.mExtraPoint)
+    if (c.mHeightPoint)
     {
-        os << "    ExtraPoint: " << *c.mExtraPoint << "\n";
+        os << "    HeightPoint: " << *c.mHeightPoint << "\n";
     }
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const ModelClipX& m)
+inline std::ostream& operator<<(std::ostream& os, const ModelClip& m)
 {
     os << "ModelClip{ " << m.mName << " radius: " << m.mRadius
-        << " hasVert: " << m.hasVertical << " Elements:\n";
+        << " flags: 0x" << std::hex << +m.mFlags << std::dec
+        << " walkable: " << m.mWalkable << " hasVert: " << m.mHasVertical << " Elements:\n";
     for (unsigned i = 0; i < m.mElements.size(); i++)
     {
         os << "  ClipElement #" << i << "\n";
@@ -124,53 +125,57 @@ unsigned CalculateOffset(unsigned upper, unsigned lower)
     return (upper << 4) + (lower & 0xf);
 }
 
-ModelClipX LoadGidItem(BAK::FileBuffer& fb)
+ModelClip LoadGidItem(BAK::FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
     struct ElementOffsets
     {
-        unsigned mOffset;
+        unsigned mEdgeOffs;
         unsigned mLength;
-        std::optional<unsigned> mExtraOffset;
-        std::array<std::uint8_t, 3> mUnknown;
+        std::optional<unsigned> mHeightOffs;
+        std::uint8_t mScale;
+        std::uint16_t mBaseHeight;
     };
     std::vector<ElementOffsets> offsets{};
     auto start = fb.Tell();
 
     auto x = fb.GetUint16LE();
     auto y = fb.GetUint16LE();
-    auto hasVertical = fb.GetUint8();
+    auto flags = fb.GetUint8();
     auto elems = fb.GetUint8();
     auto offsetAdjust = fb.GetUint16LE() - 8;
 
     assert(offsetAdjust >= 0);
-    assert(hasVertical == 0 || hasVertical == 2);
+    assert(flags < 4);
 
-    ModelClipX modelClip{};
+    ModelClip modelClip{};
     modelClip.mRadius = glm::ivec2{x, y};
-    modelClip.hasVertical = hasVertical == 2;
+    modelClip.mFlags = flags;
+    modelClip.mWalkable = flags & 0x01;
+    modelClip.mHasVertical = flags & 0x02;
 
     for (unsigned i = 0; i < elems; i++)
     {
-        auto off = fb.GetUint16LE();
+        auto edgeOffs = fb.GetUint16LE();
         auto entries = fb.GetUint8();
-        auto unknown = fb.GetArray<3>();
-        std::optional<unsigned> extra = std::nullopt;
-        if (hasVertical == 2)
+        auto scale = fb.GetUint8();
+        auto baseOrValue = fb.GetUint16LE();
+        std::optional<unsigned> heightOff = std::nullopt;
+        if (flags & 0x02)
         {
-            off = fb.GetUint16LE();
-            extra = off;
-            auto unknown2 = fb.GetArray<2>();
+            heightOff = fb.GetUint16LE();
+            fb.Skip(2);
         }
         
-        offsets.emplace_back(ElementOffsets{off, entries, extra, unknown});
+        offsets.emplace_back(ElementOffsets{edgeOffs, entries, heightOff, scale, baseOrValue});
     }
 
     for (unsigned i = 0; i < elems; i++)
     {
-        fb.Seek(start + offsets[i].mOffset - offsetAdjust);
+        fb.Seek(start + offsets[i].mEdgeOffs - offsetAdjust);
         ClipElement element{};
-        element.mUnknown = offsets[i].mUnknown;
+        element.mScale = offsets[i].mScale;
+        element.mBaseHeight = offsets[i].mBaseHeight;
         for (unsigned j = 0; j < offsets[i].mLength; j++)
         {
             auto u = fb.GetSint8();
@@ -179,14 +184,14 @@ ModelClipX LoadGidItem(BAK::FileBuffer& fb)
             auto y = fb.GetSint16LE();
             element.mPoints.emplace_back(ClipPoint{glm::ivec2{u, v}, glm::ivec2{x, y}});
         }
-        if (offsets[i].mExtraOffset)
+        if (offsets[i].mHeightOffs)
         {
-            fb.Seek(start + *offsets[i].mExtraOffset - offsetAdjust);
+            fb.Seek(start + *offsets[i].mHeightOffs - offsetAdjust);
             auto u = fb.GetSint8();
             auto v = fb.GetSint8();
             auto x = fb.GetSint16LE();
             auto y = fb.GetSint16LE();
-            element.mExtraPoint = ClipPoint{glm::ivec2{u, v}, glm::ivec2{x, y}};
+            element.mHeightPoint = ClipPoint{glm::ivec2{u, v}, glm::ivec2{x, y}};
         }
         modelClip.mElements.emplace_back(element);
     }
@@ -194,14 +199,14 @@ ModelClipX LoadGidItem(BAK::FileBuffer& fb)
     return modelClip;
 }
 
-std::vector<ModelClipX> LoadModelClip(FileBuffer& fb, std::vector<std::string> names)
+std::vector<ModelClip> LoadModelClip(FileBuffer& fb, const std::vector<std::string>& names)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
     auto numItems = names.size();
     std::vector<unsigned> offsets{};
     offsets.reserve(numItems);
-    std::vector<ModelClipX> modelClips{};
+    std::vector<ModelClip> modelClips{};
     modelClips.reserve(numItems);
 
     for (unsigned i = 0; i < numItems; i++)
@@ -245,7 +250,7 @@ struct ComponentData
     std::vector<MeshOffsetData> mMeshOffsetDatas;
 };
 
-std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames)
+std::vector<Model> LoadModels(FileBuffer& fb, const std::vector<std::string>& itemNames)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
@@ -428,7 +433,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, std::vector<std::string> itemNames
     return newModels;
 }
 
-std::vector<Model> LoadTBL(FileBuffer& fb)
+std::pair<std::vector<Model>, std::vector<ModelClip>> LoadTBL(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
@@ -444,10 +449,9 @@ std::vector<Model> LoadTBL(FileBuffer& fb)
         ss << " " << name << ",";
     }
     logger.Info() << "Loading models: " << ss.str() << "\n";
-    auto clips = LoadModelClip(gidbuf, names);
-    for (auto& c : clips)
-        logger.Spam() << c << "\n";
-    return LoadModels(datbuf, names);
+    return {
+        LoadModels(datbuf, names),
+        LoadModelClip(gidbuf, names)};
 }
 
 }
