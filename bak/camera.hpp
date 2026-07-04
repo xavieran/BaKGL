@@ -20,6 +20,7 @@ public:
     void UsePerspectiveMatrix(unsigned width, unsigned height);
 
     void SetGameLocation(const BAK::GamePositionAndHeading& location);
+    void SetSpeedScale(float scale);
     BAK::GamePositionAndHeading GetGameLocation() const;
     glm::uvec2 GetGameTile() const;
     void SetPosition(const glm::vec3& position);
@@ -61,6 +62,7 @@ public:
 private:
     float mMoveSpeed;
     float mTurnSpeed;
+    float mSpeedScale{1.0f};
     float mDeltaTime;
 
     glm::vec3 mPosition;

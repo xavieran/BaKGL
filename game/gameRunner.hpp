@@ -57,6 +57,13 @@ public:
     BAK::GenericContainer* mContainer;
 };
 
+enum class ClipDisplayMode
+{
+    Vanilla,
+    ShowClips,
+    OnlyClips
+};
+
 class GameRunner : public BAK::IZoneLoader, public Combat::ICombatStage
 {
 public:
@@ -92,6 +99,9 @@ public:
     void HideGrid();
     void ToggleDisplayAllCells();
     bool IsGridVisible() const { return mGridVisible; }
+    void SetClipDisplayMode(ClipDisplayMode mode);
+    const std::vector<Renderable>& GetClipRenderables() const { return mClipRenderables; }
+    ClipDisplayMode GetClipDisplayMode() const { return mClipDisplayMode; }
     bool IsAnimationActive() const { return mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
@@ -193,8 +203,12 @@ public:
 
     bool mGridVisible{false};
     std::vector<Renderable> mGridCellRenderables{};
+    std::vector<Renderable> mClipRenderables{};
+    ClipDisplayMode mClipDisplayMode{ClipDisplayMode::Vanilla};
     std::vector<GridCellInfo> mGridCells{};
     void UpdateGridCellColors();
+
+    bool CannotMoveHere(BAK::GamePosition playerPos) const;
 
     bool mAnimationActive{false};
 

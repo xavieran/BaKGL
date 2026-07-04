@@ -82,6 +82,7 @@ ZoneItem::ZoneItem(
     mName{model.mName},
     mEntityFlags{model.mEntityFlags},
     mEntityType{static_cast<EntityType>(model.mEntityType)},
+    mTerrainType{static_cast<Terrain>(model.mTerrainType)},
     mScale{static_cast<float>(1 << model.mScale)},
     mSpriteIndex{model.mSprite},
     mColors{},
@@ -189,13 +190,15 @@ ZoneItem::ZoneItem(
     mName{""},
     mEntityFlags{0},
     mEntityType{},
+    mTerrainType{},
     mScale{1},
     mSpriteIndex{spriteIndex},
     mColors{},
     mVertices{},
     mPalettes{},
     mFaces{},
-    mPush{}
+    mPush{},
+    mModelClip{std::nullopt}
 {
     // Need this to set the right dimensions for the texture
     const auto spriteScale = 5.0f;
@@ -264,6 +267,7 @@ bool ZoneItem::GetClickable() const
 }
 
 EntityType ZoneItem::GetEntityType() const { return mEntityType; }
+Terrain ZoneItem::GetTerrainType() const { return mTerrainType; }
 
 std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 {

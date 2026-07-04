@@ -14,11 +14,23 @@
 #include "graphics/opengl.hpp"
 #include "graphics/shaderProgram.hpp"
 
+#include "imgui/imguiWrapper.hpp"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
 
 #include <glm/gtc/type_ptr.hpp>
+
+#include <algorithm>
+#include <cctype>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 int main(int argc, char** argv)
 {
@@ -36,13 +48,11 @@ int main(int argc, char** argv)
     Logging::LogState::Disable("ShaderProgram");
     Logging::LogState::Disable("GLBuffers");
 
-    if (argc != 3)
+    if (argc != 2)
     {
-        logger.Error() << "Call with <ZONE> <OBJECT>" << std::endl;
+        logger.Error() << "Call with <ZONE>" << std::endl;
         std::exit(1);
     }
-
-    auto objectToDisplay = argv[2];
 
     auto zoneData = std::make_unique<BAK::Zone>(std::atoi(argv[1]));
 
@@ -58,6 +68,8 @@ int main(int argc, char** argv)
         height,
         width,
         "BaK");
+
+    ImguiWrapper::Initialise(window.get());
 
     auto renderer = Graphics::Renderer{
         width,
@@ -94,13 +106,46 @@ int main(int argc, char** argv)
     };
 
     auto systems = Systems{};
-    auto renderable = Renderable{
-        systems.GetNextItemId(),
-        zoneData->mObjects.GetObject(objectToDisplay),
-        {0,0,0},
-        {0,0,0},
-        glm::vec3{1.0f}};
-    systems.AddRenderable(renderable);
+
+    std::vector<std::string> objectNames;
+    objectNames.reserve(zoneData->mObjects.mObjects.size());
+    for (const auto& [name, offsetAndLength] : zoneData->mObjects.mObjects)
+        objectNames.emplace_back(name);
+    std::sort(objectNames.begin(), objectNames.end());
+
+    std::unordered_set<std::string> zoneItemNames;
+    for (const auto& item : zoneData->mZoneItems.GetItems())
+        zoneItemNames.insert(item.GetName());
+
+    int currentIndex = -1;
+    std::optional<BAK::EntityIndex> currentRenderableId;
+
+    auto selectObject = [&](int idx)
+    {
+        if (currentRenderableId)
+        {
+            systems.RemoveRenderable(*currentRenderableId);
+            currentRenderableId.reset();
+        }
+
+        if (idx < 0 || idx >= static_cast<int>(objectNames.size()))
+            return;
+
+        auto renderable = Renderable{
+            systems.GetNextItemId(),
+            zoneData->mObjects.GetObject(objectNames[idx]),
+            {0,0,0},
+            {0,0,0},
+            glm::vec3{1.0f}};
+        systems.AddRenderable(renderable);
+        currentRenderableId = renderable.GetId();
+    };
+
+    if (!objectNames.empty())
+    {
+        currentIndex = 0;
+        selectObject(currentIndex);
+    }
 
     glfwSetCursorPos(window.get(), width/2, height/2);
 
@@ -128,9 +173,14 @@ int main(int argc, char** argv)
     Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
 
+    char filterBuf[128] = "";
+
     double currentTime;
     double lastTime = 0;
     float deltaTime;
+
+    int prevUp = GLFW_RELEASE;
+    int prevDown = GLFW_RELEASE;
 
     do
     {
@@ -142,6 +192,136 @@ int main(int argc, char** argv)
         cameraPtr->SetDeltaTime(deltaTime);
 
         inputHandler.HandleInput(window.get());
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        {
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(ImVec2(300, height));
+            ImGui::Begin("Objects", nullptr,
+                ImGuiWindowFlags_NoResize
+                | ImGuiWindowFlags_NoMove
+                | ImGuiWindowFlags_NoCollapse);
+
+            ImGui::Text("Zone %d - %zu objects",
+                std::atoi(argv[1]),
+                objectNames.size());
+            ImGui::InputText("Filter", filterBuf, sizeof(filterBuf));
+            const bool filterActive = ImGui::IsItemActive();
+
+            ImGui::BeginChild("ObjectList", ImVec2(0, -60), true);
+
+            auto matchesFilter = [](const std::string& name, const std::string& filter)
+            {
+                if (filter.empty())
+                    return true;
+
+                auto lower = [](std::string s)
+                {
+                    std::transform(s.begin(), s.end(), s.begin(),
+                        [](unsigned char c){ return static_cast<char>(std::tolower(c)); });
+                    return s;
+                };
+
+                auto n = lower(name);
+                auto f = lower(filter);
+                return n.find(f) != std::string::npos;
+            };
+
+            std::string filterStr = filterBuf;
+            std::vector<int> filteredIndices;
+            for (int i = 0; i < static_cast<int>(objectNames.size()); ++i)
+                if (matchesFilter(objectNames[i], filterStr))
+                    filteredIndices.emplace_back(i);
+
+            {
+                const int curUp   = glfwGetKey(window.get(), GLFW_KEY_UP);
+                const int curDown = glfwGetKey(window.get(), GLFW_KEY_DOWN);
+
+                const bool upPressed   = curUp   == GLFW_PRESS && prevUp   == GLFW_RELEASE;
+                const bool downPressed = curDown == GLFW_PRESS && prevDown == GLFW_RELEASE;
+
+                if (!filterActive && !filteredIndices.empty())
+                {
+                    auto itPos = std::find(
+                        filteredIndices.begin(),
+                        filteredIndices.end(),
+                        currentIndex);
+                    int pos = itPos == filteredIndices.end()
+                        ? -1
+                        : static_cast<int>(itPos - filteredIndices.begin());
+
+                    int newPos = pos;
+                    if (upPressed)
+                        newPos = pos < 0
+                            ? static_cast<int>(filteredIndices.size()) - 1
+                            : (pos - 1 + static_cast<int>(filteredIndices.size()))
+                                % static_cast<int>(filteredIndices.size());
+                    else if (downPressed)
+                        newPos = pos < 0
+                            ? 0
+                            : (pos + 1) % static_cast<int>(filteredIndices.size());
+
+                    if (newPos != pos)
+                    {
+                        currentIndex = filteredIndices[newPos];
+                        selectObject(currentIndex);
+                    }
+                }
+
+                prevUp = curUp;
+                prevDown = curDown;
+            }
+
+            for (int i : filteredIndices)
+            {
+                bool selected = (i == currentIndex);
+                if (ImGui::Selectable(objectNames[i].c_str(), selected))
+                {
+                    currentIndex = i;
+                    selectObject(i);
+                }
+
+                if (selected)
+                {
+                    const float rowHeight = ImGui::GetTextLineHeightWithSpacing();
+                    const float scrollY = ImGui::GetScrollY();
+                    const float visibleHeight = ImGui::GetWindowHeight();
+                    const float cursorY = ImGui::GetCursorPosY() - rowHeight;
+                    if (cursorY < scrollY)
+                        ImGui::SetScrollHereY(0.0f);
+                    else if (cursorY > scrollY + visibleHeight - rowHeight * 3.0f)
+                        ImGui::SetScrollHereY(1.0f);
+                }
+            }
+
+            ImGui::EndChild();
+
+            if (currentIndex >= 0
+                && currentIndex < static_cast<int>(objectNames.size()))
+            {
+                const auto& name = objectNames[currentIndex];
+                if (zoneItemNames.contains(name))
+                {
+                    const auto& item = zoneData->mZoneItems.GetZoneItem(name);
+                    ImGui::Text("Entity Type: %s",
+                        std::string{BAK::ToString(item.GetEntityType())}.c_str());
+                    ImGui::Text("Terrain Type: %s",
+                        std::string{BAK::ToString(item.GetTerrainType())}.c_str());
+                }
+                else
+                {
+                    ImGui::TextDisabled("Entity Type: N/A");
+                    ImGui::TextDisabled("Terrain Type: N/A");
+                }
+            }
+
+            ImGui::End();
+        }
+
         glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
         // Dark blue background
         glClearColor(0.15f, 0.31f, 0.36f, 0.0f);
@@ -154,13 +334,17 @@ int main(int argc, char** argv)
             *cameraPtr,
             false);
 
+        // Render ImGui on top of the 3D scene
+        ImguiWrapper::Draw(window.get());
+
         // Swap buffers
         glfwSwapBuffers(window.get());
         glfwPollEvents();
 
-    } // Check if the ESC key was pressed or the window was closed
-    while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE ) != GLFW_PRESS 
-        && glfwWindowShouldClose(window.get()) == 0 );
+    } // Check if the window was closed
+    while (glfwWindowShouldClose(window.get()) == 0 );
     
+    ImguiWrapper::Shutdown();
+
     return 0;
 }

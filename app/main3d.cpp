@@ -23,6 +23,8 @@ extern "C" {
 #include "game/screens.hpp"
 #include "game/systems.hpp"
 
+
+
 #include "graphics/inputHandler.hpp"
 #include "graphics/guiRenderer.hpp"
 #include "graphics/glfw.hpp"
@@ -352,6 +354,15 @@ int main(int argc, char** argv)
             || (guiManager.InCombatView() && !gameRunner.IsAnimationActive());
     };
 
+    auto ShiftHeld = [&]{
+        return glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
+            || glfwGetKey(window.get(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+    };
+
+    auto ApplySpeedScale = [&]{
+        cameraPtr->SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
+    };
+
     Graphics::InputHandler inputHandler{};
     inputHandler.BindPressed(GLFW_KEY_G, [&]{
         if (glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
@@ -369,15 +380,15 @@ int main(int argc, char** argv)
         if (guiManager.InMainView())
             UpdateLightCamera();
     });
-    inputHandler.Bind(GLFW_KEY_UP,   [&]{ if (InputAllowed()){cameraPtr->StrafeForward(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ if (InputAllowed()){cameraPtr->StrafeBackward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_UP,   [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->StrafeForward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->StrafeBackward(); UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (InputAllowed()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (InputAllowed()){cameraPtr->StrafeRight(); UpdateGameTile();}});
 
-    inputHandler.Bind(GLFW_KEY_W, [&]{ if (InputAllowed()){cameraPtr->MoveForward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_W, [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->MoveForward(); UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_A, [&]{ if (InputAllowed()){cameraPtr->StrafeLeft(); UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_D, [&]{ if (InputAllowed()){cameraPtr->StrafeRight(); UpdateGameTile();}});
-    inputHandler.Bind(GLFW_KEY_S, [&]{ if (InputAllowed()){cameraPtr->MoveBackward(); UpdateGameTile();}});
+    inputHandler.Bind(GLFW_KEY_S, [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->MoveBackward(); UpdateGameTile();}});
     inputHandler.Bind(GLFW_KEY_Q, [&]{
         if (InputAllowed())
         {
@@ -565,55 +576,73 @@ int main(int argc, char** argv)
             };
             light.mFogColor = ambient * glm::vec3{.15, .31, .36};
 
-            renderer.BeginDepthMapDraw();
-            renderer.DrawDepthMap(
-                gameRunner.GetZoneRenderData(),
-                gameRunner.mSystems->GetRenderables(),
-                lightCamera);
-            renderer.DrawDepthMap(
-                gameRunner.GetZoneRenderData(),
-                gameRunner.mSystems->GetSprites(),
-                lightCamera);
-            renderer.EndDepthMapDraw();
+            if (gameRunner.GetClipDisplayMode() != Game::ClipDisplayMode::OnlyClips)
+            {
+                renderer.BeginDepthMapDraw();
+                renderer.DrawDepthMap(
+                    gameRunner.GetZoneRenderData(),
+                    gameRunner.mSystems->GetRenderables(),
+                    lightCamera);
+                renderer.DrawDepthMap(
+                    gameRunner.GetZoneRenderData(),
+                    gameRunner.mSystems->GetSprites(),
+                    lightCamera);
+                renderer.EndDepthMapDraw();
+            }
 
             glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
             // Dark blue background
             glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            renderer.DrawWithShadow(
-                gameRunner.GetZoneRenderData(),
-                gameRunner.mSystems->GetRenderables(),
-                light,
-                lightCamera,
-                *cameraPtr,
-                false);
 
-            renderer.DrawWithShadow(
-                gameRunner.GetZoneRenderData(),
-                gameRunner.mSystems->GetSprites(),
-                light,
-                lightCamera,
-                *cameraPtr,
-                true);
-
-            const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
-            for (const auto& obj : dynamicRenderables)
+            if (gameRunner.GetClipDisplayMode() != Game::ClipDisplayMode::OnlyClips)
             {
-                std::vector<DynamicRenderable> data{};
-                data.emplace_back(obj);
                 renderer.DrawWithShadow(
-                    *obj.GetRenderData(),
-                    data,
+                    gameRunner.GetZoneRenderData(),
+                    gameRunner.mSystems->GetRenderables(),
+                    light,
+                    lightCamera,
+                    *cameraPtr,
+                    false);
+
+                renderer.DrawWithShadow(
+                    gameRunner.GetZoneRenderData(),
+                    gameRunner.mSystems->GetSprites(),
                     light,
                     lightCamera,
                     *cameraPtr,
                     true);
+
+                const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
+                for (const auto& obj : dynamicRenderables)
+                {
+                    std::vector<DynamicRenderable> data{};
+                    data.emplace_back(obj);
+                    renderer.DrawWithShadow(
+                        *obj.GetRenderData(),
+                        data,
+                        light,
+                        lightCamera,
+                        *cameraPtr,
+                        true);
+                }
+
+                renderer.DrawText3D(
+                    gameRunner.mGlyphStore.GetRenderData(),
+                    gameRunner.mSystems->GetTextRenderables(),
+                    *cameraPtr);
             }
 
-            renderer.DrawText3D(
-                gameRunner.mGlyphStore.GetRenderData(),
-                gameRunner.mSystems->GetTextRenderables(),
-                *cameraPtr);
+            if (gameRunner.GetClipDisplayMode() != Game::ClipDisplayMode::Vanilla)
+            {
+                renderer.DrawWithShadow(
+                    gameRunner.GetZoneRenderData(),
+                    gameRunner.GetClipRenderables(),
+                    light,
+                    lightCamera,
+                    *cameraPtr,
+                    false);
+            }
         }
 
         if (gameState.GetGameData().IsLoaded())
@@ -658,6 +687,7 @@ int main(int argc, char** argv)
             ImGui::NewFrame();
 
             ShowLightGui(light);
+            ShowClipDisplayGui(gameRunner);
 
             ShowCameraGui(camera);
             console.Draw("Console", &consoleOpen);

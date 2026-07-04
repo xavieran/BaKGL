@@ -3,6 +3,8 @@
 #include "bak/types.hpp"
 #include "bak/worldClock.hpp"
 
+#include <string_view>
+
 namespace BAK {
 
 static constexpr float gWorldScale = 100.;
@@ -25,6 +27,8 @@ enum class Terrain
     Sand      = 6,
     Bank      = 7
 };
+
+std::string_view ToString(Terrain t);
 
 enum class Enemy 
 {
