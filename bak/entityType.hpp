@@ -1,9 +1,18 @@
 #pragma once
 
 #include <glm/glm.hpp>
+
 #include <string_view>
 
 namespace BAK {
+
+enum class TerrainType : std::uint8_t
+{
+    T0 = 0,
+    T6 = 6,
+    T7 = 7,
+    T8 = 8
+};
 
 enum class EntityType
 {
@@ -54,15 +63,6 @@ enum class EntityType
 unsigned GetContainerTypeFromEntityType(EntityType);
 EntityType EntityTypeFromModelName(std::string_view name);
 
-enum class ClipEffect
-{
-    Ignore,
-    Block,
-    Follow
-};
-
-ClipEffect GetClipEffect(EntityType entityType);
-
 enum class GridEffect
 {
     None,
@@ -74,5 +74,6 @@ GridEffect GetGridEffect(EntityType entityType);
 
 glm::vec4 GetDebugColor(EntityType et);
 std::string_view ToString(EntityType et);
+std::string_view ToString(TerrainType t);
 
 }

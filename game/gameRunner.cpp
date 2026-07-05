@@ -36,7 +36,6 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-#include <cmath>
 #include <unordered_set>
 #include <utility>
 #include <variant>
@@ -179,6 +178,7 @@ void GameRunner::LoadSystems()
                 auto id = mSystems->GetNextItemId();
                 mEntityTypes[id] = item.GetZoneItem().GetEntityType();
                 auto rotation = item.GetZoneItem().IsSprite() ? Graphics::sNinetyDegreeRotation : item.GetRotation();
+
                 auto renderable = Renderable{
                     id,
                     mZoneData->mObjects.GetObject(item.GetZoneItem().GetName()),
@@ -328,8 +328,8 @@ void GameRunner::LoadSystems()
     {
         for (const auto& item : world.GetItems())
         {
-            if (item.GetZoneItem().GetModelClip()
-                && item.GetZoneItem().GetVertices().size() > 1)
+            if (BAK::AllowsMovement(item.GetZoneItem())
+                || BAK::BlocksMovement(item.GetZoneItem()))
             {
                 auto id = mSystems->GetNextItemId();
                 auto renderable = Renderable{
@@ -692,45 +692,68 @@ bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
 
 bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
 {
-    if (!mZoneData) return false;
+    if (!mZoneData)
+    {
+        return false;
+    }
 
     const auto p = glm::ivec2{playerPos};
+
+    struct Candidate {
+        const BAK::WorldItemInstance* mItem;
+        float mDistSq;
+    };
+    std::vector<Candidate> candidates;
 
     for (const auto& world : mZoneData->mWorldTiles.GetTiles())
     {
         for (const auto& item : world.GetItems())
         {
-            const auto& zi = item.GetZoneItem();
-            const auto& modelClip = zi.GetModelClip();
-            if (!modelClip)
+            const auto& zoneItem = item.GetZoneItem();
+            if (!(BAK::BlocksMovement(zoneItem) || BAK::AllowsMovement(zoneItem)) || !zoneItem.GetModelClip())
             {
                 continue;
             }
 
-            if (BAK::GetClipEffect(zi.GetEntityType()) != BAK::ClipEffect::Block)
+            const auto itemPos = item.GetLocation();
+            const float dx = static_cast<float>(p.x) - itemPos.x;
+            const float dy = static_cast<float>(p.y) + itemPos.z;
+            candidates.push_back({&item, dx*dx + dy*dy});
+        }
+    }
+
+    std::sort(candidates.begin(), candidates.end(),
+        [](const auto& a, const auto& b) { return a.mDistSq < b.mDistSq; });
+
+    for (const auto& c : candidates)
+    {
+        const auto& item = *c.mItem;
+        const auto& zoneItem = item.GetZoneItem();
+        const auto& modelClip = *zoneItem.GetModelClip();
+
+        auto modelSpace = BAK::WorldToModelClipSpace(
+            glm::vec2{p},
+            glm::vec2{item.GetBakLocation()},
+            item.GetRotation().y,
+            zoneItem.GetScale());
+
+        if (BAK::PointInModelClip(modelSpace, modelClip))
+        {
+            bool allowsMovement = BAK::AllowsMovement(zoneItem);
+            mLogger.Debug() << "Player location is on a clip: " << p
+                << " item: " << item << " clip: " << modelClip << "\n";
+            if (allowsMovement)
             {
-                continue;
+                return false;
             }
-
-            auto local = glm::vec2{p - glm::ivec2{item.GetBakLocation()}};
-            local /= zi.GetScale();
-
-            const auto angle = item.GetRotation().y;
-            glm::vec2 rot = local;
-            if (angle != 0.0f)
-            {
-                rot = glm::vec2{
-                    glm::rotate(glm::vec3{local, 0}, -angle, glm::vec3{0, 0, 1})};
-            }
-
-            if (BAK::PointInModelClip(rot, *modelClip))
+            else
             {
                 return true;
             }
         }
     }
 
-    return false;
+    return mFollowRoad;
 }
 
 void GameRunner::RunGameUpdate(bool advanceTime)
@@ -740,8 +763,11 @@ void GameRunner::RunGameUpdate(bool advanceTime)
         if (CannotMoveHere(mCamera.GetGameLocation().mPosition))
         {
             mLogger.Debug() << "Move rejected by collision\n";
-            mCamera.UndoPositionChange();
-            return;
+            if (mClipEnabled)
+            {
+                mCamera.UndoPositionChange();
+                return;
+            }
         }
 
         // only required for imgui, can remove at some point

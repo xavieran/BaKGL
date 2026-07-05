@@ -47,6 +47,7 @@ struct Game
 {
     bool mAdvanceTime{true};
     double mCombatSpeed{1.0};
+    bool mClipEnabled{false};
 };
 
 struct Config

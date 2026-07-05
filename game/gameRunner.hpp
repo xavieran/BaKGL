@@ -102,6 +102,10 @@ public:
     void SetClipDisplayMode(ClipDisplayMode mode);
     const std::vector<Renderable>& GetClipRenderables() const { return mClipRenderables; }
     ClipDisplayMode GetClipDisplayMode() const { return mClipDisplayMode; }
+    void SetClipEnabled(bool clip) { mClipEnabled = clip; }
+    bool GetClipEnabled() const { return mClipEnabled; }
+    void SetFollowRoad(bool follow) { mFollowRoad = follow; }
+    bool GetFollowRoad() const { return mFollowRoad; }
     bool IsAnimationActive() const { return mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
@@ -209,13 +213,16 @@ public:
     void UpdateGridCellColors();
 
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
-
     bool mAnimationActive{false};
 
     double mAnimationSpeedMultiplier{1.0};
 
+    bool mClipEnabled{false};
+    bool mFollowRoad{false};
+
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
+
 
     GlyphStore mGlyphStore;
 

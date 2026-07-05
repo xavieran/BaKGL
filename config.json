@@ -21,7 +21,8 @@
     },
     "Game": {
         "AdvanceTime": true,
-        "CombatSpeed": 1.0
+        "CombatSpeed": 1.0,
+        "ClipEnabled": false
     },
     "Logging": {
         "LogToFile": true,

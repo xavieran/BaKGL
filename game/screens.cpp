@@ -155,7 +155,22 @@ void ShowClipDisplayGui(
     changed |= ImGui::RadioButton("Normal + Clips", &mode, static_cast<int>(ClipDisplayMode::ShowClips));
     changed |= ImGui::RadioButton("Only Clips", &mode, static_cast<int>(ClipDisplayMode::OnlyClips));
     if (changed)
+    {
         gameRunner.SetClipDisplayMode(static_cast<ClipDisplayMode>(mode));
+    }
+
+    bool clipEnabled = gameRunner.GetClipEnabled();
+    if (ImGui::Checkbox("Clip", &clipEnabled))
+    {
+        gameRunner.SetClipEnabled(clipEnabled);
+    }
+
+    bool followRoad = gameRunner.GetFollowRoad();
+    if (ImGui::Checkbox("Follow Road", &followRoad))
+    {
+        gameRunner.SetFollowRoad(followRoad);
+    }
+
     ImGui::End();
 }
 

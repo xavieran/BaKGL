@@ -309,8 +309,8 @@ int main(int argc, char** argv)
                     const auto& item = zoneData->mZoneItems.GetZoneItem(name);
                     ImGui::Text("Entity Type: %s",
                         std::string{BAK::ToString(item.GetEntityType())}.c_str());
-                    ImGui::Text("Terrain Type: %s",
-                        std::string{BAK::ToString(item.GetTerrainType())}.c_str());
+                    ImGui::Text("Terrain Type: %u",
+                        static_cast<unsigned>(item.GetTerrainType()));
                 }
                 else
                 {

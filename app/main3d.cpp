@@ -311,6 +311,8 @@ int main(int argc, char** argv)
         config.mGraphics.mDebugRenderEncounters,
         config.mGame.mCombatSpeed};
 
+    gameRunner.SetClipEnabled(config.mGame.mClipEnabled);
+
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
 
