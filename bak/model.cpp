@@ -46,7 +46,7 @@ inline std::ostream& operator<<(std::ostream& os, const Component& m)
 inline std::ostream& operator<<(std::ostream& os, const Model& m)
 {
     os << m.mName << " EF: " << m.mEntityFlags << " ET: " << m.mEntityType 
-        << " TT: " << m.mTerrainType << " Scale: " << m.mScale << " Sprite: " << m.mSprite
+        << " TT: " << +m.mTerrainType << " Scale: " << m.mScale << " Sprite: " << m.mSprite
         << "\n";
     os << " NumVertices: " << m.mVertices.size() << "\n";
     os << " Components: " << m.mComponents.size() << "\n";
@@ -58,13 +58,13 @@ inline std::ostream& operator<<(std::ostream& os, const Model& m)
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const ClipPoint& p)
+std::ostream& operator<<(std::ostream& os, const ClipPoint& p)
 {
     os << "[" << p.mNormal << "] (" << p.mXY << ")";
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const ClipElement& c)
+std::ostream& operator<<(std::ostream& os, const ClipElement& c)
 {
     os << "    Scale: " << +c.mScale << " BaseOrValue: " << c.mBaseHeight << "\n";
     for (const auto& pt : c.mPoints)
@@ -78,7 +78,7 @@ inline std::ostream& operator<<(std::ostream& os, const ClipElement& c)
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const ModelClip& m)
+std::ostream& operator<<(std::ostream& os, const ModelClip& m)
 {
     os << "ModelClip{ " << m.mName << " radius: " << m.mRadius
         << " flags: 0x" << std::hex << +m.mFlags << std::dec
@@ -432,6 +432,7 @@ std::vector<Model> LoadModels(FileBuffer& fb, const std::vector<std::string>& it
 
     return newModels;
 }
+
 
 std::pair<std::vector<Model>, std::vector<ModelClip>> LoadTBL(FileBuffer& fb)
 {

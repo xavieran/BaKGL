@@ -5,6 +5,7 @@ include(GoogleTest)
 add_executable(bakTest
     timeTest.cpp
     characterTest.cpp
+    collisionTest.cpp
     keyContainerTest.cpp
     lockTest.cpp
     inventoryTest.cpp

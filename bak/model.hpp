@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <array>
+#include <iosfwd>
 #include <optional>
 #include <string>
 #include <utility>
@@ -67,7 +68,7 @@ struct Model
     std::string mName;
     unsigned mEntityFlags;
     unsigned mEntityType;
-    unsigned mTerrainType;
+    std::uint8_t mTerrainType;
     unsigned mScale;
     unsigned mSprite;
     glm::ivec3 mMin;
@@ -82,4 +83,7 @@ std::vector<ModelClip> LoadModelClip(FileBuffer& fb, const std::vector<std::stri
 std::vector<Model> LoadModels(FileBuffer& fb, const std::vector<std::string>& itemNames);
 std::pair<std::vector<Model>, std::vector<ModelClip>> LoadTBL(FileBuffer& fb);
 
+std::ostream& operator<<(std::ostream& os, const ClipPoint& cp);
+std::ostream& operator<<(std::ostream& os, const ClipElement& ce);
+std::ostream& operator<<(std::ostream& os, const ModelClip& mc);
 }

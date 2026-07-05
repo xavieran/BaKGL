@@ -61,7 +61,8 @@ public:
     float GetScale() const;
     bool GetClickable() const;
     EntityType GetEntityType() const;
-    Terrain GetTerrainType() const;
+    TerrainType GetTerrainType() const;
+    unsigned GetEntityFlags() const;
 
     const auto& GetColors() const { return mColors; }
     const auto& GetFaces() const { return mFaces; }
@@ -73,7 +74,7 @@ private:
     std::string mName;
     unsigned mEntityFlags;
     EntityType mEntityType;
-    Terrain mTerrainType;
+    TerrainType mTerrainType;
     float mScale;
     unsigned mSpriteIndex;
     std::vector<std::uint8_t> mColors;

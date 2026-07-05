@@ -36,24 +36,6 @@ EntityType EntityTypeFromModelName(std::string_view name)
     return EntityType::CHEST;
 }
 
-ClipEffect GetClipEffect(EntityType entityType)
-{
-    using enum EntityType;
-    switch (entityType)
-    {
-        case EXTERIOR:  [[fallthrough]];
-        case BRIDGE:
-            return ClipEffect::Follow;
-        case INTERIOR:  [[fallthrough]];
-        case HILL:      [[fallthrough]];
-        case TERRAIN:   [[fallthrough]]; // unclear actually
-        case BUILDING:
-            return ClipEffect::Block;
-        default:
-            return ClipEffect::Ignore;
-    }
-}
-
 GridEffect GetGridEffect(EntityType entityType)
 {
     using enum EntityType;
@@ -151,4 +133,18 @@ std::string_view ToString(EntityType et)
     }
     return "UNKNOWN";
 }
+
+std::string_view ToString(TerrainType tt)
+{
+    using enum TerrainType;
+    switch (tt)
+    {
+        case T0: return "T0";
+        case T6: return "T6";
+        case T7: return "T7";
+        case T8: return "T8";
+    }
+    return "UNKNOWN";
 }
+} // namespace BAK
+

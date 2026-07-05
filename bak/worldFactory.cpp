@@ -82,7 +82,7 @@ ZoneItem::ZoneItem(
     mName{model.mName},
     mEntityFlags{model.mEntityFlags},
     mEntityType{static_cast<EntityType>(model.mEntityType)},
-    mTerrainType{static_cast<Terrain>(model.mTerrainType)},
+    mTerrainType{model.mTerrainType},
     mScale{static_cast<float>(1 << model.mScale)},
     mSpriteIndex{model.mSprite},
     mColors{},
@@ -267,7 +267,8 @@ bool ZoneItem::GetClickable() const
 }
 
 EntityType ZoneItem::GetEntityType() const { return mEntityType; }
-Terrain ZoneItem::GetTerrainType() const { return mTerrainType; }
+TerrainType ZoneItem::GetTerrainType() const { return mTerrainType; }
+unsigned ZoneItem::GetEntityFlags() const { return mEntityFlags; }
 
 std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 {
@@ -1024,14 +1025,9 @@ std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
     os << "[ Name: " << d.GetZoneItem().GetName() << " Type: " << d.mType << " Rot: " 
         << glm::to_string(d.mRotation)
-        << " Loc: " << glm::to_string(d.mLocation) << "]";
-    os << std::endl << " Vertices::" << std::endl;
-
-    const auto& vertices = d.GetZoneItem().GetVertices();
-    for (const auto& vertex : vertices)
-    {
-        os << "  " << glm::to_string(vertex) << std::endl;
-    }
+        << " Loc: " << glm::to_string(d.mLocation) << "]"
+        << " Dat [ " << ToString(d.GetZoneItem().GetEntityType()) << " "
+        << ToString(d.GetZoneItem().GetTerrainType()) << "]\n";
     return os;
 }
 

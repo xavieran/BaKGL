@@ -88,6 +88,7 @@ Game LoadGame(const nlohmann::json& config)
         const auto& c = config["Game"];
         game.mAdvanceTime = c.value("AdvanceTime", true);
         game.mCombatSpeed = c.value("CombatSpeed", 1.0);
+        game.mClipEnabled = c.value("ClipEnabled", false);
     }
     return game;
 }
