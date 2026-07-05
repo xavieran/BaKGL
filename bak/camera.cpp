@@ -113,38 +113,32 @@ void Camera::SetSpeedScale(float scale)
 
 void Camera::MoveForward()
 {
-    PositionChanged();
-    mPosition += GetDirection() * (mMoveSpeed * mSpeedScale * mDeltaTime);
+    mPendingDelta += GetDirection() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::MoveBackward()
 {
-    PositionChanged();
-    mPosition -= GetDirection() * (mMoveSpeed * mSpeedScale * mDeltaTime);
+    mPendingDelta -= GetDirection() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::StrafeForward()
 {
-    PositionChanged();
-    mPosition += GetForward() * (mMoveSpeed * mSpeedScale * mDeltaTime);
+    mPendingDelta += GetForward() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::StrafeBackward()
 {
-    PositionChanged();
-    mPosition -= GetForward() * (mMoveSpeed * mSpeedScale * mDeltaTime);
+    mPendingDelta -= GetForward() * (mMoveSpeed * mSpeedScale * mDeltaTime);
 }
 
 void Camera::StrafeRight()
 {
-    PositionChanged();
-    mPosition += GetRight() * (mMoveSpeed * mDeltaTime);
+    mPendingDelta += GetRight() * (mMoveSpeed * mDeltaTime);
 }
 
 void Camera::StrafeLeft()
 {
-    PositionChanged();
-    mPosition -= GetRight() * (mMoveSpeed * mDeltaTime);
+    mPendingDelta -= GetRight() * (mMoveSpeed * mDeltaTime);
 }
 
 void Camera::StrafeUp()
@@ -161,9 +155,31 @@ void Camera::StrafeDown()
 
 void Camera::PositionChanged()
 {
-    mDistanceTravelled += std::abs(glm::distance(mPosition, mLastPosition));
-    mLastPosition = mPosition;
     mDirty = true;
+}
+
+bool Camera::HasPendingMove() const
+{
+    return mPendingDelta != glm::vec3{0};
+}
+
+glm::vec3 Camera::GetPendingPosition() const
+{
+    return mPosition + mPendingDelta;
+}
+
+void Camera::AcceptPendingMove()
+{
+    mLastPosition = mPosition;
+    mDistanceTravelled += std::abs(glm::length(mPendingDelta));
+    mPosition += mPendingDelta;
+    mPendingDelta = glm::vec3{0};
+    PositionChanged();
+}
+
+void Camera::RejectPendingMove()
+{
+    mPendingDelta = glm::vec3{0};
 }
 
 void Camera::UndoPositionChange()

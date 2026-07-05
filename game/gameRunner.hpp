@@ -104,6 +104,7 @@ public:
     ClipDisplayMode GetClipDisplayMode() const { return mClipDisplayMode; }
     void SetClipEnabled(bool clip) { mClipEnabled = clip; }
     bool GetClipEnabled() const { return mClipEnabled; }
+    bool CannotMoveHere(BAK::GamePosition playerPos) const;
     void SetFollowRoad(bool follow) { mFollowRoad = follow; }
     bool GetFollowRoad() const { return mFollowRoad; }
     bool IsAnimationActive() const { return mAnimationActive; }
@@ -212,9 +213,7 @@ public:
     std::vector<GridCellInfo> mGridCells{};
     void UpdateGridCellColors();
 
-    bool CannotMoveHere(BAK::GamePosition playerPos) const;
     bool mAnimationActive{false};
-
     double mAnimationSpeedMultiplier{1.0};
 
     bool mClipEnabled{false};

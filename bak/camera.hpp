@@ -37,6 +37,11 @@ public:
     void StrafeUp();
     void StrafeDown();
 
+    bool HasPendingMove() const;
+    glm::vec3 GetPendingPosition() const;
+    void AcceptPendingMove();
+    void RejectPendingMove();
+
     void PositionChanged();
     void UndoPositionChange();
 
@@ -67,6 +72,7 @@ private:
 
     glm::vec3 mPosition;
     glm::vec3 mLastPosition;
+    glm::vec3 mPendingDelta{};
     double mDistanceTravelled;
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
