@@ -760,16 +760,6 @@ void GameRunner::RunGameUpdate(bool advanceTime)
 {
     if (mCamera.CheckAndResetDirty())
     {
-        if (CannotMoveHere(mCamera.GetGameLocation().mPosition))
-        {
-            mLogger.Debug() << "Move rejected by collision\n";
-            if (mClipEnabled)
-            {
-                mCamera.UndoPositionChange();
-                return;
-            }
-        }
-
         // only required for imgui, can remove at some point
         mActiveEncounter = nullptr;
 
