@@ -77,7 +77,8 @@ unsigned ZoneTextureStore::GetHorizonOffset() const { return mHorizonOffset; }
 ZoneItem::ZoneItem(
     const Model& model,
     const ModelClip& clip,
-    const ZoneTextureStore& textureStore)
+    const ZoneTextureStore& textureStore,
+    std::size_t frame)
 :
     mName{model.mName},
     mEntityFlags{model.mEntityFlags},
@@ -103,51 +104,50 @@ ZoneItem::ZoneItem(
         {
             for (const auto& mesh : component.mMeshes)
             {
+                // Face options correspond to animation states,
+                // e.g. for the door, or catapult, or rift gate.
                 assert(mesh.mFaceOptions.size() > 0);
-                // Only show the first face option. These typically correspond to 
-                // animation states, e.g. for the door, or catapult, or rift gate.
-                // Will need to work out how to handle animated things later...
-                const auto& faceOption = mesh.mFaceOptions[0];
-                //for (const auto& faceOption : mesh.mFaceOptions)
+                auto frameIndex = std::min(
+                    frame,
+                    mesh.mFaceOptions.size() - 1);
+                const auto& faceOption = mesh.mFaceOptions[frameIndex];
+                for (const auto& face : faceOption.mFaces)
                 {
-                    for (const auto& face : faceOption.mFaces)
-                    {
-                        mFaces.emplace_back(face);
-                    }
-                    for (const auto& palette : faceOption.mPalettes)
-                    {
-                        mPalettes.emplace_back(palette);
-                    }
-                    for (const auto& colorVec : faceOption.mFaceColors)
-                    {
-                        const auto color = colorVec.x;
-                        mColors.emplace_back(color);
-                        if ((GetName().substr(0, 5) == "house"
-                            || GetName().substr(0, 3) == "inn")
-                            && (color == 190
-                            || color == 191))
-                            mPush.emplace_back(false);
-                        else if (GetName().substr(0, 4) == "blck"
-                            && (color == 145
-                            || color == 191))
-                            mPush.emplace_back(false);
-                        else if (GetName().substr(0, 4) == "brid"
-                            && (color == 147))
-                            mPush.emplace_back(false);
-                        else if (GetName().substr(0, 4) == "temp"
-                            && (color == 218
-                            || color == 220
-                            || color == 221))
-                            mPush.emplace_back(false);
-                        else if (GetName().substr(0, 6) == "church"
-                            && (color == 191
-                            || color == 0))
-                            mPush.emplace_back(false);
-                        else if (GetName().substr(0, 6) == "ground")
-                            mPush.emplace_back(false);
-                        else
-                            mPush.emplace_back(true);
-                    }
+                    mFaces.emplace_back(face);
+                }
+                for (const auto& palette : faceOption.mPalettes)
+                {
+                    mPalettes.emplace_back(palette);
+                }
+                for (const auto& colorVec : faceOption.mFaceColors)
+                {
+                    const auto color = colorVec.x;
+                    mColors.emplace_back(color);
+                    if ((GetName().substr(0, 5) == "house"
+                        || GetName().substr(0, 3) == "inn")
+                        && (color == 190
+                        || color == 191))
+                        mPush.emplace_back(false);
+                    else if (GetName().substr(0, 4) == "blck"
+                        && (color == 145
+                        || color == 191))
+                        mPush.emplace_back(false);
+                    else if (GetName().substr(0, 4) == "brid"
+                        && (color == 147))
+                        mPush.emplace_back(false);
+                    else if (GetName().substr(0, 4) == "temp"
+                        && (color == 218
+                        || color == 220
+                        || color == 221))
+                        mPush.emplace_back(false);
+                    else if (GetName().substr(0, 6) == "church"
+                        && (color == 191
+                        || color == 0))
+                        mPush.emplace_back(false);
+                    else if (GetName().substr(0, 6) == "ground")
+                        mPush.emplace_back(false);
+                    else
+                        mPush.emplace_back(true);
                 }
             }
         }
@@ -159,7 +159,7 @@ ZoneItem::ZoneItem(
         const auto& tex = textureStore.GetTexture(mSpriteIndex);
         const auto spriteScale = 7.0f;
         auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * spriteScale);
-        auto height = tex.GetTargetHeight() * spriteScale;//spriteScale * 1.2;
+        auto height = tex.GetTargetHeight() * spriteScale * 1.2;
         auto halfWidth = width / 2;
         mVertices.emplace_back(-halfWidth, height, 0);
         mVertices.emplace_back(halfWidth, height, 0);
@@ -966,36 +966,54 @@ ZoneItemStore::ZoneItemStore(
     const ZoneTextureStore& textureStore)
 :
     mZoneLabel{zoneLabel},
-    mItems{}
+    mItems{},
+    mModels{},
+    mClips{},
+    mModelFrameCountMap{}
 {
     auto fb = FileBufferFactory::Get()
         .CreateDataBuffer(mZoneLabel.GetTable());
     auto [models, clips] = LoadTBL(fb);
 
-    auto doorGi = std::find_if(clips.begin(), clips.end(), [](const auto& clip)
+    mModels = std::move(models);
+    mClips = std::move(clips);
+
+    // Models with multiple face options are animated
+    for (const auto& model : mModels)
+    {
+        std::size_t frameCount = 1;
+        for (const auto& component : model.mComponents)
+        {
+            for (const auto& mesh : component.mMeshes)
+            {
+                frameCount = std::max(frameCount, mesh.mFaceOptions.size());
+            }
+        }
+
+        if (frameCount > 1)
+        {
+            mModelFrameCountMap[model.mName] = frameCount;
+        }
+    }
+
+    auto doorGi = std::find_if(mClips.begin(), mClips.end(), [](const auto& clip)
     {
         return clip.mName == "m_doorgi";
     });
 
-    // The "door" model by default has an empty clip, we need to pair it
-    // with the doorgi clip so that my system will treat it as a clippable.
-    // The door open/close logic is handled elsewhere
-    for (unsigned i = 0; i < models.size(); i++)
+    // The "m_door" model by default has an empty clip, we need to pair it
+    // with the "m_doorgi" clip so that my system will treat it as a clippable.
+    for (unsigned i = 0; i < mModels.size(); i++)
     {
-        if (clips[i].mName == "m_door" && doorGi != clips.end())
+        if (mClips[i].mName == "m_door" && doorGi != mClips.end())
         {
-            mItems.emplace_back(
-                models[i],
-                *doorGi,
-                textureStore);
+            mClips[i] = *doorGi;
         }
-        else
-        {
-            mItems.emplace_back(
-                models[i],
-                clips[i],
-                textureStore);
-        }
+
+        mItems.emplace_back(
+            mModels[i],
+            mClips[i],
+            textureStore);
     }
 }
 
@@ -1020,6 +1038,28 @@ const ZoneItem& ZoneItemStore::GetZoneItem(const std::string& name) const
 
 const std::vector<ZoneItem>& ZoneItemStore::GetItems() const { return mItems; }
 std::vector<ZoneItem>& ZoneItemStore::GetItems() { return mItems; }
+
+std::optional<unsigned> ZoneItemStore::GetModelFrameCount(const std::string& name) const
+{
+    auto it = mModelFrameCountMap.find(name);
+    if (it != mModelFrameCountMap.end())
+    {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+const Model& ZoneItemStore::GetModel(unsigned i) const
+{
+    ASSERT(i < mModels.size());
+    return mModels[i];
+}
+
+const ModelClip& ZoneItemStore::GetClip(unsigned i) const
+{
+    ASSERT(i < mClips.size());
+    return mClips[i];
+}
 
 WorldItemInstance::WorldItemInstance(
     const ZoneItem& zoneItem,

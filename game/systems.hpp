@@ -88,6 +88,7 @@ public:
 
     void SetVisible(bool visible) { mVisible = visible; }
     bool GetVisible() const { return mVisible; }
+    void SetObject(std::pair<unsigned, unsigned> object) { mObject = object; }
 private:
     glm::mat4 CalculateModelMatrix();
 
@@ -163,6 +164,7 @@ public:
     void AddRenderable(const Renderable& item);
     void RemoveRenderable(BAK::EntityIndex);
     void EnableRenderable(BAK::EntityIndex id, bool);
+    void SetRenderableFrame(BAK::EntityIndex id, std::pair<unsigned, unsigned> object);
     void AddDynamicRenderable(const DynamicRenderable& item);
     void RemoveDynamicRenderable(BAK::EntityIndex);
     void RemoveClickable(BAK::EntityIndex);

@@ -106,6 +106,7 @@ public:
     bool GetClipEnabled() const { return mClipEnabled; }
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
     std::optional<BAK::DoorIndex> GetDoorIndex(glm::uvec2 bakLocation) const;
+    void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
     void SetFollowRoad(bool follow) { mFollowRoad = follow; }
     bool GetFollowRoad() const { return mFollowRoad; }
     bool IsAnimationActive() const { return mAnimationActive; }
@@ -223,6 +224,11 @@ public:
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
     std::unordered_map<glm::uvec2, BAK::DoorIndex, UVec2Hash> mDoorLocations{};
+    std::unordered_map<BAK::DoorIndex, BAK::EntityIndex> mDoorIndexToEntityId{};
+
+    using FrameOffsets = std::vector<Graphics::MeshObjectStorage::OffsetAndLength>;
+    std::unordered_map<BAK::EntityIndex, const FrameOffsets*> mAnimatedEntities{};
+    std::unordered_map<std::string, FrameOffsets> mAnimatedModelFrames{};
 
 
     GlyphStore mGlyphStore;

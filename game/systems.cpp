@@ -192,6 +192,17 @@ void Systems::EnableRenderable(BAK::EntityIndex id, bool render)
     }
 }
 
+void Systems::SetRenderableFrame(BAK::EntityIndex id, std::pair<unsigned, unsigned> object)
+{
+    auto it = std::find_if(
+        mRenderables.begin(), mRenderables.end(),
+        [id=id](const auto& r){ return r.GetId() == id; });
+    if (it != mRenderables.end())
+    {
+        it->SetObject(object);
+    }
+}
+
 void Systems::RemoveDynamicRenderable(BAK::EntityIndex i)
 {
     auto it = std::find_if(

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/interactable/IInteractable.hpp"
+#include "game/interactable/door.hpp"
 
 #include <memory>
 #include <string_view>
@@ -57,7 +58,8 @@ public:
     InteractableFactory(
         Gui::IGuiManager& guiManager,
         BAK::GameState& gameState,
-        EncounterCallback&& encounterCallback);
+        EncounterCallback&& encounterCallback,
+        Interactable::DoorStateCallback&& doorStateCallback);
 
     std::unique_ptr<IInteractable> MakeInteractable(
         BAK::EntityType entity) const;
@@ -66,6 +68,7 @@ private:
     Gui::IGuiManager& mGuiManager;
     BAK::GameState& mGameState;
     EncounterCallback mEncounterCallback;
+    Interactable::DoorStateCallback mDoorStateCallback;
 };
 
 }

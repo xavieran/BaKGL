@@ -56,11 +56,13 @@ std::string_view ToString(InteractableType it)
 InteractableFactory::InteractableFactory(
     Gui::IGuiManager& guiManager,
     BAK::GameState& gameState,
-    EncounterCallback&& encounterCallback)
+    EncounterCallback&& encounterCallback,
+    Interactable::DoorStateCallback&& doorStateCallback)
 :
     mGuiManager{guiManager},
     mGameState{gameState},
-    mEncounterCallback{std::move(encounterCallback)}
+    mEncounterCallback{std::move(encounterCallback)},
+    mDoorStateCallback{std::move(doorStateCallback)}
 {}
 
 std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
@@ -109,7 +111,8 @@ std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
     case InteractableType::Door:
         return std::make_unique<Door>(
             mGuiManager,
-            mGameState);
+            mGameState,
+            mDoorStateCallback);
     case InteractableType::Pit:
         return std::make_unique<Pit>(
             mGuiManager,
