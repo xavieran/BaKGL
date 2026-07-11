@@ -23,7 +23,8 @@ namespace Game::Interactable {
 
 Door::Door(
     Gui::IGuiManager& guiManager,
-    BAK::GameState& gameState)
+    BAK::GameState& gameState,
+    DoorStateCallback onStateChanged)
 :
     mGuiManager{guiManager},
     mGameState{gameState},
@@ -31,7 +32,8 @@ Door::Door(
         []{},
         []{},
         [&](const auto& choice){ DialogFinished(choice); }},
-    mContainer{nullptr}
+    mContainer{nullptr},
+    mOnStateChanged{std::move(onStateChanged)}
 {}
 
 void Door::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType)
@@ -40,12 +42,14 @@ void Door::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType)
 
     assert(mContainer->HasDoor());
     const auto doorIndex = mContainer->GetDoor();
-    const auto doorState = BAK::State::GetDoorState(mGameState, doorIndex.mValue);
-    Logging::LogInfo("Door") << "DoorIndex: " << doorIndex << " DoorOpen? " << std::boolalpha << doorState << " locked? " << (mContainer->HasLock() ? mContainer->GetLock().mRating : 0) << "\n";
+    const auto doorState = BAK::State::GetDoorState(mGameState, doorIndex);
+    Logging::LogInfo("Door") << "DoorIndex: " << doorIndex << " DoorOpen? "
+        << std::boolalpha << doorState << " locked? "
+        << (mContainer->HasLock() ? mContainer->GetLock().mRating : 0) << "\n";
 
     const auto playerPos = glm::cast<float>(mGameState.GetLocation().mPosition);
     const auto doorPos = glm::cast<float>(container.GetHeader().GetPosition());
-    if (glm::distance(playerPos, doorPos) < 800)
+    if (doorState && glm::distance(playerPos, doorPos) < 800)
     {
         StartDialog(BAK::DialogSources::mDoorTooClose);
     }
@@ -87,16 +91,24 @@ void Door::LockFinished()
 
 void Door::OpenDoor()
 {
-    const auto doorIndex = mContainer->GetDoor().mValue;
+    const auto doorIndex = mContainer->GetDoor();
     mGameState.Apply(BAK::State::SetDoorState, doorIndex, true);
     Logging::LogInfo(__FUNCTION__) << " index; " << doorIndex << "\n";
+    if (mOnStateChanged)
+    {
+        mOnStateChanged(doorIndex, true);
+    }
 }
 
 void Door::CloseDoor()
 {
-    const auto doorIndex = mContainer->GetDoor().mValue;
+    const auto doorIndex = mContainer->GetDoor();
     mGameState.Apply(BAK::State::SetDoorState, doorIndex, false);
     Logging::LogInfo(__FUNCTION__) << " index; " << doorIndex << "\n";
+    if (mOnStateChanged)
+    {
+        mOnStateChanged(doorIndex, false);
+    }
 }
 
 void Door::EncounterFinished()

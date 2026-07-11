@@ -13,4 +13,7 @@ static constexpr auto sParryStaffOnStaff = 67;
 static constexpr auto sParrySword = 7;
 static constexpr auto sParryStaffOnArmor = 66;
 
+static constexpr auto sDoorOpen = 38u;
+static constexpr auto sDoorClose = 39u;
+
 }

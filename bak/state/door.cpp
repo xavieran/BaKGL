@@ -11,14 +11,14 @@
 
 namespace BAK::State {
 
-bool GetDoorState(const GameState& gs, unsigned doorIndex)
+bool GetDoorState(const GameState& gs, DoorIndex doorIndex)
 {
-    return gs.ReadEventBool(sDoorFlag + doorIndex);
+    return gs.ReadEventBool(sDoorFlag + doorIndex.mValue);
 }
 
-void SetDoorState(FileBuffer& fb, unsigned doorIndex, bool state)
+void SetDoorState(FileBuffer& fb, DoorIndex doorIndex, bool state)
 {
-    SetEventFlag(fb, sDoorFlag + doorIndex, state);
+    SetEventFlag(fb, sDoorFlag + doorIndex.mValue, state);
 }
 
 }

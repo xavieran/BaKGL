@@ -67,8 +67,9 @@ Zone::Zone(unsigned zoneNumber)
     mWorldTiles{mZoneItems, BAK::Encounter::EncounterFactory{}},
     mObjects{}
 {
-    for (auto& item : mZoneItems.GetItems())
+    for (unsigned i = 0; i < mZoneItems.GetItems().size(); i++)
     {
+        const auto& item = mZoneItems.GetItems()[i];
         mObjects.AddObject(
             item.GetName(),
             BAK::ZoneItemToMeshObject(item, mZoneTextures, mPalette));
@@ -80,6 +81,20 @@ Zone::Zone(unsigned zoneNumber)
                 ClipToMeshObject(
                     *item.GetModelClip(),
                     BAK::GetDebugColor(item.GetEntityType())));
+        }
+
+        const auto frameCount = mZoneItems.GetModelFrameCount(item.GetName());
+        if (frameCount)
+        {
+            const auto& model = mZoneItems.GetModel(i);
+            const auto& clip = mZoneItems.GetClip(i);
+            for (unsigned frame = 1; frame < *frameCount; frame++)
+            {
+                BAK::ZoneItem frameItem(model, clip, mZoneTextures, frame);
+                mObjects.AddObject(
+                    item.GetName() + "_f" + std::to_string(frame),
+                    BAK::ZoneItemToMeshObject(frameItem, mZoneTextures, mPalette));
+            }
         }
     }
 

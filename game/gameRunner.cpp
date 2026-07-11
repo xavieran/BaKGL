@@ -4,6 +4,7 @@
 #include "game/combat/frameAnimator.hpp"
 #include "game/combat/moveAnimator.hpp"
 #include "game/combatModelLoader.hpp"
+#include "game/doorFrameAnimator.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
@@ -17,6 +18,7 @@
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
+#include "bak/sounds.hpp"
 #include "bak/state/door.hpp"
 #include "bak/state/encounter.hpp"
 #include "bak/time.hpp"
@@ -55,7 +57,8 @@ GameRunner::GameRunner(
     mInteractableFactory{
         mGuiManager,
         mGameState,
-        [this](const auto& pos) -> bool { return CheckAndDoEncounter(pos); }},
+        [this](const auto& pos) -> bool { return CheckAndDoEncounter(pos); },
+        [this](BAK::DoorIndex doorIndex, bool isOpen) { OnDoorStateChanged(doorIndex, isOpen); }},
     mCurrentInteractable{nullptr},
     mZoneData{nullptr},
     mActiveEncounter{nullptr},
@@ -166,6 +169,9 @@ void GameRunner::LoadSystems()
     mClickables.clear();
     mEntityTypes.clear();
     mDoorLocations.clear();
+    mDoorIndexToEntityId.clear();
+    mAnimatedEntities.clear();
+    mAnimatedModelFrames.clear();
     mActiveEncounter = nullptr;
 
     std::vector<glm::uvec2> handledLocations{};
@@ -198,6 +204,37 @@ void GameRunner::LoadSystems()
                     const auto et = item.GetZoneItem().GetEntityType();
                     mSystems->AddClickable(Clickable{id});
 
+                    auto setupDoor = [&](BAK::EntityIndex id, BAK::DoorIndex doorIndex)
+                    {
+                        mDoorLocations[item.GetBakLocation()] = doorIndex;
+                        mDoorIndexToEntityId[doorIndex] = id;
+
+                        const auto& name = item.GetZoneItem().GetName();
+                        const auto frameCount = mZoneData->mZoneItems.GetModelFrameCount(name);
+                        if (frameCount)
+                        {
+                            if (mAnimatedModelFrames.find(name) == mAnimatedModelFrames.end())
+                            {
+                                std::vector<Graphics::MeshObjectStorage::OffsetAndLength> frameOffsets;
+                                frameOffsets.push_back(mZoneData->mObjects.GetObject(name));
+                                for (unsigned f = 1; f < *frameCount; f++)
+                                {
+                                    frameOffsets.push_back(mZoneData->mObjects.GetObject(name + "_f" + std::to_string(f)));
+                                }
+
+                                mAnimatedModelFrames[name] = std::move(frameOffsets);
+                            }
+
+                            mAnimatedEntities[id] = &mAnimatedModelFrames[name];
+
+                            if (BAK::State::GetDoorState(mGameState, doorIndex))
+                            {
+                                const auto& frames = mAnimatedModelFrames[name];
+                                mSystems->SetRenderableFrame(id, frames.back());
+                            }
+                        }
+                    };
+
                     auto& containers = mGameState.GetContainers(
                         BAK::ZoneNumber{mZoneData->mZoneLabel.GetZoneNumber()});
                     auto cit = std::find_if(containers.begin(), containers.end(),
@@ -210,7 +247,7 @@ void GameRunner::LoadSystems()
                     {
                         if (et == BAK::EntityType::DOOR && cit->HasDoor())
                         {
-                            mDoorLocations[item.GetBakLocation()] = cit->GetDoor();
+                            setupDoor(id, cit->GetDoor());
                         }
                         mClickables.emplace(id, ClickableEntity{et, &(*cit)});
                         handledLocations.emplace_back(item.GetBakLocation());
@@ -229,7 +266,7 @@ void GameRunner::LoadSystems()
                     {
                         if (et == BAK::EntityType::DOOR && fit->HasDoor())
                         {
-                            mDoorLocations[item.GetBakLocation()] = fit->GetDoor();
+                            setupDoor(id, fit->GetDoor());
                         }
                         mClickables.emplace(id, ClickableEntity{et, &(*fit)});
                         handledLocations.emplace_back(item.GetBakLocation());
@@ -711,6 +748,35 @@ std::optional<BAK::DoorIndex> GameRunner::GetDoorIndex(glm::uvec2 bakLocation) c
     return std::nullopt;
 }
 
+void GameRunner::OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen)
+{
+    auto entityIt = mDoorIndexToEntityId.find(doorIndex);
+    if (entityIt == mDoorIndexToEntityId.end())
+    {
+        return;
+    }
+
+    auto animIt = mAnimatedEntities.find(entityIt->second);
+    if (animIt == mAnimatedEntities.end())
+    {
+        return;
+    }
+
+    const auto doorSound = AudioA::SoundIndex{
+        isOpen ? BAK::sDoorOpen : BAK::sDoorClose
+    };
+
+    AudioA::GetAudioManager().PlaySound(doorSound);
+
+    mGuiManager.AddAnimator(std::make_unique<DoorFrameAnimator>(
+        *mSystems,
+        entityIt->second,
+        *animIt->second,
+        isOpen,
+        sFrameTime / 2,
+        []{}));
+}
+
 bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
 {
     if (!mZoneData)
@@ -764,7 +830,7 @@ bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
             bool allowsMovement = BAK::AllowsMovement(zoneItem);
             if (doorIndex)
             {
-                allowsMovement = BAK::State::GetDoorState(mGameState, doorIndex->mValue);
+                allowsMovement = BAK::State::GetDoorState(mGameState, *doorIndex);
             }
             mLogger.Debug() << "Player location is on a clip: " << p
                 << " item: " << item << " clip: " << modelClip << "\n";

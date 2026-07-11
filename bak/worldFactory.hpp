@@ -11,6 +11,8 @@
 #include "graphics/texture.hpp"
 
 #include <optional>
+#include <string>
+#include <unordered_map>
 
 namespace Graphics {
 class MeshObject;
@@ -49,7 +51,8 @@ public:
     ZoneItem(
         const Model& model,
         const ModelClip& clip,
-        const ZoneTextureStore& textureStore);
+        const ZoneTextureStore& textureStore,
+        std::size_t frame = 0);
 
     ZoneItem(
         unsigned spriteIndex,
@@ -118,9 +121,16 @@ public:
     const std::vector<ZoneItem>& GetItems() const;
     std::vector<ZoneItem>& GetItems();
 
+    std::optional<unsigned> GetModelFrameCount(const std::string& name) const;
+    const Model& GetModel(unsigned i) const;
+    const ModelClip& GetClip(unsigned i) const;
+
 private:
     const ZoneLabel mZoneLabel;
     std::vector<ZoneItem> mItems;
+    std::vector<Model> mModels;
+    std::vector<ModelClip> mClips;
+    std::unordered_map<std::string, unsigned> mModelFrameCountMap;
 };
 
 class WorldItemInstance

@@ -3,9 +3,11 @@
 #include "game/interactable/IInteractable.hpp"
 
 #include "bak/dialogTarget.hpp"
+#include "bak/types.hpp"
 
 #include "gui/IDialogScene.hpp"
 
+#include <functional>
 #include <glm/glm.hpp>
 
 #include <optional>
@@ -21,6 +23,8 @@ class IGuiManager;
 
 namespace Game::Interactable {
 
+using DoorStateCallback = std::function<void(BAK::DoorIndex doorIndex, bool isOpen)>;
+
 class Door : public IInteractable
 {
 private:
@@ -28,7 +32,8 @@ private:
 public:
     Door(
         Gui::IGuiManager& guiManager,
-        BAK::GameState& gameState);
+        BAK::GameState& gameState,
+        DoorStateCallback onStateChanged);
 
     void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType) override;
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
@@ -37,11 +42,13 @@ public:
     void CloseDoor();
     void EncounterFinished() override;
     void StartDialog(BAK::Target target);
+
 private:
     Gui::IGuiManager& mGuiManager;
     BAK::GameState& mGameState;
     Gui::DynamicDialogScene mDialogScene;
     BAK::GenericContainer* mContainer;
+    DoorStateCallback mOnStateChanged;
 };
 
 }
