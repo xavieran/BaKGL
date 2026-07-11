@@ -972,12 +972,30 @@ ZoneItemStore::ZoneItemStore(
         .CreateDataBuffer(mZoneLabel.GetTable());
     auto [models, clips] = LoadTBL(fb);
 
+    auto doorGi = std::find_if(clips.begin(), clips.end(), [](const auto& clip)
+    {
+        return clip.mName == "m_doorgi";
+    });
+
+    // The "door" model by default has an empty clip, we need to pair it
+    // with the doorgi clip so that my system will treat it as a clippable.
+    // The door open/close logic is handled elsewhere
     for (unsigned i = 0; i < models.size(); i++)
     {
-        mItems.emplace_back(
-            models[i],
-            clips[i],
-            textureStore);
+        if (clips[i].mName == "m_door" && doorGi != clips.end())
+        {
+            mItems.emplace_back(
+                models[i],
+                *doorGi,
+                textureStore);
+        }
+        else
+        {
+            mItems.emplace_back(
+                models[i],
+                clips[i],
+                textureStore);
+        }
     }
 }
 

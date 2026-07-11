@@ -68,9 +68,8 @@ void Door::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType)
 void Door::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
     ASSERT(mContainer);
-    ASSERT(choice);
 
-    if (choice->mValue == BAK::Keywords::sYesIndex)
+    if (choice && choice->mValue == BAK::Keywords::sYesIndex)
     {
         mGuiManager.ShowLock(
             mContainer,

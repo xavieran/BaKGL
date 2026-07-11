@@ -132,4 +132,9 @@ Zone::Zone(unsigned zoneNumber)
     }
 }
 
+bool IsUnderground(ZoneNumber zone)
+{
+    return zone.mValue == 10 || zone.mValue == 11 || zone.mValue == 12;
+}
+
 }

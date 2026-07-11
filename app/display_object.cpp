@@ -161,15 +161,30 @@ int main(int argc, char** argv)
     // Dark blue background
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
+    auto ShiftHeld = [&]{
+        return glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
+            || glfwGetKey(window.get(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+    };
+
+    auto ApplySpeedScale = [&]{
+        cameraPtr->SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
+    };
+
     Graphics::InputHandler inputHandler{};
-    inputHandler.Bind(GLFW_KEY_W, [&]{ cameraPtr->MoveForward(); });
-    inputHandler.Bind(GLFW_KEY_S, [&]{ cameraPtr->MoveBackward(); });
+    inputHandler.Bind(GLFW_KEY_W, [&]{ ApplySpeedScale(); cameraPtr->MoveForward(); });
+    inputHandler.Bind(GLFW_KEY_S, [&]{ ApplySpeedScale(); cameraPtr->MoveBackward(); });
     inputHandler.Bind(GLFW_KEY_A, [&]{ cameraPtr->StrafeLeft(); });
     inputHandler.Bind(GLFW_KEY_D, [&]{ cameraPtr->StrafeRight(); });
+    inputHandler.Bind(GLFW_KEY_Z, [&]{ cameraPtr->StrafeUp(); });
+    inputHandler.Bind(GLFW_KEY_V, [&]{ cameraPtr->StrafeDown(); });
     inputHandler.Bind(GLFW_KEY_X, [&]{ cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ cameraPtr->RotateVerticalDown(); });
     inputHandler.Bind(GLFW_KEY_Q, [&]{ cameraPtr->RotateLeft(); });
     inputHandler.Bind(GLFW_KEY_E, [&]{ cameraPtr->RotateRight(); });
+    inputHandler.Bind(GLFW_KEY_UP,   [&]{ ApplySpeedScale(); cameraPtr->StrafeForward(); });
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ ApplySpeedScale(); cameraPtr->StrafeBackward(); });
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ cameraPtr->StrafeLeft(); });
+    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ cameraPtr->StrafeRight(); });
     Graphics::InputHandler::BindKeyboardToWindow(window.get(), inputHandler);
     Graphics::InputHandler::BindMouseToWindow(window.get(), inputHandler);
 
@@ -178,9 +193,6 @@ int main(int argc, char** argv)
     double currentTime;
     double lastTime = 0;
     float deltaTime;
-
-    int prevUp = GLFW_RELEASE;
-    int prevDown = GLFW_RELEASE;
 
     do
     {
@@ -192,6 +204,11 @@ int main(int argc, char** argv)
         cameraPtr->SetDeltaTime(deltaTime);
 
         inputHandler.HandleInput(window.get());
+
+        if (cameraPtr->HasPendingMove())
+        {
+            cameraPtr->AcceptPendingMove();
+        }
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -236,45 +253,6 @@ int main(int argc, char** argv)
             for (int i = 0; i < static_cast<int>(objectNames.size()); ++i)
                 if (matchesFilter(objectNames[i], filterStr))
                     filteredIndices.emplace_back(i);
-
-            {
-                const int curUp   = glfwGetKey(window.get(), GLFW_KEY_UP);
-                const int curDown = glfwGetKey(window.get(), GLFW_KEY_DOWN);
-
-                const bool upPressed   = curUp   == GLFW_PRESS && prevUp   == GLFW_RELEASE;
-                const bool downPressed = curDown == GLFW_PRESS && prevDown == GLFW_RELEASE;
-
-                if (!filterActive && !filteredIndices.empty())
-                {
-                    auto itPos = std::find(
-                        filteredIndices.begin(),
-                        filteredIndices.end(),
-                        currentIndex);
-                    int pos = itPos == filteredIndices.end()
-                        ? -1
-                        : static_cast<int>(itPos - filteredIndices.begin());
-
-                    int newPos = pos;
-                    if (upPressed)
-                        newPos = pos < 0
-                            ? static_cast<int>(filteredIndices.size()) - 1
-                            : (pos - 1 + static_cast<int>(filteredIndices.size()))
-                                % static_cast<int>(filteredIndices.size());
-                    else if (downPressed)
-                        newPos = pos < 0
-                            ? 0
-                            : (pos + 1) % static_cast<int>(filteredIndices.size());
-
-                    if (newPos != pos)
-                    {
-                        currentIndex = filteredIndices[newPos];
-                        selectObject(currentIndex);
-                    }
-                }
-
-                prevUp = curUp;
-                prevDown = curDown;
-            }
 
             for (int i : filteredIndices)
             {

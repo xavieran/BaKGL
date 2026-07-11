@@ -3,7 +3,9 @@
 #include "bak/container.hpp"
 #include "bak/palette.hpp"
 #include "bak/resourceNames.hpp"
+#include "bak/types.hpp"
 #include "bak/worldFactory.hpp"
+
 
 #include "graphics/meshObject.hpp"
 
@@ -25,5 +27,7 @@ public:
     WorldTileStore mWorldTiles;
     Graphics::MeshObjectStorage mObjects;
 };
+
+bool IsUnderground(ZoneNumber);
 
 }
