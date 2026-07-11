@@ -12,12 +12,12 @@
 #include "bak/camera.hpp"
 #include "bak/combat/mechanics.hpp"
 
-#include "gui/colors.hpp"
 #include "bak/chapterTransitions.hpp"
 #include "bak/encounter/combat.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
+#include "bak/state/door.hpp"
 #include "bak/state/encounter.hpp"
 #include "bak/time.hpp"
 #include "bak/types.hpp"
@@ -165,6 +165,7 @@ void GameRunner::LoadSystems()
     mEncounters.clear();
     mClickables.clear();
     mEntityTypes.clear();
+    mDoorLocations.clear();
     mActiveEncounter = nullptr;
 
     std::vector<glm::uvec2> handledLocations{};
@@ -207,6 +208,10 @@ void GameRunner::LoadSystems()
 
                     if (cit != containers.end())
                     {
+                        if (et == BAK::EntityType::DOOR && cit->HasDoor())
+                        {
+                            mDoorLocations[item.GetBakLocation()] = cit->GetDoor();
+                        }
                         mClickables.emplace(id, ClickableEntity{et, &(*cit)});
                         handledLocations.emplace_back(item.GetBakLocation());
                         continue;
@@ -222,6 +227,10 @@ void GameRunner::LoadSystems()
 
                     if (fit != mZoneData->mFixedObjects.end())
                     {
+                        if (et == BAK::EntityType::DOOR && fit->HasDoor())
+                        {
+                            mDoorLocations[item.GetBakLocation()] = fit->GetDoor();
+                        }
                         mClickables.emplace(id, ClickableEntity{et, &(*fit)});
                         handledLocations.emplace_back(item.GetBakLocation());
                         continue;
@@ -469,12 +478,14 @@ void GameRunner::SetupCombatCamera(const BAK::Encounter::Encounter&)
     auto heading = mCamera.GetGameAngle();
     auto angle = mCamera.GetAngle();
 
+    bool isUnderground = BAK::IsUnderground(mGameState.GetZone());
+
     angle.x = BAK::ToGlAngle(heading).x;
-    angle.y = BAK::gBakCombatCameraDownAngle;
+    angle.y = isUnderground ? BAK::gBakCombatCameraDownAngleUnderground : BAK::gBakCombatCameraDownAngle;
     mCamera.SetAngle(angle);
 
     auto pos = mCamera.GetPosition();
-    pos.y = BAK::gBakCombatCameraHeight;
+    pos.y = isUnderground ? BAK::gBakCombatCameraHeightUnderground : BAK::gBakCombatCameraHeight;
     mCamera.SetPosition(pos);
 }
 
@@ -690,6 +701,16 @@ bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
     return false;
 }
 
+std::optional<BAK::DoorIndex> GameRunner::GetDoorIndex(glm::uvec2 bakLocation) const
+{
+    auto it = mDoorLocations.find(bakLocation);
+    if (it != mDoorLocations.end())
+    {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
 bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
 {
     if (!mZoneData)
@@ -739,7 +760,12 @@ bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
 
         if (BAK::PointInModelClip(modelSpace, modelClip))
         {
+            auto doorIndex = GetDoorIndex(item.GetBakLocation());
             bool allowsMovement = BAK::AllowsMovement(zoneItem);
+            if (doorIndex)
+            {
+                allowsMovement = BAK::State::GetDoorState(mGameState, doorIndex->mValue);
+            }
             mLogger.Debug() << "Player location is on a clip: " << p
                 << " item: " << item << " clip: " << modelClip << "\n";
             if (allowsMovement)
@@ -753,7 +779,7 @@ bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
         }
     }
 
-    return mFollowRoad;
+    return mFollowRoad || BAK::IsUnderground(mGameState.GetZone());
 }
 
 void GameRunner::RunGameUpdate(bool advanceTime)

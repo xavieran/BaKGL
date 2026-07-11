@@ -26,6 +26,8 @@ namespace BAK {
 static constexpr float gBakCameraHeight = 100;
 static constexpr float gBakCombatCameraHeight = 900;
 static constexpr float gBakCombatCameraDownAngle = glm::radians(-15.0f);
+static constexpr float gBakCombatCameraHeightUnderground = 450;
+static constexpr float gBakCombatCameraDownAngleUnderground = glm::radians(-10.0f);
 
 using GamePosition = glm::uvec2;
 using GameHeading  = std::uint16_t;

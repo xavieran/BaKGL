@@ -105,6 +105,7 @@ public:
     void SetClipEnabled(bool clip) { mClipEnabled = clip; }
     bool GetClipEnabled() const { return mClipEnabled; }
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
+    std::optional<BAK::DoorIndex> GetDoorIndex(glm::uvec2 bakLocation) const;
     void SetFollowRoad(bool follow) { mFollowRoad = follow; }
     bool GetFollowRoad() const { return mFollowRoad; }
     bool IsAnimationActive() const { return mAnimationActive; }
@@ -221,6 +222,7 @@ public:
 
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
+    std::unordered_map<glm::uvec2, BAK::DoorIndex, UVec2Hash> mDoorLocations{};
 
 
     GlyphStore mGlyphStore;

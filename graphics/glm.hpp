@@ -28,6 +28,14 @@ vec<3, S> cast(const vec<3, T>& x)
 
 }
 
+struct UVec2Hash {
+    std::size_t operator()(const glm::uvec2& v) const {
+        auto h1 = std::hash<unsigned>{}(v.x);
+        auto h2 = std::hash<unsigned>{}(v.y);
+        return h1 ^ (h2 << 1);
+    }
+};
+
 namespace Graphics {
 
 template <typename T>
