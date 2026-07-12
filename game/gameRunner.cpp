@@ -12,6 +12,7 @@
 #include "bak/collision.hpp"
 #include "bak/camera.hpp"
 #include "bak/combat/mechanics.hpp"
+#include "bak/constants.hpp"
 
 #include "bak/chapterTransitions.hpp"
 #include "bak/encounter/combat.hpp"
@@ -172,9 +173,37 @@ void GameRunner::LoadSystems()
     mDoorIndexToEntityId.clear();
     mAnimatedEntities.clear();
     mAnimatedModelFrames.clear();
+    if (mGateAnimator)
+    {
+        mGateAnimator->Stop();
+        mGateAnimator = nullptr;
+    }
+    mGateEntity = std::nullopt;
     mActiveEncounter = nullptr;
 
     std::vector<glm::uvec2> handledLocations{};
+
+    auto setupGate = [&](BAK::EntityIndex id, BAK::EntityType entityType, const std::string& name)
+    {
+        if (entityType != BAK::EntityType::GATE)
+        {
+            return;
+        }
+        assert(name == BAK::sGateModelName);
+        const auto frameCount = mZoneData->mZoneItems.GetModelFrameCount(name);
+        if (frameCount)
+        {
+            if (mAnimatedModelFrames.find(name) == mAnimatedModelFrames.end())
+            {
+                std::vector<Graphics::MeshObjectStorage::OffsetAndLength> frameOffsets;
+                frameOffsets.push_back(mZoneData->mObjects.GetObject(name));
+                for (unsigned f = 1; f < *frameCount; f++)
+                    frameOffsets.push_back(mZoneData->mObjects.GetObject(name + "_f" + std::to_string(f)));
+                mAnimatedModelFrames[name] = std::move(frameOffsets);
+            }
+            mGateEntity = id;
+        }
+    };
 
     for (const auto& world : mZoneData->mWorldTiles.GetTiles())
     {
@@ -184,8 +213,8 @@ void GameRunner::LoadSystems()
             {
                 auto id = mSystems->GetNextItemId();
                 mEntityTypes[id] = item.GetZoneItem().GetEntityType();
-                auto rotation = item.GetZoneItem().IsSprite() ? Graphics::sNinetyDegreeRotation : item.GetRotation();
 
+                auto rotation = item.GetZoneItem().IsSprite() ? Graphics::sNinetyDegreeRotation : item.GetRotation();
                 auto renderable = Renderable{
                     id,
                     mZoneData->mObjects.GetObject(item.GetZoneItem().GetName()),
@@ -197,6 +226,8 @@ void GameRunner::LoadSystems()
                     mSystems->AddSprite(renderable);
                 else
                     mSystems->AddRenderable(renderable);
+
+                setupGate(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
 
                 if (item.GetZoneItem().GetClickable())
                 {
@@ -305,6 +336,8 @@ void GameRunner::LoadSystems()
             glm::vec3{static_cast<float>(item.GetScale())}};
         mSystems->AddRenderable(renderable);
 
+        setupGate(id, item.GetEntityType(), item.GetName());
+
         mSystems->AddClickable(Clickable{id});
         mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
     }
@@ -333,6 +366,8 @@ void GameRunner::LoadSystems()
             glm::vec3{},
             glm::vec3{static_cast<float>(item.GetScale())}};
         mSystems->AddRenderable(renderable);
+
+        setupGate(id, item.GetEntityType(), item.GetName());
 
         mSystems->AddClickable(Clickable{id});
         mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
@@ -395,6 +430,32 @@ void GameRunner::LoadSystems()
     mGridVisible = false;
     mGridCellRenderables.clear();
     mGridCells.clear();
+
+    StartGateAnimation();
+}
+
+void GameRunner::StartGateAnimation()
+{
+    if (!mGateEntity)
+    {
+        return;
+    }
+
+    const std::string gateName{BAK::sGateModelName};
+    auto it = mAnimatedModelFrames.find(gateName);
+    if (it == mAnimatedModelFrames.end())
+    {
+        mLogger.Error() << "No frame data for gate\n";
+        return;
+    }
+
+    auto animator = std::make_unique<GateAnimator>(
+        *mSystems,
+        *mGateEntity,
+        it->second,
+        sFrameTime);
+    mGateAnimator = animator.get();
+    mGuiManager.AddAnimator(std::move(animator));
 }
 
 void GameRunner::LoadTileActors(std::uint8_t tileIndex)

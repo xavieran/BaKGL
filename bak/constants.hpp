@@ -16,6 +16,10 @@ static constexpr auto gCombatGridCellSize = 300;
 static constexpr auto gCombatGridRows = 13u;
 static constexpr auto gCombatGridCols = 8u;
 
+static constexpr std::string_view sGateModelName = "gate2";
+static constexpr std::string_view sDoorModelName = "m_door";
+static constexpr std::string_view sDoorGiClipName = "m_doorgi";
+
 enum class Terrain 
 {
     Ground    = 0,
