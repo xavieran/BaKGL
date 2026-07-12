@@ -19,6 +19,7 @@ static constexpr auto gCombatGridCols = 8u;
 static constexpr std::string_view sGateModelName = "gate2";
 static constexpr std::string_view sDoorModelName = "m_door";
 static constexpr std::string_view sDoorGiClipName = "m_doorgi";
+static constexpr std::string_view sCatapultModelName = "catapult";
 
 enum class Terrain 
 {

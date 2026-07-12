@@ -23,8 +23,6 @@ class IGuiManager;
 
 namespace Game::Interactable {
 
-using DoorStateCallback = std::function<void(BAK::DoorIndex doorIndex, bool isOpen)>;
-
 class Door : public IInteractable
 {
 private:

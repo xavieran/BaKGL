@@ -36,7 +36,7 @@ public:
 
     void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType) override;
     void DoEncounter();
-    void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
+    virtual void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
     void EncounterFinished() override;
     void StartDialog(BAK::Target target);
 

@@ -15,6 +15,7 @@
 #include "bak/constants.hpp"
 
 #include "bak/chapterTransitions.hpp"
+#include "bak/dialogChoice.hpp"
 #include "bak/encounter/combat.hpp"
 #include "bak/encounter/encounter.hpp"
 #include "bak/encounter/teleport.hpp"
@@ -59,7 +60,8 @@ GameRunner::GameRunner(
         mGuiManager,
         mGameState,
         [this](const auto& pos) -> bool { return CheckAndDoEncounter(pos); },
-        [this](BAK::DoorIndex doorIndex, bool isOpen) { OnDoorStateChanged(doorIndex, isOpen); }},
+        [this](BAK::DoorIndex doorIndex, bool isOpen) { OnDoorStateChanged(doorIndex, isOpen); },
+        [this]() { SetCatapultFrame(); }},
     mCurrentInteractable{nullptr},
     mZoneData{nullptr},
     mActiveEncounter{nullptr},
@@ -179,6 +181,7 @@ void GameRunner::LoadSystems()
         mGateAnimator = nullptr;
     }
     mGateEntity = std::nullopt;
+    mCatapultEntity.reset();
     mActiveEncounter = nullptr;
 
     std::vector<glm::uvec2> handledLocations{};
@@ -205,6 +208,30 @@ void GameRunner::LoadSystems()
         }
     };
 
+    auto setupCatapult = [&](BAK::EntityIndex id, BAK::EntityType entityType, const std::string& name)
+    {
+        if (entityType != BAK::EntityType::CATAPULT)
+        {
+            return;
+        }
+        assert(name == BAK::sCatapultModelName);
+        const auto frameCount = mZoneData->mZoneItems.GetModelFrameCount(name);
+        if (frameCount > 0)
+        {
+            if (mAnimatedModelFrames.find(name) == mAnimatedModelFrames.end())
+            {
+                std::vector<Graphics::MeshObjectStorage::OffsetAndLength> frameOffsets;
+                frameOffsets.push_back(mZoneData->mObjects.GetObject(name));
+                for (unsigned f = 1; f < *frameCount; f++)
+                {
+                    frameOffsets.push_back(mZoneData->mObjects.GetObject(name + "_f" + std::to_string(f)));
+                }
+                mAnimatedModelFrames[name] = std::move(frameOffsets);
+            }
+            mCatapultEntity = id;
+        }
+    };
+
     for (const auto& world : mZoneData->mWorldTiles.GetTiles())
     {
         for (const auto& item : world.GetItems())
@@ -228,6 +255,7 @@ void GameRunner::LoadSystems()
                     mSystems->AddRenderable(renderable);
 
                 setupGate(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
+                setupCatapult(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
 
                 if (item.GetZoneItem().GetClickable())
                 {
@@ -337,6 +365,7 @@ void GameRunner::LoadSystems()
         mSystems->AddRenderable(renderable);
 
         setupGate(id, item.GetEntityType(), item.GetName());
+        setupCatapult(id, item.GetEntityType(), item.GetName());
 
         mSystems->AddClickable(Clickable{id});
         mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
@@ -368,6 +397,7 @@ void GameRunner::LoadSystems()
         mSystems->AddRenderable(renderable);
 
         setupGate(id, item.GetEntityType(), item.GetName());
+        setupCatapult(id, item.GetEntityType(), item.GetName());
 
         mSystems->AddClickable(Clickable{id});
         mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
@@ -432,6 +462,7 @@ void GameRunner::LoadSystems()
     mGridCells.clear();
 
     StartGateAnimation();
+    SetCatapultFrame();
 }
 
 void GameRunner::StartGateAnimation()
@@ -456,6 +487,30 @@ void GameRunner::StartGateAnimation()
         sFrameTime);
     mGateAnimator = animator.get();
     mGuiManager.AddAnimator(std::move(animator));
+}
+
+void GameRunner::SetCatapultFrame()
+{
+    if (!mCatapultEntity)
+    {
+        return;
+    }
+
+    auto framesIt = mAnimatedModelFrames.find(std::string(BAK::sCatapultModelName));
+    if (framesIt == mAnimatedModelFrames.end())
+    {
+        return;
+    }
+
+    const auto catapultFiredChoice = BAK::DialogChoice{
+        0xdbba,
+        0x200,
+        0xff01,
+        BAK::KeyTarget{0}};
+    const auto frameIndex = mGameState.EvaluateDialogChoice(catapultFiredChoice)
+        ? 1
+        : 0;
+    mSystems->SetRenderableFrame(*mCatapultEntity, (framesIt->second)[frameIndex]);
 }
 
 void GameRunner::LoadTileActors(std::uint8_t tileIndex)
