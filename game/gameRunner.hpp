@@ -179,6 +179,7 @@ private:
     }
 
     void StartGateAnimation();
+    void SetCatapultFrame();
 
 public:
     Camera& mCamera;
@@ -236,6 +237,8 @@ public:
 
     std::optional<BAK::EntityIndex> mGateEntity{};
     GateAnimator* mGateAnimator{nullptr};
+
+    std::optional<BAK::EntityIndex> mCatapultEntity{};
 
 
     GlyphStore mGlyphStore;

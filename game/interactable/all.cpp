@@ -2,6 +2,7 @@
 #include "chest.cpp"
 #include "combatant.cpp"
 #include "corpse.cpp"
+#include "catapult.cpp"
 #include "door.cpp"
 #include "factory.cpp"
 #include "generic.cpp"

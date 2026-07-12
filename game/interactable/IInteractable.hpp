@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/entityType.hpp"
+#include "bak/types.hpp"
 
 #include <glm/glm.hpp>
 
@@ -13,6 +14,9 @@ class GenericContainer;
 namespace Game {
 
 using EncounterCallback = std::function<bool(glm::uvec2)>;
+using DoorStateCallback = std::function<void(BAK::DoorIndex doorIndex, bool isOpen)>;
+using CatapultCallback = std::function<void()>;
+
 
 class IInteractable
 {

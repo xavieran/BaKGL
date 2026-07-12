@@ -4,6 +4,7 @@
 #include "bak/dialogSources.hpp"
 
 #include "game/interactable/building.hpp"
+#include "game/interactable/catapult.hpp"
 #include "game/interactable/chest.hpp"
 #include "game/interactable/combatant.hpp"
 #include "game/interactable/corpse.hpp"
@@ -57,12 +58,14 @@ InteractableFactory::InteractableFactory(
     Gui::IGuiManager& guiManager,
     BAK::GameState& gameState,
     EncounterCallback&& encounterCallback,
-    Interactable::DoorStateCallback&& doorStateCallback)
+    DoorStateCallback&& doorStateCallback,
+    CatapultCallback&& catapultCallback)
 :
     mGuiManager{guiManager},
     mGameState{gameState},
     mEncounterCallback{std::move(encounterCallback)},
-    mDoorStateCallback{std::move(doorStateCallback)}
+    mDoorStateCallback{std::move(doorStateCallback)},
+    mCatapultCallback{std::move(catapultCallback)}
 {}
 
 std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
@@ -89,6 +92,12 @@ std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
             mGuiManager,
             mGameState,
             mEncounterCallback);
+    case InteractableType::Catapult:
+        return std::make_unique<Catapult>(
+            mGuiManager,
+            BAK::KeyTarget{0},
+            mEncounterCallback,
+            mCatapultCallback);
     case InteractableType::Chest:
         return std::make_unique<Chest>(
             mGuiManager,
