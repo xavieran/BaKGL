@@ -147,6 +147,8 @@ std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
     case InteractableType::Tunnel0: [[ fallthrough ]];
     case InteractableType::Tunnel1:
         return MakeGeneric(BAK::DialogSources::mUnknownObject);
+    case InteractableType::RiftMachine:
+        return MakeGeneric(BAK::DialogSources::mUnknownObject);
     case InteractableType::DeadCombatant:
         return std::make_unique<Corpse>(
             mGuiManager,

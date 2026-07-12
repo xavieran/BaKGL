@@ -1,6 +1,7 @@
 #include "bak/worldFactory.hpp"
 
 #include "bak/encounter/encounter.hpp"
+#include "bak/constants.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/image.hpp"
 #include "bak/imageStore.hpp"
@@ -998,14 +999,14 @@ ZoneItemStore::ZoneItemStore(
 
     auto doorGi = std::find_if(mClips.begin(), mClips.end(), [](const auto& clip)
     {
-        return clip.mName == "m_doorgi";
+        return clip.mName == BAK::sDoorGiClipName;
     });
 
     // The "m_door" model by default has an empty clip, we need to pair it
     // with the "m_doorgi" clip so that my system will treat it as a clippable.
     for (unsigned i = 0; i < mModels.size(); i++)
     {
-        if (mClips[i].mName == "m_door" && doorGi != mClips.end())
+        if (mClips[i].mName == BAK::sDoorModelName && doorGi != mClips.end())
         {
             mClips[i] = *doorGi;
         }

@@ -10,6 +10,8 @@
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
+#include "game/gateAnimator.hpp"
+
 #include "bak/IZoneLoader.hpp"
 #include "bak/combat/combat.hpp"
 #include "bak/combat/retreat.hpp"
@@ -176,6 +178,8 @@ private:
             static_cast<int>(i / BAK::gCombatGridCols)};
     }
 
+    void StartGateAnimation();
+
 public:
     Camera& mCamera;
     BAK::GameState& mGameState;
@@ -229,6 +233,9 @@ public:
     using FrameOffsets = std::vector<Graphics::MeshObjectStorage::OffsetAndLength>;
     std::unordered_map<BAK::EntityIndex, const FrameOffsets*> mAnimatedEntities{};
     std::unordered_map<std::string, FrameOffsets> mAnimatedModelFrames{};
+
+    std::optional<BAK::EntityIndex> mGateEntity{};
+    GateAnimator* mGateAnimator{nullptr};
 
 
     GlyphStore mGlyphStore;
