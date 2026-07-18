@@ -107,6 +107,7 @@ public:
     void SetClipEnabled(bool clip) { mClipEnabled = clip; }
     bool GetClipEnabled() const { return mClipEnabled; }
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
+    std::optional<float> ComputeTerrainHeight(BAK::GamePosition playerPos) const;
     std::optional<BAK::DoorIndex> GetDoorIndex(glm::uvec2 bakLocation) const;
     void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
     void SetFollowRoad(bool follow) { mFollowRoad = follow; }

@@ -87,6 +87,12 @@ void Camera::SetPosition(const glm::vec3& position)
     mDistanceTravelled = 0;
 }
 
+void Camera::SetHeight(float height)
+{
+    mPosition.y = height;
+    PositionChanged();
+}
+
 void Camera::SetAngle(glm::vec2 angle)
 {
     mAngle = angle;

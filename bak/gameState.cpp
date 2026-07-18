@@ -28,6 +28,7 @@
 #include "bak/spells.hpp"
 #include "bak/state/dialog.hpp"
 #include "bak/dialogAction.hpp"
+#include "bak/zone.hpp"
 #include "bak/time.hpp"
 
 #include "com/ostream.hpp"
@@ -186,6 +187,11 @@ MapLocation GameState::GetMapLocation() const
 ZoneNumber GameState::GetZone() const
 {
     return mGameData.mLocation.mZone;
+}
+
+bool GameState::IsUnderground() const
+{
+    return BAK::IsUnderground(GetZone());
 }
 
 const WorldClock& GameState::GetWorldTime() const

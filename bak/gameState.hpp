@@ -102,6 +102,7 @@ public:
     GamePositionAndHeading GetLocation() const;
     MapLocation GetMapLocation() const;
     ZoneNumber GetZone() const;
+    bool IsUnderground() const;
 
     auto& GetTimeExpiringState() { return mTimeExpiringState; }
 

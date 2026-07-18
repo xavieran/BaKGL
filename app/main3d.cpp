@@ -549,21 +549,17 @@ int main(int argc, char** argv)
         {
             auto proposed = camera.GetPendingPosition();
             auto bakPos = glm::uvec2{proposed.x, -proposed.z};
-            if (gameRunner.CannotMoveHere(bakPos))
+            if (gameRunner.CannotMoveHere(bakPos) && gameRunner.GetClipEnabled())
             {
-                if (gameRunner.GetClipEnabled())
-                {
-                    camera.RejectPendingMove();
-                }
-                else
-                {
-                    camera.AcceptPendingMove();
-                    UpdateGameTile();
-                }
+                camera.RejectPendingMove();
             }
             else
             {
                 camera.AcceptPendingMove();
+                if (auto height = gameRunner.ComputeTerrainHeight(camera.GetGameLocation().mPosition))
+                {
+                    camera.SetHeight(*height);
+                }
                 UpdateGameTile();
             }
         }
