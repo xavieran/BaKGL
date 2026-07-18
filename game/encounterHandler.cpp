@@ -69,6 +69,12 @@ bool EncounterHandler::DoEncounter(const BAK::Encounter::Encounter& encounter)
         [&](const BAK::Encounter::Combat& combat){
             if (mGuiManager.InMainView())
             {
+                mSavedAngle = mCamera.GetAngle();
+                mDynamicDialogScene.SetDialogFinished(
+                    [&](const auto&){
+                        mCamera.SetAngle(mSavedAngle);
+                        mDynamicDialogScene.ResetDialogFinished();
+                    });
                 return mCombatHandler.CheckAndDoCombatEncounter(encounter, combat);
             }
             return false;
