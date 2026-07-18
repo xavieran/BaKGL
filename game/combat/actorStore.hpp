@@ -18,7 +18,7 @@ public:
     static constexpr auto sMinIdleTimeMs = 400;
     static constexpr auto sMaxIdleTimeMs = 800;
 
-    BAK::EntityIndex mItemId;
+    BAK::EntityIndex mEntityId;
     std::pair<unsigned, unsigned> mObject;
     glm::vec3 mLocation;
     glm::vec3 mRotation;
@@ -35,12 +35,12 @@ public:
     bool mAnimating{false};
 
     Actor(
-        BAK::EntityIndex itemId,
+        BAK::EntityIndex entityId,
         glm::vec3 location,
         BAK::MonsterIndex monster,
         const CombatModelLoader& loader)
     :
-        mItemId{itemId},
+        mEntityId{entityId},
         mLocation{location},
         mRotation{Graphics::sNinetyDegreeRotation},
         mScale{glm::vec3{1}},
@@ -104,12 +104,15 @@ public:
         if (auto anim = GetAnimData())
         {
             auto frameCount = anim->mMeta.mFrames;
-            if (frameCount > 0
-                && mFrame >= static_cast<int>(frameCount))
+            if (frameCount > 0 && mFrame >= static_cast<int>(frameCount))
             {
                 mFrame = frameCount - 1;
                 ApplyFrame(*anim);
                 return true;
+            }
+            else if (frameCount <= 1)
+            {
+                mFrame = 0;
             }
             ApplyFrame(*anim);
         }
@@ -120,7 +123,9 @@ public:
     {
         auto anim = GetAnimData();
         if (!anim || anim->mMeta.mFrames <= 1)
+        {
             return;
+        }
 
         mFrame += mIdleDelta;
         auto maxFrame = static_cast<int>(anim->mMeta.mFrames) - 1;
@@ -182,13 +187,22 @@ private:
         auto request = AnimationRequest{mAnimationType, BAK::ToSpriteDirection(mDirection)};
         auto& datas = mCombatModelLoader.mCombatModelDatas[mMonster.mValue];
         if (!datas || !datas->mOffsetMap.contains(request))
+        {
             return std::nullopt;
+        }
         return AnimData{&(*datas), datas->mOffsetMap.at(request)};
     }
 
     void ApplyFrame(const AnimData& anim)
     {
-        mObject = anim.mDatas->mObjectDrawData[anim.mMeta.mOffset + mFrame];
+        auto animationOffset = anim.mMeta.mOffset + mFrame;
+        if (animationOffset >= anim.mDatas->mObjectDrawData.size())
+        {
+            Logging::LogFatal(__FUNCTION__) << "Attempted to access animation outside of draw data size: "
+                << ToString(mAnimationType) << " dir: " << ToString(mDirection) << " frame: " << mFrame << std::endl;
+            assert(false);
+        }
+        mObject = anim.mDatas->mObjectDrawData[animationOffset];
         CalculateModelMatrix();
     }
 
@@ -245,7 +259,7 @@ public:
     {
         auto it = std::find_if(mActors.begin(), mActors.end(), [id](auto c)
         {
-            return c.mItemId == id;
+            return c.mEntityId == id;
         });
 
         if (it == mActors.end())
@@ -265,7 +279,7 @@ public:
     {
         for (auto& actor : mActors)
         {
-            mSystems->RemoveDynamicRenderable(actor.mItemId);
+            mSystems->RemoveDynamicRenderable(actor.mEntityId);
         }
         mActors.clear();
     }

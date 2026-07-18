@@ -13,6 +13,7 @@
 #include "bak/camera.hpp"
 #include "bak/combat/mechanics.hpp"
 #include "bak/constants.hpp"
+#include "bak/movement.hpp"
 
 #include "bak/chapterTransitions.hpp"
 #include "bak/dialogChoice.hpp"
@@ -996,6 +997,70 @@ std::optional<float> GameRunner::ComputeTerrainHeight(BAK::GamePosition playerPo
         {
             return BAK::ComputeWorldHeight(*height, item.GetScale());
         }
+    }
+
+    return std::nullopt;
+}
+
+std::optional<BAK::CardinalDirection> GameRunner::GetOpenDirection(BAK::GamePositionAndHeading playerLocation) const
+{
+    if (!mZoneData)
+    {
+        return std::nullopt;
+    }
+
+    const auto currentHeading = playerLocation.mHeading;
+
+    std::int16_t leftStep  = BAK::gBakSmallRotationBakHeading;
+    leftStep = -leftStep;
+    std::int16_t rightStep = BAK::gBakSmallRotationBakHeading;
+    std::int16_t negativeNinetyDegrees = BAK::gBakNinetyDegrees;
+    auto maxSearchAngleLeft  = BAK::RotateHeading(currentHeading, negativeNinetyDegrees);
+    auto maxSearchAngleRight = BAK::RotateHeading(currentHeading, BAK::gBakNinetyDegrees);
+
+    auto currentSearchLeft  = currentHeading;
+    auto currentSearchRight = currentHeading;
+
+    auto headingToCheck = playerLocation;
+    bool canMoveLeft{};
+    bool canMoveRight{};
+    while (currentSearchLeft != maxSearchAngleLeft)
+    {
+        currentSearchLeft = BAK::RotateHeading(currentSearchLeft, leftStep);
+        headingToCheck.mHeading = currentSearchLeft;
+        auto positionToCheck = BAK::MoveForward(headingToCheck, 400);
+
+        if (!CannotMoveHere(positionToCheck.mPosition))
+        {
+            canMoveLeft = true;
+        }
+
+        currentSearchRight = BAK::RotateHeading(currentSearchRight, rightStep);
+        headingToCheck.mHeading = currentSearchRight;
+        positionToCheck = BAK::MoveForward(headingToCheck, 400);
+
+        if (!CannotMoveHere(positionToCheck.mPosition))
+        {
+            canMoveRight = true;
+        }
+
+        if (canMoveRight || canMoveLeft)
+        {
+            break;
+        }
+    }
+
+    if (canMoveLeft && canMoveRight)
+    {
+        return std::nullopt;
+    }
+    else if (canMoveLeft)
+    {
+        return BAK::CardinalDirection::West;
+    }
+    else if (canMoveRight)
+    {
+        return BAK::CardinalDirection::East;
     }
 
     return std::nullopt;

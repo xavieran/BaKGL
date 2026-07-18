@@ -35,6 +35,7 @@ using GameHeading  = std::uint16_t;
 static constexpr GameHeading gBakSmallRotationBakHeading  = 4;
 static constexpr GameHeading gBakMediumRotationBakHeading = 8;
 static constexpr GameHeading gBakLargeRotationBakHeading  = 16;
+static constexpr std::int16_t gBakNinetyDegrees           = 64;
 
 // Heading 0 => north, 64 => west, 128 => south, 192 => east
 // Full circle = 256
