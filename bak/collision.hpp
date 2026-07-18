@@ -33,4 +33,10 @@ glm::vec2 WorldToModelClipSpace(
     float rotation,
     float scale);
 
+glm::vec2 ModelClipToWorldSpace(
+    glm::vec2 playerPos,
+    glm::vec2 itemPos,
+    float rotation,
+    float scale);
+
 }

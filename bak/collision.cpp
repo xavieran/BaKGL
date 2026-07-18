@@ -7,6 +7,7 @@
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
 #include <cmath>
@@ -164,6 +165,21 @@ glm::vec2 WorldToModelClipSpace(
         : local;
     auto modelSpace = rotated / scale;
     return modelSpace;
+}
+
+glm::vec2 ModelClipToWorldSpace(
+    glm::vec2 playerPos,
+    glm::vec2 itemPos,
+    float rotation,
+    float scale)
+{
+    auto scaled = playerPos * scale;
+
+    auto rotated = (rotation != 0.0f)
+        ? glm::rotate(scaled, rotation)
+        : scaled;
+
+    return itemPos + rotated;
 }
 
 }

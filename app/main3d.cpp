@@ -2,6 +2,7 @@
 
 #include "bak/backgroundSounds.hpp"
 #include "bak/camera.hpp"
+#include "bak/collision.hpp"
 #include "bak/constants.hpp"
 #include "bak/dialogJson.hpp"
 #include "bak/lua/core.hpp"
@@ -395,13 +396,11 @@ int main(int argc, char** argv)
         if (InputAllowed())
         {
             cameraPtr->RotateLeft();
-            guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         }});
     inputHandler.Bind(GLFW_KEY_E, [&]{ 
         if (InputAllowed())
         {
             cameraPtr->RotateRight();
-            guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         }});
     inputHandler.Bind(GLFW_KEY_Z, [&]{ if (InputAllowed()){cameraPtr->StrafeUp();}});
     inputHandler.Bind(GLFW_KEY_V, [&]{ if (InputAllowed()){cameraPtr->StrafeDown();}});
@@ -537,6 +536,7 @@ int main(int argc, char** argv)
         if (guiManager.InMainView())
         {
             gameState.SetLocation(cameraPtr->GetGameLocation());
+            guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
         }
 
         glfwPollEvents();
@@ -547,10 +547,27 @@ int main(int argc, char** argv)
             && cameraPtr == &camera
             && camera.HasPendingMove())
         {
-            auto proposed = camera.GetPendingPosition();
-            auto bakPos = glm::uvec2{proposed.x, -proposed.z};
-            if (gameRunner.CannotMoveHere(bakPos) && gameRunner.GetClipEnabled())
+            auto targetPos = camera.GetPendingPosition();
+            auto bakTargetPos = glm::uvec2{targetPos.x, -targetPos.z};
+            if (gameRunner.CannotMoveHere(bakTargetPos) && gameRunner.GetClipEnabled())
             {
+                auto gameLocation = camera.GetGameLocation();
+                auto turnDirection = gameRunner.GetOpenDirection(gameLocation);
+                if (turnDirection)
+                {
+                    if (*turnDirection == BAK::CardinalDirection::West)
+                    {
+                        cameraPtr->RotateRight();
+                    }
+                    else
+                    {
+                        cameraPtr->RotateLeft();
+                    }
+                }
+                else
+                {
+                    logger.Debug() << "Could move in either direction or not at all\n";
+                }
                 camera.RejectPendingMove();
             }
             else
