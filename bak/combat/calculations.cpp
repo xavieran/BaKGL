@@ -637,8 +637,8 @@ void PoisonCombatant(Character& combatant, CombatState& state)
         auto health = skills.GetSkill(SkillType::Health);
         auto stamina = skills.GetSkill(SkillType::Stamina);
 
-        Logging::LogDebug(__FUNCTION__) << " Dead: " << combatState.mIsDead << " Before: \nHealth "
-            << health << "\nStamina " << stamina << "\n";
+        Logging::LogDebug(__FUNCTION__) << "Mods: " << std::hex << modifierFlags << std::dec
+            << " Before: \nHealth " << health << "\nStamina " << stamina << "\n";
     }
 
     if (monster == sWindElemental)

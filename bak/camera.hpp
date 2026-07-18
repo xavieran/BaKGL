@@ -24,6 +24,7 @@ public:
     BAK::GamePositionAndHeading GetGameLocation() const;
     glm::uvec2 GetGameTile() const;
     void SetPosition(const glm::vec3& position);
+    void SetHeight(float height);
     void SetAngle(glm::vec2 angle);
     BAK::GameHeading GetHeading();
     void SetDeltaTime(double dt);

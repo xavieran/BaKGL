@@ -204,4 +204,162 @@ TEST_F(CollisionTestFixture, WorldToModelClipSpaceNonZeroModelPosWithRotationAnd
     EXPECT_NEAR(result.y, -10.0f, 1e-6f);
 }
 
+TEST_F(CollisionTestFixture, PointInClipElementBasic)
+{
+    // Square from (-100,-100) to (100,100)
+    // Each vertex normal is the outward-facing normal of the edge leaving it
+    ClipElement elem{};
+    elem.mPoints = {
+        ClipPoint{{  0, -100}, {-100, -100}},  // bottom edge, normal down
+        ClipPoint{{ 100,    0}, { 100, -100}},  // right edge, normal right
+        ClipPoint{{   0,  100}, { 100,  100}},  // top edge, normal up
+        ClipPoint{{-100,    0}, {-100,  100}},  // left edge, normal left
+    };
+    elem.mHeightPoint = std::nullopt;
+    elem.mScale = 0;
+    elem.mBaseHeight = 0;
+
+    EXPECT_TRUE(PointInClipElement({0, 0}, elem));
+    EXPECT_TRUE(PointInClipElement({50, 0}, elem));
+    EXPECT_FALSE(PointInClipElement({200, 0}, elem));
+    EXPECT_FALSE(PointInClipElement({0, 200}, elem));
+}
+
+TEST_F(CollisionTestFixture, ComputeHeightNoHeightPoint)
+{
+    ClipElement elem{};
+    elem.mPoints = {
+        ClipPoint{{-100, -100}, {-100, -100}},
+        ClipPoint{{   0, -100}, { 100, -100}},
+        ClipPoint{{ 100,    0}, { 100,  100}},
+        ClipPoint{{   0,  100}, {   0,  100}},
+    };
+    elem.mHeightPoint = std::nullopt;
+    elem.mScale = 0;
+    elem.mBaseHeight = 0;
+
+    auto result = ComputeHeight({0, 0}, elem);
+    EXPECT_FALSE(result.has_value());
+}
+
+TEST_F(CollisionTestFixture, ComputeHeightVertexBased)
+{
+    ClipElement elem{};
+    elem.mPoints = {
+        ClipPoint{{-100, -100}, {-100, -100}},
+        ClipPoint{{   0, -100}, { 100, -100}},
+        ClipPoint{{ 100,    0}, { 100,  100}},
+        ClipPoint{{   0,  100}, {   0,  100}},
+    };
+    elem.mHeightPoint = ClipPoint{
+        glm::ivec2{0, 0},
+        glm::ivec2{0, 0}
+    };
+    elem.mScale = 0;
+    elem.mBaseHeight = 500;
+
+    auto result = ComputeHeight({0, 0}, elem);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_FLOAT_EQ(*result, 500.0f);
+}
+
+TEST_F(CollisionTestFixture, ComputeHeightEdgeBasedAtReference)
+{
+    ClipElement elem{};
+    elem.mPoints = {
+        ClipPoint{{-100, -100}, {-100, -100}},
+        ClipPoint{{   0, -100}, { 100, -100}},
+        ClipPoint{{ 100,    0}, { 100,  100}},
+        ClipPoint{{   0,  100}, {   0,  100}},
+    };
+    // Direction (1, 0), reference at (50, 0)
+    elem.mHeightPoint = ClipPoint{
+        glm::ivec2{1, 0},
+        glm::ivec2{50, 0}
+    };
+    elem.mScale = 4;
+    elem.mBaseHeight = 200;
+
+    // At the reference point, dot = 0, so raw = baseHeight
+    auto result = ComputeHeight({50, 0}, elem);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_FLOAT_EQ(*result, 200.0f);
+}
+
+TEST_F(CollisionTestFixture, ComputeHeightEdgeBasedGradient)
+{
+    ClipElement elem{};
+    elem.mPoints = {
+        ClipPoint{{-100, -100}, {-100, -100}},
+        ClipPoint{{   0, -100}, { 100, -100}},
+        ClipPoint{{ 100,    0}, { 100,  100}},
+        ClipPoint{{   0,  100}, {   0,  100}},
+    };
+    // Direction (1, 0), reference at (0, 0), scale=4, baseHeight=100
+    elem.mHeightPoint = ClipPoint{
+        glm::ivec2{1, 0},
+        glm::ivec2{0, 0}
+    };
+    elem.mScale = 4;
+    elem.mBaseHeight = 100;
+
+    auto result = ComputeHeight({-10, 0}, elem);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_NEAR(*result, 100.0f + 40.0f / 4096.0f, 1e-4f);
+}
+
+TEST_F(CollisionTestFixture, ComputeHeightFindsCorrectElement)
+{
+    // elem0: square from (-100,-100) to (100,100), no height data
+    ClipElement elem0{};
+    elem0.mPoints = {
+        ClipPoint{{  0, -100}, {-100, -100}},
+        ClipPoint{{ 100,    0}, { 100, -100}},
+        ClipPoint{{   0,  100}, { 100,  100}},
+        ClipPoint{{-100,    0}, {-100,  100}},
+    };
+    elem0.mHeightPoint = std::nullopt;
+    elem0.mScale = 0;
+    elem0.mBaseHeight = 0;
+
+    // elem1: square from (-200,-200) to (-100,-100), has height
+    ClipElement elem1{};
+    elem1.mPoints = {
+        ClipPoint{{  0, -100}, {-200, -200}},
+        ClipPoint{{ 100,    0}, {-100, -200}},
+        ClipPoint{{   0,  100}, {-100, -100}},
+        ClipPoint{{-100,    0}, {-200, -100}},
+    };
+    elem1.mHeightPoint = ClipPoint{
+        glm::ivec2{0, 0},
+        glm::ivec2{0, 0}
+    };
+    elem1.mScale = 0;
+    elem1.mBaseHeight = 777;
+
+    ModelClip clip{};
+    clip.mRadius = {16000, 16000};
+    clip.mFlags = 0;
+    clip.mWalkable = false;
+    clip.mHasVertical = false;
+    clip.mElements = {elem0, elem1};
+    clip.mName = "test";
+
+    // Point in elem0 (no height)
+    auto r0 = ComputeHeight({0, 0}, clip);
+    EXPECT_FALSE(r0.has_value());
+
+    // Point in elem1 (has height)
+    auto r1 = ComputeHeight({-150, -150}, clip);
+    ASSERT_TRUE(r1.has_value());
+    EXPECT_FLOAT_EQ(*r1, 777.0f);
+}
+
+TEST_F(CollisionTestFixture, ComputeWorldHeightScale)
+{
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(10.0f, 4.0f), 140.0f);
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(0.0f, 1.0f), 100.0f);
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(-5.0f, 2.0f), 90.0f);
+}
+
 }

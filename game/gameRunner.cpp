@@ -147,6 +147,10 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
         mZoneData->mZoneTextures.GetMaxDim());
     LoadSystems();
     mCamera.SetGameLocation(mGameState.GetLocation());
+    if (auto height = ComputeTerrainHeight(mGameState.GetLocation().mPosition))
+    {
+        mCamera.SetHeight(*height);
+    }
 }
 
 void GameRunner::DoTransition(
@@ -631,7 +635,7 @@ void GameRunner::SetupCombatCamera(const BAK::Encounter::Encounter&)
     auto heading = mCamera.GetGameAngle();
     auto angle = mCamera.GetAngle();
 
-    bool isUnderground = BAK::IsUnderground(mGameState.GetZone());
+    bool isUnderground = mGameState.IsUnderground();
 
     angle.x = BAK::ToGlAngle(heading).x;
     angle.y = isUnderground ? BAK::gBakCombatCameraDownAngleUnderground : BAK::gBakCombatCameraDownAngle;
@@ -961,7 +965,62 @@ bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
         }
     }
 
-    return mFollowRoad || BAK::IsUnderground(mGameState.GetZone());
+    return mFollowRoad || mGameState.IsUnderground();
+}
+
+std::optional<float> GameRunner::ComputeTerrainHeight(BAK::GamePosition playerPos) const
+{
+    if (!mZoneData)
+    {
+        return std::nullopt;
+    }
+
+    struct Candidate {
+        const BAK::WorldItemInstance* mItem;
+        float mDistSq;
+    };
+    std::vector<Candidate> candidates;
+
+    for (const auto& world : mZoneData->mWorldTiles.GetTiles())
+    {
+        for (const auto& item : world.GetItems())
+        {
+            const auto& zoneItem = item.GetZoneItem();
+            if (!BAK::AllowsMovement(zoneItem) || !zoneItem.GetModelClip())
+            {
+                continue;
+            }
+
+            const auto itemPos = item.GetLocation();
+            const float dx = static_cast<float>(playerPos.x) - itemPos.x;
+            const float dy = static_cast<float>(playerPos.y) + itemPos.z;
+            candidates.push_back({&item, dx*dx + dy*dy});
+        }
+    }
+
+    std::sort(candidates.begin(), candidates.end(),
+        [](const auto& a, const auto& b) { return a.mDistSq < b.mDistSq; });
+
+    for (const auto& c : candidates)
+    {
+        const auto& item = *c.mItem;
+        const auto& zoneItem = item.GetZoneItem();
+        const auto& modelClip = *zoneItem.GetModelClip();
+
+        auto modelSpace = BAK::WorldToModelClipSpace(
+            glm::vec2{playerPos},
+            glm::vec2{item.GetBakLocation()},
+            item.GetRotation().y,
+            zoneItem.GetScale());
+
+        auto height = BAK::ComputeHeight(modelSpace, modelClip);
+        if (height)
+        {
+            return BAK::ComputeWorldHeight(*height, zoneItem.GetScale());
+        }
+    }
+
+    return std::nullopt;
 }
 
 void GameRunner::RunGameUpdate(bool advanceTime)
