@@ -174,6 +174,11 @@ glm::vec3 Camera::GetPendingPosition() const
     return mPosition + mPendingDelta;
 }
 
+void Camera::SetPendingDelta(const glm::vec3& delta)
+{
+    mPendingDelta = delta;
+}
+
 void Camera::AcceptPendingMove()
 {
     mLastPosition = mPosition;

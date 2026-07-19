@@ -40,6 +40,7 @@ public:
 
     bool HasPendingMove() const;
     glm::vec3 GetPendingPosition() const;
+    void SetPendingDelta(const glm::vec3& delta);
     void AcceptPendingMove();
     void RejectPendingMove();
 

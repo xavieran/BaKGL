@@ -17,4 +17,17 @@ GamePositionAndHeading MoveForward(
 GameHeading RotateHeading(GameHeading heading, float angleDelta);
 GameHeading RotateHeading(GameHeading heading, std::int16_t angleDelta);
 
+struct SlideProjection {
+    glm::vec3 mProjectedDelta;
+    GamePosition mProjectedPosition;
+};
+
+SlideProjection ProjectSlide(
+    const glm::vec3& delta,
+    const glm::vec3& currentGLPos,
+    GameHeading openHeading,
+    float maxDistance);
+
+CardinalDirection GetRotationDirection(GameHeading currentHeading, GameHeading targetHeading);
+
 }

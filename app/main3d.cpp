@@ -6,6 +6,7 @@
 #include "bak/constants.hpp"
 #include "bak/dialogJson.hpp"
 #include "bak/lua/core.hpp"
+#include "bak/movement.hpp"
 
 #include "bak/state/encounter.hpp"
 #include "bak/encounter//encounter.hpp"
@@ -313,6 +314,7 @@ int main(int argc, char** argv)
         config.mGame.mCombatSpeed};
 
     gameRunner.SetClipEnabled(config.mGame.mClipEnabled);
+    gameRunner.SetWallSlide(config.mGame.mWallSlide);
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
@@ -549,28 +551,8 @@ int main(int argc, char** argv)
         {
             auto targetPos = camera.GetPendingPosition();
             auto bakTargetPos = glm::uvec2{targetPos.x, -targetPos.z};
-            if (gameRunner.CannotMoveHere(bakTargetPos) && gameRunner.GetClipEnabled())
-            {
-                auto gameLocation = camera.GetGameLocation();
-                auto turnDirection = gameRunner.GetOpenDirection(gameLocation);
-                if (turnDirection)
-                {
-                    if (*turnDirection == BAK::CardinalDirection::West)
-                    {
-                        cameraPtr->RotateRight();
-                    }
-                    else
-                    {
-                        cameraPtr->RotateLeft();
-                    }
-                }
-                else
-                {
-                    logger.Debug() << "Could move in either direction or not at all\n";
-                }
-                camera.RejectPendingMove();
-            }
-            else
+
+            if (!gameRunner.CannotMoveHere(bakTargetPos) || !gameRunner.GetClipEnabled())
             {
                 camera.AcceptPendingMove();
                 if (auto height = gameRunner.ComputeTerrainHeight(camera.GetGameLocation().mPosition))
@@ -580,6 +562,50 @@ int main(int argc, char** argv)
                 UpdateGameTile();
                 gameRunner.SetFollowRoadButtonVisible(
                     gameRunner.IsOnRoad(camera.GetGameLocation().mPosition));
+            }
+            else
+            {
+                auto gameLocation = camera.GetGameLocation();
+                auto openHeading = gameRunner.GetOpenDirection(gameLocation);
+
+                auto RotateTowardOpenHeading = [&](BAK::GameHeading openHeading, BAK::GameHeading currentHeading)
+                {
+                    if (BAK::GetRotationDirection(currentHeading, openHeading) == BAK::CardinalDirection::West)
+                        cameraPtr->RotateLeft();
+                    else
+                        cameraPtr->RotateRight();
+                };
+
+                if (openHeading && gameRunner.GetWallSlide())
+                {
+                    auto originalDelta = camera.GetPendingPosition() - camera.GetPosition();
+                    auto [projected, bakProjectedPos] = BAK::ProjectSlide(
+                        originalDelta, camera.GetPosition(), *openHeading,
+                        BAK::gRotationSearchAmount);
+
+                    camera.RejectPendingMove();
+                    RotateTowardOpenHeading(*openHeading, gameLocation.mHeading);
+
+                    if (!gameRunner.CannotMoveHere(bakProjectedPos))
+                    {
+                        camera.SetPendingDelta(projected);
+                        camera.AcceptPendingMove();
+                        if (auto height = gameRunner.ComputeTerrainHeight(camera.GetGameLocation().mPosition))
+                        {
+                            camera.SetHeight(*height);
+                        }
+                        UpdateGameTile();
+                    }
+                }
+                else
+                {
+                    if (openHeading)
+                        RotateTowardOpenHeading(*openHeading, gameLocation.mHeading);
+                    else
+                        logger.Debug() << "Could move in either direction or not at all\n";
+
+                    camera.RejectPendingMove();
+                }
             }
         }
 

@@ -11,6 +11,7 @@ static constexpr float gWorldScale = 100.;
 
 static constexpr float gTileSize = 64000.;
 static constexpr auto gCellSize = 1600;
+static constexpr auto gRotationSearchAmount = 100.0f;
 
 static constexpr auto gCombatGridCellSize = 300;
 static constexpr auto gCombatGridRows = 13u;

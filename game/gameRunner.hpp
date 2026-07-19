@@ -110,9 +110,11 @@ public:
     bool IsOnRoad(BAK::GamePosition playerPos) const;
     void SetFollowRoadButtonVisible(bool visible);
     std::optional<float> ComputeTerrainHeight(BAK::GamePosition playerPos) const;
-    std::optional<BAK::CardinalDirection> GetOpenDirection(BAK::GamePositionAndHeading playerLocation) const;
+    std::optional<BAK::GameHeading> GetOpenDirection(BAK::GamePositionAndHeading playerLocation) const;
     std::optional<BAK::DoorIndex> GetDoorIndex(glm::uvec2 bakLocation) const;
     void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
+    void SetWallSlide(bool slide) { mWallSlide = slide; }
+    bool GetWallSlide() const { return mWallSlide; }
     bool IsAnimationActive() const { return mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
@@ -227,6 +229,7 @@ public:
     double mAnimationSpeedMultiplier{1.0};
 
     bool mClipEnabled{false};
+    bool mWallSlide{false};
 
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
