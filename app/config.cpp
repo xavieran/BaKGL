@@ -89,6 +89,7 @@ Game LoadGame(const nlohmann::json& config)
         game.mAdvanceTime = c.value("AdvanceTime", true);
         game.mCombatSpeed = c.value("CombatSpeed", 1.0);
         game.mClipEnabled = c.value("ClipEnabled", false);
+        game.mWallSlide = c.value("WallSlide", false);
     }
     return game;
 }

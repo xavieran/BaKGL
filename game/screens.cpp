@@ -165,6 +165,12 @@ void ShowClipDisplayGui(
         gameRunner.SetClipEnabled(clipEnabled);
     }
 
+    bool wallSlide = gameRunner.GetWallSlide();
+    if (ImGui::Checkbox("Wall Slide", &wallSlide))
+    {
+        gameRunner.SetWallSlide(wallSlide);
+    }
+
     ImGui::End();
 }
 
