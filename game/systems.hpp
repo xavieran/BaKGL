@@ -17,6 +17,10 @@
 #include <variant>
 #include <vector>
 
+namespace BAK {
+struct ModelClip;
+}
+
 namespace Graphics {
 class RenderData;
 }
@@ -153,6 +157,29 @@ private:
     bool mVisible{true};
 };
 
+static constexpr float sMaxCollisionDistSq = (1.5f * BAK::gTileSize) * (1.5f * BAK::gTileSize);
+
+class CollisionItem
+{
+public:
+    CollisionItem(
+        glm::uvec2 bakLocation,
+        float rotationY,
+        float scale,
+        const BAK::ModelClip* modelClip);
+
+    const glm::uvec2& GetBakLocation() const;
+    float GetRotationY() const;
+    float GetScale() const;
+    const BAK::ModelClip& GetModelClip() const;
+
+private:
+    glm::uvec2 mBakLocation;
+    float mRotationY;
+    float mScale;
+    const BAK::ModelClip* mModelClip;
+};
+
 class Systems
 {
 public:
@@ -170,6 +197,12 @@ public:
     void RemoveClickable(BAK::EntityIndex);
     void AddSprite(const Renderable& item);
     void EnableSprite(BAK::EntityIndex id, bool visible);
+    void AddBlockable(const CollisionItem& item);
+    void AddAllowable(const CollisionItem& item);
+    std::vector<CollisionItem> GetNearbyCollisions(
+        const std::vector<CollisionItem>& items,
+        glm::ivec2 playerPos,
+        float maxDistSq) const;
     std::vector<BAK::EntityIndex> RunIntersection(glm::vec3 cameraPos) const;
 
     BAK::EntityIndex AddTextRenderable(Graphics::TextRenderable r);
@@ -183,6 +216,8 @@ public:
     const std::vector<DynamicRenderable>& GetDynamicRenderables() const;
     const std::vector<Renderable>& GetSprites() const;
     const std::vector<Clickable>& GetClickables() const;
+    const std::vector<CollisionItem>& GetBlockables() const;
+    const std::vector<CollisionItem>& GetAllowables() const;
 
 private:
     unsigned mNextItemId;
@@ -192,5 +227,7 @@ private:
     std::vector<Renderable> mSprites;
     std::vector<DynamicRenderable> mDynamicRenderables;
     std::vector<Clickable> mClickables;
+    std::vector<CollisionItem> mBlockables;
+    std::vector<CollisionItem> mAllowables;
     std::vector<Graphics::TextRenderable> mTextRenderables;
 };

@@ -261,6 +261,28 @@ void GameRunner::LoadSystems()
                 setupGate(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
                 setupCatapult(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
 
+                if (item.GetZoneItem().GetModelClip())
+                {
+                    auto collisionItem = CollisionItem{
+                        item.GetBakLocation(),
+                        item.GetRotation().y,
+                        static_cast<float>(item.GetZoneItem().GetScale()),
+                        &(*item.GetZoneItem().GetModelClip())};
+
+                    const bool blocks = BAK::BlocksMovement(item.GetZoneItem());
+                    const bool allows = BAK::AllowsMovement(item.GetZoneItem());
+                    const bool isDoor = item.GetZoneItem().GetEntityType() == BAK::EntityType::DOOR;
+
+                    if (blocks || isDoor)
+                    {
+                        mSystems->AddBlockable(collisionItem);
+                    }
+                    if (allows || isDoor)
+                    {
+                        mSystems->AddAllowable(collisionItem);
+                    }
+                }
+
                 if (item.GetZoneItem().GetClickable())
                 {
                     const auto bakLocation = item.GetBakLocation();
@@ -904,64 +926,47 @@ bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
         return false;
     }
 
-    const auto p = glm::ivec2{playerPos};
+    const auto playerBakPos = glm::ivec2{playerPos};
 
-    struct Candidate {
-        const BAK::WorldItemInstance* mItem;
-        float mDistSq;
-    };
-    std::vector<Candidate> candidates;
-
-    for (const auto& world : mZoneData->mWorldTiles.GetTiles())
+    for (const auto& item : mSystems->GetNearbyCollisions(
+            mSystems->GetAllowables(), playerBakPos, sMaxCollisionDistSq))
     {
-        for (const auto& item : world.GetItems())
+        auto doorIndex = GetDoorIndex(item.GetBakLocation());
+        if (doorIndex && !BAK::State::GetDoorState(mGameState, *doorIndex))
         {
-            const auto& zoneItem = item.GetZoneItem();
-            if (!(BAK::BlocksMovement(zoneItem) || BAK::AllowsMovement(zoneItem)) || !zoneItem.GetModelClip())
-            {
-                continue;
-            }
+            continue;
+        }
 
-            const auto itemPos = item.GetLocation();
-            const float dx = static_cast<float>(p.x) - itemPos.x;
-            const float dy = static_cast<float>(p.y) + itemPos.z;
-            candidates.push_back({&item, dx*dx + dy*dy});
+        auto modelSpace = BAK::WorldToModelClipSpace(
+            glm::vec2{playerBakPos},
+            glm::vec2{item.GetBakLocation()},
+            item.GetRotationY(),
+            item.GetScale());
+
+        if (BAK::PointInModelClip(modelSpace, item.GetModelClip()))
+        {
+            return false;
         }
     }
 
-    std::sort(candidates.begin(), candidates.end(),
-        [](const auto& a, const auto& b) { return a.mDistSq < b.mDistSq; });
-
-    for (const auto& c : candidates)
+    for (const auto& item : mSystems->GetNearbyCollisions(
+            mSystems->GetBlockables(), playerBakPos, sMaxCollisionDistSq))
     {
-        const auto& item = *c.mItem;
-        const auto& zoneItem = item.GetZoneItem();
-        const auto& modelClip = *zoneItem.GetModelClip();
+        auto doorIndex = GetDoorIndex(item.GetBakLocation());
+        if (doorIndex && BAK::State::GetDoorState(mGameState, *doorIndex))
+        {
+            continue;
+        }
 
         auto modelSpace = BAK::WorldToModelClipSpace(
-            glm::vec2{p},
+            glm::vec2{playerBakPos},
             glm::vec2{item.GetBakLocation()},
-            item.GetRotation().y,
-            zoneItem.GetScale());
+            item.GetRotationY(),
+            item.GetScale());
 
-        if (BAK::PointInModelClip(modelSpace, modelClip))
+        if (BAK::PointInModelClip(modelSpace, item.GetModelClip()))
         {
-            auto doorIndex = GetDoorIndex(item.GetBakLocation());
-            bool allowsMovement = BAK::AllowsMovement(zoneItem);
-            if (doorIndex)
-            {
-                allowsMovement = BAK::State::GetDoorState(mGameState, *doorIndex);
-            }
-            mLogger.Debug() << "Player location is on a clip: " << p
-                << " item: " << item << " clip: " << modelClip << "\n";
-            if (allowsMovement)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
     }
 
@@ -975,48 +980,21 @@ std::optional<float> GameRunner::ComputeTerrainHeight(BAK::GamePosition playerPo
         return std::nullopt;
     }
 
-    struct Candidate {
-        const BAK::WorldItemInstance* mItem;
-        float mDistSq;
-    };
-    std::vector<Candidate> candidates;
+    const auto playerBakPos = glm::ivec2{playerPos};
 
-    for (const auto& world : mZoneData->mWorldTiles.GetTiles())
+    for (const auto& item : mSystems->GetNearbyCollisions(
+            mSystems->GetAllowables(), playerBakPos, sMaxCollisionDistSq))
     {
-        for (const auto& item : world.GetItems())
-        {
-            const auto& zoneItem = item.GetZoneItem();
-            if (!BAK::AllowsMovement(zoneItem) || !zoneItem.GetModelClip())
-            {
-                continue;
-            }
-
-            const auto itemPos = item.GetLocation();
-            const float dx = static_cast<float>(playerPos.x) - itemPos.x;
-            const float dy = static_cast<float>(playerPos.y) + itemPos.z;
-            candidates.push_back({&item, dx*dx + dy*dy});
-        }
-    }
-
-    std::sort(candidates.begin(), candidates.end(),
-        [](const auto& a, const auto& b) { return a.mDistSq < b.mDistSq; });
-
-    for (const auto& c : candidates)
-    {
-        const auto& item = *c.mItem;
-        const auto& zoneItem = item.GetZoneItem();
-        const auto& modelClip = *zoneItem.GetModelClip();
-
         auto modelSpace = BAK::WorldToModelClipSpace(
-            glm::vec2{playerPos},
+            glm::vec2{playerBakPos},
             glm::vec2{item.GetBakLocation()},
-            item.GetRotation().y,
-            zoneItem.GetScale());
+            item.GetRotationY(),
+            item.GetScale());
 
-        auto height = BAK::ComputeHeight(modelSpace, modelClip);
+        auto height = BAK::ComputeHeight(modelSpace, item.GetModelClip());
         if (height)
         {
-            return BAK::ComputeWorldHeight(*height, zoneItem.GetScale());
+            return BAK::ComputeWorldHeight(*height, item.GetScale());
         }
     }
 
