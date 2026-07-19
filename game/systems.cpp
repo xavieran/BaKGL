@@ -1,6 +1,7 @@
 #include "game/systems.hpp"
 
 #include "bak/constants.hpp"
+#include "bak/model.hpp"
 #include "bak/types.hpp"
 
 #include "com/visit.hpp"
@@ -140,6 +141,23 @@ const Graphics::RenderData* DynamicRenderable::GetRenderData() const
     return mRenderData;
 }
 
+CollisionItem::CollisionItem(
+    glm::uvec2 bakLocation,
+    float rotationY,
+    float scale,
+    const BAK::ModelClip* modelClip)
+:
+    mBakLocation{bakLocation},
+    mRotationY{rotationY},
+    mScale{scale},
+    mModelClip{modelClip}
+{}
+
+const glm::uvec2& CollisionItem::GetBakLocation() const { return mBakLocation; }
+float CollisionItem::GetRotationY() const { return mRotationY; }
+float CollisionItem::GetScale() const { return mScale; }
+const BAK::ModelClip& CollisionItem::GetModelClip() const { return *mModelClip; }
+
 Systems::Systems()
 :
     mNextItemId{0}
@@ -228,6 +246,52 @@ void Systems::AddSprite(const Renderable& item)
     mSprites.emplace_back(item);
 }
 
+void Systems::AddBlockable(const CollisionItem& item)
+{
+    mBlockables.emplace_back(item);
+}
+
+void Systems::AddAllowable(const CollisionItem& item)
+{
+    mAllowables.emplace_back(item);
+}
+
+std::vector<CollisionItem> Systems::GetNearbyCollisions(
+    const std::vector<CollisionItem>& items,
+    glm::ivec2 playerPos,
+    float maxDistSq) const
+{
+    struct Candidate {
+        CollisionItem mItem;
+        float mDistSq;
+    };
+    std::vector<Candidate> candidates;
+
+    for (const auto& item : items)
+    {
+        const auto& bakLoc = item.GetBakLocation();
+        const float dx = static_cast<float>(playerPos.x) - static_cast<float>(bakLoc.x);
+        const float dy = static_cast<float>(playerPos.y) - static_cast<float>(bakLoc.y);
+        const float distSq = dx*dx + dy*dy;
+        if (distSq > maxDistSq)
+        {
+            continue;
+        }
+        candidates.push_back({item, distSq});
+    }
+
+    std::sort(candidates.begin(), candidates.end(),
+        [](const auto& a, const auto& b) { return a.mDistSq < b.mDistSq; });
+
+    std::vector<CollisionItem> result;
+    result.reserve(candidates.size());
+    for (auto& c : candidates)
+    {
+        result.push_back(std::move(c.mItem));
+    }
+    return result;
+}
+
 void Systems::EnableSprite(BAK::EntityIndex id, bool visible)
 {
     auto it = std::find_if(
@@ -300,4 +364,6 @@ const std::vector<Renderable>& Systems::GetRenderables() const { return mRendera
 const std::vector<DynamicRenderable>& Systems::GetDynamicRenderables() const { return mDynamicRenderables; }
 const std::vector<Renderable>& Systems::GetSprites() const { return mSprites; }
 const std::vector<Clickable>& Systems::GetClickables() const { return mClickables; }
+const std::vector<CollisionItem>& Systems::GetBlockables() const { return mBlockables; }
+const std::vector<CollisionItem>& Systems::GetAllowables() const { return mAllowables; }
 
