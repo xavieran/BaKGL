@@ -578,6 +578,8 @@ int main(int argc, char** argv)
                     camera.SetHeight(*height);
                 }
                 UpdateGameTile();
+                gameRunner.SetFollowRoadButtonVisible(
+                    gameRunner.IsOnRoad(camera.GetGameLocation().mPosition));
             }
         }
 

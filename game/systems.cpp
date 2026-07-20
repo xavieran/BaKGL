@@ -145,18 +145,21 @@ CollisionItem::CollisionItem(
     glm::uvec2 bakLocation,
     float rotationY,
     float scale,
-    const BAK::ModelClip* modelClip)
+    const BAK::ModelClip* modelClip,
+    BAK::EntityType entityType)
 :
     mBakLocation{bakLocation},
     mRotationY{rotationY},
     mScale{scale},
-    mModelClip{modelClip}
+    mModelClip{modelClip},
+    mEntityType{entityType}
 {}
 
 const glm::uvec2& CollisionItem::GetBakLocation() const { return mBakLocation; }
 float CollisionItem::GetRotationY() const { return mRotationY; }
 float CollisionItem::GetScale() const { return mScale; }
 const BAK::ModelClip& CollisionItem::GetModelClip() const { return *mModelClip; }
+BAK::EntityType CollisionItem::GetEntityType() const { return mEntityType; }
 
 Systems::Systems()
 :

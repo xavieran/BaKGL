@@ -104,6 +104,9 @@ public:
     ZoneNumber GetZone() const;
     bool IsUnderground() const;
 
+    bool GetFollowRoad() const;
+    void SetFollowRoad(bool followRoad);
+
     auto& GetTimeExpiringState() { return mTimeExpiringState; }
 
     const WorldClock& GetWorldTime() const;
@@ -230,6 +233,8 @@ private:
     unsigned mContextVar_753f{};
     PartyChangeCache mPartyChangeCache{};
     bool mCombatTriggeredFromInteractable{};
+
+    bool mFollowRoad{false};
 
     std::optional<InventoryItem> mSelectedItem{};
     std::optional<MonsterIndex> mCurrentMonster{};

@@ -71,6 +71,10 @@ public:
     virtual void SetCombatManager(BAK::ICombatManager&) = 0;
     virtual BAK::ICombatUI& GetCombatUI() = 0;
     virtual BAK::ICombatManager& GetCombatManager() = 0;
+
+    virtual void ToggleFollowRoad() = 0;
+    virtual void SetFollowRoadButtonVisible(bool) = 0;
+    virtual void SetFollowRoadActive(bool) = 0;
 };
 
 }

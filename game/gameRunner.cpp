@@ -107,6 +107,11 @@ GameRunner::GameRunner(
         [this](){ EnterCombatFromEncounter(); });
 
     mGuiManager.SetCombatManager(mCombatManager);
+    mGuiManager.SetToggleFollowRoadCallback(
+        [this]{
+            mGameState.SetFollowRoad(!mGameState.GetFollowRoad());
+            mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
+        });
 
     mGlyphStore.Init(mGuiManager.GetFontManager().GetGameFont());
 }
@@ -152,6 +157,7 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
     {
         mCamera.SetHeight(*height);
     }
+    SetFollowRoadButtonVisible(IsOnRoad(mGameState.GetLocation().mPosition));
 }
 
 void GameRunner::DoTransition(
@@ -268,7 +274,8 @@ void GameRunner::LoadSystems()
                         item.GetBakLocation(),
                         item.GetRotation().y,
                         static_cast<float>(item.GetZoneItem().GetScale()),
-                        &(*item.GetZoneItem().GetModelClip())};
+                        &(*item.GetZoneItem().GetModelClip()),
+                        item.GetZoneItem().GetEntityType()};
 
                     const bool blocks = BAK::BlocksMovement(item.GetZoneItem());
                     const bool allows = BAK::AllowsMovement(item.GetZoneItem());
@@ -971,7 +978,45 @@ bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
         }
     }
 
-    return mFollowRoad || mGameState.IsUnderground();
+    return mGameState.GetFollowRoad() || mGameState.IsUnderground();
+}
+
+bool GameRunner::IsOnRoad(BAK::GamePosition playerPos) const
+{
+    if (!mZoneData)
+    {
+        return false;
+    }
+
+    const auto playerBakPos = glm::ivec2{playerPos};
+
+    for (const auto& item : mSystems->GetNearbyCollisions(
+            mSystems->GetAllowables(), playerBakPos, sMaxCollisionDistSq))
+    {
+        auto modelSpace = BAK::WorldToModelClipSpace(
+            glm::vec2{playerBakPos},
+            glm::vec2{item.GetBakLocation()},
+            item.GetRotationY(),
+            item.GetScale());
+
+        if (BAK::PointInModelClip(modelSpace, item.GetModelClip()))
+        {
+            auto type = item.GetEntityType();
+            return type == BAK::EntityType::EXTERIOR
+                || type == BAK::EntityType::BRIDGE;
+        }
+    }
+
+    return false;
+}
+
+void GameRunner::SetFollowRoadButtonVisible(bool visible)
+{
+    mGuiManager.SetFollowRoadButtonVisible(visible);
+    if (visible)
+    {
+        mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
+    }
 }
 
 std::optional<float> GameRunner::ComputeTerrainHeight(BAK::GamePosition playerPos) const

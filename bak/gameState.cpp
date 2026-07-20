@@ -94,6 +94,7 @@ void GameState::LoadGame(std::string savePath)
             inventory));
     }
     mSpellState = LoadSpells(mGameData.GetFileBuffer());
+    mFollowRoad = LoadFollowRoad(mGameData.GetFileBuffer());
 }
 
 const Party& GameState::GetParty() const
@@ -182,6 +183,16 @@ GamePositionAndHeading GameState::GetLocation() const
 MapLocation GameState::GetMapLocation() const
 {
     return mGameData.mMapLocation;
+}
+
+bool GameState::GetFollowRoad() const
+{
+    return mFollowRoad;
+}
+
+void GameState::SetFollowRoad(bool followRoad)
+{
+    mFollowRoad = followRoad;
 }
 
 ZoneNumber GameState::GetZone() const
@@ -1191,6 +1202,7 @@ bool GameState::SaveState()
             BAK::Save(container, mGameData.GetFileBuffer());
     BAK::Save(mTimeExpiringState, mGameData.GetFileBuffer());
     BAK::Save(mSpellState, mGameData.GetFileBuffer());
+    BAK::Save(mFollowRoad, mGameData.GetFileBuffer());
     BAK::Save(mGameData.mChapter, mGameData.GetFileBuffer());
     auto mapLocation = MapLocation{
         mFullMap.GetTileCoords(

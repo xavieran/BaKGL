@@ -31,9 +31,9 @@ class MainView : public Widget
 public:
     static constexpr auto sLayoutFile = "REQ_MAIN.DAT";
 
-    static constexpr auto sForward = 2;
     static constexpr auto sBackward = 1;
-    static constexpr auto sSnapToRoad = 4;
+    static constexpr auto sForward = 2;
+    static constexpr auto sFollowRoad = 4;
     static constexpr auto sFullMap = 5;
     static constexpr auto sCast = 6;
     static constexpr auto sBookmark = 7;
@@ -54,6 +54,8 @@ public:
     void ShowPortrait(BAK::ActiveCharIndex character);
     void ShowInventory(BAK::ActiveCharIndex character);
     void SetCanSaveBookmark(bool can);
+    void SetFollowRoadVisible(bool visible);
+    void SetFollowRoadActive(bool active);
     [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override;
 private:
     void AddChildren();
@@ -69,8 +71,11 @@ private:
     Compass mCompass;
     std::vector<ClickButtonImage> mButtons;
     std::vector<ClickButtonImage> mCharacters;
+    unsigned mFollowRoadOffImage;
+    unsigned mFollowRoadOnImage;
 
     bool mCanSaveBookmark{false};
+    bool mFollowRoadButtonVisible{false};
     bool mShowingBookmarkDialog{false};
     bool mNeedRefresh{false};
     ClickButton mBookmarkPopup;

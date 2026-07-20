@@ -94,6 +94,12 @@ SpellState LoadSpells(FileBuffer& fb)
     return SpellState{fb.GetUint16LE()};
 }
 
+bool LoadFollowRoad(FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sFollowRoadOffset);
+    return fb.GetUint8() != 0;
+}
+
 void LoadChapterOffsetP(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadChapterOffsetP");
@@ -143,6 +149,12 @@ void Save(const SpellState& spells, FileBuffer& fb)
 {
     fb.Seek(SaveOffsets::sActiveSpells);
     fb.PutUint16LE(spells.GetSpells());
+}
+
+void Save(bool followRoad, FileBuffer& fb)
+{
+    fb.Seek(SaveOffsets::sFollowRoadOffset);
+    fb.PutUint8(followRoad ? 1 : 0);
 }
 
 void Save(Chapter chapter, FileBuffer& fb)

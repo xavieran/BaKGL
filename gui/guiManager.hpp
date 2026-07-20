@@ -146,6 +146,11 @@ public:
     BAK::ICombatUI& GetCombatUI() override;
     BAK::ICombatManager& GetCombatManager() override;
 
+    void ToggleFollowRoad() override;
+    void SetToggleFollowRoadCallback(std::function<void()> callback);
+    void SetFollowRoadButtonVisible(bool) override;
+    void SetFollowRoadActive(bool) override;
+
 private:
     void CacheState();
     bool NotifyPartyChanges();
@@ -206,6 +211,7 @@ private:
     NullDialogScene mNullDialogScene{};
     DynamicDialogScene mPartyDiedScene;
     const Logging::Logger& mLogger;
+    std::function<void()> mToggleFollowRoadCallback;
 };
 
 }
