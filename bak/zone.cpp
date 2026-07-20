@@ -83,6 +83,14 @@ Zone::Zone(unsigned zoneNumber)
                     BAK::GetDebugColor(item.GetEntityType())));
         }
 
+        if (item.HasUndergroundModel())
+        {
+            mObjects.AddObject(
+                item.GetName() + "_ug",
+                BAK::ZoneItemToMeshObject(
+                    item.GetUndergroundModel(), mZoneTextures, mPalette));
+        }
+
         const auto frameCount = mZoneItems.GetModelFrameCount(item.GetName());
         if (frameCount)
         {

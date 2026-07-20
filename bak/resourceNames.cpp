@@ -74,6 +74,13 @@ std::string ZoneLabel::GetTable() const
     return ss.str();
 }
 
+std::string ZoneLabel::GetTableUnderground() const
+{
+    std::stringstream ss{""};
+    ss << GetZoneLabel() << "M.TBL";
+    return ss.str();
+}
+
 std::string ZoneLabel::GetZone() const
 {
     return mZoneLabel.substr(0, 3);
