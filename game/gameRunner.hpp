@@ -104,6 +104,7 @@ public:
     void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
     bool IsAnimationActive() const { return mAnimationActive || mCombatStage.IsAnimationActive(); }
     bool InputDisabled() const { return mPitDeathInProgress || IsAnimationActive(); }
+    void ToggleUndergroundModels();
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
     void SetupCombatCamera(const BAK::Encounter::Encounter&);
@@ -186,6 +187,12 @@ public:
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
     DoorLocationMap mDoorLocations{};
     std::unordered_map<BAK::DoorIndex, BAK::EntityIndex> mDoorIndexToEntityId{};
+
+    std::unordered_map<BAK::EntityIndex, Graphics::MeshObjectStorage::OffsetAndLength> mMainViewOffsets{};
+    std::unordered_map<BAK::EntityIndex, Graphics::MeshObjectStorage::OffsetAndLength> mOverheadViewOffsets{};
+    Graphics::MeshObjectStorage::OffsetAndLength mUndergroundDoorClosed;
+    Graphics::MeshObjectStorage::OffsetAndLength mUndergroundDoorOpen;
+    bool mShowUnderground{false};
 
     using FrameOffsets = std::vector<Graphics::MeshObjectStorage::OffsetAndLength>;
     std::unordered_map<BAK::EntityIndex, const FrameOffsets*> mAnimatedEntities{};
