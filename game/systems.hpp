@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/constants.hpp"
+#include "bak/entityType.hpp"
 #include "bak/types.hpp"
 
 #include "com/visit.hpp"
@@ -166,18 +167,21 @@ public:
         glm::uvec2 bakLocation,
         float rotationY,
         float scale,
-        const BAK::ModelClip* modelClip);
+        const BAK::ModelClip* modelClip,
+        BAK::EntityType entityType);
 
     const glm::uvec2& GetBakLocation() const;
     float GetRotationY() const;
     float GetScale() const;
     const BAK::ModelClip& GetModelClip() const;
+    BAK::EntityType GetEntityType() const;
 
 private:
     glm::uvec2 mBakLocation;
     float mRotationY;
     float mScale;
     const BAK::ModelClip* mModelClip;
+    BAK::EntityType mEntityType;
 };
 
 class Systems

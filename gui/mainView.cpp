@@ -71,16 +71,24 @@ MainView::MainView(
     for (unsigned i = 0; i < mLayout.GetSize(); i++)
     {
         const auto& widget = mLayout.GetWidget(i);
+
+        if (i == sFollowRoad)
+        {
+            mFollowRoadOnImage = widget.mImage;
+            mFollowRoadOffImage = widget.mImage + 1;
+        }
+
         switch (widget.mWidget)
         {
         case 3: //REQ_IMAGEBUTTON
+        case 4: //REQ_IMAGEBUTTON
         {
             const auto textures = icons.GetButtonTextures(widget.mImage);
             const auto& button = icons.GetButton(widget.mImage);
-            assert(std::get<Graphics::SpriteSheetIndex>(button)
-                == textures.mSpriteSheet);
+            assert(std::get<Graphics::SpriteSheetIndex>(button) == textures.mSpriteSheet);
+            auto locationAdjustment = (i == sFollowRoad) ? glm::vec2{-.5, .5} : glm::vec2{};
             mButtons.emplace_back(
-                mLayout.GetWidgetLocation(i),
+                mLayout.GetWidgetLocation(i) + locationAdjustment,
                 mLayout.GetWidgetDimensions(i),
                 textures,
                 [this, buttonIndex=i]{ HandleButton(buttonIndex); },
@@ -116,6 +124,9 @@ void MainView::HandleButton(unsigned buttonIndex)
     case sCast:
         mGuiManager.ShowCast(false);
         break;
+    case sFollowRoad:
+        mGuiManager.ToggleFollowRoad();
+        break;
     case sCamp:
         mGuiManager.ShowCamp(false, nullptr);
         break;
@@ -138,6 +149,26 @@ void MainView::SetCanSaveBookmark(bool canSaveBookmark)
 {
     mCanSaveBookmark = canSaveBookmark;
     mNeedRefresh = true;
+}
+
+void MainView::SetFollowRoadVisible(bool visible)
+{
+    if (visible != mFollowRoadButtonVisible)
+    {
+        mFollowRoadButtonVisible = visible;
+        AddChildren();
+    }
+}
+
+void MainView::SetFollowRoadActive(bool active)
+{
+    const auto textures = mIcons.GetButtonTextures(
+        active ? mFollowRoadOnImage : mFollowRoadOffImage);
+    mButtons[sFollowRoad].SetTexture(
+        textures.mSpriteSheet,
+        textures.mNormal);
+    mButtons[sFollowRoad].CenterImage(
+        mLayout.GetWidgetDimensions(sFollowRoad) - glm::vec2{1});
 }
 
 bool MainView::OnMouseEvent(const MouseEvent& event)
@@ -252,6 +283,8 @@ void MainView::AddChildren()
     for (unsigned i = 0; i < mButtons.size(); i++)
     {
         if (i == sBookmark && !mCanSaveBookmark)
+            continue;
+        if (i == sFollowRoad && !mFollowRoadButtonVisible)
             continue;
         AddChildBack(&mButtons[i]);
     }

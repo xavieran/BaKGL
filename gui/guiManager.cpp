@@ -810,4 +810,25 @@ BAK::ICombatManager& GuiManager::GetCombatManager()
     return *mCombatManager;
 }
 
+void GuiManager::ToggleFollowRoad()
+{
+    if (mToggleFollowRoadCallback)
+        mToggleFollowRoadCallback();
+}
+
+void GuiManager::SetToggleFollowRoadCallback(std::function<void()> callback)
+{
+    mToggleFollowRoadCallback = std::move(callback);
+}
+
+void GuiManager::SetFollowRoadButtonVisible(bool visible)
+{
+    mMainView.SetFollowRoadVisible(visible);
+}
+
+void GuiManager::SetFollowRoadActive(bool active)
+{
+    mMainView.SetFollowRoadActive(active);
+}
+
 }

@@ -15,6 +15,7 @@ static constexpr auto sMapPositionOffset = 0x5c;
 static constexpr auto sGoldOffset = 0x66;
 static constexpr auto sTimeOffset = 0x6a;
 static constexpr auto sLocationOffset = 0x76;
+static constexpr auto sFollowRoadOffset = 0x96;
 
 static constexpr auto sCharacterNameOffset    = 0x9f;
 static constexpr auto sCharacterNameLength    = 10;

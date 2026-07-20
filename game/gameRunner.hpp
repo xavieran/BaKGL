@@ -107,12 +107,12 @@ public:
     void SetClipEnabled(bool clip) { mClipEnabled = clip; }
     bool GetClipEnabled() const { return mClipEnabled; }
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
+    bool IsOnRoad(BAK::GamePosition playerPos) const;
+    void SetFollowRoadButtonVisible(bool visible);
     std::optional<float> ComputeTerrainHeight(BAK::GamePosition playerPos) const;
     std::optional<BAK::CardinalDirection> GetOpenDirection(BAK::GamePositionAndHeading playerLocation) const;
     std::optional<BAK::DoorIndex> GetDoorIndex(glm::uvec2 bakLocation) const;
     void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
-    void SetFollowRoad(bool follow) { mFollowRoad = follow; }
-    bool GetFollowRoad() const { return mFollowRoad; }
     bool IsAnimationActive() const { return mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
@@ -209,6 +209,7 @@ public:
     Combat::CombatManager mCombatManager;
     bool mClickablesEnabled{};
     bool mDebugRenderEncounters{false};
+    bool mFollowRoadButtonVisible{false};
 
     glm::vec3 mSavedCameraPos{};
     glm::vec2 mSavedCameraAngle{};
@@ -226,7 +227,6 @@ public:
     double mAnimationSpeedMultiplier{1.0};
 
     bool mClipEnabled{false};
-    bool mFollowRoad{false};
 
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};

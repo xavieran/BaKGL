@@ -165,12 +165,6 @@ void ShowClipDisplayGui(
         gameRunner.SetClipEnabled(clipEnabled);
     }
 
-    bool followRoad = gameRunner.GetFollowRoad();
-    if (ImGui::Checkbox("Follow Road", &followRoad))
-    {
-        gameRunner.SetFollowRoad(followRoad);
-    }
-
     ImGui::End();
 }
 
