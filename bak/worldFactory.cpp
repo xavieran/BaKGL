@@ -122,9 +122,10 @@ ZoneItem::ZoneItem(
                 {
                     mPalettes.emplace_back(palette);
                 }
-                for (const auto& colorVec : faceOption.mFaceColors)
+                for (unsigned faceIdx = 0; faceIdx < faceOption.mFaceColors.size(); faceIdx++)
                 {
-                    const auto color = colorVec.x;
+                    const auto color = faceOption.mFaceColors[faceIdx].x;
+                    const auto palette = faceOption.mPalettes[faceIdx];
                     mColors.emplace_back(color);
                     if ((GetName().substr(0, 5) == "house"
                         || GetName().substr(0, 3) == "inn")
@@ -148,6 +149,9 @@ ZoneItem::ZoneItem(
                         || color == 0))
                         mPush.emplace_back(false);
                     else if (GetName().substr(0, 6) == "ground")
+                        mPush.emplace_back(false);
+                    else if (GetName().substr(0, 2) == "m_"
+                        && color == 147)
                         mPush.emplace_back(false);
                     else
                         mPush.emplace_back(true);

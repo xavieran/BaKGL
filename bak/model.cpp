@@ -10,6 +10,16 @@
 
 namespace BAK {
 
+std::string GetUndergroundName(const std::string& name)
+{
+    return name + gUndergroundSuffix;
+}
+
+std::string GetClipName(const std::string& name)
+{
+    return gClipPrefix + name;
+}
+
 inline std::ostream& operator<<(std::ostream& os, const FaceOption& m)
 {
     os << "      FaceOption[FT: " << m.mFaceType << " EC: " << m.mEdgeCount << " FCs: " << m.mFaceColors.size() << " PALs: " 

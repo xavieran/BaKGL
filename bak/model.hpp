@@ -20,6 +20,12 @@ constexpr unsigned EF_TERRAIN   = 0x00;
 constexpr unsigned EF_UNBOUNDED = 0x20;
 constexpr unsigned EF_2D_OBJECT = 0x40;
 
+constexpr auto gUndergroundSuffix = "_ug";
+constexpr auto gClipPrefix = "clip_";
+
+std::string GetUndergroundName(const std::string& name);
+std::string GetClipName(const std::string& name);
+
 struct ClipPoint
 {
     glm::ivec2 mNormal;

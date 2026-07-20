@@ -208,7 +208,7 @@ void GameRunner::LoadSystems()
 
     std::vector<glm::uvec2> handledLocations{};
 
-    auto setupGate = [&](BAK::EntityIndex id, BAK::EntityType entityType, const std::string& name)
+    auto SetupGate = [&](BAK::EntityIndex id, BAK::EntityType entityType, const std::string& name)
     {
         if (entityType != BAK::EntityType::GATE)
         {
@@ -230,7 +230,7 @@ void GameRunner::LoadSystems()
         }
     };
 
-    auto setupCatapult = [&](BAK::EntityIndex id, BAK::EntityType entityType, const std::string& name)
+    auto SetupCatapult = [&](BAK::EntityIndex id, BAK::EntityType entityType, const std::string& name)
     {
         if (entityType != BAK::EntityType::CATAPULT)
         {
@@ -254,7 +254,7 @@ void GameRunner::LoadSystems()
         }
     };
 
-    auto setupPit = [&](BAK::EntityIndex id, BAK::EntityType entityType, const glm::uvec2& bakLocation)
+    auto SetupPit = [&](BAK::EntityIndex id, BAK::EntityType entityType, const glm::uvec2& bakLocation)
     {
         if (entityType != BAK::EntityType::PIT)
         {
@@ -263,44 +263,64 @@ void GameRunner::LoadSystems()
         mPitLocations.emplace(id, bakLocation);
     };
 
+    if (mGameState.IsUnderground())
+    {
+        const auto& doorClosedModel  = mZoneData->mObjects.GetObject("m_door_ug");
+        mUndergroundDoorClosed = doorClosedModel;
+        const auto& doorOpenModel  = mZoneData->mObjects.GetObject("m_doorgi_ug");
+        mUndergroundDoorOpen = doorOpenModel;
+    }
+
     for (const auto& world : mZoneData->mWorldTiles.GetTiles())
     {
         for (const auto& item : world.GetItems())
         {
-            if (item.GetZoneItem().GetVertices().size() > 1)
+            const auto& zoneItem = item.GetZoneItem();
+            if (zoneItem.GetVertices().size() > 1)
             {
                 auto id = mSystems->GetNextItemId();
-                mEntityTypes[id] = item.GetZoneItem().GetEntityType();
+                auto entityType = zoneItem.GetEntityType();
+                mEntityTypes[id] = entityType;
 
-                auto rotation = item.GetZoneItem().IsSprite() ? Graphics::sNinetyDegreeRotation : item.GetRotation();
+                auto objectName = zoneItem.GetName();
+                auto objectOffset = mZoneData->mObjects.GetObject(objectName);
+
+                if (zoneItem.HasUndergroundModel())
+                {
+                    mMainViewOffsets[id] = objectOffset;
+                    mOverheadViewOffsets[id] = mZoneData->mObjects.GetObject(
+                        BAK::GetUndergroundName(objectName));
+                }
+
+                auto rotation = zoneItem.IsSprite() ? Graphics::sNinetyDegreeRotation : item.GetRotation();
                 auto renderable = Renderable{
                     id,
-                    mZoneData->mObjects.GetObject(item.GetZoneItem().GetName()),
+                    objectOffset,
                     item.GetLocation(),
                     rotation,
-                    glm::vec3{static_cast<float>(item.GetZoneItem().GetScale())}};
+                    glm::vec3{static_cast<float>(zoneItem.GetScale())}};
 
                 if (item.GetZoneItem().IsSprite())
                     mSystems->AddSprite(renderable);
                 else
                     mSystems->AddRenderable(renderable);
 
-                setupGate(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
-                setupCatapult(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
-                setupPit(id, item.GetZoneItem().GetEntityType(), item.GetBakLocation());
+                SetupGate(id, entityType, objectName);
+                SetupCatapult(id, entityType, objectName);
+                SetupPit(id, entityType, item.GetBakLocation());
 
-                if (item.GetZoneItem().GetModelClip())
+                if (zoneItem.GetModelClip())
                 {
                     auto collisionItem = CollisionItem{
                         item.GetBakLocation(),
                         item.GetRotation().y,
-                        static_cast<float>(item.GetZoneItem().GetScale()),
-                        &(*item.GetZoneItem().GetModelClip()),
-                        item.GetZoneItem().GetEntityType()};
+                        static_cast<float>(zoneItem.GetScale()),
+                        &(*zoneItem.GetModelClip()),
+                        entityType};
 
-                    const bool blocks = BAK::BlocksMovement(item.GetZoneItem());
-                    const bool allows = BAK::AllowsMovement(item.GetZoneItem());
-                    const bool isDoor = item.GetZoneItem().GetEntityType() == BAK::EntityType::DOOR;
+                    const bool blocks = BAK::BlocksMovement(zoneItem);
+                    const bool allows = BAK::AllowsMovement(zoneItem);
+                    const bool isDoor = entityType == BAK::EntityType::DOOR;
 
                     if (blocks || isDoor)
                     {
@@ -312,13 +332,12 @@ void GameRunner::LoadSystems()
                     }
                 }
 
-                if (item.GetZoneItem().GetClickable())
+                if (zoneItem.GetClickable())
                 {
                     const auto bakLocation = item.GetBakLocation();
-                    const auto et = item.GetZoneItem().GetEntityType();
                     mSystems->AddClickable(Clickable{id});
 
-                    auto setupDoor = [&](BAK::EntityIndex id, BAK::DoorIndex doorIndex)
+                    auto SetupDoor = [&](BAK::EntityIndex id, BAK::DoorIndex doorIndex)
                     {
                         mDoorLocations[item.GetBakLocation()] = doorIndex;
                         mDoorIndexToEntityId[doorIndex] = id;
@@ -359,11 +378,11 @@ void GameRunner::LoadSystems()
 
                     if (cit != containers.end())
                     {
-                        if (et == BAK::EntityType::DOOR && cit->HasDoor())
+                        if (entityType == BAK::EntityType::DOOR && cit->HasDoor())
                         {
-                            setupDoor(id, cit->GetDoor());
+                            SetupDoor(id, cit->GetDoor());
                         }
-                        mClickables.emplace(id, ClickableEntity{et, &(*cit)});
+                        mClickables.emplace(id, ClickableEntity{entityType, &(*cit)});
                         handledLocations.emplace_back(item.GetBakLocation());
                         continue;
                     }
@@ -378,16 +397,16 @@ void GameRunner::LoadSystems()
 
                     if (fit != mZoneData->mFixedObjects.end())
                     {
-                        if (et == BAK::EntityType::DOOR && fit->HasDoor())
+                        if (entityType == BAK::EntityType::DOOR && fit->HasDoor())
                         {
-                            setupDoor(id, fit->GetDoor());
+                            SetupDoor(id, fit->GetDoor());
                         }
-                        mClickables.emplace(id, ClickableEntity{et, &(*fit)});
+                        mClickables.emplace(id, ClickableEntity{entityType, &(*fit)});
                         handledLocations.emplace_back(item.GetBakLocation());
                         continue;
                     }
 
-                    mClickables.emplace(id, ClickableEntity{et, &mNullContainer});
+                    mClickables.emplace(id, ClickableEntity{entityType, &mNullContainer});
                 }
             }
         }
@@ -419,8 +438,8 @@ void GameRunner::LoadSystems()
             glm::vec3{static_cast<float>(item.GetScale())}};
         mSystems->AddRenderable(renderable);
 
-        setupGate(id, item.GetEntityType(), item.GetName());
-        setupCatapult(id, item.GetEntityType(), item.GetName());
+        SetupGate(id, item.GetEntityType(), item.GetName());
+        SetupCatapult(id, item.GetEntityType(), item.GetName());
 
         mSystems->AddClickable(Clickable{id});
         mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
@@ -451,8 +470,8 @@ void GameRunner::LoadSystems()
             glm::vec3{static_cast<float>(item.GetScale())}};
         mSystems->AddRenderable(renderable);
 
-        setupGate(id, item.GetEntityType(), item.GetName());
-        setupCatapult(id, item.GetEntityType(), item.GetName());
+        SetupGate(id, item.GetEntityType(), item.GetName());
+        SetupCatapult(id, item.GetEntityType(), item.GetName());
 
         mSystems->AddClickable(Clickable{id});
         mClickables.emplace(id, ClickableEntity(BAK::EntityTypeFromModelName(item.GetName()), &container));
@@ -501,7 +520,7 @@ void GameRunner::LoadSystems()
                 auto renderable = Renderable{
                     id,
                     mZoneData->mObjects.GetObject(
-                        "clip_" + item.GetZoneItem().GetName()),
+                        BAK::GetClipName(item.GetZoneItem().GetName())),
                     item.GetLocation(),
                     item.GetRotation(),
                     glm::vec3{
@@ -931,7 +950,9 @@ void GameRunner::OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen)
         return;
     }
 
-    auto animIt = mAnimatedEntities.find(entityIt->second);
+    auto entityId = entityIt->second;
+
+    auto animIt = mAnimatedEntities.find(entityId);
     if (animIt == mAnimatedEntities.end())
     {
         return;
@@ -943,13 +964,20 @@ void GameRunner::OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen)
 
     AudioA::GetAudioManager().PlaySound(doorSound);
 
-    mGuiManager.AddAnimator(std::make_unique<DoorFrameAnimator>(
-        *mSystems,
-        entityIt->second,
-        *animIt->second,
-        isOpen,
-        Combat::CombatStage::sFrameTime / 2,
-        []{}));
+    if (mShowUnderground)
+    {
+        mSystems->SetRenderableFrame(entityId, isOpen ? mUndergroundDoorOpen : mUndergroundDoorClosed);
+    }
+    else
+    {
+        mGuiManager.AddAnimator(std::make_unique<DoorFrameAnimator>(
+            *mSystems,
+            entityIt->second,
+            *animIt->second,
+            isOpen,
+            Combat::CombatStage::sFrameTime / 2,
+            []{}));
+    }
 }
 
 void GameRunner::RunGameUpdate(bool advanceTime)
@@ -1299,6 +1327,40 @@ void GameRunner::CleanCombatsOnNewZone()
         cwl.mPosition = BAK::GamePositionAndHeading{};
         cwl.mImageIndex = 0;
         cwl.mState = BAK::CombatantWorldState::Invisible1;
+    }
+}
+
+void GameRunner::ToggleUndergroundModels()
+{
+    mShowUnderground = !mShowUnderground;
+    mLogger.Debug() << "Toggle underground models: " << mShowUnderground << "\n";
+    for (const auto& [entityId, ugOffset] : mOverheadViewOffsets)
+    {
+        if (mShowUnderground)
+        {
+            bool isDoor{};
+            bool isOpen{};
+            for (const auto& [doorIndex, doorEntityId]: mDoorIndexToEntityId)
+            {
+                if (entityId == doorEntityId)
+                {
+                    isDoor = true;
+                    isOpen = BAK::State::GetDoorState(mGameState, doorIndex);
+                }
+            }
+            if (isDoor)
+            {
+                mSystems->SetRenderableFrame(entityId, isOpen ? mUndergroundDoorOpen : mUndergroundDoorClosed);
+            }
+            else
+            {
+                mSystems->SetRenderableFrame(entityId, ugOffset);
+            }
+        }
+        else
+        {
+            mSystems->SetRenderableFrame(entityId, mMainViewOffsets.at(entityId));
+        }
     }
 }
 

@@ -440,6 +440,10 @@ int main(int argc, char** argv)
         }
         showImgui = !showImgui;
     });
+    inputHandler.BindPressed(GLFW_KEY_U, [&]{
+        if (guiManager.InMainView())
+            gameRunner.ToggleUndergroundModels();
+    });
 
     inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ if (root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE})){ ;} });
     inputHandler.BindCharacter([&](char character){ if(root.OnKeyEvent(Gui::Character{character})){ ;} });

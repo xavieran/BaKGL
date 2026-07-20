@@ -77,7 +77,7 @@ Zone::Zone(unsigned zoneNumber)
         if (item.GetModelClip())
         {
             mObjects.AddObject(
-                "clip_" + item.GetName(),
+                BAK::GetClipName(item.GetName()),
                 ClipToMeshObject(
                     *item.GetModelClip(),
                     BAK::GetDebugColor(item.GetEntityType())));
@@ -86,7 +86,7 @@ Zone::Zone(unsigned zoneNumber)
         if (item.HasUndergroundModel())
         {
             mObjects.AddObject(
-                item.GetName() + "_ug",
+                BAK::GetUndergroundName(item.GetName()),
                 BAK::ZoneItemToMeshObject(
                     item.GetUndergroundModel(), mZoneTextures, mPalette));
         }
