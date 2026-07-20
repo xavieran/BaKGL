@@ -31,5 +31,10 @@ int main(int argc, char** argv)
         }
     }
 
+    for (unsigned i = 0; i < clips.size(); i++)
+    {
+        logger.Info() << "Clip #" << i << " " << clips[i] << "\n";
+    }
+
     return 0;
 }

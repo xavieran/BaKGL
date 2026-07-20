@@ -21,6 +21,7 @@ public:
     std::string GetTileWorld(unsigned x, unsigned y) const;
     std::string GetTileData(unsigned x, unsigned y) const;
     std::string GetTable() const;
+    std::string GetTableUnderground() const;
     std::string GetZone() const;
     std::string GetZoneLabel() const;
     unsigned GetZoneNumber() const;
@@ -28,6 +29,7 @@ public:
     std::string GetZoneDefault() const;
     std::string GetZoneMap() const;
     std::string GetZoneDat() const;
+    std::string GetZoneMDat() const;
 private:
     std::string mZoneLabel;
 };

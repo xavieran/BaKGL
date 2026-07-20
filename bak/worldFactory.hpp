@@ -10,6 +10,7 @@
 
 #include "graphics/texture.hpp"
 
+#include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -52,7 +53,8 @@ public:
         const Model& model,
         const ModelClip& clip,
         const ZoneTextureStore& textureStore,
-        std::size_t frame = 0);
+        std::size_t frame = 0,
+        const Model* undergroundModel = nullptr);
 
     ZoneItem(
         unsigned spriteIndex,
@@ -73,6 +75,8 @@ public:
     const auto& GetPalettes() const { return mPalettes; }
     const auto& GetVertices() const { return mVertices; }
     const std::optional<ModelClip>& GetModelClip() const { return mModelClip; }
+    bool HasUndergroundModel() const { return mUndergroundModel != nullptr; }
+    const ZoneItem& GetUndergroundModel() const;
 private:
     std::string mName;
     unsigned mEntityFlags;
@@ -86,6 +90,7 @@ private:
     std::vector<std::vector<std::uint16_t>> mFaces;
     std::vector<bool> mPush;
     std::optional<ModelClip> mModelClip{};
+    std::unique_ptr<ZoneItem> mUndergroundModel;
 
     friend std::ostream& operator<<(std::ostream& os, const ZoneItem& d);
 };

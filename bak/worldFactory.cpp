@@ -10,6 +10,7 @@
 #include "bak/screen.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/zoneReference.hpp"
+#include "bak/zone.hpp"
 
 #include "com/string.hpp"
 
@@ -79,7 +80,8 @@ ZoneItem::ZoneItem(
     const Model& model,
     const ModelClip& clip,
     const ZoneTextureStore& textureStore,
-    std::size_t frame)
+    std::size_t frame,
+    const Model* undergroundModel)
 :
     mName{model.mName},
     mEntityFlags{model.mEntityFlags},
@@ -179,6 +181,12 @@ ZoneItem::ZoneItem(
         mColors.emplace_back(model.mSprite);
     }
 
+    if (undergroundModel != nullptr && !undergroundModel->mComponents.empty())
+    {
+        mUndergroundModel = std::make_unique<ZoneItem>(
+            *undergroundModel, ModelClip{}, textureStore, frame);
+    }
+
     ASSERT((mFaces.size() == mColors.size())
         && (mFaces.size() == mPalettes.size())
         && (mFaces.size() == mPush.size()));
@@ -270,6 +278,11 @@ bool ZoneItem::GetClickable() const
 EntityType ZoneItem::GetEntityType() const { return mEntityType; }
 TerrainType ZoneItem::GetTerrainType() const { return mTerrainType; }
 unsigned ZoneItem::GetEntityFlags() const { return mEntityFlags; }
+const ZoneItem& ZoneItem::GetUndergroundModel() const
+{
+    ASSERT(mUndergroundModel != nullptr);
+    return *mUndergroundModel;
+}
 
 std::ostream& operator<<(std::ostream& os, const ZoneItem& d)
 {
@@ -972,8 +985,7 @@ ZoneItemStore::ZoneItemStore(
     mClips{},
     mModelFrameCountMap{}
 {
-    auto fb = FileBufferFactory::Get()
-        .CreateDataBuffer(mZoneLabel.GetTable());
+    auto fb = FileBufferFactory::Get().CreateDataBuffer(mZoneLabel.GetTable());
     auto [models, clips] = LoadTBL(fb);
 
     mModels = std::move(models);
@@ -1015,6 +1027,24 @@ ZoneItemStore::ZoneItemStore(
             mModels[i],
             mClips[i],
             textureStore);
+    }
+
+    if (BAK::IsUnderground(BAK::ZoneNumber{mZoneLabel.GetZoneNumber()}))
+    {
+        auto fbUG = FileBufferFactory::Get().CreateDataBuffer(
+            mZoneLabel.GetTableUnderground());
+        auto [ugModels, ugClips] = LoadTBL(fbUG);
+
+        ASSERT(ugModels.size() >= mModels.size());
+
+        for (unsigned i = 0; i < mModels.size(); i++)
+        {
+            if (!ugModels[i].mComponents.empty())
+            {
+                mItems[i] = ZoneItem{
+                    mModels[i], mClips[i], textureStore, 0, &ugModels[i]};
+            }
+        }
     }
 }
 
