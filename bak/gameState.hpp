@@ -197,6 +197,7 @@ public:
     Character* GetCombatantCharacter(CombatantIndex);
     CombatEntityList& GetCombatEntityList(CombatIndex);
     std::optional<CombatRelInfo> GetCombatRelInfo(CombatantIndex combatant) const;
+    std::optional<CombatantIndex> GetCombatantIndex(CombatRelInfo info) const;
     GenericContainer* GetCombatContainer(CombatRelInfo);
     void ReactivateCombat(const Encounter::Encounter&, CombatIndex);
 

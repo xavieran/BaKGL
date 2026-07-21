@@ -95,6 +95,7 @@ public:
     
     void RunGameUpdate(bool advanceTime);
     void CheckClickable(unsigned entityId);
+    void HandleRightClick(unsigned entityId);
     void SetHoveredEntity(std::optional<BAK::EntityIndex> id);
 
     void ShowGrid();

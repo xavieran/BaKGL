@@ -9,6 +9,7 @@
 #include "game/interactable/combatant.hpp"
 #include "game/interactable/corpse.hpp"
 #include "game/interactable/door.hpp"
+#include "game/interactable/description.hpp"
 #include "game/interactable/generic.hpp"
 #include "game/interactable/ladder.hpp"
 #include "game/interactable/pit.hpp"
@@ -172,6 +173,94 @@ std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
             << ToString(interactableType) << std::endl;
         return MakeGeneric(BAK::DialogSources::mUnknownObject);
     }
+}
+
+std::unique_ptr<IInteractable> InteractableFactory::MakeRightClickInteractable(
+    BAK::EntityType entity,
+    BAK::GenericContainer& container) const
+{
+    using namespace Interactable;
+    constexpr auto nonInteractables = 6;
+    const auto interactableType = static_cast<InteractableType>(
+        static_cast<unsigned>(entity) - nonInteractables);
+
+    Logging::LogDebug(__FUNCTION__) << " Handling: " << ToString(interactableType) << "\n";
+
+    BAK::Target dialog;
+
+    const auto SetMonsterFromContainer = [&](const BAK::GenericContainer& c){
+        if (c.GetHeader().HasCombat())
+        {
+            auto combatantIndex = mGameState.GetCombatantIndex(
+                BAK::CombatRelInfo{
+                    c.GetHeader().GetCombatNumber(),
+                    c.GetHeader().GetCombatantNumber()});
+            if (combatantIndex)
+            {
+                const auto& cgl = mGameState.GetCombatantGridLocation(*combatantIndex);
+                mGameState.SetMonster(cgl.mMonster);
+            }
+        }
+    };
+
+    switch (interactableType)
+    {
+    case InteractableType::Bag:           dialog = BAK::DialogSources::mBagDescription; break;
+    case InteractableType::Body:          dialog = BAK::DialogSources::mBodyDescription; break;
+    case InteractableType::Campfire:      dialog = BAK::DialogSources::mCampfireDescription; break;
+    case InteractableType::Corn:          dialog = BAK::DialogSources::mCornDescription; break;
+    case InteractableType::CrystalTree:   dialog = BAK::DialogSources::mCrystalTreeDescription; break;
+    case InteractableType::DirtMound:     dialog = BAK::DialogSources::mDirtpileDescription; break;
+    case InteractableType::Stones:        dialog = BAK::DialogSources::mStonesDescription; break;
+    case InteractableType::Scarecrow:     dialog = BAK::DialogSources::mScarecrowDescription; break;
+    case InteractableType::SiegeEngine:   dialog = BAK::DialogSources::mSiegeEngineDescription; break;
+    case InteractableType::Stump:         dialog = BAK::DialogSources::mStumpDescription; break;
+    case InteractableType::DeadAnimal:    dialog = BAK::DialogSources::mTrappedAnimalDescription; break;
+    case InteractableType::HealthBush:    dialog = BAK::DialogSources::mHealthBushDescription; break;
+    case InteractableType::PoisonBush:    dialog = BAK::DialogSources::mPoisonBushDescription; break;
+    case InteractableType::FoodBush:      dialog = BAK::DialogSources::mFoodBushDescription; break;
+    case InteractableType::Well:          dialog = BAK::DialogSources::mWellDescription; break;
+    case InteractableType::Column:        dialog = BAK::DialogSources::mColumnDescription; break;
+    case InteractableType::Sign:          dialog = BAK::DialogSources::mSignDescription; break;
+    case InteractableType::Slab:          dialog = BAK::DialogSources::mSlabDescription; break;
+    case InteractableType::Tunnel0:       dialog = BAK::DialogSources::mTunnelDescription; break;
+    case InteractableType::Tunnel1:       dialog = BAK::DialogSources::mTunnelDescription; break;
+    case InteractableType::RiftMachine:   dialog = BAK::DialogSources::mRifMachineDescription; break;
+    case InteractableType::Catapult:      dialog = BAK::DialogSources::mCatapultDescription; break;
+    case InteractableType::Tombstone:     dialog = BAK::DialogSources::mTombstoneDescription; break;
+    case InteractableType::Ladder:        dialog = BAK::DialogSources::mLadderDescription; break;
+    case InteractableType::Pit:           dialog = BAK::DialogSources::mPitDescription; break;
+    case InteractableType::Door:          dialog = BAK::DialogSources::mDoorDescription; break;
+    case InteractableType::DeadCombatant:
+        SetMonsterFromContainer(container);
+        dialog = BAK::DialogSources::mDeadEnemyDescription;
+        break;
+    case InteractableType::LivingCombatant:
+        SetMonsterFromContainer(container);
+        dialog = BAK::DialogSources::mCombatantDescription;
+        break;
+
+    case InteractableType::Chest:
+        if (!container.HasLock())
+            dialog = BAK::DialogSources::mBoxChestCase3;
+        else if (container.GetLock().IsFairyChest())
+            dialog = BAK::DialogSources::mChestWithSpecialLockDescription;
+        else
+            dialog = BAK::DialogSources::mUnlockedChestCase0_2;
+        break;
+
+    case InteractableType::Building:
+        if (container.HasDialog())
+            mGameState.SetDialogContext_7530(container.GetDialog().mContextVar);
+        dialog = BAK::DialogSources::mBuildingDescription;
+        break;
+
+    default:
+        dialog = BAK::DialogSources::mUnknownObject;
+        break;
+    }
+
+    return std::make_unique<Description>(mGuiManager, dialog);
 }
 
 }

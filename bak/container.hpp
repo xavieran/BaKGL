@@ -97,6 +97,7 @@ public:
     bool HasEncounter() const { return CheckBitSet(mFlags, ContainerProperty::HasEncounter); }
     bool HasTime() const { return CheckBitSet(mFlags, ContainerProperty::HasTime); }
     bool HasDoor() const { return CheckBitSet(mFlags, ContainerProperty::HasDoor); }
+    bool HasCombat() const { return std::holds_alternative<ContainerCombatLocation>(mLocation); }
     bool HasInventory() const { return mCapacity != 0; }
 
     std::uint32_t GetAddress() const { return mAddress; }

@@ -139,7 +139,7 @@ public:
     static constexpr auto mBag           = KeyTarget{0x9e};
     static constexpr auto mBody          = KeyTarget{0x4e};
     static constexpr auto mFoodBush      = KeyTarget{0x9f};
-    static constexpr auto mCampfire      = KeyTarget{0xa6};
+    static constexpr auto mCampfire      = KeyTarget{0xa5};
     static constexpr auto mCorn          = KeyTarget{0xaa};
     static constexpr auto mCrystalTree   = KeyTarget{0xb2};
     static constexpr auto mDirtpile      = KeyTarget{0xf};
@@ -154,6 +154,39 @@ public:
     static constexpr auto mDoorTooClose  = KeyTarget{0x9d};
     static constexpr auto mPitHaveRope   = KeyTarget{0xc5};
     static constexpr auto mPitNoRope     = KeyTarget{0xc6};
+
+    // Right click descriptions
+    static constexpr auto mChestWithSpecialLockDescription = KeyTarget{0x5c};
+    static constexpr auto mUnlockedChestCase0_2            = KeyTarget{0x5b};
+    static constexpr auto mBoxChestCase3                   = KeyTarget{0xc3};
+    static constexpr auto mBagDescription                  = KeyTarget{0x5d};
+    static constexpr auto mBodyDescription                 = KeyTarget{0x5e};
+    static constexpr auto mDeadEnemyDescription            = KeyTarget{0x5f};
+    static constexpr auto mBuildingDescription             = KeyTarget{0x60};
+    static constexpr auto mSignDescription                 = KeyTarget{0x61};
+    static constexpr auto mTunnelDescription               = KeyTarget{0x62};
+    static constexpr auto mDoorDescription                 = KeyTarget{0x63};
+    static constexpr auto mCampfireDescription             = KeyTarget{0xa6};
+    static constexpr auto mCatapultDescription             = KeyTarget{0xa7};
+    static constexpr auto mColumnDescription               = KeyTarget{0xa8};
+    static constexpr auto mCornDescription                 = KeyTarget{0xaa};
+    static constexpr auto mTrappedAnimalDescription        = KeyTarget{0xac};
+    static constexpr auto mTombstoneDescription            = KeyTarget{0xad};
+    static constexpr auto mLadderDescription               = KeyTarget{0xae};
+    static constexpr auto mDirtpileDescription             = KeyTarget{0x9b};
+    static constexpr auto mStonesDescription               = KeyTarget{0xb0};
+    static constexpr auto mPitDescription                  = KeyTarget{0xb1};
+    static constexpr auto mCrystalTreeDescription          = KeyTarget{0xb3};
+    static constexpr auto mRifMachineDescription           = KeyTarget{0xb4};
+    static constexpr auto mScarecrowDescription            = KeyTarget{0xb6};
+    static constexpr auto mSiegeEngineDescription          = KeyTarget{0xb8};
+    static constexpr auto mSlabDescription                 = KeyTarget{0xb9};
+    static constexpr auto mStumpDescription                = KeyTarget{0xbb};
+    static constexpr auto mWellDescription                 = KeyTarget{0xbd};
+    static constexpr auto mCombatantDescription            = KeyTarget{0xfa};
+    static constexpr auto mFoodBushDescription             = KeyTarget{0xa2};
+    static constexpr auto mHealthBushDescription           = KeyTarget{0xa3};
+    static constexpr auto mPoisonBushDescription           = KeyTarget{0xa4};
 
     static constexpr auto mCharacterIsNotASpellcaster = KeyTarget{0xd8};
 
