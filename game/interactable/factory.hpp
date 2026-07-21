@@ -6,6 +6,7 @@
 #include <string_view>
 
 namespace BAK {
+class GenericContainer;
 class GameState;
 }
 
@@ -63,6 +64,10 @@ public:
 
     std::unique_ptr<IInteractable> MakeInteractable(
         BAK::EntityType entity) const;
+
+    std::unique_ptr<IInteractable> MakeRightClickInteractable(
+        BAK::EntityType entity,
+        BAK::GenericContainer& container) const;
 
 private:
     Gui::IGuiManager& mGuiManager;

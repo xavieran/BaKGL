@@ -3,6 +3,7 @@
 #include "combatant.cpp"
 #include "corpse.cpp"
 #include "catapult.cpp"
+#include "description.cpp"
 #include "door.cpp"
 #include "factory.cpp"
 #include "generic.cpp"

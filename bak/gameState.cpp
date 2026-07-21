@@ -1607,6 +1607,19 @@ std::optional<CombatRelInfo> GameState::GetCombatRelInfo(CombatantIndex combatan
     return std::nullopt;
 }
 
+std::optional<CombatantIndex> GameState::GetCombatantIndex(CombatRelInfo info) const
+{
+    if (info.mCombatIndex.mValue < mCombatEntityLists.size())
+    {
+        const auto& entityList = mCombatEntityLists[info.mCombatIndex.mValue].mCombatants;
+        if (info.mCombatantRelativeIndex < entityList.size())
+        {
+            return entityList[info.mCombatantRelativeIndex];
+        }
+    }
+    return std::nullopt;
+}
+
 GenericContainer* GameState::GetCombatContainer(CombatRelInfo info)
 {
     auto& containers = GetCombatContainers();

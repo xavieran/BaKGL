@@ -463,6 +463,10 @@ int main(int argc, char** argv)
                 {
                     gameRunner.HandleGridCellClick(clickedId, true);
                 }
+                else
+                {
+                    gameRunner.HandleRightClick(clickedId);
+                }
             }
         },
         [&](auto click)

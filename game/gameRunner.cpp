@@ -1201,6 +1201,34 @@ void GameRunner::CheckClickable(unsigned entityId)
     }
 }
 
+void GameRunner::HandleRightClick(unsigned entityId)
+{
+    assert(mSystems);
+
+    auto bestId = std::optional<BAK::EntityIndex>{};
+    for (const auto& entity : mSystems->GetClickables())
+    {
+        if (entity.GetId().mValue == entityId)
+        {
+            bestId = entity.GetId();
+            break;
+        }
+    }
+
+    if (bestId)
+    {
+        auto it = mClickables.find(*bestId);
+        assert(it != mClickables.end());
+        auto& clickable = mClickables[*bestId];
+        assert(clickable.mContainer);
+
+        mCurrentInteractable = mInteractableFactory.MakeRightClickInteractable(
+            clickable.mEntityType, *clickable.mContainer);
+        mCurrentInteractable->BeginInteraction(
+            *clickable.mContainer, clickable.mEntityType);
+    }
+}
+
 void GameRunner::OnTimeDelta(double timeDelta)
 {
     for (auto& actor : mCombatActorStore.GetActors())
