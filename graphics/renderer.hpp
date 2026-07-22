@@ -255,7 +255,7 @@ public:
             if (isSprite)
             {
                 shader->SetUniform(uniforms->mM, modelMatrix);
-                shader->SetUniform(uniforms->mCameraPosition_worldSpace, camera.GetPosition());
+                shader->SetUniform(uniforms->mCameraPosition_worldSpace, camera.GetNormalisedPosition());
             }
 
             glDrawElementsBaseVertex(
