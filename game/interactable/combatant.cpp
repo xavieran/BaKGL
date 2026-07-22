@@ -28,7 +28,7 @@ Combatant::Combatant(
     mContainer{nullptr}
 {}
 
-void Combatant::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType)
+void Combatant::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType, BAK::EntityIndex)
 {
     mContainer = &container;
     mEntityType = entityType;

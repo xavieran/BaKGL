@@ -33,7 +33,7 @@ Building::Building(
     mEncounterCallback{encounterCallback}
 {}
 
-void Building::BeginInteraction(BAK::GenericContainer& building, BAK::EntityType)
+void Building::BeginInteraction(BAK::GenericContainer& building, BAK::EntityType, BAK::EntityIndex)
 {
     ASSERT(mState == State::Idle);
     mCurrentBuilding = &building;

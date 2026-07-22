@@ -34,7 +34,7 @@ public:
         BAK::Target target,
         const EncounterCallback& encounterCallback);
 
-    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType) override;
+    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType, BAK::EntityIndex) override;
     void DoEncounter();
     virtual void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
     void EncounterFinished() override;

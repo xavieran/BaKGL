@@ -44,7 +44,7 @@ public:
         BAK::GameState& gameState,
         const EncounterCallback& encounterCallback);
 
-    void BeginInteraction(BAK::GenericContainer& building, BAK::EntityType) override;
+    void BeginInteraction(BAK::GenericContainer& building, BAK::EntityType, BAK::EntityIndex) override;
     void LockFinished();
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
     void TryDoEncounter();

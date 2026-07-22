@@ -44,6 +44,10 @@ void MovementManager::SetDoorLocations(const DoorLocationMap* doorLocations)
 
 void MovementManager::SetSpeedScale(float scale)
 {
+    if (mGameState.IsUnderground())
+    {
+        scale /= 2;
+    }
     mCamera.SetSpeedScale(scale);
 }
 
@@ -205,6 +209,80 @@ bool MovementManager::IsOnRoad(BAK::GamePosition playerPos) const
     }
 
     return false;
+}
+
+bool MovementManager::IsOnPit(glm::uvec2 pos) const
+{
+    const auto playerPos = glm::ivec2{pos};
+
+    for (const auto& item : mSystems->GetNearbyCollisions(
+            mSystems->GetAllowables(), playerPos, sMaxCollisionDistSq))
+    {
+        if (item.GetEntityType() != BAK::EntityType::PIT)
+        {
+            continue;
+        }
+
+        auto modelSpace = BAK::WorldToModelClipSpace(
+            glm::vec2{playerPos},
+            glm::vec2{item.GetBakLocation()},
+            item.GetRotationY(),
+            item.GetScale());
+
+        if (BAK::PointInModelClip(modelSpace, item.GetModelClip()))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::optional<PitCross> MovementManager::GetPitCross(
+    BAK::GamePosition playerPos, glm::uvec2 pitLocation) const
+{
+    const auto pitCellPos = BAK::SnapPositionToCellCenter(pitLocation);
+    const auto partyCellPos = BAK::SnapPositionToCellCenter(playerPos);
+
+    const auto heading = BAK::GetHeadingBetween(partyCellPos, pitCellPos);
+    const auto direction = BAK::HeadingToDirection(heading);
+    if (!BAK::IsCardinal(direction))
+    {
+        mLogger.Debug() << __FUNCTION__ << " Not adjacent to pit direction is: "
+            << BAK::ToString(direction) << "\n";
+        return std::nullopt;
+    }
+
+    const auto distance = glm::distance(glm::vec2{partyCellPos}, glm::vec2{pitCellPos});
+    const auto cellDistance = static_cast<unsigned>(distance / BAK::gCellSize);
+
+    if (distance > BAK::gCellSize * 2)
+    {
+        mLogger.Debug() << __FUNCTION__ << " Too far from pit: " << distance
+            << " " << cellDistance << "\n";
+        return std::nullopt;
+    }
+    const auto step = BAK::ToDelta(direction) * static_cast<int>(BAK::gCellSize);
+
+    auto landingCell = glm::uvec2{glm::ivec2{pitCellPos}};
+    unsigned i = 0;
+    while (IsOnPit(landingCell))
+    {
+        landingCell = glm::uvec2{glm::ivec2{landingCell} + step};
+        i++;
+        if (i > 4)
+        {
+            mLogger.Error() << __FUNCTION__ << " Too many iterations to traverse pit!\n";
+            break;
+        }
+    }
+
+    mLogger.Spam() << __FUNCTION__ << " Pit cell center: " << pitCellPos
+        << " party cell center: " << partyCellPos
+        << " heading: " << heading
+        << " landing: " << landingCell
+        << " cell distance: " << cellDistance << "\n";
+
+    return PitCross{landingCell, heading, cellDistance};
 }
 
 void MovementManager::SetFollowRoadButtonVisible(bool visible)

@@ -201,18 +201,22 @@ Direction ToOpposite(Direction direction)
     std::unreachable();
 }
 
-Direction GetDirectionBetween(GamePosition source, GamePosition dest)
+GameHeading GetHeadingBetween(GamePosition source, GamePosition dest)
 {
     const auto delta = glm::ivec2(dest) - glm::ivec2(source);
     if (delta.x == 0 && delta.y == 0)
-        return Direction::South;
+        return DirectionToHeading(Direction::South);
 
-    auto radians = std::atan2(
+    const auto radians = std::atan2(
         static_cast<double>(delta.y),
         static_cast<double>(delta.x));
 
-    auto heading = ToBakAngle(radians + glm::pi<float>() / 2.0);
-    return HeadingToDirection(heading);
+    return ToBakAngle(radians + glm::pi<float>() / 2.0);
+}
+
+Direction GetDirectionBetween(GamePosition source, GamePosition dest)
+{
+    return HeadingToDirection(GetHeadingBetween(source, dest));
 }
 
 bool IsCardinal(Direction direction)

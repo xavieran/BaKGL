@@ -4,6 +4,7 @@ add_library(game
     console.hpp console.cpp
     glyphStore.hpp glyphStore.cpp
     textAnimator.hpp textAnimator.cpp
+    pitAnimator.hpp pitAnimator.cpp
     encounterHandler.hpp encounterHandler.cpp
     gameRunner.hpp gameRunner.cpp
     movementManager.hpp movementManager.cpp

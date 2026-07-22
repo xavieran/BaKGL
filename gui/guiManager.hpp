@@ -207,6 +207,7 @@ private:
 
     bool mAmInMainView{false};
     bool mCombatSequenceActive{false};
+    bool mPartyDying{false};
 
     NullDialogScene mNullDialogScene{};
     DynamicDialogScene mPartyDiedScene;

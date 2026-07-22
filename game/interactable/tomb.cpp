@@ -33,7 +33,7 @@ Tomb::Tomb(
     mEncounterCallback{encounterCallback}
 {}
 
-void Tomb::BeginInteraction(BAK::GenericContainer& tomb, BAK::EntityType)
+void Tomb::BeginInteraction(BAK::GenericContainer& tomb, BAK::EntityType, BAK::EntityIndex)
 {
     mCurrentTomb = &tomb;
     mGameState.SetDialogContext_7530(0);

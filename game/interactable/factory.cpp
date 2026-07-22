@@ -60,13 +60,15 @@ InteractableFactory::InteractableFactory(
     BAK::GameState& gameState,
     EncounterCallback&& encounterCallback,
     DoorStateCallback&& doorStateCallback,
-    CatapultCallback&& catapultCallback)
+    CatapultCallback&& catapultCallback,
+    PitCrossCallback&& pitCrossCallback)
 :
     mGuiManager{guiManager},
     mGameState{gameState},
     mEncounterCallback{std::move(encounterCallback)},
     mDoorStateCallback{std::move(doorStateCallback)},
-    mCatapultCallback{std::move(catapultCallback)}
+    mCatapultCallback{std::move(catapultCallback)},
+    mPitCrossCallback{std::move(pitCrossCallback)}
 {}
 
 std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
@@ -126,7 +128,8 @@ std::unique_ptr<IInteractable> InteractableFactory::MakeInteractable(
     case InteractableType::Pit:
         return std::make_unique<Pit>(
             mGuiManager,
-            mGameState);
+            mGameState,
+            mPitCrossCallback);
     case InteractableType::Corn:
         return MakeGeneric(BAK::DialogSources::mCorn);
     case InteractableType::CrystalTree:

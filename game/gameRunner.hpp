@@ -91,7 +91,7 @@ public:
         BAK::GamePositionAndHeading targetLocation);
     void LoadSystems();
 
-    void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container);
+    void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container, BAK::EntityIndex entityIndex);
     bool CheckAndDoEncounter(glm::uvec2 position);
     
     void RunGameUpdate(bool advanceTime);
@@ -109,6 +109,7 @@ public:
     ClipDisplayMode GetClipDisplayMode() const { return mClipDisplayMode; }
     void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
     bool IsAnimationActive() const { return mAnimationActive; }
+    bool InputDisabled() const { return mPitDeathInProgress || mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
     void SetupCombatCamera(const BAK::Encounter::Encounter&);
@@ -177,6 +178,9 @@ private:
 
     void StartGateAnimation();
     void SetCatapultFrame();
+    void CheckPitDeath();
+    void TriggerPitDeath();
+    void AnimateCrossPit(BAK::EntityIndex entityIndex);
 
 public:
     Camera& mCamera;
@@ -220,8 +224,10 @@ public:
 
     bool mAnimationActive{false};
     double mAnimationSpeedMultiplier{1.0};
+    bool mPitDeathInProgress{false};
 
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
+    std::unordered_map<BAK::EntityIndex, glm::uvec2> mPitLocations{};
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
     DoorLocationMap mDoorLocations{};
     std::unordered_map<BAK::DoorIndex, BAK::EntityIndex> mDoorIndexToEntityId{};

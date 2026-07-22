@@ -36,7 +36,7 @@ public:
         Gui::IGuiManager& guiManager,
         BAK::GameState& gameState);
 
-    void BeginInteraction(BAK::GenericContainer& ladder, BAK::EntityType) override;
+    void BeginInteraction(BAK::GenericContainer& ladder, BAK::EntityType, BAK::EntityIndex) override;
     
 
     void LockFinished();

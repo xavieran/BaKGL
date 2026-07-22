@@ -33,7 +33,7 @@ public:
         BAK::GameState& gameState,
         DoorStateCallback onStateChanged);
 
-    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType) override;
+    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType, BAK::EntityIndex) override;
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
     void LockFinished();
     void OpenDoor();

@@ -5,6 +5,7 @@
 #include "game/combat/moveAnimator.hpp"
 #include "game/combatModelLoader.hpp"
 #include "game/doorFrameAnimator.hpp"
+#include "game/pitAnimator.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 
@@ -14,6 +15,7 @@
 #include "bak/camera.hpp"
 #include "bak/combat/mechanics.hpp"
 #include "bak/constants.hpp"
+#include "bak/movement.hpp"
 
 #include "bak/chapterTransitions.hpp"
 #include "bak/dialogChoice.hpp"
@@ -39,6 +41,10 @@
 #include "graphics/glm.hpp"
 
 #include "gui/guiManager.hpp"
+#include "gui/animator.hpp"
+
+#include "bak/dialogSources.hpp"
+#include "bak/condition.hpp"
 
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -66,7 +72,8 @@ GameRunner::GameRunner(
         mGameState,
         [this](const auto& pos) -> bool { return CheckAndDoEncounter(pos); },
         [this](BAK::DoorIndex doorIndex, bool isOpen) { OnDoorStateChanged(doorIndex, isOpen); },
-        [this]() { SetCatapultFrame(); }},
+        [this]() { SetCatapultFrame(); },
+        [this](auto entityIndex) { AnimateCrossPit(entityIndex); }},
     mCurrentInteractable{nullptr},
     mZoneData{nullptr},
     mActiveEncounter{nullptr},
@@ -181,6 +188,7 @@ void GameRunner::LoadSystems()
     mEncounters.clear();
     mClickables.clear();
     mEntityTypes.clear();
+    mPitLocations.clear();
     mDoorLocations.clear();
     mDoorIndexToEntityId.clear();
     mAnimatedEntities.clear();
@@ -242,6 +250,15 @@ void GameRunner::LoadSystems()
         }
     };
 
+    auto setupPit = [&](BAK::EntityIndex id, BAK::EntityType entityType, const glm::uvec2& bakLocation)
+    {
+        if (entityType != BAK::EntityType::PIT)
+        {
+            return;
+        }
+        mPitLocations.emplace(id, bakLocation);
+    };
+
     for (const auto& world : mZoneData->mWorldTiles.GetTiles())
     {
         for (const auto& item : world.GetItems())
@@ -266,6 +283,7 @@ void GameRunner::LoadSystems()
 
                 setupGate(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
                 setupCatapult(id, item.GetZoneItem().GetEntityType(), item.GetZoneItem().GetName());
+                setupPit(id, item.GetZoneItem().GetEntityType(), item.GetBakLocation());
 
                 if (item.GetZoneItem().GetModelClip())
                 {
@@ -646,14 +664,30 @@ void GameRunner::ClearCombatActors()
     mCombatManager.EndCombat();
 }
 
-void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container)
+void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container, BAK::EntityIndex entityIndex)
 {
     mLogger.Debug() << __FUNCTION__ << " " 
         << static_cast<unsigned>(et) << " " << container << "\n";
 
+    if (et == BAK::EntityType::PIT)
+    {
+        const auto it = mPitLocations.find(entityIndex);
+        if (it == mPitLocations.end())
+        {
+            mLogger.Error() << __FUNCTION__ << " Pit entity not found in mPitLocations: "
+                << entityIndex << "\n";
+            return;
+        }
+        const auto gamePos = mCamera.GetGameLocation();
+        if (!mMovementManager.GetPitCross(gamePos.mPosition, it->second))
+        {
+            return;
+        }
+    }
+
     mCurrentInteractable = mInteractableFactory.MakeInteractable(et);
     ASSERT(mCurrentInteractable);
-    mCurrentInteractable->BeginInteraction(container, et);
+    mCurrentInteractable->BeginInteraction(container, et, entityIndex);
 }
 
 void GameRunner::SetupCombatCamera(const BAK::Encounter::Encounter&)
@@ -949,6 +983,11 @@ void GameRunner::RunGameUpdate(bool advanceTime)
         {
             mEncounterHandler.DoEncounter(*mActiveEncounter);
         }
+
+        if (!mPitDeathInProgress && !mAnimationActive)
+        {
+            CheckPitDeath();
+        }
     }
 }
 
@@ -1001,7 +1040,7 @@ void GameRunner::CheckClickable(unsigned entityId)
         assert (it != mClickables.end());
         auto& clickable = mClickables[*bestId];
         assert(clickable.mContainer);
-        DoGenericContainer(clickable.mEntityType, *clickable.mContainer);
+        DoGenericContainer(clickable.mEntityType, *clickable.mContainer, *bestId);
     }
 }
 
@@ -1029,7 +1068,7 @@ void GameRunner::HandleRightClick(unsigned entityId)
         mCurrentInteractable = mInteractableFactory.MakeRightClickInteractable(
             clickable.mEntityType, *clickable.mContainer);
         mCurrentInteractable->BeginInteraction(
-            *clickable.mContainer, clickable.mEntityType);
+            *clickable.mContainer, clickable.mEntityType, *bestId);
     }
 }
 
@@ -1423,5 +1462,122 @@ void GameRunner::SetClipDisplayMode(ClipDisplayMode mode)
     {
         r.SetVisible(mClipDisplayMode != ClipDisplayMode::Vanilla);
     }
+}
+
+void GameRunner::CheckPitDeath()
+{
+    if (mMovementManager.IsOnPit(mCamera.GetGameLocation().mPosition))
+    {
+        TriggerPitDeath();
+    }
+}
+
+void GameRunner::AnimateCrossPit(BAK::EntityIndex entityIndex)
+{
+    mLogger.Debug() << "Cross pit: " << entityIndex << "\n";
+
+    const auto it = mPitLocations.find(entityIndex);
+    if (it == mPitLocations.end())
+    {
+        mLogger.Error() << __FUNCTION__ << " Pit entity not found in mPitLocations: "
+            << entityIndex << "\n";
+    }
+    ASSERT(it != mPitLocations.end());
+    const auto pit = it->second;
+    mLogger.Spam() << __FUNCTION__ << " Pit location: " << pit << "\n";
+
+    auto gamePos = mCamera.GetGameLocation();
+    mLogger.Spam() << __FUNCTION__ << " Player pos: " << gamePos.mPosition
+        << " heading: " << gamePos.mHeading << "\n";
+
+    const auto pitCellPos = BAK::SnapPositionToCellCenter(pit);
+    const auto cross = mMovementManager.GetPitCross(gamePos.mPosition, pit);
+    ASSERT(cross);
+
+    auto heading = cross->mHeading;
+    mLogger.Spam() << __FUNCTION__ << " Pit cell center: " << pitCellPos
+        << " party cell center: " << BAK::SnapPositionToCellCenter(gamePos.mPosition)
+        << " heading between pit and party: " << heading
+        << " landing: " << cross->mLandingCell
+        << " cell distance: " << cross->mCellDistance << "\n";
+
+    mAnimationActive = true;
+
+    auto headingGl = BAK::ToGlAngle(static_cast<BAK::GameHeading>(heading));
+    auto angle = mCamera.GetAngle();
+    angle.x = headingGl.x;
+    mCamera.SetAngle(angle);
+
+    auto finalBak = cross->mLandingCell;
+    auto finalGL = BAK::ToGlCoord<float>(finalBak);
+    auto glPos = mCamera.GetPosition();
+    finalGL.y = glPos.y;
+
+    const auto pitCenterGL = BAK::ToGlCoord<float>(
+        glm::uvec2{glm::ivec2{pitCellPos}});
+    const auto cellDistance = cross->mCellDistance;
+    constexpr float sCrossPitDuration = 1.0;
+    constexpr float sCrossPitHeightDrop = 200.0f;
+
+    mGuiManager.AddAnimator(std::make_unique<Game::PitAnimator>(
+        sCrossPitDuration * cellDistance,
+        glPos,
+        finalGL,
+        pitCenterGL,
+        glPos.y,
+        sCrossPitHeightDrop,
+        [this](glm::vec2 glXZ){
+            return mMovementManager.IsOnPit(
+                glm::uvec2{glm::ivec2{glXZ.x, -glXZ.y}});
+        },
+        [this](const auto& pos){
+            mCamera.SetPosition(pos);
+        },
+        [this]{
+            mAnimationActive = false;
+        }
+    ));
+}
+
+void GameRunner::TriggerPitDeath()
+{
+    mPitDeathInProgress = true;
+    mAnimationActive = true;
+    mCamera.RejectPendingMove();
+
+    const auto startHeight = mCamera.GetPosition().y;
+    constexpr float pitBottom = -750.0f;
+
+    mGuiManager.AddAnimator(std::make_unique<Gui::LinearAnimator>(
+        0.5,
+        glm::vec4{startHeight, 0, 0, 0},
+        glm::vec4{pitBottom, 0, 0, 0},
+        [this](const auto& delta){
+            mCamera.SetHeight(mCamera.GetPosition().y + delta.x);
+            return false;
+        },
+        [this]{
+            mGuiManager.DoFade(0.5, [this]{
+                mGameState.GetParty().ForEachActiveCharacter(
+                    [](auto& character){
+                        auto& skills = character.GetSkills();
+                        auto healthSkill = skills.GetSkill(BAK::SkillType::Health);
+                        healthSkill.mTrueSkill = 0;
+                        healthSkill.mCurrent = 0;
+                        skills.SetSkill(BAK::SkillType::Health, healthSkill);
+
+                        character.GetConditions().SetCondition(
+                            BAK::Condition::NearDeath, 100);
+
+                        return BAK::Loop::Continue;
+                    });
+
+                mAnimationActive = false;
+                mPitDeathInProgress = false;
+
+                mGuiManager.PartyDied(BAK::DialogSources::mDeathDueToPit);
+            });
+        }
+    ));
 }
 }

@@ -37,7 +37,7 @@ public:
         BAK::GameState& gameState,
         const EncounterCallback& encounterCallback);
 
-    void BeginInteraction(BAK::GenericContainer& tomb, BAK::EntityType) override;
+    void BeginInteraction(BAK::GenericContainer& tomb, BAK::EntityType, BAK::EntityIndex) override;
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
     void DigTomb();
     void DoEncounter();

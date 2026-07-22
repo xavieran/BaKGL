@@ -740,7 +740,7 @@ bool GuiManager::NotifyPartyChanges()
 
     if (result.mChanged)
     {
-        if (result.mDead)
+        if (result.mDead && !mPartyDying)
         {
             PartyDied(result.mDialog);
         }
@@ -760,8 +760,14 @@ void GuiManager::PartyDied(BAK::Target dialog)
 {
     mPartyDiedScene.SetDialogFinished(
         [this](const auto&){
+            mPartyDying = false;
             EnterMainMenu(false);
         });
+
+
+    // Prevents reentrancy
+    mGameState.GetPartyChangeCache().CacheState(mGameState);
+
     StartDialog(
         dialog,
         false,
