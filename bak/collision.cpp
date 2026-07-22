@@ -69,7 +69,8 @@ bool BlocksMovement(const ZoneItem& item)
         }
     }
 
-    if (item.GetEntityType() == EntityType::BRIDGE)
+    if (item.GetEntityType() == EntityType::BRIDGE
+        || item.GetEntityType() == EntityType::PIT)
     {
         return false;
     }
@@ -95,7 +96,8 @@ bool AllowsMovement(const ZoneItem& item)
     }
 
     if (item.GetEntityType() == EntityType::BRIDGE
-        || item.GetEntityType() == EntityType::TUNNEL1)
+        || item.GetEntityType() == EntityType::TUNNEL1
+        || item.GetEntityType() == EntityType::PIT)
     {
         return true;
     }

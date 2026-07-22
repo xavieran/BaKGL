@@ -355,8 +355,8 @@ int main(int argc, char** argv)
     };
 
     auto InputAllowed = [&]{
-        return guiManager.InMainView()
-            || (guiManager.InCombatView() && !gameRunner.IsAnimationActive());
+        return (guiManager.InMainView() || guiManager.InCombatView())
+            && !gameRunner.InputDisabled();
     };
 
     auto ShiftHeld = [&]{

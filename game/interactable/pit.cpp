@@ -18,20 +18,22 @@ namespace Game::Interactable {
 
 Pit::Pit(
     Gui::IGuiManager& guiManager,
-    BAK::GameState& gameState)
+    BAK::GameState& gameState,
+    const PitCrossCallback& pitCrossCallback)
 :
     mGuiManager{guiManager},
     mGameState{gameState},
+    mPitCrossCallback{pitCrossCallback},
     mDialogScene{
         []{},
         []{},
         [&](const auto& choice){ DialogFinished(choice); }},
-    mCurrentPit{nullptr}
+    mEntityIndex{0}
 {}
 
-void Pit::BeginInteraction(BAK::GenericContainer& pit, BAK::EntityType)
+void Pit::BeginInteraction(BAK::GenericContainer& pit, BAK::EntityType, BAK::EntityIndex entityIndex)
 {
-    mCurrentPit = &pit;
+    mEntityIndex = entityIndex;
     if (mGameState.GetParty().HaveItem(BAK::sRope))
     {
         StartDialog(BAK::DialogSources::mPitHaveRope);
@@ -44,14 +46,10 @@ void Pit::BeginInteraction(BAK::GenericContainer& pit, BAK::EntityType)
 
 void Pit::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
 {
-    ASSERT(mCurrentPit);
     if (choice && choice->mValue == BAK::Keywords::sYesIndex)
     {
-        Logging::LogDebug(__FUNCTION__) << "Swing across pit...\n";
-    }
-    else
-    {
-        Logging::LogDebug(__FUNCTION__) << "Not crossing pit\n";
+        mGameState.GetParty().RemoveItem(BAK::sRope.mValue, 1);
+        mPitCrossCallback(mEntityIndex);
     }
 }
 

@@ -20,7 +20,7 @@ Description::Description(
     mDialog{target}
 {}
 
-void Description::BeginInteraction(BAK::GenericContainer&, BAK::EntityType)
+void Description::BeginInteraction(BAK::GenericContainer&, BAK::EntityType, BAK::EntityIndex)
 {
     mGuiManager.StartDialog(mDialog, false, false, &mDialogScene);
 }

@@ -60,7 +60,8 @@ public:
         BAK::GameState& gameState,
         EncounterCallback&& encounterCallback,
         DoorStateCallback&& doorStateCallback,
-        CatapultCallback&& catapultCallback);
+        CatapultCallback&& catapultCallback,
+        PitCrossCallback&& pitCrossCallback);
 
     std::unique_ptr<IInteractable> MakeInteractable(
         BAK::EntityType entity) const;
@@ -75,6 +76,7 @@ private:
     EncounterCallback mEncounterCallback;
     DoorStateCallback mDoorStateCallback;
     CatapultCallback mCatapultCallback;
+    PitCrossCallback mPitCrossCallback;
 };
 
 }

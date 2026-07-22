@@ -31,7 +31,7 @@ Chest::Chest(
     mState{State::Idle}
 {}
 
-void Chest::BeginInteraction(BAK::GenericContainer& chest, BAK::EntityType)
+void Chest::BeginInteraction(BAK::GenericContainer& chest, BAK::EntityType, BAK::EntityIndex)
 {
     ASSERT(mState == State::Idle);
 

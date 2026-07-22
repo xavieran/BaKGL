@@ -26,9 +26,10 @@ class Pit : public IInteractable
 public:
     Pit(
         Gui::IGuiManager& guiManager,
-        BAK::GameState& gameState);
+        BAK::GameState& gameState,
+        const PitCrossCallback& pitCrossCallback);
 
-    void BeginInteraction(BAK::GenericContainer& pit, BAK::EntityType) override;
+    void BeginInteraction(BAK::GenericContainer& pit, BAK::EntityType, BAK::EntityIndex entityIndex) override;
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
     void StartDialog(BAK::Target target);
     void EncounterFinished() override;
@@ -36,8 +37,9 @@ public:
 private:
     Gui::IGuiManager& mGuiManager;
     BAK::GameState& mGameState;
+    PitCrossCallback mPitCrossCallback;
     Gui::DynamicDialogScene mDialogScene;
-    BAK::GenericContainer* mCurrentPit;
+    BAK::EntityIndex mEntityIndex{0};
 };
 
 }

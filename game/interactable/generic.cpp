@@ -30,7 +30,7 @@ Generic::Generic(
     mEncounterCallback{encounterCallback}
 {}
 
-void Generic::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType)
+void Generic::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType, BAK::EntityIndex)
 {
     mContainer = &container;
     mEntityType = entityType;

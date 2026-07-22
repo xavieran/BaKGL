@@ -60,6 +60,7 @@ enum class Direction : std::uint8_t
 };
 
 Direction GetDirectionBetween(GamePosition source, GamePosition dest);
+GameHeading GetHeadingBetween(GamePosition source, GamePosition dest);
 Direction HeadingToDirection(GameHeading heading);
 GameHeading DirectionToHeading(Direction direction);
 bool IsCardinal(Direction);

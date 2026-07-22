@@ -36,7 +36,7 @@ Door::Door(
     mOnStateChanged{std::move(onStateChanged)}
 {}
 
-void Door::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType)
+void Door::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType, BAK::EntityIndex)
 {
     mContainer = &container;
 

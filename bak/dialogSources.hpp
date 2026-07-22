@@ -218,6 +218,7 @@ public:
     static constexpr auto mWonVersusGhost    = KeyTarget{0x132};
     static constexpr auto mWonSpecialBattle  = KeyTarget{0x142};
     static constexpr auto mDeathDueToCondition = KeyTarget{0x145};
+    static constexpr auto mDeathDueToPit     = KeyTarget{0x115};
     static constexpr auto mDefeatedMakala    = KeyTarget{0x150};
 
     /* NOTIFICATIONS */

@@ -28,6 +28,13 @@ namespace Game {
 
 using DoorLocationMap = std::unordered_map<glm::uvec2, BAK::DoorIndex, UVec2Hash>;
 
+struct PitCross
+{
+    glm::uvec2 mLandingCell;
+    BAK::GameHeading mHeading;
+    unsigned mCellDistance;
+};
+
 class MovementManager
 {
 public:
@@ -49,6 +56,9 @@ public:
 
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
     bool IsOnRoad(BAK::GamePosition playerPos) const;
+    bool IsOnPit(glm::uvec2 pos) const;
+    std::optional<PitCross> GetPitCross(
+        BAK::GamePosition playerPos, glm::uvec2 pitLocation) const;
     std::optional<float> ComputeTerrainHeight(BAK::GamePosition playerPos) const;
     std::optional<BAK::GameHeading> GetOpenDirection(
         BAK::GamePositionAndHeading playerLocation, float distance, bool followRoad) const;

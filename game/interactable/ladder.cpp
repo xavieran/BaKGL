@@ -28,7 +28,7 @@ Ladder::Ladder(
     mState{State::Idle}
 {}
 
-void Ladder::BeginInteraction(BAK::GenericContainer& ladder, BAK::EntityType)
+void Ladder::BeginInteraction(BAK::GenericContainer& ladder, BAK::EntityType, BAK::EntityIndex)
 {
     ASSERT(mState == State::Idle);
 

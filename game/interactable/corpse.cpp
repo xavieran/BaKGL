@@ -28,7 +28,7 @@ Corpse::Corpse(
     mContainer{nullptr}
 {}
 
-void Corpse::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType)
+void Corpse::BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType, BAK::EntityIndex)
 {
     mContainer = &container;
     mEntityType = entityType;

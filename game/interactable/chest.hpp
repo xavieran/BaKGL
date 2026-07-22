@@ -39,7 +39,7 @@ public:
         Gui::IGuiManager& guiManager,
         BAK::GameState& gameState);
 
-    void BeginInteraction(BAK::GenericContainer& chest, BAK::EntityType) override;
+    void BeginInteraction(BAK::GenericContainer& chest, BAK::EntityType, BAK::EntityIndex) override;
     void EncounterFinished() override;
     void DialogFinished(const std::optional<BAK::ChoiceIndex>& choice);
 

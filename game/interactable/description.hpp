@@ -21,7 +21,7 @@ class Description : public IInteractable
 public:
     Description(Gui::IGuiManager& guiManager, BAK::Target target);
 
-    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType) override;
+    void BeginInteraction(BAK::GenericContainer& container, BAK::EntityType entityType, BAK::EntityIndex) override;
     void EncounterFinished() override;
 
 private:
