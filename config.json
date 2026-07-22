@@ -22,7 +22,8 @@
     "Game": {
         "AdvanceTime": true,
         "CombatSpeed": 1.0,
-        "ClipEnabled": false
+        "ClipEnabled": false,
+        "MoveUnitsPerSecond": 6400.0
     },
     "Logging": {
         "LogToFile": true,

@@ -283,14 +283,14 @@ int main(int argc, char** argv)
     Camera lightCamera{
         static_cast<unsigned>(width),
         static_cast<unsigned>(height),
-        400 * 30.0f,
+        static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         2.0f};
     lightCamera.UseOrthoMatrix(400, 400);
 
     Camera camera{
         static_cast<unsigned>(width),
         static_cast<unsigned>(height),
-        400 * 30.0f,
+        static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         1.0f};
     Camera* cameraPtr = &camera;
 

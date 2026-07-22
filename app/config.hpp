@@ -49,6 +49,7 @@ struct Game
     double mCombatSpeed{1.0};
     bool mClipEnabled{false};
     bool mWallSlide{false};
+    double mMoveUnitsPerSecond{6400.0};
 };
 
 struct Config

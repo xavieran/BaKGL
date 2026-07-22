@@ -90,6 +90,7 @@ Game LoadGame(const nlohmann::json& config)
         game.mCombatSpeed = c.value("CombatSpeed", 1.0);
         game.mClipEnabled = c.value("ClipEnabled", false);
         game.mWallSlide = c.value("WallSlide", false);
+        game.mMoveUnitsPerSecond = c.value("MoveUnitsPerSecond", 6400.0);
     }
     return game;
 }
