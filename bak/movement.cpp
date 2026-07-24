@@ -1,6 +1,11 @@
 #include "bak/movement.hpp"
 
+#include "bak/constants.hpp"
 #include "bak/coordinates.hpp"
+
+#include "com/logger.hpp"
+
+#include "graphics/glm.hpp"
 
 #include <cmath>
 
@@ -65,6 +70,42 @@ SlideProjection ProjectSlide(
     return SlideProjection{
         projected,
         GamePosition{glm::uvec2{projectedPos.x, -projectedPos.z}}};
+}
+
+GamePosition SnapPositionToCellCenter(GamePosition pos)
+{
+    const auto snapAxis = [](unsigned value) {
+        const auto cell = std::max<int>(
+            0,
+            std::lround((static_cast<double>(value) - gHalfCellSize) / gCellSize));
+        return static_cast<unsigned>(cell) * gCellSize + gHalfCellSize;
+    };
+
+    return GamePosition{
+        glm::uvec2{
+            snapAxis(pos.x),
+            snapAxis(pos.y)}};
+}
+
+GamePosition FindNearestRoadCell(
+    GamePosition pos,
+    std::function<bool(GamePosition)> isOnRoad)
+{
+    constexpr glm::vec2 sCellOffsets[] = {
+        { 0,  0}, { 1,  0}, {-1,  0},
+        { 0,  1}, { 0, -1}, { 1,  1},
+        {-1,  1}, { 1, -1}, {-1, -1}};
+
+    for (const auto& offset : sCellOffsets)
+    {
+        const auto candidate = SnapPositionToCellCenter(
+            pos + glm::uvec2{offset * static_cast<float>(gCellSize)});
+        if (isOnRoad(candidate))
+        {
+            return candidate;
+        }
+    }
+    return pos;
 }
 
 }
