@@ -108,10 +108,7 @@ GameRunner::GameRunner(
 
     mGuiManager.SetCombatManager(mCombatManager);
     mGuiManager.SetToggleFollowRoadCallback(
-        [this]{
-            mGameState.SetFollowRoad(!mGameState.GetFollowRoad());
-            mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
-        });
+        [this]{ ToggleFollowRoad(); });
 
     mGlyphStore.Init(mGuiManager.GetFontManager().GetGameFont());
 }
@@ -1016,6 +1013,20 @@ void GameRunner::SetFollowRoadButtonVisible(bool visible)
     if (visible)
     {
         mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
+    }
+}
+void GameRunner::ToggleFollowRoad()
+{
+    mGameState.SetFollowRoad(!mGameState.GetFollowRoad());
+    mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
+
+    if (mGameState.GetFollowRoad())
+    {
+        auto location = mCamera.GetGameLocation();
+        location.mPosition = BAK::FindNearestRoadCell(
+            location.mPosition,
+            [this](BAK::GamePosition pos) { return IsOnRoad(pos); });
+        mCamera.SetGameLocation(location);
     }
 }
 

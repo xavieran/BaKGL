@@ -110,6 +110,7 @@ public:
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
     bool IsOnRoad(BAK::GamePosition playerPos) const;
     void SetFollowRoadButtonVisible(bool visible);
+    void ToggleFollowRoad();
     std::optional<float> ComputeTerrainHeight(BAK::GamePosition playerPos) const;
     std::optional<BAK::GameHeading> GetOpenDirection(BAK::GamePositionAndHeading playerLocation) const;
     std::optional<BAK::DoorIndex> GetDoorIndex(glm::uvec2 bakLocation) const;

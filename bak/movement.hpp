@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include <cstdint>
+#include <functional>
 
 namespace BAK {
 
@@ -29,5 +30,11 @@ SlideProjection ProjectSlide(
     float maxDistance);
 
 CardinalDirection GetRotationDirection(GameHeading currentHeading, GameHeading targetHeading);
+
+GamePosition SnapPositionToCellCenter(GamePosition);
+
+GamePosition FindNearestRoadCell(
+    GamePosition pos,
+    std::function<bool(GamePosition)> isOnRoad);
 
 }
