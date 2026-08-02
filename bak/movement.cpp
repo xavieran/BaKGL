@@ -7,6 +7,7 @@
 
 #include "graphics/glm.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace BAK {
@@ -87,6 +88,48 @@ GamePosition SnapPositionToCellCenter(GamePosition pos)
             snapAxis(pos.y)}};
 }
 
+GamePosition SnapToCellVector(GamePosition pos, Direction direction)
+{
+    auto x = static_cast<int>(pos.x);
+    auto y = static_cast<int>(pos.y);
+    switch (direction)
+    {
+    case Direction::East: [[fallthrough]];
+    case Direction::West:
+        y = (y / static_cast<int>(gCellSize)) * static_cast<int>(gCellSize)
+            + static_cast<int>(gHalfCellSize);
+        break;
+    case Direction::North: [[fallthrough]];
+    case Direction::South:
+        x = (x / static_cast<int>(gCellSize)) * static_cast<int>(gCellSize)
+            + static_cast<int>(gHalfCellSize);
+        break;
+    case Direction::SouthEast: [[fallthrough]];
+    case Direction::NorthWest:
+    {
+        const auto remainder = (x + y) % static_cast<int>(gCellSize);
+        const auto adjusted = remainder > static_cast<int>(gHalfCellSize)
+            ? remainder - static_cast<int>(gCellSize)
+            : remainder;
+        y -= adjusted;
+        break;
+    }
+    case Direction::NorthEast: [[fallthrough]];
+    case Direction::SouthWest:
+    {
+        const auto remainder = (x - y) % static_cast<int>(gCellSize);
+        const auto adjusted = remainder > static_cast<int>(gHalfCellSize)
+            ? remainder - static_cast<int>(gCellSize)
+            : (remainder < -static_cast<int>(gHalfCellSize)
+                ? remainder + static_cast<int>(gCellSize)
+                : remainder);
+        y += adjusted;
+        break;
+    }
+    }
+    return GamePosition{glm::uvec2{x, y}};
+}
+
 GamePosition FindNearestRoadCell(
     GamePosition pos,
     std::function<bool(GamePosition)> isOnRoad)
@@ -108,4 +151,28 @@ GamePosition FindNearestRoadCell(
     return pos;
 }
 
+std::optional<GameHeading> SnapHeadingIfOvershot(
+    GameHeading oldHeading,
+    GameHeading newHeading,
+    GameHeading targetHeading)
+{
+    const auto forwardDist =
+        (newHeading - oldHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
+
+    if (forwardDist == 0 || forwardDist >= gBakHeadingHalfCircle)
+        return std::nullopt;
+
+    const auto distToTarget =
+        (targetHeading - oldHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
+
+    if (distToTarget > 0 && distToTarget <= forwardDist)
+        return targetHeading;
+
+    return std::nullopt;
+}
+
+GamePosition GetCellPosition(GamePosition pos)
+{
+    return pos % static_cast<unsigned>(BAK::gCellSize);
+}
 }

@@ -105,17 +105,17 @@ GamePosition MakeGamePositionFromGridCell(
 glm::vec3 ToGlAngle(const glm::ivec3& angle)
 {
     return ToGlCoord<float>(angle) 
-        / static_cast<float>(0xffff)
+        / static_cast<float>(0x10000)
         * 2.0f * glm::pi<float>();
 }
 
 BAK::GameHeading ToBakAngle(double angle)
 {
-    const auto multiplier = static_cast<double>(0xff);
+    const auto multiplier = static_cast<double>(0x100);
     const auto angleGreaterThanZero = angle + glm::pi<double>();
-    const auto bakAngle = multiplier * (angleGreaterThanZero / (2 * glm::pi<double>()));
+    const auto bakAngle = multiplier * (angleGreaterThanZero / (2.0 * glm::pi<double>()));
     ASSERT(bakAngle > 0);
-    return static_cast<BAK::GameHeading>(bakAngle);
+    return static_cast<BAK::GameHeading>(std::round(bakAngle));
 }
 
 double NormaliseRadians(double angle)
@@ -130,10 +130,10 @@ double NormaliseRadians(double angle)
 // Convert an 8 bit BAK angle to radians
 glm::vec2 ToGlAngle(GameHeading heading)
 {
-    constexpr auto divider = static_cast<float>(0xff);
-    const auto ratio = static_cast<float>(heading) / divider;
-    const auto angle = ratio * 2.0f * glm::pi<float>();
-    return glm::vec2{NormaliseRadians(angle + glm::pi<float>()), 0};
+    constexpr auto divider = static_cast<double>(0x100);
+    const auto ratio = static_cast<double>(heading) / divider;
+    const auto angle = ratio * 2.0f * glm::pi<double>();
+    return glm::vec2{NormaliseRadians(angle + glm::pi<double>()), 0};
 }
 
 std::ostream& operator<<(std::ostream& os, const MapLocation& l)
@@ -173,6 +173,34 @@ std::string_view ToString(Direction direction)
     std::unreachable();
 }
 
+Direction HeadingToDirection(GameHeading heading)
+{
+    return static_cast<Direction>(((heading + 144u) % 256u) / 32u);
+}
+
+GameHeading DirectionToHeading(Direction direction)
+{
+    return static_cast<GameHeading>(
+        (static_cast<unsigned>(direction) * 32 + 128) % 256);
+}
+
+Direction ToOpposite(Direction direction)
+{
+    using enum Direction;
+    switch (direction)
+    {
+        case South: return North;
+        case SouthEast: return NorthWest;
+        case East: return West;
+        case NorthEast: return SouthWest;
+        case North: return South;
+        case NorthWest: return SouthEast;
+        case West: return East;
+        case SouthWest: return NorthEast;
+    }
+    std::unreachable();
+}
+
 Direction GetDirectionBetween(GamePosition source, GamePosition dest)
 {
     const auto delta = glm::ivec2(dest) - glm::ivec2(source);
@@ -184,8 +212,7 @@ Direction GetDirectionBetween(GamePosition source, GamePosition dest)
         static_cast<double>(delta.x));
 
     auto heading = ToBakAngle(radians + glm::pi<float>() / 2.0);
-    return static_cast<BAK::Direction>(
-        ((heading + 144u) % 256u) / 32u);
+    return HeadingToDirection(heading);
 }
 
 bool IsCardinal(Direction direction)

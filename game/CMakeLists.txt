@@ -6,6 +6,7 @@ add_library(game
     textAnimator.hpp textAnimator.cpp
     encounterHandler.hpp encounterHandler.cpp
     gameRunner.hpp gameRunner.cpp
+    movementManager.hpp movementManager.cpp
     combat/types.hpp combat/types.cpp
     combat/actionQueue.hpp combat/actionQueue.cpp
     combat/combatManager.hpp combat/combatManager.cpp

@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 
 namespace BAK {
 
@@ -33,8 +34,17 @@ CardinalDirection GetRotationDirection(GameHeading currentHeading, GameHeading t
 
 GamePosition SnapPositionToCellCenter(GamePosition);
 
+GamePosition SnapToCellVector(GamePosition, Direction);
+
 GamePosition FindNearestRoadCell(
     GamePosition pos,
     std::function<bool(GamePosition)> isOnRoad);
+
+std::optional<GameHeading> SnapHeadingIfOvershot(
+    GameHeading oldHeading,
+    GameHeading newHeading,
+    GameHeading targetHeading);
+
+GamePosition GetCellPosition(GamePosition);
 
 }

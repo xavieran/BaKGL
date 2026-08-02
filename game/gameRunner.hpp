@@ -9,6 +9,7 @@
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
+#include "game/movementManager.hpp"
 
 #include "game/gateAnimator.hpp"
 
@@ -94,6 +95,7 @@ public:
     bool CheckAndDoEncounter(glm::uvec2 position);
     
     void RunGameUpdate(bool advanceTime);
+    MovementManager& GetMovementManager() { return mMovementManager; }
     void CheckClickable(unsigned entityId);
     void HandleRightClick(unsigned entityId);
     void SetHoveredEntity(std::optional<BAK::EntityIndex> id);
@@ -105,18 +107,7 @@ public:
     void SetClipDisplayMode(ClipDisplayMode mode);
     const std::vector<Renderable>& GetClipRenderables() const { return mClipRenderables; }
     ClipDisplayMode GetClipDisplayMode() const { return mClipDisplayMode; }
-    void SetClipEnabled(bool clip) { mClipEnabled = clip; }
-    bool GetClipEnabled() const { return mClipEnabled; }
-    bool CannotMoveHere(BAK::GamePosition playerPos) const;
-    bool IsOnRoad(BAK::GamePosition playerPos) const;
-    void SetFollowRoadButtonVisible(bool visible);
-    void ToggleFollowRoad();
-    std::optional<float> ComputeTerrainHeight(BAK::GamePosition playerPos) const;
-    std::optional<BAK::GameHeading> GetOpenDirection(BAK::GamePositionAndHeading playerLocation) const;
-    std::optional<BAK::DoorIndex> GetDoorIndex(glm::uvec2 bakLocation) const;
     void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
-    void SetWallSlide(bool slide) { mWallSlide = slide; }
-    bool GetWallSlide() const { return mWallSlide; }
     bool IsAnimationActive() const { return mAnimationActive; }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
@@ -191,6 +182,7 @@ public:
     Camera& mCamera;
     BAK::GameState& mGameState;
     Gui::GuiManager& mGuiManager;
+    MovementManager mMovementManager;
     InteractableFactory mInteractableFactory;
     std::unique_ptr<IInteractable> mCurrentInteractable;
 
@@ -213,7 +205,6 @@ public:
     Combat::CombatManager mCombatManager;
     bool mClickablesEnabled{};
     bool mDebugRenderEncounters{false};
-    bool mFollowRoadButtonVisible{false};
 
     glm::vec3 mSavedCameraPos{};
     glm::vec2 mSavedCameraAngle{};
@@ -230,12 +221,9 @@ public:
     bool mAnimationActive{false};
     double mAnimationSpeedMultiplier{1.0};
 
-    bool mClipEnabled{false};
-    bool mWallSlide{false};
-
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
     std::unordered_map<BAK::EntityIndex, BAK::EntityType> mEntityTypes{};
-    std::unordered_map<glm::uvec2, BAK::DoorIndex, UVec2Hash> mDoorLocations{};
+    DoorLocationMap mDoorLocations{};
     std::unordered_map<BAK::DoorIndex, BAK::EntityIndex> mDoorIndexToEntityId{};
 
     using FrameOffsets = std::vector<Graphics::MeshObjectStorage::OffsetAndLength>;
