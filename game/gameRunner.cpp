@@ -9,11 +9,11 @@
 #include "game/systems.hpp"
 
 #include "bak/combat/combatModel.hpp"
+#include "bak/coordinates.hpp"
 #include "bak/collision.hpp"
 #include "bak/camera.hpp"
 #include "bak/combat/mechanics.hpp"
 #include "bak/constants.hpp"
-#include "bak/movement.hpp"
 
 #include "bak/chapterTransitions.hpp"
 #include "bak/dialogChoice.hpp"
@@ -28,6 +28,8 @@
 #include "bak/types.hpp"
 #include "bak/zone.hpp"
 
+#include <algorithm>
+
 #include "com/assert.hpp"
 #include "com/logger.hpp"
 #include "com/bits.hpp"
@@ -41,6 +43,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include <cassert>
 #include <unordered_set>
 #include <utility>
 #include <variant>
@@ -57,6 +60,7 @@ GameRunner::GameRunner(
     mCamera{camera},
     mGameState{gameState},
     mGuiManager{guiManager},
+    mMovementManager{camera, gameState, guiManager},
     mInteractableFactory{
         mGuiManager,
         mGameState,
@@ -108,7 +112,8 @@ GameRunner::GameRunner(
 
     mGuiManager.SetCombatManager(mCombatManager);
     mGuiManager.SetToggleFollowRoadCallback(
-        [this]{ ToggleFollowRoad(); });
+        [this]{ mMovementManager.ToggleFollowRoad(); });
+    mMovementManager.SetDoorLocations(&mDoorLocations);
 
     mGlyphStore.Init(mGuiManager.GetFontManager().GetGameFont());
 }
@@ -150,11 +155,7 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
         mZoneData->mZoneTextures.GetMaxDim());
     LoadSystems();
     mCamera.SetGameLocation(mGameState.GetLocation());
-    if (auto height = ComputeTerrainHeight(mGameState.GetLocation().mPosition))
-    {
-        mCamera.SetHeight(*height);
-    }
-    SetFollowRoadButtonVisible(IsOnRoad(mGameState.GetLocation().mPosition));
+    mMovementManager.RefreshAfterZoneLoad();
 }
 
 void GameRunner::DoTransition(
@@ -176,6 +177,7 @@ void GameRunner::LoadSystems()
     mSystems = std::make_unique<Systems>();
     mCombatActorStore.SetSystems(mSystems.get());
     mWorldActorStore.SetSystems(mSystems.get());
+    mMovementManager.SetSystems(mSystems.get());
     mEncounters.clear();
     mClickables.clear();
     mEntityTypes.clear();
@@ -885,16 +887,6 @@ bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
     return false;
 }
 
-std::optional<BAK::DoorIndex> GameRunner::GetDoorIndex(glm::uvec2 bakLocation) const
-{
-    auto it = mDoorLocations.find(bakLocation);
-    if (it != mDoorLocations.end())
-    {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
 void GameRunner::OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen)
 {
     auto entityIt = mDoorIndexToEntityId.find(doorIndex);
@@ -922,205 +914,6 @@ void GameRunner::OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen)
         isOpen,
         sFrameTime / 2,
         []{}));
-}
-
-bool GameRunner::CannotMoveHere(BAK::GamePosition playerPos) const
-{
-    if (!mZoneData)
-    {
-        return false;
-    }
-
-    const auto playerBakPos = glm::ivec2{playerPos};
-
-    for (const auto& item : mSystems->GetNearbyCollisions(
-            mSystems->GetAllowables(), playerBakPos, sMaxCollisionDistSq))
-    {
-        auto doorIndex = GetDoorIndex(item.GetBakLocation());
-        if (doorIndex && !BAK::State::GetDoorState(mGameState, *doorIndex))
-        {
-            continue;
-        }
-
-        auto modelSpace = BAK::WorldToModelClipSpace(
-            glm::vec2{playerBakPos},
-            glm::vec2{item.GetBakLocation()},
-            item.GetRotationY(),
-            item.GetScale());
-
-        if (BAK::PointInModelClip(modelSpace, item.GetModelClip()))
-        {
-            return false;
-        }
-    }
-
-    for (const auto& item : mSystems->GetNearbyCollisions(
-            mSystems->GetBlockables(), playerBakPos, sMaxCollisionDistSq))
-    {
-        auto doorIndex = GetDoorIndex(item.GetBakLocation());
-        if (doorIndex && BAK::State::GetDoorState(mGameState, *doorIndex))
-        {
-            continue;
-        }
-
-        auto modelSpace = BAK::WorldToModelClipSpace(
-            glm::vec2{playerBakPos},
-            glm::vec2{item.GetBakLocation()},
-            item.GetRotationY(),
-            item.GetScale());
-
-        if (BAK::PointInModelClip(modelSpace, item.GetModelClip()))
-        {
-            return true;
-        }
-    }
-
-    return mGameState.GetFollowRoad() || mGameState.IsUnderground();
-}
-
-bool GameRunner::IsOnRoad(BAK::GamePosition playerPos) const
-{
-    if (!mZoneData)
-    {
-        return false;
-    }
-
-    const auto playerBakPos = glm::ivec2{playerPos};
-
-    for (const auto& item : mSystems->GetNearbyCollisions(
-            mSystems->GetAllowables(), playerBakPos, sMaxCollisionDistSq))
-    {
-        auto modelSpace = BAK::WorldToModelClipSpace(
-            glm::vec2{playerBakPos},
-            glm::vec2{item.GetBakLocation()},
-            item.GetRotationY(),
-            item.GetScale());
-
-        if (BAK::PointInModelClip(modelSpace, item.GetModelClip()))
-        {
-            auto type = item.GetEntityType();
-            return type == BAK::EntityType::EXTERIOR
-                || type == BAK::EntityType::BRIDGE;
-        }
-    }
-
-    return false;
-}
-
-void GameRunner::SetFollowRoadButtonVisible(bool visible)
-{
-    mGuiManager.SetFollowRoadButtonVisible(visible);
-    if (visible)
-    {
-        mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
-    }
-}
-void GameRunner::ToggleFollowRoad()
-{
-    mGameState.SetFollowRoad(!mGameState.GetFollowRoad());
-    mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
-
-    if (mGameState.GetFollowRoad())
-    {
-        auto location = mCamera.GetGameLocation();
-        location.mPosition = BAK::FindNearestRoadCell(
-            location.mPosition,
-            [this](BAK::GamePosition pos) { return IsOnRoad(pos); });
-        mCamera.SetGameLocation(location);
-    }
-}
-
-std::optional<float> GameRunner::ComputeTerrainHeight(BAK::GamePosition playerPos) const
-{
-    if (!mZoneData)
-    {
-        return std::nullopt;
-    }
-
-    const auto playerBakPos = glm::ivec2{playerPos};
-
-    for (const auto& item : mSystems->GetNearbyCollisions(
-            mSystems->GetAllowables(), playerBakPos, sMaxCollisionDistSq))
-    {
-        auto modelSpace = BAK::WorldToModelClipSpace(
-            glm::vec2{playerBakPos},
-            glm::vec2{item.GetBakLocation()},
-            item.GetRotationY(),
-            item.GetScale());
-
-        auto height = BAK::ComputeHeight(modelSpace, item.GetModelClip());
-        if (height)
-        {
-            return BAK::ComputeWorldHeight(*height, item.GetScale());
-        }
-    }
-
-    return std::nullopt;
-}
-
-std::optional<BAK::GameHeading> GameRunner::GetOpenDirection(BAK::GamePositionAndHeading playerLocation) const
-{
-    if (!mZoneData)
-    {
-        return std::nullopt;
-    }
-
-    const auto currentHeading = playerLocation.mHeading;
-
-    std::int16_t leftStep  = BAK::gBakSmallRotationBakHeading;
-    leftStep = -leftStep;
-    std::int16_t rightStep = BAK::gBakSmallRotationBakHeading;
-    std::int16_t negativeNinetyDegrees = BAK::gBakNinetyDegrees;
-    auto maxSearchAngleLeft  = BAK::RotateHeading(currentHeading, negativeNinetyDegrees);
-    auto maxSearchAngleRight = BAK::RotateHeading(currentHeading, BAK::gBakNinetyDegrees);
-
-    auto currentSearchLeft  = currentHeading;
-    auto currentSearchRight = currentHeading;
-
-    auto headingToCheck = playerLocation;
-    std::optional<BAK::GameHeading> openLeft;
-    std::optional<BAK::GameHeading> openRight;
-
-    while (currentSearchLeft != maxSearchAngleLeft)
-    {
-        currentSearchLeft = BAK::RotateHeading(currentSearchLeft, leftStep);
-        headingToCheck.mHeading = currentSearchLeft;
-        auto positionToCheck = BAK::MoveForward(headingToCheck, BAK::gRotationSearchAmount);
-
-        if (!CannotMoveHere(positionToCheck.mPosition))
-        {
-            openLeft = currentSearchLeft;
-        }
-
-        currentSearchRight = BAK::RotateHeading(currentSearchRight, rightStep);
-        headingToCheck.mHeading = currentSearchRight;
-        positionToCheck = BAK::MoveForward(headingToCheck, BAK::gRotationSearchAmount);
-
-        if (!CannotMoveHere(positionToCheck.mPosition))
-        {
-            openRight = currentSearchRight;
-        }
-
-        if (openLeft || openRight)
-        {
-            break;
-        }
-    }
-
-    if (openLeft && openRight)
-    {
-        return std::nullopt;
-    }
-    else if (openLeft)
-    {
-        return *openLeft;
-    }
-    else if (openRight)
-    {
-        return *openRight;
-    }
-
-    return std::nullopt;
 }
 
 void GameRunner::RunGameUpdate(bool advanceTime)

@@ -60,10 +60,13 @@ enum class Direction : std::uint8_t
 };
 
 Direction GetDirectionBetween(GamePosition source, GamePosition dest);
+Direction HeadingToDirection(GameHeading heading);
+GameHeading DirectionToHeading(Direction direction);
 bool IsCardinal(Direction);
 glm::ivec2 ToDelta(Direction);
 Direction NextAnticlockwise(Direction direction, unsigned steps = 1);
 Direction NextClockwise(Direction direction, unsigned steps = 1);
+Direction ToOpposite(Direction direction);
 
 struct GamePositionAndHeading
 {

@@ -159,16 +159,16 @@ void ShowClipDisplayGui(
         gameRunner.SetClipDisplayMode(static_cast<ClipDisplayMode>(mode));
     }
 
-    bool clipEnabled = gameRunner.GetClipEnabled();
+    bool clipEnabled = gameRunner.GetMovementManager().GetClipEnabled();
     if (ImGui::Checkbox("Clip", &clipEnabled))
     {
-        gameRunner.SetClipEnabled(clipEnabled);
+        gameRunner.GetMovementManager().SetClipEnabled(clipEnabled);
     }
 
-    bool wallSlide = gameRunner.GetWallSlide();
+    bool wallSlide = gameRunner.GetMovementManager().GetWallSlide();
     if (ImGui::Checkbox("Wall Slide", &wallSlide))
     {
-        gameRunner.SetWallSlide(wallSlide);
+        gameRunner.GetMovementManager().SetWallSlide(wallSlide);
     }
 
     ImGui::End();

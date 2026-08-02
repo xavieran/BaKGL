@@ -1,6 +1,8 @@
 #include "bak/camera.hpp"
 
 #include "bak/constants.hpp"
+#include "com/logger.hpp"
+#include "graphics/glm.hpp"
 #include "bak/coordinates.hpp"
 
 #include <glm/glm.hpp>
@@ -104,7 +106,12 @@ BAK::GameHeading Camera::GetHeading()
 {
     // Make sure to normalise this between 0 and 1
     const auto bakAngle = BAK::ToBakAngle(mAngle.x);
-    return static_cast<std::uint16_t>(bakAngle);
+    return static_cast<std::uint16_t>(std::round(bakAngle));
+}
+
+double Camera::GetDeltaTime()
+{
+    return mDeltaTime;
 }
 
 void Camera::SetDeltaTime(double dt)
@@ -115,6 +122,11 @@ void Camera::SetDeltaTime(double dt)
 void Camera::SetSpeedScale(float scale)
 {
     mSpeedScale = scale;
+}
+
+float Camera::GetScaledMoveSpeed() const
+{
+    return mMoveSpeed * mSpeedScale;
 }
 
 void Camera::MoveForward()
@@ -202,7 +214,7 @@ void Camera::RotateLeft()
 {
     SetAngle(
         glm::vec2{
-            mAngle.x + mTurnSpeed * mDeltaTime,
+            mAngle.x + mTurnSpeed * mSpeedScale * mDeltaTime,
             mAngle.y});
 }
 
@@ -210,7 +222,7 @@ void Camera::RotateRight()
 {
     SetAngle(
         glm::vec2{
-            mAngle.x - mTurnSpeed * mDeltaTime,
+            mAngle.x - mTurnSpeed * mSpeedScale * mDeltaTime,
             mAngle.y});
 }
 
@@ -232,6 +244,7 @@ void Camera::RotateVerticalDown()
 
 glm::vec3 Camera::GetDirection() const
 {
+
     return {
         cos(mAngle.y) * sin(mAngle.x),
         sin(mAngle.y),
@@ -242,18 +255,18 @@ glm::vec3 Camera::GetDirection() const
 glm::vec3 Camera::GetForward() const
 {
     return {
-        cos(mAngle.x - 3.14f/2.0f),
+        cos(mAngle.x - glm::pi<float>()/2.0f),
         0,
-        -sin(mAngle.x - 3.14f/2.0f)
+        -sin(mAngle.x - glm::pi<float>()/2.0f)
     };
 }
 
 glm::vec3 Camera::GetRight() const
 {
     return {
-        sin(mAngle.x - 3.14f/2.0f),
+        sin(mAngle.x - glm::pi<float>()/2.0f),
         0,
-        cos(mAngle.x - 3.14f/2.0f)
+        cos(mAngle.x - glm::pi<float>()/2.0f)
     };
 }
 
@@ -300,4 +313,3 @@ unsigned Camera::GetAndClearUnitsTravelled()
     }
     return 0;
 }
-

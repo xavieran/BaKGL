@@ -21,12 +21,14 @@ public:
 
     void SetGameLocation(const BAK::GamePositionAndHeading& location);
     void SetSpeedScale(float scale);
+    float GetScaledMoveSpeed() const;
     BAK::GamePositionAndHeading GetGameLocation() const;
     glm::uvec2 GetGameTile() const;
     void SetPosition(const glm::vec3& position);
     void SetHeight(float height);
     void SetAngle(glm::vec2 angle);
     BAK::GameHeading GetHeading();
+    double GetDeltaTime();
     void SetDeltaTime(double dt);
 
     void MoveForward();
@@ -65,7 +67,7 @@ public:
 
     bool CheckAndResetDirty();
     unsigned GetAndClearUnitsTravelled();
-    
+
 private:
     float mMoveSpeed;
     float mTurnSpeed;

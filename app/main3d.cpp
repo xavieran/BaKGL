@@ -313,8 +313,8 @@ int main(int argc, char** argv)
         config.mGraphics.mDebugRenderEncounters,
         config.mGame.mCombatSpeed};
 
-    gameRunner.SetClipEnabled(config.mGame.mClipEnabled);
-    gameRunner.SetWallSlide(config.mGame.mWallSlide);
+    gameRunner.GetMovementManager().SetClipEnabled(config.mGame.mClipEnabled);
+    gameRunner.GetMovementManager().SetWallSlide(config.mGame.mWallSlide);
 
     // Wire up the zone loader to the GUI manager
     guiManager.SetZoneLoader(&gameRunner);
@@ -364,10 +364,6 @@ int main(int argc, char** argv)
             || glfwGetKey(window.get(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
     };
 
-    auto ApplySpeedScale = [&]{
-        cameraPtr->SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
-    };
-
     Graphics::InputHandler inputHandler{};
     inputHandler.BindPressed(GLFW_KEY_G, [&]{
         if (glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
@@ -385,23 +381,46 @@ int main(int argc, char** argv)
         if (guiManager.InMainView())
             UpdateLightCamera();
     });
-    inputHandler.Bind(GLFW_KEY_UP,   [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->StrafeForward();}});
-    inputHandler.Bind(GLFW_KEY_DOWN, [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->StrafeBackward();}});
-    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (InputAllowed()){cameraPtr->StrafeLeft();}});
-    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (InputAllowed()){cameraPtr->StrafeRight();}});
+    inputHandler.Bind(GLFW_KEY_UP,   [&]{
+        if (InputAllowed())
+        {
+            gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
+            gameRunner.GetMovementManager().MoveForward();
+        }
+    });
+    inputHandler.Bind(GLFW_KEY_DOWN, [&]{
+        if (InputAllowed())
+        {
+            gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
+            gameRunner.GetMovementManager().MoveBackward();
+        }});
+    inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveLeft();}});
+    inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveRight();}});
 
-    inputHandler.Bind(GLFW_KEY_W, [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->MoveForward();}});
-    inputHandler.Bind(GLFW_KEY_A, [&]{ if (InputAllowed()){cameraPtr->StrafeLeft();}});
-    inputHandler.Bind(GLFW_KEY_D, [&]{ if (InputAllowed()){cameraPtr->StrafeRight();}});
-    inputHandler.Bind(GLFW_KEY_S, [&]{ if (InputAllowed()){ApplySpeedScale(); cameraPtr->MoveBackward();}});
+    inputHandler.Bind(GLFW_KEY_W, [&]{
+        if (InputAllowed())
+        {
+            gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
+            gameRunner.GetMovementManager().MoveForward();
+        }});
+    inputHandler.Bind(GLFW_KEY_A, [&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveLeft();}});
+    inputHandler.Bind(GLFW_KEY_D, [&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveRight();}});
+    inputHandler.Bind(GLFW_KEY_S, [&]{
+        if (InputAllowed())
+        {
+            gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
+            gameRunner.GetMovementManager().MoveBackward();
+        }});
     inputHandler.Bind(GLFW_KEY_Q, [&]{
         if (InputAllowed())
         {
+            cameraPtr->SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
             cameraPtr->RotateLeft();
         }});
     inputHandler.Bind(GLFW_KEY_E, [&]{ 
         if (InputAllowed())
         {
+            cameraPtr->SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
             cameraPtr->RotateRight();
         }});
     inputHandler.Bind(GLFW_KEY_Z, [&]{ if (InputAllowed()){cameraPtr->StrafeUp();}});
@@ -550,67 +569,9 @@ int main(int argc, char** argv)
         inputHandler.HandleInput(window.get());
 
         if (guiManager.InMainView()
-            && cameraPtr == &camera
-            && camera.HasPendingMove())
+            && gameRunner.GetMovementManager().Update())
         {
-            auto targetPos = camera.GetPendingPosition();
-            auto bakTargetPos = glm::uvec2{targetPos.x, -targetPos.z};
-
-            if (!gameRunner.CannotMoveHere(bakTargetPos) || !gameRunner.GetClipEnabled())
-            {
-                camera.AcceptPendingMove();
-                if (auto height = gameRunner.ComputeTerrainHeight(camera.GetGameLocation().mPosition))
-                {
-                    camera.SetHeight(*height);
-                }
-                UpdateGameTile();
-                gameRunner.SetFollowRoadButtonVisible(
-                    gameRunner.IsOnRoad(camera.GetGameLocation().mPosition));
-            }
-            else
-            {
-                auto gameLocation = camera.GetGameLocation();
-                auto openHeading = gameRunner.GetOpenDirection(gameLocation);
-
-                auto RotateTowardOpenHeading = [&](BAK::GameHeading openHeading, BAK::GameHeading currentHeading)
-                {
-                    if (BAK::GetRotationDirection(currentHeading, openHeading) == BAK::CardinalDirection::West)
-                        cameraPtr->RotateLeft();
-                    else
-                        cameraPtr->RotateRight();
-                };
-
-                if (openHeading && gameRunner.GetWallSlide())
-                {
-                    auto originalDelta = camera.GetPendingPosition() - camera.GetPosition();
-                    auto [projected, bakProjectedPos] = BAK::ProjectSlide(
-                        originalDelta, camera.GetPosition(), *openHeading,
-                        BAK::gRotationSearchAmount);
-
-                    camera.RejectPendingMove();
-                    RotateTowardOpenHeading(*openHeading, gameLocation.mHeading);
-
-                    if (!gameRunner.CannotMoveHere(bakProjectedPos))
-                    {
-                        camera.SetPendingDelta(projected);
-                        camera.AcceptPendingMove();
-                        if (auto height = gameRunner.ComputeTerrainHeight(camera.GetGameLocation().mPosition))
-                        {
-                            camera.SetHeight(*height);
-                        }
-                        UpdateGameTile();
-                    }
-                }
-                else
-                {
-                    if (openHeading)
-                        RotateTowardOpenHeading(*openHeading, gameLocation.mHeading);
-                    else
-                        logger.Debug() << "Could move in either direction or not at all\n";
-
-                    camera.RejectPendingMove();
-                }
-            }
+            UpdateGameTile();
         }
 
         if (gameState.GetGameData().IsLoaded())
