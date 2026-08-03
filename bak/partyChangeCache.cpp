@@ -39,18 +39,24 @@ void PartyChangeCache::ClearCondition(const GameState& gs, Condition condition)
 
 std::optional<PartyChangeResult> PartyChangeCache::CheckForDeath(GameState& gameState)
 {
-    bool anyAlive = false;
+    bool anyAliveNow = false;
+    bool anyAliveCached = false;
     gameState.GetParty().ForEachActiveCharacter([&](const auto& character) {
-        auto nearDeath = character.GetConditions()
-            .GetCondition(BAK::Condition::NearDeath).Get();
-        if (nearDeath == 0)
+        const unsigned charIdx = character.GetIndex().mValue;
+        if (character.GetConditions()
+            .GetCondition(BAK::Condition::NearDeath).Get() == 0)
         {
-            anyAlive = true;
+            anyAliveNow = true;
+        }
+        if (mCachedConditions[charIdx]
+            .GetCondition(BAK::Condition::NearDeath).Get() == 0)
+        {
+            anyAliveCached = true;
         }
         return Loop::Continue;
     });
 
-    if (!anyAlive)
+    if (anyAliveCached && !anyAliveNow)
     {
         return PartyChangeResult{
             true, DialogSources::mDeathDueToCondition, true};

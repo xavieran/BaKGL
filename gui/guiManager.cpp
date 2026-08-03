@@ -149,6 +149,24 @@ GuiManager::GuiManager(
 {
     mGdsScenes.reserve(4);
     AddChildBack(&mScreenStack);
+
+    SetName("GuiManager");
+    mScreenStack.SetName("ScreenStack");
+    mDialogRunner.SetName("DialogRunner");
+    mCutscenePlayer.SetName("CutscenePlayer");
+    mMainView.SetName("MainView");
+    mMainMenu.SetName("MainMenu");
+    mInfoScreen.SetName("InfoScreen");
+    mInventoryScreen.SetName("InventoryScreen");
+    mCampScreen.SetName("CampScreen");
+    mCastScreen.SetName("CastScreen");
+    mCombatScreen.SetName("CombatScreen");
+    mCureScreen.SetName("CureScreen");
+    mLockScreen.SetName("LockScreen");
+    mFullMap.SetName("FullMap");
+    mMoredhelScreen.SetName("MoredhelScreen");
+    mTeleportScreen.SetName("TeleportScreen");
+    mFadeScreen.SetName("FadeScreen");
 }
 
 
@@ -171,6 +189,7 @@ ScreenStack& GuiManager::GetScreenStack()
 
 void GuiManager::LoadGame(std::string save, std::optional<BAK::Chapter> chapter)
 {
+    mLogger.Info() << "LoadGame " << save << "\n";
     ASSERT(mZoneLoader);
     mZoneLoader->LoadGame(save, chapter);
     mMainView.SetHeading(mGameState.GetLocation().mHeading);
@@ -200,8 +219,6 @@ void GuiManager::SetDebugDisableFades(bool disable)
 
 void GuiManager::DoFade(double duration, std::function<void()>&& fadeFunction)
 {
-    CPPTRACE(mLogger.Info(), __FUNCTION__);
-    
     if (mDebugDisableFades) duration = 0.1;
 
     mFadeFunction.emplace_back(std::move(fadeFunction));
@@ -249,6 +266,7 @@ bool GuiManager::InCombatView() const
 
 void GuiManager::EnterMainView()
 {
+    CPPTRACE(mLogger.Info(), __FUNCTION__);
     mLogger.Info() << "Entering main view\n";
     mMainView.SetCanSaveBookmark(mMainMenu.CanSaveBookmark());
     mMainView.UpdatePartyMembers(mGameState);
@@ -266,7 +284,7 @@ void GuiManager::EnterMainView()
 void GuiManager::EnterMainMenu(bool gameRunning)
 {
     DoFade(1.0, [this, gameRunning]{
-        if (gameRunning)
+        if (mScreenStack.HasChildren())
         {
             auto checkMainView = PopScreen();
         }
@@ -383,9 +401,7 @@ void GuiManager::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     ASSERT(mDialogScene);
     PopOnExitCallback(OnExit::Run);
     ASSERT(mScreenStack.Top() == &mDialogRunner);
-    mLogger.Debug() << "Finished screen is: " << mScreenStack.Top() << "\n";
     auto checkMainView = PopScreen(); // Dialog runner
-    mLogger.Debug() << "Popped now screen is: " << mScreenStack.Top() << "\n";
     ASSERT(mScreenStack.Top() != &mDialogRunner);
     mCursor.PopCursor();
 
@@ -706,11 +722,11 @@ void GuiManager::PushScreen(Widget* screen)
 
 ScopeGuard<std::function<void()>> GuiManager::PopScreen()
 {
-    mLogger.Info() << "Pop screen. InMainView? " << std::boolalpha << InMainView()
+    mLogger.Info() << __FUNCTION__ << " InMainView? " << std::boolalpha << InMainView()
         << " combatSeq: " << mCombatSequenceActive << "\n";
     mScreenStack.PopScreen();
+    mLogger.Info() << __FUNCTION__ << " Stack: " << mScreenStack.LogStack() << "\n";
     return ScopeGuard<std::function<void()>>([this]{
-        mLogger.Info() << "Scope guard fired after pop screen. InMainView? " << std::boolalpha << InMainView() << "\n";
         if (InMainView() && !mAmInMainView)
         {
             if (mCombatSequenceActive)
@@ -722,7 +738,7 @@ ScopeGuard<std::function<void()>> GuiManager::PopScreen()
             {
                 mAmInMainView = !NotifyPartyChanges();
             }
-        };
+        }
     });
 }
 
@@ -740,7 +756,7 @@ bool GuiManager::NotifyPartyChanges()
 
     if (result.mChanged)
     {
-        if (result.mDead && !mPartyDying)
+        if (result.mDead)
         {
             PartyDied(result.mDialog);
         }
@@ -753,17 +769,17 @@ bool GuiManager::NotifyPartyChanges()
                 &mNullDialogScene);
         }
     }
+
     return result.mChanged;
 }
 
 void GuiManager::PartyDied(BAK::Target dialog)
 {
+    CPPTRACE(mLogger.Info(), __FUNCTION__);
     mPartyDiedScene.SetDialogFinished(
         [this](const auto&){
-            mPartyDying = false;
             EnterMainMenu(false);
         });
-
 
     // Prevents reentrancy
     mGameState.GetPartyChangeCache().CacheState(mGameState);

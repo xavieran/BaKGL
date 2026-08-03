@@ -7,6 +7,9 @@
 #include "graphics/IGuiElement.hpp"
 #include "graphics/guiTypes.hpp"
 
+#include <ostream>
+#include <string>
+
 namespace Gui {
 
 struct ClipRegionTag {};
@@ -15,6 +18,8 @@ struct RectTag {};
 
 class Widget : public Graphics::IGuiElement
 {
+    friend std::ostream& operator<<(std::ostream& os, Widget* widget);
+
 public:
     Widget(
         Graphics::DrawMode drawMode,
@@ -88,6 +93,7 @@ public:
     void SetTexture(Graphics::TextureIndex);
     void SetColorMode(Graphics::ColorMode);
     void SetColor(glm::vec4);
+    void SetName(const std::string& name);
 
     std::size_t size() const;
 
@@ -102,10 +108,13 @@ protected:
 
     Graphics::DrawInfo mDrawInfo;
     Graphics::PositionInfo mPositionInfo;
+    std::string mName;
     Widget* mParent;
     std::vector<Widget*> mChildren;
     bool mActive;
 };
+
+std::ostream& operator<<(std::ostream& os, Widget* widget);
 
 template <typename T>
 concept ImplementsWidget = std::derived_from<T, Widget>;

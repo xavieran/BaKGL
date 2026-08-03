@@ -23,6 +23,7 @@ public:
     void PopScreen();
     Widget* Top() const;
     bool HasChildren();
+    std::string LogStack();
 private:
 
     const Logging::Logger& mLogger;

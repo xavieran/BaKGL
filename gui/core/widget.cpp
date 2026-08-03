@@ -2,6 +2,8 @@
 
 #include "com/assert.hpp"
 
+#include "com/demangle.hpp"
+
 #include "graphics/glm.hpp"
 
 namespace Gui {
@@ -27,6 +29,7 @@ Widget::Widget(
         dims,
         0.0,
         childrenRelative},
+    mName{},
     mParent{nullptr},
     mChildren{},
     mActive{true}
@@ -291,6 +294,11 @@ void Widget::SetColor(glm::vec4 color)
     mDrawInfo.mColor = color;
 }
 
+void Widget::SetName(const std::string& name)
+{
+    mName = name;
+}
+
 void Widget::SetDimensions(glm::vec2 dims)
 {
     mPositionInfo.mDimensions = dims;
@@ -357,6 +365,17 @@ DragEvent Widget::InverseTransformEvent(const DragEvent& event)
             return DragEvent{T{e.mWidget, newPos}};
         },
         event);
+}
+
+std::ostream& operator<<(std::ostream& os, Widget* widget)
+{
+    os << com::demangle(typeid(widget).name()) << "[";
+    if (widget != nullptr)
+    {
+        os << widget->mName << " ";
+    }
+    os << std::hex << reinterpret_cast<void*>(widget) << std::dec << "]";
+    return os;
 }
 
 }

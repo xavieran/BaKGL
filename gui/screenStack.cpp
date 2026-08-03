@@ -66,4 +66,10 @@ bool ScreenStack::HasChildren()
     return mChildren.size() > 0;
 }
 
+std::string ScreenStack::LogStack()
+{
+    std::stringstream ss{};
+    ss << GetChildren();
+    return ss.str();
+}
 }
