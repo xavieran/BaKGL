@@ -65,8 +65,8 @@ public:
 
     void EndCombat();
 
-    void CompleteMove(GridPos target);
-    void CompleteAttack(GridPos target);
+    void CompleteMove(GridPos target) override;
+    void CompleteAttack(GridPos target) override;
 
     void OnHoverChanged(std::optional<GridPos> gridPos);
     bool IsCombatActive() const;

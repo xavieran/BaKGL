@@ -11,6 +11,7 @@ add_library(game
     combat/types.hpp combat/types.cpp
     combat/actionQueue.hpp combat/actionQueue.cpp
     combat/combatManager.hpp combat/combatManager.cpp
+    combat/combatStage.hpp combat/combatStage.cpp
     combat/gridAlgorithms.hpp combat/gridAlgorithms.cpp
     screens.hpp screens.cpp
     systems.hpp systems.cpp

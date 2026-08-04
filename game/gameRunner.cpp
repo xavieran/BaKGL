@@ -1,8 +1,5 @@
 #include "game/gameRunner.hpp"
 
-#include "game/combat/flashAnimator.hpp"
-#include "game/combat/frameAnimator.hpp"
-#include "game/combat/moveAnimator.hpp"
 #include "game/combatModelLoader.hpp"
 #include "game/doorFrameAnimator.hpp"
 #include "game/pitAnimator.hpp"
@@ -88,24 +85,31 @@ GameRunner::GameRunner(
         std::nullopt,
         std::nullopt,
         BAK::Inventory{0}},
-    mCombatActorStore{
-        mCombatModelLoader,
-        nullptr
-    },
+    mCombatModelLoader{},
     mWorldActorStore{
         mCombatModelLoader,
         nullptr
     },
+    mCombatPlayerPos{},
+    mGlyphStore{},
+    mZoneRenderData{},
     mEncounterHandler{
         mGameState,
         mGuiManager,
         mCamera},
-    mCombatManager{*this, mGuiManager.GetCombatUI()},
+    mCombatStage{
+        mGuiManager,
+        mCamera,
+        mGlyphStore,
+        mCombatModelLoader,
+        mCombatPlayerPos,
+        animationSpeedMultiplier},
+    mCombatManager{mCombatStage, mGuiManager.GetCombatUI()},
     mClickablesEnabled{false},
     mDebugRenderEncounters{debugRenderEncounters},
-    mAnimationSpeedMultiplier{animationSpeedMultiplier},
     mLogger{Logging::LogState::GetLogger("Game::GameRunner")}
 {
+    mCombatStage.SetCombatManager(&mCombatManager);
     mGameState.SetFindEncounterCallback(
         [this](BAK::CombatIndex combatIndex) -> const BAK::Encounter::Encounter& {
             return FindEncounterByCombatIndex(combatIndex);
@@ -182,7 +186,7 @@ void GameRunner::DoTransition(
 void GameRunner::LoadSystems()
 {
     mSystems = std::make_unique<Systems>();
-    mCombatActorStore.SetSystems(mSystems.get());
+    mCombatStage.SetSystems(mSystems.get());
     mWorldActorStore.SetSystems(mSystems.get());
     mMovementManager.SetSystems(mSystems.get());
     mEncounters.clear();
@@ -535,7 +539,7 @@ void GameRunner::StartGateAnimation()
         *mSystems,
         *mGateEntity,
         it->second,
-        sFrameTime);
+        Combat::CombatStage::sFrameTime);
     mGateAnimator = animator.get();
     mGuiManager.AddAnimator(std::move(animator));
 }
@@ -660,7 +664,7 @@ void GameRunner::LoadWorldActors()
 void GameRunner::ClearCombatActors()
 {
     mSystems->ClearTextRenderables();
-    mCombatActorStore.Clear();
+    mCombatStage.GetActorStore().Clear();
     mCombatManager.EndCombat();
 }
 
@@ -715,13 +719,6 @@ void GameRunner::RestoreCameraAfterCombat()
 
     mCamera.SetAngle(mSavedCameraAngle);
     mCamera.SetPosition(mSavedCameraPos);
-}
-
-void GameRunner::CombatFinished(BAK::CombatResult result)
-{
-    // Yuck... we probably don't need to go in and then back
-    // here to exit combat...
-    mGuiManager.ExitCombat(result);
 }
 
 void GameRunner::CombatCompleted(BAK::CombatResult result)
@@ -834,9 +831,9 @@ void GameRunner::EnterCombatFromEncounter()
         auto monsterIndex = BAK::MonsterIndex{cgl.mMonster.mValue};
 
         auto combatPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, cgl.mGridPos);
-        auto entityId = mCombatActorStore.AddActor(
+        auto entityId = mCombatStage.GetActorStore().AddActor(
             combatPos, monsterIndex);
-        auto& actor = *mCombatActorStore.GetActor(entityId);
+        auto& actor = *mCombatStage.GetActorStore().GetActor(entityId);
         actor.RandomiseIdleFrame();
         mSystems->AddDynamicRenderable(
             DynamicRenderable{
@@ -860,9 +857,9 @@ void GameRunner::EnterCombatFromEncounter()
     {
         auto gridPos = character.GetGridPos();
         auto combatPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, gridPos);
-        auto entityId = mCombatActorStore.AddActor(
+        auto entityId = mCombatStage.GetActorStore().AddActor(
             combatPos, character.GetMonsterIndex());
-        auto& actor = *mCombatActorStore.GetActor(entityId);
+        auto& actor = *mCombatStage.GetActorStore().GetActor(entityId);
         actor.SetState(BAK::AnimationType::Idle, BAK::Direction::North);
         actor.RandomiseIdleFrame();
         mSystems->AddDynamicRenderable(
@@ -892,8 +889,6 @@ void GameRunner::EnterCombatFromEncounter()
         HideGrid();
     }
     ShowGrid();
-
-    UpdateGridCellColors();
 
     mGuiManager.EnterCombat([this](BAK::CombatResult result){
             CombatCompleted(result);
@@ -946,7 +941,7 @@ void GameRunner::OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen)
         entityIt->second,
         *animIt->second,
         isOpen,
-        sFrameTime / 2,
+        Combat::CombatStage::sFrameTime / 2,
         []{}));
 }
 
@@ -984,7 +979,7 @@ void GameRunner::RunGameUpdate(bool advanceTime)
             mEncounterHandler.DoEncounter(*mActiveEncounter);
         }
 
-        if (!mPitDeathInProgress && !mAnimationActive)
+        if (!mPitDeathInProgress && !IsAnimationActive())
         {
             CheckPitDeath();
         }
@@ -993,7 +988,7 @@ void GameRunner::RunGameUpdate(bool advanceTime)
 
 void GameRunner::SetHoveredEntity(std::optional<BAK::EntityIndex> entityId)
 {
-    if (entityId == mHoveredEntity || mAnimationActive)
+    if (entityId == mHoveredEntity || IsAnimationActive())
     {
         return;
     }
@@ -1006,7 +1001,6 @@ void GameRunner::SetHoveredEntity(std::optional<BAK::EntityIndex> entityId)
             if (mGridCells[i].mEntityId == *entityId)
             {
                 mCombatManager.OnHoverChanged(mGridCells[i].mGridPos);
-                UpdateGridCellColors();
                 return;
             }
         }
@@ -1014,7 +1008,6 @@ void GameRunner::SetHoveredEntity(std::optional<BAK::EntityIndex> entityId)
     else if (mGridVisible)
     {
         mCombatManager.OnHoverChanged(std::nullopt);
-        UpdateGridCellColors();
     }
 }
 
@@ -1074,10 +1067,8 @@ void GameRunner::HandleRightClick(unsigned entityId)
 
 void GameRunner::OnTimeDelta(double timeDelta)
 {
-    for (auto& actor : mCombatActorStore.GetActors())
-    {
-        actor.AdvanceIdle(timeDelta);
-    }
+    mCombatStage.OnTimeDelta(timeDelta);
+    if (mGridVisible && mSystems) UpdateGridCellColors();
 }
 
 const Graphics::RenderData& GameRunner::GetZoneRenderData() const
@@ -1233,8 +1224,6 @@ void GameRunner::ShowGrid()
 void GameRunner::ToggleDisplayAllCells()
 {
     mCombatManager.ToggleDisplayAllCells();
-    if (mGridVisible)
-        UpdateGridCellColors();
 }
 
 void GameRunner::UpdateGridCellColors()
@@ -1270,132 +1259,9 @@ void GameRunner::HideGrid()
     mLogger.Debug() << "Grid hidden\n";
 }
 
-void GameRunner::MoveCombatant(
-    BAK::EntityIndex entityId,
-    glm::uvec2 sourceGrid,
-    glm::uvec2 targetGrid)
-{
-    auto* actor = mCombatActorStore.GetActor(entityId);
-    assert(actor);
-    auto bakPos = BAK::MakeGamePositionFromGridCell(mCombatPlayerPos, targetGrid);
-    auto targetPos = BAK::ToGlCoord<float>(bakPos);
-    mLogger.Debug() << "Moving combatant: " << entityId
-        << " cam: " << mCombatPlayerPos << " pos: " << bakPos << "\n";
-
-    auto startPos = actor->mLocation;
-
-    auto direction = BAK::GetDirectionBetween(sourceGrid, targetGrid);
-    actor->SetDirection(direction);
-
-    auto moveDuration = sMoveDuration * mAnimationSpeedMultiplier;
-
-    mAnimationActive = true;
-    UpdateGridCellColors();
-    mGuiManager.AddAnimator(
-        std::make_unique<Combat::MoveAnimator>(
-            *actor,
-            startPos,
-            targetPos,
-            moveDuration,
-            [this, targetGrid]() mutable {
-                mAnimationActive = false;
-                mCombatManager.CompleteMove(
-                    Combat::GridPos(targetGrid));
-                UpdateGridCellColors();
-            }));
-}
-
-void GameRunner::SetCombatantAction(
-    BAK::EntityIndex entityId,
-    BAK::AnimationType animType)
-{
-    auto* actor = mCombatActorStore.GetActor(entityId);
-    assert(actor);
-    mLogger.Spam() << "Setting combatant action: " << entityId
-        << " mid: " << actor->mMonster 
-        << " anim: " << ToString(animType) << "\n";
-    actor->StartAnimation(animType);
-}
-
-void GameRunner::SetCombatantDirection(
-    BAK::EntityIndex entityId,
-    BAK::Direction direction)
-{
-    auto* actor = mCombatActorStore.GetActor(entityId);
-    assert(actor);
-    mLogger.Spam() << "Setting combatant direction: " << entityId
-        << " dir: " << static_cast<unsigned>(direction) << "\n";
-    actor->SetDirection(direction);
-}
-
-void GameRunner::SetCombatantUpdateIdle(
-    BAK::EntityIndex entityId,
-    bool update)
-{
-    auto* actor = mCombatActorStore.GetActor(entityId);
-    assert(actor);
-    actor->SetUpdateIdle(false);
-}
-
-void GameRunner::AnimateCombatant(
-    BAK::EntityIndex entityId)
-{
-    AnimateCombatant(entityId, []{});
-}
-
-void GameRunner::AnimateCombatant(
-    BAK::EntityIndex entityId,
-    std::function<void()> onFinished)
-{
-    auto* actor = mCombatActorStore.GetActor(entityId);
-    assert(actor);
-    mLogger.Debug() << "Animating combatant (with callback): " << entityId 
-        << " mid: " << actor->mMonster << "\n";
-
-    assert(BAK::IsCardinal(actor->mDirection));
-
-    auto frameTime = sFrameTime * mAnimationSpeedMultiplier;
-
-    mAnimationActive = true;
-    mGuiManager.AddAnimator(
-        std::make_unique<Combat::FrameAnimator>(
-            *actor,
-            frameTime,
-            [this, finished=std::move(onFinished)]() mutable {
-                mAnimationActive = false;
-                finished();
-                UpdateGridCellColors();
-            }));
-}
-
-void GameRunner::AnimateAttack(
-    BAK::EntityIndex entityId,
-    glm::uvec2 targetGrid)
-{
-    auto* actor = mCombatActorStore.GetActor(entityId);
-    assert(actor);
-    mLogger.Debug() << "Animating attack: " << entityId 
-        << " mid: " << actor->mMonster << "\n";
-    assert(BAK::IsCardinal(actor->mDirection));
-
-    auto frameTime = sFrameTime * mAnimationSpeedMultiplier;
-
-    mAnimationActive = true;
-    mGuiManager.AddAnimator(
-        std::make_unique<Combat::FrameAnimator>(
-            *actor,
-            frameTime,
-            [this, targetGrid]() mutable {
-                mAnimationActive = false;
-                mCombatManager.CompleteAttack(
-                    Combat::GridPos(targetGrid));
-                UpdateGridCellColors();
-            }));
-}
-
 bool GameRunner::HandleGridCellClick(unsigned entityId, bool isRightClick)
 {
-    if (mAnimationActive)
+    if (IsAnimationActive())
     {
         return true;
     }
@@ -1412,35 +1278,6 @@ bool GameRunner::HandleGridCellClick(unsigned entityId, bool isRightClick)
         }
     }
     return false;
-}
-
-void GameRunner::DisplayText(
-    BAK::EntityIndex target,
-    std::string text,
-    TextColor color)
-{
-    auto* actor = mCombatActorStore.GetActor(target);
-
-    auto worldPos = actor->mLocation;
-    worldPos.y += sDamageTextHeightOffset;
-
-    mGuiManager.AddAnimator(
-        std::make_unique<TextAnimator>(
-            *mSystems,
-            mGlyphStore,
-            mCamera,
-            worldPos,
-            text,
-            color,
-            sHitFlashDuration));
-}
-
-void GameRunner::FlashCombatant(BAK::EntityIndex entityId, glm::vec4 color)
-{
-    auto* actor = mCombatActorStore.GetActor(entityId);
-    assert(actor);
-    mGuiManager.AddAnimator(
-        std::make_unique<Combat::FlashAnimator>(*actor, color));
 }
 
 void GameRunner::CleanCombatsOnNewZone()
