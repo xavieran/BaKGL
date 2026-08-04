@@ -3,9 +3,8 @@
 #include "game/combatModelLoader.hpp"
 #include "game/combat/actorStore.hpp"
 #include "game/combat/combatManager.hpp"
-#include "game/combat/ICombatStage.hpp"
+#include "game/combat/combatStage.hpp"
 #include "game/glyphStore.hpp"
-#include "game/textAnimator.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
@@ -67,14 +66,9 @@ enum class ClipDisplayMode
     OnlyClips
 };
 
-class GameRunner : public BAK::IZoneLoader, public Combat::ICombatStage
+class GameRunner : public BAK::IZoneLoader
 {
 public:
-    static constexpr double sMoveDuration = 0.15;
-    static constexpr double sFrameTime = 0.25;
-    static constexpr float sDamageTextHeightOffset = 250.0f;
-    static constexpr float sHitFlashDuration = 1.0f;
-
     GameRunner(
         Camera& camera,
         BAK::GameState& gameState,
@@ -108,54 +102,14 @@ public:
     const std::vector<Renderable>& GetClipRenderables() const { return mClipRenderables; }
     ClipDisplayMode GetClipDisplayMode() const { return mClipDisplayMode; }
     void OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen);
-    bool IsAnimationActive() const { return mAnimationActive; }
-    bool InputDisabled() const { return mPitDeathInProgress || mAnimationActive; }
+    bool IsAnimationActive() const { return mAnimationActive || mCombatStage.IsAnimationActive(); }
+    bool InputDisabled() const { return mPitDeathInProgress || IsAnimationActive(); }
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
     void SetupCombatCamera(const BAK::Encounter::Encounter&);
     void RestoreCameraAfterCombat();
     void CombatCompleted(BAK::CombatResult);
     void EnterCombatFromEncounter();
-
-    void MoveCombatant(
-        BAK::EntityIndex entityId,
-        glm::uvec2 sourceGrid,
-        glm::uvec2 targetGrid) override;
-
-    void SetCombatantAction(
-        BAK::EntityIndex entityId,
-        BAK::AnimationType animType) override;
-
-    void SetCombatantDirection(
-        BAK::EntityIndex entityId,
-        BAK::Direction direction) override;
-
-    void SetCombatantUpdateIdle(
-        BAK::EntityIndex entityId,
-        bool update) override;
-
-    void AnimateCombatant(
-        BAK::EntityIndex entityId) override;
-
-    void AnimateCombatant(
-        BAK::EntityIndex entityId,
-        std::function<void()> onFinished) override;
-
-    void AnimateAttack(
-        BAK::EntityIndex entityId,
-        glm::uvec2 targetGrid) override;
-
-    void CombatFinished(
-        BAK::CombatResult) override;
-
-    void DisplayText(
-        BAK::EntityIndex target,
-        std::string text,
-        TextColor color) override;
-
-    void FlashCombatant(
-        BAK::EntityIndex entityId,
-        glm::vec4 color) override;
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
@@ -198,14 +152,17 @@ public:
     BAK::GenericContainer mNullContainer;
     std::unique_ptr<Systems> mSystems{nullptr};
     BAK::Encounter::TeleportFactory mTeleportFactory{};
-    ActorStore mCombatActorStore;
+
+    CombatModelLoader mCombatModelLoader{};
     ActorStore mWorldActorStore;
+    BAK::GamePositionAndHeading mCombatPlayerPos{};
+    GlyphStore mGlyphStore;
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
-    CombatModelLoader mCombatModelLoader{};
     EncounterHandler mEncounterHandler;
 
     std::unordered_map<BAK::CombatIndex, std::vector<BAK::EntityIndex>> mCombatActorIds{};
+    Combat::CombatStage mCombatStage;
     Combat::CombatManager mCombatManager;
     bool mClickablesEnabled{};
     bool mDebugRenderEncounters{false};
@@ -213,7 +170,6 @@ public:
     glm::vec3 mSavedCameraPos{};
     glm::vec2 mSavedCameraAngle{};
     BAK::CardinalDirection mRetreatDirection{};
-    BAK::GamePositionAndHeading mCombatPlayerPos{};
 
     bool mGridVisible{false};
     std::vector<Renderable> mGridCellRenderables{};
@@ -223,7 +179,6 @@ public:
     void UpdateGridCellColors();
 
     bool mAnimationActive{false};
-    double mAnimationSpeedMultiplier{1.0};
     bool mPitDeathInProgress{false};
 
     std::vector<BAK::EntityIndex> mHiddenWorldItems{};
@@ -240,9 +195,6 @@ public:
     GateAnimator* mGateAnimator{nullptr};
 
     std::optional<BAK::EntityIndex> mCatapultEntity{};
-
-
-    GlyphStore mGlyphStore;
 
     std::optional<BAK::EntityIndex> mHoveredEntity;
 
