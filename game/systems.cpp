@@ -312,7 +312,9 @@ std::vector<BAK::EntityIndex> Systems::RunIntersection(glm::vec3 cameraPos) cons
     for (const auto& item : GetIntersectables())
     {
         if (item.Intersects(cameraPos))
+        {
             result.emplace_back(item.GetId());
+        }
     }
 
     return result;

@@ -46,8 +46,8 @@ public:
     void SetSystems(Systems* systems);
     void SetDoorLocations(const DoorLocationMap* doorLocations);
 
-    void MoveForward();
-    void MoveBackward();
+    void MoveForward(bool strafe);
+    void MoveBackward(bool strafe);
     void MoveLeft();
     void MoveRight();
     void SetSpeedScale(float scale);

@@ -622,11 +622,18 @@ void MovementManager::MoveRight()
     mCamera.StrafeRight();
 }
 
-void MovementManager::MoveForward()
+void MovementManager::MoveForward(bool strafe)
 {
     if (!mGameState.GetFollowRoad())
     {
-        mCamera.MoveForward();
+        if (strafe)
+        {
+            mCamera.StrafeForward();
+        }
+        else
+        {
+            mCamera.MoveForward();
+        }
         return;
     }
 
@@ -660,11 +667,18 @@ void MovementManager::MoveForward()
     RotateTowardOpenHeading(*openHeading, mCamera.GetHeading());
 }
 
-void MovementManager::MoveBackward()
+void MovementManager::MoveBackward(bool strafe)
 {
     if (!mGameState.GetFollowRoad())
     {
-        mCamera.MoveBackward();
+        if (strafe)
+        {
+            mCamera.StrafeBackward();
+        }
+        else
+        {
+            mCamera.MoveBackward();
+        }
         return;
     }
 
