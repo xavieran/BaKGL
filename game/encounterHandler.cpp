@@ -49,7 +49,6 @@ void EncounterHandler::SetTransitionCallback(TransitionCallback&& callback)
 
 bool EncounterHandler::DoEncounter(const BAK::Encounter::Encounter& encounter)
 {
-    mLogger.Spam() << "Doing Encounter: " << encounter << "\n";
     return std::visit(
         overloaded{
         [&](const BAK::Encounter::GDSEntry& gds){

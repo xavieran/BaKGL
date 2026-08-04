@@ -385,14 +385,16 @@ int main(int argc, char** argv)
         if (InputAllowed())
         {
             gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
-            gameRunner.GetMovementManager().MoveForward();
+            auto strafe = true;
+            gameRunner.GetMovementManager().MoveForward(strafe);
         }
     });
     inputHandler.Bind(GLFW_KEY_DOWN, [&]{
         if (InputAllowed())
         {
             gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
-            gameRunner.GetMovementManager().MoveBackward();
+            auto strafe = true;
+            gameRunner.GetMovementManager().MoveBackward(strafe);
         }});
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveLeft();}});
     inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveRight();}});
@@ -401,7 +403,8 @@ int main(int argc, char** argv)
         if (InputAllowed())
         {
             gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
-            gameRunner.GetMovementManager().MoveForward();
+            auto strafe = false;
+            gameRunner.GetMovementManager().MoveForward(strafe);
         }});
     inputHandler.Bind(GLFW_KEY_A, [&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveLeft();}});
     inputHandler.Bind(GLFW_KEY_D, [&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveRight();}});
@@ -409,7 +412,8 @@ int main(int argc, char** argv)
         if (InputAllowed())
         {
             gameRunner.GetMovementManager().SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
-            gameRunner.GetMovementManager().MoveBackward();
+            auto strafe = false;
+            gameRunner.GetMovementManager().MoveBackward(strafe);
         }});
     inputHandler.Bind(GLFW_KEY_Q, [&]{
         if (InputAllowed())

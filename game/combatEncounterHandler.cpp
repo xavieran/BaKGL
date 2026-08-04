@@ -183,7 +183,7 @@ bool CombatEncounterHandler::CheckAndDoCombatEncounter(
     if (!combatActive)
     {
         mLogger.Debug() << __FUNCTION__ << " Combat not active, not doing it\n";
-        return combatScouted;
+        return combatActive;//combatScouted;
     }
 
     if (!CombatIsUnavoidable(combat.mCombatIndex))

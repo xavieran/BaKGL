@@ -473,7 +473,7 @@ void GameRunner::LoadSystems()
                         mZoneData->mObjects.GetObject(std::string{BAK::Encounter::ToString(enc.GetEncounter())}),
                         enc.GetLocation(),
                         glm::vec3{0.0},
-                        glm::vec3{dims.x, 50.0, dims.y} / BAK::gWorldScale});
+                        glm::vec3{dims.x, 20.0, dims.y} / BAK::gWorldScale});
             }
 
             mSystems->AddIntersectable(
@@ -897,22 +897,29 @@ void GameRunner::EnterCombatFromEncounter()
 
 bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
 {
-    mLogger.Debug() << __FUNCTION__ << " Pos: " << position << "\n";
     auto intersectables = mSystems->RunIntersection(
         BAK::ToGlCoord<float>(position));
-    if (!intersectables.empty())
+    for (const auto& intersectable : intersectables)
     {
-        auto it = mEncounters.find(intersectables.back());
-        if (it != mEncounters.end())
+        auto it = mEncounters.find(intersectable);
+
+        if (it == mEncounters.end())
         {
-            const auto* encounter = it->second;
-            mActiveEncounter = encounter;
-            if (mActiveEncounter)
+            continue;
+        }
+
+        const auto* encounter = it->second;
+        mActiveEncounter = encounter;
+        if (mActiveEncounter)
+        {
+            auto handled = mEncounterHandler.DoEncounter(*mActiveEncounter);
+            if (handled)
             {
-                return mEncounterHandler.DoEncounter(*mActiveEncounter);
+                return true;
             }
         }
     }
+
     return false;
 }
 
@@ -949,34 +956,37 @@ void GameRunner::RunGameUpdate(bool advanceTime)
 {
     if (mCamera.CheckAndResetDirty())
     {
-        // only required for imgui, can remove at some point
-        mActiveEncounter = nullptr;
-
-        // Need to handle multiple intersectables.
-        auto intersectables = mSystems->RunIntersection(mCamera.GetPosition());
-        if (!intersectables.empty())
-        {
-            auto it = mEncounters.find(intersectables.back());
-            if (it != mEncounters.end())
-            {
-                const auto* encounter = it->second;
-                mActiveEncounter = encounter;
-            }
-        }
-
         if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0 && advanceTime)
         {
             auto camp = BAK::TimeChanger{ mGameState };
             camp.ElapseTimeInMainView(
                 BAK::Time{0x1e * unitsTravelled});
-
-            // 1. If within X units of a tile, load the combat encounters into the CombatWorldLocation
-            //    if they haven't been already
         }
 
-        if (mActiveEncounter)
+        // only required for imgui, can remove at some point
+        mActiveEncounter = nullptr;
+
+        // Need to handle multiple intersectables.
+        auto intersectables = mSystems->RunIntersection(mCamera.GetPosition());
+
+        for (const auto& intersectable : intersectables)
         {
-            mEncounterHandler.DoEncounter(*mActiveEncounter);
+            auto it = mEncounters.find(intersectable);
+            if (it == mEncounters.end())
+            {
+                continue;
+            }
+
+            const auto* encounter = it->second;
+            if (encounter)
+            {
+                mActiveEncounter = encounter;
+                auto handled = mEncounterHandler.DoEncounter(*encounter);
+                if (handled)
+                {
+                    break;
+                }
+            }
         }
 
         if (!mPitDeathInProgress && !IsAnimationActive())

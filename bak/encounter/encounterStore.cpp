@@ -29,24 +29,15 @@ CalculateLocationAndDims(
     const auto right = bottomRight.x;
     const auto bottom = bottomRight.y;
     ASSERT(right >= left && top >= bottom);
-    const auto width = right == left
-        ? gCellSize
-        : right - left;
-    const auto height = top == bottom
-        ? gCellSize
-        : top - bottom;
 
-    // This is just not quite right... 
-    // not sure if I am rendering items at the wrong place 
-    // or if this is incorrect. According to the assembly
-    // this 800 offset shouldn't be required...
-    const auto xOffset = gCellSize / 2;
-    const auto yOffset = xOffset;
+    const auto width = right - left + gCellSize;
+    const auto height = top - bottom + gCellSize;
+
     const auto location = GamePosition{
-        left + (width / 2) - xOffset, 
-        bottom + (height / 2) - yOffset};
-    const auto dimensions = glm::uvec2{
-        width, height};
+        left + (width / 2) - gHalfCellSize,
+        bottom + (height / 2) - gHalfCellSize};
+
+    const auto dimensions = glm::uvec2{width, height};
 
     return std::make_pair(location, dimensions);
 }
