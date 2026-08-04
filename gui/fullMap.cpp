@@ -136,7 +136,8 @@ void FullMap::SetPlayerLocation(
 
 void FullMap::SetPlayerLocation(BAK::MapLocation location)
 {
-    mPlayerPositionBaseIcon = BAK::HeadingToFullMapAngle(location.mHeading);
+    mPlayerPositionBaseIcon = location.mHeading;
+    assert(location.mHeading <= 28);
     mPlayerLocation.SetCenter(location.mPosition);
     UpdatePlayerPositionIcon();
 }
