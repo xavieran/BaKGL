@@ -6,7 +6,8 @@
 #include <SDL2/SDL.h>
 #include "SDL_mixer_ext/SDL_mixer_ext.h"
 
-#include <atomic>
+#include <condition_variable>
+#include <deque>
 #include <queue>
 #include <stack>
 #include <thread>
@@ -79,6 +80,40 @@ private:
 
 IAudioManager& GetAudioManager();
 
+struct CommandPlaySound
+{
+    SoundIndex sound;
+};
+
+struct CommandChangeTrack
+{
+    MusicIndex music;
+};
+
+struct CommandPopTrack {};
+struct CommandStopTrack {};
+
+struct CommandSwitchPlayer
+{
+    MidiPlayer player;
+};
+
+struct CommandSoundFinished
+{
+    Mix_Music* music;
+};
+
+struct CommandShutdown {};
+
+using Command = std::variant<
+    CommandPlaySound,
+    CommandChangeTrack,
+    CommandPopTrack,
+    CommandStopTrack,
+    CommandSwitchPlayer,
+    CommandSoundFinished,
+    CommandShutdown>;
+
 class AudioManager : public IAudioManager
 {
     static constexpr auto sAudioRate{MIX_DEFAULT_FREQUENCY};
@@ -90,7 +125,6 @@ class AudioManager : public IAudioManager
     static constexpr auto sFadeOutTime{1500};
 
     using Sound = std::variant<Mix_Music*, Mix_Chunk*>;
-
 public:
     AudioManager();
 
@@ -109,6 +143,18 @@ public:
 
     ~AudioManager();
 private:
+    void EnqueueCommand(Command cmd);
+
+    void AudioLoop();
+
+    void DoPlaySound(SoundIndex);
+    void DoChangeTrack(MusicIndex);
+    void DoPopTrack();
+    void DoStopTrack();
+    void DoSwitchPlayer(MidiPlayer);
+    void DoSoundFinished(Mix_Music*);
+    void DoShutdown();
+
     void PlayTrack(Mix_Music* music);
     void PlaySoundImpl(SoundIndex);
 
@@ -116,25 +162,27 @@ private:
 
     Mix_Music* GetMusic(MusicIndex);
 
-    static void RewindMusic(Mix_Music*, void*);
+    static void SoundFinishedHook(Mix_Music*, void*);
 
     void ClearSounds();
 
     Mix_Music* mCurrentMusicTrack{nullptr};
     std::stack<Mix_Music*> mMusicStack{};
-    std::queue<SoundIndex> mSoundQueue{};
+    std::queue<SoundIndex> mPendingSounds{};
     bool mSoundPlaying{};
+    Mix_Music* mCurrentSound{nullptr};
 
     std::unordered_map<SoundIndex, Sound> mSoundData{};
     std::unordered_map<MusicIndex, Mix_Music*> mMusicData{};
 
-    std::atomic<bool> mRunning{};
-    std::mutex mQueueMutex{};
-    std::thread mQueuePlayThread;
-    static AudioManager* sStaticAudioManager;
+    std::deque<Command> mCommandQueue{};
+    std::mutex mCommandMutex{};
+    std::condition_variable mCommandCv{};
 
     const Logging::Logger& mLogger;
-    
+    std::thread mAudioThread;
+    static AudioManager* sStaticAudioManager;
+
 };
 
 }
