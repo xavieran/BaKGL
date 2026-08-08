@@ -195,6 +195,16 @@ void GameState::SetFollowRoad(bool followRoad)
     mFollowRoad = followRoad;
 }
 
+bool GameState::GetOverheadView() const
+{
+    return mOverheadView;
+}
+
+void GameState::SetOverheadView(bool overheadView)
+{
+    mOverheadView = overheadView;
+}
+
 ZoneNumber GameState::GetZone() const
 {
     return mGameData.mLocation.mZone;

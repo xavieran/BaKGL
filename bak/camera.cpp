@@ -19,11 +19,14 @@ Camera::Camera(
     mMoveSpeed{moveSpeed},
     mTurnSpeed{turnSpeed},
     mDeltaTime{0},
+    mOrthoZoom{1.0},
     mPosition{0,1.4,0},
     mLastPosition{mPosition},
     mDistanceTravelled{0.0},
     mProjectionMatrix{CalculatePerspectiveMatrix(width, height)},
-    mAngle{3.14, 0}
+    mAngle{3.14, 0},
+    mWidth{width},
+    mHeight{height}
 {}
 
 glm::mat4 Camera::CalculateOrthoMatrix(unsigned width, unsigned height)
@@ -31,14 +34,12 @@ glm::mat4 Camera::CalculateOrthoMatrix(unsigned width, unsigned height)
     const auto w = static_cast<float>(width);
     const auto h = static_cast<float>(height);
     return glm::ortho(
-        -w,
-        h,
-        -w,
-        h,
+        -w / 2,
+        w / 2,
+        -h / 2,
+        h / 2,
         1.0f,
         1000.0f
-        //-1000.0f,
-        //1000.0f
     );
 }
 
@@ -65,9 +66,12 @@ void Camera::UsePerspectiveMatrix(unsigned width, unsigned height)
 void Camera::SetGameLocation(const BAK::GamePositionAndHeading& location)
 {
     auto pos = BAK::ToGlCoord<float>(location.mPosition);
+    //pos.y = mPosition.y; 
     pos.y = BAK::gBakCameraHeight;
     SetPosition(pos);
-    SetAngle(BAK::ToGlAngle(location.mHeading));
+    auto angle = mAngle;
+    angle.x = BAK::ToGlAngle(location.mHeading).x;
+    SetAngle(angle);
 }
 
 BAK::GamePositionAndHeading Camera::GetGameLocation() const
@@ -312,4 +316,9 @@ unsigned Camera::GetAndClearUnitsTravelled()
         return unitsTravelled;
     }
     return 0;
+}
+
+glm::uvec2 Camera::GetScreenDimensions() const
+{
+    return glm::uvec2{mWidth, mHeight};
 }

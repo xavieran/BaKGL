@@ -11,6 +11,7 @@
 #include "bak/cutscenes.hpp"
 #include "bak/entityType.hpp"
 #include "bak/encounter/teleport.hpp"
+#include "bak/ICameraManager.hpp"
 #include "bak/saveManager.hpp"
 #include "bak/types.hpp"
 
@@ -72,7 +73,9 @@ public:
     virtual BAK::ICombatUI& GetCombatUI() = 0;
     virtual BAK::ICombatManager& GetCombatManager() = 0;
 
-    virtual void ToggleFollowRoad() = 0;
+    virtual void SetCameraManager(BAK::ICameraManager&) = 0;
+    virtual BAK::ICameraManager& GetCameraManager() = 0;
+
     virtual void SetFollowRoadButtonVisible(bool) = 0;
     virtual void SetFollowRoadActive(bool) = 0;
 };

@@ -68,18 +68,24 @@ public:
     bool CheckAndResetDirty();
     unsigned GetAndClearUnitsTravelled();
 
+    glm::uvec2 GetScreenDimensions() const;
+
 private:
     float mMoveSpeed;
     float mTurnSpeed;
     float mSpeedScale{1.0f};
     float mDeltaTime;
 
+    float mOrthoZoom;
     glm::vec3 mPosition;
     glm::vec3 mLastPosition;
     glm::vec3 mPendingDelta{};
     double mDistanceTravelled;
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
+
+    unsigned mWidth;
+    unsigned mHeight;
 
     bool mDirty{};
 };

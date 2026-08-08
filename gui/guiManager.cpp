@@ -832,15 +832,15 @@ BAK::ICombatManager& GuiManager::GetCombatManager()
     return *mCombatManager;
 }
 
-void GuiManager::ToggleFollowRoad()
+void GuiManager::SetCameraManager(BAK::ICameraManager& cameraManager)
 {
-    if (mToggleFollowRoadCallback)
-        mToggleFollowRoadCallback();
+    mCameraManager = &cameraManager;
 }
 
-void GuiManager::SetToggleFollowRoadCallback(std::function<void()> callback)
+BAK::ICameraManager& GuiManager::GetCameraManager()
 {
-    mToggleFollowRoadCallback = std::move(callback);
+    ASSERT(mCombatManager);
+    return *mCameraManager;
 }
 
 void GuiManager::SetFollowRoadButtonVisible(bool visible)

@@ -427,11 +427,10 @@ int main(int argc, char** argv)
             cameraPtr->SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
             cameraPtr->RotateRight();
         }});
-    inputHandler.Bind(GLFW_KEY_Z, [&]{ if (InputAllowed()){cameraPtr->StrafeUp();}});
-    inputHandler.Bind(GLFW_KEY_V, [&]{ if (InputAllowed()){cameraPtr->StrafeDown();}});
+    inputHandler.Bind(GLFW_KEY_Z, [&]{ if (InputAllowed()) cameraPtr->StrafeUp(); });
+    inputHandler.Bind(GLFW_KEY_V, [&]{ if (InputAllowed()) cameraPtr->StrafeDown(); });
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalDown(); });
-    inputHandler.BindPressed(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
     inputHandler.BindPressed(GLFW_KEY_I, [&]{
         if (!imGuiInitialised)
         {
@@ -439,10 +438,6 @@ int main(int argc, char** argv)
             imGuiInitialised = true;
         }
         showImgui = !showImgui;
-    });
-    inputHandler.BindPressed(GLFW_KEY_U, [&]{
-        if (guiManager.InMainView())
-            gameRunner.ToggleUndergroundModels();
     });
 
     inputHandler.Bind(GLFW_KEY_BACKSPACE,   [&]{ if (root.OnKeyEvent(Gui::KeyPress{GLFW_KEY_BACKSPACE})){ ;} });

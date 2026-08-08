@@ -37,6 +37,7 @@ MainView::MainView(
     mSpellFont{spellFont},
     mGameFont{gameFont},
     mLayout{sLayoutFile},
+    mMapLayout{sMapLayoutFile},
     mActiveSpells{},
     mCompass{
         glm::vec2{144,121},
@@ -67,12 +68,11 @@ MainView::MainView(
     mBookmarkPopup.SetInactive();
 
     mButtons.reserve(mLayout.GetSize());
+    mMapButtons.reserve(mMapLayout.GetSize());
 
-    for (unsigned i = 0; i < mLayout.GetSize(); i++)
+    auto AddButton = [&](auto index, const auto& widget, auto& buttons) 
     {
-        const auto& widget = mLayout.GetWidget(i);
-
-        if (i == sFollowRoad)
+        if (index == sFollowRoad)
         {
             mFollowRoadOnImage = widget.mImage;
             mFollowRoadOffImage = widget.mImage + 1;
@@ -86,29 +86,40 @@ MainView::MainView(
             const auto textures = icons.GetButtonTextures(widget.mImage);
             const auto& button = icons.GetButton(widget.mImage);
             assert(std::get<Graphics::SpriteSheetIndex>(button) == textures.mSpriteSheet);
-            auto locationAdjustment = (i == sFollowRoad) ? glm::vec2{-.5, .5} : glm::vec2{};
-            mButtons.emplace_back(
-                mLayout.GetWidgetLocation(i) + locationAdjustment,
-                mLayout.GetWidgetDimensions(i),
+            auto locationAdjustment = (index == sFollowRoad) ? glm::vec2{-.5, .5} : glm::vec2{};
+            buttons.emplace_back(
+                mLayout.GetWidgetLocation(index) + locationAdjustment,
+                mLayout.GetWidgetDimensions(index),
                 textures,
-                [this, buttonIndex=i]{ HandleButton(buttonIndex); },
+                [this, buttonIndex=index]{ HandleButton(buttonIndex); },
                 []{});
 
-            mButtons.back().CenterImage(std::get<glm::vec2>(button));
+            buttons.back().CenterImage(std::get<glm::vec2>(button));
             // Not sure why the dims aren't right to begin with for these buttons
-            if (i == sForward || i == sBackward)
+            if (index == sForward || index == sBackward)
             {
-                mButtons.back().AdjustPosition(
-                    glm::vec2{-mButtons.back().GetDimensions().x / 4 + 1.5, 0});
+                buttons.back().AdjustPosition(
+                    glm::vec2{-buttons.back().GetDimensions().x / 4 + 1.5, 0});
             }
         }
             break;
         default:
-            mLogger.Info() << "Unhandled: " << i << "\n";
+            mLogger.Info() << "Unhandled: " << index << "\n";
             break;
         }
+    };
+
+    for (unsigned i = 0; i < mLayout.GetSize(); i++)
+    {
+        const auto& widget = mLayout.GetWidget(i);
+        AddButton(i, widget, mButtons);
     }
 
+    for (unsigned i = 0; i < mMapLayout.GetSize(); i++)
+    {
+        const auto& widget = mMapLayout.GetWidget(i);
+        AddButton(i, widget, mMapButtons);
+    }
     AddChildren();
 }
 
@@ -117,28 +128,85 @@ void MainView::SetHeading(BAK::GameHeading heading)
     mCompass.SetHeading(heading);
 }
 
+void MainView::HandleMapView()
+{
+    mLogger.Info() << __FUNCTION__ << "\n";
+    if (mIsInMapView)
+    {
+        mGuiManager.ShowFullMap();
+    }
+    else
+    {
+        mGuiManager.DoFade(1.0, [&]{
+            mGuiManager.GetCameraManager().ShowOverheadView();
+            mIsInMapView = true;
+            AddChildren();
+        });
+    }
+}
+
+void MainView::HandleExit()
+{
+    if (mIsInMapView)
+    {
+        mGuiManager.DoFade(1.0, [&]{
+            mGuiManager.GetCameraManager().ShowFirstPersonView();
+            mIsInMapView = false;
+            AddChildren();
+        });
+    }
+    else
+    {
+        mGuiManager.EnterMainMenu(true);
+    }
+}
+
+void MainView::HandleCast()
+{
+    if (mIsInMapView)
+    {
+        mGuiManager.GetCameraManager().ZoomOut();
+    }
+    else
+    {
+        mGuiManager.ShowCast(false);
+    }
+}
+
+void MainView::HandleBookmark()
+{
+    if (mIsInMapView)
+    {
+        mGuiManager.GetCameraManager().ZoomIn();
+    }
+    else
+    {
+        mShowingBookmarkDialog = true;
+        mNeedRefresh = true;
+    }
+}
+
 void MainView::HandleButton(unsigned buttonIndex)
 {
     switch (buttonIndex)
     {
     case sCast:
-        mGuiManager.ShowCast(false);
+        HandleCast();
         break;
     case sFollowRoad:
-        mGuiManager.ToggleFollowRoad();
+        mGuiManager.GetCameraManager().ToggleFollowRoad();
         break;
     case sCamp:
         mGuiManager.ShowCamp(false, nullptr);
         break;
     case sFullMap:
-        mGuiManager.ShowFullMap();
+        HandleMapView();
         break;
     case sBookmark:
-        mShowingBookmarkDialog = true;
-        mNeedRefresh = true;
+        HandleBookmark();
         break;
     case sMainMenu:
-        mGuiManager.EnterMainMenu(true);
+        HandleExit();
         break;
     default:
         break;
@@ -169,6 +237,12 @@ void MainView::SetFollowRoadActive(bool active)
         textures.mNormal);
     mButtons[sFollowRoad].CenterImage(
         mLayout.GetWidgetDimensions(sFollowRoad) - glm::vec2{1});
+    mMapButtons[sFollowRoad].SetTexture(
+        textures.mSpriteSheet,
+        textures.mNormal);
+    mMapButtons[sFollowRoad].CenterImage(
+        mLayout.GetWidgetDimensions(sFollowRoad) - glm::vec2{1});
+
 }
 
 bool MainView::OnMouseEvent(const MouseEvent& event)
@@ -280,14 +354,33 @@ void MainView::ShowInventory(BAK::ActiveCharIndex character)
 void MainView::AddChildren()
 {
     ClearChildren();
-    for (unsigned i = 0; i < mButtons.size(); i++)
+    if (mIsInMapView)
     {
-        if (i == sBookmark && !mCanSaveBookmark)
-            continue;
-        if (i == sFollowRoad && !mFollowRoadButtonVisible)
-            continue;
-        AddChildBack(&mButtons[i]);
+        for (unsigned i = 0; i < mMapButtons.size(); i++)
+        {
+            if (i == sFollowRoad && !mFollowRoadButtonVisible)
+            {
+                continue;
+            }
+            AddChildBack(&mMapButtons[i]);
+        }
     }
+    else
+    {
+        for (unsigned i = 0; i < mButtons.size(); i++)
+        {
+            if (i == sBookmark && !mCanSaveBookmark)
+            {
+                continue;
+            }
+            if (i == sFollowRoad && !mFollowRoadButtonVisible)
+            {
+                continue;
+            }
+            AddChildBack(&mButtons[i]);
+        }
+    }
+    
     for (auto& spell : mActiveSpells)
     {
         AddChildBack(&spell);
@@ -295,7 +388,9 @@ void MainView::AddChildren()
     AddChildBack(&mCompass);
 
     for (auto& character : mCharacters)
+    {
         AddChildBack(&character);
+    }
 
     if (mShowingBookmarkDialog)
     {
