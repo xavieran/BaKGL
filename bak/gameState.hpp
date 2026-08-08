@@ -107,6 +107,9 @@ public:
     bool GetFollowRoad() const;
     void SetFollowRoad(bool followRoad);
 
+    bool GetOverheadView() const;
+    void SetOverheadView(bool overheadView);
+
     auto& GetTimeExpiringState() { return mTimeExpiringState; }
 
     const WorldClock& GetWorldTime() const;
@@ -236,6 +239,7 @@ private:
     bool mCombatTriggeredFromInteractable{};
 
     bool mFollowRoad{false};
+    bool mOverheadView{false};
 
     std::optional<InventoryItem> mSelectedItem{};
     std::optional<MonsterIndex> mCurrentMonster{};

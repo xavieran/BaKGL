@@ -146,8 +146,9 @@ public:
     BAK::ICombatUI& GetCombatUI() override;
     BAK::ICombatManager& GetCombatManager() override;
 
-    void ToggleFollowRoad() override;
-    void SetToggleFollowRoadCallback(std::function<void()> callback);
+    void SetCameraManager(BAK::ICameraManager&) override;
+    BAK::ICameraManager& GetCameraManager() override;
+
     void SetFollowRoadButtonVisible(bool) override;
     void SetFollowRoadActive(bool) override;
 
@@ -181,9 +182,7 @@ private:
     Combat::CombatScreen mCombatScreen;
     CureScreen mCureScreen;
     LockScreen mLockScreen;
-public:
     FullMap mFullMap;
-private:
     MoredhelScreen mMoredhelScreen;
     TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
@@ -201,6 +200,7 @@ private:
     AnimatorStore mAnimatorStore;
     BAK::IZoneLoader* mZoneLoader;
     BAK::ICombatManager* mCombatManager{nullptr};
+    BAK::ICameraManager* mCameraManager{nullptr};
     Widget* mPreviousScreen{nullptr};
 
     BAK::Encounter::TeleportFactory mTeleportFactory{};
@@ -211,7 +211,6 @@ private:
     NullDialogScene mNullDialogScene{};
     DynamicDialogScene mPartyDiedScene;
     const Logging::Logger& mLogger;
-    std::function<void()> mToggleFollowRoadCallback;
 };
 
 }

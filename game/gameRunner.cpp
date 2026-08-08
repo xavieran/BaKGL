@@ -122,8 +122,7 @@ GameRunner::GameRunner(
         [this](){ EnterCombatFromEncounter(); });
 
     mGuiManager.SetCombatManager(mCombatManager);
-    mGuiManager.SetToggleFollowRoadCallback(
-        [this]{ mMovementManager.ToggleFollowRoad(); });
+    mGuiManager.SetCameraManager(*this);
     mMovementManager.SetDoorLocations(&mDoorLocations);
 
     mGlyphStore.Init(mGuiManager.GetFontManager().GetGameFont());
@@ -155,6 +154,56 @@ void GameRunner::LoadGame(std::string savePath, std::optional<BAK::Chapter> chap
     }
     LoadZoneData(mGameState.GetZone());
 }
+
+void GameRunner::ToggleFollowRoad()
+{
+    mMovementManager.ToggleFollowRoad();
+}
+
+void GameRunner::ShowOverheadView()
+{
+    mGameState.SetOverheadView(true);
+    ToggleUndergroundModels();
+
+    auto position = mCamera.GetPosition();
+    position.y = 600000.0f / BAK::gWorldScale;
+    mCamera.SetPosition(position);
+    auto angle = mCamera.GetAngle();
+    angle.y = glm::radians(-90.0f);
+    mCamera.SetAngle(angle);
+    auto dims = mCamera.GetScreenDimensions();
+    mCamera.UseOrthoMatrix(
+        static_cast<unsigned>(dims.x),
+        static_cast<unsigned>(dims.y)
+    );
+}
+
+void GameRunner::ShowFirstPersonView()
+{
+    mGameState.SetOverheadView(false);
+    ToggleUndergroundModels();
+
+    auto position = mCamera.GetPosition();
+    position.y = BAK::gBakCameraHeight;
+    mCamera.SetPosition(position);
+    auto angle = mCamera.GetAngle();
+    angle.y = glm::radians(0.0f);
+    mCamera.SetAngle(angle);
+    auto dims = mCamera.GetScreenDimensions();
+    mCamera.UsePerspectiveMatrix(
+        static_cast<unsigned>(dims.x),
+        static_cast<unsigned>(dims.y)
+    );
+}
+
+void GameRunner::ZoomOut()
+{
+}
+
+void GameRunner::ZoomIn()
+{
+}
+
 
 void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
 {
@@ -1340,7 +1389,7 @@ void GameRunner::ToggleUndergroundModels()
         {
             bool isDoor{};
             bool isOpen{};
-            for (const auto& [doorIndex, doorEntityId]: mDoorIndexToEntityId)
+            for (const auto& [doorIndex, doorEntityId] : mDoorIndexToEntityId)
             {
                 if (entityId == doorEntityId)
                 {

@@ -12,6 +12,7 @@
 
 #include "game/gateAnimator.hpp"
 
+#include "bak/ICameraManager.hpp"
 #include "bak/IZoneLoader.hpp"
 #include "bak/combat/combat.hpp"
 #include "bak/combat/retreat.hpp"
@@ -66,7 +67,7 @@ enum class ClipDisplayMode
     OnlyClips
 };
 
-class GameRunner : public BAK::IZoneLoader
+class GameRunner : public BAK::IZoneLoader, BAK::ICameraManager
 {
 public:
     GameRunner(
@@ -76,8 +77,16 @@ public:
         bool debugRenderEncounters = false,
         double animationSpeedMultiplier = 1.0);
     
+    /* IZoneLoader */
     void DoTeleport(BAK::Encounter::Teleport teleport) override;
     void LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter) override;
+
+    /* ICameraManager */
+    void ToggleFollowRoad() override;
+    void ShowOverheadView() override;
+    void ShowFirstPersonView() override;
+    void ZoomOut() override;
+    void ZoomIn() override;
 
     void LoadZoneData(BAK::ZoneNumber zone);
     void DoTransition(
