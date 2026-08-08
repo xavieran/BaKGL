@@ -19,6 +19,7 @@ Camera::Camera(
     mMoveSpeed{moveSpeed},
     mTurnSpeed{turnSpeed},
     mDeltaTime{0},
+    mOrthoZoom{1.0},
     mPosition{0,1.4,0},
     mLastPosition{mPosition},
     mDistanceTravelled{0.0},

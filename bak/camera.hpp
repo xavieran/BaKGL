@@ -74,6 +74,7 @@ private:
     float mSpeedScale{1.0f};
     float mDeltaTime;
 
+    float mOrthoZoom;
     glm::vec3 mPosition;
     glm::vec3 mLastPosition;
     glm::vec3 mPendingDelta{};

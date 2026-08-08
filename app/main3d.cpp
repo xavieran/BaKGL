@@ -399,6 +399,35 @@ int main(int argc, char** argv)
     inputHandler.Bind(GLFW_KEY_LEFT, [&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveLeft();}});
     inputHandler.Bind(GLFW_KEY_RIGHT,[&]{ if (InputAllowed()){gameRunner.GetMovementManager().MoveRight();}});
 
+    double orthoZoom = 0.5;
+    bool useOrtho{false};
+    inputHandler.Bind(GLFW_KEY_O, [&]{
+        if (InputAllowed())
+        {
+            useOrtho = !useOrtho;
+            if (!useOrtho)
+            {
+                auto position = camera.GetPosition();
+                position.y = BAK::gBakCameraHeight / BAK::gWorldScale;
+                camera.SetPosition(position);
+                camera.UsePerspectiveMatrix(
+                    static_cast<unsigned>(width),
+                    static_cast<unsigned>(height)
+                );
+                return;
+            }
+            auto position = camera.GetPosition();
+            position.y = 600000.0f / BAK::gWorldScale;
+            camera.SetPosition(position);
+            auto angle = camera.GetAngle();
+            angle.y = glm::radians(-90.0f);
+            camera.SetAngle(angle);
+            camera.UseOrthoMatrix(
+                static_cast<unsigned>(width * orthoZoom),
+                static_cast<unsigned>(height * orthoZoom)
+            );
+        }});
+
     inputHandler.Bind(GLFW_KEY_W, [&]{
         if (InputAllowed())
         {
@@ -427,8 +456,34 @@ int main(int argc, char** argv)
             cameraPtr->SetSpeedScale(ShiftHeld() ? 3.0f : 1.0f);
             cameraPtr->RotateRight();
         }});
-    inputHandler.Bind(GLFW_KEY_Z, [&]{ if (InputAllowed()){cameraPtr->StrafeUp();}});
-    inputHandler.Bind(GLFW_KEY_V, [&]{ if (InputAllowed()){cameraPtr->StrafeDown();}});
+    inputHandler.Bind(GLFW_KEY_Z, [&]{
+        if (InputAllowed()){
+            if (!useOrtho)
+            {
+                cameraPtr->StrafeUp();
+                return;
+            }
+            orthoZoom *= 0.99;
+            camera.UseOrthoMatrix(
+                static_cast<unsigned>(width * orthoZoom),
+                static_cast<unsigned>(height * orthoZoom)
+            );
+        }
+    });
+    inputHandler.Bind(GLFW_KEY_V, [&]{
+        if (InputAllowed()){
+            if (!useOrtho)
+            {
+                cameraPtr->StrafeDown();
+                return;
+            }
+            orthoZoom *= 1.01;
+            camera.UseOrthoMatrix(
+                static_cast<unsigned>(width * orthoZoom),
+                static_cast<unsigned>(width * orthoZoom)
+            );
+        }
+    });
     inputHandler.Bind(GLFW_KEY_X, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalUp(); });
     inputHandler.Bind(GLFW_KEY_Y, [&]{ if (InputAllowed()) cameraPtr->RotateVerticalDown(); });
     inputHandler.BindPressed(GLFW_KEY_C, [&]{ if (guiManager.InMainView()) gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters); });
