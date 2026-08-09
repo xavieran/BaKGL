@@ -245,6 +245,18 @@ void MainView::SetFollowRoadActive(bool active)
 
 }
 
+void MainView::SetZoomOutVisible(bool visible)
+{
+    mZoomOutVisible = visible;
+    AddChildren();
+}
+
+void MainView::SetZoomInVisible(bool visible)
+{
+    mZoomInVisible = visible;
+    AddChildren();
+}
+
 bool MainView::OnMouseEvent(const MouseEvent& event)
 {
     if (mShowingBookmarkDialog)
@@ -359,6 +371,14 @@ void MainView::AddChildren()
         for (unsigned i = 0; i < mMapButtons.size(); i++)
         {
             if (i == sFollowRoad && !mFollowRoadButtonVisible)
+            {
+                continue;
+            }
+            if (i == sCast && !mZoomOutVisible)
+            {
+                continue;
+            }
+            if (i == sBookmark && !mZoomInVisible)
             {
                 continue;
             }

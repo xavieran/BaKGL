@@ -149,8 +149,7 @@ public:
     void SetCameraManager(BAK::ICameraManager&) override;
     BAK::ICameraManager& GetCameraManager() override;
 
-    void SetFollowRoadButtonVisible(bool) override;
-    void SetFollowRoadActive(bool) override;
+    IMainView& GetMainView() override;
 
 private:
     void CacheState();
@@ -171,9 +170,7 @@ private:
     Graphics::SpriteManager& mSpriteManager;
 
     CutscenePlayer mCutscenePlayer;
-public:
     MainView mMainView;
-private:
     MainMenuScreen mMainMenu;
     InfoScreen mInfoScreen;
     InventoryScreen mInventoryScreen;

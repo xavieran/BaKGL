@@ -12,6 +12,7 @@
 #include "game/systems.hpp"
 
 #include "gui/guiManager.hpp"
+#include "gui/IMainView.hpp"
 
 #include "com/logger.hpp"
 
@@ -287,10 +288,10 @@ std::optional<PitCross> MovementManager::GetPitCross(
 
 void MovementManager::SetFollowRoadButtonVisible(bool visible)
 {
-    mGuiManager.SetFollowRoadButtonVisible(visible);
+    mGuiManager.GetMainView().SetFollowRoadVisible(visible);
     if (visible)
     {
-        mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
+        mGuiManager.GetMainView().SetFollowRoadActive(mGameState.GetFollowRoad());
     }
 }
 
@@ -321,7 +322,7 @@ void MovementManager::RefreshAfterZoneLoad()
 void MovementManager::ToggleFollowRoad()
 {
     mGameState.SetFollowRoad(!mGameState.GetFollowRoad());
-    mGuiManager.SetFollowRoadActive(mGameState.GetFollowRoad());
+    mGuiManager.GetMainView().SetFollowRoadActive(mGameState.GetFollowRoad());
 
     if (mGameState.GetFollowRoad())
     {
