@@ -171,7 +171,9 @@ void GameRunner::ShowOverheadView()
     auto angle = mCamera.GetAngle();
     angle.y = glm::radians(-90.0f);
     mCamera.SetAngle(angle);
-    auto dims = mCamera.GetScreenDimensions();
+
+    auto dims = mZoomManager.CalculateZoom(mCamera.GetScreenDimensions());
+
     mCamera.UseOrthoMatrix(
         static_cast<unsigned>(dims.x),
         static_cast<unsigned>(dims.y)
@@ -198,12 +200,23 @@ void GameRunner::ShowFirstPersonView()
 
 void GameRunner::ZoomOut()
 {
+    auto dims = mZoomManager.ZoomOut(mCamera.GetScreenDimensions());
+    mLogger.Info() << "Ortho dims: " << mCamera.GetScreenDimensions() << " -> " << dims << "\n";
+    mCamera.UseOrthoMatrix(
+        static_cast<unsigned>(dims.x),
+        static_cast<unsigned>(dims.y)
+    );
 }
 
 void GameRunner::ZoomIn()
 {
+    auto dims = mZoomManager.ZoomIn(mCamera.GetScreenDimensions());
+    mLogger.Info() << "Ortho dims: " << mCamera.GetScreenDimensions() << " -> " << dims << "\n";
+    mCamera.UseOrthoMatrix(
+        static_cast<unsigned>(dims.x),
+        static_cast<unsigned>(dims.y)
+    );
 }
-
 
 void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
 {
@@ -216,6 +229,7 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
     LoadSystems();
     mCamera.SetGameLocation(mGameState.GetLocation());
     mMovementManager.RefreshAfterZoneLoad();
+    mZoomManager.LoadZoneDefaults(zone);
 }
 
 void GameRunner::DoTransition(

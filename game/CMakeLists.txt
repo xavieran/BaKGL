@@ -17,6 +17,7 @@ add_library(game
     systems.hpp systems.cpp
     interactable/IInteractable.hpp
     interactable/all.cpp
+    zoomManager.hpp zoomManager.cpp
     )
 
 target_link_libraries(game
