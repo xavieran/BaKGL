@@ -843,14 +843,9 @@ BAK::ICameraManager& GuiManager::GetCameraManager()
     return *mCameraManager;
 }
 
-void GuiManager::SetFollowRoadButtonVisible(bool visible)
+IMainView& GuiManager::GetMainView()
 {
-    mMainView.SetFollowRoadVisible(visible);
-}
-
-void GuiManager::SetFollowRoadActive(bool active)
-{
-    mMainView.SetFollowRoadActive(active);
+    return mMainView;
 }
 
 }

@@ -27,6 +27,7 @@ add_library(gui
     label.hpp label.cpp
     list.hpp
     mainView.hpp mainView.cpp
+    IMainView.hpp
     mainMenuScreen.hpp mainMenuScreen.cpp
     preferencesScreen.hpp preferencesScreen.cpp
     saveScreen.hpp saveScreen.cpp

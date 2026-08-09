@@ -294,7 +294,7 @@ int main(int argc, char** argv)
         1.0f};
     Camera* cameraPtr = &camera;
 
-    guiManager.mMainView.SetHeading(camera.GetHeading());
+    guiManager.GetMainView().SetHeading(camera.GetHeading());
 
     // OpenGL 3D Renderer
     constexpr auto sShadowDim = 4096;
@@ -564,7 +564,7 @@ int main(int argc, char** argv)
         if (guiManager.InMainView())
         {
             gameState.SetLocation(cameraPtr->GetGameLocation());
-            guiManager.mMainView.SetHeading(cameraPtr->GetHeading());
+            guiManager.GetMainView().SetHeading(cameraPtr->GetHeading());
         }
 
         glfwPollEvents();

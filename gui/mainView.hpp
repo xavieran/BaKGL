@@ -7,6 +7,7 @@
 #include "gui/compass.hpp"
 #include "gui/clickButton.hpp"
 #include "gui/core/widget.hpp"
+#include "gui/IMainView.hpp"
 
 #include <glm/glm.hpp>
 
@@ -26,7 +27,7 @@ class Backgrounds;
 class Icons;
 class Font;
 
-class MainView : public Widget
+class MainView : public Widget, public IMainView
 {
 public:
     static constexpr auto sLayoutFile = "REQ_MAIN.DAT";
@@ -49,11 +50,13 @@ public:
         const Font& spellFont,
         const Font& gameFont);
 
-    void SetHeading(BAK::GameHeading heading);
+    void SetHeading(BAK::GameHeading heading) override;
     void UpdatePartyMembers(const BAK::GameState& gameState);
-    void SetCanSaveBookmark(bool can);
-    void SetFollowRoadVisible(bool visible);
-    void SetFollowRoadActive(bool active);
+    void SetCanSaveBookmark(bool can) override;
+    void SetFollowRoadVisible(bool visible) override;
+    void SetFollowRoadActive(bool active) override;
+    void SetZoomOutVisible(bool visible) override;
+    void SetZoomInVisible(bool visible) override;
     [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override;
 private:
     void AddChildren();
@@ -84,6 +87,8 @@ private:
 
     bool mCanSaveBookmark{false};
     bool mFollowRoadButtonVisible{false};
+    bool mZoomOutVisible{false};
+    bool mZoomInVisible{false};
     bool mShowingBookmarkDialog{false};
     bool mNeedRefresh{false};
     bool mIsInMapView{false};

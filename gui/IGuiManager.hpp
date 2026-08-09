@@ -2,6 +2,7 @@
 
 #include "gui/IAnimator.hpp"
 #include "gui/IDialogScene.hpp"
+#include "gui/IMainView.hpp"
 #include "bak/combat/ICombatManager.hpp"
 #include "bak/combat/ICombatUI.hpp"
 #include "gui/screenStack.hpp"
@@ -76,8 +77,7 @@ public:
     virtual void SetCameraManager(BAK::ICameraManager&) = 0;
     virtual BAK::ICameraManager& GetCameraManager() = 0;
 
-    virtual void SetFollowRoadButtonVisible(bool) = 0;
-    virtual void SetFollowRoadActive(bool) = 0;
+    virtual IMainView& GetMainView() = 0;
 };
 
 }

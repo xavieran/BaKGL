@@ -17,6 +17,9 @@ public:
     glm::uvec2 DefaultZoom(glm::uvec2 screenDims);
     glm::uvec2 CalculateZoom(glm::vec2 screenDims);
 
+    bool CanZoomIn() const;
+    bool CanZoomOut() const;
+
 private:
     BAK::ZoneDefaults mZoneDefaults{};
     int mCurrentZoomLevel{};

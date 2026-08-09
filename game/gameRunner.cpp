@@ -172,6 +172,9 @@ void GameRunner::ShowOverheadView()
     angle.y = glm::radians(-90.0f);
     mCamera.SetAngle(angle);
 
+    mGuiManager.GetMainView().SetZoomInVisible(mZoomManager.CanZoomIn());
+    mGuiManager.GetMainView().SetZoomOutVisible(mZoomManager.CanZoomOut());
+
     auto dims = mZoomManager.CalculateZoom(mCamera.GetScreenDimensions());
 
     mCamera.UseOrthoMatrix(
@@ -201,6 +204,8 @@ void GameRunner::ShowFirstPersonView()
 void GameRunner::ZoomOut()
 {
     auto dims = mZoomManager.ZoomOut(mCamera.GetScreenDimensions());
+    mGuiManager.GetMainView().SetZoomInVisible(mZoomManager.CanZoomIn());
+    mGuiManager.GetMainView().SetZoomOutVisible(mZoomManager.CanZoomOut());
     mLogger.Info() << "Ortho dims: " << mCamera.GetScreenDimensions() << " -> " << dims << "\n";
     mCamera.UseOrthoMatrix(
         static_cast<unsigned>(dims.x),
@@ -211,6 +216,8 @@ void GameRunner::ZoomOut()
 void GameRunner::ZoomIn()
 {
     auto dims = mZoomManager.ZoomIn(mCamera.GetScreenDimensions());
+    mGuiManager.GetMainView().SetZoomInVisible(mZoomManager.CanZoomIn());
+    mGuiManager.GetMainView().SetZoomOutVisible(mZoomManager.CanZoomOut());
     mLogger.Info() << "Ortho dims: " << mCamera.GetScreenDimensions() << " -> " << dims << "\n";
     mCamera.UseOrthoMatrix(
         static_cast<unsigned>(dims.x),

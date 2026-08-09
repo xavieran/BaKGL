@@ -56,4 +56,14 @@ glm::uvec2 ZoomManager::CalculateZoom(glm::vec2 screenDims)
     return zoomed;
 }
 
+bool ZoomManager::CanZoomIn() const
+{
+    return mCurrentZoomLevel > 0;
+}
+
+bool ZoomManager::CanZoomOut() const
+{
+    return mCurrentZoomLevel < (mSteps - 1);
+}
+
 }
