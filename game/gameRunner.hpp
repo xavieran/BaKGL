@@ -9,6 +9,7 @@
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
 #include "game/movementManager.hpp"
+#include "game/zoomManager.hpp"
 
 #include "game/gateAnimator.hpp"
 
@@ -187,6 +188,8 @@ public:
     ClipDisplayMode mClipDisplayMode{ClipDisplayMode::Vanilla};
     std::vector<GridCellInfo> mGridCells{};
     void UpdateGridCellColors();
+
+    ZoomManager mZoomManager{};
 
     bool mAnimationActive{false};
     bool mPitDeathInProgress{false};

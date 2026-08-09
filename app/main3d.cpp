@@ -628,7 +628,14 @@ int main(int argc, char** argv)
 
             glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
             // Dark blue background
-            glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
+            if (gameRunner.mGameState.IsUnderground())
+            {
+                glClearColor(0, 0, 0, 0);
+            }
+            else
+            {
+                glClearColor(ambient * 0.15f, ambient * 0.31f, ambient * 0.36f, 0.0f);
+            }
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if (gameRunner.GetClipDisplayMode() != Game::ClipDisplayMode::OnlyClips)
@@ -641,32 +648,35 @@ int main(int argc, char** argv)
                     *cameraPtr,
                     false);
 
-                renderer.DrawWithShadow(
-                    gameRunner.GetZoneRenderData(),
-                    gameRunner.mSystems->GetSprites(),
-                    light,
-                    lightCamera,
-                    *cameraPtr,
-                    true);
-
-                const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
-                for (const auto& obj : dynamicRenderables)
+                if (!gameRunner.mGameState.GetOverheadView())
                 {
-                    std::vector<DynamicRenderable> data{};
-                    data.emplace_back(obj);
                     renderer.DrawWithShadow(
-                        *obj.GetRenderData(),
-                        data,
+                        gameRunner.GetZoneRenderData(),
+                        gameRunner.mSystems->GetSprites(),
                         light,
                         lightCamera,
                         *cameraPtr,
                         true);
-                }
 
-                renderer.DrawText3D(
-                    gameRunner.mGlyphStore.GetRenderData(),
-                    gameRunner.mSystems->GetTextRenderables(),
-                    *cameraPtr);
+                    const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
+                    for (const auto& obj : dynamicRenderables)
+                    {
+                        std::vector<DynamicRenderable> data{};
+                        data.emplace_back(obj);
+                        renderer.DrawWithShadow(
+                            *obj.GetRenderData(),
+                            data,
+                            light,
+                            lightCamera,
+                            *cameraPtr,
+                            true);
+                    }
+
+                    renderer.DrawText3D(
+                        gameRunner.mGlyphStore.GetRenderData(),
+                        gameRunner.mSystems->GetTextRenderables(),
+                        *cameraPtr);
+                }
             }
 
             if (gameRunner.GetClipDisplayMode() != Game::ClipDisplayMode::Vanilla)

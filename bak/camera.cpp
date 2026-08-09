@@ -19,7 +19,6 @@ Camera::Camera(
     mMoveSpeed{moveSpeed},
     mTurnSpeed{turnSpeed},
     mDeltaTime{0},
-    mOrthoZoom{1.0},
     mPosition{0,1.4,0},
     mLastPosition{mPosition},
     mDistanceTravelled{0.0},
@@ -31,8 +30,8 @@ Camera::Camera(
 
 glm::mat4 Camera::CalculateOrthoMatrix(unsigned width, unsigned height)
 {
-    const auto w = static_cast<float>(width);
-    const auto h = static_cast<float>(height);
+    const auto w = static_cast<float>(width) * mOrthoZoom;
+    const auto h = static_cast<float>(height) * mOrthoZoom;
     return glm::ortho(
         -w / 2,
         w / 2,
