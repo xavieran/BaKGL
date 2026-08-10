@@ -1,4 +1,8 @@
-Thanks for contributing to BaKGL. A few guidelines to make the PR process quicker.
+Thanks for considering contributing to BaKGL. I'm always interested in seeing PRs from contributors.
+
+Here's a few guidelines to make that quicker.
+
+I have my own roadmap for what features I will work on. If you'd like to contribute, please get in touch first. Large changes made without discussion are unlikely to be accepted.
 
 1. Follow the existing code-style
 
@@ -12,3 +16,7 @@ Large pull requests are hard to review. On the flip-side, many small PRs waste r
 3. No "Co-Authored by <AI Agent X>" lines in commit messages
 
 Humans are responsible for the code written in this repo. You're welcome to use GenAI tools during development (I do :) ), but I expect that you, the human, have reviewed and understand any code before you open a PR.
+
+4. Do not use AI to communicate.
+
+Other than for translation, I'd rather not read AI generated messages. This is my hobby and I appreciate talking to other humans who are passionate about Betrayal at Krondor.
