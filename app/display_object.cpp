@@ -83,15 +83,15 @@ int main(int argc, char** argv)
         zoneData->mZoneTextures.GetMaxDim());
 
     Camera lightCamera{
-        static_cast<unsigned>(width),
-        static_cast<unsigned>(height),
+        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
+        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
         400 * 30.0f,
         2.0f};
     lightCamera.UseOrthoMatrix(400, 400);
 
     Camera camera{
-        static_cast<unsigned>(width),
-        static_cast<unsigned>(height),
+        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
+        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
         50*30.0f,
         2.0f};
     Camera* cameraPtr = &camera;

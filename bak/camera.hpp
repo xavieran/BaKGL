@@ -9,8 +9,8 @@ class Camera
 {
 public:
     Camera(
-        unsigned width,
-        unsigned height,
+        glm::uvec2 nativeDimensions,
+        glm::uvec2 screenDimensions,
         float moveSpeed,
         float turnSpeed);
     
@@ -68,6 +68,7 @@ public:
     bool CheckAndResetDirty();
     unsigned GetAndClearUnitsTravelled();
 
+    glm::uvec2 GetNativeDimensions() const;
     glm::uvec2 GetScreenDimensions() const;
 
 private:
@@ -84,8 +85,8 @@ private:
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
 
-    unsigned mWidth;
-    unsigned mHeight;
+    glm::uvec2 mNativeDimensions;
+    glm::uvec2 mScreenDimensions;
 
     bool mDirty{};
 };

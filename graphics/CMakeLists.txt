@@ -17,6 +17,7 @@ add_library(graphics
     shaderProgram.hpp shaderProgram.cpp
     sphere.hpp sphere.cpp
     sprites.hpp sprites.cpp
+    spriteQuad.hpp spriteQuad.cpp
     texture.hpp texture.cpp
     types.hpp
 )

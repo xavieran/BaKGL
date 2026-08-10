@@ -8,6 +8,7 @@
 
 #include "graphics/cube.hpp"
 #include "graphics/meshObject.hpp"
+#include "graphics/quad.hpp"
 
 #include "com/assert.hpp"
 
@@ -22,36 +23,12 @@ constexpr auto sGridBorderTotal = 2 * sGridFadePixels + sGridBorderThick;
 
 Graphics::MeshObject MakeGridQuadMesh(unsigned textureLayer)
 {
-    struct Corner { glm::vec3 pos; glm::vec3 uv; };
-    // va: back-left, vb: back-right, vc: front-right, vd: front-left
-    auto size = 0.55f;
-    const Corner vd{{-size, 2.0f,  size}, {0.00f, 0.00f, static_cast<float>(textureLayer)}};
-    const Corner va{{-size, 2.0f, -size}, {0.00f, 1.0f, static_cast<float>(textureLayer)}};
-    const Corner vb{{ size, 2.0f, -size}, {1.00f, 1.00f, static_cast<float>(textureLayer)}};
-    const Corner vc{{ size, 2.0f,  size}, {1.00f, 0.00f, static_cast<float>(textureLayer)}};
-
-    constexpr auto normal = glm::vec3{0.0f, 1.0f, 0.0f};
-    constexpr auto texBlend = 0.0f;
-
-    const Corner verts[6] = {vd, va, vb, vd, vb, vc};
-    auto vertices = std::vector<glm::vec3>{};
-    auto normals = std::vector<glm::vec3>{};
-    auto colors = std::vector<glm::vec4>{};
-    auto texCoords = std::vector<glm::vec3>{};
-    auto texBlends = std::vector<float>{};
-    auto indices = std::vector<unsigned>{};
-
-    for (unsigned i = 0; i < 6; i++)
-    {
-        vertices.emplace_back(verts[i].pos);
-        normals.emplace_back(normal);
-        colors.emplace_back(glm::vec4{1.0f});
-        texCoords.emplace_back(verts[i].uv);
-        texBlends.emplace_back(texBlend);
-        indices.emplace_back(i);
-    }
-
-    return Graphics::MeshObject{vertices, normals, colors, texCoords, texBlends, indices};
+    const auto size = 0.55f;
+    const auto layer = static_cast<float>(textureLayer);
+    return Graphics::Quad{
+        {{{-size, 2.0f,  size}, {-size, 2.0f, -size}, { size, 2.0f, -size}, { size, 2.0f,  size}}},
+        {{{0, 0, layer}, {0, 1, layer}, {1, 1, layer}, {1, 0, layer}}}
+    }.ToMeshObject(0.0f);
 }
 
 }

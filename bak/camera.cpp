@@ -11,8 +11,8 @@
 #include <utility>
 
 Camera::Camera(
-    unsigned width,
-    unsigned height,
+    glm::uvec2 nativeDimensions,
+    glm::uvec2 screenDimensions,
     float moveSpeed,
     float turnSpeed)
 :
@@ -22,10 +22,10 @@ Camera::Camera(
     mPosition{0,1.4,0},
     mLastPosition{mPosition},
     mDistanceTravelled{0.0},
-    mProjectionMatrix{CalculatePerspectiveMatrix(width, height)},
+    mProjectionMatrix{CalculatePerspectiveMatrix(screenDimensions.x, screenDimensions.y)},
     mAngle{3.14, 0},
-    mWidth{width},
-    mHeight{height}
+    mNativeDimensions{nativeDimensions},
+    mScreenDimensions{screenDimensions}
 {}
 
 glm::mat4 Camera::CalculateOrthoMatrix(unsigned width, unsigned height)
@@ -317,7 +317,12 @@ unsigned Camera::GetAndClearUnitsTravelled()
     return 0;
 }
 
+glm::uvec2 Camera::GetNativeDimensions() const
+{
+    return mNativeDimensions;
+}
+
 glm::uvec2 Camera::GetScreenDimensions() const
 {
-    return glm::uvec2{mWidth, mHeight};
+    return mScreenDimensions;
 }

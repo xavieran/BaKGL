@@ -1,7 +1,7 @@
 #include "graphics/cube.hpp"
 
 #include "graphics/meshObject.hpp"
-#include "graphics/quad.hpp"
+#include "graphics/spriteQuad.hpp"
 
 #include "com/assert.hpp"
 

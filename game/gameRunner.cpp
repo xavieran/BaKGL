@@ -126,6 +126,7 @@ GameRunner::GameRunner(
     mMovementManager.SetDoorLocations(&mDoorLocations);
 
     mGlyphStore.Init(mGuiManager.GetFontManager().GetGameFont());
+    mMapIcons.Init();
 }
 
 void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)
@@ -172,15 +173,7 @@ void GameRunner::ShowOverheadView()
     angle.y = glm::radians(-90.0f);
     mCamera.SetAngle(angle);
 
-    mGuiManager.GetMainView().SetZoomInVisible(mZoomManager.CanZoomIn());
-    mGuiManager.GetMainView().SetZoomOutVisible(mZoomManager.CanZoomOut());
-
-    auto dims = mZoomManager.CalculateZoom(mCamera.GetScreenDimensions());
-
-    mCamera.UseOrthoMatrix(
-        static_cast<unsigned>(dims.x),
-        static_cast<unsigned>(dims.y)
-    );
+    UpdateOrthoProjection(mZoomManager.CalculateZoom(GetOrthoViewDimensions()));
 }
 
 void GameRunner::ShowFirstPersonView()
@@ -194,7 +187,7 @@ void GameRunner::ShowFirstPersonView()
     auto angle = mCamera.GetAngle();
     angle.y = glm::radians(0.0f);
     mCamera.SetAngle(angle);
-    auto dims = mCamera.GetScreenDimensions();
+    auto dims = mCamera.GetNativeDimensions();
     mCamera.UsePerspectiveMatrix(
         static_cast<unsigned>(dims.x),
         static_cast<unsigned>(dims.y)
@@ -203,22 +196,27 @@ void GameRunner::ShowFirstPersonView()
 
 void GameRunner::ZoomOut()
 {
-    auto dims = mZoomManager.ZoomOut(mCamera.GetScreenDimensions());
-    mGuiManager.GetMainView().SetZoomInVisible(mZoomManager.CanZoomIn());
-    mGuiManager.GetMainView().SetZoomOutVisible(mZoomManager.CanZoomOut());
-    mLogger.Info() << "Ortho dims: " << mCamera.GetScreenDimensions() << " -> " << dims << "\n";
-    mCamera.UseOrthoMatrix(
-        static_cast<unsigned>(dims.x),
-        static_cast<unsigned>(dims.y)
-    );
+    UpdateOrthoProjection(mZoomManager.ZoomOut(GetOrthoViewDimensions()));
 }
 
 void GameRunner::ZoomIn()
 {
-    auto dims = mZoomManager.ZoomIn(mCamera.GetScreenDimensions());
+    UpdateOrthoProjection(mZoomManager.ZoomIn(GetOrthoViewDimensions()));
+}
+
+glm::uvec2 GameRunner::GetOrthoViewDimensions() const
+{
+    const auto orthoViewSize = BAK::gTileSize / BAK::gWorldScale;
+    const auto nativeDims = glm::vec2(mCamera.GetNativeDimensions());
+    const auto aspectRatio = nativeDims.x / nativeDims.y;
+    return glm::uvec2(orthoViewSize * aspectRatio, orthoViewSize);
+}
+
+void GameRunner::UpdateOrthoProjection(glm::uvec2 dims)
+{
     mGuiManager.GetMainView().SetZoomInVisible(mZoomManager.CanZoomIn());
     mGuiManager.GetMainView().SetZoomOutVisible(mZoomManager.CanZoomOut());
-    mLogger.Info() << "Ortho dims: " << mCamera.GetScreenDimensions() << " -> " << dims << "\n";
+    UpdatePartyMarkerScale(dims);
     mCamera.UseOrthoMatrix(
         static_cast<unsigned>(dims.x),
         static_cast<unsigned>(dims.y)
@@ -1052,6 +1050,8 @@ void GameRunner::OnDoorStateChanged(BAK::DoorIndex doorIndex, bool isOpen)
 
 void GameRunner::RunGameUpdate(bool advanceTime)
 {
+    UpdatePartyMarker();
+
     if (mCamera.CheckAndResetDirty())
     {
         if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0 && advanceTime)
@@ -1183,6 +1183,35 @@ const Graphics::RenderData& GameRunner::GetZoneRenderData() const
 {
     assert(mZoneRenderData);
     return *mZoneRenderData;
+}
+
+const Graphics::RenderData& GameRunner::GetMapIconsRenderData() const
+{
+    return mMapIcons.GetRenderData();
+}
+
+void GameRunner::UpdatePartyMarkerScale(glm::uvec2 orthoDims)
+{
+    const auto unitsPerPixel = static_cast<float>(orthoDims.x)
+        / static_cast<float>(mCamera.GetNativeDimensions().x);
+    const auto dims = mMapIcons.GetDimensions();
+    const auto w = static_cast<float>(dims.x);
+    const auto h = static_cast<float>(dims.y);
+    mPartyMarkerScale = glm::vec3{
+        w * unitsPerPixel,
+        1.f,
+        h * unitsPerPixel};
+}
+
+void GameRunner::UpdatePartyMarker()
+{
+    const auto& loc = mGameState.GetLocation();
+    auto pos = BAK::ToGlCoord<float>(loc.mPosition);
+    auto rotationY = BAK::ToGlAngle(loc.mHeading).x
+        + glm::pi<float>();
+
+    mPartyMarker = { Renderable{
+        mPartyMarkerId, mMapIcons.GetObject(), pos, {0, rotationY, 0}, mPartyMarkerScale} };
 }
 
 const BAK::Encounter::Encounter& GameRunner::FindEncounterByCombatIndex(BAK::CombatIndex combatIndex) const

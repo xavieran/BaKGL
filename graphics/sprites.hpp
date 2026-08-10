@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/quad.hpp"
+#include "graphics/spriteQuad.hpp"
 #include "graphics/opengl.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/types.hpp"
@@ -49,7 +49,7 @@ public:
     VertexArrayObject mVertexArray;
     GLBuffers mBuffers;
     TextureBuffer mTextureBuffer;
-    QuadStorage mObjects;
+    SpriteQuadStorage mObjects;
     std::vector<glm::vec2> mSpriteDimensions;
 };
 
