@@ -3,6 +3,7 @@ add_library(game
     combatEncounterHandler.hpp combatEncounterHandler.cpp
     console.hpp console.cpp
     glyphStore.hpp glyphStore.cpp
+    mapIcons.hpp mapIcons.cpp
     textAnimator.hpp textAnimator.cpp
     pitAnimator.hpp pitAnimator.cpp
     encounterHandler.hpp encounterHandler.cpp

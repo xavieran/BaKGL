@@ -281,15 +281,15 @@ int main(int argc, char** argv)
     guiManager.EnterMainMenu(false);
 
     Camera lightCamera{
-        static_cast<unsigned>(width),
-        static_cast<unsigned>(height),
+        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
+        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
         static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         2.0f};
     lightCamera.UseOrthoMatrix(400, 400);
 
     Camera camera{
-        static_cast<unsigned>(width),
-        static_cast<unsigned>(height),
+        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
+        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
         static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         1.0f};
     Camera* cameraPtr = &camera;
@@ -619,10 +619,13 @@ int main(int argc, char** argv)
                     gameRunner.GetZoneRenderData(),
                     gameRunner.mSystems->GetRenderables(),
                     lightCamera);
-                renderer.DrawDepthMap(
-                    gameRunner.GetZoneRenderData(),
-                    gameRunner.mSystems->GetSprites(),
-                    lightCamera);
+                if (!gameRunner.mGameState.GetOverheadView())
+                {
+                    renderer.DrawDepthMap(
+                        gameRunner.GetZoneRenderData(),
+                        gameRunner.mSystems->GetSprites(),
+                        lightCamera);
+                }
                 renderer.EndDepthMapDraw();
             }
 
@@ -676,6 +679,18 @@ int main(int argc, char** argv)
                         gameRunner.mGlyphStore.GetRenderData(),
                         gameRunner.mSystems->GetTextRenderables(),
                         *cameraPtr);
+                }
+                else
+                {
+                    glDisable(GL_DEPTH_TEST);
+                    renderer.DrawWithShadow(
+                        gameRunner.GetMapIconsRenderData(),
+                        gameRunner.GetPartyMarker(),
+                        light,
+                        lightCamera,
+                        *cameraPtr,
+                        false);
+                    glEnable(GL_DEPTH_TEST);
                 }
             }
 

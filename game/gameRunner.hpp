@@ -5,6 +5,7 @@
 #include "game/combat/combatManager.hpp"
 #include "game/combat/combatStage.hpp"
 #include "game/glyphStore.hpp"
+#include "game/mapIcons.hpp"
 #include "game/encounterHandler.hpp"
 #include "game/interactable/factory.hpp"
 #include "game/systems.hpp"
@@ -117,6 +118,9 @@ public:
     void ToggleUndergroundModels();
     bool HandleGridCellClick(unsigned entityId, bool isRightClick);
 
+    const Graphics::RenderData& GetMapIconsRenderData() const;
+    const std::vector<Renderable>& GetPartyMarker() const { return mPartyMarker; }
+
     void SetupCombatCamera(const BAK::Encounter::Encounter&);
     void RestoreCameraAfterCombat();
     void CombatCompleted(BAK::CombatResult);
@@ -146,6 +150,10 @@ private:
     void CheckPitDeath();
     void TriggerPitDeath();
     void AnimateCrossPit(BAK::EntityIndex entityIndex);
+    void UpdatePartyMarkerScale(glm::uvec2 orthoDims);
+    void UpdatePartyMarker();
+    glm::uvec2 GetOrthoViewDimensions() const;
+    void UpdateOrthoProjection(glm::uvec2 dims);
 
 public:
     Camera& mCamera;
@@ -168,6 +176,11 @@ public:
     ActorStore mWorldActorStore;
     BAK::GamePositionAndHeading mCombatPlayerPos{};
     GlyphStore mGlyphStore;
+
+    MapIcons mMapIcons;
+    std::vector<Renderable> mPartyMarker{};
+    BAK::EntityIndex mPartyMarkerId{};
+    glm::vec3 mPartyMarkerScale{};
 
     std::unique_ptr<Graphics::RenderData> mZoneRenderData{};
     EncounterHandler mEncounterHandler;

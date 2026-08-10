@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphics/meshObject.hpp"
-#include "graphics/quad.hpp"
+#include "graphics/spriteQuad.hpp"
 
 #include "com/assert.hpp"
 
@@ -31,7 +31,7 @@ public:
 
     MeshObject ToMeshObject(glm::vec4 color) const;
 
-    std::vector<Quad> mQuads;
+    std::vector<SpriteQuad> mQuads;
 };
 
 }

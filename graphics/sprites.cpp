@@ -63,14 +63,14 @@ void Sprites::LoadTexturesGL(const TextureStore& textures)
         textures.GetMaxDim());
 
     // Normal quad for use as arbitrary rectangle
-    mObjects.AddObject(Quad{1.0, 1.0, 1.0, 0});
+    mObjects.AddObject(SpriteQuad{1.0, 1.0, 1.0, 0});
     // This is why mNonSpriteObjects = 1;
 
     for (unsigned i = 0; i < textures.GetTextures().size(); i++)
     {
         const auto& tex = textures.GetTexture(i);
         mObjects.AddObject(
-            Quad{
+            SpriteQuad{
                 static_cast<double>(tex.GetWidth()),
                 static_cast<double>(tex.GetHeight()),
                 static_cast<double>(textures.GetMaxDim()),
