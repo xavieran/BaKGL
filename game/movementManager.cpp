@@ -297,16 +297,6 @@ void MovementManager::SetFollowRoadButtonVisible(bool visible)
 
 void MovementManager::UpdateTerrainHeight()
 {
-    // Don't update the camera height in overhead view
-    // In future, make a second camera "player pos camera"
-    // and "view camera", to separate concerns of player location
-    // and camera location. We do want the ability to set camera
-    // location independent of player location
-    if (mGameState.GetOverheadView())
-    {
-        return;
-    }
-
     if (auto height = ComputeTerrainHeight(mCamera.GetGameLocation().mPosition))
     {
         mCamera.SetHeight(*height);

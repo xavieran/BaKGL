@@ -287,14 +287,19 @@ int main(int argc, char** argv)
         2.0f};
     lightCamera.UseOrthoMatrix(400, 400);
 
-    Camera camera{
+    Camera partyCamera{
         glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
         glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
         static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         1.0f};
-    Camera* cameraPtr = &camera;
+    Camera viewCamera{
+        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
+        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
+        static_cast<float>(config.mGame.mMoveUnitsPerSecond),
+        1.0f};
+    Camera* cameraPtr = &partyCamera;
 
-    guiManager.GetMainView().SetHeading(camera.GetHeading());
+    guiManager.GetMainView().SetHeading(partyCamera.GetHeading());
 
     // OpenGL 3D Renderer
     constexpr auto sShadowDim = 4096;
@@ -307,11 +312,13 @@ int main(int argc, char** argv)
         config.mGraphics.mDrawDistance};
 
     Game::GameRunner gameRunner{
-        camera,
+        partyCamera,
+        viewCamera,
         gameState,
         guiManager,
         config.mGraphics.mDebugRenderEncounters,
-        config.mGame.mCombatSpeed};
+        config.mGame.mCombatSpeed,
+        config.mGame.mNonRotatingMap};
 
     gameRunner.GetMovementManager().SetClipEnabled(config.mGame.mClipEnabled);
     gameRunner.GetMovementManager().SetWallSlide(config.mGame.mWallSlide);
@@ -321,7 +328,7 @@ int main(int argc, char** argv)
 
     bool imGuiInitialised = false;
 
-    auto currentTile = camera.GetGameTile();
+    auto currentTile = partyCamera.GetGameTile();
     logger.Info() << " Starting on tile: " << currentTile << "\n";
 
     Graphics::Light light{
@@ -333,9 +340,22 @@ int main(int argc, char** argv)
         .mFogColor =      glm::vec3{.15, .31,  .36}
     };
 
+    bool useLightCamera = false;
+    const auto GetRenderCamera = [&]() -> const Camera& {
+        if (useLightCamera)
+        {
+            return lightCamera;
+        }
+        if (guiManager.InMainView() && gameRunner.mGameState.GetOverheadView())
+        {
+            return viewCamera;
+        }
+        return partyCamera;
+    };
+
     const auto UpdateLightCamera = [&]{
-        const auto lightPos = camera.GetNormalisedPosition() - 100.0f * glm::normalize(light.mDirection);
-        const auto diff = lightCamera.GetNormalisedPosition() - camera.GetNormalisedPosition();
+        const auto lightPos = GetRenderCamera().GetNormalisedPosition() - 100.0f * glm::normalize(light.mDirection);
+        const auto diff = lightCamera.GetNormalisedPosition() - GetRenderCamera().GetNormalisedPosition();
         const auto horizDistance = glm::sqrt((diff.x * diff.x) + (diff.z * diff.z));
         const auto yAngle = -glm::atan(diff.y / horizDistance);
         const auto xAngle = glm::atan(diff.x, diff.z) - ((180.0f / 360.0f) * (2 * 3.141592)) ;
@@ -346,9 +366,9 @@ int main(int argc, char** argv)
 
     auto UpdateGameTile = [&]()
     {
-        if (camera.GetGameTile() != currentTile)
+        if (partyCamera.GetGameTile() != currentTile)
         {
-            currentTile = camera.GetGameTile();
+            currentTile = partyCamera.GetGameTile();
             logger.Debug() << "New tile: " << currentTile << "\n";
             gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters);
         }
@@ -369,14 +389,14 @@ int main(int argc, char** argv)
         if (glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
             || glfwGetKey(window.get(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
         {
-            if (guiManager.InMainView()) cameraPtr = &camera;
+            if (guiManager.InMainView()) useLightCamera = false;
         }
         else
         {
             gameRunner.ToggleDisplayAllCells();
         }
     });
-    inputHandler.Bind(GLFW_KEY_H,     [&]{ if (guiManager.InMainView()) cameraPtr = &lightCamera; });
+    inputHandler.Bind(GLFW_KEY_H,     [&]{ if (guiManager.InMainView()) useLightCamera = true; });
     inputHandler.Bind(GLFW_KEY_R,     [&]{
         if (guiManager.InMainView())
             UpdateLightCamera();
@@ -534,7 +554,7 @@ int main(int argc, char** argv)
 
     bool consoleOpen = true;
     auto console = Console{};
-    console.mCamera = &camera;
+    console.mCamera = &partyCamera;
     console.mGameRunner = &gameRunner;
     console.mGuiManager = &guiManager;
     console.mGameState = &gameState;
@@ -580,6 +600,7 @@ int main(int argc, char** argv)
         if (gameState.GetGameData().IsLoaded())
         {
             // { *** Draw 3D World ***
+            gameRunner.UpdateViewCamera();
             UpdateLightCamera();
 
             glEnable(GL_BLEND);
@@ -648,7 +669,7 @@ int main(int argc, char** argv)
                     gameRunner.mSystems->GetRenderables(),
                     light,
                     lightCamera,
-                    *cameraPtr,
+                    GetRenderCamera(),
                     false);
 
                 if (!gameRunner.mGameState.GetOverheadView())
@@ -658,7 +679,7 @@ int main(int argc, char** argv)
                         gameRunner.mSystems->GetSprites(),
                         light,
                         lightCamera,
-                        *cameraPtr,
+                        GetRenderCamera(),
                         true);
 
                     const auto& dynamicRenderables = gameRunner.mSystems->GetDynamicRenderables();
@@ -671,14 +692,14 @@ int main(int argc, char** argv)
                             data,
                             light,
                             lightCamera,
-                            *cameraPtr,
+                            GetRenderCamera(),
                             true);
                     }
 
                     renderer.DrawText3D(
                         gameRunner.mGlyphStore.GetRenderData(),
                         gameRunner.mSystems->GetTextRenderables(),
-                        *cameraPtr);
+                        GetRenderCamera());
                 }
                 else
                 {
@@ -688,7 +709,7 @@ int main(int argc, char** argv)
                         gameRunner.GetPartyMarker(),
                         light,
                         lightCamera,
-                        *cameraPtr,
+                        GetRenderCamera(),
                         false);
                     glEnable(GL_DEPTH_TEST);
                 }
@@ -701,7 +722,7 @@ int main(int argc, char** argv)
                     gameRunner.GetClipRenderables(),
                     light,
                     lightCamera,
-                    *cameraPtr,
+                    GetRenderCamera(),
                     false);
             }
         }
@@ -720,7 +741,7 @@ int main(int argc, char** argv)
                     gameRunner.mGridCellRenderables,
                     emptyRenderables,
                     emptyDynamicRenderables,
-                    *cameraPtr);
+                    GetRenderCamera());
             }
             else
             {
@@ -729,7 +750,7 @@ int main(int argc, char** argv)
                     gameRunner.mSystems->GetRenderables(),
                     gameRunner.mSystems->GetSprites(),
                     gameRunner.mSystems->GetDynamicRenderables(),
-                    *cameraPtr);
+                    GetRenderCamera());
             }
             renderer.StartPickReadback({pointerPosX, pointerPosY});
 
@@ -750,7 +771,7 @@ int main(int argc, char** argv)
             ShowLightGui(light);
             ShowClipDisplayGui(gameRunner);
 
-            ShowCameraGui(camera);
+            ShowCameraGui(partyCamera);
             console.Draw("Console", &consoleOpen);
         }
 

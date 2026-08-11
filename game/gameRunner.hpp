@@ -73,11 +73,13 @@ class GameRunner : public BAK::IZoneLoader, BAK::ICameraManager
 {
 public:
     GameRunner(
-        Camera& camera,
+        Camera& partyCamera,
+        Camera& viewCamera,
         BAK::GameState& gameState,
         Gui::GuiManager& guiManager,
         bool debugRenderEncounters = false,
-        double animationSpeedMultiplier = 1.0);
+        double animationSpeedMultiplier = 1.0,
+        bool nonRotatingMap = false);
     
     /* IZoneLoader */
     void DoTeleport(BAK::Encounter::Teleport teleport) override;
@@ -100,6 +102,7 @@ public:
     bool CheckAndDoEncounter(glm::uvec2 position);
     
     void RunGameUpdate(bool advanceTime);
+    void UpdateViewCamera();
     MovementManager& GetMovementManager() { return mMovementManager; }
     void CheckClickable(unsigned entityId);
     void HandleRightClick(unsigned entityId);
@@ -156,7 +159,9 @@ private:
     void UpdateOrthoProjection(glm::uvec2 dims);
 
 public:
-    Camera& mCamera;
+    Camera& mPartyCamera;
+    Camera& mViewCamera;
+    bool mNonRotatingMap{false};
     BAK::GameState& mGameState;
     Gui::GuiManager& mGuiManager;
     MovementManager mMovementManager;
