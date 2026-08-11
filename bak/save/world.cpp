@@ -43,16 +43,16 @@ MapLocation LoadMapLocation(FileBuffer& fb)
 Location LoadLocation(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger("LoadLocation");
-    fb.Seek(SaveOffsets::sLocationOffset);
+    fb.Seek(SaveOffsets::sLocationOffset); // 0x76
 
-    unsigned zone = fb.GetUint8();
+    unsigned zone = fb.GetUint8(); // 0x77
     ASSERT(zone <= 12);
     logger.Info() << "LOADED: Zone:" << zone << std::endl;
 
-    unsigned xtile = fb.GetUint8();
-    unsigned ytile = fb.GetUint8();
-    unsigned xpos = fb.GetUint32LE();
-    unsigned ypos = fb.GetUint32LE();
+    unsigned xtile = fb.GetUint8(); //0x78
+    unsigned ytile = fb.GetUint8(); //0x79
+    unsigned xpos = fb.GetUint32LE(); //0x7a
+    unsigned ypos = fb.GetUint32LE(); //0x7f
 
     logger.Info() << "Unknown: " << fb.GetArray<5>() << "\n";
     std::uint16_t heading = fb.GetUint16LE();
