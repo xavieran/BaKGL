@@ -23,7 +23,8 @@
         "AdvanceTime": true,
         "CombatSpeed": 1.0,
         "ClipEnabled": true,
-        "MoveUnitsPerSecond": 6400.0
+        "MoveUnitsPerSecond": 6400.0,
+        "NonRotatingMap": false
     },
     "Logging": {
         "LogToFile": true,

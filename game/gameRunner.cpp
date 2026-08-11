@@ -54,16 +54,20 @@
 namespace Game {
 
 GameRunner::GameRunner(
-    Camera& camera,
+    Camera& partyCamera,
+    Camera& viewCamera,
     BAK::GameState& gameState,
     Gui::GuiManager& guiManager,
     bool debugRenderEncounters,
-    double animationSpeedMultiplier)
+    double animationSpeedMultiplier,
+    bool nonRotatingMap)
 :
-    mCamera{camera},
+    mPartyCamera{partyCamera},
+    mViewCamera{viewCamera},
+    mNonRotatingMap{nonRotatingMap},
     mGameState{gameState},
     mGuiManager{guiManager},
-    mMovementManager{camera, gameState, guiManager},
+    mMovementManager{partyCamera, gameState, guiManager},
     mInteractableFactory{
         mGuiManager,
         mGameState,
@@ -96,10 +100,10 @@ GameRunner::GameRunner(
     mEncounterHandler{
         mGameState,
         mGuiManager,
-        mCamera},
+        mPartyCamera},
     mCombatStage{
         mGuiManager,
-        mCamera,
+        mPartyCamera,
         mGlyphStore,
         mCombatModelLoader,
         mCombatPlayerPos,
@@ -165,14 +169,6 @@ void GameRunner::ShowOverheadView()
 {
     mGameState.SetOverheadView(true);
     ToggleUndergroundModels();
-
-    auto position = mCamera.GetPosition();
-    position.y = 600000.0f / BAK::gWorldScale;
-    mCamera.SetPosition(position);
-    auto angle = mCamera.GetAngle();
-    angle.y = glm::radians(-90.0f);
-    mCamera.SetAngle(angle);
-
     UpdateOrthoProjection(mZoomManager.CalculateZoom(GetOrthoViewDimensions()));
 }
 
@@ -181,17 +177,33 @@ void GameRunner::ShowFirstPersonView()
     mGameState.SetOverheadView(false);
     ToggleUndergroundModels();
 
-    auto position = mCamera.GetPosition();
-    position.y = BAK::gBakCameraHeight;
-    mCamera.SetPosition(position);
-    auto angle = mCamera.GetAngle();
-    angle.y = glm::radians(0.0f);
-    mCamera.SetAngle(angle);
-    auto dims = mCamera.GetNativeDimensions();
-    mCamera.UsePerspectiveMatrix(
+    auto dims = mViewCamera.GetNativeDimensions();
+    mViewCamera.UsePerspectiveMatrix(
         static_cast<unsigned>(dims.x),
         static_cast<unsigned>(dims.y)
     );
+}
+
+void GameRunner::UpdateViewCamera()
+{
+    if (mGameState.GetOverheadView())
+    {
+        auto position = mPartyCamera.GetPosition();
+        position.y = BAK::gOverheadCameraHeight;
+        mViewCamera.SetPosition(position);
+
+        auto angle = mPartyCamera.GetAngle();
+        angle.y = glm::radians(-90.0f);
+        angle.x = mNonRotatingMap
+            ? BAK::ToGlAngle(BAK::GameHeading{0}).x
+            : mPartyCamera.GetAngle().x;
+        mViewCamera.SetAngle(angle);
+    }
+    else
+    {
+        mViewCamera.SetPosition(mPartyCamera.GetPosition());
+        mViewCamera.SetAngle(mPartyCamera.GetAngle());
+    }
 }
 
 void GameRunner::ZoomOut()
@@ -207,7 +219,7 @@ void GameRunner::ZoomIn()
 glm::uvec2 GameRunner::GetOrthoViewDimensions() const
 {
     const auto orthoViewSize = BAK::gTileSize / BAK::gWorldScale;
-    const auto nativeDims = glm::vec2(mCamera.GetNativeDimensions());
+    const auto nativeDims = glm::vec2(mViewCamera.GetNativeDimensions());
     const auto aspectRatio = nativeDims.x / nativeDims.y;
     return glm::uvec2(orthoViewSize * aspectRatio, orthoViewSize);
 }
@@ -217,7 +229,7 @@ void GameRunner::UpdateOrthoProjection(glm::uvec2 dims)
     mGuiManager.GetMainView().SetZoomInVisible(mZoomManager.CanZoomIn());
     mGuiManager.GetMainView().SetZoomOutVisible(mZoomManager.CanZoomOut());
     UpdatePartyMarkerScale(dims);
-    mCamera.UseOrthoMatrix(
+    mViewCamera.UseOrthoMatrix(
         static_cast<unsigned>(dims.x),
         static_cast<unsigned>(dims.y)
     );
@@ -232,7 +244,7 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
         mZoneData->mZoneTextures.GetTextures(),
         mZoneData->mZoneTextures.GetMaxDim());
     LoadSystems();
-    mCamera.SetGameLocation(mGameState.GetLocation());
+    mPartyCamera.SetGameLocation(mGameState.GetLocation());
     mMovementManager.RefreshAfterZoneLoad();
     mZoomManager.LoadZoneDefaults(zone);
 }
@@ -769,7 +781,7 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
                 << entityIndex << "\n";
             return;
         }
-        const auto gamePos = mCamera.GetGameLocation();
+        const auto gamePos = mPartyCamera.GetGameLocation();
         if (!mMovementManager.GetPitCross(gamePos.mPosition, it->second))
         {
             return;
@@ -783,29 +795,29 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
 
 void GameRunner::SetupCombatCamera(const BAK::Encounter::Encounter&)
 {
-    mSavedCameraAngle = mCamera.GetAngle();
-    mSavedCameraPos = mCamera.GetPosition();
+    mSavedCameraAngle = mPartyCamera.GetAngle();
+    mSavedCameraPos = mPartyCamera.GetPosition();
 
-    auto heading = mCamera.GetGameAngle();
-    auto angle = mCamera.GetAngle();
+    auto heading = mPartyCamera.GetGameAngle();
+    auto angle = mPartyCamera.GetAngle();
 
     bool isUnderground = mGameState.IsUnderground();
 
     angle.x = BAK::ToGlAngle(heading).x;
     angle.y = isUnderground ? BAK::gBakCombatCameraDownAngleUnderground : BAK::gBakCombatCameraDownAngle;
-    mCamera.SetAngle(angle);
+    mPartyCamera.SetAngle(angle);
 
-    auto pos = mCamera.GetPosition();
+    auto pos = mPartyCamera.GetPosition();
     pos.y = isUnderground ? BAK::gBakCombatCameraHeightUnderground : BAK::gBakCombatCameraHeight;
-    mCamera.SetPosition(pos);
+    mPartyCamera.SetPosition(pos);
 }
 
 void GameRunner::RestoreCameraAfterCombat()
 {
     HideGrid();
 
-    mCamera.SetAngle(mSavedCameraAngle);
-    mCamera.SetPosition(mSavedCameraPos);
+    mPartyCamera.SetAngle(mSavedCameraAngle);
+    mPartyCamera.SetPosition(mSavedCameraPos);
 }
 
 void GameRunner::CombatCompleted(BAK::CombatResult result)
@@ -1052,9 +1064,9 @@ void GameRunner::RunGameUpdate(bool advanceTime)
 {
     UpdatePartyMarker();
 
-    if (mCamera.CheckAndResetDirty())
+    if (mPartyCamera.CheckAndResetDirty())
     {
-        if (auto unitsTravelled = mCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0 && advanceTime)
+        if (auto unitsTravelled = mPartyCamera.GetAndClearUnitsTravelled(); unitsTravelled > 0 && advanceTime)
         {
             auto camp = BAK::TimeChanger{ mGameState };
             camp.ElapseTimeInMainView(
@@ -1065,7 +1077,7 @@ void GameRunner::RunGameUpdate(bool advanceTime)
         mActiveEncounter = nullptr;
 
         // Need to handle multiple intersectables.
-        auto intersectables = mSystems->RunIntersection(mCamera.GetPosition());
+        auto intersectables = mSystems->RunIntersection(mPartyCamera.GetPosition());
 
         for (const auto& intersectable : intersectables)
         {
@@ -1193,7 +1205,7 @@ const Graphics::RenderData& GameRunner::GetMapIconsRenderData() const
 void GameRunner::UpdatePartyMarkerScale(glm::uvec2 orthoDims)
 {
     const auto unitsPerPixel = static_cast<float>(orthoDims.x)
-        / static_cast<float>(mCamera.GetNativeDimensions().x);
+        / static_cast<float>(mViewCamera.GetNativeDimensions().x);
     const auto dims = mMapIcons.GetDimensions();
     const auto w = static_cast<float>(dims.x);
     const auto h = static_cast<float>(dims.y);
@@ -1474,7 +1486,7 @@ void GameRunner::SetClipDisplayMode(ClipDisplayMode mode)
 
 void GameRunner::CheckPitDeath()
 {
-    if (mMovementManager.IsOnPit(mCamera.GetGameLocation().mPosition))
+    if (mMovementManager.IsOnPit(mPartyCamera.GetGameLocation().mPosition))
     {
         TriggerPitDeath();
     }
@@ -1494,7 +1506,7 @@ void GameRunner::AnimateCrossPit(BAK::EntityIndex entityIndex)
     const auto pit = it->second;
     mLogger.Spam() << __FUNCTION__ << " Pit location: " << pit << "\n";
 
-    auto gamePos = mCamera.GetGameLocation();
+    auto gamePos = mPartyCamera.GetGameLocation();
     mLogger.Spam() << __FUNCTION__ << " Player pos: " << gamePos.mPosition
         << " heading: " << gamePos.mHeading << "\n";
 
@@ -1512,13 +1524,13 @@ void GameRunner::AnimateCrossPit(BAK::EntityIndex entityIndex)
     mAnimationActive = true;
 
     auto headingGl = BAK::ToGlAngle(static_cast<BAK::GameHeading>(heading));
-    auto angle = mCamera.GetAngle();
+    auto angle = mPartyCamera.GetAngle();
     angle.x = headingGl.x;
-    mCamera.SetAngle(angle);
+    mPartyCamera.SetAngle(angle);
 
     auto finalBak = cross->mLandingCell;
     auto finalGL = BAK::ToGlCoord<float>(finalBak);
-    auto glPos = mCamera.GetPosition();
+    auto glPos = mPartyCamera.GetPosition();
     finalGL.y = glPos.y;
 
     const auto pitCenterGL = BAK::ToGlCoord<float>(
@@ -1539,7 +1551,7 @@ void GameRunner::AnimateCrossPit(BAK::EntityIndex entityIndex)
                 glm::uvec2{glm::ivec2{glXZ.x, -glXZ.y}});
         },
         [this](const auto& pos){
-            mCamera.SetPosition(pos);
+            mPartyCamera.SetPosition(pos);
         },
         [this]{
             mAnimationActive = false;
@@ -1551,9 +1563,9 @@ void GameRunner::TriggerPitDeath()
 {
     mPitDeathInProgress = true;
     mAnimationActive = true;
-    mCamera.RejectPendingMove();
+    mPartyCamera.RejectPendingMove();
 
-    const auto startHeight = mCamera.GetPosition().y;
+    const auto startHeight = mPartyCamera.GetPosition().y;
     constexpr float pitBottom = -750.0f;
 
     mGuiManager.AddAnimator(std::make_unique<Gui::LinearAnimator>(
@@ -1561,7 +1573,7 @@ void GameRunner::TriggerPitDeath()
         glm::vec4{startHeight, 0, 0, 0},
         glm::vec4{pitBottom, 0, 0, 0},
         [this](const auto& delta){
-            mCamera.SetHeight(mCamera.GetPosition().y + delta.x);
+            mPartyCamera.SetHeight(mPartyCamera.GetPosition().y + delta.x);
             return false;
         },
         [this]{
