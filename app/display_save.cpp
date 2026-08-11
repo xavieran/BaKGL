@@ -1,6 +1,7 @@
 #include "bak/gameData.hpp"
 #include "bak/save/world.hpp"
 #include "bak/save/party.hpp"
+#include "bak/save/underground.hpp"
 #include "bak/save/character.hpp"
 #include "bak/save/combat.hpp"
 #include "bak/save/containers.hpp"
@@ -19,6 +20,8 @@ extern "C" {
 #include "bak/save/saveOffsets.hpp"
 
 #include "bak/condition.hpp"
+#include "bak/constants.hpp"
+#include "bak/coordinates.hpp"
 #include "bak/dialogChoice.hpp"
 #include "bak/types.hpp"
 
@@ -303,6 +306,11 @@ int main(int argc, char** argv)
     logger.Info() << "Tile: " << std::hex << gameData.mLocation.mTile << std::dec <<  " " << gameData.mLocation.mTile << "\n";
     logger.Info() << "MapLocation: " << gameData.mMapLocation << "\n";
     logger.Info() << "Location: " << gameData.mLocation.mLocation << "\n";
+    const auto tile = BAK::GetTile(gameData.mLocation.mLocation.mPosition);
+    const auto cell = BAK::GetTileSpaceOffset(gameData.mLocation.mLocation.mPosition)
+        / static_cast<unsigned>(BAK::gCellSize);
+    logger.Info() << "Player Tile: " << tile
+        << " Cell: " << cell << "\n";
     logger.Info() << "Time: " << gameData.mTime;
     logger.Info() << "Chapter: " << gameData.mChapter << "\n";
 
@@ -479,6 +487,8 @@ int main(int argc, char** argv)
                 << (BAK::State::ReadEventBool(fb, ep) ? "true" : "false") << "\n";
         }
     }
+
+    BAK::LoadUnderground(gameData.GetFileBuffer());
 
     return 0;
 }

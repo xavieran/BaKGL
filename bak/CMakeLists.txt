@@ -6,6 +6,7 @@ add_library(bak
     save/world.hpp save/world.cpp
     save/combat.hpp save/combat.cpp
     save/containers.hpp save/containers.cpp
+    save/underground.hpp save/underground.cpp
     IContainer.hpp IContainer.cpp
     backgroundSounds.hpp backgroundSounds.cpp
     bard.hpp bard.cpp
