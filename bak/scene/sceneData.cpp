@@ -130,8 +130,8 @@ std::ostream& operator<<(std::ostream& os, const ClearScreen& ls)
 
 std::ostream& operator<<(std::ostream& os, const DrawRect& a)
 {
-    os << "DrawRect { PaletteColor: (" << std::get<0>(a.mPaletteColor)
-        << ", " << std::get<1>(a.mPaletteColor)
+    os << "DrawRect { PaletteColor: (" << a.mEdgeColor
+        << ", " << a.mFillColor
         << "), Pos: " << a.mPos << ", Dims: "
         << a.mDims << "}";
     return os;

@@ -1,36 +1,69 @@
 #include "bak/scene/scene.hpp"
+#include "bak/scene/sceneData.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 
 #include "com/logger.hpp"
 
+#include <iostream>
+
 int main(int argc, char** argv)
 {
-    const auto& logger = Logging::LogState::GetLogger("main");
-    Logging::LogState::SetLevel(Logging::LogLevel::Debug);
+    Logging::LogState::SetLevel(Logging::LogLevel::Always);
 
     if (argc < 3)
     {
-        std::cerr << "No arguments provided!\nUsage: "
-            << argv[0] << " ADS TTM\n";
+        std::cerr << "Usage: " << argv[0] << " <ads|sequences|ttm|dynamic> FILE\n";
         return -1;
     }
-    
-    std::string adsFile{argv[1]};
-    std::string ttmFile{argv[2]};
 
-    logger.Info() << "Loading ADS and TTM:" << adsFile << " " << ttmFile << std::endl;
+    const std::string mode{argv[1]};
+    const std::string file{argv[2]};
 
+    auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(file);
+
+    if (mode == "ads")
     {
-        auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(adsFile);
-        BAK::LoadSceneIndices(fb);
+        for (const auto& [index, sceneIndex] : BAK::LoadSceneIndices(fb))
+        {
+            std::cout << index << " " << sceneIndex << "\n";
+        }
     }
-
+    else if (mode == "sequences")
     {
-        auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-        BAK::LoadScenes(fb);
+        for (const auto& [index, sequences] : BAK::LoadSceneSequences(fb))
+        {
+            for (const auto& sequence : sequences)
+            {
+                std::cout << index << " " << sequence.mName << " [";
+                for (const auto& scene : sequence.mScenes)
+                {
+                    std::cout << " (" << scene.mInitScene
+                        << "," << scene.mDrawScene << ")";
+                }
+                std::cout << " ]\n";
+            }
+        }
+    }
+    else if (mode == "ttm")
+    {
+        for (const auto& [index, scene] : BAK::LoadScenes(fb))
+        {
+            std::cout << index << " " << scene << "\n";
+        }
+    }
+    else if (mode == "dynamic")
+    {
+        for (const auto& action : BAK::LoadDynamicScenes(fb))
+        {
+            std::cout << action << "\n";
+        }
+    }
+    else
+    {
+        std::cerr << "Unknown mode: " << mode << "\n";
+        return -1;
     }
 
     return 0;
 }
-
