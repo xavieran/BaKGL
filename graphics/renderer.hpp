@@ -426,7 +426,7 @@ public:
 
         for (const auto& item : renderables)
         {
-            if (glm::distance(lightCamera.GetPosition(), item.GetLocation()) > mDrawDistance) continue;
+            if (glm::distance(lightCamera.GetPosition(), item.GetLocation()) > mDrawDistance || !item.GetVisible()) continue;
             const auto [offset, length] = item.GetObject();
             const auto& modelMatrix = item.GetModelMatrix();
 

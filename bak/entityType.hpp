@@ -62,6 +62,8 @@ enum class EntityType
 
 unsigned GetContainerTypeFromEntityType(EntityType);
 EntityType EntityTypeFromModelName(std::string_view name);
+bool IsUndergroundEntity(EntityType et);
+bool IsOverheadHidden(EntityType et);
 
 enum class GridEffect
 {

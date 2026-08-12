@@ -488,8 +488,6 @@ int main(int argc, char** argv)
         }
     }
 
-    BAK::LoadUnderground(gameData.GetFileBuffer());
-
     return 0;
 }
 

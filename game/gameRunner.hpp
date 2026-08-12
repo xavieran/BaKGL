@@ -20,6 +20,7 @@
 #include "bak/combat/retreat.hpp"
 #include "bak/container.hpp"
 #include "bak/encounter/teleport.hpp"
+#include "bak/save/underground.hpp"
 #include "bak/types.hpp"
 
 #include "graphics/renderData.hpp"
@@ -128,6 +129,12 @@ public:
     void RestoreCameraAfterCombat();
     void CombatCompleted(BAK::CombatResult);
     void EnterCombatFromEncounter();
+    void OnEnterTile(glm::uvec2 tile);
+    void MarkVisibleObjects(glm::uvec2 tile);
+    void UpdateOverheadVisibility();
+    void RestoreFirstPersonVisibility();
+    void HideOverheadHidden();
+    void ShowOverheadHidden();
 
     const Graphics::RenderData& GetZoneRenderData() const;
     void OnTimeDelta(double timeDelta);
@@ -220,6 +227,13 @@ public:
 
     std::unordered_map<BAK::EntityIndex, Graphics::MeshObjectStorage::OffsetAndLength> mMainViewOffsets{};
     std::unordered_map<BAK::EntityIndex, Graphics::MeshObjectStorage::OffsetAndLength> mOverheadViewOffsets{};
+
+    struct TileObjectRef
+    {
+        glm::uvec2 mTile{};
+        unsigned mLocalIndex{};
+    };
+    std::unordered_map<BAK::EntityIndex, TileObjectRef> mTileObjectRefs{};
     Graphics::MeshObjectStorage::OffsetAndLength mUndergroundDoorClosed;
     Graphics::MeshObjectStorage::OffsetAndLength mUndergroundDoorOpen;
     bool mShowUnderground{false};
@@ -234,6 +248,8 @@ public:
     std::optional<BAK::EntityIndex> mCatapultEntity{};
 
     std::optional<BAK::EntityIndex> mHoveredEntity;
+
+    glm::uvec2 mCurrentTile{};
 
     const Logging::Logger& mLogger;
 };

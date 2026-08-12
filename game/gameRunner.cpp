@@ -170,6 +170,8 @@ void GameRunner::ShowOverheadView()
     mGameState.SetOverheadView(true);
     ToggleUndergroundModels();
     UpdateOrthoProjection(mZoomManager.CalculateZoom(GetOrthoViewDimensions()));
+    UpdateOverheadVisibility();
+    HideOverheadHidden();
 }
 
 void GameRunner::ShowFirstPersonView()
@@ -182,6 +184,9 @@ void GameRunner::ShowFirstPersonView()
         static_cast<unsigned>(dims.x),
         static_cast<unsigned>(dims.y)
     );
+
+    RestoreFirstPersonVisibility();
+    ShowOverheadHidden();
 }
 
 void GameRunner::UpdateViewCamera()
@@ -245,6 +250,7 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
         mZoneData->mZoneTextures.GetMaxDim());
     LoadSystems();
     mPartyCamera.SetGameLocation(mGameState.GetLocation());
+    mCurrentTile = mPartyCamera.GetGameTile();
     mMovementManager.RefreshAfterZoneLoad();
     mZoomManager.LoadZoneDefaults(zone);
 }
@@ -276,6 +282,7 @@ void GameRunner::LoadSystems()
     mDoorLocations.clear();
     mDoorIndexToEntityId.clear();
     mAnimatedEntities.clear();
+    mTileObjectRefs.clear();
     mAnimatedModelFrames.clear();
     if (mGateAnimator)
     {
@@ -384,6 +391,13 @@ void GameRunner::LoadSystems()
                     mSystems->AddSprite(renderable);
                 else
                     mSystems->AddRenderable(renderable);
+
+                if (BAK::IsUndergroundEntity(entityType))
+                {
+                    mTileObjectRefs[id] = TileObjectRef{
+                        world.GetTile(),
+                        item.GetLocalIndex()};
+                }
 
                 SetupGate(id, entityType, objectName);
                 SetupCatapult(id, entityType, objectName);
@@ -1102,6 +1116,120 @@ void GameRunner::RunGameUpdate(bool advanceTime)
         if (!mPitDeathInProgress && !IsAnimationActive())
         {
             CheckPitDeath();
+        }
+
+        const auto tile = mPartyCamera.GetGameTile();
+        if (tile != mCurrentTile)
+        {
+            mCurrentTile = tile;
+            mLogger.Debug() << "New tile: " << mCurrentTile << "\n";
+            OnEnterTile(mCurrentTile);
+        }
+        MarkVisibleObjects(tile);
+    }
+}
+
+void GameRunner::OnEnterTile(glm::uvec2 tile)
+{
+    mGameState.Apply(BAK::State::ClearTileRecentEncounters);
+
+    if (!mGameState.IsUnderground())
+        return;
+
+    const auto zone = mGameState.GetZone().mValue;
+    BAK::EnsureTileVisibility(
+        mGameState.GetTileVisibility(),
+        BAK::TileLocation{zone, tile});
+    MarkVisibleObjects(tile);
+}
+
+void GameRunner::MarkVisibleObjects(glm::uvec2 tile)
+{
+    if (!mGameState.IsUnderground())
+        return;
+
+    const auto zone = mGameState.GetZone().mValue;
+    auto& entry = BAK::EnsureTileVisibility(
+        mGameState.GetTileVisibility(),
+        BAK::TileLocation{zone, tile});
+
+    const auto playerPos = mPartyCamera.GetGameLocation().mPosition;
+    const float maxDistSq = static_cast<float>(BAK::gCellSize) * static_cast<float>(BAK::gCellSize);
+
+    for (const auto& world : mZoneData->mWorldTiles.GetTiles())
+    {
+        if (world.GetTile() != tile)
+            continue;
+
+        for (const auto& item : world.GetItems())
+        {
+            const auto li = item.GetLocalIndex();
+            if (li >= entry.mVisibleObjects.size())
+                continue;
+
+            const auto dx = static_cast<float>(item.GetBakLocation().x) - static_cast<float>(playerPos.x);
+            const auto dy = static_cast<float>(item.GetBakLocation().y) - static_cast<float>(playerPos.y);
+            if (dx * dx + dy * dy < maxDistSq)
+                entry.mVisibleObjects[li] = true;
+        }
+        break;
+    }
+
+    if (mGameState.GetOverheadView())
+        UpdateOverheadVisibility();
+}
+
+void GameRunner::UpdateOverheadVisibility()
+{
+    if (!mGameState.IsUnderground())
+        return;
+
+    const auto zone = mGameState.GetZone().mValue;
+    const auto& vis = mGameState.GetTileVisibility();
+
+    for (auto& [id, ref] : mTileObjectRefs)
+    {
+        const auto* entry = BAK::LookupTileVisibility(vis, BAK::TileLocation{zone, ref.mTile});
+        const auto visible = entry && ref.mLocalIndex < entry->mVisibleObjects.size()
+            ? entry->mVisibleObjects[ref.mLocalIndex]
+            : false;
+        mSystems->EnableRenderable(id, visible);
+        mSystems->EnableSprite(id, visible);
+    }
+}
+
+void GameRunner::RestoreFirstPersonVisibility()
+{
+    if (!mGameState.IsUnderground())
+        return;
+
+    for (auto& [id, ref] : mTileObjectRefs)
+    {
+        mSystems->EnableRenderable(id, true);
+        mSystems->EnableSprite(id, true);
+    }
+}
+
+void GameRunner::HideOverheadHidden()
+{
+    for (auto& [id, entityType] : mEntityTypes)
+    {
+        if (BAK::IsOverheadHidden(entityType))
+        {
+            mSystems->EnableRenderable(id, false);
+            mSystems->EnableSprite(id, false);
+        }
+    }
+}
+
+void GameRunner::ShowOverheadHidden()
+{
+    for (auto& [id, entityType] : mEntityTypes)
+    {
+        if (BAK::IsOverheadHidden(entityType))
+        {
+            mSystems->EnableRenderable(id, true);
+            mSystems->EnableSprite(id, true);
         }
     }
 }

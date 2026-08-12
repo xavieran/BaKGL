@@ -36,6 +36,31 @@ EntityType EntityTypeFromModelName(std::string_view name)
     return EntityType::CHEST;
 }
 
+bool IsUndergroundEntity(EntityType et)
+{
+    using enum EntityType;
+    switch (et)
+    {
+        case TUNNEL1: [[fallthrough]];
+        case PIT: [[fallthrough]];
+        case ENTRANCE: [[fallthrough]];
+        case DOOR:
+            return true;
+        default: return false;
+    }
+}
+
+bool IsOverheadHidden(EntityType et)
+{
+    using enum EntityType;
+    switch (et)
+    {
+        case CHEST: [[fallthrough]];
+        case BAG: return true;
+        default: return false;
+    }
+}
+
 GridEffect GetGridEffect(EntityType entityType)
 {
     using enum EntityType;

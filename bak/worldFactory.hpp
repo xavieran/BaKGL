@@ -143,18 +143,21 @@ class WorldItemInstance
 public:
     WorldItemInstance(
         const ZoneItem& zoneItem,
-        const WorldItem& worldItem);
+        const WorldItem& worldItem,
+        unsigned localIndex);
 
     const ZoneItem& GetZoneItem() const;
     const glm::vec3& GetRotation() const;
     const glm::vec3& GetLocation() const;
     const glm::uvec2& GetBakLocation() const;
     unsigned GetType() const;
+    unsigned GetLocalIndex() const;
 
 private:
    const ZoneItem& mZoneItem;
 
     unsigned mType;
+    unsigned mLocalIndex;
     glm::vec3 mRotation;
     glm::vec3 mLocation;
     glm::vec<2, unsigned> mBakLocation;
