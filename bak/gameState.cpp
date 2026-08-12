@@ -25,6 +25,7 @@
 #include "bak/state/temple.hpp"
 
 #include "bak/save/party.hpp"
+#include "bak/save/underground.hpp"
 #include "bak/spells.hpp"
 #include "bak/state/dialog.hpp"
 #include "bak/dialogAction.hpp"
@@ -95,6 +96,7 @@ void GameState::LoadGame(std::string savePath)
     }
     mSpellState = LoadSpells(mGameData.GetFileBuffer());
     mFollowRoad = LoadFollowRoad(mGameData.GetFileBuffer());
+    mTileVisibility = LoadTileVisibility(mGameData.GetFileBuffer());
 }
 
 const Party& GameState::GetParty() const
@@ -1227,6 +1229,7 @@ bool GameState::SaveState()
     BAK::Save(mCombatantGridLocations, mGameData.GetFileBuffer());
     //BAK::Save(mCombatEntityLists, mGameData.GetFileBuffer());
     BAK::Save(mCombatCharacters, mGameData.GetFileBuffer());
+    BAK::Save(mTileVisibility, mGameData.GetFileBuffer());
 
     return true;
 }

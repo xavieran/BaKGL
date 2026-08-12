@@ -29,7 +29,7 @@ static constexpr auto sCharacterSkillAffectorOffset  = 0x35a;
 static constexpr auto sTimeExpiringEventRecordOffset = 0x616;
 static constexpr auto sActiveSpells = 0x6b8;
 
-static constexpr auto sUndergroundBegin = 0xb3b;
+static constexpr auto sTileVisibilityRecords = 0xb3b;
 
 static constexpr auto sPantathiansEventFlag = 0x1ed4;
 

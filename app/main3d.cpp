@@ -8,8 +8,7 @@
 #include "bak/lua/core.hpp"
 #include "bak/movement.hpp"
 
-#include "bak/state/encounter.hpp"
-#include "bak/encounter//encounter.hpp"
+#include "bak/encounter/encounter.hpp"
 #include "bak/zone.hpp"
 
 extern "C" {
@@ -328,9 +327,6 @@ int main(int argc, char** argv)
 
     bool imGuiInitialised = false;
 
-    auto currentTile = partyCamera.GetGameTile();
-    logger.Info() << " Starting on tile: " << currentTile << "\n";
-
     Graphics::Light light{
         .mDirection =     glm::vec3{.0, -.25,  .00},
         .mAmbientColor =  glm::vec3{.5,  .5,   .5 },
@@ -362,16 +358,6 @@ int main(int argc, char** argv)
 
         lightCamera.SetAngle(glm::vec2{xAngle, yAngle});
         lightCamera.SetPosition(lightPos * BAK::gWorldScale);
-    };
-
-    auto UpdateGameTile = [&]()
-    {
-        if (partyCamera.GetGameTile() != currentTile)
-        {
-            currentTile = partyCamera.GetGameTile();
-            logger.Debug() << "New tile: " << currentTile << "\n";
-            gameRunner.mGameState.Apply(BAK::State::ClearTileRecentEncounters);
-        }
     };
 
     auto InputAllowed = [&]{
@@ -591,10 +577,9 @@ int main(int argc, char** argv)
         glfwGetCursorPos(window.get(), &pointerPosX, &pointerPosY);
         inputHandler.HandleInput(window.get());
 
-        if (guiManager.InMainView()
-            && gameRunner.GetMovementManager().Update())
+        if (guiManager.InMainView())
         {
-            UpdateGameTile();
+            gameRunner.GetMovementManager().Update();
         }
 
         if (gameState.GetGameData().IsLoaded())

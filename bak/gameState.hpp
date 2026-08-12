@@ -15,6 +15,8 @@
 #include "bak/timeExpiringState.hpp"
 #include "bak/types.hpp"
 
+#include "bak/save/underground.hpp"
+
 #include "com/random.hpp"
 #include "com/visit.hpp"
 
@@ -111,6 +113,8 @@ public:
     void SetOverheadView(bool overheadView);
 
     auto& GetTimeExpiringState() { return mTimeExpiringState; }
+
+    std::vector<TileVisibility>& GetTileVisibility() { return mTileVisibility; }
 
     const WorldClock& GetWorldTime() const;
     WorldClock& GetWorldTime();
@@ -249,6 +253,7 @@ private:
     std::vector<GenericContainer> mGDSContainers{};
     std::vector<GenericContainer> mCombatContainers;
     std::vector<TimeExpiringState> mTimeExpiringState{};
+    std::vector<TileVisibility> mTileVisibility{};
     std::vector<CombatEntityList> mCombatEntityLists{};
     std::vector<CombatWorldLocation> mCombatWorldLocations{};
     std::vector<CombatantGridLocation> mCombatantGridLocations{};

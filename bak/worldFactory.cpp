@@ -1098,10 +1098,12 @@ const ModelClip& ZoneItemStore::GetClip(unsigned i) const
 
 WorldItemInstance::WorldItemInstance(
     const ZoneItem& zoneItem,
-    const WorldItem& worldItem)
+    const WorldItem& worldItem,
+    unsigned localIndex)
 :
     mZoneItem{zoneItem},
     mType{worldItem.mItemType},
+    mLocalIndex{localIndex},
     mRotation{BAK::ToGlAngle(worldItem.mRotation)},
     mLocation{BAK::ToGlCoord<float>(worldItem.mLocation)},
     mBakLocation{worldItem.mLocation.x, worldItem.mLocation.y}
@@ -1113,6 +1115,7 @@ const glm::vec3& WorldItemInstance::GetRotation() const { return mRotation; }
 const glm::vec3& WorldItemInstance::GetLocation() const { return mLocation; }
 const glm::uvec2& WorldItemInstance::GetBakLocation() const { return mBakLocation; }
 unsigned WorldItemInstance::GetType() const { return mType; }
+unsigned WorldItemInstance::GetLocalIndex() const { return mLocalIndex; }
 
 std::ostream& operator<<(std::ostream& os, const WorldItemInstance& d)
 {
@@ -1155,14 +1158,16 @@ void World::LoadWorld(
     auto fb = FileBufferFactory::Get().CreateDataBuffer(tileWorld);
     const auto [tileWorldItems, tileCenter] = LoadWorldTile(fb);
 
-    for (const auto& item : tileWorldItems)
+    for (unsigned i = 0; i < tileWorldItems.size(); i++)
     {
+        const auto& item = tileWorldItems[i];
         if (item.mItemType == 0)
             mCenter = ToGlCoord<float>(item.mLocation);
 
         mItemInsts.emplace_back(
             zoneItems.GetZoneItem(item.mItemType),
-            item);
+            item,
+            i);
     }
 
     const auto tileData = zoneItems.GetZoneLabel().GetTileData(x, y);
