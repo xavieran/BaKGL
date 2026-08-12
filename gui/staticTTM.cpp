@@ -1,5 +1,6 @@
 #include "gui/staticTTM.hpp"
 
+#include "bak/palette.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/scene/scene.hpp"
 #include "bak/scene/sceneData.hpp"
@@ -40,9 +41,18 @@ StaticTTM::StaticTTM(
     auto textures = Graphics::TextureStore{};
     std::unordered_map<unsigned, unsigned> offsets{};
 
+    constexpr auto SCENE_PALETTE_SLOT = 0;
+    std::optional<BAK::Palette> scenePalette{};
+
     // Load all the image slots
     for (const auto& scene : {sceneInit, sceneContent})
     {
+        const auto scenePal = scene.mPalettes.find(SCENE_PALETTE_SLOT);
+        if (scenePal != scene.mPalettes.end())
+        {
+            scenePalette.emplace(scenePal->second);
+        }
+
         for (const auto& [imageKey, imagePal] : scene.mImages)
         {
             const auto& [image, palKey] = imagePal;
@@ -153,13 +163,13 @@ StaticTTM::StaticTTM(
                             mSceneFrame.AddChildBack(&elem);
                     },
                     [&](const BAK::DrawRect& sr){
-                        constexpr auto FRAME_COLOR_INDEX = 6;
-                        const auto [palKey, colorKey] = sr.mPaletteColor;
+                        const auto frameColor = scenePalette
+                            ? glm::vec4{
+                                glm::vec3{scenePalette->GetColor(sr.mEdgeColor)},
+                                1}
+                            : Gui::Color::black;
                         const auto sceneRect = SceneRect{
-                            // Reddy brown frame color
-                            colorKey == FRAME_COLOR_INDEX
-                                ? Gui::Color::frameMaroon
-                                : Gui::Color::black,
+                            frameColor,
                             glm::vec2{sr.mPos.x, sr.mPos.y},
                             glm::vec2{sr.mDims.x, sr.mDims.y}};
                         // This really only works for "DrawFrame", not "DrawRect"

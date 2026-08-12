@@ -114,7 +114,8 @@ struct ClearScreen
 
 struct DrawRect
 {
-    std::pair<unsigned, unsigned> mPaletteColor;
+    unsigned mEdgeColor;
+    unsigned mFillColor;
     glm::ivec2 mPos;
     glm::ivec2 mDims;
 };

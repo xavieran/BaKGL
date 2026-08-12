@@ -9,6 +9,7 @@
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 #include "com/string.hpp"
+#include "com/visit.hpp"
 
 #include <unordered_map>
 
@@ -103,8 +104,8 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
     }
 
     auto decompressedSize = scrbuf.GetUint32LE();
-    auto script = FileBuffer(decompressedSize);
-    scrbuf.DecompressLZW(&script);
+    auto decompBuffer = FileBuffer(decompressedSize);
+    scrbuf.DecompressLZW(&decompBuffer);
     
     Tags tags{};
     tags.Load(tagbuf);
@@ -116,15 +117,15 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
 
     std::unordered_map<unsigned, SceneIndex> sceneIndices;
 
-    while (!script.AtEnd())
+    while (!decompBuffer.AtEnd())
     {
         if (!currentIndex)
         {
-            currentIndex = script.GetUint16LE();
+            currentIndex = decompBuffer.GetUint16LE();
             logger.Debug() << "Index: " << currentIndex << "\n";
         }
 
-        auto code = script.GetUint16LE();
+        auto code = decompBuffer.GetUint16LE();
         auto action = static_cast<AdsActions>(code);
         std::stringstream ss{};
         ss << std::hex << code << std::dec << " adsAct: " << action << " ";
@@ -133,26 +134,26 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
         {
             case AdsActions::INDEX:
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
             case AdsActions::IF_NOT_PLAYED: [[fallthrough]];
             case AdsActions::IF_PLAYED: 
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
             case AdsActions::ADD_SCENE2: [[fallthrough]];
             case AdsActions::ADD_SCENE:
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
-                const auto c = script.GetUint16LE();
-                const auto d = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
+                const auto c = decompBuffer.GetUint16LE();
+                const auto d = decompBuffer.GetUint16LE();
                 ss << a << " " << b << " " << c << " " << d;
                 ttmIndex = std::max(
                     std::max(a, b),
@@ -185,22 +186,22 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
                 break;
             case AdsActions::STOP_SCENE:
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
-                const auto c = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
+                const auto c = decompBuffer.GetUint16LE();
                 ss << a << " " << b << " " << c;
             }
                 break;
             case AdsActions::IF_CHAP_GTE:
             {
-                const auto a = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
                 ss << a;
                 adsIndex.mGreaterThan = a;
             }
                 break;
             case AdsActions::IF_CHAP_LTE:
             {
-                const auto a = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
                 ss << a;
                 adsIndex.mLessThan = a;
             }
@@ -225,24 +226,6 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
     return sceneIndices;
 }
 
-// Helper during loading
-struct SceneChunk
-{
-    SceneChunk(
-        Actions action,
-        std::optional<std::string> resourceName,
-        std::vector<std::int16_t> arguments)
-    :
-        mAction{action},
-        mResourceName{resourceName},
-        mArguments{arguments}
-    {}
-
-    Actions mAction;
-    std::optional<std::string> mResourceName;
-    std::vector<std::int16_t> mArguments;
-};
-
 std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
@@ -257,8 +240,8 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
     }
 
     auto decompressedSize = scrbuf.GetUint32LE();
-    auto script = FileBuffer(decompressedSize);
-    scrbuf.DecompressLZW(&script);
+    auto decompBuffer = FileBuffer(decompressedSize);
+    scrbuf.DecompressLZW(&decompBuffer);
     
     Tags tags{};
     tags.Load(tagbuf);
@@ -269,16 +252,16 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
     std::unordered_map<unsigned, std::vector<SceneSequence>> sceneIndices;
     SceneSequence currentSequence{};
 
-    while (!script.AtEnd())
+    while (!decompBuffer.AtEnd())
     {
         if (!currentIndex)
         {
-            currentIndex = script.GetUint16LE();
+            currentIndex = decompBuffer.GetUint16LE();
             sceneIndices.emplace(*currentIndex, std::vector<SceneSequence>({}));
             logger.Debug() << "Index: " << currentIndex << "\n";
         }
 
-        auto code = script.GetUint16LE();
+        auto code = decompBuffer.GetUint16LE();
         auto action = static_cast<AdsActions>(code);
         std::stringstream ss{};
         ss << std::hex << code << std::dec << " adsAct: " << action << " ";
@@ -287,26 +270,26 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
         {
             case AdsActions::INDEX:
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
             case AdsActions::IF_NOT_PLAYED: [[fallthrough]];
             case AdsActions::IF_PLAYED: 
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
             case AdsActions::ADD_SCENE2: [[fallthrough]];
             case AdsActions::ADD_SCENE:
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
-                const auto c = script.GetUint16LE();
-                const auto d = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
+                const auto c = decompBuffer.GetUint16LE();
+                const auto d = decompBuffer.GetUint16LE();
                 ss << a << " " << b << " " << c << " " << d;
                 ASSERT(currentIndex);
                 currentSequence.mScenes.emplace_back(SceneADS(a, b, false));
@@ -340,9 +323,9 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
             } break;
             case AdsActions::STOP_SCENE:
             {
-                const auto a = script.GetUint16LE();
-                const auto b = script.GetUint16LE();
-                const auto c = script.GetUint16LE();
+                const auto a = decompBuffer.GetUint16LE();
+                const auto b = decompBuffer.GetUint16LE();
+                const auto c = decompBuffer.GetUint16LE();
                 ss << a << " " << b << " " << c;
             } break;
             case AdsActions::IF_CHAP_GTE:
@@ -372,27 +355,24 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
     return sceneIndices;
 }
 
+namespace {
 
-
-std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
+std::vector<SceneAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
-
-    std::vector<SceneChunk> chunks;
 
     auto pageBuffer    = fb.Find(DataTag::PAG);
     auto versionBuffer = fb.Find(DataTag::VER);
     auto tt3Buffer     = fb.Find(DataTag::TT3);
     auto tagBuffer     = fb.Find(DataTag::TAG);
-    
+
     const auto pages = pageBuffer.GetUint16LE();
     logger.Debug() << "Pages:" << pages << " size: " << pageBuffer.GetSize() << "\n";
-
     logger.Debug() << "Version size: " << versionBuffer.GetSize() << "\n";
 
     auto compression = tt3Buffer.GetUint8();
     auto decompressedSize = tt3Buffer.GetUint32LE();
-    FileBuffer decompBuffer = FileBuffer(decompressedSize);
+    auto decompBuffer = FileBuffer(decompressedSize);
     logger.Debug() << "TT3 size: " << decompressedSize << "\n";
     if (compression == 1)
     {
@@ -405,11 +385,16 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         tt3Buffer.CopyTo(&decompBuffer, decompressedSize);
     }
 
-    Tags tags{};
     tags.Load(tagBuffer);
     tags.DumpTags();
 
-    auto offset = 8 * 3 + pageBuffer.GetSize() + versionBuffer.GetSize() + 5;
+    const auto offset = 8 * 3 + pageBuffer.GetSize() + versionBuffer.GetSize() + 5;
+
+    std::vector<SceneAction> actions{};
+
+    bool flipped = false;
+    unsigned activeEdgeColor = 0xf;
+    unsigned activeFillColor = 0xf;
 
     while (!decompBuffer.AtEnd())
     {
@@ -419,9 +404,9 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         code &= 0xfff0;
         auto action = static_cast<Actions>(code);
         std::stringstream ss{};
-        ss << "off: " << std::hex << location << " |Code: " << std::hex << code << " " 
+        ss << "off: " << std::hex << location << " |Code: " << std::hex << code << " "
             << action << std::dec;
-        
+
         if ((code == 0x1110) && (size == 1))
         {
             unsigned int id = decompBuffer.GetUint16LE();
@@ -433,14 +418,40 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 name = ids.str();
             }
             ss << " Name: " << *name << " id [" << id <<"]";
-            chunks.emplace_back(action, name, std::vector<std::int16_t>{static_cast<int16_t>(id)});
+
+            const auto tag = tags.FindTag(*name);
+            actions.emplace_back(
+                SetScene{
+                    *name,
+                    tag
+                        ? static_cast<std::uint16_t>(tag->mValue)
+                        : static_cast<std::uint16_t>(id)});
+            activeEdgeColor = 0xf;
+            activeFillColor = 0xf;
         }
         else if (size == 0xf)
         {
             std::string name = ToUpper(decompBuffer.GetString());
             ss << " Name: " << name << " noId";
             if (decompBuffer.GetBytesLeft() & 1) decompBuffer.Skip(1);
-            chunks.emplace_back(action, name, std::vector<std::int16_t>{-1});
+
+            switch (action)
+            {
+            case Actions::LOAD_PALETTE:
+                actions.emplace_back(LoadPalette{name});
+                break;
+            case Actions::LOAD_IMAGE:
+                (*(name.end() - 1)) = 'X';
+                actions.emplace_back(LoadImage{name});
+                break;
+            case Actions::LOAD_SCREEN:
+                (*(name.end() - 1)) = 'X';
+                actions.emplace_back(LoadScreen{name});
+                break;
+            default:
+                logger.Debug() << "Unhandled action: " << action << "\n";
+                break;
+            }
         }
         else
         {
@@ -455,23 +466,152 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 sep = ',';
             }
             ss << " ]";
-            chunks.emplace_back(
-                action,
-                std::optional<std::string>{},
-                args);
+
+            switch (action)
+            {
+            case Actions::SLOT_IMAGE:
+                actions.emplace_back(SlotImage{static_cast<unsigned>(args[0])});
+                break;
+            case Actions::SLOT_PALETTE:
+                actions.emplace_back(SlotPalette{static_cast<unsigned>(args[0])});
+                break;
+            case Actions::SET_SCENEA: [[fallthrough]];
+            case Actions::SET_SCENE:
+            {
+                ASSERT(!args.empty());
+                const auto tag = tags.GetTag(Tag{static_cast<unsigned>(args[0])});
+                const auto sceneTag = tag
+                    ? *tag
+                    : std::to_string(static_cast<int>(args[0]));
+                actions.emplace_back(
+                    SetScene{
+                        sceneTag,
+                        static_cast<std::uint16_t>(args[0])});
+            } break;
+            case Actions::SET_CLIP_REGION:
+                actions.emplace_back(
+                    ClipRegion{
+                        glm::vec2{args[0], args[1]},
+                        glm::vec2{args[2], args[3]}});
+                break;
+            case Actions::SAVE_IMAGE0:
+                actions.emplace_back(
+                    SaveImage{
+                        glm::vec2{args[0], args[1]},
+                        glm::vec2{args[2], args[3]}});
+                break;
+            case Actions::SAVE_REGION_TO_LAYER:
+                actions.emplace_back(
+                    SaveRegionToLayer{
+                        glm::vec2{args[0], args[1]},
+                        glm::vec2{args[2], args[3]}});
+                break;
+            case Actions::DRAW_SCREEN:
+                actions.emplace_back(
+                    DrawScreen{
+                        glm::vec2{args[0], args[1]},
+                        glm::vec2{args[2], args[3]},
+                        static_cast<unsigned>(args[4]),
+                        static_cast<unsigned>(args[5])});
+                break;
+            case Actions::DRAW_RECT: [[fallthrough]];
+            case Actions::DRAW_FRAME:
+                actions.emplace_back(
+                    DrawRect{
+                        activeEdgeColor,
+                        activeFillColor,
+                        glm::vec2{args[0], args[1]},
+                        glm::vec2{args[2], args[3]}});
+                break;
+            // FIXME: Implement the rotation
+            case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
+            // FIXME: Implement flip in x and y
+            case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
+            case Actions::DRAW_SPRITE1: [[fallthrough]];
+            case Actions::DRAW_SPRITE_FLIP_Y:
+                flipped = true;
+                [[fallthrough]];
+            case Actions::DRAW_SPRITE0:
+            {
+                const auto scaled = args.size() >= 5;
+                actions.emplace_back(
+                    DrawSprite{
+                        flipped,
+                        args[0],
+                        args[1],
+                        args[2],
+                        args[3],
+                        static_cast<std::int16_t>(scaled ? args[4] : 0),
+                        static_cast<std::int16_t>(scaled ? args[5] : 0)});
+                flipped = false;
+            } break;
+            case Actions::PLAY_SOUND:
+                actions.emplace_back(PlaySoundS{static_cast<unsigned>(args[0])});
+                break;
+            case Actions::SAVE_BACKGROUND:
+                actions.emplace_back(SaveBackground{});
+                break;
+            case Actions::SET_COLOR:
+                activeEdgeColor = static_cast<unsigned>(args[0]);
+                activeFillColor = static_cast<unsigned>(args[1]);
+                actions.emplace_back(
+                    SetColors{activeEdgeColor, activeFillColor});
+                break;
+            case Actions::FADE_IN:
+                actions.emplace_back(FadeIn{});
+                break;
+            case Actions::FADE_OUT:
+                actions.emplace_back(FadeOut{});
+                break;
+            case Actions::GOTO_TAG:
+                actions.emplace_back(GotoTag{static_cast<unsigned>(args[0])});
+                break;
+            case Actions::SHOW_DIALOG:
+                actions.emplace_back(
+                    ShowDialog{
+                        static_cast<unsigned>(args[0]),
+                        static_cast<unsigned>(args[1])});
+                break;
+            case Actions::SET_SAVE_LAYER:
+                actions.emplace_back(SetSaveLayer{static_cast<unsigned>(args[0])});
+                break;
+            case Actions::DRAW_SAVED_REGION:
+                actions.emplace_back(DrawSavedRegion{static_cast<unsigned>(args[0])});
+                break;
+            case Actions::UPDATE:
+                actions.emplace_back(Update{});
+                break;
+            case Actions::PURGE:
+                actions.emplace_back(Purge{});
+                break;
+            case Actions::DELAY:
+                actions.emplace_back(Delay{static_cast<unsigned>(args[0])});
+                break;
+            default:
+                logger.Debug() << "Unhandled action: " << action << "\n";
+                break;
+            }
         }
 
         logger.Debug() << ss.str() << "\n";
     }
 
+    return actions;
+}
+
+}
+
+std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
+{
+    Tags tags{};
+    const auto actions = DecodeTTM(fb, tags);
+
     std::unordered_map<unsigned, Scene> scenes{};
 
     Scene currentScene;
     bool loadingScene = false;
-    bool flipped = false;
     std::optional<unsigned> imageSlot = 0;
     std::optional<PaletteSlot> paletteSlot{};
-    std::optional<std::pair<unsigned, unsigned>> activeColor{};
     std::unordered_map<unsigned, std::string> palettes{};
     std::unordered_map<
         unsigned,
@@ -510,145 +650,95 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         }
     };
 
-    for (const auto& chunk : chunks)
+    for (const auto& action : actions)
     {
-        switch (chunk.mAction)
-        {
-        case Actions::SLOT_IMAGE:
-            imageSlot = chunk.mArguments[0];
-            break;
-        case Actions::SLOT_PALETTE:
-            paletteSlot = chunk.mArguments[0];
-            break;
-        case Actions::SET_SCENE:
-            if (loadingScene)
-                PushScene();
+        std::visit(
+            overloaded{
+                [&](const SetScene& setScene)
+                {
+                    if (loadingScene)
+                        PushScene();
 
-            ASSERT(chunk.mResourceName);
-            currentScene.mSceneTag = *chunk.mResourceName;
-            currentScene.mActions.clear();
-            currentScene.mImages.clear();
-            currentScene.mScreens.clear();
-            currentScene.mPalettes.clear();
-            images.clear();
-            imageSlots.clear();
-            palettes.clear();
-            imageSlot.reset();
-            activeColor.reset();
-            screens.clear();
-            loadingScene = true;
-            break;
-
-        case Actions::SET_CLIP_REGION:
-            // Transform this to opengl coords...
-            currentScene.mActions.emplace_back(
-                ClipRegion{
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
-            break;
-
-        case Actions::LOAD_PALETTE:
-        {
-            //ASSERT(loadingScene);
-            ASSERT(chunk.mResourceName);
-            ASSERT(paletteSlot);
-            const auto paletteName = *chunk.mResourceName;
-            palettes[*paletteSlot] = paletteName;
-            if (!imageSlots.contains(*paletteSlot))
-            {
-                imageSlots[*paletteSlot] = ImageSlot{};
-            }
-            imageSlots[*paletteSlot].mPalette = *paletteSlot;
-        } break;
-
-        case Actions::SET_COLOR:
-            //ASSERT(paletteSlot);
-            activeColor = std::make_pair(
-                paletteSlot ? *paletteSlot : 0,
-                chunk.mArguments[0]);
-            break;
-
-        case Actions::LOAD_IMAGE:
-        {
-            //ASSERT(loadingScene);
-            ASSERT(chunk.mResourceName);
-            ASSERT(imageSlot);
-            auto name = *chunk.mResourceName;
-            (*(name.end() - 1)) = 'X';
-            images[*imageSlot] = std::make_pair(name, paletteSlot ? *paletteSlot: *imageSlot);
-            if (!imageSlots.contains(*imageSlot))
-            {
-                imageSlots[*imageSlot] = ImageSlot{};
-            }
-        } break;
-        case Actions::LOAD_SCREEN:
-        {
-            ASSERT(chunk.mResourceName);
-            if (!paletteSlot) break;
-            auto name = *chunk.mResourceName;
-            (*(name.end() - 1)) = 'X';
-            screens[*paletteSlot] = std::make_pair(name, *paletteSlot);
-        } break;
-        case Actions::DRAW_SCREEN:
-        {
-            currentScene.mActions.emplace_back(
-                DrawScreen{
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
-                    static_cast<unsigned>(chunk.mArguments[4]),
-                    static_cast<unsigned>(chunk.mArguments[5])
-                });
-        } break;
-        case Actions::DRAW_RECT:
-        case Actions::DRAW_FRAME:
-            // There must be a default colour?
-            //ASSERT(activeColor);
-            currentScene.mActions.emplace_back(
-                DrawRect{
-                    *activeColor,
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
-            break;
-        // FIXME: Implement the rotation
-        case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
-        // FIXME: Implement flip in x and y
-        case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
-        case Actions::DRAW_SPRITE1: [[fallthrough]];
-        case Actions::DRAW_SPRITE_FLIP_Y:
-            flipped = true;
-            [[fallthrough]];
-        case Actions::DRAW_SPRITE0:
-        {
-            const auto scaled = chunk.mArguments.size() >= 5;
-            currentScene.mActions.emplace_back(
-                DrawSprite{
-                    flipped,
-                    chunk.mArguments[0],
-                    chunk.mArguments[1],
-                    chunk.mArguments[2],
-                    chunk.mArguments[3],
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
-            flipped = false;
-        } break;
-
-        case Actions::UPDATE:
-        {
-            currentScene.mActions.emplace_back(Update{});
-        } break;
-        case Actions::PURGE:
-        {
-            currentScene.mActions.emplace_back(Purge{});
-        } break;
-        case Actions::DELAY:
-        {
-            currentScene.mActions.emplace_back(
-                Delay{static_cast<unsigned>(chunk.mArguments[0])});
-        } break;
-        default:
-            //logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
-            break;
-        }
+                    currentScene.mSceneTag = setScene.mName;
+                    currentScene.mActions.clear();
+                    currentScene.mImages.clear();
+                    currentScene.mScreens.clear();
+                    currentScene.mPalettes.clear();
+                    images.clear();
+                    imageSlots.clear();
+                    palettes.clear();
+                    imageSlot.reset();
+                    screens.clear();
+                    loadingScene = true;
+                },
+                [&](const SlotImage& slotImage)
+                {
+                    imageSlot = slotImage.mSlot;
+                },
+                [&](const SlotPalette& slotPalette)
+                {
+                    paletteSlot = slotPalette.mSlot;
+                },
+                [&](const LoadPalette& loadPalette)
+                {
+                    //ASSERT(loadingScene);
+                    ASSERT(paletteSlot);
+                    palettes[*paletteSlot] = loadPalette.mPalette;
+                    if (!imageSlots.contains(*paletteSlot))
+                    {
+                        imageSlots[*paletteSlot] = ImageSlot{};
+                    }
+                    imageSlots[*paletteSlot].mPalette = *paletteSlot;
+                },
+                [&](const LoadImage& loadImage)
+                {
+                    //ASSERT(loadingScene);
+                    ASSERT(imageSlot);
+                    images[*imageSlot] = std::make_pair(
+                        loadImage.mImage,
+                        paletteSlot ? *paletteSlot : *imageSlot);
+                    if (!imageSlots.contains(*imageSlot))
+                    {
+                        imageSlots[*imageSlot] = ImageSlot{};
+                    }
+                },
+                [&](const LoadScreen& loadScreen)
+                {
+                    if (!paletteSlot) return;
+                    screens[*paletteSlot] = std::make_pair(
+                        loadScreen.mScreenName,
+                        *paletteSlot);
+                },
+                [&](const ClipRegion& a)
+                {
+                    currentScene.mActions.emplace_back(a);
+                },
+                [&](const DrawScreen& a)
+                {
+                    currentScene.mActions.emplace_back(a);
+                },
+                [&](const DrawRect& a)
+                {
+                    currentScene.mActions.emplace_back(a);
+                },
+                [&](const DrawSprite& a)
+                {
+                    currentScene.mActions.emplace_back(a);
+                },
+                [&](const Update& a)
+                {
+                    currentScene.mActions.emplace_back(a);
+                },
+                [&](const Purge& a)
+                {
+                    currentScene.mActions.emplace_back(a);
+                },
+                [&](const Delay& a)
+                {
+                    currentScene.mActions.emplace_back(a);
+                },
+                [](const auto&){}},
+            action);
     }
 
     // Push final scene
@@ -659,294 +749,8 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
 
 std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
 {
-    const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
-
-    std::vector<SceneChunk> chunks;
-
-    auto pageBuffer    = fb.Find(DataTag::PAG);
-    auto versionBuffer = fb.Find(DataTag::VER);
-    auto tt3Buffer     = fb.Find(DataTag::TT3);
-    auto tagBuffer     = fb.Find(DataTag::TAG);
-    
-    const auto pages = pageBuffer.GetUint16LE();
-    logger.Debug() << "Pages:" << pages << " size: " << pageBuffer.GetSize() << "\n";
-
-    logger.Debug() << "Version size: " << versionBuffer.GetSize() << "\n";
-
-    auto compression = tt3Buffer.GetUint8();
-    auto decompressedSize = tt3Buffer.GetUint32LE();
-    FileBuffer decompBuffer = FileBuffer(decompressedSize);
-    if (compression == 1)
-    {
-        logger.Debug() << "RLE Compressed\n";
-        tt3Buffer.DecompressRLE(&decompBuffer);
-    }
-    else
-    {
-        logger.Debug() << "No compression\n";
-        tt3Buffer.CopyTo(&decompBuffer, decompressedSize);
-    }
-
     Tags tags{};
-    tags.Load(tagBuffer);
-    tags.DumpTags();
-
-    while (!decompBuffer.AtEnd())
-    {
-        unsigned int code = decompBuffer.GetUint16LE();
-        unsigned int size = code & 0x000f;
-        code &= 0xfff0;
-        auto action = static_cast<Actions>(code);
-        std::stringstream ss{};
-        ss << "Code: " << std::hex << code << " " 
-            << action << std::dec;
-        
-        if ((code == 0x1110) && (size == 1))
-        {
-            unsigned int id = decompBuffer.GetUint16LE();
-            auto name = tags.GetTag(Tag{id});
-            if (!name)
-            {
-                std::stringstream ids{};
-                ids << id;
-                name = ids.str();
-            }
-            ss << " Name: " << *name << " id [" << id <<"]";
-            chunks.emplace_back(action, name, std::vector<std::int16_t>{});
-        }
-        else if (size == 0xf)
-        {
-            std::string name = ToUpper(decompBuffer.GetString());
-            ss << " Name: " << name;
-            if (decompBuffer.GetBytesLeft() & 1) decompBuffer.Skip(1);
-            chunks.emplace_back(action, name, std::vector<std::int16_t>{});
-        }
-        else
-        {
-            std::vector<std::int16_t> args{};
-            for (unsigned int i = 0; i < size; i++)
-                args.emplace_back(decompBuffer.GetSint16LE());
-            ss << " args [ ";
-            auto sep = ' ';
-            for (const auto& a : args)
-            {
-                ss << sep << a;
-                sep = ',';
-            }
-            ss << " ]";
-            chunks.emplace_back(
-                action,
-                std::optional<std::string>{},
-                args);
-        }
-
-        logger.Debug() << ss.str() << "\n";
-    }
-
-    std::vector<SceneAction> actions{};
-
-    bool flipped = false;
-
-    for (const auto& chunk : chunks)
-    {
-        switch (chunk.mAction)
-        {
-        case Actions::SLOT_IMAGE:
-            actions.emplace_back(SlotImage{static_cast<unsigned>(chunk.mArguments[0])});
-            break;
-        case Actions::SLOT_PALETTE:
-            actions.emplace_back(SlotPalette{static_cast<unsigned>(chunk.mArguments[0])});
-            break;
-        case Actions::SET_SCENEA: [[fallthrough]];
-        case Actions::SET_SCENE:
-        {
-            //actions.emplace_back(DisableClipRegion{});
-            auto action = SetScene{};
-
-            std::string sceneTag{};
-            unsigned tagId{};
-            if (chunk.mResourceName)
-            {
-                sceneTag = *chunk.mResourceName;
-                const auto tag = tags.FindTag(sceneTag);
-                if (tag)
-                {
-                    tagId = tag->mValue;
-                }
-                else
-                {
-                    tagId = -1;
-                }
-            }
-            else
-            {
-                const auto tag = tags.GetTag(Tag{static_cast<unsigned>(chunk.mArguments[0])});
-                tagId = chunk.mArguments[0];
-                if (!tag)
-                {
-                    std::stringstream ss{};
-                    ss << chunk.mArguments[0];
-                    sceneTag = ss.str();
-                }
-                else
-                {
-                    sceneTag = *tag;
-                }
-            }
-            action.mName = sceneTag;
-            action.mSceneNumber = tagId;
-            actions.emplace_back(action);
-        } break;
-
-        case Actions::SET_CLIP_REGION:
-            // Transform this to opengl coords...
-            actions.emplace_back(
-                ClipRegion{
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
-            break;
-
-        case Actions::LOAD_PALETTE:
-        {
-            const auto paletteName = *chunk.mResourceName;
-            actions.emplace_back(LoadPalette{paletteName});
-        } break;
-
-        case Actions::SAVE_IMAGE0:
-        {
-            actions.emplace_back(
-                SaveImage{
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
-        } break;
-
-        case Actions::PLAY_SOUND:
-        {
-            actions.emplace_back(
-                PlaySoundS{static_cast<unsigned>(chunk.mArguments[0])});
-        } break;
-
-        case Actions::SAVE_BACKGROUND:
-        {
-            actions.emplace_back(
-                SaveBackground{});
-        } break;
-
-        case Actions::SET_COLOR:
-            actions.emplace_back(
-                SetColors{
-                    static_cast<unsigned>(chunk.mArguments[0]),
-                    static_cast<unsigned>(chunk.mArguments[1])});
-            break;
-        case Actions::LOAD_IMAGE:
-        {
-            auto imageName = *chunk.mResourceName;
-            (*(imageName.end() - 1)) = 'X';
-            actions.emplace_back(LoadImage{imageName});
-        } break;
-        case Actions::LOAD_SCREEN:
-        {
-            ASSERT(chunk.mResourceName);
-            auto name = *chunk.mResourceName;
-            (*(name.end() - 1)) = 'X';
-            actions.emplace_back(LoadScreen{name});
-        } break;
-        case Actions::DRAW_SCREEN:
-        {
-            actions.emplace_back(
-                DrawScreen{
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]},
-                    static_cast<unsigned>(chunk.mArguments[4]),
-                    static_cast<unsigned>(chunk.mArguments[5])
-                });
-        } break;
-        case Actions::FADE_IN:
-        {
-            actions.emplace_back(FadeIn{});
-        } break;
-        case Actions::FADE_OUT:
-        {
-            actions.emplace_back(FadeOut{});
-        } break;
-        case Actions::GOTO_TAG:
-        {
-            actions.emplace_back(GotoTag{static_cast<unsigned>(chunk.mArguments[0])});
-        } break;
-        case Actions::SHOW_DIALOG:
-        {
-            actions.emplace_back(
-                ShowDialog{
-                    static_cast<unsigned>(chunk.mArguments[0]),
-                    static_cast<unsigned>(chunk.mArguments[1])});
-        } break;
-        case Actions::DRAW_RECT:
-        case Actions::DRAW_FRAME:
-            actions.emplace_back(
-                DrawRect{
-                    std::make_pair(0,0), // active color
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
-            break;
-        // FIXME: Implement the rotation
-        case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
-        // FIXME: Implement flip in x and y
-        case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
-        case Actions::DRAW_SPRITE1: [[fallthrough]];
-        case Actions::DRAW_SPRITE_FLIP_Y:
-            flipped = true;
-            [[fallthrough]];
-        case Actions::DRAW_SPRITE0:
-        {
-            const auto scaled = chunk.mArguments.size() >= 5;
-            actions.emplace_back(
-                DrawSprite{
-                    flipped,
-                    chunk.mArguments[0],
-                    chunk.mArguments[1],
-                    chunk.mArguments[2],
-                    chunk.mArguments[3],
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[4] : 0),
-                    static_cast<std::int16_t>(scaled ? chunk.mArguments[5] : 0)});
-            flipped = false;
-        } break;
-        case Actions::SET_SAVE_LAYER:
-        {
-            actions.emplace_back(SetSaveLayer{
-                static_cast<unsigned>(chunk.mArguments[0])});
-        } break;
-        case Actions::DRAW_SAVED_REGION:
-        {
-            actions.emplace_back(DrawSavedRegion{
-                static_cast<unsigned>(chunk.mArguments[0])});
-        } break;
-        case Actions::SAVE_REGION_TO_LAYER:
-        {
-            actions.emplace_back(
-                SaveRegionToLayer{
-                    glm::vec2{chunk.mArguments[0], chunk.mArguments[1]},
-                    glm::vec2{chunk.mArguments[2], chunk.mArguments[3]}});
-        } break;
-        case Actions::UPDATE:
-        {
-            actions.emplace_back(Update{});
-        } break;
-        case Actions::PURGE:
-        {
-            actions.emplace_back(Purge{});
-        } break;
-        case Actions::DELAY:
-        {
-            actions.emplace_back(
-                Delay{static_cast<unsigned>(chunk.mArguments[0])});
-        } break;
-        default:
-            logger.Debug() << "Unhandled action: " << chunk.mAction << "\n";
-            break;
-        }
-    }
-
-    return actions;
+    return DecodeTTM(fb, tags);
 }
 
 FileBuffer DecompressTTM(FileBuffer& fb)
