@@ -66,20 +66,20 @@ add_library(bak
     random.hpp random.cpp
     resourceNames.hpp resourceNames.cpp
     saveManager.hpp saveManager.cpp
-    scene.hpp scene.cpp
-    sceneData.hpp sceneData.cpp
+    scene/scene.hpp scene/scene.cpp
+    scene/sceneData.hpp scene/sceneData.cpp
     screen.hpp screen.cpp
     shop.hpp shop.cpp
     skills.hpp skills.cpp
     sound.hpp sound.cpp
     soundStore.hpp soundStore.cpp
     spells.hpp spells.cpp
-    spriteRenderer.hpp spriteRenderer.cpp
+    scene/spriteRenderer.hpp scene/spriteRenderer.cpp
     startupFiles.hpp startupFiles.cpp
     tags.hpp tags.cpp
     temple.hpp temple.cpp
-    ttmRenderer.hpp ttmRenderer.cpp
-    ttmRunner.hpp ttmRunner.cpp
+    scene/ttmRenderer.hpp scene/ttmRenderer.cpp
+    scene/ttmRunner.hpp scene/ttmRunner.cpp
     textureFactory.hpp textureFactory.cpp
     textVariableStore.hpp textVariableStore.cpp
     time.hpp time.cpp

@@ -1,7 +1,7 @@
-#include "bak/ttmRunner.hpp"
+#include "bak/scene/ttmRunner.hpp"
 
 #include "bak/fileBufferFactory.hpp"
-#include "bak/scene.hpp"
+#include "bak/scene/scene.hpp"
 
 #include "com/logger.hpp"
 #include "com/visit.hpp"

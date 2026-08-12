@@ -1,9 +1,9 @@
-#include "bak/spriteRenderer.hpp"
+#include "bak/scene/spriteRenderer.hpp"
 
 #include "bak/image.hpp"
 #include "bak/palette.hpp"
 
-#include "bak/sceneData.hpp"
+#include "bak/scene/sceneData.hpp"
 
 #include "graphics/texture.hpp"
 

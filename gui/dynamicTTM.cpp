@@ -10,7 +10,7 @@
 
 #include "bak/dialogSources.hpp"
 #include "bak/textureFactory.hpp"
-#include "bak/ttmRenderer.hpp"
+#include "bak/scene/ttmRenderer.hpp"
 #include "bak/dialog.hpp"
 
 #include "com/logger.hpp"

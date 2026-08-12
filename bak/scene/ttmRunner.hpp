@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bak/scene.hpp"
-#include "bak/sceneData.hpp"
+#include "bak/scene/scene.hpp"
+#include "bak/scene/sceneData.hpp"
 
 #include "com/logger.hpp"
 

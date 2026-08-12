@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/palette.hpp"
-#include "bak/sceneData.hpp"
+#include "bak/scene/sceneData.hpp"
 
 #include "graphics/texture.hpp"
 

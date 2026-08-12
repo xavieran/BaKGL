@@ -1,9 +1,9 @@
-#include "bak/ttmRenderer.hpp"
+#include "bak/scene/ttmRenderer.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 #include "bak/imageStore.hpp"
-#include "bak/scene.hpp"
-#include "bak/sceneData.hpp"
+#include "bak/scene/scene.hpp"
+#include "bak/scene/sceneData.hpp"
 #include "bak/screen.hpp"
 
 #include "com/logger.hpp"

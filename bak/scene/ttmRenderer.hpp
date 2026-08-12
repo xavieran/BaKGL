@@ -1,8 +1,8 @@
 #pragma once
 
 #include "bak/image.hpp"
-#include "bak/spriteRenderer.hpp"
-#include "bak/ttmRunner.hpp"
+#include "bak/scene/spriteRenderer.hpp"
+#include "bak/scene/ttmRunner.hpp"
 
 #include "com/logger.hpp"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/dialogTarget.hpp"
-#include "bak/scene.hpp"
+#include "bak/scene/scene.hpp"
 #include "bak/types.hpp"
 
 #include <glm/glm.hpp>

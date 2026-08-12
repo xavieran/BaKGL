@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bak/sceneData.hpp"
+#include "bak/scene/sceneData.hpp"
 #include "bak/types.hpp"
 
 #include <optional>
