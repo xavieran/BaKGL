@@ -21,6 +21,7 @@
 #include "bak/encounter/teleport.hpp"
 #include "bak/monster.hpp"
 #include "bak/sounds.hpp"
+#include "bak/zoneParams.hpp"
 #include "bak/state/door.hpp"
 #include "bak/state/encounter.hpp"
 #include "bak/time.hpp"
@@ -250,13 +251,14 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
     mMovementManager.SetDefaultHeight(
         static_cast<float>(mZoomManager.GetDefaultCameraHeight()));
 
+    mCombatManager.SetGridColor(
+        mZoneData->mPalette.GetColor(BAK::LoadCombatGridColour(zone)));
+
     mPartyCamera.SetGameLocation(mGameState.GetLocation());
     mCurrentTile = mPartyCamera.GetGameTile();
     mMovementManager.RefreshAfterZoneLoad();
 
-    const auto focalLength = static_cast<float>(1 << mZoomManager.GetFocalLengthScale());
-    const auto fieldOfView = CalculateFieldOfView(
-        mPartyCamera.GetViewportDimensions().y, focalLength);
+    const auto fieldOfView = GetZoneFieldOfView();
     mPartyCamera.SetFieldOfView(fieldOfView);
     mViewCamera.SetFieldOfView(fieldOfView);
     if (!mGameState.GetOverheadView())
@@ -818,6 +820,12 @@ void GameRunner::DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& c
     mCurrentInteractable->BeginInteraction(container, et, entityIndex);
 }
 
+float GameRunner::GetZoneFieldOfView() const
+{
+    const auto focalLength = static_cast<float>(1 << mZoomManager.GetFocalLengthScale());
+    return CalculateFieldOfView(mPartyCamera.GetViewportDimensions().y, focalLength);
+}
+
 void GameRunner::SetupCombatCamera(const BAK::Encounter::Encounter&)
 {
     mSavedCameraAngle = mPartyCamera.GetAngle();
@@ -826,23 +834,41 @@ void GameRunner::SetupCombatCamera(const BAK::Encounter::Encounter&)
     auto heading = mPartyCamera.GetGameAngle();
     auto angle = mPartyCamera.GetAngle();
 
+    const auto combatCamera = BAK::LoadCombatCamera();
     bool isUnderground = mGameState.IsUnderground();
 
     angle.x = BAK::ToGlAngle(heading).x;
-    angle.y = isUnderground ? BAK::gBakCombatCameraDownAngleUnderground : BAK::gBakCombatCameraDownAngle;
+    angle.y = isUnderground ? combatCamera.mViewAngleRadiansUnderground : combatCamera.mViewAngleRadians;
     mPartyCamera.SetAngle(angle);
 
+    static constexpr auto sUndergroundGridCameraOffset = 0x1fe;
+
     auto pos = mPartyCamera.GetPosition();
-    pos.y = isUnderground ? BAK::gBakCombatCameraHeightUnderground : BAK::gBakCombatCameraHeight;
+    pos.y = isUnderground
+        ? combatCamera.mHeightUnderground + sUndergroundGridCameraOffset
+        : combatCamera.mHeight;
     mPartyCamera.SetPosition(pos);
+
+    const auto focalLength = static_cast<float>(1 << combatCamera.mFocalLengthScale);
+    mPartyCamera.SetFieldOfView(
+        CalculateFieldOfView(
+            mPartyCamera.GetViewportDimensions().y,
+            focalLength));
+    mPartyCamera.UsePerspectiveMatrix();
+
+    mCombatCameraActive = true;
 }
 
 void GameRunner::RestoreCameraAfterCombat()
 {
     HideGrid();
+    RemoveUndergroundCombatFloor();
+    mCombatCameraActive = false;
 
     mPartyCamera.SetAngle(mSavedCameraAngle);
     mPartyCamera.SetPosition(mSavedCameraPos);
+    mPartyCamera.SetFieldOfView(GetZoneFieldOfView());
+    mPartyCamera.UsePerspectiveMatrix();
 }
 
 void GameRunner::CombatCompleted(BAK::CombatResult result)
@@ -892,9 +918,12 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
                 encounter.GetTileIndex(), encounter.GetTileCombatIndex(), i);
             cwl.mState = BAK::CombatantWorldState::Dead;
 
-            auto combatantPos = BAK::MakeGamePositionFromGridCell(
-                mCombatPlayerPos, cgl.mGridPos);
-            cwl.mPosition.mPosition = BAK::GetTileSpaceOffset(combatantPos);
+            if (!mGameState.IsUnderground())
+            {
+                auto combatantPos = BAK::MakeGamePositionFromGridCell(
+                    mCombatPlayerPos, cgl.mGridPos);
+                cwl.mPosition.mPosition = BAK::GetTileSpaceOffset(combatantPos);
+            }
             i += 1;
         }
 
@@ -1012,6 +1041,7 @@ void GameRunner::EnterCombatFromEncounter()
     {
         HideGrid();
     }
+    ShowCombatFloor();
     ShowGrid();
 
     mGuiManager.EnterCombat([this](BAK::CombatResult result){
@@ -1389,13 +1419,16 @@ void GameRunner::ShowGrid()
     auto gridRotation = BAK::ToGlAngle(mCombatPlayerPos.mHeading).x;
     auto& grid = mCombatManager.GetGrid();
 
-    mGridCells.resize(BAK::gCombatGridRows * BAK::gCombatGridCols);
+    const auto rows = mGameState.IsUnderground()
+        ? BAK::gCombatGridRowsUnderground
+        : BAK::gCombatGridRows;
+    mGridCells.resize(rows * BAK::gCombatGridCols);
 
     auto gridMin = glm::vec2{};
     auto gridMax = glm::vec2{};
     auto gridCellIds = std::unordered_set<BAK::EntityIndex>{};
 
-    for (unsigned row = 0; row < BAK::gCombatGridRows; row++)
+    for (unsigned row = 0; row < rows; row++)
     {
         for (unsigned col = 0; col < BAK::gCombatGridCols; col++)
         {
@@ -1545,6 +1578,69 @@ void GameRunner::HideGrid()
     mGridCells.clear();
     mGridVisible = false;
     mLogger.Debug() << "Grid hidden\n";
+}
+
+// TODO: Hack for underground zones. The original game does a weird 2-pass
+// render so that combatants aren't colliding with walls in narrow
+// tunnels. Instead, we hide the nearby objects that would be in view
+// and show a bare dungeon floor.
+void GameRunner::ShowCombatFloor()
+{
+    if (!mSystems || !mZoneData || !mGameState.IsUnderground())
+    {
+        return;
+    }
+
+    const auto floorName = std::string{BAK::sCombatFloorModelName};
+    const auto& floorItem = mZoneData->mZoneItems.GetZoneItem(floorName);
+    const auto floorObject = mZoneData->mObjects.GetObject(floorName);
+
+    for (const auto& renderable : mSystems->GetRenderables())
+    {
+        auto it = mEntityTypes.find(renderable.GetId());
+        if (it == mEntityTypes.end())
+            continue;
+
+        if (it->second == BAK::EntityType::TUNNEL1
+            || it->second == BAK::EntityType::TUNNEL2)
+        {
+            mSystems->EnableRenderable(renderable.GetId(), false);
+            mHiddenTunnels.emplace_back(renderable.GetId());
+        }
+    }
+
+    for (int y = -BAK::gCombatFloorCellRadius; y <= BAK::gCombatFloorCellRadius; y++)
+    {
+        for (int x = -BAK::gCombatFloorCellRadius; x <= BAK::gCombatFloorCellRadius; x++)
+        {
+            const auto centre = BAK::OffsetPositionByCells(
+                mCombatPlayerPos.mPosition, glm::ivec2{x, y});
+
+            auto id = mSystems->GetNextItemId();
+            mSystems->AddRenderable(
+                Renderable{
+                    id,
+                    floorObject,
+                    BAK::ToGlCoord<float>(centre),
+                    glm::vec3{0},
+                    glm::vec3{static_cast<float>(floorItem.GetScale())}});
+            mCombatFloorIds.emplace_back(id);
+        }
+    }
+}
+
+void GameRunner::RemoveUndergroundCombatFloor()
+{
+    if (!mSystems)
+        return;
+
+    for (auto id : mCombatFloorIds)
+        mSystems->RemoveRenderable(id);
+    mCombatFloorIds.clear();
+
+    for (auto id : mHiddenTunnels)
+        mSystems->EnableRenderable(id, true);
+    mHiddenTunnels.clear();
 }
 
 bool GameRunner::HandleGridCellClick(unsigned entityId, bool isRightClick)

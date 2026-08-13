@@ -20,10 +20,14 @@ static constexpr auto gRotationSearchDistance = 100.0f;
 
 static constexpr auto gCombatGridCellSize = 300;
 static constexpr auto gCombatGridRows = 13u;
+static constexpr auto gCombatGridRowsUnderground = 7u;
 static constexpr auto gCombatGridCols = 8u;
+
+static constexpr auto gCombatFloorCellRadius = 5;
 
 static constexpr std::string_view sGateModelName = "gate2";
 static constexpr std::string_view sDoorModelName = "m_door";
+static constexpr std::string_view sCombatFloorModelName = "m_rm1";
 static constexpr std::string_view sDoorGiClipName = "m_doorgi";
 static constexpr std::string_view sCatapultModelName = "catapult";
 

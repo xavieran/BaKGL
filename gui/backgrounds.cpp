@@ -2,7 +2,7 @@
 
 #include "bak/constants.hpp"
 #include "bak/textureFactory.hpp"
-#include "bak/zone.hpp"
+#include "bak/zoneParams.hpp"
 
 #include "com/logger.hpp"
 

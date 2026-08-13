@@ -1,6 +1,6 @@
 #include "bak/startupFiles.hpp"
 #include "bak/combat/combat.hpp"
-#include "bak/zoneDef.hpp"
+#include "bak/zoneParams.hpp"
 
 #include "com/logger.hpp"
 

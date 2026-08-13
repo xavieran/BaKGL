@@ -101,12 +101,27 @@ GamePosition MakeGamePositionFromGridCell(
         glm::cast<float>(origin) + glm::cast<float>(gridOffset));
 }
 
-// Convert a 16 bit BAK angle to radians
-glm::vec3 ToGlAngle(const glm::ivec3& angle)
+GamePosition OffsetPositionByCells(GamePosition pos, glm::ivec2 cellOffset)
 {
-    return ToGlCoord<float>(angle) 
+    const auto cell = glm::ivec2{pos} / static_cast<int>(gCellSize);
+    return glm::uvec2{
+        (cell + cellOffset) * static_cast<int>(gCellSize) + static_cast<int>(gHalfCellSize)};
+}
+
+// Convert a 16 bit BAK angle to radians
+float ToRadians(std::int16_t bakAngle)
+{
+    return static_cast<float>(bakAngle)
         / static_cast<float>(0x10000)
         * 2.0f * glm::pi<float>();
+}
+
+glm::vec3 ToGlAngle(const glm::ivec3& angle)
+{
+    return glm::vec3{
+        ToRadians(angle.x),
+        ToRadians(angle.z),
+        -ToRadians(angle.y)};
 }
 
 BAK::GameHeading ToBakAngle(double angle)

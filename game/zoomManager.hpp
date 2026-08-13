@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bak/types.hpp"
-#include "bak/zoneDef.hpp"
+#include "bak/zoneParams.hpp"
 
 namespace Game {
 

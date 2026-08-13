@@ -111,6 +111,8 @@ public:
 
     void ShowGrid();
     void HideGrid();
+    void ShowCombatFloor();
+    void RemoveUndergroundCombatFloor();
     void ToggleDisplayAllCells();
     bool IsGridVisible() const { return mGridVisible; }
     void SetClipDisplayMode(ClipDisplayMode mode);
@@ -127,6 +129,7 @@ public:
 
     void SetupCombatCamera(const BAK::Encounter::Encounter&);
     void RestoreCameraAfterCombat();
+    bool IsCombatCameraActive() const { return mCombatCameraActive; }
     void CombatCompleted(BAK::CombatResult);
     void EnterCombatFromEncounter();
     void OnEnterTile(glm::uvec2 tile);
@@ -163,6 +166,7 @@ private:
     void UpdatePartyMarkerScale(glm::uvec2 orthoDims);
     void UpdatePartyMarker();
     glm::uvec2 GetOrthoViewDimensions() const;
+    float GetZoneFieldOfView() const;
     void UpdateOrthoProjection(glm::uvec2 dims);
 
 public:
@@ -205,10 +209,13 @@ public:
 
     glm::vec3 mSavedCameraPos{};
     glm::vec2 mSavedCameraAngle{};
+    bool mCombatCameraActive{false};
     BAK::CardinalDirection mRetreatDirection{};
 
     bool mGridVisible{false};
     std::vector<Renderable> mGridCellRenderables{};
+    std::vector<BAK::EntityIndex> mCombatFloorIds{};
+    std::vector<BAK::EntityIndex> mHiddenTunnels{};
     std::vector<Renderable> mClipRenderables{};
     ClipDisplayMode mClipDisplayMode{ClipDisplayMode::Vanilla};
     std::vector<GridCellInfo> mGridCells{};

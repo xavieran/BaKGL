@@ -32,6 +32,4 @@ unsigned GetMapDatTileValue(
     unsigned x,
     unsigned y,
     const ZoneMap& mapDat);
-
-void LoadStartDat();
 }

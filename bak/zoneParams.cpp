@@ -1,12 +1,39 @@
-#include "bak/zoneDef.hpp"
+#include "bak/zoneParams.hpp"
 
+#include "bak/constants.hpp"
+#include "bak/coordinates.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/resourceNames.hpp"
 
 #include "com/logger.hpp"
 
+#include <glm/gtc/constants.hpp>
+
+#include <cmath>
+#include <cstdint>
+
 namespace BAK {
 
+ZoneViewport LoadZoneViewport()
+{
+    auto fb = FileBufferFactory::Get().CreateDataBuffer("ZONE.DAT");
+    const auto x = fb.GetUint16LE();
+    const auto y = fb.GetUint16LE();
+    const auto width = fb.GetUint16LE();
+    const auto height = fb.GetUint16LE();
+
+    return ZoneViewport{x, y, width, height};
+}
+
+glm::ivec4 ToGlViewport(ZoneViewport viewport, float scale)
+{
+    const auto x = std::round(viewport.mX * scale);
+    const auto y = std::round((gNativeScreenHeight - (viewport.mY + viewport.mHeight)) * scale);
+    const auto width = std::round(viewport.mWidth * scale);
+    const auto height = std::round(viewport.mHeight * scale);
+
+    return glm::ivec4{x, y, width, height};
+}
 
 ZoneDefaults LoadZoneDefDat(ZoneNumber zone)
 {
@@ -56,4 +83,35 @@ ZoneDefaults LoadZoneDefDat(ZoneNumber zone)
         focalLengthScale};
 }
 
-};
+CombatCamera LoadCombatCamera()
+{
+    auto fb = FileBufferFactory::Get().CreateDataBuffer("START.DAT");
+    const auto height = fb.GetUint16LE();
+    const auto heightUnderground = fb.GetUint16LE();
+    const auto viewAngle = fb.GetSint16LE();
+    const auto viewAngleUnderground = fb.GetSint16LE();
+    const auto combatGridCellSize = fb.GetUint16LE();
+    const auto viewportX = fb.GetUint16LE();
+    const auto viewportY = fb.GetUint16LE();
+    const auto viewportWidth = fb.GetUint16LE();
+    const auto viewportHeight = fb.GetUint16LE();
+    const auto focalLengthScale = fb.GetUint16LE();
+
+    return CombatCamera{
+        static_cast<float>(height),
+        static_cast<float>(heightUnderground),
+        ToRadians(viewAngle),
+        ToRadians(viewAngleUnderground),
+        combatGridCellSize,
+        ZoneViewport{viewportX, viewportY, viewportWidth, viewportHeight},
+        focalLengthScale};
+}
+
+std::uint8_t LoadCombatGridColour(ZoneNumber zone)
+{
+    auto fb = FileBufferFactory::Get().CreateDataBuffer("GRID.DAT");
+    fb.Seek((zone.mValue - 1) * 2);
+    return static_cast<std::uint8_t>(fb.GetUint16LE());
+}
+
+}

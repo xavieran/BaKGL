@@ -24,10 +24,6 @@
 namespace BAK {
 
 static constexpr float gBakCameraHeight = 100;
-static constexpr float gBakCombatCameraHeight = 900;
-static constexpr float gBakCombatCameraDownAngle = glm::radians(-15.0f);
-static constexpr float gBakCombatCameraHeightUnderground = 450;
-static constexpr float gBakCombatCameraDownAngleUnderground = glm::radians(-10.0f);
 static constexpr float gOverheadCameraHeight = 6000.0f;
 
 using GamePosition = glm::uvec2;
@@ -96,6 +92,8 @@ GamePosition MakeGamePositionFromGridCell(
     const GamePositionAndHeading& pos,
     glm::uvec2 gridPos);
 
+GamePosition OffsetPositionByCells(GamePosition pos, glm::ivec2 cellOffset);
+
 
 template <typename T>
 glm::vec<3, T> ToGlCoord(const glm::ivec3& coord)
@@ -125,9 +123,10 @@ glm::vec<3, T> ToGlCoord(const glm::uvec2& coord)
 }
 
 // Convert a 16 bit BAK angle to radians
+float ToRadians(std::int16_t bakAngle);
 glm::vec3 ToGlAngle(const glm::ivec3& angle);
 
-// Convert a 16 bit BAK angle to radians
+// Convert a 8 bit BAK angle to radians
 glm::vec2 ToGlAngle(GameHeading);
 
 template <typename T, typename C>

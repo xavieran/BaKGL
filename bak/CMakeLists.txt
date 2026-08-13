@@ -88,8 +88,8 @@ add_library(bak
     worldClock.hpp worldClock.cpp
     worldItem.hpp worldItem.cpp
     worldFactory.hpp worldFactory.cpp
-    zoneDef.hpp zoneDef.cpp
     zoneReference.hpp zoneReference.cpp
+    zoneParams.hpp zoneParams.cpp
     zone.hpp zone.cpp
 )
 

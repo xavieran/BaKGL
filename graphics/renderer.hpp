@@ -216,6 +216,10 @@ public:
             mDepthMapDims.x,
             mDepthMapDims.y);
         mDepthFB.AttachDepthTexture(mDepthBuffer, true);
+
+        // The geometry in BaK is opposite to what GL expects,
+        // so cull front is actually culling the back.
+        glCullFace(GL_FRONT);
     }
 
     template <typename Renderables, typename DynamicRenderables, typename Camera>
@@ -224,7 +228,8 @@ public:
         const Renderables& renderables,
         const Renderables& sprites,
         const DynamicRenderables& dynamicRenderables,
-        const Camera& camera)
+        const Camera& camera,
+        bool cullFaces = false)
     {
         renderData.Bind(GL_TEXTURE0);
 
@@ -269,10 +274,12 @@ public:
             );
         };
 
+        if (cullFaces) glEnable(GL_CULL_FACE);
         for (const auto& item : renderables)
         {
             RenderItem(item, false);
         }
+        if (cullFaces) glDisable(GL_CULL_FACE);
 
         shader = &mPickSpriteShader;
         uniforms = &mPickSpriteShaderUniforms;
@@ -301,7 +308,8 @@ public:
         const Light& light,
         const Camera& lightCamera,
         const Camera& camera,
-        bool isSprite)
+        bool isSprite,
+        bool cullFaces = false)
     {
         renderData.Bind(GL_TEXTURE0);
 
@@ -336,6 +344,8 @@ public:
         const auto& viewMatrix = camera.GetViewMatrix();
         glm::mat4 MVP;
 
+        if (cullFaces) glEnable(GL_CULL_FACE);
+
         for (const auto& item : renderables)
         {
             if (glm::distance(camera.GetPosition(), item.GetLocation()) > mDrawDistance || !item.GetVisible()) continue;
@@ -361,7 +371,10 @@ public:
                 offset
             );
         }
+
+        if (cullFaces) glDisable(GL_CULL_FACE);
     }
+
     unsigned GetClickedEntity(glm::vec2 click)
     {
         mPickFB.BindGL();

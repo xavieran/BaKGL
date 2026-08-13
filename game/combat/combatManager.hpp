@@ -73,6 +73,7 @@ public:
 
     glm::vec4 GetGridCellColor(unsigned col, unsigned row);
     const Grid& GetGrid() const { return mGrid; }
+    void SetGridColor(glm::vec4 color) { mGridColor = color; }
 
     void SetDisplayAllCells(bool value) { mDisplayAllCells = value; }
     void ToggleDisplayAllCells() { mDisplayAllCells = !mDisplayAllCells; }
@@ -136,6 +137,7 @@ private:
     std::uint16_t mHitModifierFlags{};
     std::optional<GridPos> mHovered{};
     bool mDisplayAllCells{};
+    glm::vec4 mGridColor{};
 };
 
 }
