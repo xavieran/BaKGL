@@ -104,6 +104,7 @@ GuiRenderer::GuiRenderer(
 void GuiRenderer::RenderGui(
     Graphics::IGuiElement* element)
 {
+    glViewport(0, 0, static_cast<GLsizei>(mDimensions.x), static_cast<GLsizei>(mDimensions.y));
     glDisable(GL_DEPTH_TEST);
     mShader.UseProgramGL();
 

@@ -150,9 +150,10 @@ std::optional<float> ComputeHeight(
 
 float ComputeWorldHeight(
     float height,
-    float itemScale)
+    float itemScale,
+    float baseHeight)
 {
-    return BAK::gBakCameraHeight + height * itemScale;
+    return baseHeight + height * itemScale;
 }
 
 glm::vec2 WorldToModelClipSpace(

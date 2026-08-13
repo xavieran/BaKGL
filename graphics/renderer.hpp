@@ -84,6 +84,7 @@ public:
     Renderer(
         float screenWidth,
         float screenHeight,
+        glm::ivec4 zoneViewport,
         unsigned depthMapWidth,
         unsigned depthMapHeight,
         int drawDistance = 128000)
@@ -201,7 +202,8 @@ public:
         mDepthMapDims{depthMapWidth, depthMapHeight},
         mDepthFB{},
         mDepthBuffer{GL_TEXTURE_2D},
-        mScreenDims{screenWidth, screenHeight}
+        mScreenDims{screenWidth, screenHeight},
+        mZoneViewport{zoneViewport}
     {
         mPickTexture.MakePickBuffer(screenWidth, screenHeight);
         mPickDepth.MakeDepthBuffer(screenWidth, screenHeight);
@@ -211,7 +213,7 @@ public:
         mHoverPBO.Allocate<glm::vec4>(GL_DYNAMIC_READ);
 
         mDepthBuffer.MakeDepthBuffer(
-            mDepthMapDims.x, 
+            mDepthMapDims.x,
             mDepthMapDims.y);
         mDepthFB.AttachDepthTexture(mDepthBuffer, true);
     }
@@ -227,7 +229,7 @@ public:
         renderData.Bind(GL_TEXTURE0);
 
         mPickFB.BindGL();
-        glViewport(0, 0, mScreenDims.x, mScreenDims.y);
+        glViewport(mZoneViewport.x, mZoneViewport.y, mZoneViewport.z, mZoneViewport.w);
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -542,6 +544,7 @@ private:
     FrameBuffer mDepthFB;
     TextureBuffer mDepthBuffer;
     glm::vec2 mScreenDims;
+    glm::ivec4 mZoneViewport;
 };
 
 }

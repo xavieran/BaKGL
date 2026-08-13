@@ -55,6 +55,16 @@ glm::uvec2 ZoomManager::CalculateZoom(glm::vec2 screenDims)
         << " zoomed: " << zoomed << "\n";
     return zoomed;
 }
+    
+int ZoomManager::GetFocalLengthScale() const
+{
+    return mZoneDefaults.mFocalLengthScale;
+}
+
+int ZoomManager::GetDefaultCameraHeight() const
+{
+    return mZoneDefaults.mDefaultCameraHeight;
+}
 
 bool ZoomManager::CanZoomIn() const
 {

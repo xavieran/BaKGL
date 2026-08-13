@@ -5,19 +5,21 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+float CalculateFieldOfView(float viewportHeight, float focalLength);
+
 class Camera
 {
 public:
     Camera(
-        glm::uvec2 nativeDimensions,
-        glm::uvec2 screenDimensions,
+        glm::vec2 viewportDimensions,
+        float fieldOfView,
         float moveSpeed,
         float turnSpeed);
-    
+
     glm::mat4 CalculateOrthoMatrix(unsigned width, unsigned height);
-    glm::mat4 CalculatePerspectiveMatrix(unsigned width, unsigned height);
+    glm::mat4 CalculatePerspectiveMatrix(glm::vec2 viewportDimensions, float fieldOfView);
     void UseOrthoMatrix(unsigned width, unsigned height);
-    void UsePerspectiveMatrix(unsigned width, unsigned height);
+    void UsePerspectiveMatrix();
 
     void SetGameLocation(const BAK::GamePositionAndHeading& location);
     void SetSpeedScale(float scale);
@@ -68,8 +70,8 @@ public:
     bool CheckAndResetDirty();
     unsigned GetAndClearUnitsTravelled();
 
-    glm::uvec2 GetNativeDimensions() const;
-    glm::uvec2 GetScreenDimensions() const;
+    glm::vec2 GetViewportDimensions() const;
+    void SetFieldOfView(float fieldOfView);
 
 private:
     float mMoveSpeed;
@@ -85,8 +87,8 @@ private:
     glm::mat4 mProjectionMatrix;
     glm::vec2 mAngle;
 
-    glm::uvec2 mNativeDimensions;
-    glm::uvec2 mScreenDimensions;
+    glm::vec2 mViewportDimensions;
+    float mFieldOfView;
 
     bool mDirty{};
 };

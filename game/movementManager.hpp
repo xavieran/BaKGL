@@ -46,6 +46,9 @@ public:
     void SetSystems(Systems* systems);
     void SetDoorLocations(const DoorLocationMap* doorLocations);
 
+    void SetDefaultHeight(float height);
+    float GetDefaultHeight() const;
+
     void MoveForward(bool strafe);
     void MoveBackward(bool strafe);
     void MoveLeft();
@@ -59,7 +62,7 @@ public:
     bool IsOnPit(glm::uvec2 pos) const;
     std::optional<PitCross> GetPitCross(
         BAK::GamePosition playerPos, glm::uvec2 pitLocation) const;
-    std::optional<float> ComputeTerrainHeight(BAK::GamePosition playerPos) const;
+    float ComputeTerrainHeight(BAK::GamePosition playerPos) const;
     std::optional<BAK::GameHeading> GetOpenDirection(
         BAK::GamePositionAndHeading playerLocation, float distance, bool followRoad) const;
 
@@ -90,6 +93,7 @@ private:
     Gui::GuiManager& mGuiManager;
     Systems* mSystems{nullptr};
     const DoorLocationMap* mDoorLocations{nullptr};
+    float mDefaultHeight{BAK::gBakCameraHeight};
     bool mClipEnabled{false};
     bool mWallSlide{false};
 

@@ -9,9 +9,22 @@
 
 #include "graphics/meshObject.hpp"
 
+#include <glm/glm.hpp>
+
 #include <vector>
 
 namespace BAK {
+
+struct ZoneViewport
+{
+    int mX;
+    int mY;
+    int mWidth;
+    int mHeight;
+};
+
+ZoneViewport LoadZoneViewport();
+glm::ivec4 ToGlViewport(ZoneViewport viewport, float scale);
 
 // Contains all the data one would need for a zone
 class Zone

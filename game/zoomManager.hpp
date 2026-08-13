@@ -17,6 +17,9 @@ public:
     glm::uvec2 DefaultZoom(glm::uvec2 screenDims);
     glm::uvec2 CalculateZoom(glm::vec2 screenDims);
 
+    int GetFocalLengthScale() const;
+    int GetDefaultCameraHeight() const;
+
     bool CanZoomIn() const;
     bool CanZoomOut() const;
 

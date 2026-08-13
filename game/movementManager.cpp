@@ -297,10 +297,8 @@ void MovementManager::SetFollowRoadButtonVisible(bool visible)
 
 void MovementManager::UpdateTerrainHeight()
 {
-    if (auto height = ComputeTerrainHeight(mCamera.GetGameLocation().mPosition))
-    {
-        mCamera.SetHeight(*height);
-    }
+    mCamera.SetHeight(
+        ComputeTerrainHeight(mCamera.GetGameLocation().mPosition));
 }
 
 void MovementManager::RefreshAfterZoneLoad()
@@ -328,11 +326,11 @@ void MovementManager::ToggleFollowRoad()
     }
 }
 
-std::optional<float> MovementManager::ComputeTerrainHeight(BAK::GamePosition playerPos) const
+float MovementManager::ComputeTerrainHeight(BAK::GamePosition playerPos) const
 {
     if (!mSystems)
     {
-        return std::nullopt;
+        return mDefaultHeight;
     }
 
     const auto playerBakPos = glm::ivec2{playerPos};
@@ -349,11 +347,14 @@ std::optional<float> MovementManager::ComputeTerrainHeight(BAK::GamePosition pla
         auto height = BAK::ComputeHeight(modelSpace, item.GetModelClip());
         if (height)
         {
-            return BAK::ComputeWorldHeight(*height, item.GetScale());
+            return BAK::ComputeWorldHeight(
+                *height,
+                item.GetScale(),
+                mDefaultHeight);
         }
     }
 
-    return std::nullopt;
+    return mDefaultHeight;
 }
 
 std::optional<BAK::GameHeading> MovementManager::GetOpenDirection(
@@ -621,6 +622,16 @@ void MovementManager::MoveRight()
         return;
     }
     mCamera.StrafeRight();
+}
+
+void MovementManager::SetDefaultHeight(float height)
+{
+    mDefaultHeight = height;
+}
+
+float MovementManager::GetDefaultHeight() const
+{
+    return mDefaultHeight;
 }
 
 void MovementManager::MoveForward(bool strafe)

@@ -10,6 +10,8 @@ struct ZoneDefaults
     float mDefaultMapZoom;
     float mMaxMapZoom;
     float mMapZoomRate;
+    int mDefaultCameraHeight;
+    int mFocalLengthScale;
 };
 
 ZoneDefaults LoadZoneDefDat(ZoneNumber zone);
