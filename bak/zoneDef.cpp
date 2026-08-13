@@ -15,8 +15,8 @@ ZoneDefaults LoadZoneDefDat(ZoneNumber zone)
     Logging::LogDebug(__FUNCTION__) << "Zone: " << zone.mValue << "\n";
 
     const auto zoneType = fb.GetUint16LE();
-    const auto threeDParam = fb.GetUint16LE();
-    const auto playerPos_fieldA = fb.GetUint32LE();
+    const auto focalLengthScale = fb.GetUint16LE();
+    const auto defaultCameraHeight = fb.GetUint32LE();
     const auto playerPos_fieldE = fb.GetUint16LE();
     const auto horizonDisplayType = fb.GetUint16LE();
     const auto groundType = fb.GetUint8();
@@ -33,8 +33,9 @@ ZoneDefaults LoadZoneDefDat(ZoneNumber zone)
     const auto unknown16 = fb.GetUint32LE();
     const auto unknown17 = fb.GetUint32LE();
 
-    Logging::LogDebug(__FUNCTION__) << "ZoneType: " << zoneType << " 3dParam? " << threeDParam <<"\n";
-    Logging::LogDebug(__FUNCTION__) << "PlayerPos A: " << playerPos_fieldA << " PlayerPos E: " << playerPos_fieldE << "\n";
+    Logging::LogDebug(__FUNCTION__) << "ZoneType: " << zoneType << " focalLengthScale " << focalLengthScale <<"\n";
+    Logging::LogDebug(__FUNCTION__) << "DefaultCameraHeight: " << defaultCameraHeight
+        << " PlayerPos E: " << playerPos_fieldE << "\n";
     Logging::LogDebug(__FUNCTION__) << "HorizonAndGroundType: " << horizonDisplayType << "\n";
     Logging::LogDebug(__FUNCTION__) << "GroundType: " << +groundType << " GroundHeight: " << +groundHeight << "\n";
     Logging::LogDebug(__FUNCTION__) << " minMapZoom: " << minMapZoom << " defaultMapZoom: " << defaultMapZoom << "\n";
@@ -50,7 +51,9 @@ ZoneDefaults LoadZoneDefDat(ZoneNumber zone)
         static_cast<float>(minMapZoom),
         static_cast<float>(defaultMapZoom),
         static_cast<float>(maxMapZoom),
-        static_cast<float>(mapZoomRate)};
+        static_cast<float>(mapZoomRate),
+        static_cast<int>(defaultCameraHeight),
+        focalLengthScale};
 }
 
 };

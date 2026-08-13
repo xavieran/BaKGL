@@ -241,11 +241,8 @@ int main(int argc, char** argv)
     bool showImgui = config.mGraphics.mEnableImGui;
     auto guiScalar = config.mGraphics.mResolutionScale;
 
-    auto nativeWidth = 320.0f;
-    auto nativeHeight = 200.0f;
-
-    auto width = nativeWidth * guiScalar;
-    auto height = nativeHeight * guiScalar;
+    auto width = BAK::gNativeScreenWidth * guiScalar;
+    auto height = BAK::gNativeScreenHeight * guiScalar;
     auto guiScaleInv = glm::vec2{1 / guiScalar, 1 / guiScalar};
 
     /* OPEN GL / GLFW SETUP  */
@@ -279,21 +276,28 @@ int main(int argc, char** argv)
     root.AddChildFront(&guiManager);
     guiManager.EnterMainMenu(false);
 
+    static constexpr auto sDefaultFocalLength = 512.f;
+    const auto zoneViewport = BAK::LoadZoneViewport();
+    const auto zoneViewportGL = BAK::ToGlViewport(zoneViewport, guiScalar);
+    const auto viewportDimensions = glm::vec2{zoneViewport.mWidth, zoneViewport.mHeight};
+    const auto defaultFieldOfView = CalculateFieldOfView(
+        viewportDimensions.y, sDefaultFocalLength);
+
     Camera lightCamera{
-        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
-        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
+        viewportDimensions,
+        defaultFieldOfView,
         static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         2.0f};
     lightCamera.UseOrthoMatrix(400, 400);
 
     Camera partyCamera{
-        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
-        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
+        viewportDimensions,
+        defaultFieldOfView,
         static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         1.0f};
     Camera viewCamera{
-        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
-        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
+        viewportDimensions,
+        defaultFieldOfView,
         static_cast<float>(config.mGame.mMoveUnitsPerSecond),
         1.0f};
     Camera* cameraPtr = &partyCamera;
@@ -306,6 +310,7 @@ int main(int argc, char** argv)
     auto renderer = Graphics::Renderer{
         width,
         height,
+        zoneViewportGL,
         sShadowDim,
         sShadowDim,
         config.mGraphics.mDrawDistance};
@@ -635,7 +640,7 @@ int main(int argc, char** argv)
                 renderer.EndDepthMapDraw();
             }
 
-            glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+            glViewport(zoneViewportGL.x, zoneViewportGL.y, zoneViewportGL.z, zoneViewportGL.w);
             // Dark blue background
             if (gameRunner.mGameState.IsUnderground())
             {

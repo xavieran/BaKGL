@@ -179,11 +179,7 @@ void GameRunner::ShowFirstPersonView()
     mGameState.SetOverheadView(false);
     ToggleUndergroundModels();
 
-    auto dims = mViewCamera.GetNativeDimensions();
-    mViewCamera.UsePerspectiveMatrix(
-        static_cast<unsigned>(dims.x),
-        static_cast<unsigned>(dims.y)
-    );
+    mViewCamera.UsePerspectiveMatrix();
 
     RestoreFirstPersonVisibility();
     ShowOverheadHidden();
@@ -224,8 +220,8 @@ void GameRunner::ZoomIn()
 glm::uvec2 GameRunner::GetOrthoViewDimensions() const
 {
     const auto orthoViewSize = BAK::gTileSize / BAK::gWorldScale;
-    const auto nativeDims = glm::vec2(mViewCamera.GetNativeDimensions());
-    const auto aspectRatio = nativeDims.x / nativeDims.y;
+    const auto viewportDimensions = mViewCamera.GetViewportDimensions();
+    const auto aspectRatio = viewportDimensions.x / viewportDimensions.y;
     return glm::uvec2(orthoViewSize * aspectRatio, orthoViewSize);
 }
 
@@ -249,10 +245,25 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
         mZoneData->mZoneTextures.GetTextures(),
         mZoneData->mZoneTextures.GetMaxDim());
     LoadSystems();
+
+    mZoomManager.LoadZoneDefaults(zone);
+    mMovementManager.SetDefaultHeight(
+        static_cast<float>(mZoomManager.GetDefaultCameraHeight()));
+
     mPartyCamera.SetGameLocation(mGameState.GetLocation());
     mCurrentTile = mPartyCamera.GetGameTile();
     mMovementManager.RefreshAfterZoneLoad();
-    mZoomManager.LoadZoneDefaults(zone);
+
+    const auto focalLength = static_cast<float>(1 << mZoomManager.GetFocalLengthScale());
+    const auto fieldOfView = CalculateFieldOfView(
+        mPartyCamera.GetViewportDimensions().y, focalLength);
+    mPartyCamera.SetFieldOfView(fieldOfView);
+    mViewCamera.SetFieldOfView(fieldOfView);
+    if (!mGameState.GetOverheadView())
+    {
+        mPartyCamera.UsePerspectiveMatrix();
+        mViewCamera.UsePerspectiveMatrix();
+    }
 }
 
 void GameRunner::DoTransition(
@@ -855,7 +866,7 @@ void GameRunner::CombatCompleted(BAK::CombatResult result)
             combat, mRetreatDirection);
 
         mSavedCameraPos = BAK::ToGlCoord<float>(retreatPos.mPosition);
-        mSavedCameraPos.y = BAK::gBakCameraHeight;
+        mSavedCameraPos.y = mMovementManager.GetDefaultHeight();
         mSavedCameraAngle = BAK::ToGlAngle(retreatPos.mHeading);
 
         mGameState.SetLocation(
@@ -1333,7 +1344,7 @@ const Graphics::RenderData& GameRunner::GetMapIconsRenderData() const
 void GameRunner::UpdatePartyMarkerScale(glm::uvec2 orthoDims)
 {
     const auto unitsPerPixel = static_cast<float>(orthoDims.x)
-        / static_cast<float>(mViewCamera.GetNativeDimensions().x);
+        / mViewCamera.GetViewportDimensions().x;
     const auto dims = mMapIcons.GetDimensions();
     const auto w = static_cast<float>(dims.x);
     const auto h = static_cast<float>(dims.y);

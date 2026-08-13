@@ -1,6 +1,8 @@
 #include "gui/backgrounds.hpp"
 
+#include "bak/constants.hpp"
 #include "bak/textureFactory.hpp"
+#include "bak/zone.hpp"
 
 #include "com/logger.hpp"
 
@@ -80,22 +82,27 @@ Backgrounds::Backgrounds(
                 pixel = Color::black;
             }
         }
-        for (unsigned x = 13; x < (294 + 13); x++)
+        const auto vp = BAK::LoadZoneViewport();
+        for (int x = vp.mX; x < (vp.mWidth + vp.mX); x++)
         {
-            for (unsigned y = (200 - 13); y > (200 - (100 + 13)); y--)
+            for (int y = (BAK::gNativeScreenHeight - vp.mY);
+                y > (BAK::gNativeScreenHeight - (vp.mHeight + vp.mY));
+                y--)
             {
                 tex.SetPixel(x, y, glm::vec4{0});
             }
         }
-        for (unsigned x = 13; x < (294 + 13); x++)
+        for (int x = vp.mX; x < (vp.mWidth + vp.mX); x++)
         {
-            tex.SetPixel(x, (200 - (100 + 13)), Color::frameMaroon);
-            tex.SetPixel(x, (200 - 13), Color::frameMaroon);
+            tex.SetPixel(x, (BAK::gNativeScreenHeight - (vp.mHeight + vp.mY)), Color::frameMaroon);
+            tex.SetPixel(x, (BAK::gNativeScreenHeight - vp.mY), Color::frameMaroon);
         }
-            for (unsigned y = (200 - 13); y > (200 - (100 + 14)); y--)
+        for (int y = (BAK::gNativeScreenHeight - vp.mY);
+            y > (BAK::gNativeScreenHeight - (vp.mHeight + vp.mY + 1));
+            y--)
         {
-            tex.SetPixel(12, y, Color::frameMaroon);
-            tex.SetPixel(294 + 13, y, Color::frameMaroon);
+            tex.SetPixel(vp.mX - 1, y, Color::frameMaroon);
+            tex.SetPixel(vp.mWidth + vp.mX, y, Color::frameMaroon);
         }
     }
 

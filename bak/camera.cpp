@@ -8,11 +8,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <cmath>
 #include <utility>
 
+float CalculateFieldOfView(float viewportHeight, float focalLength)
+{
+    return 2.0f * std::atan((viewportHeight * 0.5f) / focalLength);
+}
+
 Camera::Camera(
-    glm::uvec2 nativeDimensions,
-    glm::uvec2 screenDimensions,
+    glm::vec2 viewportDimensions,
+    float fieldOfView,
     float moveSpeed,
     float turnSpeed)
 :
@@ -22,10 +28,10 @@ Camera::Camera(
     mPosition{0,1.4,0},
     mLastPosition{mPosition},
     mDistanceTravelled{0.0},
-    mProjectionMatrix{CalculatePerspectiveMatrix(screenDimensions.x, screenDimensions.y)},
+    mProjectionMatrix{CalculatePerspectiveMatrix(viewportDimensions, fieldOfView)},
     mAngle{3.14, 0},
-    mNativeDimensions{nativeDimensions},
-    mScreenDimensions{screenDimensions}
+    mViewportDimensions{viewportDimensions},
+    mFieldOfView{fieldOfView}
 {}
 
 glm::mat4 Camera::CalculateOrthoMatrix(unsigned width, unsigned height)
@@ -42,11 +48,11 @@ glm::mat4 Camera::CalculateOrthoMatrix(unsigned width, unsigned height)
     );
 }
 
-glm::mat4 Camera::CalculatePerspectiveMatrix(unsigned width, unsigned height)
+glm::mat4 Camera::CalculatePerspectiveMatrix(glm::vec2 viewportDimensions, float fieldOfView)
 {
     return glm::perspective(
-        glm::radians(22.5f),
-        static_cast<float>(width) / static_cast<float>(height),
+        fieldOfView,
+        viewportDimensions.x / viewportDimensions.y,
         1.0f,
         4000.0f
     );
@@ -57,16 +63,15 @@ void Camera::UseOrthoMatrix(unsigned width, unsigned height)
     mProjectionMatrix = CalculateOrthoMatrix(width, height);
 }
 
-void Camera::UsePerspectiveMatrix(unsigned width, unsigned height)
+void Camera::UsePerspectiveMatrix()
 {
-    mProjectionMatrix = CalculatePerspectiveMatrix(width, height);
+    mProjectionMatrix = CalculatePerspectiveMatrix(mViewportDimensions, mFieldOfView);
 }
 
 void Camera::SetGameLocation(const BAK::GamePositionAndHeading& location)
 {
     auto pos = BAK::ToGlCoord<float>(location.mPosition);
-    //pos.y = mPosition.y; 
-    pos.y = BAK::gBakCameraHeight;
+    pos.y = mPosition.y;
     SetPosition(pos);
     auto angle = mAngle;
     angle.x = BAK::ToGlAngle(location.mHeading).x;
@@ -317,12 +322,12 @@ unsigned Camera::GetAndClearUnitsTravelled()
     return 0;
 }
 
-glm::uvec2 Camera::GetNativeDimensions() const
+glm::vec2 Camera::GetViewportDimensions() const
 {
-    return mNativeDimensions;
+    return mViewportDimensions;
 }
 
-glm::uvec2 Camera::GetScreenDimensions() const
+void Camera::SetFieldOfView(float fieldOfView)
 {
-    return mScreenDimensions;
+    mFieldOfView = fieldOfView;
 }

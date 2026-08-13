@@ -25,7 +25,8 @@ std::optional<float> ComputeHeight(
 
 float ComputeWorldHeight(
     float height,
-    float itemScale);
+    float itemScale,
+    float baseHeight);
 
 glm::vec2 WorldToModelClipSpace(
     glm::vec2 playerPos,

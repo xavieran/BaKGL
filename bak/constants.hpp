@@ -9,6 +9,9 @@ namespace BAK {
 
 static constexpr float gWorldScale = 100.;
 
+static constexpr auto gNativeScreenWidth = 320;
+static constexpr auto gNativeScreenHeight = 200;
+
 static constexpr float gTileSize = 64000.;
 static constexpr auto gCellSize = 1600;
 static constexpr auto gHalfCellSize = gCellSize / 2;

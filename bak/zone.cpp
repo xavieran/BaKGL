@@ -1,6 +1,8 @@
 #include "bak/zone.hpp"
 
+#include "bak/constants.hpp"
 #include "bak/encounter/encounter.hpp"
+#include "bak/fileBufferFactory.hpp"
 #include "bak/fixedObject.hpp"
 #include "bak/palette.hpp"
 #include "bak/resourceNames.hpp"
@@ -11,6 +13,8 @@
 #include "graphics/quad.hpp"
 
 #include "com/assert.hpp"
+
+#include <cmath>
 
 namespace BAK {
 
@@ -130,6 +134,27 @@ Zone::Zone(unsigned zoneNumber)
         mZoneTextures.AddTexture(gridTex);
         mObjects.AddObject("GridCell", MakeGridQuadMesh(gridLayer));
     }
+}
+
+ZoneViewport LoadZoneViewport()
+{
+    auto fb = FileBufferFactory::Get().CreateDataBuffer("ZONE.DAT");
+    const auto x = fb.GetUint16LE();
+    const auto y = fb.GetUint16LE();
+    const auto width = fb.GetUint16LE();
+    const auto height = fb.GetUint16LE();
+
+    return ZoneViewport{x, y, width, height};
+}
+
+glm::ivec4 ToGlViewport(ZoneViewport viewport, float scale)
+{
+    const auto x = std::round(viewport.mX * scale);
+    const auto y = std::round((gNativeScreenHeight - (viewport.mY + viewport.mHeight)) * scale);
+    const auto width = std::round(viewport.mWidth * scale);
+    const auto height = std::round(viewport.mHeight * scale);
+
+    return glm::ivec4{x, y, width, height};
 }
 
 bool IsUnderground(ZoneNumber zone)

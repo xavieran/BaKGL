@@ -357,9 +357,11 @@ TEST_F(CollisionTestFixture, ComputeHeightFindsCorrectElement)
 
 TEST_F(CollisionTestFixture, ComputeWorldHeightScale)
 {
-    EXPECT_FLOAT_EQ(ComputeWorldHeight(10.0f, 4.0f), 140.0f);
-    EXPECT_FLOAT_EQ(ComputeWorldHeight(0.0f, 1.0f), 100.0f);
-    EXPECT_FLOAT_EQ(ComputeWorldHeight(-5.0f, 2.0f), 90.0f);
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(10.0f, 4.0f, 100.0f), 140.0f);
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(0.0f, 1.0f, 100.0f), 100.0f);
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(-5.0f, 2.0f, 100.0f), 90.0f);
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(0.0f, 1.0f, 230.0f), 230.0f);
+    EXPECT_FLOAT_EQ(ComputeWorldHeight(10.0f, 3.0f, 250.0f), 280.0f);
 }
 
 }

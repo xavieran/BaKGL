@@ -60,6 +60,7 @@ int main(int argc, char** argv)
 
     auto nativeWidth = 320.0f;
     auto nativeHeight = 200.0f;
+    static constexpr auto sFocalLength = 512.0f;
 
     auto width = nativeWidth * guiScalar;
     auto height = nativeHeight * guiScalar;
@@ -74,8 +75,11 @@ int main(int argc, char** argv)
     auto renderer = Graphics::Renderer{
         width,
         height,
+        glm::ivec4{0, 0, static_cast<int>(width), static_cast<int>(height)},
         1024,
         1024};
+    const auto fieldOfView = CalculateFieldOfView(nativeHeight, sFocalLength);
+
     auto renderData = Graphics::RenderData{};
     renderData.LoadData(
         zoneData->mObjects,
@@ -83,15 +87,15 @@ int main(int argc, char** argv)
         zoneData->mZoneTextures.GetMaxDim());
 
     Camera lightCamera{
-        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
-        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
+        glm::vec2{nativeWidth, nativeHeight},
+        fieldOfView,
         400 * 30.0f,
         2.0f};
     lightCamera.UseOrthoMatrix(400, 400);
 
     Camera camera{
-        glm::uvec2{static_cast<unsigned>(nativeWidth), static_cast<unsigned>(nativeHeight)},
-        glm::uvec2{static_cast<unsigned>(width), static_cast<unsigned>(height)},
+        glm::vec2{nativeWidth, nativeHeight},
+        fieldOfView,
         50*30.0f,
         2.0f};
     Camera* cameraPtr = &camera;
