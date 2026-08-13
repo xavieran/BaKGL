@@ -10,6 +10,7 @@
 
 #include "bak/encounter/encounter.hpp"
 #include "bak/zone.hpp"
+#include "bak/zoneParams.hpp"
 
 extern "C" {
 #include "com/getopt.h"
@@ -660,7 +661,8 @@ int main(int argc, char** argv)
                     light,
                     lightCamera,
                     GetRenderCamera(),
-                    false);
+                    false,
+                    gameRunner.IsCombatCameraActive());
 
                 if (!gameRunner.mGameState.GetOverheadView())
                 {
@@ -740,7 +742,8 @@ int main(int argc, char** argv)
                     gameRunner.mSystems->GetRenderables(),
                     gameRunner.mSystems->GetSprites(),
                     gameRunner.mSystems->GetDynamicRenderables(),
-                    GetRenderCamera());
+                    GetRenderCamera(),
+                    gameRunner.IsCombatCameraActive());
             }
             renderer.StartPickReadback({pointerPosX, pointerPosY});
 

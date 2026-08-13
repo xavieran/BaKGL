@@ -921,7 +921,7 @@ glm::vec4 CombatManager::GetGridCellColor(unsigned col, unsigned row)
         if (cell.mElement == &GetCurrentCombatant())
         {
             if (mIsMoving) return glm::vec4{};
-            return Gui::Color::gridOccupied;
+            return mGridColor;
         }
     }
 
@@ -941,7 +941,7 @@ glm::vec4 CombatManager::GetGridCellColor(unsigned col, unsigned row)
 
     if (mDisplayAllCells && !mGrid.IsDisabled(pos))
     {
-        return Gui::Color::gridOccupied;
+        return mGridColor;
     }
 
     return glm::vec4{};
