@@ -12,7 +12,6 @@
 #include <functional>
 #include <string>
 
-class Camera;
 class Systems;
 
 namespace Game {
@@ -39,7 +38,6 @@ public:
 
     CombatStage(
         Gui::IGuiManager& guiManager,
-        const Camera& camera,
         const GlyphStore& glyphStore,
         const CombatModelLoader& combatModelLoader,
         const BAK::GamePositionAndHeading& combatPlayerPos,
@@ -95,7 +93,6 @@ private:
     Actor* GetActor(BAK::EntityIndex id);
 
     Gui::IGuiManager& mGuiManager;
-    const Camera& mCamera;
     const GlyphStore& mGlyphStore;
     const CombatModelLoader& mCombatModelLoader;
     const BAK::GamePositionAndHeading& mCombatPlayerPos;

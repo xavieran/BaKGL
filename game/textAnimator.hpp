@@ -6,14 +6,11 @@
 
 #include "gui/IAnimator.hpp"
 
-#include "graphics/renderer.hpp"
-
 #include <glm/glm.hpp>
 
 #include <string>
 #include <vector>
 
-class Camera;
 class Systems;
 
 namespace Game {
@@ -25,7 +22,6 @@ public:
     TextAnimator(
         Systems& systems,
         const GlyphStore& glyphStore,
-        const Camera& camera,
         glm::vec3 worldPos,
         std::string text,
         TextColor color,
