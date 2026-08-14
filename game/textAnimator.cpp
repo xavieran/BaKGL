@@ -3,10 +3,7 @@
 #include "game/systems.hpp"
 #include "game/glyphStore.hpp"
 
-#include "bak/camera.hpp"
 #include "bak/constants.hpp"
-
-#include "graphics/glm.hpp"
 
 #include <glm/glm.hpp>
 
@@ -17,7 +14,6 @@ namespace Game {
 TextAnimator::TextAnimator(
     Systems& systems,
     const GlyphStore& glyphStore,
-    const Camera& camera,
     glm::vec3 worldPos,
     std::string text,
     TextColor color,
@@ -31,15 +27,12 @@ TextAnimator::TextAnimator(
 {
     auto col = mColor.mStart;
 
-    glm::vec3 worldPosNorm = mWorldPosition / BAK::gWorldScale;
-    glm::vec3 camPos = camera.GetNormalisedPosition();
-    float distance = glm::distance(camPos, worldPosNorm);
-    float scale = distance * sDamageTextScaleConstant;
+    const float glyphHeight = sDamageTextScaleConstant * sDamageTextGlyphStretch;
+    const float gap = sGlyphGap * sDamageTextScaleConstant;
 
     struct CharLayout
     {
-        float mSpacing;
-        float mGlyphScale;
+        float mWidth;
         unsigned mOffset;
         unsigned mLength;
     };
@@ -51,54 +44,40 @@ TextAnimator::TextAnimator(
         auto* glyph = glyphStore.GetGlyph(c);
         if (glyph)
         {
-            float glyphWidth = glyph->mGlyphAspect * scale;
             layout.push_back({
-                glyphWidth + sGlyphGap * scale,
-                glyphWidth,
+                glyph->mGlyphAspect * sDamageTextScaleConstant,
                 glyph->mOffset,
                 glyph->mLength
             });
         }
     }
 
-    float totalWorldWidth = 0;
+    float totalWidth = 0;
     for (const auto& ci : layout)
-        totalWorldWidth += ci.mSpacing;
+        totalWidth += ci.mWidth + gap;
+    if (!layout.empty())
+        totalWidth -= gap;
 
-    float cumulativeX = -totalWorldWidth / 2.0f;
-
-    glm::vec3 toCamera = glm::normalize(camPos - worldPosNorm);
-    glm::vec3 up = camera.GetUp();
-    glm::vec3 layoutDir = glm::cross(up, toCamera);
+    float cumulativeX = -totalWidth / 2.0f;
 
     glm::vec3 billboardCenter = mWorldPosition / BAK::gWorldScale;
 
     mChars.reserve(layout.size());
     for (const auto& ci : layout)
     {
-        float chPosX = cumulativeX;
-
-        glm::vec3 location = mWorldPosition
-            + layoutDir * (chPosX * BAK::gWorldScale);
-
-        glm::mat4 modelMatrix = Graphics::CalculateModelMatrix(
-            location,
-            glm::vec3{ci.mGlyphScale, scale * sDamageTextGlyphStretch, 1.0f},
-            glm::vec3{0},
-            BAK::gWorldScale);
-
         if (ci.mLength > 0)
         {
             Graphics::TextRenderable tex{
                 {ci.mOffset, ci.mLength},
-                modelMatrix,
-                col,
-                billboardCenter};
+                billboardCenter,
+                glm::vec2{cumulativeX + ci.mWidth / 2.0f, 0},
+                glm::vec2{ci.mWidth, glyphHeight},
+                col};
             auto id = mSystems.AddTextRenderable(std::move(tex));
             mChars.push_back({id});
         }
 
-        cumulativeX += ci.mSpacing;
+        cumulativeX += ci.mWidth + gap;
     }
 }
 

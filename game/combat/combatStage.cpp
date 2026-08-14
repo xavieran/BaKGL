@@ -22,14 +22,12 @@ namespace Game::Combat {
 
 CombatStage::CombatStage(
     Gui::IGuiManager& guiManager,
-    const Camera& camera,
     const GlyphStore& glyphStore,
     const CombatModelLoader& combatModelLoader,
     const BAK::GamePositionAndHeading& combatPlayerPos,
     double animationSpeedMultiplier)
 :
     mGuiManager{guiManager},
-    mCamera{camera},
     mGlyphStore{glyphStore},
     mCombatModelLoader{combatModelLoader},
     mCombatPlayerPos{combatPlayerPos},
@@ -199,7 +197,6 @@ void CombatStage::DisplayText(
         std::make_unique<TextAnimator>(
             *mSystems,
             mGlyphStore,
-            mCamera,
             worldPos,
             text,
             color,

@@ -5,28 +5,30 @@ layout(location = 3) in vec3  textureCoords;
 
 out vec3 uvCoords;
 
-uniform mat4 MVP;
-uniform mat4 M;
+uniform mat4 VP;
 uniform vec3 cameraPosition_worldspace;
 uniform vec3 billboardCenter;
+uniform vec2 glyphOffset;
+uniform vec2 glyphSize;
 
 void main() {
-    vec3 centerPosition_worldspace = billboardCenter;
+    vec3 toCamera = cameraPosition_worldspace - billboardCenter;
 
-    vec3 direction_toCamera = normalize(
-        cameraPosition_worldspace - centerPosition_worldspace);
+    vec2 toCamera_xz = toCamera.xz;
+    float xzLength = length(toCamera_xz);
+    vec3 right = xzLength > 0.0001
+        ? vec3(toCamera_xz.y, 0.0, -toCamera_xz.x) / xzLength
+        : vec3(1.0, 0.0, 0.0);
+    vec3 up = vec3(0.0, 1.0, 0.0);
 
-    mat4 billboardRotationMatrix;
-    billboardRotationMatrix[0] =
-        vec4(direction_toCamera.z, 0.0, -direction_toCamera.x, 0.0);
-    billboardRotationMatrix[1] = vec4(0.0, 1.0, 0.0, 0.0);
-    billboardRotationMatrix[2] =
-        vec4(direction_toCamera.x, 0.0, direction_toCamera.z, 0.0);
-    billboardRotationMatrix[3] = vec4(0.0, 0.0, 0.0, 1.0);
+    vec2 glyphPosition = (vertexPosition_modelspace.xy * glyphSize + glyphOffset)
+        * length(toCamera);
 
-    vec4 billboardPosition =
-        billboardRotationMatrix * vec4(vertexPosition_modelspace, 1.0);
-    gl_Position = MVP * billboardPosition;
+    vec3 position_worldspace = billboardCenter
+        + right * glyphPosition.x
+        + up * glyphPosition.y;
+
+    gl_Position = VP * vec4(position_worldspace, 1.0);
 
     uvCoords = textureCoords;
 }

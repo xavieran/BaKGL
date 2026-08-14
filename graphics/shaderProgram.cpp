@@ -79,6 +79,11 @@ void ShaderProgramHandle::SetUniform(GLuint id, Float value)
 {
     glUniform1f(id, value.mValue);
 }
+void ShaderProgramHandle::SetUniform(GLuint id, const glm::vec2& value)
+{
+    glUniform2f(id, value.x, value.y);
+}
+
 void ShaderProgramHandle::SetUniform(GLuint id, const glm::vec3& value)
 {
     glUniform3f(id, value.x, value.y, value.z);

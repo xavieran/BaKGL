@@ -104,7 +104,6 @@ GameRunner::GameRunner(
         mPartyCamera},
     mCombatStage{
         mGuiManager,
-        mPartyCamera,
         mGlyphStore,
         mCombatModelLoader,
         mCombatPlayerPos,

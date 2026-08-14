@@ -32,6 +32,7 @@ public:
     static void SetUniform(GLuint id, int value);
     static void SetUniform(GLuint id, unsigned value);
     static void SetUniform(GLuint id, Float value);
+    static void SetUniform(GLuint id, const glm::vec2& value);
     static void SetUniform(GLuint id, const glm::vec3& value);
     static void SetUniform(GLuint id, const glm::vec4& value);
     

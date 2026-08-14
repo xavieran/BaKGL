@@ -16,9 +16,10 @@ namespace Graphics {
 struct TextRenderable
 {
     std::pair<unsigned, unsigned> mObject;
-    glm::mat4 mModelMatrix;
-    glm::vec4 mColor;
     glm::vec3 mBillboardCenter;
+    glm::vec2 mGlyphOffset;
+    glm::vec2 mGlyphSize;
+    glm::vec4 mColor;
     BAK::EntityIndex mEntityId{0};
 };
 
@@ -64,10 +65,11 @@ struct Text3DShaderUniforms
 {
     GLuint mTexture0;
     GLuint mCameraPosition_worldspace;
-    GLuint mMVP;
-    GLuint mM;
+    GLuint mVP;
     GLuint mColor;
     GLuint mBillboardCenter;
+    GLuint mGlyphOffset;
+    GLuint mGlyphSize;
 };
 
 struct DepthMapShaderUniforms
@@ -190,10 +192,11 @@ public:
         mText3DShaderUniforms{
             mText3DShader.GetUniformLocation("texture0"),
             mText3DShader.GetUniformLocation("cameraPosition_worldspace"),
-            mText3DShader.GetUniformLocation("MVP"),
-            mText3DShader.GetUniformLocation("M"),
+            mText3DShader.GetUniformLocation("VP"),
             mText3DShader.GetUniformLocation("uColor"),
-            mText3DShader.GetUniformLocation("billboardCenter")
+            mText3DShader.GetUniformLocation("billboardCenter"),
+            mText3DShader.GetUniformLocation("glyphOffset"),
+            mText3DShader.GetUniformLocation("glyphSize")
         },
         mPickFB{},
         mPickTexture{GL_TEXTURE_2D},
@@ -472,18 +475,18 @@ public:
             mText3DShaderUniforms.mCameraPosition_worldspace,
             camera.GetNormalisedPosition());
 
-        const auto& viewMatrix = camera.GetViewMatrix();
+        const glm::mat4 VP = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+        mText3DShader.SetUniform(mText3DShaderUniforms.mVP, VP);
 
         glDisable(GL_DEPTH_TEST);
         glDepthMask(GL_FALSE);
 
         for (const auto& item : renderables)
         {
-            glm::mat4 MVP = camera.GetProjectionMatrix() * viewMatrix * item.mModelMatrix;
-            mText3DShader.SetUniform(mText3DShaderUniforms.mMVP, MVP);
-            mText3DShader.SetUniform(mText3DShaderUniforms.mM, item.mModelMatrix);
             mText3DShader.SetUniform(mText3DShaderUniforms.mColor, item.mColor);
             mText3DShader.SetUniform(mText3DShaderUniforms.mBillboardCenter, item.mBillboardCenter);
+            mText3DShader.SetUniform(mText3DShaderUniforms.mGlyphOffset, item.mGlyphOffset);
+            mText3DShader.SetUniform(mText3DShaderUniforms.mGlyphSize, item.mGlyphSize);
 
             const auto [offset, length] = item.mObject;
             glDrawElementsBaseVertex(
