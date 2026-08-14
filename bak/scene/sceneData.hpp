@@ -12,22 +12,21 @@ namespace BAK {
 
 enum class AdsActions
 {
-    INDEX           = 0x1030,
-    IF_NOT_PLAYED   = 0x1330,
-    IF_PLAYED       = 0x1350,
-    IF_CHAP_LTE     = 0x13a0,
-    IF_CHAP_GTE     = 0x13b0,
-    AND             = 0x1420,
-    OR              = 0x1430,
-    ELSE            = 0x1500,
-    ADD_SCENE2      = 0x2000,
-    ADD_SCENE       = 0x2005,
-    STOP_SCENE      = 0x2010,
-    PLAY_SCENE      = 0x1510,
-    PLAY_ALL_SCENES = 0x1520,
-    FADE_OUT        = 0xf010,
-    END_IF          = 0xfff0,
-    END             = 0xffff
+    IF_NOT_PLAYED      = 0x1030,
+    IF_NOT_PLAYED_ELSE = 0x1330,
+    IF_PLAYED_ELSE     = 0x1350,
+    IF_CHAP_LTE        = 0x13a0,
+    IF_CHAP_GTE        = 0x13b0,
+    AND                = 0x1420,
+    OR                 = 0x1430,
+    ELSE               = 0x1500,
+    END_IF_ELSE        = 0x1510,
+    END_IF             = 0x1520,
+    RESTART_SCRIPT     = 0x2000,
+    START_SCRIPT       = 0x2005,
+    STOP_SCRIPT        = 0x2010,
+    STOP_SCENE         = 0xf010,
+    END                = 0xffff
 };
 
 std::string_view ToString(AdsActions a);
@@ -52,8 +51,8 @@ enum class Actions
     SLOT_IMAGE          = 0x1050,
     SLOT_PALETTE        = 0x1060,
     SLOT_FONT           = 0x1070,
-    SET_SCENEA          = 0x1100, // Local taG?
-    SET_SCENE           = 0x1110, // TAG??
+    SET_SCRIPTA          = 0x1100, // Local taG?
+    SET_SCRIPT           = 0x1110, // TAG??
     SET_SAVE_LAYER      = 0x1120,
     GOTO_TAG            = 0x1200,
     SET_COLOR           = 0x2000,
@@ -95,13 +94,13 @@ enum class Actions
 std::string_view ToString(Actions a);
 std::ostream& operator<<(std::ostream&, Actions);
 
-struct SetScene
+struct SetScript
 {
     std::string mName;
-    std::uint16_t mSceneNumber;
+    std::uint16_t mScriptNumber;
 };
 
-std::ostream& operator<<(std::ostream&, const SetScene&);
+std::ostream& operator<<(std::ostream&, const SetScript&);
 
 struct LoadScreen
 { 
@@ -260,7 +259,7 @@ struct ShowDialog
     unsigned mDialogType;
 };
 
-using SceneAction = std::variant<
+using ScriptAction = std::variant<
     ClearScreen,
     ClipRegion,
     Delay,
@@ -278,7 +277,7 @@ using SceneAction = std::variant<
     FadeOut,
     FadeIn,
     LoadScreen,
-    SetScene,
+    SetScript,
     SetColors,
     SlotImage,
     SetSaveLayer,
@@ -289,6 +288,6 @@ using SceneAction = std::variant<
     GotoTag,
     SlotPalette>;
 
-std::ostream& operator<<(std::ostream& os, const SceneAction& sa);
+std::ostream& operator<<(std::ostream& os, const ScriptAction& sa);
 
 }

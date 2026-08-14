@@ -55,7 +55,7 @@ public:
 
     void StartDialog(BAK::Target target, bool isTooltip);
     void DialogFinished(const std::optional<BAK::ChoiceIndex>&) override;
-    void AddStaticTTM(BAK::Scene scene1, BAK::Scene scene2);
+    void AddStaticTTM(BAK::Script scene1, BAK::Script scene2);
 
     void EvaluateHotspotAction();
 

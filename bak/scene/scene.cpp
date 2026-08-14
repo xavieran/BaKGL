@@ -68,21 +68,21 @@ std::ostream& operator<<(std::ostream& os, const SceneIndex& si)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Scene& scene)
+std::ostream& operator<<(std::ostream& os, const Script& scene)
 {
-    os << "Scene :: " << scene.mSceneTag << " [\n";
+    os << "Script :: " << scene.mSceneTag << " [\n";
     for (const auto& a : scene.mActions)
     {
         os << '\t' << a << "\n";
     }
     os << " ]\n";
-    os << "Scene Images: \n";
+    os << "Script Images: \n";
     for (const auto& [key, imagePal] : scene.mImages)
     {
         const auto& [image, palKey] = imagePal;
         os << "K: " << key << " " << image << " pal: " << palKey << "\n";
     }
-    os << "Scene Palettes: \n";
+    os << "Script Palettes: \n";
     for (const auto& [key, pal] : scene.mPalettes)
     {
         os << "K: " << key << " " << pal << "\n";
@@ -132,23 +132,23 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
         
         switch (action)
         {
-            case AdsActions::INDEX:
+            case AdsActions::IF_NOT_PLAYED:
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
-            case AdsActions::IF_NOT_PLAYED: [[fallthrough]];
-            case AdsActions::IF_PLAYED: 
+            case AdsActions::IF_NOT_PLAYED_ELSE: [[fallthrough]];
+            case AdsActions::IF_PLAYED_ELSE:
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
-            case AdsActions::ADD_SCENE2: [[fallthrough]];
-            case AdsActions::ADD_SCENE:
+            case AdsActions::RESTART_SCRIPT: [[fallthrough]];
+            case AdsActions::START_SCRIPT:
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
@@ -184,7 +184,7 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
                 inElseClause = false;
             }
                 break;
-            case AdsActions::STOP_SCENE:
+            case AdsActions::STOP_SCRIPT:
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
@@ -213,10 +213,14 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
             // so and and or are not implemented...
             case AdsActions::AND: [[fallthrough]];
             case AdsActions::OR: [[fallthrough]];
-            case AdsActions::FADE_OUT: [[fallthrough]];
-            case AdsActions::END_IF: [[fallthrough]];
-            case AdsActions::PLAY_SCENE: [[fallthrough]];
-            case AdsActions::PLAY_ALL_SCENES:
+            case AdsActions::END_IF_ELSE: [[fallthrough]];
+            case AdsActions::END_IF:
+                break;
+            case AdsActions::STOP_SCENE:
+            {
+                const auto a = decompBuffer.GetUint16LE();
+                ss << a;
+            }
                 break;
         }
 
@@ -268,23 +272,23 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
         
         switch (action)
         {
-            case AdsActions::INDEX:
+            case AdsActions::IF_NOT_PLAYED:
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
-            case AdsActions::IF_NOT_PLAYED: [[fallthrough]];
-            case AdsActions::IF_PLAYED: 
+            case AdsActions::IF_NOT_PLAYED_ELSE: [[fallthrough]];
+            case AdsActions::IF_PLAYED_ELSE: 
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
                 ss << a << " " << b;
             }
                 break;
-            case AdsActions::ADD_SCENE2: [[fallthrough]];
-            case AdsActions::ADD_SCENE:
+            case AdsActions::RESTART_SCRIPT: [[fallthrough]];
+            case AdsActions::START_SCRIPT:
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
@@ -292,10 +296,10 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
                 const auto d = decompBuffer.GetUint16LE();
                 ss << a << " " << b << " " << c << " " << d;
                 ASSERT(currentIndex);
-                currentSequence.mScenes.emplace_back(SceneADS(a, b, false));
+                currentSequence.mScripts.emplace_back(SceneADS(a, b));
             }
                 break;
-            case AdsActions::PLAY_SCENE:
+            case AdsActions::END_IF_ELSE:
             {
                 ASSERT(currentIndex);
                 const auto sceneName = tags.GetTag(Tag{*currentIndex});
@@ -307,7 +311,7 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
                 sceneIndices.at(*currentIndex).emplace_back(currentSequence);
                 currentSequence = {};
             } break;
-            case AdsActions::PLAY_ALL_SCENES:
+            case AdsActions::END_IF:
             {
                 ASSERT(currentIndex);
                 const auto sceneName = tags.GetTag(Tag{*currentIndex});
@@ -321,31 +325,29 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
             {
                 currentIndex.reset();
             } break;
-            case AdsActions::STOP_SCENE:
+            case AdsActions::STOP_SCRIPT:
             {
                 const auto a = decompBuffer.GetUint16LE();
                 const auto b = decompBuffer.GetUint16LE();
                 const auto c = decompBuffer.GetUint16LE();
                 ss << a << " " << b << " " << c;
             } break;
-            case AdsActions::IF_CHAP_GTE:
-            {
-                assert(false);
-            } break;
+            case AdsActions::IF_CHAP_GTE: [[fallthrough]];
             case AdsActions::IF_CHAP_LTE:
             {
-                assert(false);
-            }
-                break;
-            case AdsActions::ELSE:
-                assert(false);
-                break;
+                const auto a = decompBuffer.GetUint16LE();
+                ss << a;
+            } break;
+            case AdsActions::STOP_SCENE:
+            {
+                const auto a = decompBuffer.GetUint16LE();
+                ss << a;
+            } break;
+            case AdsActions::ELSE: [[fallthrough]];
             // Currently only chapter conditions are implemented
             // so and and or are not implemented...
             case AdsActions::AND: [[fallthrough]];
-            case AdsActions::OR: [[fallthrough]];
-            case AdsActions::FADE_OUT: [[fallthrough]];
-            case AdsActions::END_IF:
+            case AdsActions::OR:
                 break;
         }
 
@@ -357,7 +359,7 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
 
 namespace {
 
-std::vector<SceneAction> DecodeTTM(FileBuffer& fb, Tags& tags)
+std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
@@ -390,7 +392,7 @@ std::vector<SceneAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 
     const auto offset = 8 * 3 + pageBuffer.GetSize() + versionBuffer.GetSize() + 5;
 
-    std::vector<SceneAction> actions{};
+    std::vector<ScriptAction> actions{};
 
     bool flipped = false;
     unsigned activeEdgeColor = 0xf;
@@ -421,7 +423,7 @@ std::vector<SceneAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 
             const auto tag = tags.FindTag(*name);
             actions.emplace_back(
-                SetScene{
+                SetScript{
                     *name,
                     tag
                         ? static_cast<std::uint16_t>(tag->mValue)
@@ -475,8 +477,8 @@ std::vector<SceneAction> DecodeTTM(FileBuffer& fb, Tags& tags)
             case Actions::SLOT_PALETTE:
                 actions.emplace_back(SlotPalette{static_cast<unsigned>(args[0])});
                 break;
-            case Actions::SET_SCENEA: [[fallthrough]];
-            case Actions::SET_SCENE:
+            case Actions::SET_SCRIPTA: [[fallthrough]];
+            case Actions::SET_SCRIPT:
             {
                 ASSERT(!args.empty());
                 const auto tag = tags.GetTag(Tag{static_cast<unsigned>(args[0])});
@@ -484,7 +486,7 @@ std::vector<SceneAction> DecodeTTM(FileBuffer& fb, Tags& tags)
                     ? *tag
                     : std::to_string(static_cast<int>(args[0]));
                 actions.emplace_back(
-                    SetScene{
+                    SetScript{
                         sceneTag,
                         static_cast<std::uint16_t>(args[0])});
             } break;
@@ -601,14 +603,14 @@ std::vector<SceneAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 
 }
 
-std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
+std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb)
 {
     Tags tags{};
     const auto actions = DecodeTTM(fb, tags);
 
-    std::unordered_map<unsigned, Scene> scenes{};
+    std::unordered_map<unsigned, Script> scripts{};
 
-    Scene currentScene;
+    Script currentScript;
     bool loadingScene = false;
     std::optional<unsigned> imageSlot = 0;
     std::optional<PaletteSlot> paletteSlot{};
@@ -625,24 +627,24 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
         unsigned,
         std::pair<std::string, unsigned>> screens{};
 
-    const auto PushScene = [&]{
-        currentScene.mPalettes = palettes;
-        currentScene.mImages.clear();
+    const auto PushScript = [&]{
+        currentScript.mPalettes = palettes;
+        currentScript.mImages.clear();
         for (auto [key, val] : images)
         {
-            if (!currentScene.mPalettes.contains(val.second))
+            if (!currentScript.mPalettes.contains(val.second))
             {
                 val = std::make_pair(val.first, 0);
             }
-            currentScene.mImages[key] = val;
+            currentScript.mImages[key] = val;
         }
-        currentScene.mScreens = screens;
-        currentScene.mActions.emplace_back(DisableClipRegion{});
+        currentScript.mScreens = screens;
+        currentScript.mActions.emplace_back(DisableClipRegion{});
 
-        const auto tag = tags.FindTag(currentScene.mSceneTag);
+        const auto tag = tags.FindTag(currentScript.mSceneTag);
         if (tag)
         {
-            scenes[tag->mValue] = currentScene;
+            scripts[tag->mValue] = currentScript;
         }
         else
         {
@@ -654,16 +656,16 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
     {
         std::visit(
             overloaded{
-                [&](const SetScene& setScene)
+                [&](const SetScript& setScript)
                 {
                     if (loadingScene)
-                        PushScene();
+                        PushScript();
 
-                    currentScene.mSceneTag = setScene.mName;
-                    currentScene.mActions.clear();
-                    currentScene.mImages.clear();
-                    currentScene.mScreens.clear();
-                    currentScene.mPalettes.clear();
+                    currentScript.mSceneTag = setScript.mName;
+                    currentScript.mActions.clear();
+                    currentScript.mImages.clear();
+                    currentScript.mScreens.clear();
+                    currentScript.mPalettes.clear();
                     images.clear();
                     imageSlots.clear();
                     palettes.clear();
@@ -711,43 +713,43 @@ std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb)
                 },
                 [&](const ClipRegion& a)
                 {
-                    currentScene.mActions.emplace_back(a);
+                    currentScript.mActions.emplace_back(a);
                 },
                 [&](const DrawScreen& a)
                 {
-                    currentScene.mActions.emplace_back(a);
+                    currentScript.mActions.emplace_back(a);
                 },
                 [&](const DrawRect& a)
                 {
-                    currentScene.mActions.emplace_back(a);
+                    currentScript.mActions.emplace_back(a);
                 },
                 [&](const DrawSprite& a)
                 {
-                    currentScene.mActions.emplace_back(a);
+                    currentScript.mActions.emplace_back(a);
                 },
                 [&](const Update& a)
                 {
-                    currentScene.mActions.emplace_back(a);
+                    currentScript.mActions.emplace_back(a);
                 },
                 [&](const Purge& a)
                 {
-                    currentScene.mActions.emplace_back(a);
+                    currentScript.mActions.emplace_back(a);
                 },
                 [&](const Delay& a)
                 {
-                    currentScene.mActions.emplace_back(a);
+                    currentScript.mActions.emplace_back(a);
                 },
                 [](const auto&){}},
             action);
     }
 
     // Push final scene
-    PushScene();
+    PushScript();
 
-    return scenes;
+    return scripts;
 }
 
-std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb)
+std::vector<ScriptAction> LoadDynamicScripts(FileBuffer& fb)
 {
     Tags tags{};
     return DecodeTTM(fb, tags);

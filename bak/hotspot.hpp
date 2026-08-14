@@ -105,9 +105,9 @@ public:
 
     std::vector<Hotspot> mHotspots{};
     std::unordered_map<unsigned, SceneIndex> mAdsIndices{};
-    std::unordered_map<unsigned, Scene> mScenes{};
+    std::unordered_map<unsigned, Script> mScripts{};
 
-    const Scene& GetScene(unsigned adsIndex, const GameState& gs);
+    const Script& GetScript(unsigned adsIndex, const GameState& gs);
     std::optional<unsigned> GetTempleNumber() const;
 };
 

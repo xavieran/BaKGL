@@ -19,14 +19,14 @@ public:
         std::string adsFile,
         std::string ttmFile);
 
-    std::optional<SceneAction> GetNextAction();
+    std::optional<ScriptAction> GetNextAction();
 
 private:
     void AdvanceToNextScene();
     unsigned FindActionMatchingTag(unsigned tag);
 
     std::unordered_map<unsigned, std::vector<SceneSequence>> mSceneSequences;
-    std::vector<SceneAction> mActions;
+    std::vector<ScriptAction> mActions;
 
     unsigned mCurrentAction = 0;
     unsigned mCurrentSequence = 0;

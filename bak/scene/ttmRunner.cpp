@@ -22,16 +22,16 @@ void TTMRunner::LoadTTM(
     auto adsFb = FileBufferFactory::Get().CreateDataBuffer(adsFile);
     mSceneSequences = LoadSceneSequences(adsFb);
     auto ttmFb = FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-    mActions = LoadDynamicScenes(ttmFb);
+    mActions = LoadDynamicScripts(ttmFb);
 
     mCurrentSequence = 0;
     mCurrentSequenceScene = 0;
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
+    auto nextTag = mSceneSequences[1][mCurrentSequence].mScripts[mCurrentSequenceScene].mScriptTag;
     mLogger.Debug() << "Next tag: " << nextTag << "\n";
     mCurrentAction = FindActionMatchingTag(nextTag);
 }
 
-std::optional<SceneAction> TTMRunner::GetNextAction()
+std::optional<ScriptAction> TTMRunner::GetNextAction()
 {
     if (mCurrentAction == mActions.size())
     {
@@ -85,7 +85,7 @@ std::optional<SceneAction> TTMRunner::GetNextAction()
 
 void TTMRunner::AdvanceToNextScene()
 {
-    auto& currentScenes = mSceneSequences[1][mCurrentSequence].mScenes;
+    auto& currentScenes = mSceneSequences[1][mCurrentSequence].mScripts;
     mCurrentSequenceScene++;
     if (mCurrentSequenceScene == currentScenes.size())
     {
@@ -100,7 +100,7 @@ void TTMRunner::AdvanceToNextScene()
         return;
     }
 
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScenes[mCurrentSequenceScene].mDrawScene;
+    auto nextTag = mSceneSequences[1][mCurrentSequence].mScripts[mCurrentSequenceScene].mScriptTag;
     mCurrentAction = FindActionMatchingTag(nextTag);
 }
 
@@ -109,8 +109,8 @@ unsigned TTMRunner::FindActionMatchingTag(unsigned tag)
     std::optional<unsigned> foundIndex{};
     for (unsigned i = 0; i < mActions.size(); i++)
     {
-        evaluate_if<SetScene>(mActions[i], [&](const auto& action) {
-            if (action.mSceneNumber == tag)
+        evaluate_if<SetScript>(mActions[i], [&](const auto& action) {
+            if (action.mScriptNumber == tag)
             {
                 foundIndex = i;
             }

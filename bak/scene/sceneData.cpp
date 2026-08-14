@@ -12,21 +12,20 @@ std::string_view ToString(AdsActions a)
 {
     switch (a)
     {
-    case AdsActions::INDEX: return "Index";
     case AdsActions::IF_NOT_PLAYED: return "IfNotPlayed";
-    case AdsActions::IF_PLAYED: return "IfPlayed";
+    case AdsActions::IF_NOT_PLAYED_ELSE: return "IfNotPlayedElse";
+    case AdsActions::IF_PLAYED_ELSE: return "IfPlayedElse";
     case AdsActions::IF_CHAP_LTE: return "IfChapterLTE";
     case AdsActions::ELSE: return "Else";
     case AdsActions::IF_CHAP_GTE: return "IfChapterGTE";
     case AdsActions::AND: return "And";
     case AdsActions::OR: return "Or";
-    case AdsActions::ADD_SCENE2: return "AddScene2";
-    case AdsActions::ADD_SCENE: return "AddScene";
-    case AdsActions::STOP_SCENE: return "StopScene";
-    case AdsActions::PLAY_SCENE: return "PlayScene";
-    case AdsActions::PLAY_ALL_SCENES: return "PlayAllScenes";
-    case AdsActions::FADE_OUT: return "FadeOut";
+    case AdsActions::RESTART_SCRIPT: return "RestartScript";
+    case AdsActions::START_SCRIPT: return "StartScript";
+    case AdsActions::STOP_SCRIPT: return "StopScript";
+    case AdsActions::END_IF_ELSE: return "EndIfElse";
     case AdsActions::END_IF: return "EndIf";
+    case AdsActions::STOP_SCENE: return "StopScene";
     case AdsActions::END: return "End";
     default:
         std::stringstream ss{};
@@ -57,8 +56,8 @@ std::string_view ToString(Actions a)
     case Actions::SLOT_IMAGE: return "SlotImage";
     case Actions::SLOT_PALETTE: return "SlotPalette";
     case Actions::SLOT_FONT: return "SlotFont";
-    case Actions::SET_SCENE: return "SetScene";
-    case Actions::SET_SCENEA: return "SETSCENEA";
+    case Actions::SET_SCRIPT: return "SetScript";
+    case Actions::SET_SCRIPTA: return "SETSCRIPTA";
     case Actions::SET_SAVE_LAYER: return "SetSaveLayer";
     case Actions::GOTO_TAG: return "GotoTag";
     case Actions::SET_COLOR: return "SetColors";
@@ -110,9 +109,9 @@ std::ostream& operator<<(std::ostream& os, Actions a)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const SetScene& ss)
+std::ostream& operator<<(std::ostream& os, const SetScript& ss)
 {
-    os << "SetScene {" << ss.mSceneNumber << " " << ss.mName << "}";
+    os << "SetScript {" << ss.mScriptNumber << " " << ss.mName << "}";
     return os;
 }
 
@@ -260,7 +259,7 @@ std::ostream& operator<<(std::ostream& os, const GotoTag& a)
     return os << "GotoTag{ " << a.mTag << "}";
 }
 
-std::ostream& operator<<(std::ostream& os, const SceneAction& sa)
+std::ostream& operator<<(std::ostream& os, const ScriptAction& sa)
 {
     std::visit(overloaded{
         [&](const auto& x){ os << x; }},

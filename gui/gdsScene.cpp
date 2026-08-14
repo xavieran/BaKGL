@@ -106,9 +106,9 @@ GDSScene::GDSScene(
         mGameState.SetShopType_7542(shopStats.mRepairTypes);
     }
 
-    const auto& scene1 = mSceneHotspots.GetScene(
+    const auto& scene1 = mSceneHotspots.GetScript(
         mSceneHotspots.mSceneIndex1, mGameState);
-    const auto& scene2 = mSceneHotspots.GetScene(
+    const auto& scene2 = mSceneHotspots.GetScript(
         mSceneHotspots.mSceneIndex2, mGameState);
 
     // Unlikely we ever nest this deep
@@ -221,9 +221,9 @@ void GDSScene::HandleHotspotLeftClicked(const BAK::Hotspot& hotspot, bool hotspo
     {
         if (hotspot.mActionArg2 != 0)
         {
-            const auto& scene1 = mSceneHotspots.GetScene(
+            const auto& scene1 = mSceneHotspots.GetScript(
                 mSceneHotspots.mSceneIndex1, mGameState);
-            const auto& scene2 = mSceneHotspots.GetScene(
+            const auto& scene2 = mSceneHotspots.GetScript(
                 hotspot.mActionArg2, mGameState);
             AddStaticTTM(scene1, scene2);
         }
@@ -327,7 +327,7 @@ void GDSScene::DialogFinished(const std::optional<BAK::ChoiceIndex>& choice)
     EvaluateHotspotAction();
 }
 
-void GDSScene::AddStaticTTM(BAK::Scene scene1, BAK::Scene scene2)
+void GDSScene::AddStaticTTM(BAK::Script scene1, BAK::Script scene2)
 {
     ASSERT(mStaticTTMs.size () < mMaxSceneNesting);
     mLogger.Debug() << __FUNCTION__ << " " << scene1 << " --- " << scene2 << " \n";
@@ -539,9 +539,9 @@ void GDSScene::DoTemple(BAK::KeyTarget target)
     auto* container = mGameState.GetContainerForGDSScene(mReference);
     ASSERT(container && container->IsShop());
     assert(mSceneHotspots.GetTempleNumber());
-    const auto& scene1 = mSceneHotspots.GetScene(
+    const auto& scene1 = mSceneHotspots.GetScript(
         mSceneHotspots.mSceneIndex1, mGameState);
-    const auto& scene2 = mSceneHotspots.GetScene(
+    const auto& scene2 = mSceneHotspots.GetScript(
         3, mGameState);
     AddStaticTTM(scene1, scene2);
     mDialogDisplay.Clear();
