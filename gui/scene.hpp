@@ -38,12 +38,12 @@ using DrawingAction = std::variant<
     SceneSprite,
     SceneRect>;
 
-DrawingAction ConvertSceneAction(const BAK::SceneAction& action);
-EnableClipRegion ConvertSceneAction(const BAK::ClipRegion&);
-DisableClipRegion ConvertSceneAction(const BAK::DisableClipRegion&);
+DrawingAction ConvertScriptAction(const BAK::ScriptAction& action);
+EnableClipRegion ConvertScriptAction(const BAK::ClipRegion&);
+DisableClipRegion ConvertScriptAction(const BAK::DisableClipRegion&);
 
 template <typename T, typename S>
-SceneSprite ConvertSceneAction(
+SceneSprite ConvertScriptAction(
     const BAK::DrawScreen& action,
     const T& textures,
     const S& offsets) // make this const
@@ -60,7 +60,7 @@ SceneSprite ConvertSceneAction(
         scale};
 }
 template <typename T, typename S>
-SceneSprite ConvertSceneAction(
+SceneSprite ConvertScriptAction(
     const BAK::DrawSprite& action,
     const T& textures,
     const S& offsets) // make this const
@@ -96,7 +96,7 @@ SceneSprite ConvertSceneAction(
 }
 
 template <typename T>
-SceneSprite ConvertSceneAction(
+SceneSprite ConvertScriptAction(
     const BAK::DrawSprite& action,
     const T& textures)
 {

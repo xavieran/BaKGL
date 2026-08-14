@@ -18,8 +18,8 @@ namespace Gui {
 
 StaticTTM::StaticTTM(
     Graphics::SpriteManager& spriteManager,
-    const BAK::Scene& sceneInit,
-    const BAK::Scene& sceneContent)
+    const BAK::Script& sceneInit,
+    const BAK::Script& sceneContent)
 :
     mSpriteSheet{spriteManager.AddTemporarySpriteSheet()},
     mSceneFrame{
@@ -115,7 +115,7 @@ StaticTTM::StaticTTM(
                 overloaded{
                     [&](const BAK::DrawScreen& sa){
                         mLogger.Info() << "DrawScreen: " << sa << "\n";
-                        const auto screen = ConvertSceneAction(
+                        const auto screen = ConvertScriptAction(
                             sa,
                             textures,
                             offsets);
@@ -139,7 +139,7 @@ StaticTTM::StaticTTM(
                             mSceneFrame.AddChildBack(&elem);
                     },
                     [&](const BAK::DrawSprite& sa){
-                        const auto sceneSprite = ConvertSceneAction(
+                        const auto sceneSprite = ConvertScriptAction(
                             sa,
                             textures,
                             offsets);
@@ -185,7 +185,7 @@ StaticTTM::StaticTTM(
                         }
                     },
                     [&](const BAK::ClipRegion& a){
-                        const auto clip = ConvertSceneAction(a);
+                        const auto clip = ConvertScriptAction(a);
                         mClipRegion.emplace(
                             ClipRegionTag{},
                             clip.mTopLeft,

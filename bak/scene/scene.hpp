@@ -36,15 +36,14 @@ struct SceneIndex
 
 struct SceneADS
 {
-    unsigned mInitScene;
-    unsigned mDrawScene;
-    bool mPlayAllScenes;
+    unsigned mTTMSlot;
+    unsigned mScriptTag;
 };
 
 struct SceneSequence
 {
     std::string mName;
-    std::vector<SceneADS> mScenes;
+    std::vector<SceneADS> mScripts;
 };
 
 std::ostream& operator<<(std::ostream&, const SceneIndex&);
@@ -57,10 +56,10 @@ struct ImageSlot
 
 using PaletteSlot = unsigned;
 
-struct Scene
+struct Script
 {
     std::string mSceneTag;
-    std::vector<SceneAction> mActions;
+    std::vector<ScriptAction> mActions;
     std::unordered_map<PaletteSlot, std::string> mPalettes;
     std::unordered_map<unsigned, std::pair<std::string, PaletteSlot>> mImages;
     std::unordered_map<PaletteSlot, std::pair<std::string, PaletteSlot>> mScreens;
@@ -68,18 +67,18 @@ struct Scene
     std::optional<ClipRegion> mClipRegion;
 };
 
-std::ostream& operator<<(std::ostream&, const Scene&);
+std::ostream& operator<<(std::ostream&, const Script&);
 
 struct DynamicScene
 {
-    std::map<unsigned, unsigned> mScenes;
-    std::vector<SceneAction> mActions;
+    std::map<unsigned, unsigned> mScripts;
+    std::vector<ScriptAction> mActions;
 };
 
 std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb);
 std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
-std::unordered_map<unsigned, Scene> LoadScenes(FileBuffer& fb);
-std::vector<SceneAction> LoadDynamicScenes(FileBuffer& fb);
+std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb);
+std::vector<ScriptAction> LoadDynamicScripts(FileBuffer& fb);
 
 FileBuffer DecompressTTM(FileBuffer& fb);
 

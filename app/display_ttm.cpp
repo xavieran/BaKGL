@@ -36,10 +36,10 @@ int main(int argc, char** argv)
             for (const auto& sequence : sequences)
             {
                 std::cout << index << " " << sequence.mName << " [";
-                for (const auto& scene : sequence.mScenes)
+                for (const auto& scene : sequence.mScripts)
                 {
-                    std::cout << " (" << scene.mInitScene
-                        << "," << scene.mDrawScene << ")";
+                    std::cout << " (" << scene.mTTMSlot
+                        << "," << scene.mScriptTag << ")";
                 }
                 std::cout << " ]\n";
             }
@@ -47,14 +47,14 @@ int main(int argc, char** argv)
     }
     else if (mode == "ttm")
     {
-        for (const auto& [index, scene] : BAK::LoadScenes(fb))
+        for (const auto& [index, scene] : BAK::LoadScripts(fb))
         {
             std::cout << index << " " << scene << "\n";
         }
     }
     else if (mode == "dynamic")
     {
-        for (const auto& action : BAK::LoadDynamicScenes(fb))
+        for (const auto& action : BAK::LoadDynamicScripts(fb))
         {
             std::cout << action << "\n";
         }

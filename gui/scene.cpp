@@ -2,7 +2,7 @@
 
 namespace Gui {
 
-EnableClipRegion ConvertSceneAction(
+EnableClipRegion ConvertScriptAction(
     const BAK::ClipRegion& clip)
 {
     const auto width  = clip.mBottomRight.x - clip.mTopLeft.x;
@@ -16,7 +16,7 @@ EnableClipRegion ConvertSceneAction(
     };
 }
 
-DisableClipRegion ConvertSceneAction(
+DisableClipRegion ConvertScriptAction(
     const BAK::DisableClipRegion&)
 {
     return DisableClipRegion{};

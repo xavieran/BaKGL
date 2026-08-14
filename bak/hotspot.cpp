@@ -232,15 +232,15 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
     auto fb2 = FileBufferFactory::Get().CreateDataBuffer(mSceneADS);
     mAdsIndices = BAK::LoadSceneIndices(fb2);
     auto fb3 = FileBufferFactory::Get().CreateDataBuffer(mSceneTTM);
-    mScenes = BAK::LoadScenes(fb3);
+    mScripts = BAK::LoadScripts(fb3);
 }
 
-const Scene& SceneHotspots::GetScene(
+const Script& SceneHotspots::GetScript(
     unsigned adsIndex,
     const GameState& gs)
 {
     const auto ttmIndex = mAdsIndices[adsIndex];
-    return mScenes[ttmIndex.mSceneIndex.GetTTMIndex(gs.GetChapter())];
+    return mScripts[ttmIndex.mSceneIndex.GetTTMIndex(gs.GetChapter())];
 }
 
 std::optional<unsigned> SceneHotspots::GetTempleNumber() const

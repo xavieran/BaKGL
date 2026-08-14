@@ -19,8 +19,8 @@ class StaticTTM
 public:
     StaticTTM(
         Graphics::SpriteManager& spriteManager,
-        const BAK::Scene& sceneInit,
-        const BAK::Scene& sceneContent);
+        const BAK::Script& sceneInit,
+        const BAK::Script& sceneContent);
 
     Widget* GetScene();
     Widget* GetBackground();

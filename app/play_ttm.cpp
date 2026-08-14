@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     const auto& logger = Logging::LogState::GetLogger("main");
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
-    Logging::LogState::Disable("LoadScenes");
+    Logging::LogState::Disable("LoadScripts");
     Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("Gui::Actors");
