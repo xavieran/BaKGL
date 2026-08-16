@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     if (argc < 3)
     {
         std::cerr << "Usage: " << argv[0]
-            << " <sequences|ttm|dynamic|rawads|rawttm|schedule> FILE\n";
+            << " <ttm|dynamic|rawads|rawttm|schedule> FILE\n";
         return -1;
     }
 
@@ -24,23 +24,7 @@ int main(int argc, char** argv)
 
     auto fb = BAK::FileBufferFactory::Get().CreateDataBuffer(file);
 
-    if (mode == "sequences")
-    {
-        for (const auto& [index, sequences] : BAK::LoadSceneSequences(fb))
-        {
-            for (const auto& sequence : sequences)
-            {
-                std::cout << index << " " << sequence.mName << " [";
-                for (const auto& scene : sequence.mScripts)
-                {
-                    std::cout << " (" << scene.mTTMSlot
-                        << "," << scene.mScriptTag << ")";
-                }
-                std::cout << " ]\n";
-            }
-        }
-    }
-    else if (mode == "ttm")
+    if (mode == "ttm")
     {
         for (const auto& [index, scene] : BAK::LoadScripts(fb))
         {
