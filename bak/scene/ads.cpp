@@ -260,6 +260,7 @@ std::ostream& operator<<(std::ostream& os, const Scene& s)
     return os;
 }
 
+
 std::ostream& operator<<(std::ostream& os, const Ads& ads)
 {
     for (const auto& scene : ads.mScenes)
@@ -301,7 +302,7 @@ Ads LoadAds(FileBuffer& fb)
 
         Parser parser{ops};
         Scene scene{};
-        scene.mSceneIndex = index;
+        scene.mSceneIndex = SceneIndex{index};
         scene.mTag = tags.GetTag(Tag{index}).value_or("");
         scene.mBlocks = parser.ParseBlocks();
         ads.mScenes.emplace_back(std::move(scene));

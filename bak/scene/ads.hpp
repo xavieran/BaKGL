@@ -65,7 +65,7 @@ struct ActionBlock
 
 struct Scene
 {
-    unsigned mSceneIndex;
+    SceneIndex mSceneIndex;
     std::string mTag;
     std::vector<ActionBlock> mBlocks;
 };

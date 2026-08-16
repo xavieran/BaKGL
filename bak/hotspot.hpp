@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/dialogTarget.hpp"
+#include "bak/scene/ads.hpp"
 #include "bak/scene/scene.hpp"
 #include "bak/types.hpp"
 
@@ -104,7 +105,7 @@ public:
     std::uint16_t mUnknown_25{};
 
     std::vector<Hotspot> mHotspots{};
-    std::unordered_map<unsigned, SceneIndex> mAdsIndices{};
+    BAK::ADS::Ads mAds{};
     std::unordered_map<unsigned, Script> mScripts{};
 
     const Script& GetScript(unsigned adsIndex, const GameState& gs);

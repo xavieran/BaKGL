@@ -6,8 +6,11 @@
 #include "com/logger.hpp"
 #include "com/ostream.hpp"
 #include "com/string.hpp"
+#include "com/visit.hpp"
 
 #include "graphics/glm.hpp"
+
+#include <algorithm>
 
 namespace BAK {
 
@@ -230,7 +233,7 @@ SceneHotspots::SceneHotspots(FileBuffer&& fb)
         << " " << mSceneIndex2 << "\n";
 
     auto fb2 = FileBufferFactory::Get().CreateDataBuffer(mSceneADS);
-    mAdsIndices = BAK::LoadSceneIndices(fb2);
+    mAds = BAK::ADS::LoadAds(fb2);
     auto fb3 = FileBufferFactory::Get().CreateDataBuffer(mSceneTTM);
     mScripts = BAK::LoadScripts(fb3);
 }
@@ -239,8 +242,43 @@ const Script& SceneHotspots::GetScript(
     unsigned adsIndex,
     const GameState& gs)
 {
-    const auto ttmIndex = mAdsIndices[adsIndex];
-    return mScripts[ttmIndex.mSceneIndex.GetTTMIndex(gs.GetChapter())];
+    const auto& scene = std::find_if(
+        mAds.mScenes.begin(),
+        mAds.mScenes.end(),
+        [&](const auto& scene)
+        {
+            return scene.mSceneIndex.mValue == adsIndex;
+        });
+    ASSERT(scene != mAds.mScenes.end());
+
+    const auto chapter = gs.GetChapter();
+    for (const auto& block : scene->mBlocks)
+    {
+        const bool matched = std::all_of(
+            block.mConditions.begin(),
+            block.mConditions.end(),
+            [&](const auto& condition)
+            {
+                return std::visit(overloaded{
+                    [](const BAK::ADS::NotStarted&){ return true; },
+                    [](const BAK::ADS::Finished&){ return true; },
+                    [&](const BAK::ADS::ChapterGTE& c){ return chapter.mValue >= c.mChapter; },
+                    [&](const BAK::ADS::ChapterLTE& c){ return chapter.mValue <= c.mChapter; }},
+                    condition);
+            });
+
+        const auto& actions = matched ? block.mThen : block.mElse;
+        for (auto it = actions.rbegin(); it != actions.rend(); it++)
+        {
+            if (const auto* start = std::get_if<BAK::ADS::StartScript>(&*it))
+            {
+                return mScripts[start->mScriptIndex.mValue];
+            }
+        }
+    }
+
+    ASSERT(false);
+    return mScripts[0];
 }
 
 std::optional<unsigned> SceneHotspots::GetTempleNumber() const
