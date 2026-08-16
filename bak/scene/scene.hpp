@@ -6,23 +6,10 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
-#include <map>
 
 namespace BAK {
 
 class FileBuffer;
-
-struct SceneADS
-{
-    unsigned mTTMSlot;
-    unsigned mScriptTag;
-};
-
-struct SceneSequence
-{
-    std::string mName;
-    std::vector<SceneADS> mScripts;
-};
 
 struct ImageSlot
 {
@@ -45,13 +32,6 @@ struct Script
 
 std::ostream& operator<<(std::ostream&, const Script&);
 
-struct DynamicScene
-{
-    std::map<unsigned, unsigned> mScripts;
-    std::vector<ScriptAction> mActions;
-};
-
-std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb);
 std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb);
 std::vector<ScriptAction> LoadDynamicScripts(FileBuffer& fb);
 

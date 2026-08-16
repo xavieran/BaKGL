@@ -3,6 +3,7 @@
 #include "bak/fileBufferFactory.hpp"
 #include "bak/scene/scene.hpp"
 
+#include "com/assert.hpp"
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
@@ -20,15 +21,17 @@ void TTMRunner::LoadTTM(
 {
     mLogger.Debug() << "Loading ADS/TTM: " << adsFile << " " << ttmFile << "\n";
     auto adsFb = FileBufferFactory::Get().CreateDataBuffer(adsFile);
-    mSceneSequences = LoadSceneSequences(adsFb);
+    mAds = ADS::LoadAds(adsFb);
     auto ttmFb = FileBufferFactory::Get().CreateDataBuffer(ttmFile);
     mActions = LoadDynamicScripts(ttmFb);
 
-    mCurrentSequence = 0;
-    mCurrentSequenceScene = 0;
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScripts[mCurrentSequenceScene].mScriptTag;
-    mLogger.Debug() << "Next tag: " << nextTag << "\n";
-    mCurrentAction = FindActionMatchingTag(nextTag);
+    mStarted.clear();
+    mFinished.clear();
+    mPendingScripts.clear();
+    mCurrentScript = 0;
+    mCurrentAction = 0;
+
+    StartNextScript();
 }
 
 std::optional<ScriptAction> TTMRunner::GetNextAction()
@@ -45,7 +48,8 @@ std::optional<ScriptAction> TTMRunner::GetNextAction()
     std::visit(
         overloaded{
             [&](const Purge&){
-                AdvanceToNextScene();
+                StopScript(mCurrentScript);
+                StartNextScript();
                 nextActionChosen = true;
             },
             [&](const GotoTag& sa){
@@ -83,28 +87,101 @@ std::optional<ScriptAction> TTMRunner::GetNextAction()
     return action;
 }
 
-void TTMRunner::AdvanceToNextScene()
+void TTMRunner::StartNextScript()
 {
-    auto& currentScenes = mSceneSequences[1][mCurrentSequence].mScripts;
-    mCurrentSequenceScene++;
-    if (mCurrentSequenceScene == currentScenes.size())
+    if (mPendingScripts.empty())
     {
-        mCurrentSequenceScene = 0;
-        mCurrentSequence++;
+        EvaluateScene();
     }
 
-    if (mCurrentSequence == mSceneSequences[1].size())
+    if (mPendingScripts.empty())
     {
         mCurrentAction = mActions.size();
-        mCurrentSequence = 0;
         return;
     }
 
-    auto nextTag = mSceneSequences[1][mCurrentSequence].mScripts[mCurrentSequenceScene].mScriptTag;
-    mCurrentAction = FindActionMatchingTag(nextTag);
+    mCurrentScript = mPendingScripts.front();
+    mPendingScripts.pop_front();
+    mLogger.Debug() << "Starting script: " << mCurrentScript << "\n";
+    mCurrentAction = FindActionMatchingTag(mCurrentScript);
 }
 
-unsigned TTMRunner::FindActionMatchingTag(unsigned tag)
+bool TTMRunner::EvaluateScene()
+{
+    for (const auto& scene : mAds.mScenes)
+    {
+        for (const auto& block : scene.mBlocks)
+        {
+            bool conditionsHold = true;
+            for (const auto& condition : block.mConditions)
+            {
+                conditionsHold &= EvaluateCondition(condition);
+            }
+
+            if (conditionsHold)
+            {
+                mLogger.Debug() << "Block matched: " << block << "\n";
+                ExecuteBlock(block);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+void TTMRunner::ExecuteBlock(const ADS::ActionBlock& block)
+{
+    for (const auto& action : block.mThen)
+    {
+        std::visit(
+            overloaded{
+                [&](const ADS::StartScript& start){
+                    StartScript(start.mScriptIndex.mValue);
+                },
+                [&](const ADS::StopScript& stop){
+                    StopScript(stop.mScriptIndex.mValue);
+                }},
+            action);
+    }
+}
+
+bool TTMRunner::EvaluateCondition(const ADS::Condition& condition) const
+{
+    return std::visit(
+        overloaded{
+            [&](const ADS::NotStarted& notStarted){
+                return !mStarted.contains(notStarted.mScriptIndex.mValue);
+            },
+            [&](const ADS::Finished& finished){
+                return mFinished.contains(finished.mScriptIndex.mValue);
+            },
+            [&](const ADS::ChapterGTE&){
+                ASSERT(false);
+                return false;
+            },
+            [&](const ADS::ChapterLTE&){
+                ASSERT(false);
+                return false;
+            }},
+        condition);
+}
+
+void TTMRunner::StartScript(unsigned scriptTag)
+{
+    mStarted.insert(scriptTag);
+    mPendingScripts.emplace_back(scriptTag);
+}
+
+void TTMRunner::StopScript(unsigned scriptTag)
+{
+    if (scriptTag == mCurrentScript)
+    {
+        mFinished.insert(scriptTag);
+    }
+}
+
+unsigned TTMRunner::FindActionMatchingTag(unsigned tag) const
 {
     std::optional<unsigned> foundIndex{};
     for (unsigned i = 0; i < mActions.size(); i++)
