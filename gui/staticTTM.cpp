@@ -131,31 +131,6 @@ StaticTTM::StaticTTM(
             mLogger.Debug() << " Action: " << action << "\n";
             std::visit(
                 overloaded{
-                    [&](const BAK::DrawScreen& sa){
-                        mLogger.Info() << "DrawScreen: " << sa << "\n";
-                        const auto screen = ConvertScriptAction(
-                            sa,
-                            textures,
-                            offsets);
-
-                        auto& elem = mSceneElements.emplace_back(
-                            Graphics::DrawMode::Sprite,
-                            mSpriteSheet->mSpriteSheet,
-                            Graphics::TextureIndex{screen.mImage},
-                            Graphics::ColorMode::Texture,
-                            glm::vec4{1},
-                            screen.mPosition,
-                            screen.mScale,
-                            false);
-
-                        // Either add to the clip region or to the frame
-                        // This doesn't work if the scene has more than one
-                        // clip region...
-                        if (mClipRegion)
-                            mClipRegion->AddChildBack(&elem);
-                        else
-                            mSceneFrame.AddChildBack(&elem);
-                    },
                     [&](const BAK::DrawSprite& sa){
                         const auto sceneSprite = ConvertScriptAction(
                             sa,

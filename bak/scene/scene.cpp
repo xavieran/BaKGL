@@ -199,9 +199,9 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
                         glm::vec2{args[0], args[1]},
                         glm::vec2{args[2], args[3]}});
                 break;
-            case Actions::SAVE_IMAGE0:
+            case Actions::SAVE_RECT_TO_BACKGROUND:
                 actions.emplace_back(
-                    SaveImage{
+                    SaveRectToBackground{
                         glm::vec2{args[0], args[1]},
                         glm::vec2{args[2], args[3]}});
                 break;
@@ -211,9 +211,9 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
                         glm::vec2{args[0], args[1]},
                         glm::vec2{args[2], args[3]}});
                 break;
-            case Actions::DRAW_SCREEN:
+            case Actions::COPY_LAYER:
                 actions.emplace_back(
-                    DrawScreen{
+                    CopyLayer{
                         glm::vec2{args[0], args[1]},
                         glm::vec2{args[2], args[3]},
                         static_cast<unsigned>(args[4]),
@@ -423,7 +423,7 @@ std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb)
                 {
                     currentScript.mActions.emplace_back(a);
                 },
-                [&](const DrawScreen& a)
+                [&](const CopyLayer& a)
                 {
                     currentScript.mActions.emplace_back(a);
                 },

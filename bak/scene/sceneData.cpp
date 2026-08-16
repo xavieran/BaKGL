@@ -65,7 +65,7 @@ std::string_view ToString(Actions a)
     case Actions::SHOW_DIALOG: return "ShowDialog";
     case Actions::FADE_OUT: return "FadeOut";
     case Actions::FADE_IN: return "FadeIn";
-    case Actions::SAVE_IMAGE0: return "SaveImage0";
+    case Actions::SAVE_RECT_TO_BACKGROUND: return "SaveRectToBackground";
     case Actions::SAVE_REGION_TO_LAYER: return "SaveRegionToLayer";
     case Actions::SET_UNKNOWN: return "SETUNKNOWN";
     case Actions::SET_WINDOWA: return "SETWINDOWA";
@@ -78,7 +78,7 @@ std::string_view ToString(Actions a)
     case Actions::DRAW_SPRITE_FLIP_XY: return "DrawSpriteFlipXY";
     case Actions::DRAW_SPRITE_ROTATE: return "DrawSpriteRotate";
     case Actions::DRAW_SAVED_REGION: return "DrawSavedRegion";
-    case Actions::DRAW_SCREEN: return "DrawScreen";
+    case Actions::COPY_LAYER: return "CopyLayer";
     case Actions::LOAD_SOUND_RESOURCE: return "LoadSoundResource";
     case Actions::SELECT_SOUND: return "SelectSound";
     case Actions::DESELECT_SOUND: return "DeselectSound";
@@ -137,10 +137,10 @@ std::ostream& operator<<(std::ostream& os, const DrawRect& a)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const DrawScreen& a)
+std::ostream& operator<<(std::ostream& os, const CopyLayer& a)
 {
-    os << "DrawScreen{ " << a.mPosition << " - " << a.mDimensions << " ("
-        << a.mArg1 << ", " << a.mArg2 << ")}";
+    os << "CopyLayer{ " << a.mPosition << " - " << a.mDimensions
+        << " src: " << a.mSourceLayer << " dst: " << a.mTargetLayer << "}";
     return os;
 }
 
@@ -199,9 +199,9 @@ std::ostream& operator<<(std::ostream& os, const Purge& a)
     return os << "Purge{}";
 }
 
-std::ostream& operator<<(std::ostream& os, const SaveImage& a)
+std::ostream& operator<<(std::ostream& os, const SaveRectToBackground& a)
 {
-    return os << "SaveImage{ pos: " << a.pos << " dims: " << a.dims << "}";
+    return os << "SaveRectToBackground{ pos: " << a.pos << " dims: " << a.dims << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SaveRegionToLayer& a)

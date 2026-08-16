@@ -1,12 +1,12 @@
 #pragma once
 
 #include "bak/image.hpp"
+#include "bak/palette.hpp"
 #include "bak/scene/spriteRenderer.hpp"
 #include "bak/scene/ttmRunner.hpp"
 
 #include "com/logger.hpp"
 
-#include <optional>
 #include <unordered_map>
 
 namespace BAK {
@@ -47,10 +47,8 @@ private:
     std::unordered_map<unsigned, Graphics::Texture> mSaves;
     std::unordered_map<unsigned, ImageSlot> mImageSlots;
     std::unordered_map<unsigned, PaletteSlot> mPaletteSlots;
-    std::unordered_map<unsigned, Graphics::TextureStore> mTextures;
 
     SpriteRenderer mRenderer;
-    std::optional<BAK::Image> mScreen;
 
     Graphics::TextureStore mRenderedFrames;
 

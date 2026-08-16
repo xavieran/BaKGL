@@ -11,13 +11,25 @@
 
 namespace BAK {
 
+Layer LayerFromArgument(unsigned arg)
+{
+    switch (arg)
+    {
+    case 0: return Layer::Flip;
+    case 1: return Layer::Screen;
+    case 2: return Layer::Background;
+    case 3: return Layer::Save;
+    default: return Layer::Screen;
+    }
+}
+
 SpriteRenderer::SpriteRenderer()
 :
-    mForegroundLayer{320, 200, 320, 200},
-    mBackgroundLayer{320, 200, 320, 200},
-    mSavedImagesLayer0{320, 200, 320, 200},
-    mSavedImagesLayer1{320, 200, 320, 200},
-    mSavedImagesLayerBG{320, 200, 320, 200}
+    mLayers{{
+        {sScreenWidth, sScreenHeight, sScreenWidth, sScreenHeight},
+        {sScreenWidth, sScreenHeight, sScreenWidth, sScreenHeight},
+        {sScreenWidth, sScreenHeight, sScreenWidth, sScreenHeight},
+        {sScreenWidth, sScreenHeight, sScreenWidth, sScreenHeight}}}
 {
 }
 
@@ -30,10 +42,8 @@ void SpriteRenderer::SetColors(std::uint8_t fg, std::uint8_t bg)
 void SpriteRenderer::SetPixel(
     glm::ivec2 pos,
     glm::vec4 color,
-    Graphics::Texture& layer)
+    Graphics::Texture& target)
 {
-    if (color.a == 0) return;
-
     if (mClipRegion
         && (pos.x < mClipRegion->mTopLeft.x || pos.x > mClipRegion->mBottomRight.x
             || pos.y < mClipRegion->mTopLeft.y || pos.y > mClipRegion->mBottomRight.y))
@@ -41,36 +51,22 @@ void SpriteRenderer::SetPixel(
         return;
     }
 
-    if (pos.x < 0 || pos.x >= static_cast<int>(layer.GetWidth())
-        || pos.y < 0 || pos.y >= static_cast<int>(layer.GetHeight()))
+    if (pos.x < 0 || pos.x >= static_cast<int>(target.GetWidth())
+        || pos.y < 0 || pos.y >= static_cast<int>(target.GetHeight()))
     {
         return;
     }
 
-    layer.SetPixel(pos.x, pos.y, color);
-}
-
-void SpriteRenderer::RenderTexture(
-    const Graphics::Texture& texture,
-    glm::ivec2 pos,
-    Graphics::Texture& layer)
-{
-    for (int x = 0; x < static_cast<int>(texture.GetWidth()); x++)
-    {
-        for (int y = 0; y < static_cast<int>(texture.GetHeight()); y++)
-        {
-            SetPixel(pos + glm::ivec2{x, y}, texture.GetPixel(x, y), layer);
-        }
-    }
+    target.SetPixel(pos.x, pos.y, color);
 }
 
 void SpriteRenderer::RenderSprite(
-    BAK::Image sprite,
-    const BAK::Palette& palette,
+    const Image& sprite,
+    const Palette& palette,
     glm::ivec2 pos,
     bool flipX,
     bool flipY,
-    Graphics::Texture& layer)
+    Graphics::Texture& target)
 {
     const auto width  = static_cast<int>(sprite.GetWidth());
     const auto height = static_cast<int>(sprite.GetHeight());
@@ -79,11 +75,14 @@ void SpriteRenderer::RenderSprite(
     {
         for (int y = 0; y < height; y++)
         {
+            const auto index = sprite.GetPixel(x, y);
+            if (index == 0) continue;
+
             const auto pixelPos = pos + glm::ivec2{
                 flipX ? width  - 1 - x : x,
                 flipY ? height - 1 - y : y};
 
-            SetPixel(pixelPos, palette.GetColor(sprite.GetPixel(x, y)), layer);
+            SetPixel(pixelPos, palette.GetColor(index), target);
         }
     }
 }
@@ -91,9 +90,9 @@ void SpriteRenderer::RenderSprite(
 void SpriteRenderer::DrawRect(
     glm::ivec2 pos,
     glm::ivec2 dims,
-    const BAK::Palette& palette,
+    const Palette& palette,
     bool filled,
-    Graphics::Texture& layer)
+    Graphics::Texture& target)
 {
     if (dims.x <= 0 || dims.y <= 0) return;
 
@@ -107,7 +106,7 @@ void SpriteRenderer::DrawRect(
         {
             for (int x = pos.x; x <= right; x++)
             {
-                SetPixel(glm::ivec2{x, y}, fill, layer);
+                SetPixel(glm::ivec2{x, y}, fill, target);
             }
         }
     }
@@ -115,48 +114,109 @@ void SpriteRenderer::DrawRect(
     const auto edge = palette.GetColor(mForegroundColor);
     for (int x = pos.x; x <= right; x++)
     {
-        SetPixel(glm::ivec2{x, pos.y}, edge, layer);
-        SetPixel(glm::ivec2{x, bottom}, edge, layer);
+        SetPixel(glm::ivec2{x, pos.y}, edge, target);
+        SetPixel(glm::ivec2{x, bottom}, edge, target);
     }
     for (int y = pos.y; y <= bottom; y++)
     {
-        SetPixel(glm::ivec2{pos.x, y}, edge, layer);
-        SetPixel(glm::ivec2{right, y}, edge, layer);
+        SetPixel(glm::ivec2{pos.x, y}, edge, target);
+        SetPixel(glm::ivec2{right, y}, edge, target);
     }
 }
 
-void SpriteRenderer::Clear()
+void SpriteRenderer::CopyImage(
+    const Image& source,
+    const Palette& palette,
+    glm::ivec2 pos,
+    Graphics::Texture& target)
 {
-    mForegroundLayer = Graphics::Texture{320, 200, 320, 200};
-    mBackgroundLayer = Graphics::Texture{320, 200, 320, 200};
-    mSavedImagesLayer0 = Graphics::Texture{320, 200, 320, 200};
-    mSavedImagesLayer1 = Graphics::Texture{320, 200, 320, 200};
-    mSavedImagesLayerBG = Graphics::Texture{320, 200, 320, 200};
+    for (unsigned y = 0; y < source.GetHeight(); y++)
+    {
+        for (unsigned x = 0; x < source.GetWidth(); x++)
+        {
+            SetPixel(
+                pos + glm::ivec2{static_cast<int>(x), static_cast<int>(y)},
+                palette.GetColor(source.GetPixel(x, y)),
+                target);
+        }
+    }
 }
 
-Graphics::Texture& SpriteRenderer::GetForegroundLayer()
+void SpriteRenderer::CopyRect(
+    const Graphics::Texture& source,
+    glm::ivec2 pos,
+    Graphics::Texture& target)
 {
-    return mForegroundLayer;
+    for (unsigned y = 0; y < source.GetHeight(); y++)
+    {
+        for (unsigned x = 0; x < source.GetWidth(); x++)
+        {
+            SetPixel(
+                pos + glm::ivec2{static_cast<int>(x), static_cast<int>(y)},
+                source.GetPixel(x, y),
+                target);
+        }
+    }
 }
 
-Graphics::Texture& SpriteRenderer::GetBackgroundLayer()
+Graphics::Texture SpriteRenderer::ExtractRegion(
+    glm::ivec2 pos,
+    glm::ivec2 dims,
+    Layer source) const
 {
-    return mBackgroundLayer;
+    const auto& layer = GetLayer(source);
+    auto region = Graphics::Texture{
+        static_cast<unsigned>(dims.x),
+        static_cast<unsigned>(dims.y),
+        static_cast<unsigned>(dims.x),
+        static_cast<unsigned>(dims.y)};
+
+    for (int y = 0; y < dims.y; y++)
+    {
+        for (int x = 0; x < dims.x; x++)
+        {
+            const auto src = pos + glm::ivec2{x, y};
+            if (src.x < 0 || src.x >= static_cast<int>(layer.GetWidth())
+                || src.y < 0 || src.y >= static_cast<int>(layer.GetHeight()))
+            {
+                continue;
+            }
+            region.SetPixel(x, y, layer.GetPixel(src.x, src.y));
+        }
+    }
+
+    return region;
 }
 
-Graphics::Texture& SpriteRenderer::GetSavedImagesLayerBG()
+void SpriteRenderer::CopyRect(
+    glm::ivec2 pos,
+    glm::ivec2 dims,
+    Layer source,
+    Layer target)
 {
-    return mSavedImagesLayerBG;
+    const auto& from = GetLayer(source);
+    auto& to = GetLayer(target);
+
+    const auto right  = std::min(pos.x + dims.x, static_cast<int>(to.GetWidth()));
+    const auto bottom = std::min(pos.y + dims.y, static_cast<int>(to.GetHeight()));
+
+    for (int y = std::max(pos.y, 0); y < bottom; y++)
+    {
+        for (int x = std::max(pos.x, 0); x < right; x++)
+        {
+            to.SetPixel(x, y, from.GetPixel(x, y));
+        }
+    }
 }
 
-Graphics::Texture& SpriteRenderer::GetSavedImagesLayer0()
+Graphics::Texture& SpriteRenderer::GetLayer(Layer layer)
 {
-    return mSavedImagesLayer0;
+    return mLayers[static_cast<unsigned>(layer)];
 }
 
-Graphics::Texture& SpriteRenderer::GetSavedImagesLayer1()
+const Graphics::Texture& SpriteRenderer::GetLayer(Layer layer) const
 {
-    return mSavedImagesLayer1;
+    return mLayers[static_cast<unsigned>(layer)];
 }
 
 void SpriteRenderer::SetClipRegion(BAK::ClipRegion clipRegion)
@@ -167,43 +227,6 @@ void SpriteRenderer::SetClipRegion(BAK::ClipRegion clipRegion)
 void SpriteRenderer::ClearClipRegion()
 {
     mClipRegion.reset();
-}
-
-Graphics::Texture SpriteRenderer::SaveImage(glm::ivec2 pos, glm::ivec2 dims, unsigned layer)
-{
-    auto image = Graphics::Texture{
-        static_cast<unsigned>(dims.x),
-        static_cast<unsigned>(dims.y),
-        static_cast<unsigned>(dims.x),
-        static_cast<unsigned>(dims.y)};
-    for (int x = 0; x < dims.x; x++)
-    {
-        for (int y = 0; y < dims.y; y++)
-        {
-            image.SetPixel(x, y, mForegroundLayer.GetPixel(x + pos.x, y + pos.y));
-        }
-    }
-
-    RenderTexture(image, pos, GetSaveLayer(layer));
-    return image;
-}
-
-Graphics::Texture& SpriteRenderer::GetSaveLayer(unsigned layer)
-{
-    if (layer == 0)
-    {
-        return mSavedImagesLayer0;
-    }
-    else if (layer == 1)
-    {
-        return mSavedImagesLayer1;
-    }
-    else if (layer == 2)
-    {
-        return mSavedImagesLayerBG;
-    }
-    assert(false);
-    return mSavedImagesLayer0;
 }
 
 }
