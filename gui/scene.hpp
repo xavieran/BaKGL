@@ -80,15 +80,19 @@ SceneSprite ConvertScriptAction(
         scale.y = static_cast<float>(action.mTargetHeight);
     }
 
-    if (action.mFlippedInY)
+    if (action.mFlipX)
     {
-        // Need to shift before flip to ensure sprite stays in same
-        // relative pos. One way of achieving rotation about the 
-        // centerline of the sprite...
         x += scale.x;
         scale.x *= -1;
     }
-    
+
+    if (action.mFlipY)
+    {
+        y += scale.y;
+        scale.y *= -1;
+    }
+
+
     return SceneSprite{
         sprite,
         glm::vec2{x, y},
@@ -114,15 +118,19 @@ SceneSprite ConvertScriptAction(
         scale.y = static_cast<float>(action.mTargetHeight);
     }
 
-    if (action.mFlippedInY)
+    if (action.mFlipX)
     {
-        // Need to shift before flip to ensure sprite stays in same
-        // relative pos. One way of achieving rotation about the 
-        // centerline of the sprite...
         x += scale.x;
         scale.x *= -1;
     }
-    
+
+    if (action.mFlipY)
+    {
+        y += scale.y;
+        scale.y *= -1;
+    }
+
+
     return SceneSprite{
         sprite,
         glm::vec2{x, y},

@@ -29,13 +29,15 @@ public:
         Image sprite,
         const Palette& palette,
         glm::ivec2 pos,
-        bool flipped,
+        bool flipX,
+        bool flipY,
         Graphics::Texture& layer);
 
     void DrawRect(
         glm::ivec2 pos,
         glm::ivec2 dims,
         const Palette& palette,
+        bool filled,
         Graphics::Texture& layer);
 
     Graphics::Texture SaveImage(glm::ivec2 pos, glm::ivec2 dims, unsigned layer);
@@ -51,14 +53,19 @@ public:
     void ClearClipRegion();
 
 private:
+    void SetPixel(
+        glm::ivec2 pos,
+        glm::vec4 color,
+        Graphics::Texture& layer);
+
     Graphics::Texture mForegroundLayer;
     Graphics::Texture mBackgroundLayer;
     Graphics::Texture mSavedImagesLayer0;
     Graphics::Texture mSavedImagesLayer1;
     Graphics::Texture mSavedImagesLayerBG;
     std::optional<ClipRegion> mClipRegion;
-    std::uint8_t mBackgroundColor{};
     std::uint8_t mForegroundColor{};
+    std::uint8_t mBackgroundColor{};
 };
 
 }

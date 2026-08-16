@@ -74,6 +74,7 @@ bool TTMRenderer::AdvanceAction()
                         mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
                         glm::ivec2{0, 0},
                         false,
+                        false,
                         mRenderer.GetForegroundLayer());
                 }
             },
@@ -87,7 +88,8 @@ bool TTMRenderer::AdvanceAction()
                     mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
                     mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
                     glm::ivec2{sa.mX, sa.mY},
-                    sa.mFlippedInY,
+                    sa.mFlipX,
+                    sa.mFlipY,
                     mRenderer.GetForegroundLayer());
             },
             [&](const Update& sr){
@@ -122,6 +124,7 @@ bool TTMRenderer::AdvanceAction()
                 mRenderer.DrawRect(
                     sr.mPos, sr.mDims,
                     mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                    sr.mFilled,
                     mRenderer.GetForegroundLayer());
             },
             [&](const ClipRegion& a){
@@ -155,7 +158,7 @@ void TTMRenderer::RenderFrame()
         mRenderer.RenderSprite(
             *mScreen,
             mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-            glm::ivec2{0, 0}, false, mRenderer.GetBackgroundLayer());
+            glm::ivec2{0, 0}, false, false, mRenderer.GetBackgroundLayer());
     }
 
     mRenderer.RenderTexture(
