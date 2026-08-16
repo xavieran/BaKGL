@@ -26,7 +26,7 @@ list(APPEND APP_BINARIES
     display_tbl
     display_tile
     #display_traps
-    display_ttm
+    display_script
     extractor
     #instancing
     image_extractor

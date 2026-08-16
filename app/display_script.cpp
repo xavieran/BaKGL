@@ -1,5 +1,6 @@
 #include "bak/scene/scene.hpp"
 #include "bak/scene/sceneData.hpp"
+#include "bak/scene/ads.hpp"
 
 #include "bak/fileBufferFactory.hpp"
 
@@ -13,7 +14,8 @@ int main(int argc, char** argv)
 
     if (argc < 3)
     {
-        std::cerr << "Usage: " << argv[0] << " <ads|sequences|ttm|dynamic> FILE\n";
+        std::cerr << "Usage: " << argv[0]
+            << " <ads|sequences|ttm|dynamic|rawads|rawttm|schedule> FILE\n";
         return -1;
     }
 
@@ -58,6 +60,19 @@ int main(int argc, char** argv)
         {
             std::cout << action << "\n";
         }
+    }
+    else if (mode == "rawads")
+    {
+        BAK::DumpADS(fb, std::cout);
+    }
+    else if (mode == "rawttm")
+    {
+        BAK::DumpTTM(fb, std::cout);
+    }
+    else if (mode == "schedule")
+    {
+        const auto ads = BAK::ADS::LoadAds(fb);
+        std::cout << ads;
     }
     else
     {

@@ -51,8 +51,8 @@ enum class Actions
     SLOT_IMAGE          = 0x1050,
     SLOT_PALETTE        = 0x1060,
     SLOT_FONT           = 0x1070,
-    SET_SCRIPTA          = 0x1100, // Local taG?
-    SET_SCRIPT           = 0x1110, // TAG??
+    SET_SCRIPTA         = 0x1100, // Local taG?
+    SET_SCRIPT          = 0x1110, // TAG??
     SET_SAVE_LAYER      = 0x1120,
     GOTO_TAG            = 0x1200,
     SET_COLOR           = 0x2000,
