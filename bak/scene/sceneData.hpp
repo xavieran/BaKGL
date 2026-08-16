@@ -65,7 +65,7 @@ enum class Actions
     SET_CLIP_REGION     = 0x4000,
     FADE_OUT            = 0x4110,
     FADE_IN             = 0x4120,
-    SAVE_IMAGE0         = 0x4200,
+    SAVE_RECT_TO_BACKGROUND = 0x4200,
     SAVE_REGION_TO_LAYER = 0x4210,
     SET_WINDOWA         = 0xa010,
     SET_WINDOWB         = 0xa030,
@@ -81,7 +81,7 @@ enum class Actions
     DRAW_SPRITE_FLIP_XY = 0xa530,
     DRAW_SPRITE_ROTATE  = 0xa5a0,
     DRAW_SAVED_REGION    = 0xa600,
-    DRAW_SCREEN         = 0xb600, // COPY_LAYER_TO_LAYER?
+    COPY_LAYER           = 0xb600,
     LOAD_SOUND_RESOURCE = 0xc020,
     SELECT_SOUND        = 0xc030,
     DESELECT_SOUND      = 0xc040,
@@ -138,13 +138,15 @@ struct DrawSprite
 
 std::ostream& operator<<(std::ostream&, const DrawSprite&);
 
-struct DrawScreen
+struct CopyLayer
 {
     glm::ivec2 mPosition;
     glm::ivec2 mDimensions;
-    unsigned mArg1;
-    unsigned mArg2;
+    unsigned mSourceLayer;
+    unsigned mTargetLayer;
 };
+
+std::ostream& operator<<(std::ostream&, const CopyLayer&);
 
 struct PlaySoundS
 {
@@ -178,7 +180,7 @@ struct GotoTag
     unsigned mTag;
 };
 
-struct SaveImage
+struct SaveRectToBackground
 {
     glm::ivec2 pos;
     glm::ivec2 dims;
@@ -270,11 +272,11 @@ using ScriptAction = std::variant<
     DisableClipRegion,
     DrawBackground,
     DrawRect,
-    DrawScreen,
+    CopyLayer,
     DrawSprite,
     Purge,
     SaveBackground,
-    SaveImage,
+    SaveRectToBackground,
     Update,
     LoadImage,
     LoadPalette,

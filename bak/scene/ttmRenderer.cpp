@@ -57,31 +57,34 @@ bool TTMRenderer::AdvanceAction()
                     << " has " << mImageSlots.at(mCurrentImageSlot).mImages.size() << " images\n";
             },
             [&](const LoadScreen& p){
+                if (!mPaletteSlots.contains(mCurrentPaletteSlot))
+                {
+                    mLogger.Debug() << "No palette in slot " << mCurrentPaletteSlot
+                        << ", skipping screen " << p.mScreenName << "\n";
+                    return;
+                }
                 auto fb = FileBufferFactory::Get().CreateDataBuffer(p.mScreenName);
-                mScreen = LoadScreenResource(fb);
+                mRenderer.CopyImage(
+                    LoadScreenResource(fb),
+                    mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                    glm::ivec2{0, 0},
+                    mRenderer.GetLayer(Layer::Screen));
+                mRenderer.CopyRect(
+                    glm::ivec2{0, 0},
+                    glm::ivec2{320, 200},
+                    Layer::Screen,
+                    Layer::Background);
             },
-            [&](const DrawScreen& sa){
-                if (sa.mArg1 == 3 || sa.mArg2 == 3)
-                {
-                    mRenderer.GetSavedImagesLayer0() = {320, 200, 320, 200};
-                    mRenderer.GetSavedImagesLayer1() = {320, 200, 320, 200};
-                    mRenderer.GetSavedImagesLayerBG() = {320, 200, 320, 200};
-                }
-                if (mScreen && mPaletteSlots.contains(mCurrentPaletteSlot))
-                {
-                    mRenderer.RenderSprite(
-                        *mScreen,
-                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-                        glm::ivec2{0, 0},
-                        false,
-                        false,
-                        mRenderer.GetForegroundLayer());
-                }
+            [&](const CopyLayer& sa){
+                mRenderer.CopyRect(
+                    sa.mPosition,
+                    sa.mDimensions,
+                    LayerFromArgument(sa.mSourceLayer),
+                    LayerFromArgument(sa.mTargetLayer));
             },
             [&](const DrawSprite& sa){
-                const auto imageSlot = sa.mImageSlot;
                 assert(mImageSlots.contains(sa.mImageSlot));
-                assert(static_cast<unsigned>(sa.mSpriteIndex) 
+                assert(static_cast<unsigned>(sa.mSpriteIndex)
                         < mImageSlots.at(sa.mImageSlot).mImages.size());
 
                 mRenderer.RenderSprite(
@@ -90,30 +93,35 @@ bool TTMRenderer::AdvanceAction()
                     glm::ivec2{sa.mX, sa.mY},
                     sa.mFlipX,
                     sa.mFlipY,
-                    mRenderer.GetForegroundLayer());
+                    mRenderer.GetLayer(Layer::Screen));
             },
             [&](const Update& sr){
                 RenderFrame();
             },
-            [&](const SaveImage& si){
-                mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer);
+            [&](const SaveRectToBackground& si){
+                mRenderer.CopyRect(si.pos, si.dims, Layer::Screen, Layer::Background);
             },
             [&](const SetSaveLayer& ssl){
                 mImageSaveLayer = ssl.mLayer;
             },
             [&](const SaveRegionToLayer& si){
-                mClearRegions.emplace(mImageSaveLayer, si);
-                mSaves.emplace(mImageSaveLayer, mRenderer.SaveImage(si.pos, si.dims, mImageSaveLayer));
+                mClearRegions.insert_or_assign(mImageSaveLayer, si);
+                mSaves.insert_or_assign(
+                    mImageSaveLayer,
+                    mRenderer.ExtractRegion(si.pos, si.dims, Layer::Screen));
             },
             [&](const DrawSavedRegion& si){
-                const auto& clearRegion = mClearRegions.at(si.mLayer);
-                const auto& texture = mSaves.at(si.mLayer);
-                mRenderer.RenderTexture(texture, clearRegion.pos, mRenderer.GetForegroundLayer());
+                mRenderer.CopyRect(
+                    mSaves.at(si.mLayer),
+                    mClearRegions.at(si.mLayer).pos,
+                    mRenderer.GetLayer(Layer::Screen));
             },
             [&](const SaveBackground&){
-                mRenderer.GetSavedImagesLayer0() = {320, 200, 320, 200};
-                mRenderer.GetSavedImagesLayer1() = {320, 200, 320, 200};
-                mRenderer.SaveImage({0, 0}, {320, 200}, 2);
+                mRenderer.CopyRect(
+                    glm::ivec2{0, 0},
+                    glm::ivec2{320, 200},
+                    Layer::Screen,
+                    Layer::Background);
             },
             [&](const DrawRect& sr){
                 if (!mPaletteSlots.contains(mCurrentPaletteSlot))
@@ -125,7 +133,7 @@ bool TTMRenderer::AdvanceAction()
                     sr.mPos, sr.mDims,
                     mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
                     sr.mFilled,
-                    mRenderer.GetForegroundLayer());
+                    mRenderer.GetLayer(Layer::Screen));
             },
             [&](const ClipRegion& a){
                 mRenderer.SetClipRegion(a);
@@ -153,39 +161,14 @@ bool TTMRenderer::AdvanceAction()
 }
 void TTMRenderer::RenderFrame()
 {
-    if (mScreen)
-    {
-        mRenderer.RenderSprite(
-            *mScreen,
-            mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-            glm::ivec2{0, 0}, false, false, mRenderer.GetBackgroundLayer());
-    }
+    auto frame = mRenderer.GetLayer(Layer::Screen);
+    frame.Invert();
+    mRenderedFrames.AddTexture(frame);
 
-    mRenderer.RenderTexture(
-        mRenderer.GetSavedImagesLayerBG(),
-        glm::ivec2{0},
-        mRenderer.GetBackgroundLayer());
-
-    mRenderer.RenderTexture(
-        mRenderer.GetSavedImagesLayer0(),
-        glm::ivec2{0},
-        mRenderer.GetBackgroundLayer());
-
-    mRenderer.RenderTexture(
-        mRenderer.GetSavedImagesLayer1(),
-        glm::ivec2{0},
-        mRenderer.GetBackgroundLayer());
-
-    mRenderer.RenderTexture(
-        mRenderer.GetForegroundLayer(),
+    mRenderer.CopyRect(
         glm::ivec2{0, 0},
-        mRenderer.GetBackgroundLayer());
-
-    auto bg = mRenderer.GetBackgroundLayer();
-    bg.Invert();
-    mRenderedFrames.AddTexture(bg);
-
-    mRenderer.GetForegroundLayer() = Graphics::Texture{320, 200, 320, 200};
-    mRenderer.GetBackgroundLayer() = Graphics::Texture{320, 200, 320, 200};
+        glm::ivec2{320, 200},
+        Layer::Background,
+        Layer::Screen);
 }
 }

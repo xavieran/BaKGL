@@ -44,23 +44,6 @@ DisableClipRegion ConvertScriptAction(const BAK::DisableClipRegion&);
 
 template <typename T, typename S>
 SceneSprite ConvertScriptAction(
-    const BAK::DrawScreen& action,
-    const T& textures,
-    const S& offsets) // make this const
-{
-    const auto sprite = offsets.at(25);
-    const auto tex = textures.GetTexture(sprite);
-
-    //auto scale = glm::vec2{tex.GetTargetWidth(), tex.GetTargetHeight()};
-    auto scale = action.mDimensions;
-
-    return SceneSprite{
-        sprite,
-        action.mPosition,
-        scale};
-}
-template <typename T, typename S>
-SceneSprite ConvertScriptAction(
     const BAK::DrawSprite& action,
     const T& textures,
     const S& offsets) // make this const
