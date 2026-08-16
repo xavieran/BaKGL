@@ -1,5 +1,6 @@
 #include "bak/scene/sceneData.hpp"
 
+#include "com/ostream.hpp"
 #include "com/visit.hpp"
 
 #include "graphics/glm.hpp"
@@ -245,8 +246,8 @@ std::ostream& operator<<(std::ostream& os, const SlotPalette& a)
 
 std::ostream& operator<<(std::ostream& os, const ShowDialog& a)
 {
-    return os << "ShowDialog{ " << std::hex << a.mDialogKey << std::dec
-        << " type: " << a.mDialogType << "}";
+    return os << "ShowDialog{ " << std::hex << a.mDialogKey
+        << std::dec << " type: " << a.mDialogType << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const PlaySoundS& a)

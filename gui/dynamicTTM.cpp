@@ -203,14 +203,15 @@ bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
     // mDialogType == 0 - the usual method
     if (dialog.mDialogType == 2)
     {
-        mDisplayBook(dialog.mDialogKey);
+        mDisplayBook(dialog.mDialogKey.value_or(0));
         return true;
     }
 
-    if (dialog.mDialogType != 0xff && dialog.mDialogKey != 0 && dialog.mDialogKey != 0xff)
+    if (dialog.mDialogType != 0xff && dialog.mDialogKey
+        && *dialog.mDialogKey != 0 && *dialog.mDialogKey != 0xff)
     {
         const auto& snippet = BAK::DialogStore::Get().GetSnippet(
-            BAK::DialogSources::GetTTMDialogKey(dialog.mDialogKey));
+            BAK::DialogSources::GetTTMDialogKey(*dialog.mDialogKey));
         auto popup = snippet.GetPopup();
         mLogger.Debug() << "Show snippet;" << snippet << "\n";
         if (popup)
