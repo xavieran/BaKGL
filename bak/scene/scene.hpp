@@ -80,6 +80,11 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb);
 std::vector<ScriptAction> LoadDynamicScripts(FileBuffer& fb);
 
+FileBuffer DecompressSCR(FileBuffer& fb);
+FileBuffer DecompressTT3(FileBuffer& fb);
 FileBuffer DecompressTTM(FileBuffer& fb);
+
+void DumpADS(FileBuffer& fb, std::ostream& os);
+void DumpTTM(FileBuffer& fb, std::ostream& os);
 
 }

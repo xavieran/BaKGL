@@ -11,9 +11,45 @@
 #include "com/string.hpp"
 #include "com/visit.hpp"
 
+#include <sstream>
 #include <unordered_map>
 
 namespace BAK {
+
+FileBuffer DecompressSCR(FileBuffer& fb)
+{
+    auto scrbuf = fb.Find(DataTag::SCR);
+
+    if (scrbuf.GetUint8() != 0x02)
+    {
+        throw std::runtime_error("Script buffer not compressed");
+    }
+
+    auto decompressedSize = scrbuf.GetUint32LE();
+    auto decompBuffer = FileBuffer(decompressedSize);
+    scrbuf.DecompressLZW(&decompBuffer);
+
+    return decompBuffer;
+}
+
+FileBuffer DecompressTT3(FileBuffer& fb)
+{
+    auto tt3Buffer = fb.Find(DataTag::TT3);
+
+    auto compression = tt3Buffer.GetUint8();
+    auto decompressedSize = tt3Buffer.GetUint32LE();
+    auto decompBuffer = FileBuffer(decompressedSize);
+    if (compression == 1)
+    {
+        tt3Buffer.DecompressRLE(&decompBuffer);
+    }
+    else
+    {
+        tt3Buffer.CopyTo(&decompBuffer, decompressedSize);
+    }
+
+    return decompBuffer;
+}
 
 ADSIndex::ADSIndex()
 :
@@ -95,18 +131,10 @@ std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb)
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
     auto resbuf = fb.Find(DataTag::RES);
-    auto scrbuf = fb.Find(DataTag::SCR);
     auto tagbuf = fb.Find(DataTag::TAG);
 
-    if (scrbuf.GetUint8() != 0x02)
-    {
-        throw std::runtime_error("Script buffer not compressed");
-    }
+    auto decompBuffer = DecompressSCR(fb);
 
-    auto decompressedSize = scrbuf.GetUint32LE();
-    auto decompBuffer = FileBuffer(decompressedSize);
-    scrbuf.DecompressLZW(&decompBuffer);
-    
     Tags tags{};
     tags.Load(tagbuf);
 
@@ -235,18 +263,10 @@ std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(File
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
     auto resbuf = fb.Find(DataTag::RES);
-    auto scrbuf = fb.Find(DataTag::SCR);
     auto tagbuf = fb.Find(DataTag::TAG);
 
-    if (scrbuf.GetUint8() != 0x02)
-    {
-        throw std::runtime_error("Script buffer not compressed");
-    }
+    auto decompBuffer = DecompressSCR(fb);
 
-    auto decompressedSize = scrbuf.GetUint32LE();
-    auto decompBuffer = FileBuffer(decompressedSize);
-    scrbuf.DecompressLZW(&decompBuffer);
-    
     Tags tags{};
     tags.Load(tagbuf);
     tags.DumpTags();
@@ -365,27 +385,14 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 
     auto pageBuffer    = fb.Find(DataTag::PAG);
     auto versionBuffer = fb.Find(DataTag::VER);
-    auto tt3Buffer     = fb.Find(DataTag::TT3);
     auto tagBuffer     = fb.Find(DataTag::TAG);
 
     const auto pages = pageBuffer.GetUint16LE();
     logger.Debug() << "Pages:" << pages << " size: " << pageBuffer.GetSize() << "\n";
     logger.Debug() << "Version size: " << versionBuffer.GetSize() << "\n";
 
-    auto compression = tt3Buffer.GetUint8();
-    auto decompressedSize = tt3Buffer.GetUint32LE();
-    auto decompBuffer = FileBuffer(decompressedSize);
-    logger.Debug() << "TT3 size: " << decompressedSize << "\n";
-    if (compression == 1)
-    {
-        logger.Debug() << "RLE Compressed\n";
-        tt3Buffer.DecompressRLE(&decompBuffer);
-    }
-    else
-    {
-        logger.Debug() << "No compression\n";
-        tt3Buffer.CopyTo(&decompBuffer, decompressedSize);
-    }
+    auto decompBuffer = DecompressTT3(fb);
+    logger.Debug() << "TT3 size: " << decompBuffer.GetSize() << "\n";
 
     tags.Load(tagBuffer);
     tags.DumpTags();
@@ -813,6 +820,130 @@ FileBuffer DecompressTTM(FileBuffer& fb)
     tagBuffer.CopyTo(&decompressedTTM, tagBuffer.GetSize());
 
     return decompressedTTM;
+}
+
+namespace {
+
+template <typename T>
+std::string ActionName(unsigned code)
+{
+    try
+    {
+        return std::string{ToString(static_cast<T>(code))};
+    }
+    catch (const std::runtime_error&)
+    {
+        std::stringstream ss{};
+        ss << "Unknown(0x" << std::hex << code << std::dec << ")";
+        return ss.str();
+    }
+}
+
+}
+
+void DumpADS(FileBuffer& fb, std::ostream& os)
+{
+    auto decompBuffer = DecompressSCR(fb);
+
+    std::optional<unsigned> currentIndex{};
+    while (!decompBuffer.AtEnd())
+    {
+        if (!currentIndex)
+        {
+            currentIndex = decompBuffer.GetUint16LE();
+            os << "Index: " << *currentIndex << "\n";
+        }
+
+        auto code = decompBuffer.GetUint16LE();
+        auto action = static_cast<AdsActions>(code);
+        os << "\t" << ActionName<AdsActions>(code);
+
+        switch (action)
+        {
+            case AdsActions::IF_NOT_PLAYED: [[fallthrough]];
+            case AdsActions::IF_NOT_PLAYED_ELSE: [[fallthrough]];
+            case AdsActions::IF_PLAYED_ELSE:
+            {
+                os << " " << decompBuffer.GetUint16LE()
+                    << " " << decompBuffer.GetUint16LE();
+            } break;
+            case AdsActions::RESTART_SCRIPT: [[fallthrough]];
+            case AdsActions::START_SCRIPT:
+            {
+                os << " " << decompBuffer.GetUint16LE()
+                    << " " << decompBuffer.GetUint16LE()
+                    << " " << decompBuffer.GetUint16LE()
+                    << " " << decompBuffer.GetUint16LE();
+            } break;
+            case AdsActions::STOP_SCRIPT:
+            {
+                os << " " << decompBuffer.GetUint16LE()
+                    << " " << decompBuffer.GetUint16LE()
+                    << " " << decompBuffer.GetUint16LE();
+            } break;
+            case AdsActions::IF_CHAP_GTE: [[fallthrough]];
+            case AdsActions::IF_CHAP_LTE: [[fallthrough]];
+            case AdsActions::STOP_SCENE:
+            {
+                os << " " << decompBuffer.GetUint16LE();
+            } break;
+            case AdsActions::AND: [[fallthrough]];
+            case AdsActions::OR: [[fallthrough]];
+            case AdsActions::ELSE: [[fallthrough]];
+            case AdsActions::END_IF_ELSE: [[fallthrough]];
+            case AdsActions::END_IF:
+                break;
+            case AdsActions::END:
+                currentIndex.reset();
+                break;
+        }
+
+        os << "\n";
+    }
+}
+
+void DumpTTM(FileBuffer& fb, std::ostream& os)
+{
+    auto tagBuffer = fb.Find(DataTag::TAG);
+    Tags tags{};
+    tags.Load(tagBuffer);
+
+    auto decompBuffer = DecompressTT3(fb);
+
+    while (!decompBuffer.AtEnd())
+    {
+        auto code = decompBuffer.GetUint16LE();
+        auto size = static_cast<unsigned>(code & 0x000f);
+        code &= 0xfff0;
+        auto action = static_cast<Actions>(code);
+
+        os << ActionName<Actions>(code);
+
+        if ((code == 0x1110) && (size == 1))
+        {
+            auto id = decompBuffer.GetUint16LE();
+            const auto name = tags.GetTag(Tag{id});
+            os << " Id: " << id;
+            if (name)
+                os << " Name: " << *name;
+        }
+        else if (size == 0xf)
+        {
+            std::string name = ToUpper(decompBuffer.GetString());
+            os << " Name: " << name;
+            if (decompBuffer.GetBytesLeft() & 1)
+                decompBuffer.Skip(1);
+        }
+        else
+        {
+            os << " args [";
+            for (unsigned i = 0; i < size; i++)
+                os << " " << decompBuffer.GetSint16LE();
+            os << " ]";
+        }
+
+        os << "\n";
+    }
 }
 
 }

@@ -68,6 +68,7 @@ add_library(bak
     saveManager.hpp saveManager.cpp
     scene/scene.hpp scene/scene.cpp
     scene/sceneData.hpp scene/sceneData.cpp
+    scene/ads.hpp scene/ads.cpp
     screen.hpp screen.cpp
     shop.hpp shop.cpp
     skills.hpp skills.cpp
