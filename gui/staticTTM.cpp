@@ -42,7 +42,10 @@ StaticTTM::StaticTTM(
     std::unordered_map<unsigned, unsigned> offsets{};
 
     constexpr auto SCENE_PALETTE_SLOT = 0;
+    constexpr auto ACTOR_IMAGE_SLOT = 1;
     std::optional<BAK::Palette> scenePalette{};
+    std::optional<std::string> scenePaletteName{};
+    std::optional<std::string> actorImageName{};
 
     // Load all the image slots
     for (const auto& scene : {sceneInit, sceneContent})
@@ -51,11 +54,16 @@ StaticTTM::StaticTTM(
         if (scenePal != scene.mPalettes.end())
         {
             scenePalette.emplace(scenePal->second);
+            scenePaletteName = scenePal->second;
         }
 
         for (const auto& [imageKey, imagePal] : scene.mImages)
         {
             const auto& [image, palKey] = imagePal;
+            if (imageKey == ACTOR_IMAGE_SLOT)
+            {
+                actorImageName = image;
+            }
             assert(scene.mPalettes.find(palKey) != scene.mPalettes.end());
             const auto& palette = scene.mPalettes.find(palKey)->second;
             mLogger.Debug() << "Loading image slot: " << imageKey 
@@ -82,6 +90,16 @@ StaticTTM::StaticTTM(
         }
     }
 
+    std::optional<unsigned> actorSprite{};
+    if (actorImageName && scenePaletteName)
+    {
+        actorSprite = textures.GetTextures().size();
+        BAK::TextureFactory::AddToTextureStore(
+            textures,
+            *actorImageName,
+            *scenePaletteName);
+    }
+
     // Make sure all the refs are constant
     mSceneElements.reserve(
         sceneInit.mActions.size()
@@ -106,11 +124,11 @@ StaticTTM::StaticTTM(
         );
     }
 
-    // Add widgets for each scene action
     for (const auto& scene : {sceneInit, sceneContent})
     {
         for (const auto& action : scene.mActions)
         {
+            mLogger.Debug() << " Action: " << action << "\n";
             std::visit(
                 overloaded{
                     [&](const BAK::DrawScreen& sa){
@@ -197,6 +215,32 @@ StaticTTM::StaticTTM(
                         // Doesn't really do anything...
                         // in the future maybe pop the clip region
                         // so we could add another one?
+                    },
+                    [&](const BAK::ShowDialog& sd){
+                        // ShowDialog with key -1 draws the actor image
+                        // rather than showing a dialog. Seems to be
+                        // restricted to static TTMs.
+                        if (sd.mDialogKey || !actorSprite)
+                            return;
+                        const auto sprite = *actorSprite;
+                        const auto tex = textures.GetTexture(sprite);
+                        const auto width = static_cast<int>(tex.GetTargetWidth());
+                        const auto height = static_cast<int>(tex.GetTargetHeight());
+
+                        auto& elem = mSceneElements.emplace_back(
+                            Graphics::DrawMode::Sprite,
+                            mSpriteSheet->mSpriteSheet,
+                            Graphics::TextureIndex{sprite},
+                            Graphics::ColorMode::Texture,
+                            glm::vec4{1},
+                            glm::vec2{160 - width / 2, 112 - height},
+                            glm::vec2{width, height},
+                            false);
+
+                        if (mClipRegion)
+                            mClipRegion->AddChildBack(&elem);
+                        else
+                            mSceneFrame.AddChildBack(&elem);
                     },
                     [&](const auto&){}
                 },

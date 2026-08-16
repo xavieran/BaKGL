@@ -394,7 +394,9 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
             case Actions::SHOW_DIALOG:
                 actions.emplace_back(
                     ShowDialog{
-                        static_cast<unsigned>(args[0]),
+                        args[0] == -1
+                            ? std::nullopt
+                            : std::optional<unsigned>{static_cast<unsigned>(args[0])},
                         static_cast<unsigned>(args[1])});
                 break;
             case Actions::SET_SAVE_LAYER:
@@ -547,6 +549,10 @@ std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb)
                     currentScript.mActions.emplace_back(a);
                 },
                 [&](const DrawSprite& a)
+                {
+                    currentScript.mActions.emplace_back(a);
+                },
+                [&](const ShowDialog& a)
                 {
                     currentScript.mActions.emplace_back(a);
                 },

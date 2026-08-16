@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 #include <ostream>
@@ -255,7 +256,7 @@ struct SlotPalette
 
 struct ShowDialog
 {
-    unsigned mDialogKey;
+    std::optional<unsigned> mDialogKey;
     unsigned mDialogType;
 };
 
