@@ -72,11 +72,12 @@ enum class Actions
     SET_UNKNOWN         = 0xa090,
     SET_WINDOWC         = 0xa0b0, // draw line?
     DRAW_RECT           = 0xa100,
-    DRAW_FRAME          = 0xa110, 
+    DRAW_FRAME          = 0xa110,
     DRAW_TEXT           = 0xa200,
-    DRAW_SPRITE0        = 0xa500,
-    DRAW_SPRITE1        = 0xa510,
-    DRAW_SPRITE_FLIP_Y  = 0xa520,
+    // Low nibble of the high byte is the blit flip flags: 1 = flip Y, 2 = flip X
+    DRAW_SPRITE         = 0xa500,
+    DRAW_SPRITE_FLIP_Y  = 0xa510,
+    DRAW_SPRITE_FLIP_X  = 0xa520,
     DRAW_SPRITE_FLIP_XY = 0xa530,
     DRAW_SPRITE_ROTATE  = 0xa5a0,
     DRAW_SAVED_REGION    = 0xa600,
@@ -118,13 +119,15 @@ struct DrawRect
     unsigned mFillColor;
     glm::ivec2 mPos;
     glm::ivec2 mDims;
+    bool mFilled;
 };
 
 std::ostream& operator<<(std::ostream&, const DrawRect&);
 
 struct DrawSprite
 {
-    bool mFlippedInY;
+    bool mFlipX;
+    bool mFlipY;
     std::int16_t mX;
     std::int16_t mY;
     std::int16_t mSpriteIndex;

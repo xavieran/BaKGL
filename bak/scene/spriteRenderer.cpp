@@ -27,6 +27,29 @@ void SpriteRenderer::SetColors(std::uint8_t fg, std::uint8_t bg)
     mBackgroundColor = bg;
 }
 
+void SpriteRenderer::SetPixel(
+    glm::ivec2 pos,
+    glm::vec4 color,
+    Graphics::Texture& layer)
+{
+    if (color.a == 0) return;
+
+    if (mClipRegion
+        && (pos.x < mClipRegion->mTopLeft.x || pos.x > mClipRegion->mBottomRight.x
+            || pos.y < mClipRegion->mTopLeft.y || pos.y > mClipRegion->mBottomRight.y))
+    {
+        return;
+    }
+
+    if (pos.x < 0 || pos.x >= static_cast<int>(layer.GetWidth())
+        || pos.y < 0 || pos.y >= static_cast<int>(layer.GetHeight()))
+    {
+        return;
+    }
+
+    layer.SetPixel(pos.x, pos.y, color);
+}
+
 void SpriteRenderer::RenderTexture(
     const Graphics::Texture& texture,
     glm::ivec2 pos,
@@ -36,23 +59,7 @@ void SpriteRenderer::RenderTexture(
     {
         for (int y = 0; y < static_cast<int>(texture.GetHeight()); y++)
         {
-            const auto pixelPos = pos + glm::ivec2{x, y};
-            if (mClipRegion)
-            {
-                if (pixelPos.x < mClipRegion->mTopLeft.x || pixelPos.x > mClipRegion->mBottomRight.x
-                    || pixelPos.y < mClipRegion->mTopLeft.y || pixelPos.y > mClipRegion->mBottomRight.y)
-                {
-                    continue;
-                }
-            }
-            const auto color = texture.GetPixel(x, y);
-            if (std::abs(0.0 - color.a) < .0001) continue;
-            if (pixelPos.x > 320 || pixelPos.y > 200) continue;
-
-            layer.SetPixel(
-                pixelPos.x,
-                pixelPos.y,
-                color);
+            SetPixel(pos + glm::ivec2{x, y}, texture.GetPixel(x, y), layer);
         }
     }
 }
@@ -61,59 +68,60 @@ void SpriteRenderer::RenderSprite(
     BAK::Image sprite,
     const BAK::Palette& palette,
     glm::ivec2 pos,
-    bool flipped,
+    bool flipX,
+    bool flipY,
     Graphics::Texture& layer)
 {
-    for (int x = 0; x < static_cast<int>(sprite.GetWidth()); x++)
+    const auto width  = static_cast<int>(sprite.GetWidth());
+    const auto height = static_cast<int>(sprite.GetHeight());
+
+    for (int x = 0; x < width; x++)
     {
-        for (int y = 0; y < static_cast<int>(sprite.GetHeight()); y++)
+        for (int y = 0; y < height; y++)
         {
             const auto pixelPos = pos + glm::ivec2{
-                flipped ? sprite.GetWidth() - x : x,
-                y};
-            if (mClipRegion)// && !background)
-            {
-                if (pixelPos.x < mClipRegion->mTopLeft.x || pixelPos.x > mClipRegion->mBottomRight.x
-                    || pixelPos.y < mClipRegion->mTopLeft.y || pixelPos.y > mClipRegion->mBottomRight.y)
-                {
-                    continue;
-                }
-            }
-            else if (pixelPos.x < 0 || pixelPos.x > 320
-                    || pixelPos.y < 0 || pixelPos.y > 200)
-            {
-                continue;
-            }
-            const auto color = palette.GetColor(sprite.GetPixel(x, y));
-            if (color.a == 0) continue;
-            if (pixelPos.x > 320
-                || pixelPos.y > 200) continue;
+                flipX ? width  - 1 - x : x,
+                flipY ? height - 1 - y : y};
 
-            layer.SetPixel(
-                pixelPos.x,
-                pixelPos.y,
-                color);
+            SetPixel(pixelPos, palette.GetColor(sprite.GetPixel(x, y)), layer);
         }
     }
 }
 
-void SpriteRenderer::DrawRect(glm::ivec2 pos, glm::ivec2 dims, const BAK::Palette& palette, Graphics::Texture& layer)
+void SpriteRenderer::DrawRect(
+    glm::ivec2 pos,
+    glm::ivec2 dims,
+    const BAK::Palette& palette,
+    bool filled,
+    Graphics::Texture& layer)
 {
-    for (int x = 0; x < static_cast<int>(dims.x); x++)
-    {
-        for (int y = 0; y < static_cast<int>(dims.y); y++)
-        {
-            const auto pixelPos = pos + glm::ivec2{x, y};
-            const auto color = palette.GetColor(mForegroundColor);
-            if (color.a == 0) continue;
-            if (pixelPos.x > 320
-                || pixelPos.y > 200) continue;
+    if (dims.x <= 0 || dims.y <= 0) return;
 
-            layer.SetPixel(
-                pixelPos.x,
-                pixelPos.y,
-                color);
+    const auto right  = pos.x + dims.x - 1;
+    const auto bottom = pos.y + dims.y - 1;
+
+    if (filled)
+    {
+        const auto fill = palette.GetColor(mBackgroundColor);
+        for (int y = pos.y; y <= bottom; y++)
+        {
+            for (int x = pos.x; x <= right; x++)
+            {
+                SetPixel(glm::ivec2{x, y}, fill, layer);
+            }
         }
+    }
+
+    const auto edge = palette.GetColor(mForegroundColor);
+    for (int x = pos.x; x <= right; x++)
+    {
+        SetPixel(glm::ivec2{x, pos.y}, edge, layer);
+        SetPixel(glm::ivec2{x, bottom}, edge, layer);
+    }
+    for (int y = pos.y; y <= bottom; y++)
+    {
+        SetPixel(glm::ivec2{pos.x, y}, edge, layer);
+        SetPixel(glm::ivec2{right, y}, edge, layer);
     }
 }
 

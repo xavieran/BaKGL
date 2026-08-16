@@ -98,7 +98,6 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 
     std::vector<ScriptAction> actions{};
 
-    bool flipped = false;
     unsigned activeEdgeColor = 0xf;
     unsigned activeFillColor = 0xf;
 
@@ -227,29 +226,32 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
                         activeEdgeColor,
                         activeFillColor,
                         glm::vec2{args[0], args[1]},
-                        glm::vec2{args[2], args[3]}});
+                        glm::vec2{args[2], args[3]},
+                        action == Actions::DRAW_RECT});
                 break;
             // FIXME: Implement the rotation
             case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
-            // FIXME: Implement flip in x and y
             case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
-            case Actions::DRAW_SPRITE1: [[fallthrough]];
-            case Actions::DRAW_SPRITE_FLIP_Y:
-                flipped = true;
-                [[fallthrough]];
-            case Actions::DRAW_SPRITE0:
+            case Actions::DRAW_SPRITE_FLIP_X: [[fallthrough]];
+            case Actions::DRAW_SPRITE_FLIP_Y: [[fallthrough]];
+            case Actions::DRAW_SPRITE:
             {
-                const auto scaled = args.size() >= 5;
+                const auto flipXY = action == Actions::DRAW_SPRITE_ROTATE
+                    ? 0u
+                    : (code & 0x00f0) >> 4;
+                const auto scaled = args.size() >= 6;
+                static constexpr auto FLIP_X = 2;
+                static constexpr auto FLIP_Y = 1;
                 actions.emplace_back(
                     DrawSprite{
-                        flipped,
+                        (flipXY & FLIP_X) != 0,
+                        (flipXY & FLIP_Y) != 0,
                         args[0],
                         args[1],
                         args[2],
                         args[3],
                         static_cast<std::int16_t>(scaled ? args[4] : 0),
                         static_cast<std::int16_t>(scaled ? args[5] : 0)});
-                flipped = false;
             } break;
             case Actions::PLAY_SOUND:
                 actions.emplace_back(PlaySoundS{static_cast<unsigned>(args[0])});
