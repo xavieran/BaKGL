@@ -12,28 +12,6 @@ namespace BAK {
 
 class FileBuffer;
 
-using TTMIndex = unsigned;
-
-struct ADSIndex
-{
-    ADSIndex();
-
-    TTMIndex GetTTMIndex(Chapter chapter) const;
-
-    TTMIndex mIf;
-    std::optional<TTMIndex> mElse;
-    std::optional<unsigned> mGreaterThan;
-    std::optional<unsigned> mLessThan;
-};
-
-std::ostream& operator<<(std::ostream&, const ADSIndex&);
-
-struct SceneIndex
-{
-    std::string mSceneTag;
-    ADSIndex mSceneIndex;
-};
-
 struct SceneADS
 {
     unsigned mTTMSlot;
@@ -45,8 +23,6 @@ struct SceneSequence
     std::string mName;
     std::vector<SceneADS> mScripts;
 };
-
-std::ostream& operator<<(std::ostream&, const SceneIndex&);
 
 struct ImageSlot
 {
@@ -76,7 +52,6 @@ struct DynamicScene
 };
 
 std::unordered_map<unsigned, std::vector<SceneSequence>> LoadSceneSequences(FileBuffer& fb);
-std::unordered_map<unsigned, SceneIndex> LoadSceneIndices(FileBuffer& fb);
 std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb);
 std::vector<ScriptAction> LoadDynamicScripts(FileBuffer& fb);
 

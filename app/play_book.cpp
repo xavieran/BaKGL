@@ -37,7 +37,6 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Debug);
 
     Logging::LogState::Disable("LoadScripts");
-    Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("Gui::Actors");
     Logging::LogState::Disable("CreateFileBuffer");

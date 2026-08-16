@@ -11,7 +11,6 @@ int main(int argc, char** argv)
     Logging::LogState::SetLevel(Logging::LogLevel::Spam);
     Logging::LogState::Disable("DialogStore");
     Logging::LogState::Disable("LoadScripts");
-    Logging::LogState::Disable("LoadSceneIndices");
     Logging::LogState::Disable("FileDataProvider");
     Logging::LogState::Disable("PackedFileDataProvider");
     Logging::LogState::Disable("CreateFileBuffer");
