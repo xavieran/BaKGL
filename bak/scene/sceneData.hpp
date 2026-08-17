@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <ostream>
 #include <variant>
@@ -39,21 +40,19 @@ enum class Actions
     UNKNOWN_A           = 0x0070,
     DRAW_BACKGROUND     = 0x0080,
     DRAW_BACKGROUND_B   = 0x00c0,
-    PURGE               = 0x0110,
-    // Purge means jump out of this scene
-    // if no purge, then we continue looping through the
-    // actions. This is how C12 archer works...
-    UPDATE              = 0x0ff0,
+    END_SCRIPT          = 0x0110,
+    // Ends the frame
+    END_FRAME           = 0x0ff0,
     DO_SOMETHING_A      = 0x0400,
-    // Don't clear sprites between updates...
+    // Don't clear sprites between frames...
     DISABLE_CLEAR       = 0x0500,
     ENABLE_CLEAR        = 0x0510,
     DELAY               = 0x1020,
     SLOT_IMAGE          = 0x1050,
     SLOT_PALETTE        = 0x1060,
     SLOT_FONT           = 0x1070,
-    SET_SCRIPTA         = 0x1100, // Local taG?
-    SET_SCRIPT          = 0x1110, // TAG??
+    SCRIPT_TAG          = 0x1100,
+    SET_SCRIPT          = 0x1110,
     SET_SAVE_LAYER      = 0x1120,
     GOTO_TAG            = 0x1200,
     SET_COLOR           = 0x2000,
@@ -103,6 +102,14 @@ struct SetScript
 };
 
 std::ostream& operator<<(std::ostream&, const SetScript&);
+
+struct ScriptTag
+{
+    std::string mName;
+    std::uint16_t mScriptNumber;
+};
+
+std::ostream& operator<<(std::ostream&, const ScriptTag&);
 
 struct LoadScreen
 { 
@@ -192,7 +199,7 @@ struct SaveRegionToLayer
     glm::ivec2 dims;
 };
 
-struct Purge
+struct EndScript
 {
 };
 
@@ -207,13 +214,8 @@ struct SetWindow
 
 struct Delay
 {
-    unsigned mDelayMs; // units??
+    unsigned mTicks;
 };
-
-struct Update
-{
-};
-
 
 struct SetColors
 {
@@ -274,16 +276,16 @@ using ScriptAction = std::variant<
     DrawRect,
     CopyLayer,
     DrawSprite,
-    Purge,
+    EndScript,
     SaveBackground,
     SaveRectToBackground,
-    Update,
     LoadImage,
     LoadPalette,
     FadeOut,
     FadeIn,
     LoadScreen,
     SetScript,
+    ScriptTag,
     SetColors,
     SlotImage,
     SetSaveLayer,
@@ -295,5 +297,13 @@ using ScriptAction = std::variant<
     SlotPalette>;
 
 std::ostream& operator<<(std::ostream& os, const ScriptAction& sa);
+
+struct ScriptFrame
+{
+    std::vector<ScriptAction> mActions;
+    std::optional<unsigned> mTag;
+};
+
+std::ostream& operator<<(std::ostream& os, const ScriptFrame& sf);
 
 }

@@ -23,87 +23,93 @@ void TTMRunner::LoadTTM(
     auto adsFb = FileBufferFactory::Get().CreateDataBuffer(adsFile);
     mAds = ADS::LoadAds(adsFb);
     auto ttmFb = FileBufferFactory::Get().CreateDataBuffer(ttmFile);
-    mActions = LoadDynamicScripts(ttmFb);
+    mFrames = LoadDynamicScripts(ttmFb);
 
     mStarted.clear();
     mFinished.clear();
     mPendingScripts.clear();
     mCurrentScript = 0;
-    mCurrentAction = 0;
+    mCurrentFrame.reset();
 
+    EvaluateScene();
     StartNextScript();
 }
 
-std::optional<ScriptAction> TTMRunner::GetNextAction()
+std::optional<ScriptFrame> TTMRunner::GetNextFrame()
 {
-    if (mCurrentAction == mActions.size())
+    while (mCurrentFrame)
     {
-        return std::nullopt;
-    }
-
-    auto action = mActions[mCurrentAction];
-    bool nextActionChosen = false;
-    bool finishEarly = false;
-
-    std::visit(
-        overloaded{
-            [&](const Purge&){
-                StopScript(mCurrentScript);
-                StartNextScript();
-                nextActionChosen = true;
-            },
-            [&](const GotoTag& sa){
-                // Hack til I figure out exactly how C31 works...
-                if (sa.mTag == 4)
-                {
-                    finishEarly = true;
-                    return;
-                }
-                mCurrentAction = FindActionMatchingTag(sa.mTag);
-                nextActionChosen = true;
-            },
-            [&](const auto&){}
-        },
-        action
-    );
-
-    if (finishEarly)
-    {
-        return std::nullopt;
-    }
-
-    if (nextActionChosen)
-    {
-        if (mCurrentAction == mActions.size())
+        if (*mCurrentFrame >= mFrames.size())
         {
-            return std::nullopt;
+            FinishCurrentScript();
+            continue;
         }
 
-        action = mActions[mCurrentAction];
+        const auto frame = mFrames[*mCurrentFrame];
+
+        bool endScript = false;
+        std::optional<unsigned> gotoTag{};
+        for (const auto& action : frame.mActions)
+        {
+            std::visit(
+                overloaded{
+                    [&](const EndScript&){ endScript = true; },
+                    [&](const GotoTag& sa){ gotoTag = sa.mTag; },
+                    [&](const auto&){}
+                },
+                action
+            );
+        }
+
+        if (endScript)
+        {
+            FinishCurrentScript();
+        }
+        else if (gotoTag)
+        {
+            mCurrentFrame = FindFrameMatchingTag(*gotoTag);
+            if (!mCurrentFrame)
+            {
+                mLogger.Debug() << "No frame tagged: " << *gotoTag << "\n";
+                FinishCurrentScript();
+            }
+        }
+        else
+        {
+            mCurrentFrame = *mCurrentFrame + 1;
+        }
+
+        return frame;
     }
 
-    mCurrentAction++;
+    return std::nullopt;
+}
 
-    return action;
+void TTMRunner::FinishCurrentScript()
+{
+    mLogger.Debug() << "Finished script: " << mCurrentScript << "\n";
+    mFinished.insert(mCurrentScript);
+    EvaluateScene();
+    StartNextScript();
 }
 
 void TTMRunner::StartNextScript()
 {
-    if (mPendingScripts.empty())
+    while (!mPendingScripts.empty())
     {
-        EvaluateScene();
+        mCurrentScript = mPendingScripts.front();
+        mPendingScripts.pop_front();
+        mCurrentFrame = FindFrameMatchingTag(mCurrentScript);
+        if (mCurrentFrame)
+        {
+            mLogger.Debug() << "Starting script: " << mCurrentScript << "\n";
+            return;
+        }
+
+        mLogger.Debug() << "No frame tagged: " << mCurrentScript << "\n";
     }
 
-    if (mPendingScripts.empty())
-    {
-        mCurrentAction = mActions.size();
-        return;
-    }
-
-    mCurrentScript = mPendingScripts.front();
-    mPendingScripts.pop_front();
-    mLogger.Debug() << "Starting script: " << mCurrentScript << "\n";
-    mCurrentAction = FindActionMatchingTag(mCurrentScript);
+    mCurrentFrame.reset();
 }
 
 bool TTMRunner::EvaluateScene()
@@ -175,30 +181,20 @@ void TTMRunner::StartScript(unsigned scriptTag)
 
 void TTMRunner::StopScript(unsigned scriptTag)
 {
-    if (scriptTag == mCurrentScript)
-    {
-        mFinished.insert(scriptTag);
-    }
+    std::erase(mPendingScripts, scriptTag);
 }
 
-unsigned TTMRunner::FindActionMatchingTag(unsigned tag) const
+std::optional<unsigned> TTMRunner::FindFrameMatchingTag(unsigned tag) const
 {
-    std::optional<unsigned> foundIndex{};
-    for (unsigned i = 0; i < mActions.size(); i++)
+    for (unsigned i = 0; i < mFrames.size(); i++)
     {
-        evaluate_if<SetScript>(mActions[i], [&](const auto& action) {
-            if (action.mScriptNumber == tag)
-            {
-                foundIndex = i;
-            }
-        });
-        if (foundIndex)
+        if (mFrames[i].mTag == tag)
         {
-            return *foundIndex;
+            return i;
         }
     }
 
-    return 0;
+    return std::nullopt;
 }
 
 }

@@ -33,7 +33,7 @@ struct Script
 std::ostream& operator<<(std::ostream&, const Script&);
 
 std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb);
-std::vector<ScriptAction> LoadDynamicScripts(FileBuffer& fb);
+std::vector<ScriptFrame> LoadDynamicScripts(FileBuffer& fb);
 
 FileBuffer DecompressSCR(FileBuffer& fb);
 FileBuffer DecompressTT3(FileBuffer& fb);

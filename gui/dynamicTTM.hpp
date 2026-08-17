@@ -10,6 +10,7 @@
 #include "gui/button.hpp"
 #include "gui/textBox.hpp"
 
+#include <optional>
 #include <vector>
 
 namespace Gui {
@@ -22,6 +23,8 @@ class DynamicTTM
 {
     
 public:
+    static constexpr double sSecondsPerTick = .017;
+
     DynamicTTM(
         Graphics::SpriteManager& spriteManager,
         AnimatorStore& animatorStore,
@@ -33,7 +36,7 @@ public:
     Widget* GetScene();
 
     void BeginScene(std::string adsFile, std::string ttmFile);
-    bool AdvanceAction();
+    bool AdvanceFrame();
 
 private:
     bool RenderDialog(const BAK::ShowDialog&);
@@ -52,6 +55,9 @@ private:
 
     std::vector<Widget> mSceneElements;
     BAK::TTMRunner mRunner;
+
+    std::optional<BAK::ScriptFrame> mCurrentFrame{};
+    unsigned mNextAction{0};
 
     bool mDelaying = false;
     double mDelay = 0;

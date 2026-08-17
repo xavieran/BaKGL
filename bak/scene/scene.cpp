@@ -76,7 +76,20 @@ std::ostream& operator<<(std::ostream& os, const Script& scene)
 
 namespace {
 
-std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
+std::optional<unsigned> FrameTag(const std::vector<ScriptAction>& actions)
+{
+    if (actions.empty())
+    {
+        return std::nullopt;
+    }
+
+    std::optional<unsigned> tag{};
+    evaluate_if<SetScript>(actions.front(), [&](const auto& a){ tag = a.mScriptNumber; });
+    evaluate_if<ScriptTag>(actions.front(), [&](const auto& a){ tag = a.mScriptNumber; });
+    return tag;
+}
+
+std::vector<ScriptFrame> DecodeTTM(FileBuffer& fb, Tags& tags)
 {
     const auto& logger = Logging::LogState::GetLogger(__FUNCTION__);
 
@@ -96,7 +109,14 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 
     const auto offset = 8 * 3 + pageBuffer.GetSize() + versionBuffer.GetSize() + 5;
 
+    std::vector<ScriptFrame> frames{};
     std::vector<ScriptAction> actions{};
+
+    const auto PushFrame = [&]{
+        const auto tag = FrameTag(actions);
+        frames.emplace_back(ScriptFrame{std::move(actions), tag});
+        actions.clear();
+    };
 
     unsigned activeEdgeColor = 0xf;
     unsigned activeFillColor = 0xf;
@@ -180,7 +200,7 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
             case Actions::SLOT_PALETTE:
                 actions.emplace_back(SlotPalette{static_cast<unsigned>(args[0])});
                 break;
-            case Actions::SET_SCRIPTA: [[fallthrough]];
+            case Actions::SCRIPT_TAG: [[fallthrough]];
             case Actions::SET_SCRIPT:
             {
                 ASSERT(!args.empty());
@@ -188,10 +208,15 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
                 const auto sceneTag = tag
                     ? *tag
                     : std::to_string(static_cast<int>(args[0]));
-                actions.emplace_back(
-                    SetScript{
-                        sceneTag,
-                        static_cast<std::uint16_t>(args[0])});
+                const auto scriptNumber = static_cast<std::uint16_t>(args[0]);
+                if (action == Actions::SCRIPT_TAG)
+                {
+                    actions.emplace_back(ScriptTag{sceneTag, scriptNumber});
+                }
+                else
+                {
+                    actions.emplace_back(SetScript{sceneTag, scriptNumber});
+                }
             } break;
             case Actions::SET_CLIP_REGION:
                 actions.emplace_back(
@@ -288,11 +313,11 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
             case Actions::DRAW_SAVED_REGION:
                 actions.emplace_back(DrawSavedRegion{static_cast<unsigned>(args[0])});
                 break;
-            case Actions::UPDATE:
-                actions.emplace_back(Update{});
+            case Actions::END_FRAME:
+                PushFrame();
                 break;
-            case Actions::PURGE:
-                actions.emplace_back(Purge{});
+            case Actions::END_SCRIPT:
+                actions.emplace_back(EndScript{});
                 break;
             case Actions::DELAY:
                 actions.emplace_back(Delay{static_cast<unsigned>(args[0])});
@@ -306,7 +331,14 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
         logger.Debug() << ss.str() << "\n";
     }
 
-    return actions;
+    if (!actions.empty())
+    {
+        PushFrame();
+    }
+
+    ASSERT(frames.size() == pages);
+
+    return frames;
 }
 
 }
@@ -314,7 +346,7 @@ std::vector<ScriptAction> DecodeTTM(FileBuffer& fb, Tags& tags)
 std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb)
 {
     Tags tags{};
-    const auto actions = DecodeTTM(fb, tags);
+    const auto frames = DecodeTTM(fb, tags);
 
     std::unordered_map<unsigned, Script> scripts{};
 
@@ -360,99 +392,98 @@ std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb)
         }
     };
 
-    for (const auto& action : actions)
+    for (const auto& frame : frames)
     {
-        std::visit(
-            overloaded{
-                [&](const SetScript& setScript)
-                {
-                    if (loadingScene)
-                        PushScript();
+        for (const auto& action : frame.mActions)
+        {
+            std::visit(
+                overloaded{
+                    [&](const SetScript& setScript)
+                    {
+                        if (loadingScene)
+                            PushScript();
 
-                    currentScript.mSceneTag = setScript.mName;
-                    currentScript.mActions.clear();
-                    currentScript.mImages.clear();
-                    currentScript.mScreens.clear();
-                    currentScript.mPalettes.clear();
-                    images.clear();
-                    imageSlots.clear();
-                    palettes.clear();
-                    imageSlot.reset();
-                    screens.clear();
-                    loadingScene = true;
-                },
-                [&](const SlotImage& slotImage)
-                {
-                    imageSlot = slotImage.mSlot;
-                },
-                [&](const SlotPalette& slotPalette)
-                {
-                    paletteSlot = slotPalette.mSlot;
-                },
-                [&](const LoadPalette& loadPalette)
-                {
-                    //ASSERT(loadingScene);
-                    ASSERT(paletteSlot);
-                    palettes[*paletteSlot] = loadPalette.mPalette;
-                    if (!imageSlots.contains(*paletteSlot))
+                        currentScript.mSceneTag = setScript.mName;
+                        currentScript.mActions.clear();
+                        currentScript.mImages.clear();
+                        currentScript.mScreens.clear();
+                        currentScript.mPalettes.clear();
+                        images.clear();
+                        imageSlots.clear();
+                        palettes.clear();
+                        imageSlot.reset();
+                        screens.clear();
+                        loadingScene = true;
+                    },
+                    [&](const SlotImage& slotImage)
                     {
-                        imageSlots[*paletteSlot] = ImageSlot{};
-                    }
-                    imageSlots[*paletteSlot].mPalette = *paletteSlot;
-                },
-                [&](const LoadImage& loadImage)
-                {
-                    //ASSERT(loadingScene);
-                    ASSERT(imageSlot);
-                    images[*imageSlot] = std::make_pair(
-                        loadImage.mImage,
-                        paletteSlot ? *paletteSlot : *imageSlot);
-                    if (!imageSlots.contains(*imageSlot))
+                        imageSlot = slotImage.mSlot;
+                    },
+                    [&](const SlotPalette& slotPalette)
                     {
-                        imageSlots[*imageSlot] = ImageSlot{};
-                    }
-                },
-                [&](const LoadScreen& loadScreen)
-                {
-                    if (!paletteSlot) return;
-                    screens[*paletteSlot] = std::make_pair(
-                        loadScreen.mScreenName,
-                        *paletteSlot);
-                },
-                [&](const ClipRegion& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [&](const CopyLayer& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [&](const DrawRect& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [&](const DrawSprite& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [&](const ShowDialog& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [&](const Update& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [&](const Purge& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [&](const Delay& a)
-                {
-                    currentScript.mActions.emplace_back(a);
-                },
-                [](const auto&){}},
-            action);
+                        paletteSlot = slotPalette.mSlot;
+                    },
+                    [&](const LoadPalette& loadPalette)
+                    {
+                        //ASSERT(loadingScene);
+                        ASSERT(paletteSlot);
+                        palettes[*paletteSlot] = loadPalette.mPalette;
+                        if (!imageSlots.contains(*paletteSlot))
+                        {
+                            imageSlots[*paletteSlot] = ImageSlot{};
+                        }
+                        imageSlots[*paletteSlot].mPalette = *paletteSlot;
+                    },
+                    [&](const LoadImage& loadImage)
+                    {
+                        //ASSERT(loadingScene);
+                        ASSERT(imageSlot);
+                        images[*imageSlot] = std::make_pair(
+                            loadImage.mImage,
+                            paletteSlot ? *paletteSlot : *imageSlot);
+                        if (!imageSlots.contains(*imageSlot))
+                        {
+                            imageSlots[*imageSlot] = ImageSlot{};
+                        }
+                    },
+                    [&](const LoadScreen& loadScreen)
+                    {
+                        if (!paletteSlot) return;
+                        screens[*paletteSlot] = std::make_pair(
+                            loadScreen.mScreenName,
+                            *paletteSlot);
+                    },
+                    [&](const ClipRegion& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [&](const CopyLayer& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [&](const DrawRect& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [&](const DrawSprite& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [&](const ShowDialog& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [&](const EndScript& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [&](const Delay& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [](const auto&){}},
+                action);
+        }
     }
 
     // Push final scene
@@ -461,7 +492,7 @@ std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb)
     return scripts;
 }
 
-std::vector<ScriptAction> LoadDynamicScripts(FileBuffer& fb)
+std::vector<ScriptFrame> LoadDynamicScripts(FileBuffer& fb)
 {
     Tags tags{};
     return DecodeTTM(fb, tags);

@@ -48,8 +48,8 @@ std::string_view ToString(Actions a)
     case Actions::SAVE_BACKGROUND: return "SaveBackground";
     case Actions::DRAW_BACKGROUND: return "DrawBackground";
     case Actions::DRAW_BACKGROUND_B: return "DRAW_BACKGROUND_B";
-    case Actions::PURGE: return "Purge";
-    case Actions::UPDATE: return "Update";
+    case Actions::END_SCRIPT: return "EndScript";
+    case Actions::END_FRAME: return "EndFrame";
     case Actions::DO_SOMETHING_A: return "DOSOMETHINGA";
     case Actions::DISABLE_CLEAR: return "DisableClear";
     case Actions::ENABLE_CLEAR: return "EnableClear";
@@ -58,7 +58,7 @@ std::string_view ToString(Actions a)
     case Actions::SLOT_PALETTE: return "SlotPalette";
     case Actions::SLOT_FONT: return "SlotFont";
     case Actions::SET_SCRIPT: return "SetScript";
-    case Actions::SET_SCRIPTA: return "SETSCRIPTA";
+    case Actions::SCRIPT_TAG: return "ScriptTag";
     case Actions::SET_SAVE_LAYER: return "SetSaveLayer";
     case Actions::GOTO_TAG: return "GotoTag";
     case Actions::SET_COLOR: return "SetColors";
@@ -116,6 +116,12 @@ std::ostream& operator<<(std::ostream& os, const SetScript& ss)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const ScriptTag& sl)
+{
+    os << "ScriptTag {" << sl.mScriptNumber << " " << sl.mName << "}";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const LoadScreen& ls)
 {
     os << "LoadScreen {" << ls.mScreenName << "}";
@@ -166,12 +172,7 @@ std::ostream& operator<<(std::ostream& os, const DisableClipRegion& a)
 
 std::ostream& operator<<(std::ostream& os, const Delay& a)
 {
-    return os << "Delay { time: " << a.mDelayMs << "}";
-}
-
-std::ostream& operator<<(std::ostream& os, const Update& a)
-{
-    return os << "Update{}";
+    return os << "Delay { ticks: " << a.mTicks << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SaveBackground& a)
@@ -194,9 +195,9 @@ std::ostream& operator<<(std::ostream& os, const FadeOut& a)
     return os << "FadeOut{}";
 }
 
-std::ostream& operator<<(std::ostream& os, const Purge& a)
+std::ostream& operator<<(std::ostream& os, const EndScript& a)
 {
-    return os << "Purge{}";
+    return os << "EndScript{}";
 }
 
 std::ostream& operator<<(std::ostream& os, const SaveRectToBackground& a)
@@ -267,6 +268,21 @@ std::ostream& operator<<(std::ostream& os, const ScriptAction& sa)
         [&](const auto& x){ os << x; }},
         sa);
 
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ScriptFrame& sf)
+{
+    os << "Frame";
+    if (sf.mTag)
+    {
+        os << " [tag " << *sf.mTag << "]";
+    }
+    os << "\n";
+    for (const auto& action : sf.mActions)
+    {
+        os << "\t" << action << "\n";
+    }
     return os;
 }
 

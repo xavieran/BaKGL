@@ -22,26 +22,27 @@ public:
         std::string adsFile,
         std::string ttmFile);
 
-    std::optional<ScriptAction> GetNextAction();
+    std::optional<ScriptFrame> GetNextFrame();
 
 private:
+    void FinishCurrentScript();
     void StartNextScript();
     bool EvaluateScene();
     void ExecuteBlock(const ADS::ActionBlock& block);
     bool EvaluateCondition(const ADS::Condition& condition) const;
     void StartScript(unsigned scriptTag);
     void StopScript(unsigned scriptTag);
-    unsigned FindActionMatchingTag(unsigned tag) const;
+    std::optional<unsigned> FindFrameMatchingTag(unsigned tag) const;
 
     ADS::Ads mAds;
-    std::vector<ScriptAction> mActions;
+    std::vector<ScriptFrame> mFrames;
 
     std::unordered_set<unsigned> mStarted;
     std::unordered_set<unsigned> mFinished;
     std::deque<unsigned> mPendingScripts;
     unsigned mCurrentScript = 0;
 
-    unsigned mCurrentAction = 0;
+    std::optional<unsigned> mCurrentFrame;
 
     const Logging::Logger& mLogger;
 };

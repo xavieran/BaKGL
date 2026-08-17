@@ -60,7 +60,7 @@ void CutscenePlayer::Play()
             ClearChildren();
             AddChildBack(mDynamicTTM.GetScene());
             mTtmPlaying = true;
-            mDynamicTTM.AdvanceAction();
+            mDynamicTTM.AdvanceFrame();
         },
         [&](const BAK::BookChapter& book)
         {
@@ -89,7 +89,7 @@ void CutscenePlayer::Advance()
 {
     if (GetChildren()[0] == mDynamicTTM.GetScene())
     {
-        mDynamicTTM.AdvanceAction();
+        mDynamicTTM.AdvanceFrame();
     }
     else if (GetChildren()[0] == mBookPlayer.GetBackground())
     {
@@ -104,7 +104,7 @@ void CutscenePlayer::BookFinished()
         mGuiManager.DoFade(1.5, [&]{
             ClearChildren();
             AddChildBack(mDynamicTTM.GetScene());
-            mDynamicTTM.AdvanceAction();
+            mDynamicTTM.AdvanceFrame();
         });
     }
     else
