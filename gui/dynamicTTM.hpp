@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bak/palette.hpp"
 #include "bak/scene/ttmRunner.hpp"
 
 #include "com/logger.hpp"
@@ -10,7 +11,10 @@
 #include "gui/button.hpp"
 #include "gui/textBox.hpp"
 
+#include <glm/glm.hpp>
+
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 namespace Gui {
@@ -40,7 +44,12 @@ public:
 
 private:
     bool RenderDialog(const BAK::ShowDialog&);
+    bool StartFade(unsigned startColor, unsigned endColor, unsigned durationIndex, bool fadeIn);
+    void ShowNextFrame();
+    void FinishFrame();
+    void Delay(double seconds);
     void ClearText();
+    glm::vec3 GetPaletteColor(unsigned index) const;
 
     Graphics::SpriteManager& mSpriteManager;
     AnimatorStore& mAnimatorStore;
@@ -48,6 +57,7 @@ private:
     Widget mSceneFrame;
     Widget mDialogBackground;
     Widget mRenderedElements;
+    Widget mFadeRect;
 
     TextBox mLowerTextBox;
     Button mPopup;
@@ -60,7 +70,13 @@ private:
     unsigned mNextAction{0};
 
     bool mDelaying = false;
+    bool mFading = false;
+    bool mWaitForClick = false;
+    bool mFramePresented = false;
     double mDelay = 0;
+
+    std::unordered_map<unsigned, BAK::Palette> mPaletteSlots;
+    unsigned mCurrentPaletteSlot{0};
 
     Graphics::TextureStore mRenderedFrames;
     Graphics::SpriteManager::TemporarySpriteSheet mRenderedFramesSheet;

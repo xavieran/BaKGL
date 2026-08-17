@@ -20,8 +20,9 @@ void AnimatorStore::AddAnimator(std::unique_ptr<IAnimator>&& animator)
 void AnimatorStore::OnTimeDelta(double delta)
 {
     mLogger.Spam() << "Ticking : " << delta << "\n";
-    for (auto& animator : mAnimators)
-        animator->OnTimeDelta(delta);
+    const auto ticked = mAnimators.size();
+    for (unsigned i = 0; i < ticked; i++)
+        mAnimators[i]->OnTimeDelta(delta);
 
     mAnimators.erase(
         std::remove_if(

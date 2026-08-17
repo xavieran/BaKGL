@@ -17,9 +17,41 @@
 
 #include "graphics/types.hpp"
 
+#include "gui/animator.hpp"
 #include "gui/animatorStore.hpp"
 
+#include <array>
+
 namespace Gui {
+
+namespace {
+
+constexpr std::array<double, 7> sFadeDurations = {0, 0.1, 0.4, 0.8, 1.6, 3.2, 6.4};
+
+double FadeDuration(unsigned index)
+{
+    ASSERT(index < sFadeDurations.size());
+    return sFadeDurations[index];
+}
+
+// Hack. The fades currently work by "region" because the first 15 palette
+// members are used to draw the background and text. The rest of the
+// palette colours are used to draw the window area. We choose the fade
+// region based on whether the start color is <16 or not. If it is
+// then the fade applies to full screen, otherwise to the window.
+// If I implemented palette wise rendering at the shader level I could
+// do this properly but leaving that for now.
+constexpr unsigned sFirstPictureColor = 16;
+
+std::pair<glm::vec2, glm::vec2> FadeRegion(unsigned startColor)
+{
+    if (startColor < sFirstPictureColor)
+    {
+        return {glm::vec2{0, 0}, glm::vec2{320, 200}};
+    }
+    return {glm::vec2{15, 11}, glm::vec2{289, 101}};
+}
+}
 
 DynamicTTM::DynamicTTM(
     Graphics::SpriteManager& spriteManager,
@@ -61,6 +93,13 @@ DynamicTTM::DynamicTTM(
         glm::vec2{0},
         glm::vec2{1},
         false 
+    },
+    mFadeRect{
+        RectTag{},
+        glm::vec2{0, 0},
+        glm::vec2{320, 200},
+        glm::vec4{0},
+        false
     },
     mLowerTextBox{
         glm::vec2{15, 125},
@@ -122,9 +161,15 @@ void DynamicTTM::BeginScene(
     }
 
     mDelaying = false;
+    mFading = false;
+    mWaitForClick = false;
+    mFramePresented = false;
     mDelay = 0;
     mCurrentFrame.reset();
     mNextAction = 0;
+    mPaletteSlots.clear();
+    mCurrentPaletteSlot = 0;
+    mFadeRect.SetColor(glm::vec4{0});
     mRunner.LoadTTM(adsFile, ttmFile);
 
     ClearText();
@@ -132,7 +177,7 @@ void DynamicTTM::BeginScene(
 
 bool DynamicTTM::AdvanceFrame()
 {
-    if (mDelaying) return false;
+    if (mDelaying || mFading) return false;
 
     if (!mCurrentFrame)
     {
@@ -149,12 +194,7 @@ bool DynamicTTM::AdvanceFrame()
 
         mCurrentFrame = *frameOpt;
         mNextAction = 0;
-
-        if (mCurrentRenderedFrame < mRenderedFrames.GetTextures().size())
-        {
-            mSceneElements.back().SetTexture(
-                Graphics::TextureIndex{mCurrentRenderedFrame++});
-        }
+        mFramePresented = false;
     }
 
     bool waitForClick = false;
@@ -168,7 +208,22 @@ bool DynamicTTM::AdvanceFrame()
                     mDelay = static_cast<double>(delay.mTicks) * sSecondsPerTick;
                 },
                 [&](const BAK::ShowDialog& dialog){
-                    waitForClick = RenderDialog(dialog);
+                    waitForClick |= RenderDialog(dialog);
+                },
+                [&](const BAK::FadeIn& fade){
+                    waitForClick |= StartFade(
+                        fade.mStartColor, fade.mEndColor, fade.mDurationIndex, true);
+                },
+                [&](const BAK::FadeOut& fade){
+                    waitForClick |= StartFade(
+                        fade.mStartColor, fade.mEndColor, fade.mDurationIndex, false);
+                },
+                [&](const BAK::SlotPalette& sp){
+                    mCurrentPaletteSlot = sp.mSlot;
+                },
+                [&](const BAK::LoadPalette& p){
+                    mPaletteSlots.erase(mCurrentPaletteSlot);
+                    mPaletteSlots.emplace(mCurrentPaletteSlot, BAK::Palette{p.mPalette});
                 },
                 [&](const BAK::PlaySoundS& sound){
                     if (sound.mSoundIndex < 255)
@@ -194,20 +249,103 @@ bool DynamicTTM::AdvanceFrame()
 
     mCurrentFrame.reset();
 
-    if (!waitForClick)
-    {
+    mWaitForClick = waitForClick;
 
-        ClearText();
-        mDelaying = true;
-        mAnimatorStore.AddAnimator(std::make_unique<CallbackDelay>(
-            [&](){
-                mDelaying = false;
-                AdvanceFrame();
-            },
-            mDelay));
-    }
+    FinishFrame();
 
     return false;
+}
+
+glm::vec3 DynamicTTM::GetPaletteColor(unsigned index) const
+{
+    if (!mPaletteSlots.contains(mCurrentPaletteSlot))
+    {
+        return glm::vec3{0};
+    }
+
+    return glm::vec3{mPaletteSlots.at(mCurrentPaletteSlot).GetColor(index)};
+}
+
+bool DynamicTTM::StartFade(unsigned startColor, unsigned endColor, unsigned durationIndex, bool fadeIn)
+{
+    if (mSceneFrame.HaveChild(&mFadeRect))
+        mSceneFrame.RemoveChild(&mFadeRect);
+    mSceneFrame.AddChildBack(&mFadeRect);
+
+    const auto color = GetPaletteColor(endColor);
+    const auto begin = glm::vec4{color, fadeIn ? 1.0f : 0.0f};
+    const auto end = glm::vec4{color, fadeIn ? 0.0f : 1.0f};
+
+    const auto [pos, dims] = FadeRegion(startColor);
+    mFadeRect.SetPosition(pos);
+    mFadeRect.SetDimensions(dims);
+
+    if (fadeIn)
+    {
+        ShowNextFrame();
+        mFramePresented = true;
+    }
+
+    const auto duration = FadeDuration(durationIndex);
+    if (duration == 0)
+    {
+        mFadeRect.SetColor(end);
+        return false;
+    }
+
+    mFadeRect.SetColor(begin);
+    mFading = true;
+    mAnimatorStore.AddAnimator(std::make_unique<LinearAnimator>(
+        duration,
+        begin,
+        end,
+        [this](const auto& delta){
+            mFadeRect.SetColor(mFadeRect.GetDrawInfo().mColor + delta);
+            return false;
+        },
+        [this, end](){
+            mFadeRect.SetColor(end);
+            mFading = false;
+            AdvanceFrame();
+        }));
+    return true;
+}
+
+void DynamicTTM::FinishFrame()
+{
+    if (!mFramePresented)
+    {
+        ShowNextFrame();
+        mFramePresented = true;
+    }
+
+    mFadeRect.SetColor(glm::vec4{0});
+
+    if (!mWaitForClick)
+    {
+        ClearText();
+        Delay(mDelay);
+    }
+}
+
+void DynamicTTM::ShowNextFrame()
+{
+    if (mCurrentRenderedFrame < mRenderedFrames.GetTextures().size())
+    {
+        mSceneElements.back().SetTexture(
+            Graphics::TextureIndex{mCurrentRenderedFrame++});
+    }
+}
+
+void DynamicTTM::Delay(double seconds)
+{
+    mDelaying = true;
+    mAnimatorStore.AddAnimator(std::make_unique<CallbackDelay>(
+        [&](){
+            mDelaying = false;
+            AdvanceFrame();
+        },
+        seconds));
 }
 
 bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)

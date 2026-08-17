@@ -8,6 +8,7 @@
 #include "com/logger.hpp"
 
 #include <unordered_map>
+#include <vector>
 
 namespace BAK {
 
