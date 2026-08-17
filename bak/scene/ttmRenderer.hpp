@@ -25,7 +25,7 @@ public:
     Graphics::TextureStore RenderTTM();
 
 private:
-    bool AdvanceAction();
+    bool AdvanceFrame();
 
     void RenderFrame();
 

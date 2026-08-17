@@ -33,9 +33,10 @@ int main(int argc, char** argv)
     }
     else if (mode == "dynamic")
     {
-        for (const auto& action : BAK::LoadDynamicScripts(fb))
+        unsigned index = 0;
+        for (const auto& frame : BAK::LoadDynamicScripts(fb))
         {
-            std::cout << action << "\n";
+            std::cout << index++ << " " << frame;
         }
     }
     else if (mode == "rawads")

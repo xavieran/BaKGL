@@ -123,71 +123,86 @@ void DynamicTTM::BeginScene(
 
     mDelaying = false;
     mDelay = 0;
+    mCurrentFrame.reset();
+    mNextAction = 0;
     mRunner.LoadTTM(adsFile, ttmFile);
 
     ClearText();
 }
 
-bool DynamicTTM::AdvanceAction()
+bool DynamicTTM::AdvanceFrame()
 {
     if (mDelaying) return false;
 
-    auto actionOpt = mRunner.GetNextAction();
-    if (!actionOpt)
+    if (!mCurrentFrame)
     {
-        mSceneFinished();
-        if (mMusicTracksPlayed > 0)
+        auto frameOpt = mRunner.GetNextFrame();
+        if (!frameOpt)
         {
-            AudioA::GetAudioManager().PopTrack();
+            mSceneFinished();
+            if (mMusicTracksPlayed > 0)
+            {
+                AudioA::GetAudioManager().PopTrack();
+            }
+            return true;
         }
-        return true;
+
+        mCurrentFrame = *frameOpt;
+        mNextAction = 0;
+
+        if (mCurrentRenderedFrame < mRenderedFrames.GetTextures().size())
+        {
+            mSceneElements.back().SetTexture(
+                Graphics::TextureIndex{mCurrentRenderedFrame++});
+        }
     }
 
-    auto action = *actionOpt;
-    mLogger.Debug() << "This action: " << action << "\n";
-
     bool waitForClick = false;
-    std::visit(
-        overloaded{
-            [&](const BAK::Delay& delay){
-                mDelay = static_cast<double>(delay.mDelayMs) / 1000.;
+    while (mNextAction < mCurrentFrame->mActions.size())
+    {
+        const auto& action = mCurrentFrame->mActions[mNextAction++];
+        mLogger.Debug() << "This action: " << action << "\n";
+        std::visit(
+            overloaded{
+                [&](const BAK::Delay& delay){
+                    mDelay = static_cast<double>(delay.mTicks) * sSecondsPerTick;
+                },
+                [&](const BAK::ShowDialog& dialog){
+                    waitForClick = RenderDialog(dialog);
+                },
+                [&](const BAK::PlaySoundS& sound){
+                    if (sound.mSoundIndex < 255)
+                    {
+                        AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
+                    }
+                    else
+                    {
+                        mMusicTracksPlayed++;
+                        AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
+                    }
+                },
+                [&](const auto&){}
             },
-            [&](const BAK::ShowDialog& dialog){
-                waitForClick = RenderDialog(dialog);
-            },
-            [&](const BAK::Update& sr){
-                mSceneElements.back().SetTexture(
-                    Graphics::TextureIndex{mCurrentRenderedFrame++});
-            },
-            [&](const BAK::Purge&){
-                assert(false);
-            },
-            [&](const BAK::PlaySoundS& sound){
-                if (sound.mSoundIndex < 255)
-                {
-                    AudioA::GetAudioManager().PlaySound(AudioA::SoundIndex{sound.mSoundIndex});
-                }
-                else
-                {
-                    mMusicTracksPlayed++;
-                    AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
-                }
-            },
-            [&](const BAK::GotoTag& sa){
-                assert(false);
-            },
-            [&](const auto&){}
-        },
-        action
-    );
+            action
+        );
+
+        if (waitForClick)
+        {
+            return false;
+        }
+    }
+
+    mCurrentFrame.reset();
 
     if (!waitForClick)
     {
+
+        ClearText();
         mDelaying = true;
         mAnimatorStore.AddAnimator(std::make_unique<CallbackDelay>(
             [&](){
                 mDelaying = false;
-                AdvanceAction();
+                AdvanceFrame();
             },
             mDelay));
     }

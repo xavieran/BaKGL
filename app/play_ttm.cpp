@@ -109,7 +109,7 @@ int main(int argc, char** argv)
         {
             rootWidget.OnMouseEvent(
                 Gui::LeftMousePress{guiScaleInv * click});
-            dynamicTTM.AdvanceAction();
+            dynamicTTM.AdvanceFrame();
         },
         [&](const auto click)
         {
