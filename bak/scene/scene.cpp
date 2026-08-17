@@ -291,10 +291,20 @@ std::vector<ScriptFrame> DecodeTTM(FileBuffer& fb, Tags& tags)
                     SetColors{activeEdgeColor, activeFillColor});
                 break;
             case Actions::FADE_IN:
-                actions.emplace_back(FadeIn{});
+                actions.emplace_back(
+                    FadeIn{
+                        static_cast<unsigned>(args[0]),
+                        static_cast<unsigned>(args[1]),
+                        static_cast<unsigned>(args[2]),
+                        static_cast<unsigned>(args[3])});
                 break;
             case Actions::FADE_OUT:
-                actions.emplace_back(FadeOut{});
+                actions.emplace_back(
+                    FadeOut{
+                        static_cast<unsigned>(args[0]),
+                        static_cast<unsigned>(args[1]),
+                        static_cast<unsigned>(args[2]),
+                        static_cast<unsigned>(args[3])});
                 break;
             case Actions::GOTO_TAG:
                 actions.emplace_back(GotoTag{static_cast<unsigned>(args[0])});

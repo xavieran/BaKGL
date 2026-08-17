@@ -225,11 +225,23 @@ struct SetColors
 
 struct FadeIn
 {
+    unsigned mStartColor;
+    unsigned mSteps;
+    unsigned mEndColor;
+    unsigned mDurationIndex;
 };
+
+std::ostream& operator<<(std::ostream&, const FadeIn&);
 
 struct FadeOut
 {
+    unsigned mStartColor;
+    unsigned mSteps;
+    unsigned mEndColor;
+    unsigned mDurationIndex;
 };
+
+std::ostream& operator<<(std::ostream&, const FadeOut&);
 
 struct SetSaveLayer
 {

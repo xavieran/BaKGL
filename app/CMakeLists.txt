@@ -34,7 +34,7 @@ list(APPEND APP_BINARIES
     main3d
     #play_book
     #play_cutscene
-    #play_ttm
+    play_ttm
     #show_scene
     #show_imgui
     bmx_explorer

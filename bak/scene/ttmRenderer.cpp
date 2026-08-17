@@ -144,6 +144,8 @@ bool TTMRenderer::AdvanceFrame()
                 },
                 [&](const EndScript&){},
                 [&](const GotoTag&){},
+                [&](const FadeOut&){},
+                [&](const FadeIn&){},
                 [&](const auto& a){
                     Logging::LogInfo(__FUNCTION__) << "Unhandled action: " << a << "\n";
                 }
@@ -156,6 +158,7 @@ bool TTMRenderer::AdvanceFrame()
 
     return true;
 }
+
 void TTMRenderer::RenderFrame()
 {
     auto frame = mRenderer.GetLayer(Layer::Screen);

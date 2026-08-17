@@ -187,12 +187,14 @@ std::ostream& operator<<(std::ostream& os, const DrawBackground& a)
 
 std::ostream& operator<<(std::ostream& os, const FadeIn& a)
 {
-    return os << "FadeIn{}";
+    return os << "FadeIn{ start: " << a.mStartColor << " steps: " << a.mSteps
+        << " end: " << a.mEndColor << " durationIndex: " << a.mDurationIndex << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const FadeOut& a)
 {
-    return os << "FadeOut{}";
+    return os << "FadeOut{ start: " << a.mStartColor << " steps: " << a.mSteps
+        << " end: " << a.mEndColor << " durationIndex: " << a.mDurationIndex << "}";
 }
 
 std::ostream& operator<<(std::ostream& os, const EndScript& a)
