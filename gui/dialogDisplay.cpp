@@ -343,7 +343,7 @@ void DialogDisplay::SetActor(
     const auto& [index, dims] = mActors.GetActor(actor);
     mActor.SetTexture(index);
     // we want the bottom of this picture to end up here
-    mActor.SetPosition(glm::vec2{100, 112 - dims.y});
+    mActor.SetPosition(glm::vec2{mCenter.x - dims.x / 2, mCenter.y - dims.y});
     mActor.SetDimensions(dims);
     AddChildBack(&mActor);
 
