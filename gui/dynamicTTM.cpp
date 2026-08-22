@@ -196,6 +196,7 @@ bool DynamicTTM::AdvanceFrame()
             return true;
         }
 
+        mFadeRect.SetColor(glm::vec4{0});
         mCurrentFrame = *frameOpt;
         mNextAction = 0;
         mFramePresented = false;
