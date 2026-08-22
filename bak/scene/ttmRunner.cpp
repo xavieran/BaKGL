@@ -7,6 +7,8 @@
 #include "com/logger.hpp"
 #include "com/visit.hpp"
 
+#include <algorithm>
+
 namespace BAK {
 
 TTMRunner::TTMRunner()
@@ -27,89 +29,92 @@ void TTMRunner::LoadTTM(
 
     mStarted.clear();
     mFinished.clear();
-    mPendingScripts.clear();
-    mCurrentScript = 0;
-    mCurrentFrame.reset();
-
-    EvaluateScene();
-    StartNextScript();
+    mRunningScripts.clear();
 }
 
 std::optional<ScriptFrame> TTMRunner::GetNextFrame()
 {
-    while (mCurrentFrame)
+    while (true)
     {
-        if (*mCurrentFrame >= mFrames.size())
+        EvaluateScene();
+
+        if (mRunningScripts.empty())
         {
-            FinishCurrentScript();
-            continue;
+            return std::nullopt;
         }
 
-        const auto frame = mFrames[*mCurrentFrame];
-
-        bool endScript = false;
-        std::optional<unsigned> gotoTag{};
-        for (const auto& action : frame.mActions)
+        ScriptFrame frame{};
+        bool stepped = false;
+        for (auto& script : mRunningScripts)
         {
-            std::visit(
-                overloaded{
-                    [&](const EndScript&){ endScript = true; },
-                    [&](const GotoTag& sa){ gotoTag = sa.mTag; },
-                    [&](const auto&){}
-                },
-                action
-            );
+            stepped |= StepScript(script, frame.mActions);
         }
 
-        if (endScript)
+        for (const auto& script : mRunningScripts)
         {
-            FinishCurrentScript();
-        }
-        else if (gotoTag)
-        {
-            mCurrentFrame = FindFrameMatchingTag(*gotoTag);
-            if (!mCurrentFrame)
+            if (!script.mRunning)
             {
-                mLogger.Debug() << "No frame tagged: " << *gotoTag << "\n";
-                FinishCurrentScript();
+                mLogger.Debug() << "Finished script: " << script.mTag << "\n";
+                mFinished.insert(script.mTag);
             }
+        }
+        std::erase_if(mRunningScripts, [](const auto& s){ return !s.mRunning; });
+
+        if (stepped)
+        {
+            return frame;
+        }
+    }
+}
+
+bool TTMRunner::StepScript(RunningScript& script, std::vector<ScriptAction>& actions)
+{
+    if (script.mFrame >= mFrames.size())
+    {
+        script.mRunning = false;
+        return false;
+    }
+
+    const auto& frame = mFrames[script.mFrame];
+
+    bool endScript = false;
+    std::optional<unsigned> gotoTag{};
+    for (const auto& action : frame.mActions)
+    {
+        std::visit(
+            overloaded{
+                [&](const EndScript&){ endScript = true; },
+                [&](const GotoTag& sa){ gotoTag = sa.mTag; },
+                [&](const auto&){}
+            },
+            action
+        );
+        actions.emplace_back(action);
+    }
+
+    if (endScript)
+    {
+        script.mRunning = false;
+    }
+    else if (gotoTag)
+    {
+        const auto taggedFrame = FindFrameMatchingTag(*gotoTag);
+        if (taggedFrame)
+        {
+            script.mFrame = *taggedFrame;
         }
         else
         {
-            mCurrentFrame = *mCurrentFrame + 1;
+            mLogger.Debug() << "No frame tagged: " << *gotoTag << "\n";
+            script.mRunning = false;
         }
-
-        return frame;
     }
-
-    return std::nullopt;
-}
-
-void TTMRunner::FinishCurrentScript()
-{
-    mLogger.Debug() << "Finished script: " << mCurrentScript << "\n";
-    mFinished.insert(mCurrentScript);
-    EvaluateScene();
-    StartNextScript();
-}
-
-void TTMRunner::StartNextScript()
-{
-    while (!mPendingScripts.empty())
+    else
     {
-        mCurrentScript = mPendingScripts.front();
-        mPendingScripts.pop_front();
-        mCurrentFrame = FindFrameMatchingTag(mCurrentScript);
-        if (mCurrentFrame)
-        {
-            mLogger.Debug() << "Starting script: " << mCurrentScript << "\n";
-            return;
-        }
-
-        mLogger.Debug() << "No frame tagged: " << mCurrentScript << "\n";
+        script.mFrame++;
     }
 
-    mCurrentFrame.reset();
+    return true;
 }
 
 bool TTMRunner::EvaluateScene()
@@ -176,12 +181,32 @@ bool TTMRunner::EvaluateCondition(const ADS::Condition& condition) const
 void TTMRunner::StartScript(unsigned scriptTag)
 {
     mStarted.insert(scriptTag);
-    mPendingScripts.emplace_back(scriptTag);
+
+    const auto startFrame = FindFrameMatchingTag(scriptTag);
+    if (!startFrame)
+    {
+        mLogger.Debug() << "No frame tagged: " << scriptTag << "\n";
+        return;
+    }
+
+    const auto alreadyRunning = std::any_of(
+        mRunningScripts.begin(), mRunningScripts.end(),
+        [scriptTag](const auto& s){ return s.mTag == scriptTag; });
+    if (alreadyRunning)
+    {
+        return;
+    }
+
+    mLogger.Debug() << "Starting script: " << scriptTag << "\n";
+    mRunningScripts.emplace_back(scriptTag, *startFrame, true);
 }
 
 void TTMRunner::StopScript(unsigned scriptTag)
 {
-    std::erase(mPendingScripts, scriptTag);
+    mLogger.Debug() << "Stopping script: " << scriptTag << "\n";
+    std::erase_if(
+        mRunningScripts,
+        [scriptTag](const auto& s){ return s.mTag == scriptTag; });
 }
 
 std::optional<unsigned> TTMRunner::FindFrameMatchingTag(unsigned tag) const

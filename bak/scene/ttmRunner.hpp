@@ -5,7 +5,6 @@
 
 #include "com/logger.hpp"
 
-#include <deque>
 #include <optional>
 #include <unordered_set>
 #include <vector>
@@ -25,8 +24,14 @@ public:
     std::optional<ScriptFrame> GetNextFrame();
 
 private:
-    void FinishCurrentScript();
-    void StartNextScript();
+    struct RunningScript
+    {
+        unsigned mTag;
+        unsigned mFrame;
+        bool mRunning;
+    };
+
+    bool StepScript(RunningScript& script, std::vector<ScriptAction>& actions);
     bool EvaluateScene();
     void ExecuteBlock(const ADS::ActionBlock& block);
     bool EvaluateCondition(const ADS::Condition& condition) const;
@@ -39,10 +44,7 @@ private:
 
     std::unordered_set<unsigned> mStarted;
     std::unordered_set<unsigned> mFinished;
-    std::deque<unsigned> mPendingScripts;
-    unsigned mCurrentScript = 0;
-
-    std::optional<unsigned> mCurrentFrame;
+    std::vector<RunningScript> mRunningScripts;
 
     const Logging::Logger& mLogger;
 };
