@@ -40,16 +40,18 @@ public:
     using SaveFn = std::function<void(const BAK::SaveFile&)>;
 
     SaveScreen(
+        BAK::SaveManager&,
         const Backgrounds& backgrounds,
         const Icons& icons,
         const Font& font,
         LeaveSaveFn&& leaveSaveFn,
         LoadSaveFn&& loadSaveFn,
         SaveFn&& saveFn);
-    
+
     bool OnMouseEvent(const MouseEvent& event) override;
     void SetSaveOrLoad(bool isSave);
     bool HasSaves();
+    const BAK::SaveDirectory* GetSelectedDirectory() const;
     bool CanSaveBookmark() const;
     const BAK::SaveFile& SaveBookmark();
 private:
@@ -93,7 +95,7 @@ private:
     bool mRefreshSaves;
     std::optional<std::size_t> mSelectedDirectory;
     std::optional<std::size_t> mSelectedSave;
-    BAK::SaveManager mSaveManager;
+    BAK::SaveManager& mSaveManager;
 
     bool mNeedRefresh;
 

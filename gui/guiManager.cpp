@@ -289,7 +289,11 @@ void GuiManager::EnterMainMenu(bool gameRunning)
             auto checkMainView = PopScreen();
         }
         PushScreen(&mMainMenu);
-        mMainMenu.EnterMainMenu(gameRunning);
+        mMainMenu.EnterMainMenu(
+            gameRunning,
+            gameRunning
+                ? std::make_optional(mGameState.GetChapter())
+                : std::nullopt);
     });
 }
 

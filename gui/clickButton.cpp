@@ -75,13 +75,14 @@ ClickButton::ClickButton(
     glm::vec2 dims,
     const Font& font,
     const std::string& label,
-    std::function<void()>&& onLeftMousePress)
+    std::function<void()>&& onLeftMousePress,
+    std::function<void()>&& onRightMousePress)
 :
     ClickButtonBase{
         pos,
         dims,
         std::move(onLeftMousePress),
-        [](){}
+        std::move(onRightMousePress)
     },
     mFont{font},
     mLabel{label},

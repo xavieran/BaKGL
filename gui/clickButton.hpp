@@ -37,7 +37,8 @@ public:
         glm::vec2 dims,
         const Font& font,
         const std::string& label,
-        std::function<void()>&& onLeftMousePress);
+        std::function<void()>&& onLeftMousePress,
+        std::function<void()>&& onRightMousePress = []{});
     
     void SetText(std::string_view label, bool centerVertical = false);
     void SetDimensions(glm::vec2 dims) override;

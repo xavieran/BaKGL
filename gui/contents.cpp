@@ -8,6 +8,7 @@
 #include "gui/core/widget.hpp"
 
 #include "bak/cutscenes.hpp"
+#include "bak/dialogSources.hpp"
 #include "bak/textureFactory.hpp"
 #include "bak/types.hpp"
 
@@ -35,6 +36,7 @@ ContentsScreen::ContentsScreen(
     mBackgrounds{backgrounds},
     mLayout{sLayoutFile},
     mLeaveContentsFn{std::move(leaveContentsFn)},
+    mUnlockedChapters{9},
     mFrame{
         ImageTag{},
         backgrounds.GetSpriteSheet(),
@@ -49,7 +51,15 @@ ContentsScreen::ContentsScreen(
         mLayout.GetWidgetDimensions(sExit),
         mFont,
         "#Exit",
-        [this]{ std::invoke(mLeaveContentsFn); }
+        [this]{ std::invoke(mLeaveContentsFn); },
+        [this]{ ShowTooltip(sExit); }
+    },
+    mTooltipPopup{
+        glm::vec2{60, 35},
+        glm::vec2{200, 55},
+        mFont,
+        "",
+        [this]{DismissTooltip();}
     }
 {
     auto screen = Graphics::TextureStore{};
@@ -66,6 +76,36 @@ ContentsScreen::ContentsScreen(
                 mLayout.GetWidgetDimensions(i)));
     }
     spriteManager.GetSpriteSheet(mSpriteSheet->mSpriteSheet).LoadTexturesGL(textures);
+
+    AddChildren();
+}
+
+void ContentsScreen::SetUnlockedChapters(unsigned unlocked)
+{
+    mUnlockedChapters = unlocked;
+    AddChildren();
+}
+
+void ContentsScreen::ShowTooltip(unsigned buttonIndex)
+{
+    mShowingTooltip = true;
+    auto tip = buttonIndex == sExit
+        ? BAK::DialogSources::mContentsExitTooltip
+        : BAK::DialogSources::mContentsChapterTooltip;
+    const auto& snippet = BAK::DialogStore::Get().GetSnippet(tip);
+        
+    const auto popup = snippet.GetPopup();
+    assert(popup);
+    mTooltipPopup.SetPosition(popup->mPos);
+    mTooltipPopup.SetDimensions(popup->mDims);
+    mTooltipPopup.SetText(snippet.GetText(), true);
+
+    AddChildren();
+}
+
+void ContentsScreen::DismissTooltip()
+{
+    mShowingTooltip = false;
     AddChildren();
 }
 
@@ -79,7 +119,16 @@ void ContentsScreen::AddChildren()
     mChapterButtons.reserve(9);
     for (unsigned i = 0 ; i < 9; i++)
     {
+        auto chapter = i + 1;
+        if (chapter > mUnlockedChapters)
+        {
+            continue;
+        }
         mChapterButtons.emplace_back(
+            [this, i]()
+            {
+                ShowTooltip(i);
+            },
             [this, i]()
             {
                 PlayChapter(BAK::Chapter{i + 1});
@@ -96,6 +145,11 @@ void ContentsScreen::AddChildren()
     mExit.SetPosition(mLayout.GetWidgetLocation(sExit));
 
     AddChildBack(&mExit);
+
+    if (mShowingTooltip)
+    {
+        AddChildBack(&mTooltipPopup);
+    }
 }
 
 void ContentsScreen::PlayChapter(BAK::Chapter chapter)

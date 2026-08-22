@@ -1,6 +1,7 @@
 #include "bak/saveManager.hpp"
 
 #include "bak/file/util.hpp"
+#include "bak/save/world.hpp"
 
 #include "com/path.hpp"
 
@@ -69,6 +70,21 @@ const std::vector<SaveDirectory>& SaveManager::GetSaves() const
     return mDirectories;
 }
 
+unsigned SaveManager::GetUnlockedChapter(const SaveDirectory& directory) const
+{
+    if (directory.mGameCompleted)
+    {
+        return 10;
+    }
+
+    unsigned unlocked = 1;
+    for (const auto& save : directory.mSaves)
+    {
+        unlocked = save.mChapter;
+    }
+    return unlocked;
+}
+
 void SaveManager::RefreshSaves()
 {
     mDirectories = MakeSaveDirectories();
@@ -79,7 +95,7 @@ void SaveManager::EnsureDefaultDirectory()
     if (!mDirectories.empty())
         return;
 
-    auto directory = SaveDirectory{1, "SAVES", {}};
+    auto directory = SaveDirectory{1, "SAVES", {}, false};
     std::filesystem::create_directory(mSavePath / directory.GetPath());
     mLogger.Info() << "Created default save directory: " << mSavePath / directory.GetPath() << std::endl;
     RefreshSaves();
@@ -122,7 +138,8 @@ const SaveFile& SaveManager::MakeSave(
             auto directory = SaveDirectory{
                 static_cast<unsigned>(mDirectories.size() + 1),
                 saveDirectory,
-                {}};
+                {},
+                false};
             std::filesystem::create_directory(mSavePath / directory.GetPath());
             mLogger.Debug() << __FUNCTION__ << " Creating directory: " << mSavePath / directory.GetPath() << std::endl;
             return mDirectories.emplace_back(
@@ -140,7 +157,7 @@ const SaveFile& SaveManager::MakeSave(
         else
         {
             directory.mSaves.insert(directory.mSaves.begin(),
-                SaveFile{0, "Bookmark", ((mSavePath / directory.GetPath()) / "SAVE00.GAM").string()});
+                SaveFile{0, "Bookmark", 0, ((mSavePath / directory.GetPath()) / "SAVE00.GAM").string()});
             mLogger.Debug() << __FUNCTION__ << " Creating bookmark: " << *directory.mSaves.begin() << std::endl;
         }
         return *directory.mSaves.begin();
@@ -161,35 +178,48 @@ const SaveFile& SaveManager::MakeSave(
         std::stringstream ss{};
         unsigned saveNumber = directory.mSaves.size() + 1;
         ss << "SAVE" << std::setw(2) << std::setfill('0') << saveNumber << ".GAM";
+        auto noChapter = 0u;
         return directory.mSaves.emplace_back(
             SaveFile{
                 static_cast<unsigned>(directory.mSaves.size()),
                 saveName,
+                noChapter, // chapter doesn't matter in this case
                 ((mSavePath / directory.GetPath()) / ss.str()).string()});
     }
 }
 
-std::vector<SaveFile> SaveManager::MakeSaveFiles(std::filesystem::path saveDir)
+std::pair<std::vector<SaveFile>, bool> SaveManager::MakeSaveFiles(std::filesystem::path saveDir)
 {
     const auto saveSuffix = std::regex{"[Ss][Aa][Vv][Ee]([0-9]{2}).[Gg][Aa][mM]$"};
     const auto saveFileDir = std::filesystem::directory_iterator{saveDir};
 
     std::vector<SaveFile> saveFiles{};
+    bool gameCompleted{};
     for (const auto& save : saveFileDir)
     {
         const auto saveName = save.path().filename().string();
-        Logging::LogDebug(__FUNCTION__) << "Save: " << saveName << " matches: " << std::regex_search(saveName, saveSuffix) << std::endl;
+        Logging::LogDebug(__FUNCTION__) << "Save: " << saveName << " matches: "
+            << std::regex_search(saveName, saveSuffix) << std::endl;
         std::smatch matches{};
         std::regex_search(saveName, matches, saveSuffix);
         if (matches.size() > 0)
         {
-            auto fb = File::CreateFileBuffer(save.path().string());
             const auto index = convertToInt(matches.str(1));
+            // BaK writes an empty file SAVE21.GAM to indicate the game
+            // has been completed.
+            if (index == sMaxSaveFiles + 1)
+            {
+                gameCompleted = true;
+                continue;
+            }
+            auto fb = File::CreateFileBuffer(save.path().string());
             const auto name = index == 0 ? "Bookmark" : LoadSaveName(fb);
+            const auto chapter = LoadChapter(fb);
             saveFiles.emplace_back(
                 SaveFile{
                     index,
                     name,
+                    chapter,
                     save.path().string()});
         }
     }
@@ -198,7 +228,7 @@ std::vector<SaveFile> SaveManager::MakeSaveFiles(std::filesystem::path saveDir)
         saveFiles.begin(), saveFiles.end(),
         [](const auto& lhs, const auto& rhs){ return lhs.mIndex < rhs.mIndex; });
 
-    return saveFiles;
+    return std::make_pair(saveFiles, gameCompleted);
 }
 
 std::vector<SaveDirectory> SaveManager::MakeSaveDirectories()
@@ -235,11 +265,13 @@ std::vector<SaveDirectory> SaveManager::MakeSaveDirectories()
         std::regex_search(dirName, matches, dirSuffix);
         if (matches.size() > 0)
         {
+            auto [saveFiles, gameCompleted] = MakeSaveFiles(directory.path());
             saveDirs.emplace_back(
                 SaveDirectory{
                     convertToInt(matches.str(1)),
                     directory.path().stem().string(),
-                    MakeSaveFiles(directory.path())});
+                    saveFiles,
+                    gameCompleted});
         }
     }
     std::sort(

@@ -15,6 +15,7 @@ class SaveFile
 public:
     unsigned mIndex;
     std::string mName;
+    unsigned mChapter;
     std::string mPath;
 
     std::string GetFilename() const;
@@ -31,6 +32,7 @@ public:
     unsigned mIndex;
     std::string mName;
     std::vector<SaveFile> mSaves;
+    bool mGameCompleted;
 };
 
 std::ostream& operator<<(std::ostream&, const SaveDirectory&);
@@ -38,9 +40,11 @@ std::ostream& operator<<(std::ostream&, const SaveDirectory&);
 class SaveManager
 {
 public:
+    static constexpr auto sMaxSaveFiles = 20;
     SaveManager(const std::string& savePath);
 
     const std::vector<SaveDirectory>& GetSaves() const;
+    unsigned GetUnlockedChapter(const SaveDirectory&) const;
     void RefreshSaves();
     void EnsureDefaultDirectory();
 
@@ -52,7 +56,7 @@ public:
         const std::string& saveName,
         bool isBookmark);
 private:
-    std::vector<SaveFile> MakeSaveFiles(std::filesystem::path saveDir);
+    std::pair<std::vector<SaveFile>, bool> MakeSaveFiles(std::filesystem::path saveDir);
     std::vector<SaveDirectory> MakeSaveDirectories();
 
     std::filesystem::path mSavePath;

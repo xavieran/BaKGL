@@ -2,8 +2,6 @@
 
 #include "bak/saveManager.hpp"
 
-#include "com/path.hpp"
-
 #include "gui/backgrounds.hpp"
 #include "gui/colors.hpp"
 #include "gui/list.hpp"
@@ -21,6 +19,7 @@
 namespace Gui {
 
 SaveScreen::SaveScreen(
+    BAK::SaveManager& saveManager,
     const Backgrounds& backgrounds,
     const Icons& icons,
     const Font& font,
@@ -128,7 +127,7 @@ SaveScreen::SaveScreen(
     mRefreshSaves{false},
     mSelectedDirectory{},
     mSelectedSave{},
-    mSaveManager{(Paths::Get().GetBakDirectoryPath() / "GAMES").string()},
+    mSaveManager{saveManager},
     mNeedRefresh{false},
     mLogger{Logging::LogState::GetLogger("Gui::SaveScreen")}
 {
@@ -153,6 +152,15 @@ bool SaveScreen::HasSaves()
 {
     mSaveManager.RefreshSaves();
     return !mSaveManager.GetSaves().empty();
+}
+
+const BAK::SaveDirectory* SaveScreen::GetSelectedDirectory() const
+{
+    if (!mSelectedDirectory || mSaveManager.GetSaves().empty())
+    {
+        return nullptr;
+    }
+    return &mSaveManager.GetSaves().at(*mSelectedDirectory);
 }
 
 void SaveScreen::SetSaveOrLoad(bool isSave)

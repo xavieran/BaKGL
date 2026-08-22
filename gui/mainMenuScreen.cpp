@@ -9,6 +9,8 @@
 #include "gui/textBox.hpp"
 #include "gui/core/widget.hpp"
 
+#include "com/path.hpp"
+
 #include <glm/glm.hpp>
 
 namespace Gui {
@@ -106,7 +108,10 @@ MainMenuScreen::MainMenuScreen(
         font,
         [this]{ BackToMainMenu(); }
     },
+    mSaveManager{
+        (Paths::Get().GetBakDirectoryPath() / "GAMES").string()},
     mSaveScreen{
+        mSaveManager,
         backgrounds,
         icons,
         font,
@@ -122,13 +127,15 @@ MainMenuScreen::MainMenuScreen(
     },
     mState{State::MainMenu},
     mGameRunning{false},
+    mCurrentChapter{std::nullopt},
     mLogger{Logging::LogState::GetLogger("Gui::MainMenuScreen")}
 {
 }
 
-void MainMenuScreen::EnterMainMenu(bool gameRunning)
+void MainMenuScreen::EnterMainMenu(bool gameRunning, std::optional<BAK::Chapter> currentChapter)
 {
     mGameRunning = gameRunning;
+    mCurrentChapter = currentChapter;
 
     UpdateRestoreButton();
     AddChildren();
@@ -167,8 +174,32 @@ void MainMenuScreen::ShowContents()
 {
     mGuiManager.DoFade(1.0, [this]{
         mState = State::Contents;
+        mContentsScreen.SetUnlockedChapters(GetUnlockedChapter());
         AddChildren();
     });
+}
+
+unsigned MainMenuScreen::GetUnlockedChapter()
+{
+    unsigned unlocked = 1;
+
+    const auto* directory = mSaveScreen.GetSelectedDirectory();
+    if (!directory && !mSaveManager.GetSaves().empty())
+    {
+        directory = &mSaveManager.GetSaves().front();
+    }
+
+    if (directory)
+    {
+        unlocked = mSaveManager.GetUnlockedChapter(*directory);
+    }
+
+    if (mGameRunning && mCurrentChapter)
+    {
+        unlocked = std::max(unlocked, mCurrentChapter->mValue);
+    }
+
+    return unlocked;
 }
 
 void MainMenuScreen::ShowSaveOrLoad(bool isSave)

@@ -29,6 +29,8 @@ public:
 
     static constexpr auto mFairyChestKey    = 0x19f0a0;
 
+    static constexpr auto mContentsChapterTooltip = KeyTarget{0x149};
+    static constexpr auto mContentsExitTooltip = KeyTarget{0x14a};
     static constexpr auto mBookmarkCheck = KeyTarget{0x14c};
 
     static constexpr auto mItemDescription  = KeyTarget{0x1b7741};

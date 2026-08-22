@@ -21,8 +21,8 @@ class ContentsScreen: public Widget
 {
 public:
     static constexpr auto sLayoutFile = "CONTENTS.DAT";
-    //static constexpr auto sBackground = "CONT2.SCX";
-    static constexpr auto sBackground = "CONTENTS.SCX";
+    static constexpr auto sBackground = "CONT2.SCX";
+    //static constexpr auto sBackground = "CONTENTS.SCX";
     static constexpr auto sUnlockedChapters = "CONTENTS.SCX";
 
     static constexpr auto sExit = 9;
@@ -36,9 +36,13 @@ public:
         const Font& font,
         LeaveContentsFn&& leaveContentsFn);
 
+    void SetUnlockedChapters(unsigned unlocked);
+
 private:
     void AddChildren();
     void PlayChapter(BAK::Chapter chapter);
+    void ShowTooltip(unsigned buttonIndex);
+    void DismissTooltip();
 
     IGuiManager& mGuiManager;
     Graphics::SpriteManager::TemporarySpriteSheet mSpriteSheet;
@@ -47,11 +51,18 @@ private:
 
     BAK::Layout mLayout;
     LeaveContentsFn mLeaveContentsFn;
+    unsigned mUnlockedChapters;
 
-    using ChapterButton = Clickable<Widget, LeftMousePress, std::function<void()>>;
+    using ChapterButton = Clickable<
+        Clickable<Widget, LeftMousePress, std::function<void()>>,
+        RightMousePress,
+        std::function<void()>>;
     Widget mFrame;
     std::vector<ChapterButton> mChapterButtons;
     ClickButton mExit;
+    ClickButton mTooltipPopup;
+
+    bool mShowingTooltip{false};
 
 };
 

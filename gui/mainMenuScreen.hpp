@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bak/layout.hpp"
+#include "bak/saveManager.hpp"
 
 #include "gui/clickButton.hpp"
 #include "gui/contents.hpp"
@@ -42,7 +43,7 @@ public:
         const Icons& icons,
         const Font& font);
 
-    void EnterMainMenu(bool gameRunning);
+    void EnterMainMenu(bool gameRunning, std::optional<BAK::Chapter> currentChapter);
     void UpdateRestoreButton();
     [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override;
     bool CanSaveBookmark() const;
@@ -58,6 +59,7 @@ private:
 
     void ShowPreferences();
     void ShowContents();
+    unsigned GetUnlockedChapter();
     void ShowSaveOrLoad(bool isSave);
     void BackToMainMenu();
     void EnterMainView();
@@ -87,10 +89,12 @@ private:
 
     PreferencesScreen mPreferencesScreen;
     ContentsScreen mContentsScreen;
+    BAK::SaveManager mSaveManager;
     SaveScreen mSaveScreen;
 
     State mState;
     bool mGameRunning;
+    std::optional<BAK::Chapter> mCurrentChapter;
 
     const Logging::Logger& mLogger;
 };
