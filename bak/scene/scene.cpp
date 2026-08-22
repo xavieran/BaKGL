@@ -254,16 +254,23 @@ std::vector<ScriptFrame> DecodeTTM(FileBuffer& fb, Tags& tags)
                         glm::vec2{args[2], args[3]},
                         action == Actions::DRAW_RECT});
                 break;
-            // FIXME: Implement the rotation
-            case Actions::DRAW_SPRITE_ROTATE: [[fallthrough]];
+            case Actions::DRAW_SPRITE_ROTATE:
+                actions.emplace_back(
+                    DrawSpriteRotated{
+                        args[0],
+                        args[1],
+                        args[2],
+                        args[3],
+                        args[4],
+                        args[5],
+                        args[6]});
+                break;
             case Actions::DRAW_SPRITE_FLIP_XY: [[fallthrough]];
             case Actions::DRAW_SPRITE_FLIP_X: [[fallthrough]];
             case Actions::DRAW_SPRITE_FLIP_Y: [[fallthrough]];
             case Actions::DRAW_SPRITE:
             {
-                const auto flipXY = action == Actions::DRAW_SPRITE_ROTATE
-                    ? 0u
-                    : (code & 0x00f0) >> 4;
+                const auto flipXY = (code & 0x00f0) >> 4;
                 const auto scaled = args.size() >= 6;
                 static constexpr auto FLIP_X = 2;
                 static constexpr auto FLIP_Y = 1;
@@ -476,6 +483,10 @@ std::unordered_map<unsigned, Script> LoadScripts(FileBuffer& fb)
                         currentScript.mActions.emplace_back(a);
                     },
                     [&](const DrawSprite& a)
+                    {
+                        currentScript.mActions.emplace_back(a);
+                    },
+                    [&](const DrawSpriteRotated& a)
                     {
                         currentScript.mActions.emplace_back(a);
                     },

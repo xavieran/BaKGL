@@ -155,6 +155,25 @@ StaticTTM::StaticTTM(
                         else
                             mSceneFrame.AddChildBack(&elem);
                     },
+                    [&](const BAK::DrawSpriteRotated& sa){
+                        const auto sceneSprite = ConvertScriptAction(sa, offsets);
+
+                        auto& elem = mSceneElements.emplace_back(
+                            Graphics::DrawMode::Sprite,
+                            mSpriteSheet->mSpriteSheet,
+                            Graphics::TextureIndex{sceneSprite.mImage},
+                            Graphics::ColorMode::Texture,
+                            glm::vec4{1},
+                            sceneSprite.mPosition,
+                            sceneSprite.mScale,
+                            false);
+                        elem.SetRotation(sceneSprite.mRotation);
+
+                        if (mClipRegion)
+                            mClipRegion->AddChildBack(&elem);
+                        else
+                            mSceneFrame.AddChildBack(&elem);
+                    },
                     [&](const BAK::DrawRect& sr){
                         const auto frameColor = scenePalette
                             ? glm::vec4{
