@@ -1,5 +1,6 @@
 #include "bak/scene/ttmRenderer.hpp"
 
+#include "bak/coordinates.hpp"
 #include "bak/fileBufferFactory.hpp"
 #include "bak/imageStore.hpp"
 #include "bak/scene/scene.hpp"
@@ -94,6 +95,19 @@ bool TTMRenderer::AdvanceFrame()
                         glm::ivec2{sa.mX, sa.mY},
                         sa.mFlipX,
                         sa.mFlipY,
+                        mRenderer.GetLayer(Layer::Screen));
+                },
+                [&](const DrawSpriteRotated& sa){
+                    assert(mImageSlots.contains(sa.mImageSlot));
+                    assert(static_cast<unsigned>(sa.mSpriteIndex)
+                            < mImageSlots.at(sa.mImageSlot).mImages.size());
+
+                    mRenderer.RenderSpriteRotated(
+                        mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
+                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                        glm::ivec2{sa.mX, sa.mY},
+                        glm::ivec2{sa.mTargetWidth, sa.mTargetHeight},
+                        ToRadians(sa.mAngle),
                         mRenderer.GetLayer(Layer::Screen));
                 },
                 [&](const SaveRectToBackground& si){

@@ -145,6 +145,19 @@ struct DrawSprite
 
 std::ostream& operator<<(std::ostream&, const DrawSprite&);
 
+struct DrawSpriteRotated
+{
+    std::int16_t mX;
+    std::int16_t mY;
+    std::int16_t mSpriteIndex;
+    std::int16_t mImageSlot;
+    std::int16_t mTargetWidth;
+    std::int16_t mTargetHeight;
+    std::int16_t mAngle;
+};
+
+std::ostream& operator<<(std::ostream&, const DrawSpriteRotated&);
+
 struct CopyLayer
 {
     glm::ivec2 mPosition;
@@ -288,6 +301,7 @@ using ScriptAction = std::variant<
     DrawRect,
     CopyLayer,
     DrawSprite,
+    DrawSpriteRotated,
     EndScript,
     SaveBackground,
     SaveRectToBackground,

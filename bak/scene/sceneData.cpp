@@ -5,6 +5,7 @@
 
 #include "graphics/glm.hpp"
 
+#include <numbers>
 #include <sstream>
 
 namespace BAK {
@@ -156,6 +157,15 @@ std::ostream& operator<<(std::ostream& os, const DrawSprite& a)
         << " Pos { " << a.mX << ", " << a.mY
         << "} Sprite: " << a.mSpriteIndex << " imgSlot: " << a.mImageSlot
         << " Dims { " << a.mTargetWidth << ", " << a.mTargetHeight << " } }";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const DrawSpriteRotated& a)
+{
+    os << "DrawSpriteRotated{ Pos { " << a.mX << ", " << a.mY
+        << "} Sprite: " << a.mSpriteIndex << " imgSlot: " << a.mImageSlot
+        << " Dims { " << a.mTargetWidth << ", " << a.mTargetHeight
+        << " } angle: " << a.mAngle << "}";
     return os;
 }
 

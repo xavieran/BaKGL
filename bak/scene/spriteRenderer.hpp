@@ -42,6 +42,14 @@ public:
         bool flipY,
         Graphics::Texture& target);
 
+    void RenderSpriteRotated(
+        const Image& sprite,
+        const Palette& palette,
+        glm::ivec2 center,
+        glm::ivec2 dims,
+        float angle,
+        Graphics::Texture& target);
+
     void DrawRect(
         glm::ivec2 pos,
         glm::ivec2 dims,

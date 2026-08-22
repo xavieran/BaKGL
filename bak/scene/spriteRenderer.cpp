@@ -7,6 +7,8 @@
 
 #include "graphics/texture.hpp"
 
+#include <array>
+#include <cmath>
 #include <optional>
 
 namespace BAK {
@@ -83,6 +85,63 @@ void SpriteRenderer::RenderSprite(
                 flipY ? height - 1 - y : y};
 
             SetPixel(pixelPos, palette.GetColor(index), target);
+        }
+    }
+}
+
+void SpriteRenderer::RenderSpriteRotated(
+    const Image& sprite,
+    const Palette& palette,
+    glm::ivec2 center,
+    glm::ivec2 dims,
+    float angle,
+    Graphics::Texture& target)
+{
+    const auto width  = static_cast<float>(std::abs(dims.x));
+    const auto height = static_cast<float>(std::abs(dims.y));
+    if (width == 0 || height == 0) return;
+
+    const auto cosA = std::cos(angle);
+    const auto sinA = std::sin(angle);
+    const auto widthAxis  = glm::vec2{cosA, sinA} * width;
+    const auto heightAxis = glm::vec2{-sinA, cosA} * height;
+    const auto origin = glm::vec2{center} - (widthAxis + heightAxis) * 0.5f;
+
+    const auto corners = std::array<glm::vec2, 4>{
+        origin,
+        origin + widthAxis,
+        origin + widthAxis + heightAxis,
+        origin + heightAxis};
+
+    auto topLeft = corners[0];
+    auto bottomRight = corners[0];
+    for (const auto& corner : corners)
+    {
+        topLeft = glm::min(topLeft, corner);
+        bottomRight = glm::max(bottomRight, corner);
+    }
+
+    const auto sourceWidth  = static_cast<float>(sprite.GetWidth());
+    const auto sourceHeight = static_cast<float>(sprite.GetHeight());
+
+    const auto right  = static_cast<int>(std::ceil(bottomRight.x));
+    const auto bottom = static_cast<int>(std::ceil(bottomRight.y));
+
+    for (int y = static_cast<int>(std::floor(topLeft.y)); y <= bottom; y++)
+    {
+        for (int x = static_cast<int>(std::floor(topLeft.x)); x <= right; x++)
+        {
+            const auto offset = glm::vec2{x + 0.5f, y + 0.5f} - origin;
+            const auto u = (offset.x * cosA + offset.y * sinA) / width;
+            const auto v = (offset.y * cosA - offset.x * sinA) / height;
+            if (u < 0.f || u >= 1.f || v < 0.f || v >= 1.f) continue;
+
+            const auto index = sprite.GetPixel(
+                static_cast<unsigned>(u * sourceWidth),
+                static_cast<unsigned>(v * sourceHeight));
+            if (index == 0) continue;
+
+            SetPixel(glm::ivec2{x, y}, palette.GetColor(index), target);
         }
     }
 }
