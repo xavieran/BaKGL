@@ -177,8 +177,12 @@ void DynamicTTM::BeginScene(
 
 bool DynamicTTM::AdvanceFrame()
 {
-    if (mDelaying || mFading) return false;
+    if (mDelaying || mFading)
+    {
+        return false;
+    }
 
+    mLogger.Debug() << __FUNCTION__ << " next action: " << mNextAction << " Current frame: " << bool{mCurrentFrame} << "\n";
     if (!mCurrentFrame)
     {
         auto frameOpt = mRunner.GetNextFrame();
@@ -198,6 +202,7 @@ bool DynamicTTM::AdvanceFrame()
     }
 
     bool waitForClick = false;
+    bool scriptFinished = false;
     while (mNextAction < mCurrentFrame->mActions.size())
     {
         const auto& action = mCurrentFrame->mActions[mNextAction++];
@@ -236,6 +241,9 @@ bool DynamicTTM::AdvanceFrame()
                         AudioA::GetAudioManager().ChangeMusicTrack(AudioA::MusicIndex{sound.mSoundIndex});
                     }
                 },
+                [&](const BAK::EndScript&){
+                    scriptFinished = true;
+                },
                 [&](const auto&){}
             },
             action
@@ -251,7 +259,12 @@ bool DynamicTTM::AdvanceFrame()
 
     mWaitForClick = waitForClick;
 
-    FinishFrame();
+    FinishFrame(scriptFinished);
+
+    if (scriptFinished)
+    {
+        AdvanceFrame();
+    }
 
     return false;
 }
@@ -269,7 +282,9 @@ glm::vec3 DynamicTTM::GetPaletteColor(unsigned index) const
 bool DynamicTTM::StartFade(unsigned startColor, unsigned endColor, unsigned durationIndex, bool fadeIn)
 {
     if (mSceneFrame.HaveChild(&mFadeRect))
+    {
         mSceneFrame.RemoveChild(&mFadeRect);
+    }
     mSceneFrame.AddChildBack(&mFadeRect);
 
     const auto color = GetPaletteColor(endColor);
@@ -311,7 +326,7 @@ bool DynamicTTM::StartFade(unsigned startColor, unsigned endColor, unsigned dura
     return true;
 }
 
-void DynamicTTM::FinishFrame()
+void DynamicTTM::FinishFrame(bool scriptFinished)
 {
     if (!mFramePresented)
     {
@@ -319,7 +334,10 @@ void DynamicTTM::FinishFrame()
         mFramePresented = true;
     }
 
-    mFadeRect.SetColor(glm::vec4{0});
+    if (!scriptFinished)
+    {
+        mFadeRect.SetColor(glm::vec4{0});
+    }
 
     if (!mWaitForClick)
     {

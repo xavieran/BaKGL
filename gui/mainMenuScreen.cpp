@@ -106,7 +106,8 @@ MainMenuScreen::MainMenuScreen(
         spriteManager,
         backgrounds,
         font,
-        [this]{ BackToMainMenu(); }
+        [this]{ BackToMainMenu(); },
+        [this]{ mGuiManager.EnterMainMenu(mGameRunning); }
     },
     mSaveManager{
         (Paths::Get().GetBakDirectoryPath() / "GAMES").string()},

@@ -23,6 +23,7 @@ public:
     static KeyTarget GetSpellCastDialog(unsigned spell);
     static KeyTarget GetTTMDialogKey(unsigned index);
     static KeyTarget GetChapterStartText(Chapter chapter);
+    static KeyTarget GetChapterRecap(Chapter chapter);
     static Target GetChoiceResult(KeyTarget dialog, unsigned index);
     static std::optional<Target> GetConditionNotification(Condition);
     
@@ -201,6 +202,7 @@ public:
 
     static constexpr auto mAfterNagoCombatSetKeys = KeyTarget{0x1cfdf1};
     static constexpr auto mChapterFullMapScreenText = 0x126;
+    static constexpr auto mChapterRecapText = 0x186ab6;
     static constexpr auto mStartOfChapterActions =
         KeyTarget{0x1e8497};
     static constexpr auto mDragonsBreath = 0xc7;

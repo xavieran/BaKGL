@@ -46,7 +46,7 @@ private:
     bool RenderDialog(const BAK::ShowDialog&);
     bool StartFade(unsigned startColor, unsigned endColor, unsigned durationIndex, bool fadeIn);
     void ShowNextFrame();
-    void FinishFrame();
+    void FinishFrame(bool scriptFinished);
     void Delay(double seconds);
     void ClearText();
     glm::vec3 GetPaletteColor(unsigned index) const;

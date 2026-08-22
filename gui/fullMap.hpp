@@ -1,11 +1,13 @@
 #pragma once
 
 #include "bak/coordinates.hpp"
+#include "bak/dialog.hpp"
 #include "bak/fmap.hpp"
 #include "bak/layout.hpp"
 
 #include "gui/clickButton.hpp"
 #include "gui/townLabel.hpp"
+#include "gui/core/clickable.hpp"
 #include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
@@ -26,6 +28,13 @@ class TickAnimator;
 class FullMap : public Widget
 {
 public:
+    enum class DisplayMode
+    {
+        Normal,
+        GameStart,
+        ChapterRecap
+    };
+
     static constexpr auto sLayoutFile = "REQ_FMAP.DAT";
 
     static constexpr auto sExitWidget = 0;
@@ -37,8 +46,11 @@ public:
         const Font& font,
         BAK::GameState& gameState);
     
+    [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override;
+
     void DisplayMapMode();
     void DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation location, bool shortTransition);
+    void DisplayChapterRecap(BAK::Chapter chapter, std::function<void()>&& dismissed);
     void UpdateLocation();
 
 private:
@@ -46,7 +58,8 @@ private:
         BAK::ZoneNumber zone,
         BAK::GamePositionAndHeading location);
     void SetPlayerLocation(BAK::MapLocation location);
-    void DisplayGameStart(BAK::Chapter chapter);
+    void PopulatePopup(BAK::Target);
+    void DismissPopup();
     void StartPlayerPositionFlasher();
     void UpdatePlayerPositionIcon();
     void AddChildren();
@@ -64,6 +77,7 @@ private:
     ClickButton mExitButton;
     Button mPopup;
     TextBox mPopupText;
+    std::function<void()> mPopupDismissed;
 
     Widget mPlayerLocation;
     std::vector<TownLabel> mTowns{};
@@ -72,7 +86,7 @@ private:
     int mPlayerPositionIconPulseDirection{1};
     TickAnimator* mPlayerPositionFlasher{};
 
-    bool mGameStartScreenMode{};
+    DisplayMode mDisplayMode{DisplayMode::Normal};
 
     const Logging::Logger& mLogger;
 };

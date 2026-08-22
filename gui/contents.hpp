@@ -28,13 +28,22 @@ public:
     static constexpr auto sExit = 9;
 
     using LeaveContentsFn = std::function<void()>;
+    using CutscenesFinishedFn = std::function<void()>;
+
+    enum class State
+    {
+        StartOfChapter,
+        ChapterRecap,
+        EndOfChapter
+    };
 
     ContentsScreen(
         IGuiManager& guiManager,
         Graphics::SpriteManager& spriteManager,
         const Backgrounds& backgrounds,
         const Font& font,
-        LeaveContentsFn&& leaveContentsFn);
+        LeaveContentsFn&& leaveContentsFn,
+        CutscenesFinishedFn&& cutscenesFinishedFn);
 
     void SetUnlockedChapters(unsigned unlocked);
 
@@ -43,6 +52,7 @@ private:
     void PlayChapter(BAK::Chapter chapter);
     void ShowTooltip(unsigned buttonIndex);
     void DismissTooltip();
+    void ContinueCutscene();
 
     IGuiManager& mGuiManager;
     Graphics::SpriteManager::TemporarySpriteSheet mSpriteSheet;
@@ -51,6 +61,7 @@ private:
 
     BAK::Layout mLayout;
     LeaveContentsFn mLeaveContentsFn;
+    CutscenesFinishedFn mCutscenesFinishedFn;
     unsigned mUnlockedChapters;
 
     using ChapterButton = Clickable<
@@ -63,6 +74,8 @@ private:
     ClickButton mTooltipPopup;
 
     bool mShowingTooltip{false};
+    State mCutsceneState{};
+    BAK::Chapter mChapter;
 
 };
 

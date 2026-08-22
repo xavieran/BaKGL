@@ -124,6 +124,7 @@ public:
     void ShowCast(bool inCombat) override;
     void ShowFullMap() override;
     void ShowGameStartMap() override;
+    void ShowChapterRecap(BAK::Chapter chapter, std::function<void()>&& dismissed) override;
     void ShowCureScreen(
         unsigned templeNumber,
         unsigned cureFactor,

@@ -49,6 +49,11 @@ KeyTarget DialogSources::GetChapterStartText(Chapter chapter)
     return KeyTarget{mChapterFullMapScreenText + (chapter.mValue - 1)};
 }
 
+KeyTarget DialogSources::GetChapterRecap(Chapter chapter)
+{
+    return KeyTarget{mChapterRecapText + (chapter.mValue - 1)};
+}
+
 Target DialogSources::GetChoiceResult(KeyTarget dialog, unsigned index)
 {
     const auto& choices = DialogStore::Get().GetSnippet(dialog).GetChoices();
