@@ -51,6 +51,7 @@ public:
     virtual void ShowCast(bool inCombat) = 0;
     virtual void ShowFullMap() = 0;
     virtual void ShowGameStartMap() = 0;
+    virtual void ShowChapterRecap(BAK::Chapter chapter, std::function<void()>&& dismissed) = 0;
     virtual void ShowTeleport(unsigned sourceTemple, BAK::ShopStats* temple) = 0;
     virtual void ShowCureScreen(
         unsigned templeNumber,

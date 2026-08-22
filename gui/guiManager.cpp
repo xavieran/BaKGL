@@ -5,6 +5,7 @@
 #include "bak/partyChangeCache.hpp"
 #include "bak/startupFiles.hpp"
 
+#include "bak/types.hpp"
 #include "gui/IDialogScene.hpp"
 #include "gui/cursor.hpp"
 
@@ -251,7 +252,10 @@ void GuiManager::PlayCutscene(
 
 void GuiManager::CutsceneFinished()
 {
-    mCutsceneFinished();
+    // PlayCutscene may be called from within the callback
+    auto finished = std::move(mCutsceneFinished);
+    mCutsceneFinished = nullptr;
+    finished();
 }
 
 bool GuiManager::InMainView() const
@@ -659,7 +663,19 @@ void GuiManager::ShowGameStartMap()
 {
     DoFade(1.0, [this]{
         auto checkMainView = PopScreen();
-        mFullMap.DisplayGameStartMode(mGameState.GetChapter(), mGameState.GetMapLocation(), mDebugDisableFades);
+        mFullMap.DisplayGameStartMode(
+            mGameState.GetChapter(),
+            mGameState.GetMapLocation(),
+            mDebugDisableFades);
+        PushScreen(&mFullMap);
+    });
+}
+
+void GuiManager::ShowChapterRecap(BAK::Chapter chapter, std::function<void()>&& dismissed)
+{
+    DoFade(1.0, [this, chapter, dismissed=std::move(dismissed)]() mutable {
+        auto checkMainView = PopScreen();
+        mFullMap.DisplayChapterRecap(chapter, std::move(dismissed));
         PushScreen(&mFullMap);
     });
 }

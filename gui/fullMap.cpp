@@ -15,6 +15,7 @@
 #include "gui/core/widget.hpp"
 
 #include <glm/glm.hpp>
+#include <functional>
 #include <memory>
 
 namespace Gui {
@@ -59,7 +60,7 @@ FullMap::FullMap(
         Color::buttonBackground,
         Color::buttonHighlight,
         Color::buttonShadow,
-        Color::black
+        Color::black,
     },
     mPopupText{
         glm::vec2{},
@@ -74,7 +75,6 @@ FullMap::FullMap(
         false
     },  
     mTowns{},
-    mGameStartScreenMode{false},
     mLogger{Logging::LogState::GetLogger("Gui::FullMap")}
 {
     mTowns.reserve(mFMapTowns.GetTowns().size());
@@ -90,18 +90,29 @@ FullMap::FullMap(
     mPopup.AddChildBack(&mPopupText);
 }
 
+[[nodiscard]] bool FullMap::OnMouseEvent(const MouseEvent& event)
+{
+    if (mDisplayMode == DisplayMode::ChapterRecap
+        && std::holds_alternative<LeftMousePress>(event))
+    {
+        DismissPopup();
+    }
+
+    return Widget::OnMouseEvent(event);
+}
+
 void FullMap::DisplayMapMode()
 {
-    mGameStartScreenMode = false;
+    mDisplayMode = DisplayMode::Normal;
     StartPlayerPositionFlasher();
     AddChildren();
 }
 
 void FullMap::DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation location, bool shortTransition)
 {
-    mGameStartScreenMode = true;
+    mDisplayMode = DisplayMode::GameStart;
     SetPlayerLocation(location);
-    DisplayGameStart(chapter);
+    PopulatePopup(BAK::DialogSources::GetChapterStartText(chapter));
     AddChildren();
 
     StartPlayerPositionFlasher();
@@ -113,6 +124,14 @@ void FullMap::DisplayGameStartMode(BAK::Chapter chapter, BAK::MapLocation locati
                 mPlayerPositionFlasher->Stop();
             },
             shortTransition ? 0.1 : 3));
+}
+
+void FullMap::DisplayChapterRecap(BAK::Chapter chapter, std::function<void()>&& dismissed)
+{
+    mDisplayMode = DisplayMode::ChapterRecap;
+    mPopupDismissed = std::move(dismissed);
+    PopulatePopup(BAK::DialogSources::GetChapterRecap(chapter));
+    AddChildren();
 }
 
 void FullMap::UpdateLocation()
@@ -142,18 +161,26 @@ void FullMap::SetPlayerLocation(BAK::MapLocation location)
     UpdatePlayerPositionIcon();
 }
 
-void FullMap::DisplayGameStart(BAK::Chapter chapter)
+void FullMap::PopulatePopup(BAK::Target dialog)
 {
-    const auto& snippet = BAK::DialogStore::Get().GetSnippet(
-        BAK::DialogSources::GetChapterStartText(chapter));
+    const auto& snippet = BAK::DialogStore::Get().GetSnippet(dialog);
     assert(snippet.GetPopup());
     const auto popup = snippet.GetPopup();
-    mLogger.Debug() << "Show snippet;" << snippet << "\n";
     mPopup.SetPosition(popup->mPos);
     mPopup.SetDimensions(popup->mDims);
     mPopupText.SetPosition(glm::vec2{1});
     mPopupText.SetDimensions(popup->mDims);
     mPopupText.SetText(mFont, snippet.GetText(), true, true);
+}
+
+void FullMap::DismissPopup()
+{
+    if (mDisplayMode == DisplayMode::ChapterRecap && mPopupDismissed)
+    {
+        auto dismissed = std::move(mPopupDismissed);
+        mPopupDismissed = nullptr;
+        std::invoke(dismissed);
+    }
 }
 
 void FullMap::StartPlayerPositionFlasher()
@@ -189,7 +216,8 @@ void FullMap::AddChildren()
 {
     ClearChildren();
 
-    if (mGameStartScreenMode)
+    if (mDisplayMode == DisplayMode::GameStart
+        || mDisplayMode == DisplayMode::ChapterRecap)
     {
         AddChildBack(&mPopup);
     }
@@ -200,7 +228,10 @@ void FullMap::AddChildren()
             AddChildBack(&t);
     }
 
-    AddChildBack(&mPlayerLocation);
+    if (mDisplayMode != DisplayMode::ChapterRecap)
+    {
+        AddChildBack(&mPlayerLocation);
+    }
 }
 
 }

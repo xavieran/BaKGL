@@ -21,7 +21,8 @@ ContentsScreen::ContentsScreen(
     Graphics::SpriteManager& spriteManager,
     const Backgrounds& backgrounds,
     const Font& font,
-    LeaveContentsFn&& leaveContentsFn)
+    LeaveContentsFn&& leaveContentsFn,
+    CutscenesFinishedFn&& cutscenesFinishedFn)
 :
     Widget{
         RectTag{},
@@ -36,6 +37,7 @@ ContentsScreen::ContentsScreen(
     mBackgrounds{backgrounds},
     mLayout{sLayoutFile},
     mLeaveContentsFn{std::move(leaveContentsFn)},
+    mCutscenesFinishedFn{std::move(cutscenesFinishedFn)},
     mUnlockedChapters{9},
     mFrame{
         ImageTag{},
@@ -152,12 +154,37 @@ void ContentsScreen::AddChildren()
     }
 }
 
+void ContentsScreen::ContinueCutscene()
+{
+    if (mCutsceneState == State::StartOfChapter)
+    {
+        if (mUnlockedChapters <= mChapter.mValue)
+        {
+            std::invoke(mCutscenesFinishedFn);
+            return;
+        }
+        mCutsceneState = State::ChapterRecap;
+        mGuiManager.ShowChapterRecap(mChapter, [this]{ ContinueCutscene(); });
+    }
+    else if (mCutsceneState == State::ChapterRecap)
+    {
+        mCutsceneState = State::EndOfChapter;
+        mGuiManager.PlayCutscene(
+            BAK::CutsceneList::GetFinishScene(mChapter),
+            [this]{ ContinueCutscene(); });
+    }
+    else
+    {
+        std::invoke(mCutscenesFinishedFn);
+    }
+}
+
 void ContentsScreen::PlayChapter(BAK::Chapter chapter)
 {
-    auto start = BAK::CutsceneList::GetStartScene(chapter);
-    auto finish = BAK::CutsceneList::GetFinishScene(chapter);
-    start.insert(start.end(), finish.begin(), finish.end());
-    mGuiManager.PlayCutscene(start, []{});
+    mChapter = chapter;
+    mCutsceneState = State::StartOfChapter;
+    auto scenes = BAK::CutsceneList::GetStartScene(chapter);
+    mGuiManager.PlayCutscene(scenes, [this]{ ContinueCutscene(); });
 }
 
 }

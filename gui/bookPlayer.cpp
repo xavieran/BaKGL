@@ -111,7 +111,11 @@ void BookPlayer::RenderPage(const BAK::Page& page)
     mTextBox.SetDimensions(mBook->mPages[mCurrentPage].mDims / 2);
     auto [pos, remaining] = mTextBox.SetText(mFont, mText, false, false, false, .82, 2.0);
     mText = remaining;
-    Logging::LogDebug(__FUNCTION__) << "Remaining text: " << mText << "\n";
+    Logging::LogDebug(__FUNCTION__) << "Remaining text: [" << mText << "]\n";
+    if (mText.find_first_not_of(" \n\t\xf8\xf3") == std::string::npos)
+    {
+        mText = "";
+    }
 
     mBackground.AddChildBack(&mTextBox);
 }
