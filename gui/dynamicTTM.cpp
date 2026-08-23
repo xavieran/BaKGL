@@ -166,6 +166,7 @@ void DynamicTTM::BeginScene(
     mFading = false;
     mWaitForClick = false;
     mFramePresented = false;
+    mSceneComplete = false;
     mDelay = 0;
     mCurrentFrame.reset();
     mNextAction = 0;
@@ -179,6 +180,11 @@ void DynamicTTM::BeginScene(
 
 bool DynamicTTM::AdvanceFrame()
 {
+    if (mSceneComplete)
+    {
+        return true;
+    }
+
     if (mDelaying || mFading)
     {
         return false;
@@ -190,11 +196,12 @@ bool DynamicTTM::AdvanceFrame()
         auto frameOpt = mRunner.GetNextFrame();
         if (!frameOpt)
         {
-            mSceneFinished();
+            mSceneComplete = true;
             if (mMusicTracksPlayed > 0)
             {
                 AudioA::GetAudioManager().PopTrack();
             }
+            mSceneFinished();
             return true;
         }
 
@@ -263,11 +270,6 @@ bool DynamicTTM::AdvanceFrame()
     mWaitForClick = waitForClick;
 
     FinishFrame(scriptFinished);
-
-    if (scriptFinished)
-    {
-        AdvanceFrame();
-    }
 
     return false;
 }

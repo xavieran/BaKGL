@@ -81,6 +81,7 @@ private:
     bool mFading = false;
     bool mWaitForClick = false;
     bool mFramePresented = false;
+    bool mSceneComplete = false;
     double mDelay = 0;
 
     std::unordered_map<unsigned, BAK::Palette> mPaletteSlots;

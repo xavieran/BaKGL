@@ -139,7 +139,7 @@ GuiManager::GuiManager(
         [this]{ FadeInDone(); },
         [this]{ FadeOutDone(); }
     },
-    mFadeFunction{},
+    mPendingFades{},
     mGdsScenes{},
     mDialogScene{nullptr},
     mOnExitCallbacks{},
@@ -173,7 +173,7 @@ GuiManager::GuiManager(
 
 [[nodiscard]] bool GuiManager::OnMouseEvent(const MouseEvent& event)
 {
-    if (HaveChild(&mFadeScreen))
+    if (mFadeState != FadeState::Idle)
     {
         return true;
     }
@@ -222,11 +222,10 @@ void GuiManager::DoFade(double duration, std::function<void()>&& fadeFunction)
 {
     if (mDebugDisableFades) duration = 0.1;
 
-    mFadeFunction.emplace_back(std::move(fadeFunction));
-    if (!HaveChild(&mFadeScreen))
+    mPendingFades.emplace_back(duration, std::move(fadeFunction));
+    if (mFadeState == FadeState::Idle)
     {
-        AddChildBack(&mFadeScreen);
-        mFadeScreen.FadeIn(duration);
+        StartFadeIn();
     }
 }
 
@@ -253,6 +252,7 @@ void GuiManager::PlayCutscene(
 void GuiManager::CutsceneFinished()
 {
     // PlayCutscene may be called from within the callback
+    ASSERT(mCutsceneFinished);
     auto finished = std::move(mCutsceneFinished);
     mCutsceneFinished = nullptr;
     finished();
@@ -811,28 +811,43 @@ void GuiManager::PartyDied(BAK::Target dialog)
         &mPartyDiedScene);
 }
 
+void GuiManager::StartFadeIn()
+{
+    ASSERT(!mPendingFades.empty());
+    mFadeState = FadeState::FadingIn;
+    AddChildBack(&mFadeScreen);
+    mFadeScreen.FadeIn(mPendingFades.front().mDuration);
+}
+
 void GuiManager::FadeInDone()
 {
     mLogger.Spam() << "FadeInDone\n";
-    ASSERT(!mFadeFunction.empty());
+    ASSERT(!mPendingFades.empty());
     unsigned i = 0;
-    while (!mFadeFunction.empty())
+    while (!mPendingFades.empty())
     {
         mLogger.Spam() << "Executing fade function #" << i++ << "\n";
-        auto function = std::move(mFadeFunction.front());
-        mFadeFunction.erase(mFadeFunction.begin());
-        function();
+        auto fade = std::move(mPendingFades.front());
+        mPendingFades.erase(mPendingFades.begin());
+        fade.mFunction();
     }
+    mFadeState = FadeState::FadingOut;
     mFadeScreen.FadeOut();
 }
 
 void GuiManager::FadeOutDone()
 {
     RemoveChild(&mFadeScreen);
+    mFadeState = FadeState::Idle;
     if (mEndFadeFunction)
     {
         mEndFadeFunction();
         mEndFadeFunction = nullptr;
+    }
+
+    if (!mPendingFades.empty())
+    {
+        StartFadeIn();
     }
 }
 
