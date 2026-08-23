@@ -89,13 +89,27 @@ bool TTMRenderer::AdvanceFrame()
                     assert(static_cast<unsigned>(sa.mSpriteIndex)
                             < mImageSlots.at(sa.mImageSlot).mImages.size());
 
-                    mRenderer.RenderSprite(
-                        mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
-                        mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
-                        glm::ivec2{sa.mX, sa.mY},
-                        sa.mFlipX,
-                        sa.mFlipY,
-                        mRenderer.GetLayer(Layer::Screen));
+                    if (sa.mTargetWidth != 0)
+                    {
+                        mRenderer.RenderSpriteScaled(
+                            mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
+                            mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                            glm::ivec2{sa.mX, sa.mY},
+                            glm::ivec2{sa.mTargetWidth, sa.mTargetHeight},
+                            sa.mFlipX,
+                            sa.mFlipY,
+                            mRenderer.GetLayer(Layer::Screen));
+                    }
+                    else
+                    {
+                        mRenderer.RenderSprite(
+                            mImageSlots.at(sa.mImageSlot).mImages[sa.mSpriteIndex],
+                            mPaletteSlots.at(mCurrentPaletteSlot).mPaletteData,
+                            glm::ivec2{sa.mX, sa.mY},
+                            sa.mFlipX,
+                            sa.mFlipY,
+                            mRenderer.GetLayer(Layer::Screen));
+                    }
                 },
                 [&](const DrawSpriteRotated& sa){
                     assert(mImageSlots.contains(sa.mImageSlot));
