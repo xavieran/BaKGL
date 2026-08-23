@@ -46,15 +46,16 @@ std::vector<CutsceneAction> CutsceneList::GetFinishScene(Chapter chapter)
         actions.emplace_back(BookChapter{ss.str() + ".BOK"});
     }
 
-    ss = {};
-    ss << "C" << chapter.mValue << "2";
-    actions.emplace_back(TTMScene{ss.str() + ".ADS", ss.str() + ".TTM"});
-
-    // Actually this is after the final battle
     if (chapter == Chapter{9})
     {
         ss = {};
         ss << "C" << chapter.mValue << "3";
+        actions.emplace_back(TTMScene{ss.str() + ".ADS", ss.str() + ".TTM"});
+    }
+    else
+    {
+        ss = {};
+        ss << "C" << chapter.mValue << "2";
         actions.emplace_back(TTMScene{ss.str() + ".ADS", ss.str() + ".TTM"});
     }
 
