@@ -153,8 +153,17 @@ public:
     IMainView& GetMainView() override;
 
 private:
+    enum class FadeState { Idle, FadingIn, FadingOut };
+
+    struct PendingFade
+    {
+        double mDuration;
+        std::function<void()> mFunction;
+    };
+
     void CacheState();
     bool NotifyPartyChanges();
+    void StartFadeIn();
     void FadeInDone();
     void FadeOutDone();
 
@@ -185,7 +194,8 @@ private:
     TeleportScreen mTeleportScreen;
     FadeScreen mFadeScreen;
     bool mDebugDisableFades{false};
-    std::vector<std::function<void()>> mFadeFunction;
+    FadeState mFadeState{FadeState::Idle};
+    std::vector<PendingFade> mPendingFades;
     std::function<void()> mEndFadeFunction;
     std::function<void()> mCutsceneFinished;
     std::function<void()> mOnEnterMainView;
