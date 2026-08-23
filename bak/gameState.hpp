@@ -78,6 +78,7 @@ public:
     const GameData& GetGameData() const { return mGameData; }
 
     void LoadGame(std::string savePath);
+    bool IsGameLoaded() const;
 
     const Party& GetParty() const;
     Party& GetParty();

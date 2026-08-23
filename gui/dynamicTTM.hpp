@@ -2,6 +2,8 @@
 
 #include "bak/palette.hpp"
 #include "bak/scene/ttmRunner.hpp"
+#include "gui/IGuiManager.hpp"
+#include "gui/IDialogScene.hpp"
 
 #include "com/logger.hpp"
 
@@ -23,7 +25,7 @@ class AnimatorStore;
 class Backgrounds;
 class Font;
 
-class DynamicTTM
+class DynamicTTM : public IDialogScene
 {
     
 public:
@@ -32,6 +34,7 @@ public:
     DynamicTTM(
         Graphics::SpriteManager& spriteManager,
         AnimatorStore& animatorStore,
+        IGuiManager& guiManager,
         const Font& font,
         const Backgrounds& background,
         std::function<void()>&& sceneFinished,
@@ -41,6 +44,10 @@ public:
 
     void BeginScene(std::string adsFile, std::string ttmFile);
     bool AdvanceFrame();
+
+    void DisplayNPCBackground() override {};
+    void DisplayPlayerBackground() override {};
+    void DialogFinished(const std::optional<BAK::ChoiceIndex>&) override;
 
 private:
     bool RenderDialog(const BAK::ShowDialog&);
@@ -53,6 +60,7 @@ private:
 
     Graphics::SpriteManager& mSpriteManager;
     AnimatorStore& mAnimatorStore;
+    IGuiManager& mGuiManager;
     const Font& mFont;
     Widget mSceneFrame;
     Widget mDialogBackground;
@@ -83,6 +91,7 @@ private:
     unsigned mCurrentRenderedFrame{0};
     bool mWaitAtNextUpdate{false};
     unsigned mMusicTracksPlayed{0};
+    unsigned mDialogType{0};
 
     std::function<void()> mSceneFinished;
     std::function<void(unsigned)> mDisplayBook;
