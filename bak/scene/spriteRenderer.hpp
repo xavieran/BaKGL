@@ -42,6 +42,15 @@ public:
         bool flipY,
         Graphics::Texture& target);
 
+    void RenderSpriteScaled(
+        const Image& sprite,
+        const Palette& palette,
+        glm::ivec2 pos,
+        glm::ivec2 dims,
+        bool flipX,
+        bool flipY,
+        Graphics::Texture& target);
+
     void RenderSpriteRotated(
         const Image& sprite,
         const Palette& palette,

@@ -7,9 +7,11 @@
 
 #include "graphics/texture.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <optional>
+#include <vector>
 
 namespace BAK {
 
@@ -85,6 +87,64 @@ void SpriteRenderer::RenderSprite(
                 flipY ? height - 1 - y : y};
 
             SetPixel(pixelPos, palette.GetColor(index), target);
+        }
+    }
+}
+
+namespace {
+
+int ScaleCoordinate(int destIndex, int destSteps, int sourceMax, bool flip)
+{
+    const auto start = flip ? static_cast<float>(sourceMax) : 0.f;
+    const auto end   = flip ? 0.f : static_cast<float>(sourceMax);
+    const auto step  = destSteps > 0 ? (end - start) / destSteps : 0.f;
+    const auto coord = static_cast<int>(std::floor(start + step * destIndex));
+    return std::clamp(coord, 0, sourceMax);
+}
+
+}
+
+void SpriteRenderer::RenderSpriteScaled(
+    const Image& sprite,
+    const Palette& palette,
+    glm::ivec2 pos,
+    glm::ivec2 dims,
+    bool flipX,
+    bool flipY,
+    Graphics::Texture& target)
+{
+    if (dims.x < 0)
+    {
+        dims.x = -dims.x;
+        flipX = !flipX;
+    }
+    if (dims.y < 0)
+    {
+        dims.y = -dims.y;
+        flipY = !flipY;
+    }
+
+    const auto sourceWidth  = static_cast<int>(sprite.GetWidth());
+    const auto sourceHeight = static_cast<int>(sprite.GetHeight());
+    if (dims.x == 0 || dims.y == 0 || sourceWidth == 0 || sourceHeight == 0) return;
+
+    auto sourceColumns = std::vector<int>(dims.x);
+    for (int x = 0; x < dims.x; x++)
+    {
+        sourceColumns[x] = ScaleCoordinate(x, dims.x - 1, sourceWidth - 1, flipX);
+    }
+
+    for (int y = 0; y < dims.y; y++)
+    {
+        const auto sourceY = ScaleCoordinate(y, dims.y - 1, sourceHeight - 1, flipY);
+        for (int x = 0; x < dims.x; x++)
+        {
+            const auto index = sprite.GetPixel(
+                static_cast<unsigned>(sourceColumns[x]),
+                static_cast<unsigned>(sourceY));
+            if (index == 0) continue;
+
+            SetPixel(pos + glm::ivec2{x, y}, palette.GetColor(index), target);
         }
     }
 }
