@@ -29,6 +29,7 @@ CutscenePlayer::CutscenePlayer(
     mDynamicTTM(
         spriteManager,
         animatorStore,
+        guiManager,
         font,
         background,
         [&](){ SceneFinished(); },

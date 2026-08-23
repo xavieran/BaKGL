@@ -8,6 +8,7 @@
 #include "gui/animatorStore.hpp"
 #include "gui/backgrounds.hpp"
 #include "gui/fontManager.hpp"
+#include "gui/guiManager.hpp"
 #include "gui/core/mouseEvent.hpp"
 #include "gui/dynamicTTM.hpp"
 #include "gui/window.hpp"
@@ -84,9 +85,17 @@ int main(int argc, char** argv)
 
     Gui::AnimatorStore animatorStore{};
 
+    auto gameState = BAK::GameState{};
+    auto guiManager = Gui::GuiManager{
+        rootWidget.GetCursor(),
+        spriteManager,
+        gameState
+    };
+
     auto dynamicTTM = Gui::DynamicTTM(
         spriteManager,
         animatorStore,
+        guiManager,
         font,
         backgrounds,
         [&](){ },

@@ -299,6 +299,10 @@ void MainView::UpdatePartyMembers(const BAK::GameState& gameState)
 
     mCharacters.clear();
     mCharacters.reserve(3);
+    if (!gameState.IsGameLoaded())
+    {
+        return;
+    }
 
     const auto& party = gameState.GetParty();
     mLogger.Spam() << "Updating Party: " << party<< "\n";

@@ -99,6 +99,11 @@ void GameState::LoadGame(std::string savePath)
     mTileVisibility = LoadTileVisibility(mGameData.GetFileBuffer());
 }
 
+bool GameState::IsGameLoaded() const
+{
+    return mGameData.IsLoaded();
+}
+
 const Party& GameState::GetParty() const
 {
     return mGameData.mParty;

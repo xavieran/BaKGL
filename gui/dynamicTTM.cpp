@@ -56,6 +56,7 @@ std::pair<glm::vec2, glm::vec2> FadeRegion(unsigned startColor)
 DynamicTTM::DynamicTTM(
     Graphics::SpriteManager& spriteManager,
     AnimatorStore& animatorStore,
+    IGuiManager& guiManager,
     const Font& font,
     const Backgrounds& backgrounds,
     std::function<void()>&& sceneFinished,
@@ -63,6 +64,7 @@ DynamicTTM::DynamicTTM(
 :
     mSpriteManager{spriteManager},
     mAnimatorStore{animatorStore},
+    mGuiManager{guiManager},
     mFont{font},
     mSceneFrame{
         Graphics::DrawMode::Rect,
@@ -342,7 +344,10 @@ void DynamicTTM::FinishFrame(bool scriptFinished)
 
     if (!mWaitForClick)
     {
-        ClearText();
+        if (mDialogType == 1 || mDialogType == 4)
+        {
+            ClearText();
+        }
         Delay(mDelay);
     }
 }
@@ -367,15 +372,35 @@ void DynamicTTM::Delay(double seconds)
         seconds));
 }
 
+void DynamicTTM::DialogFinished(const std::optional<BAK::ChoiceIndex>&)
+{
+    mLogger.Debug() << __FUNCTION__ << " DynamicTTM\n";
+    AdvanceFrame();
+}
+
 bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
 {
-    // mDialogType == 5 - display dialog using RunDialog (i.e. No actor names, no default bold)
-    // mDialogType == 1 and 4 - similar to above... not sure the difference
-    // mDialogType == 3 - same as above - no wait
-    // mDialogType == 0 - the usual method
+    // mDialogType == 0 - the usual method with bolded text and actor names
+    // mDialogType == 3 - same as above - but advances the script without
+    //                    waiting for a click
+    // mDialogType == 1 and 4 - Same as 0 but clear text as soon as the frame ends and is typically a popup
+    // mDialogType == 5 - display dialog using RunDialog
+    mLogger.Debug() << __FUNCTION__ << " " << dialog << "\n";
+    mDialogType = dialog.mDialogType;
     if (dialog.mDialogType == 2)
     {
         mDisplayBook(dialog.mDialogKey.value_or(0));
+        return true;
+    }
+
+    if (dialog.mDialogType == 5)
+    {
+        mLogger.Debug() << __FUNCTION__ << " running dialog with gui manager " << dialog << "\n";
+        mGuiManager.StartDialog(
+            BAK::DialogSources::GetTTMDialogKey(*dialog.mDialogKey),
+            false,
+            false,
+            this);
         return true;
     }
 
@@ -409,7 +434,8 @@ bool DynamicTTM::RenderDialog(const BAK::ShowDialog& dialog)
             }
         }
 
-        return true;
+        // Dialog type 3 doesn't wait for click
+        return mDialogType != 3;
     }
     else
     {
