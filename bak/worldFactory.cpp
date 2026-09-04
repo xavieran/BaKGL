@@ -88,7 +88,7 @@ ZoneItem::ZoneItem(
     mEntityType{static_cast<EntityType>(model.mEntityType)},
     mTerrainType{model.mTerrainType},
     mScale{static_cast<float>(1 << model.mScale)},
-    mSpriteIndex{model.mSprite},
+    mSprite{model.mSprite},
     mColors{},
     mVertices{},
     mPalettes{},
@@ -97,7 +97,7 @@ ZoneItem::ZoneItem(
     mModelClip{clip}
 {
     // True 3D model
-    if (mSpriteIndex == 0 || mSpriteIndex > 400)
+    if (!mSprite)
     {
         for (const auto& vertex : model.mVertices)
         {
@@ -163,7 +163,7 @@ ZoneItem::ZoneItem(
     else
     {
         // Need this to set the right dimensions for the texture
-        const auto& tex = textureStore.GetTexture(mSpriteIndex);
+        const auto& tex = textureStore.GetTexture(mSprite->mSpriteIndex);
         const auto spriteScale = 7.0f;
         auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * spriteScale);
         auto height = tex.GetTargetHeight() * spriteScale * 1.2;
@@ -182,7 +182,7 @@ ZoneItem::ZoneItem(
         mPush.emplace_back(false);
 
         mPalettes.emplace_back(0x91);
-        mColors.emplace_back(model.mSprite);
+        mColors.emplace_back(mSprite->mSpriteIndex);
     }
 
     if (undergroundModel != nullptr && !undergroundModel->mComponents.empty())
@@ -205,7 +205,7 @@ ZoneItem::ZoneItem(
     mEntityType{},
     mTerrainType{},
     mScale{1},
-    mSpriteIndex{spriteIndex},
+    mSprite{Sprite{static_cast<std::uint16_t>(spriteIndex), glm::uvec2{}, 0, 0}},
     mColors{},
     mVertices{},
     mPalettes{},
@@ -241,7 +241,7 @@ ZoneItem::ZoneItem(
 
 void ZoneItem::SetPush(unsigned i){ mPush[i] = true; }
 const std::string& ZoneItem::GetName() const { return mName; }
-bool ZoneItem::IsSprite() const { return mSpriteIndex > 0 && mSpriteIndex < 400; }
+bool ZoneItem::IsSprite() const { return bool{mSprite}; }
 float ZoneItem::GetScale() const { return mScale; }
 bool ZoneItem::GetClickable() const
 {
