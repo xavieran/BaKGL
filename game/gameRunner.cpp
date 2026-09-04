@@ -272,8 +272,18 @@ void GameRunner::LoadZoneData(BAK::ZoneNumber zone)
     mCombatManager.SetGridColor(
         mZoneData->mPalette.GetColor(BAK::LoadCombatGridColour(zone)));
 
-    mPartyCamera.SetGameLocation(mGameState.GetLocation());
+    auto loadLocation = mGameState.GetLocation();
+    loadLocation.mHeading = BAK::SnapHeading(
+        loadLocation.mHeading, BAK::gBakSmallRotationBakHeading);
+    mPartyCamera.SetGameLocation(loadLocation);
     mCurrentTile = mPartyCamera.GetGameTile();
+
+    if (!mPreviousZone || *mPreviousZone != zone)
+    {
+        mMovementManager.ClearFollowRoad();
+    }
+    mPreviousZone = zone;
+
     mMovementManager.RefreshAfterZoneLoad();
 
     const auto fieldOfView = GetZoneFieldOfView();

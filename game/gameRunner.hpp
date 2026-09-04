@@ -261,6 +261,8 @@ public:
 
     glm::uvec2 mCurrentTile{};
 
+    std::optional<BAK::ZoneNumber> mPreviousZone{};
+
     const Logging::Logger& mLogger;
 };
 

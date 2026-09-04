@@ -68,6 +68,7 @@ public:
 
     void ToggleFollowRoad();
     void SetFollowRoadButtonVisible(bool visible);
+    void ClearFollowRoad();
 
     void RefreshAfterZoneLoad();
     void UpdateTerrainHeight();

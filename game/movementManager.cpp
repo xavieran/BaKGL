@@ -326,6 +326,12 @@ void MovementManager::ToggleFollowRoad()
     }
 }
 
+void MovementManager::ClearFollowRoad()
+{
+    mGameState.SetFollowRoad(false);
+    mGuiManager.GetMainView().SetFollowRoadActive(false);
+}
+
 float MovementManager::ComputeTerrainHeight(BAK::GamePosition playerPos) const
 {
     if (!mSystems)
