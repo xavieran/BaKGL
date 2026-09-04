@@ -45,27 +45,27 @@ struct hash<StrongType<U, Tag>>
 
 }
 
-// [min, max)
+// [Min, Max)
 template <
     typename StrongT,
-    typename StrongT::UnderlyingType min,
-    typename StrongT::UnderlyingType max>
+    typename StrongT::UnderlyingType Min,
+    typename StrongT::UnderlyingType Max>
 class Bounded : public StrongT
 {
 public:
-    using ConcreteType = Bounded<StrongT, min, max>;
+    using ConcreteType = Bounded<StrongT, Min, Max>;
     using typename StrongT::UnderlyingType;
 
     constexpr explicit Bounded(UnderlyingType v) noexcept
     :
         StrongT{v}
     {
-        ASSERT(v >= min && v < max);
+        ASSERT(v >= Min && v < Max);
     }
 
     auto operator<=>(const ConcreteType&) const = default;
 
-    constexpr Bounded() noexcept : StrongT{min} {}
+    constexpr Bounded() noexcept : StrongT{Min} {}
 
     constexpr Bounded(const ConcreteType&) noexcept = default;
     constexpr ConcreteType& operator=(const ConcreteType&) noexcept = default;
@@ -78,11 +78,11 @@ namespace std {
 
 template <
     typename StrongT,
-    typename StrongT::UnderlyingType min,
-    typename StrongT::UnderlyingType max>
-struct hash<Bounded<StrongT, min, max>>
+    typename StrongT::UnderlyingType Min,
+    typename StrongT::UnderlyingType Max>
+struct hash<Bounded<StrongT, Min, Max>>
 {
-	std::size_t operator()(const Bounded<StrongT, min, max>& t) const noexcept
+	std::size_t operator()(const Bounded<StrongT, Min, Max>& t) const noexcept
 	{
 		return std::hash<StrongT>{}(t);
 	}
