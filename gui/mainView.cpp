@@ -139,8 +139,6 @@ void MainView::HandleMapView()
     {
         mGuiManager.DoFade(1.0, [&]{
             mGuiManager.GetCameraManager().ShowOverheadView();
-            mIsInMapView = true;
-            AddChildren();
         });
     }
 }
@@ -151,8 +149,6 @@ void MainView::HandleExit()
     {
         mGuiManager.DoFade(1.0, [&]{
             mGuiManager.GetCameraManager().ShowFirstPersonView();
-            mIsInMapView = false;
-            AddChildren();
         });
     }
     else
@@ -255,6 +251,15 @@ void MainView::SetZoomInVisible(bool visible)
 {
     mZoomInVisible = visible;
     AddChildren();
+}
+
+void MainView::SetInMapView(bool inMapView)
+{
+    if (inMapView != mIsInMapView)
+    {
+        mIsInMapView = inMapView;
+        AddChildren();
+    }
 }
 
 bool MainView::OnMouseEvent(const MouseEvent& event)

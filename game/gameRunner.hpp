@@ -100,6 +100,7 @@ public:
     void LoadSystems();
 
     void DoGenericContainer(BAK::EntityType et, BAK::GenericContainer& container, BAK::EntityIndex entityIndex);
+    bool DoEncounter(const BAK::Encounter::Encounter& encounter);
     bool CheckAndDoEncounter(glm::uvec2 position);
     
     void RunGameUpdate(bool advanceTime);
@@ -165,6 +166,7 @@ private:
     void AnimateCrossPit(BAK::EntityIndex entityIndex);
     void UpdatePartyMarkerScale(glm::uvec2 orthoDims);
     void UpdatePartyMarker();
+    void CheckAndRestoreOverheadView();
     glm::uvec2 GetOrthoViewDimensions() const;
     float GetZoneFieldOfView() const;
     void UpdateOrthoProjection(glm::uvec2 dims);
@@ -210,6 +212,7 @@ public:
     glm::vec3 mSavedCameraPos{};
     glm::vec2 mSavedCameraAngle{};
     bool mCombatCameraActive{false};
+    bool mWasInOverheadView{false};
     BAK::CardinalDirection mRetreatDirection{};
 
     bool mGridVisible{false};

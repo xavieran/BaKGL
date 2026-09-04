@@ -152,6 +152,7 @@ void GameRunner::DoTeleport(BAK::Encounter::Teleport teleport)
 
 void GameRunner::LoadGame(std::string savePath, std::optional<BAK::Chapter> chapter)
 {
+    mWasInOverheadView = false;
     mGameState.LoadGame(savePath);
     if (chapter)
     {
@@ -167,7 +168,9 @@ void GameRunner::ToggleFollowRoad()
 
 void GameRunner::ShowOverheadView()
 {
+    mWasInOverheadView = false;
     mGameState.SetOverheadView(true);
+    mGuiManager.GetMainView().SetInMapView(true);
     ToggleUndergroundModels();
     UpdateOrthoProjection(mZoomManager.CalculateZoom(GetOrthoViewDimensions()));
     UpdateOverheadVisibility();
@@ -176,7 +179,9 @@ void GameRunner::ShowOverheadView()
 
 void GameRunner::ShowFirstPersonView()
 {
+    mWasInOverheadView = false;
     mGameState.SetOverheadView(false);
+    mGuiManager.GetMainView().SetInMapView(false);
     ToggleUndergroundModels();
 
     mViewCamera.UsePerspectiveMatrix();
@@ -185,8 +190,22 @@ void GameRunner::ShowFirstPersonView()
     ShowOverheadHidden();
 }
 
+void GameRunner::CheckAndRestoreOverheadView()
+{
+    if (!mWasInOverheadView
+        || !mGuiManager.InMainView()
+        || mGuiManager.GetCombatSequenceActive())
+    {
+        return;
+    }
+
+    ShowOverheadView();
+}
+
 void GameRunner::UpdateViewCamera()
 {
+    CheckAndRestoreOverheadView();
+
     if (mGameState.GetOverheadView())
     {
         auto position = mPartyCamera.GetPosition();
@@ -1048,6 +1067,20 @@ void GameRunner::EnterCombatFromEncounter()
         });
 }
 
+bool GameRunner::DoEncounter(const BAK::Encounter::Encounter& encounter)
+{
+    const bool wasOverhead = mGameState.GetOverheadView() && mGuiManager.InMainView();
+    const auto handled = mEncounterHandler.DoEncounter(encounter);
+
+    if (wasOverhead && !mGuiManager.InMainView())
+    {
+        ShowFirstPersonView();
+        mWasInOverheadView = true;
+    }
+
+    return handled;
+}
+
 bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
 {
     auto intersectables = mSystems->RunIntersection(
@@ -1065,7 +1098,7 @@ bool GameRunner::CheckAndDoEncounter(glm::uvec2 position)
         mActiveEncounter = encounter;
         if (mActiveEncounter)
         {
-            auto handled = mEncounterHandler.DoEncounter(*mActiveEncounter);
+            auto handled = DoEncounter(*mActiveEncounter);
             if (handled)
             {
                 return true;
@@ -1145,7 +1178,7 @@ void GameRunner::RunGameUpdate(bool advanceTime)
             if (encounter)
             {
                 mActiveEncounter = encounter;
-                auto handled = mEncounterHandler.DoEncounter(*encounter);
+                auto handled = DoEncounter(*encounter);
                 if (handled)
                 {
                     break;

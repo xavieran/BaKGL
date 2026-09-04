@@ -13,6 +13,7 @@ public:
     virtual void SetFollowRoadActive(bool active) = 0;
     virtual void SetZoomOutVisible(bool visible) = 0;
     virtual void SetZoomInVisible(bool visible) = 0;
+    virtual void SetInMapView(bool inMapView) = 0;
 
     virtual ~IMainView() = default;
 };
