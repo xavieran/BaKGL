@@ -156,17 +156,28 @@ std::optional<GameHeading> SnapHeadingIfOvershot(
     GameHeading newHeading,
     GameHeading targetHeading)
 {
-    const auto forwardDist =
-        (newHeading - oldHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
-
-    if (forwardDist == 0 || forwardDist >= gBakHeadingHalfCircle)
+    if (oldHeading == newHeading)
         return std::nullopt;
 
-    const auto distToTarget =
-        (targetHeading - oldHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
+    const auto ccwDist =
+        (newHeading - oldHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
+    const auto cwDist =
+        (oldHeading - newHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
 
-    if (distToTarget > 0 && distToTarget <= forwardDist)
-        return targetHeading;
+    if (ccwDist <= cwDist)
+    {
+        const auto distToTarget =
+            (targetHeading - oldHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
+        if (distToTarget > 0 && distToTarget <= ccwDist)
+            return targetHeading;
+    }
+    else
+    {
+        const auto distToTarget =
+            (oldHeading - targetHeading + gBakHeadingFullCircle) % gBakHeadingFullCircle;
+        if (distToTarget > 0 && distToTarget <= cwDist)
+            return targetHeading;
+    }
 
     return std::nullopt;
 }
