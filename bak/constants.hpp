@@ -15,8 +15,7 @@ static constexpr auto gNativeScreenHeight = 200;
 static constexpr float gTileSize = 64000.;
 static constexpr auto gCellSize = 1600;
 static constexpr auto gHalfCellSize = gCellSize / 2;
-static constexpr auto gRotationSearchAmount = 100.0f;
-static constexpr auto gRotationSearchDistance = 100.0f;
+static constexpr auto gRotationSearchDistance = 400.0f;
 
 static constexpr auto gCombatGridCellSize = 300;
 static constexpr auto gCombatGridRows = 13u;

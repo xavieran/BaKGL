@@ -379,7 +379,8 @@ std::optional<BAK::GameHeading> MovementManager::GetOpenDirection(
         return GetOpenDirectionFollowRoad(playerLocation, distance);
     }
 
-    const auto currentHeading = playerLocation.mHeading;
+    const auto currentHeading = BAK::SnapHeading(
+        playerLocation.mHeading, BAK::gBakSmallRotationBakHeading);
 
     std::int16_t leftStep  = BAK::gBakSmallRotationBakHeading;
     leftStep = -leftStep;
