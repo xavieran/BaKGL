@@ -32,7 +32,7 @@ CombatModelLoader::CombatModelLoader()
     auto [models, _] = BAK::LoadTBL(tblBuf);
     for (unsigned i = 0; i < models.size(); i++)
     {
-        if (models[i].mEntityType == 0 && models[i].mSprite > 0)
+        if (models[i].mEntityType == 0 && models[i].mSprite)
         {
             logger.Debug() << "Loaded Combatant Model #" << i << " " << models[i].mName << "\n";
             mCombatModels.emplace_back(BAK::CombatModel{models[i]});

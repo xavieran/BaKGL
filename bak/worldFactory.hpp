@@ -83,7 +83,7 @@ private:
     EntityType mEntityType;
     TerrainType mTerrainType;
     float mScale;
-    unsigned mSpriteIndex;
+    std::optional<Sprite> mSprite;
     std::vector<std::uint8_t> mColors;
     std::vector<glm::vec<3, int>> mVertices;
     std::vector<std::uint8_t> mPalettes;

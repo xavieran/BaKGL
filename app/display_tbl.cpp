@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     for (unsigned i = 0; i < models.size(); i++)
     {
         logger.Info() << "Model #" << i << " " << models[i].mName << "\n";
-        if (models[i].mEntityType == 0 && models[i].mSprite > 0)
+        if (models[i].mEntityType == 0 && models[i].mSprite)
         {
             logger.Info() << "Combatant Model #" << i << " " << models[i].mName << "\n";
             BAK::CombatModel{models[i]};

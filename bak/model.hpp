@@ -50,10 +50,19 @@ struct ModelClip
     std::string mName;
 };
 
+struct Sprite
+{
+    std::uint16_t mSpriteIndex;
+    glm::uvec2 mOffset;
+    std::uint8_t mScaleFactor;
+    std::uint8_t mBaseVertex;
+};
+
 struct FaceOption
 {
     unsigned mFaceType;
     unsigned mEdgeCount;
+    std::optional<Sprite> mSprite;
     std::vector<glm::vec<4, std::uint8_t>> mFaceColors;
     std::vector<std::uint8_t> mPalettes;
     std::vector<std::vector<std::uint16_t>> mFaces;
@@ -76,7 +85,8 @@ struct Model
     unsigned mEntityType;
     std::uint8_t mTerrainType;
     unsigned mScale;
-    unsigned mSprite;
+    std::int16_t mRadius;
+    std::optional<Sprite> mSprite;
     glm::ivec3 mMin;
     glm::ivec3 mMax;
     glm::ivec3 mPos;

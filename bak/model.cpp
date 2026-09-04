@@ -32,6 +32,16 @@ inline std::ostream& operator<<(std::ostream& os, const FaceOption& m)
 
     return os;
 }
+
+inline std::ostream& operator<<(std::ostream& os, const Sprite& s)
+{
+    os << "Sprite { ix: " << +s.mSpriteIndex << " offset: "
+        << s.mOffset << " scale: " << +s.mScaleFactor
+        << " baseVertex: " << +s.mBaseVertex << "}";
+    return os;
+}
+
+
 inline std::ostream& operator<<(std::ostream& os, const Mesh& m)
 {
     os << "      FaceOptions: " << m.mFaceOptions.size() << "\n";
@@ -42,6 +52,7 @@ inline std::ostream& operator<<(std::ostream& os, const Mesh& m)
 
     return os;
 }
+
 inline std::ostream& operator<<(std::ostream& os, const Component& m)
 {
     os << "  Meshes: " << m.mMeshes.size() << "\n";
@@ -55,10 +66,14 @@ inline std::ostream& operator<<(std::ostream& os, const Component& m)
 }
 inline std::ostream& operator<<(std::ostream& os, const Model& m)
 {
-    os << m.mName << " EF: " << m.mEntityFlags << " ET: " << m.mEntityType 
-        << " TT: " << +m.mTerrainType << " Scale: " << m.mScale << " Sprite: " << m.mSprite
-        << "\n";
+    os << m.mName << " EF: " << m.mEntityFlags << " ET: " << m.mEntityType
+        << " TT: " << +m.mTerrainType << " Scale: " << m.mScale << " Radius: " << m.mRadius
+        << " Sprite: " << m.mSprite << "\n";
     os << " NumVertices: " << m.mVertices.size() << "\n";
+    if (m.mVertices.size() == 1)
+    {
+        os << "    vertex: " << m.mVertices.back() << "\n";
+    }
     os << " Components: " << m.mComponents.size() << "\n";
     for (unsigned i = 0; i < m.mComponents.size(); i++)
     {
@@ -304,7 +319,9 @@ std::vector<Model> LoadModels(FileBuffer& fb, const std::vector<std::string>& it
 
         auto componentCount = fb.GetUint16LE();
         auto baseOffset = fb.GetUint16LE();
-        fb.Skip(2);
+        auto radius = fb.GetSint16LE();
+
+        newModel.mRadius = radius;
 
         bool bounded = !(newModel.mEntityFlags & EF_UNBOUNDED);
         if (bounded)
@@ -390,12 +407,22 @@ std::vector<Model> LoadModels(FileBuffer& fb, const std::vector<std::string>& it
                     faceOption.mFaceType = faceType;
                     faceOption.mEdgeCount = edgeCount;
                     auto edgeOffset = fb.GetUint16LE();
-                    fb.Skip(2);
+                    auto extra = fb.GetUint16LE();
                     faceOffsetDatas.emplace_back(FaceData{faceType, edgeCount, edgeOffset});
 
                     if (faceType == 2)
                     {
-                        newModel.mSprite = edgeCount;
+                        std::uint8_t xOffset = edgeOffset >> 8;
+                        std::uint8_t yOffset = edgeOffset & 0xff;
+                        std::uint8_t baseVertex = extra >> 8;
+                        std::uint8_t scale = extra & 0xff;
+                        auto billboard = Sprite{
+                            static_cast<std::uint16_t>(edgeCount),
+                            glm::uvec2{xOffset, yOffset},
+                            scale,
+                            baseVertex};
+                        faceOption.mSprite = billboard;
+                        newModel.mSprite = billboard;
                         continue;
                     }
                 }
