@@ -613,6 +613,38 @@ void MovementManager::CommitPendingMove()
     SetFollowRoadButtonVisible(IsOnRoad(mCamera.GetGameLocation().mPosition));
 }
 
+void MovementManager::ApplyPendingTurn()
+{
+    const auto target = *mPendingTurnHeading;
+    const auto oldHeading = mCamera.GetHeading();
+
+    const auto delta = sAutoRotateSpeed * mCamera.GetDeltaTime();
+    auto angle = mCamera.GetAngle();
+
+    if (mPendingTurnDirection == BAK::CardinalDirection::West)
+    {
+        angle.x = BAK::NormaliseRadians(angle.x + delta);
+    }
+    else
+    {
+        angle.x = BAK::NormaliseRadians(angle.x - delta);
+    }
+    mCamera.SetAngle(angle);
+
+    const auto newHeading = mCamera.GetHeading();
+    if (const auto snapped = BAK::SnapHeadingIfOvershot(oldHeading, newHeading, target))
+    {
+        auto snappedAngle = BAK::ToGlAngle(*snapped);
+        snappedAngle.y = mCamera.GetAngle().y;
+        mCamera.SetAngle(snappedAngle);
+    }
+
+    if (mCamera.GetHeading() == target)
+    {
+        mPendingTurnHeading.reset();
+    }
+}
+
 void MovementManager::MoveLeft()
 {
     if (mGameState.GetFollowRoad())
@@ -643,6 +675,11 @@ float MovementManager::GetDefaultHeight() const
 
 void MovementManager::MoveForward(bool strafe)
 {
+    if (mPendingTurnHeading)
+    {
+        return;
+    }
+
     if (!mGameState.GetFollowRoad())
     {
         if (strafe)
@@ -724,6 +761,13 @@ void MovementManager::MoveBackward(bool strafe)
 
 bool MovementManager::Update()
 {
+    if (mPendingTurnHeading)
+    {
+        mCamera.RejectPendingMove();
+        ApplyPendingTurn();
+        return true;
+    }
+
     if (!mCamera.HasPendingMove())
     {
         return false;
@@ -769,7 +813,16 @@ bool MovementManager::Update()
 
     if (openHeading)
     {
-        RotateTowardOpenHeading(*openHeading, gameLocation.mHeading);
+        if (mGameState.IsUnderground())
+        {
+            mPendingTurnHeading = *openHeading;
+            mPendingTurnDirection = BAK::GetRotationDirection(
+                gameLocation.mHeading, *openHeading);
+        }
+        else
+        {
+            RotateTowardOpenHeading(*openHeading, gameLocation.mHeading);
+        }
     }
     else
     {
