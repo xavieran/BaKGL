@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bak/entityType.hpp"
+
 #include <glm/glm.hpp>
 
 #include <optional>
@@ -10,8 +12,11 @@ struct ClipElement;
 struct ModelClip;
 class ZoneItem;
 
+bool AllowsMovement(EntityType type);
+
 bool PointInClipElement(glm::vec2 point, const ClipElement& element);
 bool PointInModelClip(glm::vec2 point, const ModelClip&);
+
 bool BlocksMovement(const ZoneItem&);
 bool AllowsMovement(const ZoneItem&);
 
