@@ -57,6 +57,7 @@ public:
     void SetFollowRoadActive(bool active) override;
     void SetZoomOutVisible(bool visible) override;
     void SetZoomInVisible(bool visible) override;
+    void SetInMapView(bool inMapView) override;
     [[nodiscard]] bool OnMouseEvent(const MouseEvent& event) override;
 private:
     void AddChildren();
