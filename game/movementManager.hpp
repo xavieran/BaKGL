@@ -38,6 +38,8 @@ struct PitCross
 class MovementManager
 {
 public:
+    static constexpr float sAutoRotateSpeed = 6.0;
+
     MovementManager(
         Camera& camera,
         BAK::GameState& gameState,
@@ -56,6 +58,8 @@ public:
     void SetSpeedScale(float scale);
 
     bool Update();
+
+    void ApplyPendingTurn();
 
     bool CannotMoveHere(BAK::GamePosition playerPos) const;
     bool IsOnRoad(BAK::GamePosition playerPos) const;
@@ -97,6 +101,9 @@ private:
     float mDefaultHeight{BAK::gBakCameraHeight};
     bool mClipEnabled{false};
     bool mWallSlide{false};
+
+    std::optional<BAK::GameHeading> mPendingTurnHeading;
+    BAK::CardinalDirection mPendingTurnDirection{};
 
     const Logging::Logger& mLogger;
 };
