@@ -105,20 +105,25 @@ void CombatModelLoader::LoadMonsterSprites(BAK::MonsterIndex m)
             const auto& animation = model.GetAnimation(animType, direction);
             offsetMap.emplace(
                 AnimationRequest{animType, direction},
-                AnimationMeta{objects.size(), animation.mImageIndices.size()});
+                AnimationMeta{objects.size(), animation.mFrames.size()});
 
-            for (const auto& index : animation.mImageIndices)
+            for (const auto& frame : animation.mFrames)
             {
                 assert(animation.mSpriteFileIndex < offsets.size());
                 logger.Spam() << "SFI: " << +animation.mSpriteFileIndex << " offset: "
-                    << offsets[animation.mSpriteFileIndex] << " index: " << +index << "\n";
-                const auto fullOffset = offsets[animation.mSpriteFileIndex] + index;
+                    << offsets[animation.mSpriteFileIndex] << " index: " << +frame.mSpriteIndex << "\n";
+                const auto fullOffset = offsets[animation.mSpriteFileIndex] + frame.mSpriteIndex;
                 if (fullOffset >= textureStore.size())
                 {
                     logger.Error() << "Image offset past loaded textures:" << fullOffset << " >= size: " << textureStore.size() << "\n";
                     continue;
                 }
-                auto zoneItem = BAK::ZoneItem(fullOffset, textureStore.GetTexture(fullOffset));
+                auto zoneItem = BAK::ZoneItem(
+                    fullOffset,
+                    textureStore.GetTexture(fullOffset),
+                    model.GetRadius(),
+                    model.GetScale(),
+                    frame.mScaleFactor);
                 ss.clear();
                 ss << objects.size();
                 auto offset = objects.AddObject(

@@ -58,7 +58,10 @@ public:
 
     ZoneItem(
         unsigned spriteIndex,
-        const Graphics::Texture& textureStore);
+        const Graphics::Texture& textureStore,
+        std::int16_t radius,
+        std::uint8_t scale,
+        std::uint8_t scaleFactor);
 
     void SetPush(unsigned i);
     const std::string& GetName() const;

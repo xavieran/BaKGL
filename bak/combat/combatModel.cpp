@@ -53,7 +53,9 @@ BAK::Direction ToSpriteDirection(Direction direction)
 
 CombatModel::CombatModel(const Model& model)
 :
-    mCombatAnimations{}
+    mCombatAnimations{},
+    mRadius{model.mRadius},
+    mScale{static_cast<std::uint8_t>(model.mScale)}
 {
     const auto& logger = Logging::Logger("CombatModel");
 
@@ -118,9 +120,9 @@ CombatModel::CombatModel(const Model& model)
         unsigned fo = 0;
         for (const auto& direction : directions)
         {
-            animations[std::to_underlying(direction)] = CombatAnimation{spriteFileIndex, std::vector<std::uint8_t>{}};
+            animations[std::to_underlying(direction)] = CombatAnimation{spriteFileIndex, std::vector<Sprite>{}};
             logger.Debug() << "  Handling dir: " << +std::to_underlying(direction) << " " << ToString(direction) << "\n";
-            auto& imageIndices = animations[std::to_underlying(direction)].mImageIndices;
+            auto& frames = animations[std::to_underlying(direction)].mFrames;
             for (unsigned j = 0; j < animationCount; j++)
             {
                 if (fo >= faceOptions.size())
@@ -128,10 +130,11 @@ CombatModel::CombatModel(const Model& model)
                     logger.Debug() << "Exceeded face options on model: " << model.mName << std::endl;
                     continue;
                 }
-                const auto spriteIndex = faceOptions[fo++].mEdgeCount;
-                imageIndices.emplace_back(spriteIndex);
-                lastSpriteIndex = spriteIndex;
-                logger.Debug() << "    Placing SI: " << +spriteIndex << "\n";
+                const auto& faceOption = faceOptions[fo++];
+                assert(faceOption.mSprite);
+                frames.emplace_back(*faceOption.mSprite);
+                lastSpriteIndex = faceOption.mSprite->mSpriteIndex;
+                logger.Debug() << "    Placing SI: " << +lastSpriteIndex << "\n";
             }
         }
     }

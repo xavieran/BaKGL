@@ -9,6 +9,8 @@ namespace BAK {
 
 static constexpr float gWorldScale = 100.;
 
+static constexpr float gVGAPixelStretch= 1.2f;
+
 static constexpr auto gNativeScreenWidth = 320;
 static constexpr auto gNativeScreenHeight = 200;
 
