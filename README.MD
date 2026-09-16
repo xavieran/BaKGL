@@ -33,6 +33,7 @@ Here's a very quick look at some gameplay.
 * Chapter progression
 * Cutscenes/Book excerpts
 * Graphics modding
+* Movement clipping
 * Music and sound
 * Quests and story
 * Shops and inventory
@@ -42,9 +43,8 @@ Here's a very quick look at some gameplay.
 * World exploration
 * World map
 
-## To do
+## In Progress
 * Combat
-* Movement clipping
 * Lots of polishing!
 
 See the [issues](https://github.com/xavieran/BaKGL/issues) page to see what remains.
