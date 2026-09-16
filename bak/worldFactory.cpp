@@ -164,9 +164,17 @@ ZoneItem::ZoneItem(
     {
         // Need this to set the right dimensions for the texture
         const auto& tex = textureStore.GetTexture(mSprite->mSpriteIndex);
-        const auto spriteScale = 7.0f;
-        auto width  = static_cast<int>(static_cast<float>(tex.GetTargetWidth()) * spriteScale);
-        auto height = tex.GetTargetHeight() * spriteScale * 1.2;
+        const auto imageWidth = static_cast<float>(tex.GetTargetWidth());
+        const auto imageHeight = static_cast<float>(tex.GetTargetHeight());
+        const auto maxDim = std::max(imageWidth, imageHeight);
+        const auto scaleFactor = mSprite->mScaleFactor == 0
+            ? 256.0f
+            : static_cast<float>(mSprite->mScaleFactor);
+
+        const auto majorAxis = (2.0f * static_cast<float>(model.mRadius) * scaleFactor) / 256.0f;
+
+        auto width  = static_cast<int>((imageWidth / maxDim) * majorAxis);
+        auto height = (imageHeight / maxDim) * majorAxis * gVGAPixelStretch;
         auto halfWidth = width / 2;
         mVertices.emplace_back(-halfWidth, height, 0);
         mVertices.emplace_back(halfWidth, height, 0);
@@ -198,7 +206,10 @@ ZoneItem::ZoneItem(
 
 ZoneItem::ZoneItem(
     unsigned spriteIndex,
-    const Graphics::Texture& texture)
+    const Graphics::Texture& texture,
+    std::int16_t radius,
+    std::uint8_t scale,
+    std::uint8_t scaleFactor)
 :
     mName{""},
     mEntityFlags{0},
@@ -214,9 +225,14 @@ ZoneItem::ZoneItem(
     mModelClip{std::nullopt}
 {
     // Need this to set the right dimensions for the texture
-    const auto spriteScale = 5.0f;
-    auto width  = static_cast<int>(static_cast<float>(texture.GetTargetWidth()) * spriteScale);
-    auto height = texture.GetTargetHeight() * spriteScale * 1.2;
+    const auto imageWidth = static_cast<float>(texture.GetTargetWidth());
+    const auto imageHeight = static_cast<float>(texture.GetTargetHeight());
+    const auto maxDim = std::max(imageWidth, imageHeight);
+    const auto scaleFactorF = scaleFactor == 0 ? 256.0f : static_cast<float>(scaleFactor);
+    const auto majorAxis = (2.0f * static_cast<float>(radius << scale) * scaleFactorF) / 256.0f;
+
+    auto width  = static_cast<int>((imageWidth / maxDim) * majorAxis);
+    auto height = (imageHeight / maxDim) * majorAxis * gVGAPixelStretch;
     auto halfWidth = width / 2;
     mVertices.emplace_back(-halfWidth, height, 0);
     mVertices.emplace_back(halfWidth, height, 0);
